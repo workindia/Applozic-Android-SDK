@@ -4,6 +4,7 @@ before_install:
   - chmod +x gradlew
   - sudo apt-get update -qq
   - sudo apt-get install -y libxml2-dev
+install: ./gradlew assemble --stacktrace
 android:
   components:
     # The BuildTools version used by your project
@@ -24,8 +25,3 @@ android:
     # if you need to run emulator(s) during your tests
     # - sys-img-armeabi-v7a-android-22
 
-
-addons:
-  artifacts:
-    # ...
-    debug: true
