@@ -23,6 +23,11 @@ android {
             applicationIdSuffix ".debug"
         }
     }
+    lintOptions {
+
+          abortOnError false
+
+    }
 
 
     packagingOptions {
