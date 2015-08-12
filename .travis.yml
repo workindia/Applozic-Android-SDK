@@ -29,6 +29,5 @@ notifications:
   email:
     recipients:
       - ranjeet@applozic.com
-    on_success: # default: change
-    on_failure: # default: always
+
 
