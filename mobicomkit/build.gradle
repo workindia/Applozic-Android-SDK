@@ -29,7 +29,7 @@ dependencies {
     compile('org.apache.httpcomponents:httpmime:4.3.5') {
         exclude module: 'org.apache.httpcomponents:httpclient'
     }
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.google.code.gson:gson:2.2.4'
     compile project(':mobicommons')
 }
