@@ -25,3 +25,10 @@ android:
     # if you need to run emulator(s) during your tests
     # - sys-img-armeabi-v7a-android-22
 
+notifications:
+  email:
+    recipients:
+      - ranjeet@applozic.com
+    on_success: # default: change
+    on_failure: # default: always
+
