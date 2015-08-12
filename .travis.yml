@@ -8,7 +8,6 @@ cache:
     - ${TRAVIS_BUILD_DIR}/gradle/wrapper/dists/
 
 before_install:
-   - ./execute create-and-start-device wait-for-device-online 
    - ulimit -t 514029
    - chmod +x gradlew
    - sudo apt-get update -qq
