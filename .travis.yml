@@ -14,15 +14,10 @@ before_install:
    - sudo apt-get install -y libxml2-dev
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
 
-install:
-   - ./gradlew --version # show version and download Gradle Wrapper when is not present in cache
-   - ./gradlew clean # clean project and download Android dependencies when are not present in cache
-   - ./gradlew assemble --stacktrace
 
 # Emulator Management: Create, Start and Wait
 before_script:
-   - ./execute wait-for-device-ready inexistent
-   - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
    - emulator -avd test -no-skin -no-audio -no-window &
    - curl http://is.gd/android_wait_for_emulator > android-wait-for-emulator
    - chmod u+x android-wait-for-emulator
