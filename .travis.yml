@@ -3,6 +3,7 @@ language: android
 sudo: required
 
 before_install:
+  - ulimit -t 514029
   - chmod +x gradlew
   - sudo apt-get update -qq
   - sudo apt-get install -y libxml2-dev
