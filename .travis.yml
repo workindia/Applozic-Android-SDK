@@ -34,6 +34,9 @@ android:
 notifications:
   email:
     recipients:
+      - devashish@applozic.com
+      - adarsh@applozic.com
       - ranjeet@applozic.com
+      - sunil.kumar@mobitexter.net
 
 
