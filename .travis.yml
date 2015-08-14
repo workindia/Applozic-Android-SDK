@@ -39,8 +39,3 @@ notifications:
       - ranjeet@applozic.com
       - sunil.kumar@mobitexter.net
 
-after_success:
-  - "cd android/target"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/$TRAVIS_BUILD_NUMBER"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/latest"
-
