@@ -30,9 +30,6 @@ before_install:
    - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${HOME}/.bundle/ruby/1.9.1/bin
    - export GEM_PATH=${HOME}/.bundle/ruby/1.9.1:${GEM_PATH}
 
-   # Install 3.0.5 maven
-   - bin/install_maven
-
    # Install Ruby requirements
    - bin/cache_deps -a $ARTIFACTS_AWS_ACCESS_KEY_ID -b $ARTIFACTS_S3_BUCKET -d 'Gemfile.lock' -e $HOME -f ".bundle" -i "bin/install_gems" -p "android/bundles" -s $ARTIFACTS_AWS_SECRET_ACCESS_KEY
 
