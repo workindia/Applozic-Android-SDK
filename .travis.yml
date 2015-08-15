@@ -2,26 +2,13 @@ language: android
 
 sudo: required
 
-addons:
-  artifacts: true
-  
-env:
-
-  global:
-    - "ARTIFACTS_AWS_REGION=US Standard"
-    - "ARTIFACTS_S3_BUCKET=applozic-android-sdk"
-    # travis-artifacts ARTIFACTS_AWS_ACCESS_KEY_ID
-    - secure: "AKIAJ557XVVG6LKPBBTQ"
-    # travis-artifacts ARTIFACTS_AWS_SECRET_ACCESS_KEY
-    - secure: "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"
-
 before_install:
    - ulimit -t 514029
    - chmod +x gradlew
    - sudo apt-get update -qq
    - sudo apt-get install -y libxml2-dev
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
-   
+
 script: ./gradlew test
 
 android:
@@ -52,7 +39,3 @@ notifications:
       - ranjeet@applozic.com
       - sunil.kumar@mobitexter.net
 
-after_success:
-  - "cd applozic-android-sdk/builds"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/$TRAVIS_BUILD_NUMBER"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/latest"  
