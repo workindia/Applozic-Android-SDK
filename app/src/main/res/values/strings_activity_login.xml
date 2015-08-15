@@ -20,6 +20,7 @@
     <string name="mobi_com_alpha_appspot">https://mobi-com-alpha.appspot.com</string>
     <string name="mobicomkit_test_appspot">https://mobicomkit-test.appspot.com</string>
     <string-array name="select_url">
+        <item>Nothing Selected</item>
         <item>https://applozic.appspot.com</item>
         <item>https://mobi-com.appspot.com</item>
         <item>https://mobi-com-alpha.appspot.com</item>
