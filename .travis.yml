@@ -2,46 +2,12 @@ language: android
 
 sudo: required
 
-source 'https://rubygems.org'
-gem 'travis', '1.5.4'
-gem 'travis-artifacts', '~>0.1'
-
-env:
-  matrix:
-    - ANDROID_TARGET=android-18  ANDROID_ABI=armeabi-v7a
-    
-  global:
-    - "ARTIFACTS_AWS_REGION=US Standard"
-    - "ARTIFACTS_S3_BUCKET=applozic-android-sdk"
-    # travis-artifacts ARTIFACTS_AWS_ACCESS_KEY_ID
-    - secure: "AKIAJ557XVVG6LKPBBTQ"
-    # travis-artifacts ARTIFACTS_AWS_SECRET_ACCESS_KEY
-    - secure: "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"
-    
-cache:
-  - apt
-  
 before_install:
    - ulimit -t 514029
    - chmod +x gradlew
    - sudo apt-get update -qq
    - sudo apt-get install -y libxml2-dev
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
-  
-   - sudo apt-get install -qq --force-yes expect libgd2-xpm ia32-libs ia32-libs-multiarch s3cmd > /dev/null
-   - export ANDROID_HOME=${HOME}/applozic-android-build/
-   - export ANDROID_APP_DIR=${PWD}
-   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools:${HOME}/.bundle/ruby/1.9.1/bin
-   - export GEM_PATH=${HOME}/.bundle/ruby/1.9.1:${GEM_PATH}
-
-   # Install 3.0.5 maven
-   - bin/install_maven
-
-   # Install Ruby requirements
-   - bin/cache_deps -a $ARTIFACTS_AWS_ACCESS_KEY_ID -b $ARTIFACTS_S3_BUCKET -d 'Gemfile.lock' -e $HOME -f ".bundle" -i "bin/install_gems" -p "android/bundles" -s $ARTIFACTS_AWS_SECRET_ACCESS_KEY
-
-   # Install Android requirements
-   - bin/cache_deps -a $ARTIFACTS_AWS_ACCESS_KEY_ID -b $ARTIFACTS_S3_BUCKET -d 'deps.txt' -e $HOME -f "android-sdk-linux" -i "./bin/install_sdk" -p "android/deps" -s $ARTIFACTS_AWS_SECRET_ACCESS_KEY
 
 script: ./gradlew test
 
@@ -66,19 +32,10 @@ android:
     #- sys-img-armeabi-v7a-android-22
 
 notifications:
-  webhooks:
-    urls:
-      # build-artifacts app
-      - http://ancient-foot-stomps-alligator.herokuapp.com/travisci/
   email:
     recipients:
       - devashish@applozic.com
       - adarsh@applozic.com
       - ranjeet@applozic.com
-      - sunil.kumar@mobitexter.
-      
-after_success:
-  - "cd applozic-android-sdk/builds"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/$TRAVIS_BUILD_NUMBER"
-  - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/latest"      
+      - sunil.kumar@mobitexter.net
 
