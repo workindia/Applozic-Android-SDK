@@ -5,8 +5,8 @@ sudo: false
 before_install:
    - ulimit -t 514029
    - chmod +x gradlew
-   - sudo apt-get update -qq
-   - sudo apt-get install -y libxml2-dev
+   #- sudo apt-get update -qq
+   #- sudo apt-get install -y libxml2-dev
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
 
 script: ./gradlew test
