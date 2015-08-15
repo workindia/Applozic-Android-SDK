@@ -11,8 +11,8 @@ env:
     - ANDROID_TARGET=android-18  ANDROID_ABI=armeabi-v7a
     
   global:
-    - "ARTIFACTS_AWS_REGION=us-east-1"
-    - "ARTIFACTS_S3_BUCKET=shared_bucket"
+    - "ARTIFACTS_AWS_REGION=US Standard"
+    - "ARTIFACTS_S3_BUCKET=applozic-android-builds"
     # travis-artifacts ARTIFACTS_AWS_ACCESS_KEY_ID
     - secure: "AKIAJ557XVVG6LKPBBTQ"
     # travis-artifacts ARTIFACTS_AWS_SECRET_ACCESS_KEY
