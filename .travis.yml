@@ -12,7 +12,7 @@ env:
     
   global:
     - "ARTIFACTS_AWS_REGION=US Standard"
-    - "ARTIFACTS_S3_BUCKET=applozic-android-builds"
+    - "ARTIFACTS_S3_BUCKET=applozic-android-sdk"
     # travis-artifacts ARTIFACTS_AWS_ACCESS_KEY_ID
     - secure: "AKIAJ557XVVG6LKPBBTQ"
     # travis-artifacts ARTIFACTS_AWS_SECRET_ACCESS_KEY
@@ -78,7 +78,7 @@ notifications:
       - sunil.kumar@mobitexter.
       
 after_success:
-  - "cd applozic-android-builds/target"
+  - "cd applozic-android-sdk/builds"
   - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/$TRAVIS_BUILD_NUMBER"
   - "bundle exec travis-artifacts upload --path android-1.0-SNAPSHOT-aligned.apk --target-path android-app/latest"      
 
