@@ -2,6 +2,10 @@ language: android
 
 sudo: required
 
+source 'https://rubygems.org'
+gem 'travis', '1.5.4'
+gem 'travis-artifacts', '~>0.1'
+
 before_install:
    - ulimit -t 514029
    - chmod +x gradlew
