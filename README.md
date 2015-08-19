@@ -14,7 +14,7 @@ Add messaging to any app
 
 Plug & Play Messaging library for android, iOS and web platforms.
 
-Instructions for Android: https://applozic.readme.io/docs/android-gettingstarted
+Instructions for Android: https://github.com/AppLozic/Applozic-Android-SDK/wiki/Getting-Started
 
 Want to contribute?
 Drop us a mail at contact@applozic.com
