@@ -257,6 +257,7 @@ public class LoginActivity extends Activity {
             showProgress(true);
 
             // callback for login process
+            final Activity activity = LoginActivity.this;
             UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {
 
                 @Override
@@ -265,7 +266,7 @@ public class LoginActivity extends Activity {
                     showProgress(false);
 
                     //Start GCM registration....
-                    GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(LoginActivity.this);
+                    GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 
                     //starting main MainActivity
