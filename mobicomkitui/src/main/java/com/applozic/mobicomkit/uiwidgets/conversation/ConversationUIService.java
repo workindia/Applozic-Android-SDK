@@ -45,6 +45,7 @@ public class ConversationUIService {
     private static final String TAG = "ConversationUIService";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
+    public static String DISPLAY_NAME = "displayName";
 
     public ConversationUIService(FragmentActivity fragmentActivity) {
         this.fragmentActivity = fragmentActivity;
@@ -316,7 +317,7 @@ public class ConversationUIService {
             contact = baseContactService.getContactById(userId);
         }
 
-        String fullName = intent.getStringExtra("displayName");
+        String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
             contact.setFullName(fullName);
         }
