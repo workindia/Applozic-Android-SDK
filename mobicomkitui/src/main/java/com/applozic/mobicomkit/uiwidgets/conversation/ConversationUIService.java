@@ -165,11 +165,13 @@ public class ConversationUIService {
 
     public void syncMessages(Message message, String keyString) {
         String userId = message.getContactIds();
+        Log.d("userId", "id" + userId);
 
         if (BroadcastService.isIndividual()) {
             ConversationFragment conversationFragment = getConversationFragment();
             if (userId.equals(conversationFragment.getCurrentUserId()) ||
                     conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
+                Log.d("conv", "userId" + conversationFragment.getCurrentUserId());
                 conversationFragment.addMessage(message);
             }
         }
@@ -217,9 +219,12 @@ public class ConversationUIService {
         if (!BroadcastService.isIndividual()) {
             return;
         }
+        Log.d("userId for update", "update" + formattedContactNumber);
         ConversationFragment conversationFragment = getConversationFragment();
         if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+            Log.d("userId for equals", "update" + conversationFragment.getContact().getContactIds());
             conversationFragment.updateDeliveryStatus(message);
+
         }
     }
 
@@ -293,7 +298,7 @@ public class ConversationUIService {
                 return;
             }
             contact = baseContactService.getContactById(String.valueOf(contactId));
-    }
+        }
 
         Long groupId = intent.getLongExtra("groupId", -1);
         String groupName = intent.getStringExtra("groupName");
@@ -302,7 +307,7 @@ public class ConversationUIService {
         }
 
         String contactNumber = intent.getStringExtra("contactNumber");
-        Log.d("UIService:","value is ="+contactNumber);
+        Log.d("UIService:", "value is =" + contactNumber);
 
         boolean firstTimeMTexterFriend = intent.getBooleanExtra("firstTimeMTexterFriend", false);
         if (!TextUtils.isEmpty(contactNumber)) {
@@ -313,9 +318,13 @@ public class ConversationUIService {
         }
 
         String userId = intent.getStringExtra("userId");
-        Log.d("userId","UserID="+userId);
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
+        }
+
+        String fullName = intent.getStringExtra("displayName");
+        if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
+            contact.setFullName(fullName);
         }
 
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
