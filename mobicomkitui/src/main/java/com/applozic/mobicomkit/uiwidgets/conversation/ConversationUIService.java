@@ -165,13 +165,11 @@ public class ConversationUIService {
 
     public void syncMessages(Message message, String keyString) {
         String userId = message.getContactIds();
-        Log.d("userId", "id" + userId);
 
         if (BroadcastService.isIndividual()) {
             ConversationFragment conversationFragment = getConversationFragment();
             if (userId.equals(conversationFragment.getCurrentUserId()) ||
                     conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
-                Log.d("conv", "userId" + conversationFragment.getCurrentUserId());
                 conversationFragment.addMessage(message);
             }
         }
@@ -219,10 +217,8 @@ public class ConversationUIService {
         if (!BroadcastService.isIndividual()) {
             return;
         }
-        Log.d("userId for update", "update" + formattedContactNumber);
         ConversationFragment conversationFragment = getConversationFragment();
         if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
-            Log.d("userId for equals", "update" + conversationFragment.getContact().getContactIds());
             conversationFragment.updateDeliveryStatus(message);
 
         }
@@ -263,7 +259,6 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult() {
-        Log.d("Inside ", "StartContactForResult");
         startContactActivityForResult(null, null);
     }
 
@@ -307,7 +302,6 @@ public class ConversationUIService {
         }
 
         String contactNumber = intent.getStringExtra("contactNumber");
-        Log.d("UIService:", "value is =" + contactNumber);
 
         boolean firstTimeMTexterFriend = intent.getBooleanExtra("firstTimeMTexterFriend", false);
         if (!TextUtils.isEmpty(contactNumber)) {
