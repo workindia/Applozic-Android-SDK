@@ -320,6 +320,7 @@ public class ConversationUIService {
         String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
             contact.setFullName(fullName);
+              baseContactService.upsert(contact);
         }
 
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);

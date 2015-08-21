@@ -28,6 +28,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private final String mEmail;
     private final String mPassword;
     private final String mPhoneNumber;
+    private final String mDisplayName;
     private final Context context;
     private Exception mException;
     private RegistrationResponse registrationResponse;
@@ -38,6 +39,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         mEmail = user.getEmailId();
         mPassword = user.getPassword();
         mPhoneNumber = user.getContactNumber();
+        mDisplayName = user.getDisplayName();
         this.taskListener = listener;
         this.context = context;
     }
@@ -45,7 +47,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber, "");
+            registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName, "");
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;
@@ -59,7 +61,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         // And if it is we call the callback function on it.
         if (result && this.taskListener != null) {
             this.taskListener.onSuccess(registrationResponse,context);
-
 
         } else if (mException != null && this.taskListener != null) {
             this.taskListener.onFailure(registrationResponse, mException);

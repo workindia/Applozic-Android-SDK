@@ -41,6 +41,7 @@ public class MobiComUserPreference {
     private static String last_sms_sync_time = "last_sms_sync_time";
     private static String new_message_flag = "new_message_flag";
     private static String base_url = "base_url";
+    private static String display_name = "display_name";
 
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
 
@@ -311,6 +312,14 @@ public class MobiComUserPreference {
 
     public void setUrl(String url) {
         sharedPreferences.edit().putString(base_url, url).commit();
+    }
+
+    public String getDisplayName(){
+        return sharedPreferences.getString(display_name,null);
+    }
+
+    public void setDisplayName(String displayName){
+        sharedPreferences.edit().putString(display_name, displayName).commit();
     }
 
     @Override

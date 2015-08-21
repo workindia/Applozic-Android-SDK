@@ -15,6 +15,7 @@ public class User extends JsonMarker {
     private String registrationId;
     private String applicationId;
     private String contactNumber;
+    private String displayName;
     private String countryCode;
     private Short prefContactAPI = Short.valueOf("2");
     private boolean emailVerified = true;
@@ -61,6 +62,10 @@ public class User extends JsonMarker {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getDisplayName() { return displayName;}
+
+    public void setDisplayName(String displayName) { this.displayName = displayName;}
 
     public String getRegistrationId() {
         return registrationId;

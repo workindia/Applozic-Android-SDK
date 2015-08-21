@@ -55,7 +55,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
 //        Log.i(TAG, "App Id is: " + getApplicationKey(context));
-
+        Log.i(TAG,"Registration json "+gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
 
         Log.i(TAG, "Registration response is: " + response);
@@ -73,6 +73,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
         mobiComUserPreference.setEmailVerified(user.isEmailVerified());
+        mobiComUserPreference.setDisplayName(user.getDisplayName());
         mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKeyString());
         mobiComUserPreference.setEmailIdValue(user.getEmailId());
         mobiComUserPreference.setSuUserKeyString(registrationResponse.getSuUserKeyString());
@@ -80,7 +81,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return registrationResponse;
     }
 
-    public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String pushNotificationId) throws Exception {
+    public RegistrationResponse createAccount(String email, String userId, String phoneNumber,String displayName, String pushNotificationId) throws Exception {
         User user = new User();
         user.setEmailId(email);
         user.setUserId(userId);
@@ -88,6 +89,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
         user.setRegistrationId(pushNotificationId);
+        user.setDisplayName(displayName);
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         user.setCountryCode(mobiComUserPreference.getCountryCode());
@@ -105,7 +107,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             pref.setDeviceRegistrationId(pushNotificationId);
         }
         if (pref.isRegistered()) {
-            registrationResponse = createAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pushNotificationId);
+            registrationResponse = createAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(),pref.getDisplayName(), pushNotificationId);
         }
         return registrationResponse;
     }
