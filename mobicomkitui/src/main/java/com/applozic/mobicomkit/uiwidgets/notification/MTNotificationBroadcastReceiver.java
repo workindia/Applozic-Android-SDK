@@ -29,7 +29,7 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        int notificationId = Utils.getMetaDataValueForResources(context, NOTIFICATION_ICON_METADATA);
+        Integer notificationId = Utils.getMetaDataValueForResources(context, NOTIFICATION_ICON_METADATA);
 
         String action = intent.getAction();
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
@@ -37,7 +37,7 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
         if (!TextUtils.isEmpty(messageJson)) {
             final Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
             final NotificationService notificationService =
-                    new NotificationService(notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
+                    new NotificationService(notificationId == null ? R.drawable.mobicom_ic_launcher : notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
 
             final Contact contact = new AppContactService(context).getContactById(message.getContactIds());
             new Thread(new Runnable() {

@@ -231,18 +231,18 @@ public class Utils {
     }
 
 
-    public static int getMetaDataValueForResources(Context context, String metaDataName) {
+    public static Integer getMetaDataValueForResources(Context context, String metaDataName) {
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
-                return ai.metaData.getInt(metaDataName);
-
+                Integer metaDataValue = ai.metaData.getInt(metaDataName);
+                return metaDataValue == 0 ? null : metaDataValue;
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
-        return 0;
+        return null;
     }
 
 
