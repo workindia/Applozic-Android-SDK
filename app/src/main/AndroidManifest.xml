@@ -121,6 +121,9 @@
         </receiver>
 
         <meta-data
+            android:name="com.applozic.mobicomkit.notification.icon"
+            android:resource="@drawable/ic_launcher" />
+        <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
@@ -145,7 +148,6 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
 
     </application>
 

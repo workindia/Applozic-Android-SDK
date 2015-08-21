@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -23,15 +24,20 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MTBroadcastReceiver";
 
+    private static String NOTIFICATION_ICON_METADATA = "com.applozic.mobicomkit.notification.icon";
+
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        int notificationId = Utils.getMetaDataValueForResources(context, NOTIFICATION_ICON_METADATA);
+
         String action = intent.getAction();
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         Log.i(TAG, "Received broadcast, action: " + action + ", message: " + messageJson);
         if (!TextUtils.isEmpty(messageJson)) {
             final Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
             final NotificationService notificationService =
-                    new NotificationService(R.drawable.mobicom_ic_launcher, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
+                    new NotificationService(notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
 
             final Contact contact = new AppContactService(context).getContactById(message.getContactIds());
             new Thread(new Runnable() {

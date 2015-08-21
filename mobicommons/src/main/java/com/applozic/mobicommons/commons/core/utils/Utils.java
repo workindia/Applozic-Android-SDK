@@ -230,6 +230,22 @@ public class Utils {
         return null;
     }
 
+
+    public static int getMetaDataValueForResources(Context context, String metaDataName) {
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            if (ai.metaData != null) {
+                return ai.metaData.getInt(metaDataName);
+
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return 0;
+    }
+
+
     public static String getMetaDataValueForReceiver(Context context, String componentName, String metaDataName) {
         try {
             ActivityInfo ai = context.getPackageManager().getReceiverInfo(new ComponentName(context, componentName), PackageManager.GET_META_DATA);
