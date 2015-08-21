@@ -45,6 +45,7 @@ public class ConversationUIService {
     private static final String TAG = "ConversationUIService";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
+    public static String DISPLAY_NAME = "displayName";
 
     public ConversationUIService(FragmentActivity fragmentActivity) {
         this.fragmentActivity = fragmentActivity;
@@ -220,6 +221,7 @@ public class ConversationUIService {
         ConversationFragment conversationFragment = getConversationFragment();
         if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
+
         }
     }
 
@@ -258,7 +260,6 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult() {
-        Log.d("Inside ", "StartContactForResult");
         startContactActivityForResult(null, null);
     }
 
@@ -293,7 +294,7 @@ public class ConversationUIService {
                 return;
             }
             contact = baseContactService.getContactById(String.valueOf(contactId));
-    }
+        }
 
         Long groupId = intent.getLongExtra("groupId", -1);
         String groupName = intent.getStringExtra("groupName");
@@ -302,7 +303,6 @@ public class ConversationUIService {
         }
 
         String contactNumber = intent.getStringExtra("contactNumber");
-        Log.d("UIService:","value is ="+contactNumber);
 
         boolean firstTimeMTexterFriend = intent.getBooleanExtra("firstTimeMTexterFriend", false);
         if (!TextUtils.isEmpty(contactNumber)) {
@@ -313,9 +313,14 @@ public class ConversationUIService {
         }
 
         String userId = intent.getStringExtra("userId");
-        Log.d("userId","UserID="+userId);
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
+        }
+
+        String fullName = intent.getStringExtra(DISPLAY_NAME);
+        if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
+            contact.setFullName(fullName);
+              baseContactService.upsert(contact);
         }
 
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
