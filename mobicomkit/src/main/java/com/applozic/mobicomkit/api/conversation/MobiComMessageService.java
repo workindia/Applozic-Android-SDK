@@ -182,6 +182,10 @@ public class MobiComMessageService {
                 }
             }
 
+            if (userIds.isEmpty()) {
+                return;
+            }
+
             try {
                 Map<String, String> userIdsHashMap = new UserClientService(context).getUserInfo(userIds);
 
