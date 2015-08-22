@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -22,11 +23,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 
 /**
@@ -79,7 +83,7 @@ public class MobiComMessageService {
         message.setPairedMessageKeyString(messageToProcess.getPairedMessageKeyString());
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
-            Contact contact =  baseContactService.getContactById(tofield);
+            Contact contact = baseContactService.getContactById(tofield);
             if (contact != null) {
                 message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), contact));
             }
@@ -91,7 +95,7 @@ public class MobiComMessageService {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
         message.processContactIds(context);
-        Contact receiverContact =  baseContactService.getContactById(message.getTo());
+        Contact receiverContact = baseContactService.getContactById(message.getTo());
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
             message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), receiverContact));
@@ -119,6 +123,10 @@ public class MobiComMessageService {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getDeviceKeyString(), userpref.getLastSyncTime());
         Log.i(TAG, "Got sync response " + syncMessageFeed);
+
+        if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
+            processContactFromMessages(syncMessageFeed.getMessages());
+        }
         // if regIdInvalid in syncrequest, tht means device reg with c2dm is no
         // more valid, do it again and make the sync request again
         if (syncMessageFeed != null && syncMessageFeed.isRegIdInvalid()
@@ -155,6 +163,38 @@ public class MobiComMessageService {
                 syncMessages();
             }
         }).start();
+    }
+
+
+    public void processContactFromMessages(List<Message> messages) {
+        try {
+            Log.i(TAG, "message size" + messages.size());
+            Set<String> userIds = new HashSet<String>();
+
+            for (Message msg : messages) {
+                if (!baseContactService.isContactExists(msg.getContactIds())) {
+                    userIds.add(msg.getContactIds());
+                }
+            }
+
+            try {
+                Map<String, String> userIdsHashMap = new UserClientService(context).getUserInfo(userIds);
+
+                for (Map.Entry<String, String> keyValue : userIdsHashMap.entrySet()) {
+                    Contact contact = new Contact();
+                    contact.setUserId(keyValue.getKey());
+                    contact.setFullName(keyValue.getValue());
+                    baseContactService.add(contact);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception ex) {
+
+        }
     }
 
     public void putMtextToDatabase(String payloadForMtextReceived) {
