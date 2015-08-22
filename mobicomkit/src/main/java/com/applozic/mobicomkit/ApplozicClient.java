@@ -29,13 +29,12 @@ public class ApplozicClient {
         return applozicClient;
     }
 
-
     public boolean isHandleDisplayName() {
         return sharedPreferences.getBoolean(HANDLE_DISPLAY_NAME, false);
     }
 
-    public ApplozicClient setHandleDisplayName(String label) {
-        sharedPreferences.edit().putString(HANDLE_DISPLAY_NAME, label).commit();
+    public ApplozicClient setHandleDisplayName(boolean enable) {
+        sharedPreferences.edit().putBoolean(HANDLE_DISPLAY_NAME, enable).commit();
         return this;
     }
 
