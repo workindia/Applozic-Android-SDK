@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -168,6 +169,10 @@ public class MobiComMessageService {
 
     public void processContactFromMessages(List<Message> messages) {
         try {
+
+            if(!ApplozicClient.getInstance(context).isHandleDisplayName()){
+                return;
+            }
             Log.i(TAG, "message size" + messages.size());
             Set<String> userIds = new HashSet<String>();
 
