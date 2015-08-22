@@ -12,7 +12,6 @@ public class ApplozicSetting {
 
     private Context context;
     public SharedPreferences sharedPreferences;
-    private static final String HANDLE_DISPLAY_NAME = "SETTING_HANDLE_DISPLAY_NAME";
     private static final String START_NEW_FLOATING_ACTION_BUTTON_DISPLAY = "SETTING_START_NEW_FLOATING_ACTION_BUTTON_DISPLAY";
     private static final String START_NEW_BUTTON_DISPLAY = "SETTING_START_NEW_BUTTON_DISPLAY";
     private static final String NO_CONVERSATION_LABEL = "SETTING_NO_CONVERSATION_LABEL";
@@ -65,15 +64,6 @@ public class ApplozicSetting {
 
     public ApplozicSetting setNoConversationLabel(String label) {
         sharedPreferences.edit().putString(NO_CONVERSATION_LABEL, label).commit();
-        return this;
-    }
-
-    public boolean isHandleDisplayName() {
-        return sharedPreferences.getBoolean(HANDLE_DISPLAY_NAME, false);
-    }
-
-    public ApplozicSetting setHandleDisplayName(String label) {
-        sharedPreferences.edit().putString(HANDLE_DISPLAY_NAME, label).commit();
         return this;
     }
 
