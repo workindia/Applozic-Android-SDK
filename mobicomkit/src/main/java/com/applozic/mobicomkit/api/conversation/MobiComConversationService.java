@@ -20,6 +20,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -88,7 +89,7 @@ public class MobiComConversationService {
         String data;
         try {
             data = messageClientService.getMessages(contact, group, startTime, endTime);
-            Log.i(TAG, "Received response from server: " + data);
+            Log.i(TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
             return messageList;
@@ -117,6 +118,7 @@ public class MobiComConversationService {
                 }
             }
 
+           new MobiComMessageService(context,MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
                     //TODO: remove this check..right now in some cases it is coming as null.

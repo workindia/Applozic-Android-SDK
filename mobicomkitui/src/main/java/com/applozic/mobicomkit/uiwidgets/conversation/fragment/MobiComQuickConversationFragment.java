@@ -27,6 +27,7 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicomkit.uiwidgets.MobiComKitApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -51,6 +52,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
     protected MobiComConversationService conversationService;
+    private ApplozicSetting applozicSetting;
 
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
@@ -75,6 +77,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applozicSetting = ApplozicSetting.getInstance(getActivity());
         conversationService = new MobiComConversationService(getActivity());
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
@@ -97,7 +100,6 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
 
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
-        fabButton.setVisibility(View.VISIBLE);
 
         LinearLayout individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
         LinearLayout extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
@@ -111,6 +113,10 @@ public class MobiComQuickConversationFragment extends Fragment {
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
         emptyTextView = (TextView) spinnerLayout.findViewById(R.id.noConversations);
         startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
+
+        fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
+        startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+        emptyTextView.setText(applozicSetting.getNoConversationLabel());
 
         swipeLayout = (SwipeRefreshLayout) list.findViewById(R.id.swipe_container);
         swipeLayout.setEnabled(false);
@@ -126,11 +132,9 @@ public class MobiComQuickConversationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((MobiComKitActivityInterface) getActivity()).startContactActivityForResult();
-
             }
         };
     }
-
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -228,7 +232,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                     conversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                        startNewButton.setVisibility(View.VISIBLE);
+                        startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
                     }
                 }
             }
@@ -268,7 +272,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
-            startNewButton.setVisibility(View.VISIBLE);
+            startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
             startNewButton.setVisibility(View.GONE);
@@ -415,7 +419,9 @@ public class MobiComQuickConversationFragment extends Fragment {
             conversationAdapter.notifyDataSetChanged();
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
-                startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                if (applozicSetting.isStartNewButtonVisible()) {
+                    startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                }
                 if (!messageList.isEmpty()) {
                     listView.setSelection(0);
                 }

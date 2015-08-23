@@ -421,7 +421,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
         if (alphabeticTextView != null) {
             String contactNumber = contact.getContactNumber().toUpperCase();
-            char firstLetter = !TextUtils.isEmpty(contact.getFullName()) ? contact.getFullName().toUpperCase().charAt(0) : contactNumber.charAt(0);
+            char firstLetter = contact.getDisplayName().charAt(0);
             if (firstLetter != '+') {
                 alphabeticTextView.setText(String.valueOf(firstLetter));
             } else if (contactNumber.length() >= 2) {

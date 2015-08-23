@@ -616,6 +616,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (mimeType != null && mimeType.startsWith("image")) {
             attachedFile.setVisibility(View.GONE);
             mediaContainer.setImageBitmap(BitmapFactory.decodeFile(filePath));
+        } else {
+            attachedFile.setVisibility(View.VISIBLE);
+            mediaContainer.setImageBitmap(null);
         }
     }
 

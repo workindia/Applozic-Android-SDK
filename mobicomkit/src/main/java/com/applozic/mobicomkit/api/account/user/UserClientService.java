@@ -10,12 +10,17 @@ import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -27,11 +32,12 @@ public class UserClientService extends MobiComKitClientService {
     public static final String SHARED_PREFERENCE_VERSION_UPDATE_KEY = "mck.version.update";
     public static final String PHONE_NUMBER_UPDATE_URL = "/rest/ws/registration/phone/number/update";
     public static final String NOTIFY_CONTACTS_ABOUT_JOINING_MT = "/rest/ws/registration/notify/contacts";
-    public static final String VERIFICATION_CONTACT_NUMBER_URL =  "/rest/ws/verification/number";
-    public static final String VERIFICATION_CODE_CONTACT_NUMBER_URL =  "/rest/ws/verification/code";
-    public static final String APP_VERSION_UPDATE_URL =  "/rest/ws/registration/version/update";
+    public static final String VERIFICATION_CONTACT_NUMBER_URL = "/rest/ws/verification/number";
+    public static final String VERIFICATION_CODE_CONTACT_NUMBER_URL = "/rest/ws/verification/code";
+    public static final String APP_VERSION_UPDATE_URL = "/rest/ws/registration/version/update";
     public static final String SETTING_UPDATE_URL = "/rest/ws/setting/single/update";
     public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
+    public static final String USER_INFO_URL = "/rest/ws/user/v1/info?";
     public static final Short MOBICOMKIT_VERSION_CODE = 71;
 
     private HttpRequestUtils httpRequestUtils;
@@ -41,19 +47,37 @@ public class UserClientService extends MobiComKitClientService {
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
-    public String getPhoneNumberUpdateUrl(){ return getBaseUrl() + PHONE_NUMBER_UPDATE_URL; }
+    public String getPhoneNumberUpdateUrl() {
+        return getBaseUrl() + PHONE_NUMBER_UPDATE_URL;
+    }
 
-    public  String getNotifyContactsAboutJoiningMt() { return getBaseUrl() + NOTIFY_CONTACTS_ABOUT_JOINING_MT; }
+    public String getNotifyContactsAboutJoiningMt() {
+        return getBaseUrl() + NOTIFY_CONTACTS_ABOUT_JOINING_MT;
+    }
 
-    public  String getVerificationContactNumberUrl() { return getBaseUrl() + VERIFICATION_CONTACT_NUMBER_URL; }
+    public String getVerificationContactNumberUrl() {
+        return getBaseUrl() + VERIFICATION_CONTACT_NUMBER_URL;
+    }
 
-    public  String getVerificationCodeContactNumberUrl() { return getBaseUrl() + VERIFICATION_CODE_CONTACT_NUMBER_URL; }
+    public String getVerificationCodeContactNumberUrl() {
+        return getBaseUrl() + VERIFICATION_CODE_CONTACT_NUMBER_URL;
+    }
 
-    public  String getAppVersionUpdateUrl() { return getBaseUrl() + APP_VERSION_UPDATE_URL; }
+    public String getAppVersionUpdateUrl() {
+        return getBaseUrl() + APP_VERSION_UPDATE_URL;
+    }
 
-    public  String getSettingUpdateUrl() { return getBaseUrl() + SETTING_UPDATE_URL; }
+    public String getSettingUpdateUrl() {
+        return getBaseUrl() + SETTING_UPDATE_URL;
+    }
 
-    public  String getTimezoneUpdataeUrl() { return getBaseUrl() + TIMEZONE_UPDATAE_URL; }
+    public String getTimezoneUpdataeUrl() {
+        return getBaseUrl() + TIMEZONE_UPDATAE_URL;
+    }
+
+    public String getUserInfoUrl() {
+        return getBaseUrl() + USER_INFO_URL;
+    }
 
     public void logout() {
         MobiComUserPreference.getInstance(context).clearAll();
@@ -64,7 +88,7 @@ public class UserClientService extends MobiComKitClientService {
         //Note: This can be used if user decides to change the timezone
         String response = null;
         try {
-            response = httpRequestUtils.getStringFromUrl(getTimezoneUpdataeUrl()+ "?suUserKeyString=" + osuUserKeyString +
+            response = httpRequestUtils.getStringFromUrl(getTimezoneUpdataeUrl() + "?suUserKeyString=" + osuUserKeyString +
                     "&timeZone=" + URLEncoder.encode(TimeZone.getDefault().getID(), "UTF-8"));
             Log.i(TAG, "Response from sendDeviceTimezoneToServer : " + response);
         } catch (Exception e) {
@@ -75,7 +99,7 @@ public class UserClientService extends MobiComKitClientService {
 
     public boolean sendVerificationCodeToServer(String verificationCode) {
         try {
-            String response = httpRequestUtils.getResponse(credentials,getVerificationCodeContactNumberUrl()+ "?verificationCode=" + verificationCode, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(credentials, getVerificationCodeContactNumberUrl() + "?verificationCode=" + verificationCode, "application/json", "application/json");
             JSONObject json = new JSONObject(response);
             return json.has("code") && json.get("code").equals("200");
         } catch (Exception e) {
@@ -110,7 +134,7 @@ public class UserClientService extends MobiComKitClientService {
             if (viaSms) {
                 viaSmsParam = "&viaSms=true";
             }
-            return httpRequestUtils.getResponse(credentials,getVerificationContactNumberUrl() + "?countryCode=" + countryCode + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + viaSmsParam, "application/json", "application/json");
+            return httpRequestUtils.getResponse(credentials, getVerificationContactNumberUrl() + "?countryCode=" + countryCode + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + viaSmsParam, "application/json", "application/json");
         } catch (Exception e) {
             Log.e("Verification Code", "Got Exception while submitting contact number for verification to server: " + e);
         }
@@ -132,5 +156,32 @@ public class UserClientService extends MobiComKitClientService {
                 }
             }
         }).start();
+    }
+
+
+    public Map<String, String> getUserInfo(Set<String> userIds) throws JSONException, UnsupportedEncodingException {
+
+        if (userIds == null && userIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        String userIdParam = "";
+        for (String userId : userIds) {
+            userIdParam += "&userIds" + "=" + userId;
+        }
+
+        String response = httpRequestUtils.getResponse(credentials, getUserInfoUrl() + userIdParam, "application/json", "application/json");
+
+        JSONObject jsonObject = new JSONObject(response);
+
+        Map<String, String> info = new HashMap<String, String>();
+
+        Iterator iterator = jsonObject.keys();
+        while (iterator.hasNext()) {
+            String key = (String) iterator.next();
+            String value = jsonObject.getString(key);
+            info.put(key, value);
+        }
+        return info;
     }
 }
