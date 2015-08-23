@@ -63,7 +63,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     protected List<Message> messageList = new ArrayList<Message>();
     protected QuickConversationAdapter conversationAdapter = null;
 
-    protected boolean loadMore = true;
+    protected boolean loadMore = false;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
@@ -426,7 +426,6 @@ public class MobiComQuickConversationFragment extends Fragment {
                 String errorMessage = getResources().getString(R.string.internet_connection_not_available);
                 Utils.isNetworkAvailable(getActivity(), errorMessage);
             }
-            loadMore = !nextMessageList.isEmpty();
 
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
