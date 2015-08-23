@@ -25,6 +25,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -146,6 +147,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
+        if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
+            menu.removeItem(R.id.start_new);
+        }
         showActionBar();
         return true;
     }
