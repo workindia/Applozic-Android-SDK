@@ -1048,9 +1048,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 selfDestructMessage(message);
             }
 
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
-            }
             if (initial) {
                 messageList.addAll(nextSmsList);
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
@@ -1072,6 +1069,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
             }
+            if (conversationAdapter != null) {
+                conversationAdapter.notifyDataSetChanged();
+            }
+
             swipeLayout.setRefreshing(false);
             loadMore = !nextSmsList.isEmpty();
         }
