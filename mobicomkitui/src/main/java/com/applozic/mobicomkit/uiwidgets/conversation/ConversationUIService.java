@@ -326,7 +326,7 @@ public class ConversationUIService {
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         if (!TextUtils.isEmpty(messageJson)) {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
-            contact = baseContactService.getContactById(message.getTo());
+            contact = baseContactService.getContactById(message.getContactIds());
         }
 
         boolean support = intent.getBooleanExtra(Support.SUPPORT_INTENT_KEY, false);
