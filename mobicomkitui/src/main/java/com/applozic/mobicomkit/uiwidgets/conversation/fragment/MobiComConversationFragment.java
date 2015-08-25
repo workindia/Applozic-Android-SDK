@@ -459,7 +459,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact.getContactNumber();
 
-        if (!contactNumber.isEmpty() && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
+        if (!TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
