@@ -456,6 +456,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+
+        String contactId = contact.getContactIds();
+
+        if (!contactId.isEmpty() && contactId.matches("[0-9]+") && contactId.length() > 2) {
+            menu.findItem(R.id.dial).setVisible(true);
+        } else {
+            menu.findItem(R.id.dial).setVisible(false);
+        }
         menu.removeItem(R.id.start_new);
     }
 
@@ -873,7 +881,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     navSpinner.add(new SpinnerNavItem(contact, phoneNumber, contact.getPhoneNumbers().get(phoneNumber), R.drawable.applozic_ic_action_email));
                 }
             }
-       // title drop down adapter
+            // title drop down adapter
             MobiComActivity activity = ((MobiComActivity) getActivity());
             TitleNavigationAdapter adapter = new TitleNavigationAdapter(getActivity().getApplicationContext(), navSpinner);
             activity.setNavSpinner(navSpinner);
