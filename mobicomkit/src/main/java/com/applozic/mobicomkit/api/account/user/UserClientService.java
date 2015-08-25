@@ -3,9 +3,9 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.util.Log;
 
-//import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 
 import org.apache.http.NameValuePair;
@@ -81,6 +81,7 @@ public class UserClientService extends MobiComKitClientService {
 
     public void logout() {
         MobiComUserPreference.getInstance(context).clearAll();
+        MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
     }
 
