@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.connect.pushnotification;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -62,21 +63,24 @@ public class GCMRegistrationUtils extends Handler {
     }
 
     /**
-     *
      * Check the device to make sure it has the Google Play Services APK. If it doesn't, display a dialog that allows users
      * to download the APK from the Google Play Store or enable it in the device's system settings.
      */
 
     private boolean checkPlayServices() {
+        Dialog dialog = null;
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mActivity);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, mActivity,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, mActivity,
+                        PLAY_SERVICES_RESOLUTION_REQUEST);
+                dialog.show();
             } else {
                 Log.e(TAG, "This device is not supported for Google Play Services");
                 mActivity.finish();
             }
+            if (dialog != null)
+                dialog.dismiss();
             return false;
         }
         return true;
