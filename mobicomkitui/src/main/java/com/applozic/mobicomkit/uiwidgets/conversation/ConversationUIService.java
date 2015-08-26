@@ -95,7 +95,7 @@ public class ConversationUIService {
             }
 
             if (selectedFileUri == null) {
-                Bitmap photo = (Bitmap) intent.getExtras().get("data");
+                Bitmap photo = (Bitmap) (intent != null ? intent.getExtras().get("data") : null);
                 selectedFileUri = ImageUtils.getImageUri(fragmentActivity, photo);
             }
             getConversationFragment().loadFile(selectedFileUri);
@@ -146,7 +146,9 @@ public class ConversationUIService {
         }
 
         MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getActiveFragment(fragmentActivity);
-        fragment.addMessage(message);
+        if (fragment != null) {
+            fragment.addMessage(message);
+        }
 
     }
 
@@ -264,6 +266,7 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult(Message message, String messageContent) {
+
         //Todo: Change this to driver list fragment or activity
         Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
 
@@ -320,7 +323,7 @@ public class ConversationUIService {
         String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
             contact.setFullName(fullName);
-              baseContactService.upsert(contact);
+            baseContactService.upsert(contact);
         }
 
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
