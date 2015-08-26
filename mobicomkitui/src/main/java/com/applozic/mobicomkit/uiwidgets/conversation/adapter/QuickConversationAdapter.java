@@ -144,7 +144,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 Group group = message.getBroadcastGroupId() != null ? GroupUtils.fetchGroup(context, message.getBroadcastGroupId()) : null;
             }
 
-            if (message.hasAttachment()) {
+            if (message.hasAttachment() && attachmentIcon != null) {
                 //Todo: handle it for fileKeyStrings when filePaths is empty
                 String filePath = message.isAttachmentDownloaded() ? message.getFilePaths().get(0) :
                         message.getFileMetas() != null ? message.getFileMetas().get(0).getName() : "";

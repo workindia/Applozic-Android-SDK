@@ -128,7 +128,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         imageThumbnailLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return fileClientService.loadThumbnailImage(getContext(), (FileMeta) data, getImageLayoutParam(false).height, getImageLayoutParam(false).width);
+                return fileClientService.loadThumbnailImage(getContext(), (FileMeta) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
             }
         };
         imageThumbnailLoader.setImageFadeIn(false);
@@ -208,7 +208,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 mediaUploadProgressBar.setVisibility(View.GONE);
             }
-            attachedFile.setVisibility(message.hasAttachment() ? View.VISIBLE : View.GONE);
+            if(attachedFile !=null) {
+                attachedFile.setVisibility(message.hasAttachment() ? View.VISIBLE : View.GONE);
+            }
             //Todo: show progress for download image of type inbox
 
             if (individual && message.getTimeToLive() != null) {
@@ -260,7 +262,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 loadContactImage(receiverContact, contactImage, alphabeticTextView);
             }
-            if (message.hasAttachment()) {
+            if (message.hasAttachment() && attachedFile !=null) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && message.getFileMetas().get(0).getContentType().contains("image")) {
                     attachedFile.setVisibility(View.GONE);
@@ -390,7 +392,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             String mimeType = "";
             if (messageTextView != null) {
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
-                if (mimeType != null) {
+                if (mimeType != null && attachmentIcon != null) {
                     if (mimeType.startsWith("image")) {
                         attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
                     } else if (mimeType.startsWith("video")) {
