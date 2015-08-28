@@ -208,7 +208,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 mediaUploadProgressBar.setVisibility(View.GONE);
             }
-            if(attachedFile !=null) {
+            if (attachedFile != null) {
                 attachedFile.setVisibility(message.hasAttachment() ? View.VISIBLE : View.GONE);
             }
             //Todo: show progress for download image of type inbox
@@ -243,9 +243,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             if (message.isCall() || message.isDummyEmptyMessage()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-            } else if (message.getKeyString() == null && message.isTypeOutbox()) {
+            } else if (message.getKeyString() == null && !message.isSentToServer() && message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
-            } else if (message.isTypeOutbox()) {
+            } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon), null);
             }
 
@@ -262,7 +262,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 loadContactImage(receiverContact, contactImage, alphabeticTextView);
             }
-            if (message.hasAttachment() && attachedFile !=null) {
+            if (message.hasAttachment() && attachedFile != null) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && message.getFileMetas().get(0).getContentType().contains("image")) {
                     attachedFile.setVisibility(View.GONE);
@@ -317,12 +317,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                                 showAttachmentIconAndText(attachedFile, fileMeta.getName(), mimeType);
                             }
 
+                        }
+
                     }
 
                 }
-
             }
-        }
             if (message.isCanceled()) {
                 attachmentRetry.setVisibility(View.VISIBLE);
             }
