@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -539,5 +540,28 @@ public class FileUtils {
         }
 
         return type;
+    }
+
+    public static Bitmap getPreview(String filePath,int thumbnailSize) {
+
+        File image = new File(filePath);
+
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(image.getPath(), bounds);
+        if ((bounds.outWidth == -1) || (bounds.outHeight == -1))
+            return null;
+
+        int originalSize = (bounds.outHeight > bounds.outWidth) ? bounds.outHeight
+                : bounds.outWidth;
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inSampleSize = originalSize /thumbnailSize ;
+        return BitmapFactory.decodeFile(image.getPath(), opts);
+    }
+
+    public static boolean isFileExist(String filePath ){
+      return  new File(filePath).exists();
+
     }
 }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -128,6 +129,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected MultimediaOptionFragment multimediaOptionFragment = new MultimediaOptionFragment();
     protected boolean hideExtendedSendingOptionLayout;
     private EmojiconHandler emojiIconHandler;
+    private Bitmap previewThumbnail;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -262,6 +264,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 filePath = null;
+                if (previewThumbnail!=null){
+                    previewThumbnail.recycle();
+                }
                 attachmentLayout.setVisibility(View.GONE);
             }
         });
@@ -623,10 +628,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (mimeType != null && mimeType.startsWith("image")) {
             attachedFile.setVisibility(View.GONE);
-            mediaContainer.setImageBitmap(BitmapFactory.decodeFile(filePath));
-        } else {
-            attachedFile.setVisibility(View.VISIBLE);
-            mediaContainer.setImageBitmap(null);
+            previewThumbnail = FileUtils.getPreview(filePath, 8);
+            mediaContainer.setImageBitmap(previewThumbnail);
         }
     }
 
