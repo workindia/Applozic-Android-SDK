@@ -474,6 +474,15 @@ public class MessageDatabaseService {
 
     }
 
+    public void updateMessage(Long id, Long createdAt, String KeyString, boolean isSentToServer) {
+        ContentValues values = new ContentValues();
+        values.put("createdAt", createdAt);
+        values.put("keyString", KeyString);
+        values.put("sentToServer", isSentToServer);
+        dbHelper.getWritableDatabase().update("sms", values, "id=" + id, null);
+        dbHelper.close();
+    }
+
     public void updateCanceledFlag(long smsId, int value) {
         ContentValues values = new ContentValues();
         values.put("canceled", value);

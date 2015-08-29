@@ -314,10 +314,10 @@ public class AttachmentManager {
         synchronized (sInstance) {
 
             // Iterates over the array of tasks
-            for (int taskArrayIndex = 0; taskArrayIndex < taskArraylen; taskArrayIndex++) {
+            for (AttachmentTask aTaskArray : taskArray) {
 
                 // Gets the task's current thread
-                Thread thread = taskArray[taskArrayIndex].mThreadThis;
+                Thread thread = aTaskArray.mThreadThis;
 
                 // if the Thread exists, post an interrupt to it
                 if (null != thread) {

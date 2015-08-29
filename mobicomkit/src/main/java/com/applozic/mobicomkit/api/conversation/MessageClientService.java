@@ -28,6 +28,7 @@ import com.applozic.mobicommons.people.group.Group;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ public class MessageClientService extends MobiComKitClientService {
     private static final String TAG = "MessageClientService";
     public static final String MTEXT_DELIVERY_URL = "/rest/ws/sms/mtext/delivered?";
     public static final String SERVER_SYNC_URL = "/rest/ws/mobicomkit/sync/messages";
-   // public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/add";
+    // public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/add";
     public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/send";
     public static final String SYNC_SMS_URL = "/rest/ws/sms/add/batch";
     public static final String MESSAGE_LIST_URL = "/rest/ws/mobicomkit/v1/message/list";
@@ -65,29 +66,21 @@ public class MessageClientService extends MobiComKitClientService {
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
-    public  String getMtextDeliveryUrl() { return getBaseUrl() + MTEXT_DELIVERY_URL; }
+    public String getMtextDeliveryUrl() { return getBaseUrl() + MTEXT_DELIVERY_URL; }
 
-    public  String getServerSyncUrl() { return  getBaseUrl() + SERVER_SYNC_URL; }
+    public String getServerSyncUrl() { return getBaseUrl() + SERVER_SYNC_URL; }
 
-    public  String getSendMessageUrl() { return getBaseUrl() + SEND_MESSAGE_URL; }
+    public String getSendMessageUrl() { return getBaseUrl() + SEND_MESSAGE_URL; }
 
-    public  String getSyncSmsUrl() {
-        return getBaseUrl() + SYNC_SMS_URL;
-    }
+    public String getSyncSmsUrl() { return getBaseUrl() + SYNC_SMS_URL; }
 
-    public  String getMessageListUrl() { return getBaseUrl() + MESSAGE_LIST_URL; }
+    public String getMessageListUrl() { return getBaseUrl() + MESSAGE_LIST_URL; }
 
-    public  String getMessageDeleteUrl() {
-        return getBaseUrl() + MESSAGE_DELETE_URL;
-    }
+    public String getMessageDeleteUrl() { return getBaseUrl() + MESSAGE_DELETE_URL; }
 
-    public  String getUpdateDeliveryFlagUrl() {
-        return getBaseUrl() +  UPDATE_DELIVERY_FLAG_URL;
-    }
+    public String getUpdateDeliveryFlagUrl() { return getBaseUrl() + UPDATE_DELIVERY_FLAG_URL; }
 
-    public  String getMessageThreadDeleteUrl() {
-        return  getBaseUrl() + MESSAGE_THREAD_DELETE_URL;
-    }
+    public String getMessageThreadDeleteUrl() { return getBaseUrl() + MESSAGE_THREAD_DELETE_URL;}
 
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -108,7 +101,7 @@ public class MessageClientService extends MobiComKitClientService {
             if (TextUtils.isEmpty(messageKeyString)) {
                 return;
             }
-            httpRequestUtils.getStringFromUrl( getMtextDeliveryUrl() + "smsKeyString=" + messageKeyString
+            httpRequestUtils.getStringFromUrl(getMtextDeliveryUrl() + "smsKeyString=" + messageKeyString
                     + "&userId=" + userId + "&contactNumber=" + URLEncoder.encode(receiverNumber, "UTF-8"));
         } catch (Exception ex) {
             Log.e(TAG, "Exception while updating delivery report for MT message", ex);
@@ -210,10 +203,15 @@ public class MessageClientService extends MobiComKitClientService {
         long messageId = -1;
 
         List<String> fileKeys = new ArrayList<String>();
+        String keyString = null;
+        keyString = UUID.randomUUID().toString();
+        message.setKeyString(keyString);
+        message.setSentToServer(false);
+        message.setCreatedAtTime(new Date().getTime());
+
+        messageId = messageDatabaseService.createMessage(message);
+
         if (message.isUploadRequired()) {
-
-            messageId = messageDatabaseService.createMessage(message);
-
             for (String filePath : message.getFilePaths()) {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
@@ -245,32 +243,37 @@ public class MessageClientService extends MobiComKitClientService {
             message.setFileMetaKeyStrings(fileKeys);
         }
 
-        //Todo: set filePaths
-        String [] response = new MessageClientService(context).sendMessage(message).split(",");
-        String keyString = response[0];
-        String createdAt = response[1];
-
-        if (TextUtils.isEmpty(keyString)) {
-            keyString = UUID.randomUUID().toString();
-            message.setSentToServer(false);
-        }else{
-            message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
-        }
-        message.setKeyString(keyString);
-        if (!TextUtils.isEmpty(keyString)) {
-            //Todo: Handle server message add failure due to internet disconnect.
-        } else {
-            //Todo: If message type is mtext, tell user that internet is not working, else send update with db id.
-        }
-        BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
 
         if (messageId != -1) {
             messageDatabaseService.updateMessageFileMetas(messageId, message);
-        } else {
-            if (message.isSentToServer()){
-                message.setCreatedAtTime(message.getSentMessageTimeAtServer());
+        }
+
+        //Todo: set filePaths
+
+        String createdAt = null;
+        try {
+            String[] response = new MessageClientService(context).sendMessage(message).split(",");
+            keyString = response[0];
+            createdAt = response[1];
+
+            if (!TextUtils.isEmpty(keyString)) {
+                message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
+                message.setSentToServer(true);
+                message.setKeyString(keyString);
             }
-            messageDatabaseService.createMessage(message);
+
+            messageDatabaseService.updateMessageFileMetas(messageId, message);
+            messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
+
+            if (!TextUtils.isEmpty(keyString)) {
+                //Todo: Handle server message add failure due to internet disconnect.
+            } else {
+                //Todo: If message type is mtext, tell user that internet is not working, else send update with db id.
+            }
+
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
+
+        } catch (Exception e) {
         }
 
         if (recentMessageSentToServer.size() > 20) {
