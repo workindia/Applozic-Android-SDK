@@ -84,7 +84,7 @@ public class ResultFeed implements Serializable {
         public final String message;
         public final String reason;
 
-        private RestAPICodes(int code, String message, String reason) {
+        RestAPICodes(int code, String message, String reason) {
             this.code = code;
             this.message = message;
             this.reason = reason;

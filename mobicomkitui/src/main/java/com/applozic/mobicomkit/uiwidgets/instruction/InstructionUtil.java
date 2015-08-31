@@ -55,7 +55,7 @@ public class InstructionUtil {
 
     public static void showToast(Context context, int resId, int colorId) {
         Toast toast = Toast.makeText(context, context.getString(resId), Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER | Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER, 0, 0);
         toast.getView().setBackgroundColor(context.getResources().getColor(colorId));
         toast.show();
     }
@@ -71,7 +71,7 @@ public class InstructionUtil {
             toast.getView().setBackgroundColor(context.getResources().getColor(colorId));
         }
 
-        toast.setGravity(Gravity.CENTER | Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.CENTER, 0, 0);
 
         if (!enabled) {
             return;

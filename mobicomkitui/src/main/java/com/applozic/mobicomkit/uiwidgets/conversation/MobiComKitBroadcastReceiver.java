@@ -3,18 +3,16 @@ package com.applozic.mobicomkit.uiwidgets.conversation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.telephony.PhoneNumberUtils;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComConversationFragment;
-import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 
 import com.applozic.mobicommons.json.GsonUtils;
@@ -27,13 +25,12 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MTBroadcastReceiver";
 
-    private MobiComQuickConversationFragment quickConversationFragment;
-    private MobiComConversationFragment conversationFragment;
+    private ConversationUIService conversationUIService;
     private BaseContactService baseContactService;
 
-    public MobiComKitBroadcastReceiver(MobiComQuickConversationFragment quickConversationFragment, MobiComConversationFragment conversationFragment) {
-        this.quickConversationFragment = quickConversationFragment;
-        this.conversationFragment = conversationFragment;
+    public MobiComKitBroadcastReceiver(FragmentActivity fragmentActivity) {
+        this.conversationUIService = new ConversationUIService(fragmentActivity);
+        this.baseContactService = new AppContactService(fragmentActivity);
     }
 
     @Override
@@ -46,9 +43,10 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         }
         Log.i(TAG, "Received broadcast, action: " + action + ", message: " + message);
 
-        String userId = message != null ? message.getContactIds() : "";
-        if (message != null && !conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId()) && !message.isSentToMany()) {
-            quickConversationFragment.addMessage(message);
+        if (message != null && !message.isSentToMany()) {
+            /*Todo: update the quick conversation fragment on resume, commented because now it is not a sliding pane activity and
+            quickconversationfragment is not activity.*/
+            conversationUIService.addMessage(message);
         } else if (message != null && message.isSentToMany() && BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(intent.getAction())) {
             for (String toField : message.getTo().split(",")) {
                 Message singleMessage = new Message(message);
@@ -56,53 +54,36 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
                 singleMessage.setKeyString(message.getKeyString());
                 singleMessage.setTo(toField);
                 singleMessage.processContactIds(context);
-                quickConversationFragment.addMessage(singleMessage);
+                conversationUIService.addMessage(message);
             }
         }
 
         String keyString = intent.getStringExtra("keyString");
+        String userId = message != null ? message.getContactIds() : "";
 
         if (BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString().equals(action)) {
             InstructionUtil.showInstruction(context, intent.getIntExtra("resId", -1), intent.getBooleanExtra("actionable", false), R.color.instruction_color);
         } else if (BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString().equals(action)) {
-            quickConversationFragment.downloadConversations(true);
+            conversationUIService.downloadConversations(true);
         } else if (BroadcastService.INTENT_ACTIONS.LOAD_MORE.toString().equals(action)) {
-            quickConversationFragment.setLoadMore(intent.getBooleanExtra("loadMore", true));
+            conversationUIService.setLoadMore(intent.getBooleanExtra("loadMore", true));
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString().equals(action)) {
-            if (userId.equals(conversationFragment.getCurrentUserId()) ||
-                    conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
-                conversationFragment.updateMessageKeyString(message);
-            }
+            conversationUIService.updateMessageKeyString(message);
         } else if (BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(intent.getAction())) {
-            if (userId.equals(conversationFragment.getCurrentUserId()) ||
-                    conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
-                conversationFragment.addMessage(message);
-            }
-            if (message.getBroadcastGroupId() == null) {
-                quickConversationFragment.updateLastMessage(keyString, userId);
-            }
+            conversationUIService.syncMessages(message, keyString);
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString().equals(intent.getAction())) {
             userId = intent.getStringExtra("contactNumbers");
-            if (PhoneNumberUtils.compare(userId, MobiComActivity.currentOpenedContactNumber)) {
-                conversationFragment.deleteMessageFromDeviceList(keyString);
-            } else {
-                //Todo: if it is sent to many and remove from all.
-                quickConversationFragment.updateLastMessage(keyString, userId);
-            }
+            conversationUIService.deleteMessage(message, keyString, userId);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action)) {
-            if (userId.equals(conversationFragment.getCurrentUserId())) {
-                conversationFragment.updateDeliveryStatus(message);
-            }
+            conversationUIService.updateDeliveryStatus(message, userId);
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString().equals(action)) {
-            //Todo: If conversation fragment is visible then hide it.
             String contactNumber = intent.getStringExtra("contactNumber");
             Contact contact = baseContactService.getContactById(contactNumber);
-            conversationFragment.clearList();
-            quickConversationFragment.removeConversation(contact);
+            conversationUIService.deleteConversation(contact);
         } else if (BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString().equals(action) && message != null) {
-            conversationFragment.updateUploadFailedStatus(message);
+            conversationUIService.updateUploadFailedStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {
-            conversationFragment.updateDownloadStatus(message);
+            conversationUIService.updateDownloadStatus(message);
         }
     }
 }

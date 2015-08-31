@@ -7,7 +7,6 @@ package com.applozic.mobicomkit.sync;
 import com.applozic.mobicomkit.api.JsonMarker;
 import com.applozic.mobicomkit.api.conversation.Message;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**

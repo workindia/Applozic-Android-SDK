@@ -159,13 +159,9 @@ public class Message extends JsonMarker {
         return keyString;
     }
 
-    ;
-
     public void setKeyString(String keyString) {
         this.keyString = keyString;
     }
-
-    ;
 
     public Long getCreatedAtTime() {
         return createdAtTime;
@@ -456,12 +452,12 @@ public class Message extends JsonMarker {
                 '}';
     }
 
-    public static enum Source {
+    public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));
         private Short value;
 
-        private Source(Short c) {
+        Source(Short c) {
             value = c;
         }
 
@@ -470,14 +466,14 @@ public class Message extends JsonMarker {
         }
     }
 
-    public static enum MessageType {
+    public enum MessageType {
 
         INBOX(Short.valueOf("0")), OUTBOX(Short.valueOf("1")), DRAFT(Short.valueOf("2")),
         OUTBOX_SENT_FROM_DEVICE(Short.valueOf("3")), MT_INBOX(Short.valueOf("4")),
         MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7"));
         private Short value;
 
-        private MessageType(Short c) {
+        MessageType(Short c) {
             value = c;
         }
 

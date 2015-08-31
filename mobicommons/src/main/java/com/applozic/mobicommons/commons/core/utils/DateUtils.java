@@ -1,6 +1,5 @@
 package com.applozic.mobicommons.commons.core.utils;
 
-import android.content.Context;
 import android.os.SystemClock;
 
 import net.mobitexter.mobiframework.commons.core.utils.SntpClient;

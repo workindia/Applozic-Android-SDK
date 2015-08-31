@@ -12,7 +12,6 @@ import com.applozic.mobicomkit.contact.database.ContactDatabase;
 
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.contact.ContactUtils;
 
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;

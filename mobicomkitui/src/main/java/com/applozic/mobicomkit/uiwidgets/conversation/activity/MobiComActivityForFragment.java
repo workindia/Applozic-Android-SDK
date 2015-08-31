@@ -30,12 +30,10 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.contact.ContactUtils;
 import com.applozic.mobicommons.people.group.Group;
 import com.applozic.mobicommons.people.group.GroupUtils;
 
@@ -59,7 +57,6 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     public static String title = "Conversations";
     protected static boolean HOME_BUTTON_ENABLED = false;
     protected ActionBar mActionBar;
-   // protected SlidingPaneLayout slidingPaneLayout;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComConversationFragment conversationFragment;
@@ -74,9 +71,6 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         super.onResume();
         InstructionUtil.enabled = true;
         mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-      /*  if (slidingPaneLayout.isOpen()) {
-            mActionBar.setTitle(title);
-        }*/
         registerMobiTexterBroadcastReceiver();
     }
 
@@ -102,9 +96,6 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.removeItem(R.id.conversations);
-        /*if (!Utils.hasHoneycomb()) {
-            menu.removeItem(R.id.start_tour);
-        }*/
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -164,49 +155,13 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     }
 
     public void openConversationFragment(Contact contact) {
-       // slidingPaneLayout.closePane();
         InstructionUtil.hideInstruction(this, R.string.info_message_sync);
         InstructionUtil.hideInstruction(this, R.string.instruction_open_conversation_thread);
         conversationFragment.loadConversation(contact);
     }
 
     public void openConversationFragment(Group group) {
-       // slidingPaneLayout.closePane();
         conversationFragment.loadConversation(group);
-    }
-
-    private void panelOpened() {
-        if (currentOpenedUserId != null) {
-            InstructionUtil.hideInstruction(this, R.string.instruction_go_back_to_recent_conversation_list);
-        }
-        Utils.toggleSoftKeyBoard(MobiComActivityForFragment.this, true);
-       // conversationFragment.setHasOptionsMenu(!slidingPaneLayout.isSlideable());
-        //quickConversationFragment.setHasOptionsMenu(slidingPaneLayout.isSlideable());
-        mActionBar.setHomeButtonEnabled(false);
-        mActionBar.setDisplayHomeAsUpEnabled(HOME_BUTTON_ENABLED);
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        mActionBar.setDisplayShowTitleEnabled(true);
-        mActionBar.setTitle(title);
-        currentOpenedUserId = null;
-    }
-
-    private void panelClosed() {
-        loadLatestInConversationFragment();
-
-        conversationFragment.setHasOptionsMenu(true);
-        mActionBar.setHomeButtonEnabled(true);
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        quickConversationFragment.setHasOptionsMenu(false);
-        // assigning the spinner navigation
-        if (conversationFragment.hasMultiplePhoneNumbers()) {
-            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            mActionBar.setDisplayShowTitleEnabled(false);
-        } else {
-            conversationFragment.updateTitle();
-            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            mActionBar.setDisplayShowTitleEnabled(true);
-        }
-        currentOpenedUserId = conversationFragment.getCurrentUserId();
     }
 
     public void loadLatestInConversationFragment() {
@@ -227,10 +182,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     //Note: Workaround for LGE device bug: https://github.com/adarshmishra/MobiTexter/issues/374
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+        return keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND) || super.onKeyDown(keyCode, event);
     }
 //
 //    @Override
@@ -336,7 +288,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);
         if (!TextUtils.isEmpty(forwardMessage)) {
             Message messageToForward = (Message) GsonUtils.getObjectFromJson(forwardMessage, Message.class);
-            conversationFragment.forwardMessage(messageToForward);
+            conversationFragment.forwardMessage(messageToForward, contact);
         }
 
         String sharedText = intent.getStringExtra(MobiComKitPeopleActivity.SHARED_TEXT);
@@ -357,22 +309,6 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         conversationFragment.loadConversation(contact);
         return false;
     }
-/*
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-       */
-/* switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }*//*
-retu
-                f
-    }
-*/
 
     //TODO: need to figure it out if this Can be improve by listeners in individual fragments
     @Override
@@ -381,56 +317,7 @@ retu
             conversationFragment.emoticonsFrameLayout.setVisibility(View.GONE);
             return;
         }
-       /* if (!slidingPaneLayout.isOpen()) {
-            slidingPaneLayout.openPane();
-            return;
-        }
-       */ super.onBackPressed();
+       super.onBackPressed();
         this.finish();
     }
-
-  /*  public SlidingPaneLayout getSlidingPaneLayout() {
-        return slidingPaneLayout;
-    }
-*/
-    /**
-     * This global layout listener is used to fire an event after first layout
-     * occurs and then it is removed. This gives us a chance to configure parts
-     * of the UI that adapt based on available space after they have had the
-     * opportunity to measure and layout.
-     */
-  /*  public class FirstLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
-        @Override
-        public void onGlobalLayout() {
-
-            if (slidingPaneLayout.isSlideable() && !slidingPaneLayout.isOpen()) {
-                panelClosed();
-            } else {
-                panelOpened();
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                slidingPaneLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            } else {
-                slidingPaneLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            }
-        }
-    }
-
-    public class SliderListener extends SlidingPaneLayout.SimplePanelSlideListener {
-
-        @Override
-        public void onPanelOpened(View panel) {
-            panelOpened();
-        }
-
-        @Override
-        public void onPanelClosed(View panel) {
-            panelClosed();
-        }
-
-        @Override
-        public void onPanelSlide(View view, float v) {
-        }
-
-    }*/
 }

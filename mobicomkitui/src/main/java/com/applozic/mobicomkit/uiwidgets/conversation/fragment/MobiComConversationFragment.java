@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
@@ -60,7 +59,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.SpinnerNavItem;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
@@ -693,7 +692,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return "";
     }
 
-    public void forwardMessage(Message messageToForward) {
+    public void forwardMessage(Message messageToForward, Contact contact) {
+        this.contact = contact;
+        loadConversation(contact);
         if (messageToForward.isAttachmentDownloaded()) {
             filePath = messageToForward.getFilePaths().get(0);
         }
@@ -838,13 +839,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void updateTitle() {
         String title = null;
-        //  if (!((MobiComActivity) getActivity()).getSlidingPaneLayout().isOpen()) {
         if (contact != null) {
             title = contact.getDisplayName();
         } else if (group != null) {
             title = group.getName();
         }
-        //}
         if (title != null) {
             ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(title);
         }
@@ -888,7 +887,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
             // title drop down adapter
-            MobiComActivity activity = ((MobiComActivity) getActivity());
+            MobiComActivityForFragment activity = ((MobiComActivityForFragment) getActivity());
             TitleNavigationAdapter adapter = new TitleNavigationAdapter(getActivity().getApplicationContext(), navSpinner);
             activity.setNavSpinner(navSpinner);
             activity.setAdapter(adapter);

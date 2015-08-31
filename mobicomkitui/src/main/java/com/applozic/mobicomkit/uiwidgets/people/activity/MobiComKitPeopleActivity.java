@@ -97,7 +97,7 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
 
         if (phoneNumbers.isEmpty()) {
             Toast toast = Toast.makeText(this.getApplicationContext(), R.string.phone_number_not_present, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER | Gravity.CENTER, 0, 0);
+            toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
             return;
         }

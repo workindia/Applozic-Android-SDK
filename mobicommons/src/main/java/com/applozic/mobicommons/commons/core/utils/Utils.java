@@ -161,11 +161,8 @@ public class Utils {
     }
 
     public static String getDeviceInformation() {
-        StringBuilder deviceString = new StringBuilder();
-        deviceString.append("Phone Model = ")
-                .append(Build.MODEL).append("::Android Version = ").append(Build.VERSION.SDK_INT).append(":::MANUFACTURER  = ").append(Build.MANUFACTURER).append("::Overall PRODUCT = ").append(Build.PRODUCT);
 
-        return deviceString.toString();
+        return "Phone Model = " + Build.MODEL + "::Android Version = " + Build.VERSION.SDK_INT + ":::MANUFACTURER  = " + Build.MANUFACTURER + "::Overall PRODUCT = " + Build.PRODUCT;
     }
 
     public static Uri getUserImageUri(Context context) {
