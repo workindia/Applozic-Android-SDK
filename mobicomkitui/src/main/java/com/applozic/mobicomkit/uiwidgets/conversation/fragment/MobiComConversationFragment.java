@@ -264,7 +264,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 filePath = null;
-                if (previewThumbnail!=null){
+                if (previewThumbnail != null) {
                     previewThumbnail.recycle();
                 }
                 attachmentLayout.setVisibility(View.GONE);
@@ -628,8 +628,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (mimeType != null && mimeType.startsWith("image")) {
             attachedFile.setVisibility(View.GONE);
-            previewThumbnail = FileUtils.getPreview(filePath, 8);
+            previewThumbnail = FileUtils.getPreview(filePath, 1);
             mediaContainer.setImageBitmap(previewThumbnail);
+        } else {
+            attachedFile.setVisibility(View.VISIBLE);
+            mediaContainer.setImageBitmap(null);
         }
     }
 
