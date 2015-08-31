@@ -458,6 +458,7 @@ public class MessageDatabaseService {
             ContentValues values = new ContentValues();
             values.put("keyString", keyString);
             values.put("sentToServer", "1");
+            values.put("createdAt",message.getSentMessageTimeAtServer());
             dbHelper.getWritableDatabase().update("sms", values, "id=" + message.getMessageId(), null);
         } catch (Exception ex) {
             ex.printStackTrace();

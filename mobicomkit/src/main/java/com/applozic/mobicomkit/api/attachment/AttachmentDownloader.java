@@ -17,6 +17,8 @@
 package com.applozic.mobicomkit.api.attachment;
 
 import android.content.Context;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 /**
  * This task downloads bytes from a resource addressed by a URL.  When the task
  * has finished, it calls handleState to report its results.
- * <p>
+ * <p/>
  * Objects of this class are instantiated and managed by instances of PhotoTask, which
  * implements the methods of TaskRunnableDecodeMethods. PhotoTask objects call
  * {@link #AttachmentDownloader(AttachmentDownloader.TaskRunnableDownloadMethods) PhotoDownloadRunnable()} with
@@ -106,7 +108,6 @@ class AttachmentDownloader implements Runnable {
                 mPhotoTask.handleDownloadState(HTTP_STATE_STARTED);
                 // Downloads the image and catches IO errors
                 loadAttachmentImage(mPhotoTask.getMessage(), mPhotoTask.getContext());
-
             }
 
             /*
@@ -145,13 +146,14 @@ class AttachmentDownloader implements Runnable {
     }
 
     public void loadAttachmentImage(Message message, Context context) {
+        File file = null;
         try {
             InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas().get(0);
             String contentType = fileMeta.getContentType();
             String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
-            File file = FileClientService.getFilePath(fileMeta.getName(), context, contentType);
+            file = FileClientService.getFilePath(fileMeta.getName(), context, contentType);
             if (!file.exists()) {
                 connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileKey);
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -199,6 +201,15 @@ class AttachmentDownloader implements Runnable {
             ex.printStackTrace();
             Log.e(TAG, "Exception fetching file from server");
         }
+
+        MediaScannerConnection.scanFile(mPhotoTask.getContext(),
+                new String[]{file.toString()}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                        Log.i("ExternalStorage", "-> uri=" + uri);
+                    }
+                });
 
     }
 

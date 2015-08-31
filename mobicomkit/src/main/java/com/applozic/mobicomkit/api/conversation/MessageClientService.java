@@ -66,21 +66,37 @@ public class MessageClientService extends MobiComKitClientService {
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
-    public String getMtextDeliveryUrl() { return getBaseUrl() + MTEXT_DELIVERY_URL; }
+    public String getMtextDeliveryUrl() {
+        return getBaseUrl() + MTEXT_DELIVERY_URL;
+    }
 
-    public String getServerSyncUrl() { return getBaseUrl() + SERVER_SYNC_URL; }
+    public String getServerSyncUrl() {
+        return getBaseUrl() + SERVER_SYNC_URL;
+    }
 
-    public String getSendMessageUrl() { return getBaseUrl() + SEND_MESSAGE_URL; }
+    public String getSendMessageUrl() {
+        return getBaseUrl() + SEND_MESSAGE_URL;
+    }
 
-    public String getSyncSmsUrl() { return getBaseUrl() + SYNC_SMS_URL; }
+    public String getSyncSmsUrl() {
+        return getBaseUrl() + SYNC_SMS_URL;
+    }
 
-    public String getMessageListUrl() { return getBaseUrl() + MESSAGE_LIST_URL; }
+    public String getMessageListUrl() {
+        return getBaseUrl() + MESSAGE_LIST_URL;
+    }
 
-    public String getMessageDeleteUrl() { return getBaseUrl() + MESSAGE_DELETE_URL; }
+    public String getMessageDeleteUrl() {
+        return getBaseUrl() + MESSAGE_DELETE_URL;
+    }
 
-    public String getUpdateDeliveryFlagUrl() { return getBaseUrl() + UPDATE_DELIVERY_FLAG_URL; }
+    public String getUpdateDeliveryFlagUrl() {
+        return getBaseUrl() + UPDATE_DELIVERY_FLAG_URL;
+    }
 
-    public String getMessageThreadDeleteUrl() { return getBaseUrl() + MESSAGE_THREAD_DELETE_URL;}
+    public String getMessageThreadDeleteUrl() {
+        return getBaseUrl() + MESSAGE_THREAD_DELETE_URL;
+    }
 
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -162,10 +178,18 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void sendPendingMessageToServer(Message message, boolean broadcast) {
-        String keyString = sendMessage(message);
-        if (TextUtils.isEmpty(keyString) || keyString.contains("<html>")) {
+        String response = sendMessage(message);
+
+        if (TextUtils.isEmpty(response) || response.contains("<html>")) {
             return;
         }
+
+        String[] responseString = response.split(",");
+        String keyString = responseString[0];
+        String createdAt = responseString[1];
+        message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
+        message.setKeyString(keyString);
+
         recentMessageSentToServer.add(message);
 
         if (broadcast) {
@@ -317,7 +341,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getFormattedContactNumber(), "UTF-8");
             String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
-            Log.i(TAG, "Delete messages response from server: " + response+contact.getFormattedContactNumber());
+            Log.i(TAG, "Delete messages response from server: " + response + contact.getFormattedContactNumber());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

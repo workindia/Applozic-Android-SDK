@@ -120,6 +120,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.applozic.mobicomkit.notification.icon"
             android:resource="@drawable/ic_launcher" />
