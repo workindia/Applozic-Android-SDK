@@ -542,22 +542,37 @@ public class FileUtils {
         return type;
     }
 
-    public static Bitmap getPreview(String filePath,int thumbnailSize) {
+    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight) {
 
         File image = new File(filePath);
 
         BitmapFactory.Options bounds = new BitmapFactory.Options();
         bounds.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(image.getPath(), bounds);
-        if ((bounds.outWidth == -1) || (bounds.outHeight == -1))
+        if ((bounds.outWidth == -1) || (bounds.outHeight == -1)){
             return null;
+        }
 
-        int originalSize = (bounds.outHeight > bounds.outWidth) ? bounds.outHeight
-                : bounds.outWidth;
+        bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
+        bounds.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(image.getPath(), bounds);
+    }
 
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inSampleSize = originalSize /thumbnailSize ;
-        return BitmapFactory.decodeFile(image.getPath(), opts);
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((height / inSampleSize) > reqHeight && (width / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
     }
 
     public static boolean isFileExist(String filePath ){

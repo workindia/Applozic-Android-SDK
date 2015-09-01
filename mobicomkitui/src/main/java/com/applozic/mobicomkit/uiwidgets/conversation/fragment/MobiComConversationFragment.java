@@ -23,6 +23,7 @@ import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -628,8 +629,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (mimeType != null && mimeType.startsWith("image")) {
             attachedFile.setVisibility(View.GONE);
-            previewThumbnail = FileUtils.getPreview(filePath, 1);
-            mediaContainer.setImageBitmap(previewThumbnail);
+            int reqWidth = mediaContainer.getWidth();
+            int reqHeight = mediaContainer.getHeight();
+            if (reqWidth == 0 || reqHeight == 0) {
+                DisplayMetrics displaymetrics = new DisplayMetrics();
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+                reqHeight = (int) (displaymetrics.heightPixels);
+                reqWidth = displaymetrics.widthPixels;
+            }
+            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight);
         } else {
             attachedFile.setVisibility(View.VISIBLE);
             mediaContainer.setImageBitmap(null);
@@ -1041,6 +1049,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         @Override
         protected void onPostExecute(Long result) {
             super.onPostExecute(result);
+            //TODO: FIX ME
             if (this.contact != null && !PhoneNumberUtils.compare(this.contact.getFormattedContactNumber(), this.contact.getFormattedContactNumber()) || nextSmsList.isEmpty()) {
                 swipeLayout.setRefreshing(false);
                 swipeLayout.setEnabled(false);
