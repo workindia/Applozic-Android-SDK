@@ -52,7 +52,7 @@ class AttachmentDownloader implements Runnable {
     private static final String TAG = "AttachmentDownloader";
     // Sets the size for each read action (bytes)
     //Aman testing
-    private static final int READ_SIZE = 1024 * 1;
+    private static final int READ_SIZE = 1024;
     // Sets a tag for this class
     @SuppressWarnings("unused")
     private static final String LOG_TAG = "PhotoDownloadRunnable";

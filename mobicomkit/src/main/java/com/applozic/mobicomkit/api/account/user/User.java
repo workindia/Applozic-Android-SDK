@@ -2,8 +2,6 @@ package com.applozic.mobicomkit.api.account.user;
 
 import com.applozic.mobicomkit.api.JsonMarker;
 
-import java.io.Serializable;
-
 /**
  * Created by devashish on 22/12/14.
  */
@@ -24,20 +22,6 @@ public class User extends JsonMarker {
     private String roleName = "USER";
     private Short deviceType;
     private Short authenticationTypeId = AuthenticationType.CLIENT.getValue();
-
-    public static enum AuthenticationType {
-
-        CLIENT(Short.valueOf("0")), APPLOZIC(Short.valueOf("1")), FACEBOOK(Short.valueOf("2"));
-        private Short value;
-
-        private AuthenticationType(Short c) {
-            value = c;
-        }
-
-        public Short getValue() {
-            return value;
-        }
-    }
 
     public String getUserId() {
         return userId;
@@ -153,5 +137,19 @@ public class User extends JsonMarker {
 
     public void setAuthenticationTypeId(Short authenticationTypeId) {
         this.authenticationTypeId = authenticationTypeId;
+    }
+
+    public enum AuthenticationType {
+
+        CLIENT(Short.valueOf("0")), APPLOZIC(Short.valueOf("1")), FACEBOOK(Short.valueOf("2"));
+        private Short value;
+
+        AuthenticationType(Short c) {
+            value = c;
+        }
+
+        public Short getValue() {
+            return value;
+        }
     }
 }

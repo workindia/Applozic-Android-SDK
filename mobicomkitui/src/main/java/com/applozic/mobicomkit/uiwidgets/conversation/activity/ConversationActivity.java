@@ -29,7 +29,7 @@ import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
-import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiverForFragments;
+import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
 import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
@@ -55,7 +55,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
-    protected MobiComKitBroadcastReceiverForFragments mobiComKitBroadcastReceiver;
+    protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     protected ActionBar mActionBar;
     FragmentActivity fragmentActivity;
     private LocationRequest locationRequest;
@@ -116,7 +116,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
         addFragment(this, quickConversationFragment, "QuickConversationFragment");
 
-        mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiverForFragments(this);
+        mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
 
         FragmentManager fragmentManager = getSupportFragmentManager();

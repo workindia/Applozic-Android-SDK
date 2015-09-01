@@ -348,7 +348,7 @@ public class ConversationUIService {
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);
         if (!TextUtils.isEmpty(forwardMessage)) {
             Message messageToForward = (Message) GsonUtils.getObjectFromJson(forwardMessage, Message.class);
-            getConversationFragment().forwardMessage(messageToForward);
+            getConversationFragment().forwardMessage(messageToForward, contact);
         }
 
         String sharedText = intent.getStringExtra(MobiComKitPeopleActivity.SHARED_TEXT);
@@ -357,6 +357,4 @@ public class ConversationUIService {
         }
     }
 
-    public void processLocation() {
-    }
 }

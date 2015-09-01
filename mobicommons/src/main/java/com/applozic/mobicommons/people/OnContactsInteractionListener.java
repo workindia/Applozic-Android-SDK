@@ -16,14 +16,14 @@ public interface OnContactsInteractionListener {
      *
      * @param contactUri The contact Uri.
      */
-    public void onContactSelected(Uri contactUri);
+    void onContactSelected(Uri contactUri);
 
-    public void onGroupSelected(Group group);
+    void onGroupSelected(Group group);
 
-    public void onCustomContactSelected( Contact contact);
+    void onCustomContactSelected(Contact contact);
     /**
      * Called when the ListView selection is cleared like when
      * a contact search is taking place or is finishing.
      */
-    public void onSelectionCleared();
+    void onSelectionCleared();
 }
