@@ -231,7 +231,6 @@ public class MessageClientService extends MobiComKitClientService {
         keyString = UUID.randomUUID().toString();
         message.setKeyString(keyString);
         message.setSentToServer(false);
-        message.setCreatedAtTime(new Date().getTime());
 
         messageId = messageDatabaseService.createMessage(message);
 

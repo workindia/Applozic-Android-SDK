@@ -724,7 +724,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         messageToSend.setRead(Boolean.TRUE);
         messageToSend.setStoreOnDevice(Boolean.TRUE);
-        messageToSend.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+        if (messageToSend.getCreatedAtTime() == null) {
+            messageToSend.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+        }
         messageToSend.setSendToDevice(Boolean.FALSE);
         messageToSend.setType(sendType.getSelectedItemId() == 1 ? Message.MessageType.MT_OUTBOX.getValue() : Message.MessageType.OUTBOX.getValue());
         messageToSend.setTimeToLive(getTimeToLive());
@@ -919,7 +921,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 break;
             case 2:
                 Message messageToResend = new Message(message);
-                messageToResend.setCreatedAtTime(new Date().getTime());
+                //messageToResend.setCreatedAtTime(new Date().getTime());
+                messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
                 conversationService.sendMessage(messageToResend, messageIntentClass);
                 break;
             case 3:
