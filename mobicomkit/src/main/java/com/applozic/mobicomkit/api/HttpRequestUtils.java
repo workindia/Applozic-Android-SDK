@@ -161,6 +161,7 @@ public class HttpRequestUtils {
     }
 
     public String getResponse(UsernamePasswordCredentials credentials, String url, String contentType, String accept) {
+        Log.i(TAG, "Calling url: " + url);
         HttpGet request = new HttpGet();
         try {
             request.setURI(new URI(url));
