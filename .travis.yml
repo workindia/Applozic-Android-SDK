@@ -11,6 +11,8 @@ before_install:
 
 script: ./gradlew test
 
+after_success: ./scripts/travis_upload_release_to_github.py
+
 android:
   components:
     # The BuildTools version used by your project
@@ -45,5 +47,4 @@ notifications:
       - ranjeet@applozic.com
       - sunil.kumar@mobitexter.net
       
-after_success: ./scripts/travis_upload_release_to_github.py      
 
