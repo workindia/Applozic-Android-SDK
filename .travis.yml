@@ -31,6 +31,11 @@ android:
     # if you need to run emulator(s) during your tests
     #- sys-img-armeabi-v7a-android-22
 
+addons:
+  apt:
+    packages:
+      - python2.7
+      
 notifications:
   email:
     recipients:
