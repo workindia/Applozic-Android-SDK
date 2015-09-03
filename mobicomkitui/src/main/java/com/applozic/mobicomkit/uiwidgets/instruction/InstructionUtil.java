@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class InstructionUtil {
                 intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
                 intentUpdate.putExtra("resId", resId);
                 intentUpdate.putExtra("actionable", actionable);
-                context.sendBroadcast(intentUpdate);
+                BroadcastService.sendBroadcast(context, intentUpdate);
             }
         }, delay);
     }

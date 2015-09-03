@@ -39,7 +39,7 @@ public class BroadcastService {
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        context.sendBroadcast(intent);
+        sendBroadcast(context, intent);
     }
 
     public static void sendLoadMoreBroadcast(Context context, boolean loadMore) {
@@ -48,7 +48,7 @@ public class BroadcastService {
         intent.setAction(INTENT_ACTIONS.LOAD_MORE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("loadMore", loadMore);
-        context.sendBroadcast(intent);
+        sendBroadcast(context, intent);
     }
 
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
@@ -57,7 +57,7 @@ public class BroadcastService {
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        context.sendBroadcast(intentUpdate);
+        sendBroadcast(context, intentUpdate);
     }
 
     public static void sendMessageDeleteBroadcast(Context context, String action, String keyString, String contactNumbers) {
@@ -67,7 +67,7 @@ public class BroadcastService {
         intentDelete.putExtra("keyString", keyString);
         intentDelete.putExtra("contactNumbers", contactNumbers);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
-        context.sendBroadcast(intentDelete);
+        sendBroadcast(context, intentDelete);
     }
 
     public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber) {
@@ -76,7 +76,7 @@ public class BroadcastService {
         intentDelete.setAction(action);
         intentDelete.putExtra("contactNumber", contactNumber);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
-        context.sendBroadcast(intentDelete);
+        sendBroadcast(context, intentDelete);
     }
 
     public static void sendNumberVerifiedBroadcast(Context context, String action) {
@@ -84,16 +84,15 @@ public class BroadcastService {
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-        context.sendBroadcast(intentUpdate);
+        sendBroadcast(context, intentUpdate);
     }
-
 
     public static void sendNotificationBroadcast(Context context, Message message) {
         Log.i(TAG, "Sending notification broadcast....");
         Intent notificationIntent = new Intent();
         notificationIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         notificationIntent.setAction("com.applozic.mobicomkit.notification");
-        context.sendBroadcast(notificationIntent);
+        sendBroadcast(context, notificationIntent);
     }
 
     public static IntentFilter getIntentFilter() {
@@ -118,5 +117,9 @@ public class BroadcastService {
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, SMS_ATTACHMENT_DOWNLOAD_FAILD,
         CONTACT_VERIFIED, NOTIFY_USER
+    }
+
+    public static void sendBroadcast(Context context, Intent intent) {
+        context.sendBroadcast(intent);
     }
 }
