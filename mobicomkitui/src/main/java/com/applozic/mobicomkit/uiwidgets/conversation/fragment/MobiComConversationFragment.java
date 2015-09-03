@@ -443,7 +443,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if (TextUtils.isEmpty(message.getMessage()) && menuItems[i].equals("Copy")) {
+                if (message.getFileMetas() != null && !message.getFileMetas().isEmpty() &&
+                        menuItems[i].equals("Copy")) {
                     continue;
                 }
                 if (message.isCall() && (menuItems[i].equals("Forward") ||
