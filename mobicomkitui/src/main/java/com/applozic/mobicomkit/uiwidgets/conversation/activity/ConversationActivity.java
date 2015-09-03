@@ -96,13 +96,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onResume() {
         super.onResume();
-        registerMobiTexterBroadcastReceiver();
+        registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -134,10 +134,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         new ConversationUIService(this).checkForStartNewConversation(getIntent());
-    }
-
-    protected void registerMobiTexterBroadcastReceiver() {
-        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     private void showActionBar() {
