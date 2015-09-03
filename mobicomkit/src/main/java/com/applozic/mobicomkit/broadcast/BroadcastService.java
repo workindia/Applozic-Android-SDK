@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.broadcast;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -120,6 +121,6 @@ public class BroadcastService {
     }
 
     public static void sendBroadcast(Context context, Intent intent) {
-        context.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -71,7 +72,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         super.onResume();
         InstructionUtil.enabled = true;
         mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-        registerMobiTexterBroadcastReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
@@ -79,7 +80,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         super.onPause();
         InstructionUtil.enabled = false;
         mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-        //unregisterReceiver(mobiComKitBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -175,9 +176,6 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         }
     }
 
-    protected void registerMobiTexterBroadcastReceiver() {
-        registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
-    }
 
     //Note: Workaround for LGE device bug: https://github.com/adarshmishra/MobiTexter/issues/374
     @Override

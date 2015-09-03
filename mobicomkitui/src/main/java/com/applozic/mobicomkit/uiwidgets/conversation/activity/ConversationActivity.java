@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -101,7 +102,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mobiComKitBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -136,7 +137,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     protected void registerMobiTexterBroadcastReceiver() {
-        registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     private void showActionBar() {
