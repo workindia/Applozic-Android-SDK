@@ -78,7 +78,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
@@ -443,7 +442,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             String[] menuItems = getResources().getStringArray(R.array.menu);
 
             for (int i = 0; i < menuItems.length; i++) {
-                if (message.isCall() && (menuItems[i].equals("Copy") || menuItems[i].equals("Forward") ||
+
+                if (TextUtils.isEmpty(message.getMessage()) && menuItems[i].equals("Copy")) {
+                    continue;
+                }
+                if (message.isCall() && (menuItems[i].equals("Forward") ||
                         menuItems[i].equals("Resend"))) {
                     continue;
                 }
