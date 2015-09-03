@@ -39,4 +39,6 @@ notifications:
       - adarsh@applozic.com
       - ranjeet@applozic.com
       - sunil.kumar@mobitexter.net
+      
+after_success: ./scripts/travis_upload_release_to_github.py      
 
