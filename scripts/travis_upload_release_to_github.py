@@ -91,6 +91,7 @@ response = conn.getresponse()
 if response.status == 422:
     print('response status 422')
     conn = httplib.HTTPSConnection('api.github.com')
+    print('user_repo_name is %s',user_repo_name)
     conn.request('GET', '/repos/%s/releases/tags/%s' % (user_repo_name, current_tag),
                  headers={
                      'Accept': github_header_accept,
