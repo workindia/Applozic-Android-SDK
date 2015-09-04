@@ -14,7 +14,7 @@ from os import getenv
 from subprocess import check_output
 from subprocess import CalledProcessError
 
-__author__ = 'mariotaku'
+__author__ = 'priyadarshi'
 git_https_url_prefix = 'https://github.com/'
 git_ssh_url_prefix = 'git@github.com:'
 git_git_url_prefix = 'git://github.com/'
