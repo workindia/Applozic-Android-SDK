@@ -8,6 +8,7 @@ before_install:
    - chmod +x scripts/travis_upload_release_to_github.py
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
 
+
 script: ./gradlew test
 
 after_success: ./scripts/travis_upload_release_to_github.py
