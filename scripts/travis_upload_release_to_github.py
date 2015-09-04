@@ -57,10 +57,10 @@ except CalledProcessError:
 try:
     current_tag_body = '\n'.join(
         check_output(['git', 'show', '-s', '--format=%b', current_tag], stderr=DEVNULL).splitlines()[2:])
-    print('current_tag_body1',current_tag_body)
+    print('current_tag_body1 %s' %current_tag_body)
 except CalledProcessError:
     current_tag_body = "Automatic upload for version %s" % current_tag
-    print('current_tag_body2',current_tag_body)
+    print('current_tag_body2 %s' %current_tag_body)
 
 github_access_token = os.getenv('GITHUB_ACCESS_TOKEN')
 
