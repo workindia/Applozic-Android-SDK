@@ -57,10 +57,8 @@ except CalledProcessError:
 try:
     current_tag_body = '\n'.join(
         check_output(['git', 'show', '-s', '--format=%b', current_tag], stderr=DEVNULL).splitlines()[2:])
-    print('current_tag_body1 %s' %current_tag_body)
 except CalledProcessError:
     current_tag_body = "Automatic upload for version %s" % current_tag
-    print('current_tag_body2 %s' %current_tag_body)
 
 github_access_token = os.getenv('GITHUB_ACCESS_TOKEN')
 
@@ -89,9 +87,7 @@ conn.request('POST', '/repos/%s/releases' % user_repo_name,
              })
 response = conn.getresponse()
 if response.status == 422:
-    print('response status 422')
     conn = httplib.HTTPSConnection('api.github.com')
-    print('user_repo_name is %s',user_repo_name)
     conn.request('GET', '/repos/%s/releases/tags/%s' % (user_repo_name, current_tag),
                  headers={
                      'Accept': github_header_accept,
@@ -108,10 +104,7 @@ response_values = json.loads(response.read())
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
 for root, dirnames, filenames in os.walk(os.getcwd()):
-    for filename in filenames:
-        print('file is %s' % filename)
     for filename in fnmatch.filter(filenames, 'app-debug.apk'):
-        print('second for loop')
         conn = httplib.HTTPSConnection(upload_url.hostname)
         conn.request('POST', "%s?%s" % (upload_url.path, urllib.urlencode({'name': filename})),
                      body=open(os.path.join(root, filename), 'r'),
