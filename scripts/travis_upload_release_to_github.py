@@ -87,6 +87,7 @@ conn.request('POST', '/repos/%s/releases' % user_repo_name,
              })
 response = conn.getresponse()
 if response.status == 422:
+    print('response status 422')
     conn = httplib.HTTPSConnection('api.github.com')
     conn.request('GET', '/repos/%s/releases/tags/%s' % (user_repo_name, current_tag),
                  headers={
@@ -103,8 +104,10 @@ if response.status not in range(200, 204):
 response_values = json.loads(response.read())
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
-for root, dirnames, filenames in os.walk(os.getcwd()):
+for root, dirnames, filenames in os.walk(os.getcwd
+print('first for loop')
     for filename in fnmatch.filter(filenames, '*-release.apk'):
+        print('second for loop')
         conn = httplib.HTTPSConnection(upload_url.hostname)
         conn.request('POST', "%s?%s" % (upload_url.path, urllib.urlencode({'name': filename})),
                      body=open(os.path.join(root, filename), 'r'),
