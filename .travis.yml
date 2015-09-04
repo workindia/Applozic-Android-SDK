@@ -2,10 +2,6 @@ language: android
 
 sudo: false
 
-env:
-  global:
-    MALLOC_ARENA_MAX=2
-
 before_install:
    - ulimit -t 514029
    - chmod +x gradlew
