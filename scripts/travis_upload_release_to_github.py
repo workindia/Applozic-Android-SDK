@@ -105,7 +105,7 @@ response_values = json.loads(response.read())
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
 for root, dirnames, filenames in os.walk(os.getcwd()):
-print('first for loop')
+    print('first for loop')
     for filename in fnmatch.filter(filenames, '*-release.apk'):
         print('second for loop')
         conn = httplib.HTTPSConnection(upload_url.hostname)
