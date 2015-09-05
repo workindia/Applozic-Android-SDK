@@ -443,7 +443,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if (message.getFileMetas() != null && !message.getFileMetas().isEmpty() &&
+                if (message.hasAttachment() &&
                         menuItems[i].equals("Copy")) {
                     continue;
                 }
@@ -783,6 +783,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (index != -1) {
                     Message messageListItem = messageList.get(index);
                     messageListItem.setKeyString(message.getKeyString());
+                    messageListItem.setSentToServer(true);
                     messageListItem.setCreatedAtTime(message.getSentMessageTimeAtServer());
                     messageListItem.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
                     View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
