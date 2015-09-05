@@ -149,7 +149,7 @@ public class MobiComConversationService {
 
     public boolean deleteMessage(Message message, Contact contact) {
         messageClientService.deleteMessage(message, contact);
-        deleteMessageFromDevice(message, contact != null ? contact.getFormattedContactNumber() : null);
+        deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
         return true;
     }
 
@@ -178,7 +178,7 @@ public class MobiComConversationService {
                 }
             }).start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactNumber());
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds());
     }
 
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
