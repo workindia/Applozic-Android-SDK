@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -139,7 +140,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.setHeaderTitle(R.string.messageOptions);
+        menu.setHeaderTitle(R.string.conversation);
 
         menu.add(Menu.NONE, Menu.NONE, 0, "Delete");
     }
@@ -296,6 +297,8 @@ public class MobiComQuickConversationFragment extends Fragment {
         ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(MobiComKitApplication.TITLE);
         BroadcastService.selectMobiComKitAll();
         super.onResume();
+        latestMessageForEachContact.clear();
+        messageList.clear();
         if (listView != null) {
             if (listView.getCount() > listIndex) {
                 listView.setSelection(listIndex);
@@ -405,11 +408,12 @@ public class MobiComQuickConversationFragment extends Fragment {
                 }
                 Message recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
                 if (recentSms != null) {
-                    if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
+                   if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
                         latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                        Log.d("Current message","message"+currentMessage);
                         messageList.remove(recentSms);
                         messageList.add(currentMessage);
-                    }
+                   }
                 } else {
                     latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
                     messageList.add(currentMessage);

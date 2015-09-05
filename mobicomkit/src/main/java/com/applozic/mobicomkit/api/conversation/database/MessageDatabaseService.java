@@ -320,13 +320,8 @@ public class MessageDatabaseService {
 
     public synchronized long createMessage(final Message message) {
         long id = -1;
-        if (recentlyAddedMessage.contains(message)) {
-            return -1;
-        }
-        if (message.hasAttachment() && message.getMessageId() != null) {
-            if (!recentlyAddedMessage.contains(message))
-                recentlyAddedMessage.add(message);
-            return message.getMessageId();
+        if(message.getMessageId() !=null){
+            return  message.getMessageId();
         }
         id = createSingleMessage(message);
         message.setMessageId(id);
@@ -340,11 +335,6 @@ public class MessageDatabaseService {
                 singleMessage.processContactIds(context);
                 singleMessage.setMessageId(createSingleMessage(singleMessage));
             }
-        }
-
-        recentlyAddedMessage.add(message);
-        if (recentlyAddedMessage.size() > 20) {
-            recentlyAddedMessage.subList(0, 10).clear();
         }
         return id;
     }
@@ -369,13 +359,26 @@ public class MessageDatabaseService {
         if (duplicateCheck) {
             Cursor cursor;
             //Todo: add broadcastGroupId in the query if group is not null
-            if (message.isSentToServer() && !TextUtils.isEmpty(message.getKeyString())) {
+            /*if (message.isSentToServer() && !TextUtils.isEmpty(message.getMessageId())) {
+
+            } else *//*if (message.isSentToServer() && !TextUtils.isEmpty(message.getKeyString())) {
                 cursor = database.rawQuery(
                         "SELECT COUNT(*) FROM sms WHERE keyString = ? and contactNumbers = ?",
                         new String[]{message.getKeyString(), message.getContactIds()});
             } else {
                 cursor = database.rawQuery(
                         "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt between " + (message.getCreatedAtTime() - 120000) + " and " + (message.getCreatedAtTime() + 120000),
+                        new String[]{message.getContactIds(), message.getMessage()});
+            }*/
+
+
+            if (message.isSentToServer() && !TextUtils.isEmpty(message.getKeyString())) {
+                cursor = database.rawQuery(
+                        "SELECT COUNT(*) FROM sms WHERE keyString = ? and contactNumbers = ?",
+                        new String[]{message.getKeyString(), message.getContactIds()});
+            } else {
+                cursor = database.rawQuery(
+                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " +message.getCreatedAtTime(),
                         new String[]{message.getContactIds(), message.getMessage()});
             }
 

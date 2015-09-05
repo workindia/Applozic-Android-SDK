@@ -74,6 +74,7 @@
 
     <string name="enter_mt_message_hint">enter message here</string>
     <string name="messageOptions">Message Options</string>
+    <string name="conversation">Conversation</string>
     <string name="enter_support_query_hint">enter your queries, bug reporting or feedback here</string>
     <string name="info_message_scheduled">Message is successfully scheduled</string>
 

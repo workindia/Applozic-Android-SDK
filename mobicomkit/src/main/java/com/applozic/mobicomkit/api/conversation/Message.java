@@ -38,23 +38,10 @@ public class Message extends JsonMarker {
     private List<String> filePaths;
     private String pairedMessageKeyString;
     private long sentMessageTimeAtServer;
-
-    public long getSentMessageTimeAtServer() {
-        return sentMessageTimeAtServer;
-    }
-
-    public void setSentMessageTimeAtServer(long sentMessageTimeAtServer) {
-        this.sentMessageTimeAtServer = sentMessageTimeAtServer;
-    }
-
-
     private boolean canceled = false;
-
     private List<FileMeta> fileMetas;
-
     @SerializedName("id")
     private Long messageId;
-
     private boolean read = false;
     private boolean attDownloadInProgress;
 
@@ -89,6 +76,14 @@ public class Message extends JsonMarker {
         this.setFilePaths(message.getFilePaths());
         this.setBroadcastGroupId(message.getBroadcastGroupId());
         this.setRead(message.isRead());
+    }
+
+    public long getSentMessageTimeAtServer() {
+        return sentMessageTimeAtServer;
+    }
+
+    public void setSentMessageTimeAtServer(long sentMessageTimeAtServer) {
+        this.sentMessageTimeAtServer = sentMessageTimeAtServer;
     }
 
     public boolean isAttDownloadInProgress() {
@@ -363,11 +358,15 @@ public class Message extends JsonMarker {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
 
+        if (getMessageId() != null && message.getMessageId() != null && getMessageId().equals(message.getMessageId())) {
+            return true;
+        }
+
         if (getKeyString() != null && message.getKeyString() != null && !getKeyString().equals(message.getKeyString())) {
             return false;
         }
 
-        if ((isSentToMany() && !getContactIds().contains(message.getContactIds())) || (message.isSentToMany() && !message.getContactIds().contains(getContactIds()))) {
+       /* if ((isSentToMany() && !getContactIds().contains(message.getContactIds())) || (message.isSentToMany() && !message.getContactIds().contains(getContactIds()))) {
             return false;
         } else if (!isSentToMany() && !message.isSentToMany() && !PhoneNumberUtils.compare(to, message.to)) {
             return false;
@@ -393,28 +392,35 @@ public class Message extends JsonMarker {
         } else if (getFileMetaKeyStrings() != null && message.getFileMetaKeyStrings() != null && !getFileMetaKeyStrings().equals(message.getFileMetaKeyStrings())) {
             return false;
         }
-
-        long createdTimeDifference = 60 * 1000;
+*/
+        /*long createdTimeDifference = 0;
         if (!getDelivered().equals(getDelivered())) {
             createdTimeDifference = 240 * 1000;
         }
-
+*//*
         if (createdAtTime != null && message.getCreatedAtTime() != null &&
                 Math.abs(createdAtTime - message.getCreatedAtTime()) > createdTimeDifference) {
             return false;
         }
-
-        return true;
+*/
+        return false;
     }
 
     @Override
     public int hashCode() {
-        int result = getContactIds() != null ? getContactIds().hashCode() : 0;
-        result = 31 * result + (getTo() != null ? getTo().hashCode() : 0);
-        result = 31 * result + (getMessage() != null ? getMessage().hashCode() : 0);
-        result = 31 * result + (getTimeToLive() != null ? getTimeToLive().hashCode() : 0);
+        int result = keyString != null ? keyString.hashCode() : 0;
+        result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
         return result;
     }
+
+  /*@Override
+    public int hashCode() {
+       *//* int result = getContactIds() != null ? getContactIds().hashCode() : 0;
+        result = 31 * result + (getTo() != null ? getTo().hashCode() : 0);
+        result = 31 * result + (getMessage() != null ? getMessage().hashCode() : 0);
+        result = 31 * result + (getTimeToLive() != null ? getTimeToLive().hashCode() : 0);*//*
+        return result;
+    }*/
 
     public boolean isCanceled() {
         return canceled;

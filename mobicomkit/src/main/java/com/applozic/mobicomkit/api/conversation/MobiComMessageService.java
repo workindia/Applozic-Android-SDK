@@ -148,7 +148,7 @@ public class MobiComMessageService {
                     processMessage(message, tofield);
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
                 }
-                MessageClientService.recentProcessedMessage.add(message);
+               // MessageClientService.recentProcessedMessage.add(message);
                 BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                 messageDatabaseService.createMessage(message);
             }

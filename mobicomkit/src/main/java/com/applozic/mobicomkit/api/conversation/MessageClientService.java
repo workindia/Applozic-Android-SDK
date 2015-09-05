@@ -53,8 +53,8 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
     public static final String ARGUMRNT_SAPERATOR = "&";
 
-    public static List<Message> recentProcessedMessage = new ArrayList<Message>();
-    public static List<Message> recentMessageSentToServer = new ArrayList<Message>();
+    /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
+     public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private HttpRequestUtils httpRequestUtils;
@@ -190,7 +190,7 @@ public class MessageClientService extends MobiComKitClientService {
         message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
         message.setKeyString(keyString);
 
-        recentMessageSentToServer.add(message);
+        /*recentMessageSentToServer.add(message);*/
 
         if (broadcast) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
@@ -211,18 +211,20 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void processMessage(Message message) throws Exception {
-        if (recentMessageSentToServer.contains(message)) {
+        /*if (recentMessageSentToServer.contains(message)) {
             return;
         }
+*/
+        //recentMessageSentToServer.add(message);
 
-        recentMessageSentToServer.add(message);
+        boolean isBroadcast = (message.getMessageId() == null);
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         message.setSent(Boolean.TRUE);
         message.setSendToDevice(Boolean.FALSE);
         message.setSuUserKeyString(userPreferences.getSuUserKeyString());
         message.processContactIds(context);
-        BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
+        
 
         long messageId = -1;
 
@@ -234,6 +236,10 @@ public class MessageClientService extends MobiComKitClientService {
 
         messageId = messageDatabaseService.createMessage(message);
 
+        if (isBroadcast) {
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
+
+        }
         if (message.isUploadRequired()) {
             for (String filePath : message.getFilePaths()) {
                 try {
@@ -256,7 +262,7 @@ public class MessageClientService extends MobiComKitClientService {
                     message.setFileMetas(metaFileList);
                 } catch (Exception ex) {
                     Log.e(TAG, "Error uploading file to server: " + filePath);
-                    recentMessageSentToServer.remove(message);
+                  /*  recentMessageSentToServer.remove(message);*/
                     messageDatabaseService.updateCanceledFlag(messageId, 1);
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                     return;
@@ -299,10 +305,11 @@ public class MessageClientService extends MobiComKitClientService {
         } catch (Exception e) {
         }
 
-        if (recentMessageSentToServer.size() > 20) {
+      /*  if (recentMessageSentToServer.size() > 20) {
             recentMessageSentToServer.subList(0, 10).clear();
-        }
+        }*/
     }
+
 
     public String syncMessages(SmsSyncRequest smsSyncRequest) throws Exception {
         String data = GsonUtils.getJsonFromObject(smsSyncRequest, SmsSyncRequest.class);
