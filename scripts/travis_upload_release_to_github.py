@@ -14,7 +14,7 @@ from os import getenv
 from subprocess import check_output
 from subprocess import CalledProcessError
 
-__author__ = 'mariotaku'
+__author__ = 'priyadarshi'
 git_https_url_prefix = 'https://github.com/'
 git_ssh_url_prefix = 'git@github.com:'
 git_git_url_prefix = 'git://github.com/'
@@ -60,7 +60,7 @@ try:
 except CalledProcessError:
     current_tag_body = "Automatic upload for version %s" % current_tag
 
-github_access_token = getenv('GITHUB_ACCESS_TOKEN')
+github_access_token = os.getenv('GITHUB_ACCESS_TOKEN')
 
 if not github_access_token:
     print('No access token given, abort', file=sys.stderr)
@@ -104,7 +104,7 @@ response_values = json.loads(response.read())
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
 for root, dirnames, filenames in os.walk(os.getcwd()):
-    for filename in fnmatch.filter(filenames, '*-release.apk'):
+    for filename in fnmatch.filter(filenames, 'app-debug.apk'):
         conn = httplib.HTTPSConnection(upload_url.hostname)
         conn.request('POST', "%s?%s" % (upload_url.path, urllib.urlencode({'name': filename})),
                      body=open(os.path.join(root, filename), 'r'),

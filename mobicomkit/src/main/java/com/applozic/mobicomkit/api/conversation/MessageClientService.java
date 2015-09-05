@@ -334,13 +334,13 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void deleteConversationThreadFromServer(Contact contact) {
-        if (TextUtils.isEmpty(contact.getFormattedContactNumber())) {
+        if (TextUtils.isEmpty(contact.getContactIds())) {
             return;
         }
         try {
-            String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getFormattedContactNumber(), "UTF-8");
+            String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8");
             String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
-            Log.i(TAG, "Delete messages response from server: " + response + contact.getFormattedContactNumber());
+            Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -348,9 +348,9 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void deleteMessage(Message message, Contact contact) {
         String contactNumberParameter = "";
-        if (contact != null && !TextUtils.isEmpty(contact.getFormattedContactNumber())) {
+        if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             try {
-                contactNumberParameter = "&to=" + URLEncoder.encode(contact.getContactNumber(), "UTF-8") + "&contactNumber=" + URLEncoder.encode(contact.getFormattedContactNumber(), "UTF-8");
+                contactNumberParameter = "&to=" + URLEncoder.encode(contact.getContactIds(), "UTF-8") + "&contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
