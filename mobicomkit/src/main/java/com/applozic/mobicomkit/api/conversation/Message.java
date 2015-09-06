@@ -5,6 +5,7 @@ import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.annotations.SerializedName;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
@@ -119,7 +120,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isAttachmentDownloaded() {
-        return filePaths != null && !filePaths.isEmpty();
+        return filePaths != null && !filePaths.isEmpty() && FileUtils.isFileExist(filePaths.get(0));
     }
 
     public boolean isCall() {
