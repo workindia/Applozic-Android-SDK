@@ -65,22 +65,6 @@ public class MessageIntentService extends IntentService {
         public void run() {
             try {
                 new MessageClientService(MessageIntentService.this).sendMessageToServer(message, ScheduleMessageService.class);
-                if (message.hasAttachment() && !message.isAttachmentUploadInProgress()) {
-                    runningTaskMap.remove(getMapKey(message));
-                }
-                int groupSmsDelayInSec = MobiComUserPreference.getInstance(MessageIntentService.this).getGroupSmsDelayInSec();
-                boolean isDelayRequire = (groupSmsDelayInSec > 0 && message.isSentViaCarrier() && message.isSentToMany());
-                if (message.getScheduledAt() == null) {
-                    String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
-
-                    for (String tofield : toList) {
-                        if (isDelayRequire && !message.getTo().startsWith(tofield)) {
-                            new Timer().schedule(new MessageSenderTimerTask(new MobiComMessageService(MessageIntentService.this, MessageIntentService.class), message, tofield), groupSmsDelayInSec * 1000);
-                        } else {
-                            new MobiComMessageService(MessageIntentService.this, MessageIntentService.class).processMessage(message, tofield);
-                        }
-                    }
-                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

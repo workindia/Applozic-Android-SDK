@@ -30,7 +30,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                 @Override
                 public void run() {
 
-                    new MessageClientService(context).syncPendingMessages();
+                    MessageClientService.syncPendingMessages(context);
                 }
             }).start();
         }

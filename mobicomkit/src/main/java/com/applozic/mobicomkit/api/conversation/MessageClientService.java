@@ -124,11 +124,11 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public void syncPendingMessages() {
-        syncPendingMessages(true);
+    public synchronized static void syncPendingMessages(Context context) {
+        new MessageClientService(context).syncPendingMessages(true);
     }
 
-    public synchronized void syncPendingMessages(boolean broadcast) {
+    public void syncPendingMessages(Boolean broadcast) {
         List<Message> pendingMessages = messageDatabaseService.getPendingMessages();
         Log.i(TAG, "Found " + pendingMessages.size() + " pending messages to sync.");
         for (Message message : pendingMessages) {

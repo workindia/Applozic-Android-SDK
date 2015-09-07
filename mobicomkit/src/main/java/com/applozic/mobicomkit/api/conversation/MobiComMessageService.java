@@ -65,13 +65,6 @@ public class MobiComMessageService {
 
         if (message.getType().equals(Message.MessageType.MT_INBOX.getValue())) {
             addMTMessage(message);
-            //TODO: in case of isStoreOn device is false ..have to handle fall back
-        } else if (message.getType().equals(Message.MessageType.MT_OUTBOX.getValue())) {
-            Uri uri = null;
-            Log.i(TAG, "Got mt outbox message");
-            String mapKey = message.getKeyString() + "," + message.getContactIds();
-            map.put(mapKey, uri);
-            mtMessages.put(mapKey, message);
         }
         Log.i(TAG, "Sending message: " + message);
         return message;
@@ -148,9 +141,6 @@ public class MobiComMessageService {
                     processMessage(message, tofield);
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
                 }
-               // MessageClientService.recentProcessedMessage.add(message);
-                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
-                messageDatabaseService.createMessage(message);
             }
             userpref.setLastSyncTime(String.valueOf(syncMessageFeed.getLastSyncTime()));
         }
