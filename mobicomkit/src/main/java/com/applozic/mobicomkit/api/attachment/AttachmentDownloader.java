@@ -194,23 +194,28 @@ class AttachmentDownloader implements Runnable {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
             message.setFilePaths(arrayList);
+
+            MediaScannerConnection.scanFile(mPhotoTask.getContext(),
+                    new String[]{file.toString()}, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
+
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             Log.e(TAG, "File not found on server");
         } catch (Exception ex) {
+            //If partial file got created delete it, we try to download it again
+            if ( file.exists() ) {
+                Log.i(TAG, " Exception occured while downloading :" +file.getAbsolutePath()  );
+                file.delete();
+            }
             ex.printStackTrace();
             Log.e(TAG, "Exception fetching file from server");
         }
-
-        MediaScannerConnection.scanFile(mPhotoTask.getContext(),
-                new String[]{file.toString()}, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i("ExternalStorage", "Scanned " + path + ":");
-                        Log.i("ExternalStorage", "-> uri=" + uri);
-                    }
-                });
-
     }
 
     /**
