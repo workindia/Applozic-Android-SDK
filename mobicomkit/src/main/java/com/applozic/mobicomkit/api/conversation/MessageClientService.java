@@ -178,6 +178,10 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void sendPendingMessageToServer(Message message, boolean broadcast) {
+
+        if (message.hasAttachment()) {
+            return;
+        }
         String response = sendMessage(message);
 
         if (TextUtils.isEmpty(response) || response.contains("<html>")) {
@@ -224,7 +228,7 @@ public class MessageClientService extends MobiComKitClientService {
         message.setSendToDevice(Boolean.FALSE);
         message.setSuUserKeyString(userPreferences.getSuUserKeyString());
         message.processContactIds(context);
-        
+
 
         long messageId = -1;
 
