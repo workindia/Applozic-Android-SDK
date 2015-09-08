@@ -36,6 +36,10 @@ addons:
   apt:
     packages:
       - python2.7
+   
+env:
+  global:
+     MALLOC_ARENA_MAX=10      
       
 notifications:
   email:

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -66,6 +67,12 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     // Navigation adapter
     protected TitleNavigationAdapter adapter;
     protected BaseContactService baseContactService;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+    }
 
     @Override
     protected void onResume() {
