@@ -58,17 +58,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     protected ActionBar mActionBar;
-    FragmentActivity fragmentActivity;
     private LocationRequest locationRequest;
     protected GoogleApiClient googleApiClient;
     public static final String TAKE_ORDER = "takeOrder";
 
     public ConversationActivity() {
 
-    }
-
-    public ConversationActivity(FragmentActivity fragmentActivity) {
-        this.fragmentActivity = fragmentActivity;
     }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
@@ -96,13 +91,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
         super.onPause();
-        unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override

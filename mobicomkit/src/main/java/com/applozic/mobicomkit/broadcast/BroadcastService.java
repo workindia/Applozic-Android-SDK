@@ -121,7 +121,6 @@ public class BroadcastService {
     }
 
     public static void sendBroadcast(Context context, Intent intent) {
-        //LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        context.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 }
