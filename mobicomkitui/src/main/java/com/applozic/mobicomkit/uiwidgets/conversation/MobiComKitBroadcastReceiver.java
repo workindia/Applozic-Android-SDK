@@ -78,8 +78,9 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateDeliveryStatus(message, userId);
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString().equals(action)) {
             String contactNumber = intent.getStringExtra("contactNumber");
+            String response = intent.getStringExtra("response");
             Contact contact = baseContactService.getContactById(contactNumber);
-            conversationUIService.deleteConversation(contact);
+            conversationUIService.deleteConversation(contact,response);
         } else if (BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString().equals(action) && message != null) {
             conversationUIService.updateUploadFailedStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {

@@ -112,7 +112,8 @@ public class ConversationUIService {
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new MobiComConversationService(fragmentActivity).deleteAndBroadCast(contact, true);
+                      new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity),contact,fragmentActivity).execute();
+
                     }
                 });
         alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -227,12 +228,12 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteConversation(Contact contact) {
+    public void deleteConversation(Contact contact,String response) {
         if (BroadcastService.isIndividual()) {
             getConversationFragment().clearList();
         }
         if (BroadcastService.isQuick()) {
-            getQuickConversationFragment().removeConversation(contact);
+            getQuickConversationFragment().removeConversation(contact,response);
         }
     }
 

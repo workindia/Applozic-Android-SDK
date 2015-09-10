@@ -21,6 +21,8 @@
     <string name="contact_sync_in_progress">Contact sync is in progress, might take few mins</string>
     <string name="zero_friends_on_mobitexter">No contacts on mobitexter</string>
     <string name="zero_groups_on_phone">No groups, add groups in your mobile or gmail account</string>
+    <string name="delete_thread_text">Deleting....</string>
+
 
     <!--
          Used for the AlphabetIndexer in ContactsListFragment to provide quick navigation by

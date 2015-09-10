@@ -82,7 +82,7 @@ public class MobiComPushReceiver {
             if (!TextUtils.isEmpty(deleteConversationForContact)) {
                 MobiComConversationService conversationService = new MobiComConversationService(context);
                 conversationService.deleteConversationFromDevice(deleteConversationForContact);
-                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact);
+                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact,"success");
             }
 
             if (!TextUtils.isEmpty(mtexterUser)) {

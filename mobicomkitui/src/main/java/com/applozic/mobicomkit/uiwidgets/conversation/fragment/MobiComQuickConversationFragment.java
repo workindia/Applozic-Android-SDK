@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -256,17 +257,24 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
-    public void removeConversation(final Contact contact) {
-        this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Message message = latestMessageForEachContact.get(contact.getUserId());
-                messageList.remove(message);
-                latestMessageForEachContact.remove(contact.getUserId());
-                conversationAdapter.notifyDataSetChanged();
-                checkForEmptyConversations();
-            }
-        });
+    public void removeConversation(final Contact contact,String response) {
+
+        if("success".equals(response)){
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Message message = latestMessageForEachContact.get(contact.getUserId());
+                    messageList.remove(message);
+                    latestMessageForEachContact.remove(contact.getUserId());
+                    conversationAdapter.notifyDataSetChanged();
+                    checkForEmptyConversations();
+                }
+            });
+        }else {
+
+            Toast.makeText(getActivity(),"delete failed ",Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     public void checkForEmptyConversations() {

@@ -878,7 +878,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        conversationService.deleteAndBroadCast(contact, true);
+                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()),contact,getActivity()).execute();
                     }
                 });
         alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

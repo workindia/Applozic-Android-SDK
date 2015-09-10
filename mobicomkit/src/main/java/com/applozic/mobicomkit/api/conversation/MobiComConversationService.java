@@ -178,9 +178,17 @@ public class MobiComConversationService {
                 }
             }).start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds());
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(),"success");
     }
 
+    public void deleteSync(final Contact contact) {
+        String response = messageClientService.syncDeleteConversationThreadFromServer(contact);
+        if ("success".equals(response)) {
+            messageDatabaseService.deleteConversation(contact.getContactIds());
+        }
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
+                contact.getContactIds(), response);
+    }
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }

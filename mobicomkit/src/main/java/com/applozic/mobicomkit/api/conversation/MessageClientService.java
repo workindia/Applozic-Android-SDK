@@ -50,7 +50,9 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_LIST_URL = "/rest/ws/mobicomkit/v1/message/list";
     public static final String MESSAGE_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete";
     public static final String UPDATE_DELIVERY_FLAG_URL = "/rest/ws/sms/update/delivered";
-    public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
+    // public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
+    public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/sms/deleteConversion";
+
     public static final String ARGUMRNT_SAPERATOR = "&";
 
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
@@ -355,6 +357,21 @@ public class MessageClientService extends MobiComKitClientService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public String syncDeleteConversationThreadFromServer(Contact contact) {
+        String response = null;
+        try {
+            if (!TextUtils.isEmpty(contact.getContactIds())) {
+                String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8")
+                 +"&suUserKeyString=" + URLEncoder.encode( MobiComUserPreference.getInstance(context).getSuUserKeyString(), "UTF-8");
+                response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
+                Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
     public void deleteMessage(Message message, Contact contact) {

@@ -71,11 +71,12 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
-    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber) {
+    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber,String response) {
         Log.i(TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("contactNumber", contactNumber);
+        intentDelete.putExtra("response", response);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intentDelete);
     }
@@ -93,7 +94,7 @@ public class BroadcastService {
         Intent notificationIntent = new Intent();
         notificationIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         notificationIntent.setAction("com.applozic.mobicomkit.notification");
-        sendBroadcast(context, notificationIntent);
+        context.sendBroadcast(notificationIntent);
     }
 
     public static IntentFilter getIntentFilter() {
