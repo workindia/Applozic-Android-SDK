@@ -54,20 +54,17 @@ public class MobiComQuickConversationFragment extends Fragment {
 
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
     protected MobiComConversationService conversationService;
-    private ApplozicSetting applozicSetting;
-
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
     protected TextView emptyTextView;
     protected Button startNewButton;
     protected SwipeRefreshLayout swipeLayout;
     protected int listIndex;
-
     protected Map<String, Message> latestMessageForEachContact = new HashMap<String, Message>();
     protected List<Message> messageList = new ArrayList<Message>();
     protected QuickConversationAdapter conversationAdapter = null;
-
     protected boolean loadMore = false;
+    private ApplozicSetting applozicSetting;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
@@ -117,11 +114,12 @@ public class MobiComQuickConversationFragment extends Fragment {
         startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
-        startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
-        emptyTextView.setText(applozicSetting.getNoConversationLabel());
 
         swipeLayout = (SwipeRefreshLayout) list.findViewById(R.id.swipe_container);
-        swipeLayout.setEnabled(false);
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
 
         listView.setLongClickable(true);
         registerForContextMenu(listView);
@@ -383,8 +381,12 @@ public class MobiComQuickConversationFragment extends Fragment {
             super.onPreExecute();
             loadMore = false;
             swipeLayout.setEnabled(true);
-            swipeLayout.setRefreshing(initial);
-            // Toast.makeText(context,R.string.quick_conversation_loading, Toast.LENGTH_SHORT).show();
+            swipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeLayout.setRefreshing(true);
+                }
+            });
         }
 
         protected Long doInBackground(Void... voids) {
@@ -409,19 +411,24 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         protected void onPostExecute(Long result) {
             swipeLayout.setEnabled(false);
-            swipeLayout.setRefreshing(false);
+            swipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeLayout.setRefreshing(false);
+                }
+            });
             for (Message currentMessage : nextMessageList) {
                 if (currentMessage.isSentToMany()) {
                     continue;
                 }
                 Message recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
                 if (recentSms != null) {
-                   if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
+                    if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
                         latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
-                        Log.d("Current message","message"+currentMessage);
+                        Log.d("Current message", "message" + currentMessage);
                         messageList.remove(recentSms);
                         messageList.add(currentMessage);
-                   }
+                    }
                 } else {
                     latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
                     messageList.add(currentMessage);
