@@ -63,6 +63,17 @@ import java.util.Map;
 public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private static final int FILE_THRESOLD_SIZE = 400;
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
+
+    static {
+        messageTypeColorMap.put(Message.MessageType.INBOX.getValue(), R.color.message_type_inbox);
+        messageTypeColorMap.put(Message.MessageType.OUTBOX.getValue(), R.color.message_type_outbox);
+        messageTypeColorMap.put(Message.MessageType.OUTBOX_SENT_FROM_DEVICE.getValue(), R.color.message_type_outbox_sent_from_device);
+        messageTypeColorMap.put(Message.MessageType.MT_INBOX.getValue(), R.color.message_type_mt_inbox);
+        messageTypeColorMap.put(Message.MessageType.MT_OUTBOX.getValue(), R.color.message_type_mt_outbox);
+        messageTypeColorMap.put(Message.MessageType.CALL_INCOMING.getValue(), R.color.message_type_incoming_call);
+        messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
+    }
+
     private ImageLoader contactImageLoader;
     private Context context;
     private Contact contact;
@@ -80,17 +91,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private BaseContactService contactService;
     private Contact senderContact;
     private long deviceTimeOffset = 0;
-
-    static {
-        messageTypeColorMap.put(Message.MessageType.INBOX.getValue(), R.color.message_type_inbox);
-        messageTypeColorMap.put(Message.MessageType.OUTBOX.getValue(), R.color.message_type_outbox);
-        messageTypeColorMap.put(Message.MessageType.OUTBOX_SENT_FROM_DEVICE.getValue(), R.color.message_type_outbox_sent_from_device);
-        messageTypeColorMap.put(Message.MessageType.MT_INBOX.getValue(), R.color.message_type_mt_inbox);
-        messageTypeColorMap.put(Message.MessageType.MT_OUTBOX.getValue(), R.color.message_type_mt_outbox);
-        messageTypeColorMap.put(Message.MessageType.CALL_INCOMING.getValue(), R.color.message_type_incoming_call);
-        messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
-    }
-
     private Class<?> messageIntentClass;
     private MobiComConversationService conversationService;
 
@@ -281,7 +281,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                             attachmentView.setVisibility(View.VISIBLE);
                             attachedFile.setVisibility(View.GONE);
                         } else {
-                            showAttachmentIconAndText(attachedFile, filePath, mimeType);
+                            showAttachmentIconAndText(attachedFile, message, mimeType);
                         }
                     }
                 } else if (message.isAttachmentUploadInProgress()) {
@@ -296,7 +296,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     FileMeta fileMeta = message.getFileMetas().get(0);
                     final String mimeType = FileUtils.getMimeType(fileMeta.getName());
                     if (!fileMeta.getContentType().contains("image")) {
-                        showAttachmentIconAndText(attachedFile, fileMeta.getName(), mimeType);
+                        showAttachmentIconAndText(attachedFile, message, mimeType);
                     }
                     attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
@@ -314,7 +314,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                             downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
                             final String mimeType = FileUtils.getMimeType(fileMeta.getName());
                             if (!fileMeta.getContentType().contains("image")) {
-                                showAttachmentIconAndText(attachedFile, fileMeta.getName(), mimeType);
+                                showAttachmentIconAndText(attachedFile, message, mimeType);
                             }
 
                         }
@@ -381,7 +381,14 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     return false;
                 }
             });
-
+            if (attachedFile != null) {
+                attachedFile.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        return false;
+                    }
+                });
+            }
             if (message.getScheduledAt() != null) {
                 createdAtTime.setText(DateUtils.getFormattedDate(message.getScheduledAt()));
             } else if (createdAtTime != null && message.isDummyEmptyMessage()) {
@@ -436,22 +443,31 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
     }
 
-    private void showAttachmentIconAndText(TextView attachedFile, final String filePath, final String mimeType) {
+    private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
+
+        String fileName = "";
+        if (message.isAttachmentDownloaded()) {
+            fileName = message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1);
+        } else {
+            fileName = message.getFileMetas().get(0).getName();
+        }
+        attachedFile.setText(fileName);
         attachedFile.setVisibility(View.VISIBLE);
-        attachedFile.setText(filePath.substring(filePath.lastIndexOf("/") + 1));
         attachedFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                File file = new File(filePath);
-                intent.setDataAndType(Uri.fromFile(file), mimeType);
-                if (intent.resolveActivity(context.getPackageManager()) != null) {
-                    context.startActivity(intent);
-                } else {
-                    Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                if (message.isAttachmentDownloaded()) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(new File(message.getFilePaths().get(0))), mimeType);
+                    if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
+
         });
     }
 

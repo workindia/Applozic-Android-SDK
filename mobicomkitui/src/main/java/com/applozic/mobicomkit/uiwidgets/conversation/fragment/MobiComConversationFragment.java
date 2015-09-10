@@ -813,6 +813,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (view != null) {
                         final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
                         attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                        final ImageView preview  = (ImageView) view.findViewById(R.id.preview);
+                        (view.findViewById(R.id.main_attachment_view)).setVisibility(view.GONE);
+                        preview.setVisibility(View.GONE);
                     }
                 }
             }
