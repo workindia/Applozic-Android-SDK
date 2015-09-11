@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import net.mobitexter.mobiframework.BuildConfig;
+import com.applozic.mobicommons.BuildConfig;
 
 import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;

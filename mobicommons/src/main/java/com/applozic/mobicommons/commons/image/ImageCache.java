@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
-import net.mobitexter.mobiframework.BuildConfig;
+import com.applozic.mobicommons.BuildConfig;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 /**
