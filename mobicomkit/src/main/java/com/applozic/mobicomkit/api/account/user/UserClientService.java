@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.api.account.user;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
 
@@ -80,6 +81,8 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void logout() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
         MobiComUserPreference.getInstance(context).clearAll();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
