@@ -731,7 +731,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageToSend.setTo(TextUtils.join(",", toList));
             messageToSend.setContactIds(TextUtils.join(",", contactIds));
         } else {
-            messageToSend.setTo(contact.getContactNumber());
+            messageToSend.setTo(contact.getContactIds());
             messageToSend.setContactIds(contact.getContactIds());
         }
 
