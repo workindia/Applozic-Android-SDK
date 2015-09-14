@@ -65,6 +65,9 @@ public class MobiComMessageService {
 
         if (message.getType().equals(Message.MessageType.MT_INBOX.getValue())) {
             addMTMessage(message);
+        }  else if (message.getType().equals(Message.MessageType.MT_OUTBOX.getValue())) {
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
+            messageDatabaseService.createMessage(message);
         }
         Log.i(TAG, "Sending message: " + message);
         return message;
@@ -134,7 +137,7 @@ public class MobiComMessageService {
             Log.i(TAG, "got messages : " + messageList.size());
 
             for (final Message message : messageList) {
-                Log.i(TAG, "calling  syncMessages : " + message.getTo() + " " + message.getMessage());
+                Log.i(TAG, "calling syncMessages : " + message.getTo() + " " + message.getMessage());
                 String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
 
                 for (String tofield : toList) {
