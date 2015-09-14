@@ -351,7 +351,7 @@ public class MessageClientService extends MobiComKitClientService {
             return;
         }
         try {
-            String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8");
+            String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8") + "&requestSource=1";
             String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
         } catch (UnsupportedEncodingException e) {
@@ -364,6 +364,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             if (!TextUtils.isEmpty(contact.getContactIds())) {
                 String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8")
+                        + "&requestSource=1"
                  +"&suUserKeyString=" + URLEncoder.encode( MobiComUserPreference.getInstance(context).getSuUserKeyString(), "UTF-8");
                 response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
                 Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
