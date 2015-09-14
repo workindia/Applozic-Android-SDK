@@ -36,6 +36,7 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.facebook.CallbackManager;
@@ -261,7 +262,7 @@ public class LoginActivity extends Activity {
             UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {
 
                 @Override
-                public void onSuccess(RegistrationResponse registrationResponse, Context context) {
+                public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
                     mAuthTask = null;
                     showProgress(false);
 
@@ -271,6 +272,14 @@ public class LoginActivity extends Activity {
 
                     //starting main MainActivity
                     Intent intent = new Intent(context, MainActivity.class);
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            new MobiComConversationService(context).getLatestMessagesGroupByPeople();
+                        }
+                    }).start();
+
                     startActivity(intent);
                     finish();
                 }
