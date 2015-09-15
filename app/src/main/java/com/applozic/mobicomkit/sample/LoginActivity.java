@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -144,7 +145,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-       mSpinnerView = (Spinner) findViewById(R.id.spinner_for_url);
+        mSpinnerView = (Spinner) findViewById(R.id.spinner_for_url);
         mSpinnerView.setVisibility(View.INVISIBLE);
         mTitleView = (TextView) findViewById(R.id.textViewTitle);
         mTitleView.setOnClickListener(new OnClickListener() {
@@ -218,6 +219,7 @@ public class LoginActivity extends Activity {
         }
 
         // Reset errors.
+        mUserIdView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
@@ -230,6 +232,11 @@ public class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
+        if(TextUtils.isEmpty(userId)){
+            mUserIdView.setError(getString(R.string.error_field_required));
+            focusView = mUserIdView;
+            cancel = true;
+        }
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
@@ -319,8 +326,8 @@ public class LoginActivity extends Activity {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+
+        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     private boolean isPasswordValid(String password) {
