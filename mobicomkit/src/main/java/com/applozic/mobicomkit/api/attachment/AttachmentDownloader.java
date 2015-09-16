@@ -115,7 +115,8 @@ class AttachmentDownloader implements Runnable {
              * ImageView background to indicate that the image is being
              * decoded.
              */
-            mPhotoTask.handleDownloadState(HTTP_STATE_COMPLETED);
+
+
 
             // Catches exceptions thrown in response to a queued interrupt
         } catch (InterruptedException e1) {
@@ -128,6 +129,8 @@ class AttachmentDownloader implements Runnable {
             // If the byteBuffer is null, reports that the download failed.
             if (mPhotoTask.getMessage() != null && !mPhotoTask.getMessage().isAttachmentDownloaded()) {
                 mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
+            }else{
+               mPhotoTask.handleDownloadState(HTTP_STATE_COMPLETED);
             }
 
             /*

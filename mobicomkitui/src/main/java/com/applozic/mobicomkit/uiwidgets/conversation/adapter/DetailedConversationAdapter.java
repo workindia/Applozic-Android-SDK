@@ -292,12 +292,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     attachmentView.setMessage(message);
                     attachmentView.setVisibility(View.VISIBLE);
                 } else if (AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
+                    //ondraw is called and thread is assigned to the attachment view...
+                    attachmentView.setMessage(message);
+                    attachmentView.setVisibility(View.VISIBLE);
+                    attachmentView.setProressBar(mediaDownloadProgressBar);
+                    attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     showPreview(message, preview, attachmentDownloadLayout);
                     FileMeta fileMeta = message.getFileMetas().get(0);
                     final String mimeType = FileUtils.getMimeType(fileMeta.getName());
                     if (!fileMeta.getContentType().contains("image")) {
                         showAttachmentIconAndText(attachedFile, message, mimeType);
                     }
+                    downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
                     attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                 } else {

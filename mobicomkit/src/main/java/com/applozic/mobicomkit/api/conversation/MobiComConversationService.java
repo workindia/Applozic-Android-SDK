@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -19,6 +20,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -126,6 +128,9 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
+                    if(message.hasAttachment()){
+                        setFilePathifExist(message);
+                    }
                     messageList.add(message);
                     messageDatabaseService.createMessage(message);
                 }
@@ -145,6 +150,15 @@ public class MobiComConversationService {
             }
         });
         return messageList;
+    }
+
+    private void setFilePathifExist(Message message) {
+        File file = FileClientService.getFilePath(message.getFileMetas().get(0).getName(), context, message.getFileMetas().get(0).getContentType());
+        if(file.exists()){
+            ArrayList<String> arrayList = new ArrayList<String>();
+            arrayList.add(file.getAbsolutePath());
+            message.setFilePaths(arrayList);
+        }
     }
 
     public boolean deleteMessage(Message message, Contact contact) {

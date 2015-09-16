@@ -220,6 +220,7 @@ public class AttachmentView extends ImageView {
     public void cancelDownload() {
         AttachmentManager.removeDownload(mDownloadThread);
         getDownloadProgressLayout().setVisibility(GONE);
+        mIsDrawn= false;
     }
 
 }
