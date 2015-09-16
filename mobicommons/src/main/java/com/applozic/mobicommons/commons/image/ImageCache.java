@@ -132,10 +132,9 @@ public class ImageCache {
     /**
      * Calculates the memory cache size based on a percentage of the max available VM memory.
      * Eg. setting percent to 0.2 would set the memory cache to one fifth of the available
-     * memory. Throws {@link IllegalArgumentException} if percent is < 0.05 or > .8.
+     * memory. Throws {@link IllegalArgumentException} if percent is less than 0.05 or greater than .8.
      * memCacheSize is stored in kilobytes instead of bytes as this will eventually be passed
      * to construct a LruCache which takes an int in its constructor.
-     * <p/>
      * This value should be chosen carefully based on a number of factors
      * Refer to the corresponding Android Training class for more discussion:
      * http://developer.android.com/training/displaying-bitmaps/

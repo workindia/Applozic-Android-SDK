@@ -19,7 +19,6 @@ import com.applozic.mobicommons.json.GsonUtils;
 
 /**
  * Created by adarsh on 4/12/14.
- * <p/>
  * This class should handle all notification types coming from server or some other client.
  * Depending upon actionType it should either do some bg service,task or open some view like activity.
  */

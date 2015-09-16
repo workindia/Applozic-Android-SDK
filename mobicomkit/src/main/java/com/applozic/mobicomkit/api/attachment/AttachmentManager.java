@@ -38,21 +38,24 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
+ * <p>
  * This class creates pools of background threads for downloading
  * Picasa images from the web, based on URLs retrieved from Picasa's featured images RSS feed.
  * The class is implemented as a singleton; the only way to get an PhotoManager instance is to
  * call {@link #getInstance}.
- * <p/>
+ * </p>
+ * <p>
  * The class sets the pool size and cache size based on the particular operation it's performing.
  * The algorithm doesn't apply to all situations, so if you re-use the code to implement a pool
  * of threads for your own app, you will have to come up with your choices for pool size, cache
  * size, and so forth. In many cases, you'll have to set some numbers arbitrarily and then
  * measure the impact on performance.
- * <p/>
+ * </p>
+ * <p>
  * This class actually uses two threadpools in order to limit the number of
  * simultaneous image decoding threads to the number of available processor
  * cores.
- * <p/>
+ * </p>
  * Finally, this class defines a handler that communicates back to the UI
  * thread to change the bitmap to reflect the state.
  */
