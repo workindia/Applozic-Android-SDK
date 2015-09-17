@@ -41,10 +41,6 @@ after_success: ./scripts/travis_upload_release_to_github.py
 notifications:
   email:
     recipients:
-      - global@mobitexter.net
-      - devashish@applozic.com
-      - adarsh@applozic.com
       - ranjeet@applozic.com
-      - sunil.kumar@mobitexter.net
-      
+
 
