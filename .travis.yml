@@ -8,9 +8,6 @@ before_install:
    - chmod +x scripts/travis_upload_release_to_github.py
    - mem=($(free -m | head -2 | tail -1)); if [ ${mem[6]} -eq 0 ]; then export BAD_VM=1; fi
 
-script: ./gradlew build
-
-after_success: ./scripts/travis_upload_release_to_github.py
 
 android:
   components:
@@ -37,6 +34,9 @@ addons:
     packages:
       - python2.7
    
+script: ./gradlew build --no-daemon
+
+after_success: ./scripts/travis_upload_release_to_github.py
 
 notifications:
   email:
