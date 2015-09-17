@@ -38,15 +38,6 @@ script: ./gradlew build --no-daemon
 
 after_success: ./scripts/travis_upload_release_to_github.py
 
-deploy:
-  provider: releases
-  api-key: "GITHUB OAUTH TOKEN"
-  file: "app-debug.apk"
-  skip_cleanup: true
-  on:
-    tags: true
-    rvm: 2.0.0
-
 notifications:
   email:
     recipients:
