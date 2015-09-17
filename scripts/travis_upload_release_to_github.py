@@ -101,6 +101,8 @@ if response.status not in range(200, 204):
     exit(0)
 
 response_values = json.loads(response.read())
+print('response_values ::', response_values)
+
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
 for root, dirnames, filenames in os.walk(os.getcwd()):
