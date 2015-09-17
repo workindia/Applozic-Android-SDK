@@ -105,6 +105,7 @@ print('response_values ::', response_values)
 
 
 upload_url = urlparse.urlparse(re.sub('\{\?([\w\d_\-]+)\}', '', response_values['upload_url']))
+print('upload_url ::', upload_url)
 for root, dirnames, filenames in os.walk(os.getcwd()):
     for filename in fnmatch.filter(filenames, 'app-debug.apk'):
         conn = httplib.HTTPSConnection(upload_url.hostname)
