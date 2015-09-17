@@ -21,9 +21,6 @@ import java.util.Timer;
 public class MessageIntentService extends IntentService {
 
     private static final String TAG = "MessageIntentService";
-    private Map<String, Thread> runningTaskMap = new HashMap<String, Thread>();
-
-    public static final String UPLOAD_CANCEL = "cancel_upload";
 
     public MessageIntentService() {
         super("MessageIntentService");
@@ -31,27 +28,9 @@ public class MessageIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent.getStringExtra(UPLOAD_CANCEL) != null) {
-            //TODO: not completed yet ....
-            Thread thread = runningTaskMap.get(intent.getStringExtra(UPLOAD_CANCEL));
-            if (thread != null) {
-                thread.interrupt();
-            } else {
-                Log.w(TAG, "Thread not found..." + runningTaskMap);
-            }
-            return;
-        }
         final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
         Thread thread = new Thread(new MessegeSender(message));
         thread.start();
-
-        if (message.hasAttachment()) {
-            runningTaskMap.put(getMapKey(message), thread);
-        }
-    }
-
-    private String getMapKey(Message message) {
-        return message.getFilePaths().get(0) + message.getContactIds();
     }
 
     private class MessegeSender implements Runnable {
