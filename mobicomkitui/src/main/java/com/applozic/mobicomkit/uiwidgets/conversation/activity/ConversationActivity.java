@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,17 +52,19 @@ import com.google.android.gms.location.LocationServices;
  */
 public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    public static final int LOCATION_SERVICE_ENABLE = 1001;
+    public static final String TAKE_ORDER = "takeOrder";
     protected static final long UPDATE_INTERVAL = 5;
     protected static final long FASTEST_INTERVAL = 1;
-    public static final int LOCATION_SERVICE_ENABLE = 1001;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static Uri capturedImageUri;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     protected ActionBar mActionBar;
-    private LocationRequest locationRequest;
     protected GoogleApiClient googleApiClient;
-    public static final String TAKE_ORDER = "takeOrder";
+    private LocationRequest locationRequest;
+    private Contact contact;
 
     public ConversationActivity() {
 
@@ -69,13 +73,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
-        Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
+        // Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
         FragmentTransaction fragmentTransaction = supportFragmentManager
                 .beginTransaction();
-        if (null != activeFragment) {
-            fragmentTransaction.hide(activeFragment);
-        }
-
         fragmentTransaction.replace(R.id.layout_child_activity, fragmentToAdd,
                 fragmentTag);
 
@@ -83,6 +83,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
+      /*  if (activeFragment != null) {
+            fragmentTransaction.hide(activeFragment);
+        }*/
         fragmentTransaction.commit();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
@@ -101,16 +104,28 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        if (capturedImageUri != null) {
+            savedInstanceState.putString("capturedImageUri", capturedImageUri.toString());
+            savedInstanceState.putSerializable("contact", contact);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mActionBar = getSupportActionBar();
-
         setContentView(R.layout.quickconversion_activity);
-        quickConversationFragment = new MobiComQuickConversationFragment();
-        conversation = new ConversationFragment();
-
-        addFragment(this, quickConversationFragment, "QuickConversationFragment");
+        mActionBar = getSupportActionBar();
+        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString("capturedImageUri"))) {
+            capturedImageUri = Uri.parse(savedInstanceState.getString("capturedImageUri"));
+            contact = (Contact) savedInstanceState.getSerializable("contact");
+            conversation = new ConversationFragment(contact);
+            addFragment(this, conversation, "ConversationFragment");
+        } else {
+            quickConversationFragment = new MobiComQuickConversationFragment();
+            addFragment(this, quickConversationFragment, "QuickConversationFragment");
+        }
 
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
@@ -215,9 +230,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {
-
-        addFragment(this, conversation, "Conversation");
-        conversation.loadConversation(contact);
+        conversation = new ConversationFragment(contact);
+        addFragment(this, conversation, "ConversationFragment");
+        this.contact = contact;
     }
 
     @Override
@@ -225,12 +240,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         new ConversationUIService(this).startContactActivityForResult();
     }
 
-    @Override
+   /* @Override
     public void addFragment(ConversationFragment conversationFragment) {
         addFragment(this, conversationFragment, "ConversationFragment");
         conversation = conversationFragment;
     }
-
+*/
     @Override
     public void onBackPressed() {
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
@@ -305,4 +320,15 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 CONNECTION_FAILURE_RESOLUTION_REQUEST).show();
     }
 
+    public Contact getContact() {
+        return contact;
+    }
+
+    public static Uri getCapturedImageUri() {
+        return capturedImageUri;
+    }
+
+    public static void setCapturedImageUri(Uri capturedImageUri) {
+        ConversationActivity.capturedImageUri = capturedImageUri;
+    }
 }

@@ -22,7 +22,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
@@ -43,9 +43,9 @@ public class ConversationUIService {
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
     public static final int INSTRUCTION_DELAY = 5000;
     private static final String TAG = "ConversationUIService";
+    public static String DISPLAY_NAME = "displayName";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
-    public static String DISPLAY_NAME = "displayName";
 
     public ConversationUIService(FragmentActivity fragmentActivity) {
         this.fragmentActivity = fragmentActivity;
@@ -53,11 +53,26 @@ public class ConversationUIService {
     }
 
     public MobiComQuickConversationFragment getQuickConversationFragment() {
-        return (MobiComQuickConversationFragment) UIService.getActiveFragment(fragmentActivity);
+
+        MobiComQuickConversationFragment quickConversationFragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, "QuickConversationFragment");
+
+        if (quickConversationFragment == null) {
+            quickConversationFragment = new MobiComQuickConversationFragment();
+            ConversationActivity.addFragment(fragmentActivity, quickConversationFragment, "QuickConversationFragment");
+        }
+        return quickConversationFragment;
     }
 
     public ConversationFragment getConversationFragment() {
-        return (ConversationFragment) UIService.getActiveFragment(fragmentActivity);
+
+        ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, "ConversationFragment");
+
+        if (conversationFragment == null) {
+            Contact contact = ((ConversationActivity) fragmentActivity).getContact();
+            conversationFragment = new ConversationFragment(contact);
+            ConversationActivity.addFragment(fragmentActivity, conversationFragment, "ConversationFragment");
+        }
+        return conversationFragment;
     }
 
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {
@@ -71,39 +86,43 @@ public class ConversationUIService {
             @Override
             public void run() {
                 //Todo: load fragment from backstack if available and avoid creating new fragment.
-                ConversationFragment conversationFragment = new ConversationFragment();
-                ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
-                conversationFragment.loadConversation(contact);
+                ConversationFragment conversationFragment = new ConversationFragment(contact);
+                ConversationActivity.addFragment(fragmentActivity,conversationFragment,"ConversationFragment");
             }
         });
     }
 
     public void openConversationFragment(Group group) {
         ConversationFragment conversationFragment = new ConversationFragment();
-        ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
+        ConversationActivity.addFragment(fragmentActivity, conversationFragment, "ConversationFragment");
         conversationFragment.loadConversation(group);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if ((requestCode == MultimediaOptionFragment.REQUEST_CODE_ATTACH_PHOTO ||
-                requestCode == MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO)
-                && resultCode == Activity.RESULT_OK) {
-            Uri selectedFileUri = (intent == null ? null : intent.getData());
-            if (selectedFileUri == null) {
-                selectedFileUri = getConversationFragment().getMultimediaOptionFragment().getCapturedImageUri();
-                ImageUtils.addImageToGallery(FilePathFinder.getPath(fragmentActivity, selectedFileUri), fragmentActivity);
+        try {
+            if ((requestCode == MultimediaOptionFragment.REQUEST_CODE_ATTACH_PHOTO ||
+                    requestCode == MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO)
+                    && resultCode == Activity.RESULT_OK) {
+                Uri selectedFileUri = (intent == null ? null : intent.getData());
+                if (selectedFileUri == null) {
+
+                    selectedFileUri = ((ConversationActivity) fragmentActivity).getCapturedImageUri();
+                    ImageUtils.addImageToGallery(FilePathFinder.getPath(fragmentActivity, selectedFileUri), fragmentActivity);
+                }
+
+                if (selectedFileUri == null) {
+                    Bitmap photo = (Bitmap) (intent != null ? intent.getExtras().get("data") : null);
+                    selectedFileUri = ImageUtils.getImageUri(fragmentActivity, photo);
+                }
+                getConversationFragment().loadFile(selectedFileUri);
+                Log.i(TAG, "File uri: " + selectedFileUri);
             }
 
-            if (selectedFileUri == null) {
-                Bitmap photo = (Bitmap) (intent != null ? intent.getExtras().get("data") : null);
-                selectedFileUri = ImageUtils.getImageUri(fragmentActivity, photo);
+            if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
+                checkForStartNewConversation(intent);
             }
-            getConversationFragment().loadFile(selectedFileUri);
-            Log.i(TAG, "File uri: " + selectedFileUri);
-        }
-
-        if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
-            checkForStartNewConversation(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -112,7 +131,7 @@ public class ConversationUIService {
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                      new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity),contact,fragmentActivity).execute();
+                        new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity), contact, fragmentActivity).execute();
 
                     }
                 });
@@ -146,7 +165,7 @@ public class ConversationUIService {
             return;
         }
 
-        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getActiveFragment(fragmentActivity);
+        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, "QuickConversationFragment");
         if (fragment != null) {
             fragment.addMessage(message);
         }
@@ -228,12 +247,12 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteConversation(Contact contact,String response) {
+    public void deleteConversation(Contact contact, String response) {
         if (BroadcastService.isIndividual()) {
             getConversationFragment().clearList();
         }
         if (BroadcastService.isQuick()) {
-            getQuickConversationFragment().removeConversation(contact,response);
+            getQuickConversationFragment().removeConversation(contact, response);
         }
     }
 

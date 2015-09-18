@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
@@ -23,10 +21,8 @@ import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
-import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
-import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -59,15 +55,17 @@ public class MainActivity extends MobiComActivityForFragment
 
     }
 
-    public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+   /* public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+
+        Log.i("MainActvity","##Insdie the main Actvity addFragment"+fragmentToAdd+":"+fragmentTag);
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
-        Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
+        //Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
         FragmentTransaction fragmentTransaction = supportFragmentManager
                 .beginTransaction();
-        if (null != activeFragment) {
+        *//*if (null != activeFragment) {
             fragmentTransaction.hide(activeFragment);
-        }
+        }*//*
 
         fragmentTransaction.replace(R.id.container, fragmentToAdd,
                 fragmentTag);
@@ -79,7 +77,7 @@ public class MainActivity extends MobiComActivityForFragment
         fragmentTransaction.commit();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,10 +210,10 @@ public class MainActivity extends MobiComActivityForFragment
         new ConversationUIService(this).startContactActivityForResult();
     }
 
-    @Override
+   /* @Override
     public void addFragment(ConversationFragment conversationFragment) {
         addFragment(this, conversationFragment, "conversationFragment");
-    }
+    }*/
 
     @Override
     public void startContactActivityForResult(Message message, String messageContent) {

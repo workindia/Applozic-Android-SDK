@@ -64,6 +64,7 @@ public class MultimediaOptionFragment extends DialogFragment {
                             // Continue only if the File was successfully created
                             if (photoFile != null) {
                                 capturedImageUri = Uri.fromFile(photoFile);
+                                ConversationActivity.setCapturedImageUri(capturedImageUri);
                                 intent.putExtra(MediaStore.EXTRA_OUTPUT, capturedImageUri);
                                 getActivity().startActivityForResult(intent, REQUEST_CODE_TAKE_PHOTO);
                             }

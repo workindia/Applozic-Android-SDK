@@ -87,7 +87,6 @@ public class AppContactService implements BaseContactService {
     public Bitmap downloadContactImage(Context context, Contact contact) {
         try {
             if (TextUtils.isEmpty(contact.getImageURL()) && TextUtils.isEmpty(contact.getLocalImageUrl())) {
-                Log.i(TAG, " concat image url is not found...");
                 return null;
             }
             Bitmap attachedImage = null;

@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.uiwidgets.MobiComKitApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.people.contact.Contact;
 
 public class ConversationFragment extends MobiComConversationFragment {
 
@@ -22,6 +23,12 @@ public class ConversationFragment extends MobiComConversationFragment {
 
     public ConversationFragment() {
         this.messageIntentClass = MessageIntentService.class;
+    }
+
+    public ConversationFragment(Contact contact) {
+        this.messageIntentClass = MessageIntentService.class;
+        this.contact = contact;
+
     }
 
     public void attachLocation(Location mCurrentLocation) {

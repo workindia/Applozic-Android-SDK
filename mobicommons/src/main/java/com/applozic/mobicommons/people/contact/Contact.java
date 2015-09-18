@@ -8,6 +8,7 @@ import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.Map;
 /**
  * @author devashish
  */
-public class Contact {
+public class Contact implements Serializable {
 
     public static final String R_DRAWABLE = "R.drawable";
     @Expose

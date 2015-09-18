@@ -813,7 +813,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (view != null) {
                         final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
                         attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                        final ImageView preview  = (ImageView) view.findViewById(R.id.preview);
+                        final ImageView preview = (ImageView) view.findViewById(R.id.preview);
                         (view.findViewById(R.id.main_attachment_view)).setVisibility(view.GONE);
                         preview.setVisibility(View.GONE);
                     }
@@ -881,7 +881,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()),contact,getActivity()).execute();
+                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, getActivity()).execute();
                     }
                 });
         alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -963,12 +963,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
             }
-            if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
-                loadnewMessageOnResume(contact, group);
-                MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
-            } else if (messageList.isEmpty()) {
+            if (messageList.isEmpty()) {
                 loadConversation(contact, group);
+            }else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
+                loadnewMessageOnResume(contact, group);
             }
+            MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
         }
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {

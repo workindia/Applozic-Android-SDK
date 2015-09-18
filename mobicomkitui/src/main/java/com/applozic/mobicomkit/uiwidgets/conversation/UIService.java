@@ -9,18 +9,27 @@ import android.support.v4.app.FragmentManager;
  */
 public class UIService {
 
-    public static Fragment getActiveFragment(FragmentActivity activity) {
-        FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
+//        public static Fragment getActiveFragment(FragmentActivity activity) {
+//            FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
+//
+//
+//            if (supportFragmentManager.getBackStackEntryCount() == 0) {
+//                return null;
+//            }
+//            String tag = supportFragmentManager.getBackStackEntryAt(
+//                    supportFragmentManager.getBackStackEntryCount() - 1)
+//                    .getName();
+//            return supportFragmentManager
+//                    .findFragmentByTag(tag);
+//        }
 
+    public static Fragment getFragmentByTag(FragmentActivity  activity,String tag){
+        FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
 
         if (supportFragmentManager.getBackStackEntryCount() == 0) {
             return null;
         }
-        String tag = supportFragmentManager.getBackStackEntryAt(
-                supportFragmentManager.getBackStackEntryCount() - 1)
-                .getName();
-        return supportFragmentManager
-                .findFragmentByTag(tag);
+        return supportFragmentManager.findFragmentByTag(tag);
     }
 
 }
