@@ -20,7 +20,7 @@ public interface MobiComKitActivityInterface {
 
     void startContactActivityForResult();
 
-    void addFragment(ConversationFragment conversationFragment);
+    //void addFragment(ConversationFragment conversationFragment);
 
     void updateLatestMessage(Message message,String number);
 
