@@ -115,7 +115,6 @@ for root, dirnames, filenames in os.walk(os.getcwd()):
                          'User-Agent': github_header_user_agent
                      })
         response = conn.getresponse()
-        conn.set_debuglevel(0)
         if response.status in range(200, 204):
             print("Upload %s success" % filename)
         else:
