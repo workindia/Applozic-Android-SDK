@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -23,6 +24,7 @@ public class MobiComPushReceiver {
 
     public static final String MTCOM_PREFIX = "MT_";
     public static final List<String> notificationKeyList = new ArrayList<String>();
+    private static final String TAG = "MobiComPushReceiver";
 
     static {
         notificationKeyList.add("MT_SYNC"); // 0
@@ -41,8 +43,6 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_CANCEL_CALL");//13
         notificationKeyList.add("MT_MESSAGE");//14
     }
-
-    private static final String TAG = "MobiComPushReceiver";
 
     public static boolean isMobiComPushNotification(Context context, Intent intent) {
         //This is to identify collapse key sent in notification..
@@ -82,7 +82,7 @@ public class MobiComPushReceiver {
             if (!TextUtils.isEmpty(deleteConversationForContact)) {
                 MobiComConversationService conversationService = new MobiComConversationService(context);
                 conversationService.deleteConversationFromDevice(deleteConversationForContact);
-                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact,"success");
+                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact, "success");
             }
 
             if (!TextUtils.isEmpty(mtexterUser)) {
@@ -128,11 +128,14 @@ public class MobiComPushReceiver {
     }
 
     public static void processMessageAsync(final Context context, final Intent intent) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                processMessage(context, intent);
-            }
-        }).start();
+        if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getUserId())) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    processMessage(context, intent);
+                }
+            }).start();
+        }
     }
 }
