@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
-        versionName "1.0"
+        versionName "1.021"
     }
     buildTypes {
         release {
@@ -31,5 +31,31 @@ dependencies {
     }
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile project(':mobicommons')
+    compile project(':mobicommons') //Note: use this for local development
+    //compile 'com.applozic.mobiframework:mobicommons:1.02' //Note: use this for prod
 }
+
+
+ext {
+    // Where you will see your artifact in Bintray's web interface
+    // The "bintrayName" should match the name of the Bintray repro.
+    bintrayRepo = 'maven'
+    bintrayName = 'applozic-communication-message'
+
+    // Maven metadata
+    publishedGroupId = 'com.applozic.communication.message'
+    libraryName = 'mobicomkit'
+    // Save yourself a head ache, and set this equal to the name of the Android Studio library
+    // module. The artifact name needs to match the name of the library.
+    artifact = 'mobicomkit'
+
+    libraryDescription = 'Applozic Communication Chat/Messaging library'
+    libraryVersion = '1.021'
+
+    developerId = 'devashish'
+    developerName = 'Applozic'
+    developerEmail = 'devashish.mamgain@gmail.com'
+}
+
+//apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
