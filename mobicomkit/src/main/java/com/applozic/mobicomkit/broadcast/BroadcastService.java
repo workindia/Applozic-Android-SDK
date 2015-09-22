@@ -9,6 +9,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.Message;
 
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 /**
@@ -17,7 +18,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 public class BroadcastService {
 
     private static final String TAG = "BroadcastService";
-
+    private static final String PACKAGE_NAME = "com.package.name";
     private static final String MOBICOMKIT_ALL = "MOBICOMKIT_ALL";
 
     public static String currentUserId = null;
@@ -71,7 +72,7 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
-    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber,String response) {
+    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, String response) {
         Log.i(TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
@@ -93,7 +94,7 @@ public class BroadcastService {
         Log.i(TAG, "Sending notification broadcast....");
         Intent notificationIntent = new Intent();
         notificationIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        notificationIntent.setAction("com.applozic.mobicomkit.notification");
+        notificationIntent.setAction(Utils.getMetaDataValue(context, PACKAGE_NAME) + ".send.notification");
         context.sendBroadcast(notificationIntent);
     }
 

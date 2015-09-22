@@ -28,8 +28,8 @@
         android:theme="@style/MobiComAppBaseTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/ecommerce"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/ecommerce"
             android:theme="@style/MobiComAppBaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -86,8 +86,8 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
 
@@ -100,9 +100,11 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.applozic.mobicomkit.uiwidgets.notification.MTNotificationBroadcastReceiver" android:exported="false">
+        <receiver
+            android:name="com.applozic.mobicomkit.uiwidgets.notification.MTNotificationBroadcastReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="com.applozic.mobicomkit.notification" />
+                <action android:name="${packageName}.send.notification" />
             </intent-filter>
         </receiver>
 
@@ -150,6 +152,10 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
+        <meta-data
+            android:name="com.package.name"
+            android:value="${packageName}" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
