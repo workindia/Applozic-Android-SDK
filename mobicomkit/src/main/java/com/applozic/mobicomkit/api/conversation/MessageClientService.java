@@ -41,7 +41,6 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String DEVICE_KEY = "deviceKeyString";
     public static final String LAST_SYNC_KEY = "lastSyncTime";
     public static final String FILE_META = "fileMeta";
-    private static final String TAG = "MessageClientService";
     public static final String MTEXT_DELIVERY_URL = "/rest/ws/sms/mtext/delivered?";
     public static final String SERVER_SYNC_URL = "/rest/ws/mobicomkit/sync/messages";
     // public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/add";
@@ -52,9 +51,8 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String UPDATE_DELIVERY_FLAG_URL = "/rest/ws/sms/update/delivered";
     // public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/sms/deleteConversion";
-
     public static final String ARGUMRNT_SAPERATOR = "&";
-
+    private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
      public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
     private Context context;
@@ -100,7 +98,6 @@ public class MessageClientService extends MobiComKitClientService {
         return getBaseUrl() + MESSAGE_THREAD_DELETE_URL;
     }
 
-
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
         try {
             String argString = "?smsKeyString=" + message.getKeyString() + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + "&deviceKeyString=" + message.getDeviceKeyString()
@@ -116,7 +113,7 @@ public class MessageClientService extends MobiComKitClientService {
     public void updateDeliveryStatus(String messageKeyString, String userId, String receiverNumber) {
         try {
             //Note: messageKeyString comes as null for the welcome message as it is inserted directly.
-            if (TextUtils.isEmpty(messageKeyString)) {
+            if (TextUtils.isEmpty(messageKeyString) || TextUtils.isEmpty(userId)) {
                 return;
             }
             httpRequestUtils.getStringFromUrl(getMtextDeliveryUrl() + "smsKeyString=" + messageKeyString
@@ -365,7 +362,7 @@ public class MessageClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(contact.getContactIds())) {
                 String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8")
                         + "&requestSource=1"
-                 +"&suUserKeyString=" + URLEncoder.encode( MobiComUserPreference.getInstance(context).getSuUserKeyString(), "UTF-8");
+                        + "&suUserKeyString=" + URLEncoder.encode(MobiComUserPreference.getInstance(context).getSuUserKeyString(), "UTF-8");
                 response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
                 Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
             }

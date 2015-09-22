@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -40,12 +41,16 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
                     new NotificationService(notificationId == null ? R.drawable.mobicom_ic_launcher : notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
 
             final Contact contact = new AppContactService(context).getContactById(message.getContactIds());
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    notificationService.notifyUser(contact, message);
-                }
-            }).start();
+
+            if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getUserId())) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notificationService.notifyUser(contact, message);
+                    }
+                }).start();
+            }
+
         }
     }
 }
