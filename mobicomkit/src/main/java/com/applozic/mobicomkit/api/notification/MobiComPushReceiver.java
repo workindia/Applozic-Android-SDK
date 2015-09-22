@@ -128,7 +128,7 @@ public class MobiComPushReceiver {
     }
 
     public static void processMessageAsync(final Context context, final Intent intent) {
-        if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getUserId())) {
+        if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
             new Thread(new Runnable() {
                 @Override

@@ -42,6 +42,7 @@ public class MobiComUserPreference {
     private static String new_message_flag = "new_message_flag";
     private static String base_url = "base_url";
     private static String display_name = "display_name";
+    private static String logged_in = "logged_in";
 
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
 
@@ -314,12 +315,16 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putString(base_url, url).commit();
     }
 
-    public String getDisplayName(){
-        return sharedPreferences.getString(display_name,null);
+    public String getDisplayName() {
+        return sharedPreferences.getString(display_name, null);
     }
 
-    public void setDisplayName(String displayName){
+    public void setDisplayName(String displayName) {
         sharedPreferences.edit().putString(display_name, displayName).commit();
+    }
+
+    public boolean isLoggedIn() {
+        return !TextUtils.isEmpty(getUserId());
     }
 
     @Override

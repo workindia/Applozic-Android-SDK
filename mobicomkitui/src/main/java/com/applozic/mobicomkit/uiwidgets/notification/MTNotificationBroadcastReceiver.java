@@ -42,7 +42,7 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
 
             final Contact contact = new AppContactService(context).getContactById(message.getContactIds());
 
-            if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getUserId())) {
+            if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
