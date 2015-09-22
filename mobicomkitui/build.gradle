@@ -57,8 +57,7 @@ ext {
 }
 
 
-apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
-//apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
+/*apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 
 apply plugin: 'com.jfrog.bintray'
 
@@ -111,4 +110,4 @@ bintray {
             //}
         }
     }
-}
+}*/
