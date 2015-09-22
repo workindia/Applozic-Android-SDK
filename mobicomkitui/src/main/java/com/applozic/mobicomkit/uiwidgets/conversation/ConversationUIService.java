@@ -42,6 +42,8 @@ public class ConversationUIService {
     public static final int REQUEST_CODE_FULL_SCREEN_ACTION = 301;
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
     public static final int INSTRUCTION_DELAY = 5000;
+    public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
+    public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     private static final String TAG = "ConversationUIService";
     public static String DISPLAY_NAME = "displayName";
     private FragmentActivity fragmentActivity;
@@ -54,23 +56,23 @@ public class ConversationUIService {
 
     public MobiComQuickConversationFragment getQuickConversationFragment() {
 
-        MobiComQuickConversationFragment quickConversationFragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, "QuickConversationFragment");
+        MobiComQuickConversationFragment quickConversationFragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
 
         if (quickConversationFragment == null) {
             quickConversationFragment = new MobiComQuickConversationFragment();
-            ConversationActivity.addFragment(fragmentActivity, quickConversationFragment, "QuickConversationFragment");
+            ConversationActivity.addFragment(fragmentActivity, quickConversationFragment, QUICK_CONVERSATION_FRAGMENT);
         }
         return quickConversationFragment;
     }
 
     public ConversationFragment getConversationFragment() {
 
-        ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, "ConversationFragment");
+        ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
 
         if (conversationFragment == null) {
             Contact contact = ((ConversationActivity) fragmentActivity).getContact();
             conversationFragment = new ConversationFragment(contact);
-            ConversationActivity.addFragment(fragmentActivity, conversationFragment, "ConversationFragment");
+            ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
         }
         return conversationFragment;
     }
@@ -87,14 +89,14 @@ public class ConversationUIService {
             public void run() {
                 //Todo: load fragment from backstack if available and avoid creating new fragment.
                 ConversationFragment conversationFragment = new ConversationFragment(contact);
-                ConversationActivity.addFragment(fragmentActivity,conversationFragment,"ConversationFragment");
+                ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
             }
         });
     }
 
     public void openConversationFragment(Group group) {
         ConversationFragment conversationFragment = new ConversationFragment();
-        ConversationActivity.addFragment(fragmentActivity, conversationFragment, "ConversationFragment");
+        ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
         conversationFragment.loadConversation(group);
     }
 
@@ -165,7 +167,7 @@ public class ConversationUIService {
             return;
         }
 
-        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, "QuickConversationFragment");
+        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
         if (fragment != null) {
             fragment.addMessage(message);
         }

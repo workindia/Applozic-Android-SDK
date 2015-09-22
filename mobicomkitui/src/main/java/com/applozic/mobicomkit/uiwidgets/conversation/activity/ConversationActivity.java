@@ -33,7 +33,6 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
-import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
@@ -54,9 +53,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
+    public static final String CONTACT = "contact";
     protected static final long UPDATE_INTERVAL = 5;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static Uri capturedImageUri;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
@@ -83,7 +84,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
-      /*  if (activeFragment != null) {
+      /*if (activeFragment != null) {
             fragmentTransaction.hide(activeFragment);
         }*/
         fragmentTransaction.commit();
@@ -107,8 +108,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         if (capturedImageUri != null) {
-            savedInstanceState.putString("capturedImageUri", capturedImageUri.toString());
-            savedInstanceState.putSerializable("contact", contact);
+            savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
+            savedInstanceState.putSerializable(CONTACT, contact);
         }
     }
 
@@ -117,14 +118,14 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quickconversion_activity);
         mActionBar = getSupportActionBar();
-        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString("capturedImageUri"))) {
-            capturedImageUri = Uri.parse(savedInstanceState.getString("capturedImageUri"));
-            contact = (Contact) savedInstanceState.getSerializable("contact");
+        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
+            capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
+            contact = (Contact) savedInstanceState.getSerializable(CONTACT);
             conversation = new ConversationFragment(contact);
-            addFragment(this, conversation, "ConversationFragment");
+            addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         } else {
             quickConversationFragment = new MobiComQuickConversationFragment();
-            addFragment(this, quickConversationFragment, "QuickConversationFragment");
+            addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
         }
 
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
@@ -201,7 +202,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -231,7 +231,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {
         conversation = new ConversationFragment(contact);
-        addFragment(this, conversation, "ConversationFragment");
+        addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         this.contact = contact;
     }
 
