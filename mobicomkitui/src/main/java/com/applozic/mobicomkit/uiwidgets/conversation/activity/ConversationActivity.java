@@ -240,12 +240,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         new ConversationUIService(this).startContactActivityForResult();
     }
 
-   /* @Override
+    @Override
     public void addFragment(ConversationFragment conversationFragment) {
-        addFragment(this, conversationFragment, "ConversationFragment");
+        addFragment(this, conversationFragment, ConversationUIService.CONVERSATION_FRAGMENT);
         conversation = conversationFragment;
     }
-*/
+
     @Override
     public void onBackPressed() {
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);

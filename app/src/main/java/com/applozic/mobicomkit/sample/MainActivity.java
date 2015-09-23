@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
+import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -210,10 +211,10 @@ public class MainActivity extends MobiComActivityForFragment
         new ConversationUIService(this).startContactActivityForResult();
     }
 
-   /* @Override
-    public void addFragment(ConversationFragment conversationFragment) {
-        addFragment(this, conversationFragment, "conversationFragment");
-    }*/
+    @Override
+    public  void addFragment(ConversationFragment conversationFragment) {
+
+    }
 
     @Override
     public void startContactActivityForResult(Message message, String messageContent) {

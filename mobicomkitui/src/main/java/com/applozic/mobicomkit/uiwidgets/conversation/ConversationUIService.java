@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
@@ -89,7 +90,7 @@ public class ConversationUIService {
             public void run() {
                 //Todo: load fragment from backstack if available and avoid creating new fragment.
                 ConversationFragment conversationFragment = new ConversationFragment(contact);
-                ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
+                ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
             }
         });
     }
