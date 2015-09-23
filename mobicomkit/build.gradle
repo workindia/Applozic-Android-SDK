@@ -35,6 +35,7 @@ dependencies {
     compile 'com.applozic.mobiframework:mobicommons:1.1' //Note: use this for prod
 }
 
+/*
 
 ext {
     // Where you will see your artifact in Bintray's web interface
@@ -59,3 +60,4 @@ ext {
 
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
+*/
