@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
@@ -40,6 +42,7 @@ public class MainActivity extends MobiComActivityForFragment
     public static final String TAKE_ORDER = "takeOrder";
     public static final String TAKE_ORDER_USERID_METADATA = "com.applozic.take.order.userId";
     public static final int DATABASE_VERSION = 1;
+    private static final String CONVERSATION_FRAGMENT = "ConversationFragment";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -56,17 +59,16 @@ public class MainActivity extends MobiComActivityForFragment
 
     }
 
-   /* public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+    public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
 
-        Log.i("MainActvity","##Insdie the main Actvity addFragment"+fragmentToAdd+":"+fragmentTag);
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
         //Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
         FragmentTransaction fragmentTransaction = supportFragmentManager
                 .beginTransaction();
-        *//*if (null != activeFragment) {
+        /*if (null != activeFragment) {
             fragmentTransaction.hide(activeFragment);
-        }*//*
+        }*/
 
         fragmentTransaction.replace(R.id.container, fragmentToAdd,
                 fragmentTag);
@@ -78,7 +80,7 @@ public class MainActivity extends MobiComActivityForFragment
         fragmentTransaction.commit();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
-    }*/
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,8 +214,8 @@ public class MainActivity extends MobiComActivityForFragment
     }
 
     @Override
-    public  void addFragment(ConversationFragment conversationFragment) {
-
+    public void addFragment(ConversationFragment conversationFragment) {
+        addFragment(this, conversationFragment, CONVERSATION_FRAGMENT);
     }
 
     @Override
@@ -279,7 +281,7 @@ public class MainActivity extends MobiComActivityForFragment
         // avoid each time update ....
         if (!appContactService.isContactExists("adarshk")) {
 
-            List<Contact> contactList= new ArrayList<Contact>();
+            List<Contact> contactList = new ArrayList<Contact>();
             //Adarsh....
             Contact contact = new Contact();
             contact.setUserId("adarshk");
