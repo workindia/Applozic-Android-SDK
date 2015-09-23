@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
-        versionName "1.0"
+        versionName "1.11"
     }
     buildTypes {
         release {
@@ -30,8 +30,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
     compile 'com.google.android.gms:play-services:7.5.0'
-    compile project(':mobicomkit') //Note: use this for local development
-    //compile 'com.applozic.communication.message:mobicomkit:1.02' //Todo: use this for prod
+    //compile project(':mobicomkit') //Note: use this for local development
+    compile 'com.applozic.communication.message:mobicomkit:1.11' //Todo: use this for prod
 }
 
 
@@ -49,7 +49,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '1.0'
+    libraryVersion = '1.11'
 
     developerId = 'devashish'
     developerName = 'Applozic'
@@ -57,7 +57,7 @@ ext {
 }
 
 
-/*apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 
 apply plugin: 'com.jfrog.bintray'
 
@@ -91,8 +91,8 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = "user";//properties.getProperty("bintray.user")
-    key = "api_key";//properties.getProperty("bintray.apikey")
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
 
     configurations = ['archives']
     pkg {
@@ -110,4 +110,4 @@ bintray {
             //}
         }
     }
-}*/
+}
