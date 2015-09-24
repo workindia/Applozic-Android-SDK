@@ -176,7 +176,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }
             }
             if (createdAtTime != null) {
-                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime() - deviceTimeOffset));
+                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
             }
         }
 
