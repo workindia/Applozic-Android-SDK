@@ -198,6 +198,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             AlertDialog alert = builder.create();
             alert.show();
         } else {
+            googleApiClient.disconnect();
             googleApiClient.connect();
         }
     }
