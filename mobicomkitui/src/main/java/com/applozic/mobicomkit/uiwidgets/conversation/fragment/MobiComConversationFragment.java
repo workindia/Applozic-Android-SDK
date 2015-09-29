@@ -454,7 +454,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.getDelivered())) {
                     continue;
                 }
-                if (menuItems[i].equals("Delete") && TextUtils.isEmpty(message.getKeyString())) {
+                if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()))) {
                     continue;
                 }
                 menu.add(Menu.NONE, i, i, menuItems[i]);

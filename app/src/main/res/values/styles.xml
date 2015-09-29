@@ -11,16 +11,13 @@ Theme.Holo.Light.DarkActionBar
     <style name="DemoAppTheme" parent="AppBaseTheme"></style>
 
     <style name="EditText">
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
         <item name="android:gravity">left</item>
         <item name="android:layout_gravity">center</item>
     </style>
 
     <style name="Button">
         <item name="android:gravity">center</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_gravity">fill</item>
         <item name="android:textColor">@color/textbuttoncolor</item>
         <item name="android:background">@color/buttonbgcolor</item>
     </style>

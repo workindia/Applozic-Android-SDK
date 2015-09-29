@@ -400,7 +400,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else if (createdAtTime != null && message.isDummyEmptyMessage()) {
                 createdAtTime.setText("");
             } else if (createdAtTime != null) {
-                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime() - deviceTimeOffset));
+                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
             }
             String mimeType = "";
             if (messageTextView != null) {
