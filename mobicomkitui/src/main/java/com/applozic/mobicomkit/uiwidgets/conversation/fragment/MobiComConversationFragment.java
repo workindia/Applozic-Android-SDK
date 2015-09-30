@@ -466,7 +466,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        String contactNumber = contact.getContactNumber();
+        String contactNumber = contact != null ? contact.getContactNumber() : null;
 
         if (!TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
