@@ -1,6 +1,6 @@
 # Applozic-Android-SDK
 Applozic-Android-SDK
-[![Build Status](https://travis-ci.org/AppLozic/Applozic-Android-SDK.svg?branch=development)](https://travis-ci.org/AppLozic/Applozic-Android-SDK)
+[![Build Status](https://travis-ci.org/AppLozic/Applozic-Android-SDK.svg?branch=master)](https://travis-ci.org/AppLozic/Applozic-Android-SDK)
 
 
 Integrate messaging into your mobile apps and website without developing or maintaining any infrastructure.
