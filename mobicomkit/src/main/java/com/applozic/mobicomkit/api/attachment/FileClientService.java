@@ -42,7 +42,7 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_TEXTER_IMAGES_FOLDER = "/image";
     public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
     public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
-    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/Thumbnail";
+    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/file/url";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
