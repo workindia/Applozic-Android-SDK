@@ -549,7 +549,7 @@ public class FileUtils {
         BitmapFactory.Options bounds = new BitmapFactory.Options();
         bounds.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(image.getPath(), bounds);
-        if ((bounds.outWidth == -1) || (bounds.outHeight == -1)){
+        if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
             return null;
         }
 
@@ -575,8 +575,20 @@ public class FileUtils {
         return inSampleSize;
     }
 
-    public static boolean isFileExist(String filePath ){
-      return  new File(filePath).exists();
+    public static boolean isFileExist(String filePath) {
+        return new File(filePath).exists();
 
+    }
+
+    public static String getFileFormat(String fileName) {
+
+        String fileType = "";
+
+        int i = fileName.lastIndexOf('.');
+
+        if (i > 0) {
+            fileType = fileName.substring(i + 1);
+        }
+        return fileType;
     }
 }
