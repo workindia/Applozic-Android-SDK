@@ -30,7 +30,7 @@ public class ApplozicClient {
     }
 
     public boolean isHandleDisplayName() {
-        return sharedPreferences.getBoolean(HANDLE_DISPLAY_NAME, false);
+        return sharedPreferences.getBoolean(HANDLE_DISPLAY_NAME, true);
     }
 
     public ApplozicClient setHandleDisplayName(boolean enable) {
