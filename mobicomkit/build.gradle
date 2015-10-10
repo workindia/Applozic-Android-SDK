@@ -31,8 +31,8 @@ dependencies {
     }
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile project(':mobicommons') //Note: use this for local development
-   // compile 'com.applozic.mobiframework:mobicommons:1.2' //Note: use this for prod
+    //compile project(':mobicommons') //Note: use this for local development
+    compile 'com.applozic.mobiframework:mobicommons:1.21' //Note: use this for prod
 }
 
 /*

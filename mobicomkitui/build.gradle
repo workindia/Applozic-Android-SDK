@@ -30,8 +30,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
     compile 'com.google.android.gms:play-services:7.5.0'
-    compile project(':mobicomkit') //Note: use this for local development
-    //compile 'com.applozic.communication.message:mobicomkit:1.22' //Todo: use this for prod
+    //compile project(':mobicomkit') //Note: use this for local development
+    compile 'com.applozic.communication.message:mobicomkit:1.23' //Todo: use this for prod
 }
 
 
