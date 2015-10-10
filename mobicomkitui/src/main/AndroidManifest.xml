@@ -2,18 +2,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.applozic.mobicomkit.uiwidgets">
 
-    <uses-permission android:name="android.permission.INTERNET" tools:node="replace" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" tools:node="replace" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" tools:node="replace" />
-    <uses-permission android:name="android.permission.VIBRATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.CALL_PHONE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_PROFILE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.READ_CONTACTS"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.WRITE_CONTACTS"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.CALL_PHONE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.READ_PROFILE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="replace" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:node="replace" />
 
     <application>
 
@@ -53,14 +77,6 @@
         <service
             android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
             android:exported="false" />
-
-        <receiver
-            android:name="com.applozic.mobicomkit.uiwidgets.notification.MTNotificationBroadcastReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="${applicationId}.send.notification" />
-            </intent-filter>
-        </receiver>
 
         <receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">
             <intent-filter>
