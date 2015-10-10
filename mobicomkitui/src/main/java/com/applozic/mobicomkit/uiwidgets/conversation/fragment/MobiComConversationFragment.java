@@ -246,7 +246,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View view) {
-                                              Utils.toggleSoftKeyBoard(getActivity(), true);
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage(messageEditText.getText().toString());
                                               messageEditText.setText("");

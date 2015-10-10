@@ -42,7 +42,7 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_TEXTER_IMAGES_FOLDER = "/image";
     public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
     public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
-    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/Thumbnail";
+    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/file/url";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
@@ -113,7 +113,9 @@ public class FileClientService extends MobiComKitClientService {
             String contentType = fileMeta.getContentType();
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            String imageLocalPath = getFilePath(fileMeta.getName(), context, fileMeta.getContentType(), true).getAbsolutePath();
+            // Todo get the file format from server and append
+            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+            String imageLocalPath = getFilePath(imageName, context, fileMeta.getContentType(), true).getAbsolutePath();
             if (imageLocalPath != null) {
                 try {
                     attachedImage = BitmapFactory.decodeFile(imageLocalPath);
@@ -126,7 +128,7 @@ public class FileClientService extends MobiComKitClientService {
                 if (connection.getResponseCode() == 200) {
                     // attachedImage = BitmapFactory.decodeStream(connection.getInputStream(),null,options);
                     attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
-                    imageLocalPath = saveImageToInternalStorage(attachedImage, fileMeta.getName(), context, contentType);
+                    imageLocalPath = saveImageToInternalStorage(attachedImage, imageName, context, contentType);
 
                 } else {
                     Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());

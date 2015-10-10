@@ -24,6 +24,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -115,9 +116,6 @@ class AttachmentDownloader implements Runnable {
              * ImageView background to indicate that the image is being
              * decoded.
              */
-
-
-
             // Catches exceptions thrown in response to a queued interrupt
         } catch (InterruptedException e1) {
 
@@ -129,8 +127,8 @@ class AttachmentDownloader implements Runnable {
             // If the byteBuffer is null, reports that the download failed.
             if (mPhotoTask.getMessage() != null && !mPhotoTask.getMessage().isAttachmentDownloaded()) {
                 mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
-            }else{
-               mPhotoTask.handleDownloadState(HTTP_STATE_COMPLETED);
+            } else {
+                mPhotoTask.handleDownloadState(HTTP_STATE_COMPLETED);
             }
 
             /*
@@ -156,7 +154,9 @@ class AttachmentDownloader implements Runnable {
             String contentType = fileMeta.getContentType();
             String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
-            file = FileClientService.getFilePath(fileMeta.getName(), context, contentType);
+            //Todo get the file format from server and append
+            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+            file = FileClientService.getFilePath(imageName, context, contentType);
             if (!file.exists()) {
                 connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileKey);
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -212,8 +212,8 @@ class AttachmentDownloader implements Runnable {
             Log.e(TAG, "File not found on server");
         } catch (Exception ex) {
             //If partial file got created delete it, we try to download it again
-            if ( file.exists() ) {
-                Log.i(TAG, " Exception occured while downloading :" +file.getAbsolutePath()  );
+            if (file != null && file.exists()) {
+                Log.i(TAG, " Exception occured while downloading :" + file.getAbsolutePath());
                 file.delete();
             }
             ex.printStackTrace();

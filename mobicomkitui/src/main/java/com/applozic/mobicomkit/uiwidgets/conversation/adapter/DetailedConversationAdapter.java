@@ -452,9 +452,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
 
         String fileName = "";
-        if (message.isAttachmentDownloaded()) {
+        if (message.getFileMetas() == null && message.getFilePaths() != null) {
             fileName = message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1);
-        } else {
+        } else if (message.getFileMetas() != null) {
             fileName = message.getFileMetas().get(0).getName();
         }
         attachedFile.setText(fileName);
