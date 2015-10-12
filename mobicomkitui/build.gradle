@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
-        versionName "1.31"
+        versionName "1.32"
     }
     buildTypes {
         release {
@@ -31,7 +31,7 @@ dependencies {
     compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
     compile 'com.google.android.gms:play-services:7.5.0'
     //compile project(':mobicomkit') //Note: use this for local development
-    compile 'com.applozic.communication.message:mobicomkit:1.31' //Todo: use this for prod
+    compile 'com.applozic.communication.message:mobicomkit:1.32' //Todo: use this for prod
 }
 
 
@@ -49,14 +49,14 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '1.31'
+    libraryVersion = '1.32'
 
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'
 }
 
-/*
+
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 
 apply plugin: 'com.jfrog.bintray'
@@ -110,4 +110,4 @@ bintray {
             //}
         }
     }
-}*/
+}
