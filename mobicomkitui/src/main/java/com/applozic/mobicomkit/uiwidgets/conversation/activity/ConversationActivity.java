@@ -230,6 +230,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return true;
+    }
+
+    @Override
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {
         conversation = new ConversationFragment(contact);
         addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
