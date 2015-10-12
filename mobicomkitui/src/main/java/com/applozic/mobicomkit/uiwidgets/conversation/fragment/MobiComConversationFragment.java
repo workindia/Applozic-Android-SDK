@@ -47,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -467,7 +468,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
 
-        if (!TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
+        if (ApplozicClient.getInstance(getActivity()).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
@@ -964,7 +965,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             if (messageList.isEmpty()) {
                 loadConversation(contact, group);
-            }else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
+            } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
                 loadnewMessageOnResume(contact, group);
             }
             MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
