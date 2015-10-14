@@ -263,6 +263,8 @@ public class AttachmentManager {
                             localView.getMessage().setAttDownloadInProgress(false);
                             localView.getDownloadProgressLayout().setVisibility(View.GONE);
                             localView.setVisibility(View.INVISIBLE);
+                            localView.cancelDownload();
+                            BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString(), localView.getMessage());
                             Toast.makeText(localView.getContext(), "Download failed.", Toast.LENGTH_SHORT).show();
                             // Attempts to re-use the Task object
                             recycleTask(attachmentTask);

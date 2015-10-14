@@ -14,7 +14,6 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
-
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -80,11 +79,13 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             String contactNumber = intent.getStringExtra("contactNumber");
             String response = intent.getStringExtra("response");
             Contact contact = baseContactService.getContactById(contactNumber);
-            conversationUIService.deleteConversation(contact,response);
+            conversationUIService.deleteConversation(contact, response);
         } else if (BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString().equals(action) && message != null) {
             conversationUIService.updateUploadFailedStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {
             conversationUIService.updateDownloadStatus(message);
+        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString().equals(action) && message != null) {
+            conversationUIService.updateDownloadFailed(message);
         }
     }
 }

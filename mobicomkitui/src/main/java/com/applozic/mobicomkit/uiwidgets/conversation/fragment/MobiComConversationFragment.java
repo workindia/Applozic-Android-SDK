@@ -47,8 +47,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.uiwidgets.R;
-
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -56,6 +54,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
@@ -68,12 +67,11 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.TitleNavigationAda
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
-
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.file.FilePathFinder;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
@@ -571,6 +569,26 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
+    public void downloadFailed(final Message message) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int index = messageList.indexOf(message);
+                if (index != -1) {
+                    View view = listView.getChildAt(index -
+                            listView.getFirstVisiblePosition() + 1);
+
+                    if (view != null) {
+                        final LinearLayout attachmentDownloadLayout = (LinearLayout) view.findViewById(R.id.attachment_download_layout);
+                        attachmentDownloadLayout.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            }
+
+        });
+    }
+
     abstract public void attachLocation(Location mCurrentLocation);
 
     public void updateDeliveryStatus(final Message message) {
@@ -964,7 +982,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             if (messageList.isEmpty()) {
                 loadConversation(contact, group);
-            }else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
+            } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
                 loadnewMessageOnResume(contact, group);
             }
             MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
