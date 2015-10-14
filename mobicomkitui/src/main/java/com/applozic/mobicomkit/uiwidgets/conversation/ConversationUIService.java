@@ -266,6 +266,14 @@ public class ConversationUIService {
         getConversationFragment().updateUploadFailedStatus(message);
     }
 
+
+    public void updateDownloadFailed(Message message) {
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        getConversationFragment().downloadFailed(message);
+    }
+
     public void updateDownloadStatus(Message message) {
         if (!BroadcastService.isIndividual()) {
             return;
