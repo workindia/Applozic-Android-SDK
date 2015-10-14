@@ -4,10 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -18,17 +14,19 @@ import com.applozic.mobicomkit.api.conversation.schedule.ScheduledMessageUtil;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
-
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -127,13 +125,47 @@ public class MessageClientService extends MobiComKitClientService {
         new MessageClientService(context).syncPendingMessages(true);
     }
 
-    public void syncPendingMessages(Boolean broadcast) {
+    public void syncPendingMessages(boolean broadcast) {
         List<Message> pendingMessages = messageDatabaseService.getPendingMessages();
         Log.i(TAG, "Found " + pendingMessages.size() + " pending messages to sync.");
         for (Message message : pendingMessages) {
             Log.i(TAG, "Syncing pending message: " + message);
             sendPendingMessageToServer(message, broadcast);
         }
+    }
+
+    public synchronized static void syncDeleteMessages(Context context) {
+        new MessageClientService(context).syncDeleteMessages(true);
+    }
+
+    public void syncDeleteMessages(boolean deleteMessage) {
+        List<Message> pendingDeleteMessages = messageDatabaseService.getPendingDeleteMessages();
+        Log.i(TAG, "Found " + pendingDeleteMessages.size() + " pending messages for Delete.");
+        for (Message message : pendingDeleteMessages) {
+            deletePendingMessages(message, deleteMessage);
+        }
+
+    }
+
+    public void deletePendingMessages(Message message, boolean deleteMessage) {
+
+        String contactNumberParameter = "";
+        String response = "";
+        if (message != null && !TextUtils.isEmpty(message.getContactIds())) {
+            try {
+                contactNumberParameter = "&to=" + URLEncoder.encode(message.getContactIds(), "UTF-8") + "&contactNumber=" + URLEncoder.encode(message.getContactIds(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        if (message.isSentToServer()) {
+            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+        }
+        Log.i(TAG, "Delete response from server for pending message: " + response);
+        if ("success".equals(response)) {
+            messageDatabaseService.deleteMessage(message, message.getContactIds());
+        }
+
     }
 
     public boolean syncMessagesWithServer(List<Message> messageList) {
@@ -372,8 +404,9 @@ public class MessageClientService extends MobiComKitClientService {
         return response;
     }
 
-    public void deleteMessage(Message message, Contact contact) {
+    public String deleteMessage(Message message, Contact contact) {
         String contactNumberParameter = "";
+        String response = "";
         if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             try {
                 contactNumberParameter = "&to=" + URLEncoder.encode(contact.getContactIds(), "UTF-8") + "&contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8");
@@ -382,8 +415,9 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
         }
+        return response;
     }
 
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {

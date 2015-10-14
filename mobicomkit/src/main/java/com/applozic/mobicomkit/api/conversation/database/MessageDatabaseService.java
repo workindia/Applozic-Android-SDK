@@ -133,6 +133,8 @@ public class MessageDatabaseService {
             structuredNameWhere += "createdAt < ? AND ";
             structuredNameParamsList.add(String.valueOf(endTime));
         }
+        structuredNameWhere += "deleted = ? AND ";
+        structuredNameParamsList.add("0");
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isDisplayCallRecordEnable()) {
@@ -156,7 +158,8 @@ public class MessageDatabaseService {
     public List<Message> getPendingMessages() {
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
-        structuredNameWhere += "sentToServer = ? and canceled = ? ";
+        structuredNameWhere += "sentToServer = ? and canceled = ? and deleted = ?";
+        structuredNameParamsList.add("0");
         structuredNameParamsList.add("0");
         structuredNameParamsList.add("0");
         Cursor cursor = dbHelper.getWritableDatabase().query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
@@ -164,6 +167,19 @@ public class MessageDatabaseService {
         cursor.close();
         dbHelper.close();
         return messageList;
+    }
+
+    public List<Message> getPendingDeleteMessages() {
+        String structuredNameWhere = "";
+        List<String> structuredNameParamsList = new ArrayList<String>();
+        structuredNameWhere += "sentToServer = ? and deleted = ?";
+        structuredNameParamsList.add("1");
+        structuredNameParamsList.add("1");
+        Cursor cursor = dbHelper.getWritableDatabase().query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
+        List<Message> messageList = getMessageList(cursor);
+        cursor.close();
+        return messageList;
+
     }
 
     public long getMinCreatedAtFromMessageTable() {
@@ -320,8 +336,8 @@ public class MessageDatabaseService {
 
     public synchronized long createMessage(final Message message) {
         long id = -1;
-        if(message.getMessageId() !=null){
-            return  message.getMessageId();
+        if (message.getMessageId() != null) {
+            return message.getMessageId();
         }
         id = createSingleMessage(message);
         message.setMessageId(id);
@@ -378,7 +394,7 @@ public class MessageDatabaseService {
                         new String[]{message.getKeyString(), message.getContactIds()});
             } else {
                 cursor = database.rawQuery(
-                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " +message.getCreatedAtTime(),
+                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " + message.getCreatedAtTime(),
                         new String[]{message.getContactIds(), message.getMessage()});
             }
 
@@ -461,13 +477,26 @@ public class MessageDatabaseService {
             ContentValues values = new ContentValues();
             values.put("keyString", keyString);
             values.put("sentToServer", "1");
-            values.put("createdAt",message.getSentMessageTimeAtServer());
+            values.put("createdAt", message.getSentMessageTimeAtServer());
             dbHelper.getWritableDatabase().update("sms", values, "id=" + message.getMessageId(), null);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             dbHelper.close();
         }
+    }
+
+    public void updateDeleteSyncStatus(Message message, String deleteStatus) {
+        try {
+            ContentValues values = new ContentValues();
+            values.put("deleted", deleteStatus);
+            dbHelper.getWritableDatabase().update("sms", values, "id=" + message.getMessageId(), null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+
     }
 
     public void updateInternalFilePath(String keyString, String filePath) {
@@ -532,6 +561,8 @@ public class MessageDatabaseService {
             createdAtClause = " and m1.createdAt < " + createdAt;
         }
 
+        createdAtClause += " and m1.deleted = 0";
+
         String messageTypeClause = "";
         String messageTypeJoinClause = "";
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
@@ -544,7 +575,7 @@ public class MessageDatabaseService {
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
                 "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
         final Cursor cursor = db.rawQuery("select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                + " and m1.contactNumbers like m2.contactNumbers " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
+                + " and m1.contactNumbers like m2.contactNumbers and m1.deleted like m2.deleted " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
                 + " order by m1.createdAt desc", null);
 
         /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +

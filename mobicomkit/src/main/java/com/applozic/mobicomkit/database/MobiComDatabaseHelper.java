@@ -5,15 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-//import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -69,7 +67,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "metaFileKeyString varchar(2000), "
             + "blobKeyString varchar(2000), "
             + "canceled integer default 0, "
+            + "deleted integer default 0,"
             + "UNIQUE (keyString, contactNumbers))";
+
+    private static final String ALTER_SMS_TABLE = "ALTER TABLE " + SMS + " ADD COLUMN deleted integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -138,6 +139,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
             if (!DBUtils.isTableExists(database, SCHEDULE_SMS_TABLE_NAME)) {
                 database.execSQL(CREATE_SCHEDULE_SMS_TABLE);
+            }
+
+            if (!DBUtils.existsColumnInTable(database, "sms", "deleted")) {
+                database.execSQL(ALTER_SMS_TABLE);
             }
             database.execSQL(CREATE_INDEX_SMS_TYPE);
         } else {
