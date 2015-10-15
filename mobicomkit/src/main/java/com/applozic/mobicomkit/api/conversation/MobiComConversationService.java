@@ -8,8 +8,10 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -152,7 +154,8 @@ public class MobiComConversationService {
     }
 
     private void setFilePathifExist(Message message) {
-        File file = FileClientService.getFilePath(message.getFileMetas().get(0).getBlobKeyString(), context, message.getFileMetas().get(0).getContentType());
+        FileMeta fileMeta = message.getFileMetas().get(0);
+        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
         if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
@@ -210,6 +213,7 @@ public class MobiComConversationService {
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
                 contact.getContactIds(), response);
     }
+
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }
