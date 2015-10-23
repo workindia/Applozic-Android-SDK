@@ -153,7 +153,7 @@ public class MobiComConversationService {
     }
 
     private void setFilePathifExist(Message message) {
-        File file = FileClientService.getFilePath(message.getFileMetas().get(0).getName(), context, message.getFileMetas().get(0).getContentType());
+        File file = FileClientService.getFilePath(message.getFileMetas().getName(), context, message.getFileMetas().getContentType());
         if(file.exists()){
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());

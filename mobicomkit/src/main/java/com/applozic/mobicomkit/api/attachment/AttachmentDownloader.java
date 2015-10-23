@@ -150,7 +150,7 @@ class AttachmentDownloader implements Runnable {
         File file = null;
         try {
             InputStream inputStream = null;
-            FileMeta fileMeta = message.getFileMetas().get(0);
+            FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
             String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
@@ -158,7 +158,7 @@ class AttachmentDownloader implements Runnable {
             String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
             file = FileClientService.getFilePath(imageName, context, contentType);
             if (!file.exists()) {
-                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileKey);
+                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {

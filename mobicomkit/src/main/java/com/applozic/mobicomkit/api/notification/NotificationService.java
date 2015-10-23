@@ -66,7 +66,7 @@ public class NotificationService {
         if (message.hasAttachment()) {
             try {
                 InputStream in;
-                HttpURLConnection httpConn = new MobiComKitClientService(context).openHttpConnection(message.getFileMetas().get(0).getThumbnailUrl());
+                HttpURLConnection httpConn = new MobiComKitClientService(context).openHttpConnection(message.getFileMetas().getThumbnailUrl());
                 int response = httpConn.getResponseCode();
                 if (response == HttpURLConnection.HTTP_OK) {
                     in = httpConn.getInputStream();

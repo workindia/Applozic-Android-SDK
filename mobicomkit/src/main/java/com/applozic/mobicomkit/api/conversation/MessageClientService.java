@@ -4,8 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.feed.MessageResponse;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -19,8 +19,6 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 
-import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
-import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
@@ -28,7 +26,6 @@ import com.applozic.mobicommons.people.group.Group;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,19 +35,20 @@ import java.util.UUID;
 public class MessageClientService extends MobiComKitClientService {
 
     public static final int SMS_SYNC_BATCH_SIZE = 5;
-    public static final String DEVICE_KEY = "deviceKeyString";
+    public static final String DEVICE_KEY = "deviceKey";
     public static final String LAST_SYNC_KEY = "lastSyncTime";
+    public static final String REGISTRATION_ID = "registrationId";
     public static final String FILE_META = "fileMeta";
-    public static final String MTEXT_DELIVERY_URL = "/rest/ws/sms/mtext/delivered?";
-    public static final String SERVER_SYNC_URL = "/rest/ws/mobicomkit/sync/messages";
+    public static final String MTEXT_DELIVERY_URL = "/rest/ws/message/delivered";
+    public static final String SERVER_SYNC_URL = "/rest/ws/message/sync";
     // public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/add";
-    public static final String SEND_MESSAGE_URL = "/rest/ws/mobicomkit/v1/message/send";
+    public static final String SEND_MESSAGE_URL = "/rest/ws/message/send";
     public static final String SYNC_SMS_URL = "/rest/ws/sms/add/batch";
-    public static final String MESSAGE_LIST_URL = "/rest/ws/mobicomkit/v1/message/list";
-    public static final String MESSAGE_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete";
+    public static final String MESSAGE_LIST_URL = "/rest/ws/message/list";
+    public static final String MESSAGE_DELETE_URL = "/rest/ws/message/delete";
     public static final String UPDATE_DELIVERY_FLAG_URL = "/rest/ws/sms/update/delivered";
     // public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
-    public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/sms/deleteConversion";
+    public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
     public static final String ARGUMRNT_SAPERATOR = "&";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
@@ -116,8 +114,8 @@ public class MessageClientService extends MobiComKitClientService {
             if (TextUtils.isEmpty(messageKeyString) || TextUtils.isEmpty(userId)) {
                 return;
             }
-            httpRequestUtils.getStringFromUrl(getMtextDeliveryUrl() + "smsKeyString=" + messageKeyString
-                    + "&userId=" + userId + "&contactNumber=" + URLEncoder.encode(receiverNumber, "UTF-8"));
+            httpRequestUtils.getResponse(credentials, getMtextDeliveryUrl() + "?key=" + messageKeyString
+                    + "&userId=" + userId, "text/plain", "text/plain");
         } catch (Exception ex) {
             Log.e(TAG, "Exception while updating delivery report for MT message", ex);
         }
@@ -182,14 +180,14 @@ public class MessageClientService extends MobiComKitClientService {
             return;
         }
         String response = sendMessage(message);
+        MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
 
         if (TextUtils.isEmpty(response) || response.contains("<html>")) {
             return;
         }
 
-        String[] responseString = response.split(",");
-        String keyString = responseString[0];
-        String createdAt = responseString[1];
+        String keyString = messageResponse.getMessageKey();
+        String createdAt = messageResponse.getCreatedAtTime();
         message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
         message.setKeyString(keyString);
 
@@ -253,16 +251,11 @@ public class MessageClientService extends MobiComKitClientService {
                         return;
                     }
                     JsonParser jsonParser = new JsonParser();
-                    List<FileMeta> metaFileList = new ArrayList<FileMeta>();
                     JsonObject jsonObject = jsonParser.parse(fileMetaResponse).getAsJsonObject();
                     if (jsonObject.has(FILE_META)) {
                         Gson gson = new Gson();
-                        metaFileList.add(gson.fromJson(jsonObject.get(FILE_META), FileMeta.class));
+                        message.setFileMetas(gson.fromJson(jsonObject.get(FILE_META), FileMeta.class));
                     }
-                    for (FileMeta fileMeta : metaFileList) {
-                        fileKeys.add(fileMeta.getKeyString());
-                    }
-                    message.setFileMetas(metaFileList);
                 } catch (Exception ex) {
                     Log.e(TAG, "Error uploading file to server: " + filePath);
                   /*  recentMessageSentToServer.remove(message);*/
@@ -271,30 +264,45 @@ public class MessageClientService extends MobiComKitClientService {
                     return;
                 }
             }
-
-            message.setFileMetaKeyStrings(fileKeys);
+            if (messageId != -1) {
+                messageDatabaseService.updateMessageFileMetas(messageId, message);
+            }
         }
 
-
-        if (messageId != -1) {
-            messageDatabaseService.updateMessageFileMetas(messageId, message);
-        }
+        Message newMessage = new Message();
+        newMessage.setTo(message.getTo());
+        newMessage.setKeyString(message.getKeyString());
+        newMessage.setMessage(message.getMessage());
+        newMessage.setFileMetas(message.getFileMetas());
+        newMessage.setCreatedAtTime(message.getCreatedAtTime());
+        newMessage.setRead(message.isRead());
+        newMessage.setDeviceKeyString(message.getDeviceKeyString());
+        newMessage.setSuUserKeyString(message.getSuUserKeyString());
+        newMessage.setSent(message.isSent());
+        newMessage.setType(message.getType());
+        newMessage.setTimeToLive(message.getTimeToLive());
+        newMessage.setPairedMessageKeyString(message.getPairedMessageKeyString());
+        newMessage.setSource(message.getSource());
+        newMessage.setScheduledAt(message.getScheduledAt());
+        newMessage.setStoreOnDevice(message.isStoreOnDevice());
+        newMessage.setDelivered(message.getDelivered());
+        newMessage.setSendToDevice(message.isSendToDevice());
 
         //Todo: set filePaths
 
         String createdAt = null;
         try {
-            String[] response = new MessageClientService(context).sendMessage(message).split(",");
-            keyString = response[0];
-            createdAt = response[1];
-
+            String response = new MessageClientService(context).sendMessage(newMessage);
+            MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
+            keyString = messageResponse.getMessageKey();
+            createdAt = messageResponse.getCreatedAtTime();
             if (!TextUtils.isEmpty(keyString)) {
                 message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
                 message.setSentToServer(true);
                 message.setKeyString(keyString);
             }
 
-            messageDatabaseService.updateMessageFileMetas(messageId, message);
+            // messageDatabaseService.updateMessageFileMetas(messageId, message);
             messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
 
             if (!TextUtils.isEmpty(keyString)) {
@@ -325,18 +333,16 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json", null, jsonFromObject);
     }
 
-    public SyncMessageFeed getMessageFeed(String deviceKeyString, String lastSyncKeyString) {
+    public SyncMessageFeed getMessageFeed(String deviceKeyString, String lastSyncKeyString, String registrationId) {
         String url = getServerSyncUrl() + "?"
                 + DEVICE_KEY + "=" + deviceKeyString
-                + ARGUMRNT_SAPERATOR + LAST_SYNC_KEY
+                + ARGUMRNT_SAPERATOR + REGISTRATION_ID + "=" + registrationId + ARGUMRNT_SAPERATOR + LAST_SYNC_KEY
                 + "=" + lastSyncKeyString;
         try {
             Log.i(TAG, "Calling message feed url: " + url);
             String response = httpRequestUtils.getResponse(credentials, url, "application/json", "application/json");
             Log.i(TAG, "Response: " + response);
-            Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
-                    .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
-            return gson.fromJson(response, SyncMessageFeed.class);
+            return (SyncMessageFeed) GsonUtils.getObjectFromJson(response, SyncMessageFeed.class);
         } catch (Exception e) {
             // showAlert("Unable to Process request .Please Contact Support");
             return null;
@@ -348,10 +354,10 @@ public class MessageClientService extends MobiComKitClientService {
             return;
         }
         try {
-            String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8") + "&requestSource=1";
+            String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds() + "&requestSource=1";
             String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -360,13 +366,11 @@ public class MessageClientService extends MobiComKitClientService {
         String response = null;
         try {
             if (!TextUtils.isEmpty(contact.getContactIds())) {
-                String url = getMessageThreadDeleteUrl() + "?contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8")
-                        + "&requestSource=1"
-                        + "&suUserKeyString=" + URLEncoder.encode(MobiComUserPreference.getInstance(context).getSuUserKeyString(), "UTF-8");
+                String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds() + "&requestSource=1";
                 response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
                 Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return response;
@@ -376,27 +380,27 @@ public class MessageClientService extends MobiComKitClientService {
         String contactNumberParameter = "";
         if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             try {
-                contactNumberParameter = "&to=" + URLEncoder.encode(contact.getContactIds(), "UTF-8") + "&contactNumber=" + URLEncoder.encode(contact.getContactIds(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
+                contactNumberParameter = "&userId=" + contact.getContactIds();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         if (message.isSentToServer()) {
-            httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            String response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            Log.i(TAG, "delete response is " + response);
         }
     }
 
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {
         String contactNumber = (contact != null ? contact.getFormattedContactNumber() : "");
         String params = "";
-        if (TextUtils.isEmpty(contactNumber) && contact != null && !TextUtils.isEmpty(contact.getUserId())) {
-            params = "userId=" + contact.getUserId() + "&";
+        params = "startIndex=0&pageSize=50" + "&";
+        if (contact != null && !TextUtils.isEmpty(contact.getUserId())) {
+            params += "userId=" + contact.getUserId() + "&";
         }
-        params += TextUtils.isEmpty(contactNumber) ? "" : ("contactNumber=" + URLEncoder.encode(contactNumber, "utf-8") + "&");
-        params += (endTime != null && endTime.intValue() != 0) ? "endTime=" + endTime + "&" : "";
         params += (startTime != null && startTime.intValue() != 0) ? "startTime=" + startTime + "&" : "";
-        params += (group != null && group.getGroupId() != null) ? "broadcastGroupId=" + group.getGroupId() + "&" : "";
-        params += "startIndex=0&pageSize=50";
+        params += (endTime != null && endTime.intValue() != 0) ? "endTime=" + endTime : "";
+        //params += (group != null && group.getGroupId() != null) ? "broadcastGroupId=" + group.getGroupId() + "&" : "";
 
         return httpRequestUtils.getResponse(credentials, getMessageListUrl() + "?" + params
                 , "application/json", "application/json");

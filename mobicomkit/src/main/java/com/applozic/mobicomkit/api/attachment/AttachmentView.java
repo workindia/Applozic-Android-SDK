@@ -187,10 +187,10 @@ public class AttachmentView extends ImageView {
     }
 
     public String getImageUrl() {
-        if (message == null || message.getFileMetas() == null || message.getFileMetas().isEmpty()) {
+        if (message == null || message.getFileMetas() == null ) {
             return null;
         }
-        return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().get(0).getKeyString();
+        return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().getBlobKeyString();
     }
 
     public String getLocalPath() {
@@ -198,7 +198,7 @@ public class AttachmentView extends ImageView {
     }
 
     public String contentType() {
-        return message.getFileMetas().get(0).getContentType();
+        return message.getFileMetas().getContentType();
     }
 
     public ProgressBar getProressBar() {

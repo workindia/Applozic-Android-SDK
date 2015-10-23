@@ -312,7 +312,7 @@ public class LoginActivity extends Activity {
 
             User user = new User();
             user.setUserId(userId);
-            user.setEmailId(email);
+            user.setEmail(email);
             user.setPassword(password);
             user.setContactNumber(phoneNumber);
             user.setAuthenticationTypeId(authenticationType.getValue());

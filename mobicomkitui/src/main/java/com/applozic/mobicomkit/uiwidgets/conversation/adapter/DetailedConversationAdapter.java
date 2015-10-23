@@ -264,7 +264,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             if (message.hasAttachment() && attachedFile != null) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
-                if (message.getFileMetas() != null && message.getFileMetas().get(0).getContentType().contains("image")) {
+                if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
                     attachedFile.setVisibility(View.GONE);
                 }
                 if (message.isAttachmentDownloaded()) {
@@ -298,7 +298,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     attachmentView.setProressBar(mediaDownloadProgressBar);
                     attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     showPreview(message, preview, attachmentDownloadLayout);
-                    FileMeta fileMeta = message.getFileMetas().get(0);
+                    FileMeta fileMeta = message.getFileMetas();
                     final String mimeType = FileUtils.getMimeType(fileMeta.getName());
                     if (!fileMeta.getContentType().contains("image")) {
                         showAttachmentIconAndText(attachedFile, message, mimeType);
@@ -307,14 +307,13 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                 } else {
-                    String[] fileKeys = new String[message.getFileMetaKeyStrings().size()];
+                    String fileKeys =  message.getFileMetaKeyStrings();
                     int i = 0;
                     showPreview(message, preview, attachmentDownloadLayout);
                     //TODO: while doing multiple image support in single sms ...we might improve this
-                    for (String fileKey : message.getFileMetaKeyStrings()) {
-                        fileKeys[i++] = fileKey;
+                   // for (String fileKey : message.getFileMetaKeyStrings()) {
                         if (message.getFileMetas() != null) {
-                            FileMeta fileMeta = message.getFileMetas().get(0);
+                            FileMeta fileMeta = message.getFileMetas();
                             attachmentDownloadLayout.setVisibility(View.VISIBLE);
                             attachmentDownloadProgressLayout.setVisibility(View.GONE);
                             downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
@@ -325,7 +324,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
                         }
 
-                    }
+                    //  }
 
                 }
             }
@@ -455,7 +454,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         if (message.getFileMetas() == null && message.getFilePaths() != null) {
             fileName = message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1);
         } else if (message.getFileMetas() != null) {
-            fileName = message.getFileMetas().get(0).getName();
+            fileName = message.getFileMetas().getName();
         }
         attachedFile.setText(fileName);
         attachedFile.setVisibility(View.VISIBLE);
@@ -478,7 +477,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void showPreview(Message smListItem, ImageView preview, LinearLayout attachmentDownloadLayout) {
-        FileMeta fileMeta = smListItem.getFileMetas().get(0);
+        FileMeta fileMeta = smListItem.getFileMetas();
         imageThumbnailLoader.setImageFadeIn(false);
         imageThumbnailLoader.setLoadingImage(R.id.media_upload_progress_bar);
         imageThumbnailLoader.loadImage(fileMeta, preview);

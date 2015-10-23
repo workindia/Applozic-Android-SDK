@@ -7,8 +7,9 @@ public class FileMeta {
 
     private String keyString;
     private String suUserKeyString;
-    private String blobKeyString;
+    private String blobKey;
     private String name;
+    private String url;
     private int size;
     private String contentType;
     private String thumbnailUrl;
@@ -31,11 +32,11 @@ public class FileMeta {
     }
 
     public String getBlobKeyString() {
-        return blobKeyString;
+        return blobKey;
     }
 
     public void setBlobKeyString(String blobKeyString) {
-        this.blobKeyString = blobKeyString;
+        this.blobKey = blobKeyString;
     }
 
     public String getName() {
@@ -78,6 +79,14 @@ public class FileMeta {
         this.thumbnailUrl = thumbnailUrl;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public String getSizeInReadableFormat() {
         String value = "0 KB";
         if (size / 1024 >= 1024) {
@@ -93,7 +102,8 @@ public class FileMeta {
         return "FileMeta{" +
                 "keyString='" + keyString + '\'' +
                 ", suUserKeyString='" + suUserKeyString + '\'' +
-                ", blobKeyString='" + blobKeyString + '\'' +
+                ", blobKeyString='" + blobKey + '\'' +
+                ", url=" + url +
                 ", name='" + name + '\'' +
                 ", size=" + size +
                 ", contentType='" + contentType + '\'' +

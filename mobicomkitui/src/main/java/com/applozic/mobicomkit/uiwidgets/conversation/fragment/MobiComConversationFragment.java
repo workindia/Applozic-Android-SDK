@@ -714,7 +714,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings());
     }
 
-    public void sendMessage(String message, List<FileMeta> fileMetas, List<String> fileMetaKeyStrings) {
+    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 

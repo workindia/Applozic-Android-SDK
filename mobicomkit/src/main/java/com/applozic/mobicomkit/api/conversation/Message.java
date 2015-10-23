@@ -21,9 +21,11 @@ public class Message extends JsonMarker {
     private Long createdAtTime = new Date().getTime();
     private String to;
     private String message;
-    private String keyString;
-    private String deviceKeyString;
-    private String suUserKeyString;
+    private String key;
+    private String deviceKey;
+    private String userKey;
+    private String emailIds;
+    private boolean shared;
     private boolean sent;
     private Boolean delivered;
     private Short type = MessageType.MT_OUTBOX.getValue();
@@ -35,15 +37,16 @@ public class Message extends JsonMarker {
     private Short source = Source.MT_MOBILE_APP.getValue();
     private Integer timeToLive;
     private boolean sentToServer = true;
-    private List<String> fileMetaKeyStrings;
+    private String fileMetaKey;
     private List<String> filePaths;
-    private String pairedMessageKeyString;
+    private String pairedMessageKey;
     private long sentMessageTimeAtServer;
     private boolean canceled = false;
-    private List<FileMeta> fileMetas;
+    @SerializedName("fileMeta")
+    private FileMeta fileMeta;
     @SerializedName("id")
     private Long messageId;
-    private boolean read = false;
+    private Boolean read = false;
     private boolean attDownloadInProgress;
 
     public Message() {
@@ -95,11 +98,11 @@ public class Message extends JsonMarker {
         this.attDownloadInProgress = attDownloadInProgress;
     }
 
-    public boolean isRead() {
+    public Boolean isRead() {
         return read || isTypeOutbox() || getScheduledAt() != null;
     }
 
-    public void setRead(boolean read) {
+    public void setRead(Boolean read) {
         this.read = read;
     }
 
@@ -108,15 +111,15 @@ public class Message extends JsonMarker {
     }
 
     public boolean isUploadRequired() {
-        return hasAttachment() && (fileMetas == null || fileMetas.isEmpty());
+        return hasAttachment() && (fileMeta == null );
     }
 
     public boolean hasAttachment() {
-        return ((filePaths != null && !filePaths.isEmpty()) || (fileMetas != null && !fileMetas.isEmpty()));
+        return ((filePaths != null && !filePaths.isEmpty()) || (fileMeta != null ));
     }
 
     public boolean isAttachmentUploadInProgress() {
-        return filePaths != null && !filePaths.isEmpty() && (getFileMetaKeyStrings() == null || getFileMetaKeyStrings().isEmpty());
+        return filePaths != null && !filePaths.isEmpty() && (fileMeta == null );
     }
 
     public boolean isAttachmentDownloaded() {
@@ -152,11 +155,11 @@ public class Message extends JsonMarker {
     }
 
     public String getKeyString() {
-        return keyString;
+        return key;
     }
 
     public void setKeyString(String keyString) {
-        this.keyString = keyString;
+        this.key = keyString;
     }
 
     public Long getCreatedAtTime() {
@@ -208,19 +211,19 @@ public class Message extends JsonMarker {
     }
 
     public String getDeviceKeyString() {
-        return deviceKeyString;
+        return deviceKey;
     }
 
     public void setDeviceKeyString(String deviceKeyString) {
-        this.deviceKeyString = deviceKeyString;
+        this.deviceKey = deviceKeyString;
     }
 
     public String getSuUserKeyString() {
-        return suUserKeyString;
+        return userKey;
     }
 
     public void setSuUserKeyString(String suUserKeyString) {
-        this.suUserKeyString = suUserKeyString;
+        this.userKey = suUserKeyString;
     }
 
     public Short getType() {
@@ -234,16 +237,13 @@ public class Message extends JsonMarker {
     public void processContactIds(Context context) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (TextUtils.isEmpty(getContactIds())) {
-            if (userPreferences.getCountryCode() != null) {
-                setContactIds(ContactNumberUtils.getPhoneNumber(getTo(), userPreferences.getCountryCode()));
-            } else {
                 setContactIds(getTo());
-            }
+
         }
     }
 
     public String getContactIds() {
-        return contactIds;
+        return getTo();
     }
 
     public void setContactIds(String contactIds) {
@@ -315,12 +315,12 @@ public class Message extends JsonMarker {
         this.timeToLive = timeToLive;
     }
 
-    public List<String> getFileMetaKeyStrings() {
-        return fileMetaKeyStrings;
+    public String getFileMetaKeyStrings() {
+        return fileMetaKey;
     }
 
-    public void setFileMetaKeyStrings(List<String> fileMetaKeyStrings) {
-        this.fileMetaKeyStrings = fileMetaKeyStrings;
+    public void setFileMetaKeyStrings(String fileMetaKeyStrings) {
+        this.fileMetaKey = fileMetaKeyStrings;
     }
 
     public List<String> getFilePaths() {
@@ -332,25 +332,35 @@ public class Message extends JsonMarker {
     }
 
     public String getPairedMessageKeyString() {
-        return pairedMessageKeyString;
+        return pairedMessageKey;
     }
 
     public void setPairedMessageKeyString(String pairedMessageKeyString) {
-        this.pairedMessageKeyString = pairedMessageKeyString;
+        this.pairedMessageKey = pairedMessageKeyString;
     }
 
-    public List<FileMeta> getFileMetas() {
-        return fileMetas;
+    public FileMeta getFileMetas() {
+        return fileMeta;
     }
 
-    public void setFileMetas(List<FileMeta> fileMetas) {
-        this.fileMetas = fileMetas;
-        if (getFileMetas() != null && !getFileMetas().isEmpty()) {
-            fileMetaKeyStrings = new ArrayList<String>();
-            for (FileMeta filemeta : getFileMetas()) {
-                fileMetaKeyStrings.add(filemeta.getKeyString());
-            }
-        }
+    public void setFileMetas(FileMeta fileMetas) {
+        this.fileMeta = fileMetas;
+    }
+
+    public String getEmailIds() {
+        return emailIds;
+    }
+
+    public void setEmailIds(String emailIds) {
+        this.emailIds = emailIds;
+    }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
     }
 
     @Override
@@ -409,7 +419,7 @@ public class Message extends JsonMarker {
 
     @Override
     public int hashCode() {
-        int result = keyString != null ? keyString.hashCode() : 0;
+        int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
         return result;
     }
@@ -438,9 +448,9 @@ public class Message extends JsonMarker {
                 ", id=" + messageId +
                 ", to='" + to + '\'' +
                 ", message='" + message + '\'' +
-                ", keyString='" + keyString + '\'' +
-                ", deviceKeyString='" + deviceKeyString + '\'' +
-                ", suUserKeyString='" + suUserKeyString + '\'' +
+                ", key='" + key + '\'' +
+                ", deviceKey='" + deviceKey + '\'' +
+                ", userKey='" + userKey + '\'' +
                 ", sent=" + sent +
                 ", delivered=" + delivered +
                 ", type=" + type +
@@ -450,12 +460,13 @@ public class Message extends JsonMarker {
                 ", scheduledAt=" + scheduledAt +
                 ", source=" + source +
                 ", timeToLive=" + timeToLive +
-                ", pairedMessageKeyString=" + pairedMessageKeyString +
+                ", pairedMessageKey=" + pairedMessageKey +
                 ", sentToServer=" + sentToServer +
                 ", broadcastGroupId=" + broadcastGroupId +
-                ", fileMetaKeyStrings=" + getFileMetaKeyStrings() +
+                ", fileMetaKey=" + getFileMetaKeyStrings() +
                 ", filePaths=" + filePaths +
-                ", fileMetas=" + fileMetas +
+                ", fileMetas=" + fileMeta +
+                ", shared=" + shared +
                 '}';
     }
 

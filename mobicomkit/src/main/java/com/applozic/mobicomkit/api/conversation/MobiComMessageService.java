@@ -118,7 +118,7 @@ public class MobiComMessageService {
         Log.i(TAG, "Starting syncMessages");
 
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
-        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getDeviceKeyString(), userpref.getLastSyncTime());
+        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getDeviceKeyString(), userpref.getLastSyncTime(),userpref.getDeviceRegistrationId());
         Log.i(TAG, "Got sync response " + syncMessageFeed);
 
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
@@ -219,15 +219,15 @@ public class MobiComMessageService {
             mTextMessageReceived.setSource(Message.Source.MT_MOBILE_APP.getValue());
             mTextMessageReceived.setTimeToLive(timeToLive);
 
-            if (json.has("fileMetaKeyStrings")) {
+         /*   if (json.has("fileMetaKeyStrings")) {
                 JSONArray fileMetaKeyStringsJSONArray = json.getJSONArray("fileMetaKeyStrings");
                 List<String> fileMetaKeyStrings = new ArrayList<String>();
                 for (int i = 0; i < fileMetaKeyStringsJSONArray.length(); i++) {
                     JSONObject fileMeta = fileMetaKeyStringsJSONArray.getJSONObject(i);
                     fileMetaKeyStrings.add(fileMeta.toString());
                 }
-                mTextMessageReceived.setFileMetaKeyStrings(fileMetaKeyStrings);
-            }
+                //mTextMessageReceived.setFileMetaKeyStrings(fileMetaKeyStrings);
+            }*/
 
             mTextMessageReceived.processContactIds(context);
 

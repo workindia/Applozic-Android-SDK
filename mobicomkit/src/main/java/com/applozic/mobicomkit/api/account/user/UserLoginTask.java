@@ -36,7 +36,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     public UserLoginTask(User user, TaskListener listener, Context context) {
         mUserId = user.getUserId();
-        mEmail = user.getEmailId();
+        mEmail = user.getEmail();
         mPassword = user.getPassword();
         mPhoneNumber = user.getContactNumber();
         mDisplayName = user.getDisplayName();

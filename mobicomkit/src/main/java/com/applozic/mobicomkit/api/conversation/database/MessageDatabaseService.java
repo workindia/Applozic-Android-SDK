@@ -76,7 +76,7 @@ public class MessageDatabaseService {
         message.setTimeToLive(timeToLive != 0 ? timeToLive : null);
         String fileMetaKeyStrings = cursor.getString(cursor.getColumnIndex("fileMetaKeyStrings"));
         if (!TextUtils.isEmpty(fileMetaKeyStrings)) {
-            message.setFileMetaKeyStrings(Arrays.asList(fileMetaKeyStrings.split(",")));
+            message.setFileMetaKeyStrings(fileMetaKeyStrings);
         }
         String filePaths = cursor.getString(cursor.getColumnIndex("filePaths"));
         if (!TextUtils.isEmpty(filePaths)) {
@@ -94,11 +94,8 @@ public class MessageDatabaseService {
             fileMeta.setSize(cursor.getInt(cursor.getColumnIndex("size")));
             fileMeta.setName(cursor.getString(cursor.getColumnIndex("name")));
             fileMeta.setContentType(cursor.getString(cursor.getColumnIndex("contentType")));
-            List<FileMeta> list = new ArrayList<FileMeta>();
-            list.add(fileMeta);
-            message.setFileMetas(list);
+            message.setFileMetas(fileMeta);
         }
-
         return message;
     }
 
@@ -300,11 +297,9 @@ public class MessageDatabaseService {
     public synchronized void updateMessageFileMetas(long messageId, final Message message) {
         ContentValues values = new ContentValues();
         values.put("keyString", message.getKeyString());
-        if (message.getFileMetaKeyStrings() != null && !message.getFileMetaKeyStrings().isEmpty()) {
-            values.put("fileMetaKeyStrings", TextUtils.join(",", message.getFileMetaKeyStrings()));
-        }
-        if (message.getFileMetas() != null && !message.getFileMetas().isEmpty()) {
-            FileMeta fileMeta = message.getFileMetas().get(0);
+        values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
+        if (message.getFileMetas() != null ) {
+            FileMeta fileMeta = message.getFileMetas();
             if (fileMeta != null) {
                 values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
                 values.put("size", fileMeta.getSize());
@@ -409,15 +404,15 @@ public class MessageDatabaseService {
             values.put("canceled", message.isCanceled());
             values.put("read", message.isRead() ? 1 : 0);
 
-            if (message.getFileMetaKeyStrings() != null && !message.getFileMetaKeyStrings().isEmpty()) {
-                values.put("fileMetaKeyStrings", TextUtils.join(",", message.getFileMetaKeyStrings()));
+          if (message.getFileMetaKeyStrings() != null ) {
+                values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
             }
             if (message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 values.put("filePaths", TextUtils.join(",", message.getFilePaths()));
             }
             //TODO:Right now we are supporting single image attachment...making entry in same table
-            if (message.getFileMetas() != null && !message.getFileMetas().isEmpty()) {
-                FileMeta fileMeta = message.getFileMetas().get(0);
+            if (message.getFileMetas() != null ) {
+                FileMeta fileMeta = message.getFileMetas();
                 if (fileMeta != null) {
                     values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
                     values.put("size", fileMeta.getSize());

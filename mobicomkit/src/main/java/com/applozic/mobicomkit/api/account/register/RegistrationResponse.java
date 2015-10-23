@@ -8,10 +8,11 @@ import com.applozic.mobicomkit.api.JsonMarker;
 public class RegistrationResponse extends JsonMarker {
 
     private String message;
-    private String deviceKeyString;
-    private String suUserKeyString;
+    private String deviceKey;
+    private String userKey;
     private String contactNumber;
     private Long lastSyncTime;
+    private Long currentTimeStamp;
 
     public String getMessage() {
         return message;
@@ -21,20 +22,20 @@ public class RegistrationResponse extends JsonMarker {
         this.message = message;
     }
 
-    public String getDeviceKeyString() {
-        return deviceKeyString;
+    public String getDeviceKey() {
+        return deviceKey;
     }
 
-    public void setDeviceKeyString(String deviceKeyString) {
-        this.deviceKeyString = deviceKeyString;
+    public void setDeviceKey(String deviceKeyString) {
+        this.deviceKey = deviceKeyString;
     }
 
-    public String getSuUserKeyString() {
-        return suUserKeyString;
+    public String getUserKey() {
+        return userKey;
     }
 
-    public void setSuUserKeyString(String suUserKeyString) {
-        this.suUserKeyString = suUserKeyString;
+    public void setUserKey(String suUserKeyString) {
+        this.userKey = suUserKeyString;
     }
 
     public String getContactNumber() {
@@ -53,14 +54,23 @@ public class RegistrationResponse extends JsonMarker {
         this.lastSyncTime = lastSyncTime;
     }
 
+    public Long getCurrentTimeStamp() {
+        return currentTimeStamp == null ? 0L : currentTimeStamp;
+    }
+
+    public void setCurrentTimeStamp(Long currentTimeStamp) {
+        this.currentTimeStamp = currentTimeStamp;
+    }
+
     @Override
     public String toString() {
         return "RegistrationResponse{" +
                 "message='" + message + '\'' +
-                ", deviceKeyString='" + deviceKeyString + '\'' +
-                ", suUserKeyString='" + suUserKeyString + '\'' +
+                ", deviceKey='" + deviceKey + '\'' +
+                ", userKey='" + userKey + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
                 ", lastSyncTime='" + lastSyncTime + '\'' +
+                ", currentTimeStamp='" + currentTimeStamp + '\'' +
                 '}';
     }
 }

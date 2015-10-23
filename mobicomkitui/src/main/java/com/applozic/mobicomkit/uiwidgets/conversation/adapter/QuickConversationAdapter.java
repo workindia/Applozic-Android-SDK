@@ -147,7 +147,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             if (message.hasAttachment() && attachmentIcon != null) {
                 //Todo: handle it for fileKeyStrings when filePaths is empty
                 String filePath = message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
-                        message.getFileMetas() != null ? message.getFileMetas().get(0).getName() : "";
+                        message.getFileMetas() != null ? message.getFileMetas().getName() : "";
                 attachmentIcon.setVisibility(View.VISIBLE);
                 messageTextView.setText(filePath + " " + messageTextView.getText());
             } else {

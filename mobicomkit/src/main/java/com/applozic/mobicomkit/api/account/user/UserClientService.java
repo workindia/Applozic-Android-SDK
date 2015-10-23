@@ -38,7 +38,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String APP_VERSION_UPDATE_URL = "/rest/ws/registration/version/update";
     public static final String SETTING_UPDATE_URL = "/rest/ws/setting/single/update";
     public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
-    public static final String USER_INFO_URL = "/rest/ws/user/v1/info?";
+    public static final String USER_INFO_URL = "/rest/ws/user/info?";
     public static final Short MOBICOMKIT_VERSION_CODE = 71;
 
     private HttpRequestUtils httpRequestUtils;

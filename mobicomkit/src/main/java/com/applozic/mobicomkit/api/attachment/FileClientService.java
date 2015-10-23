@@ -43,7 +43,8 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
     public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
     public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
-    public static final String FILE_UPLOAD_URL = "/rest/ws/file/url";
+    public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
+    private static final String FILE_BASE_URL = "http://mobi-com-alpha.appspot.com";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
     private HttpRequestUtils httpRequestUtils;
@@ -56,7 +57,7 @@ public class FileClientService extends MobiComKitClientService {
 
 
     public String getFileUploadUrl() {
-        return getBaseUrl() + FILE_UPLOAD_URL;
+        return FILE_BASE_URL + FILE_UPLOAD_URL;
     }
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
