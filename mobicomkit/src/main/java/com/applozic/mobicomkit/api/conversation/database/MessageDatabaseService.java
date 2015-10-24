@@ -297,7 +297,9 @@ public class MessageDatabaseService {
     public synchronized void updateMessageFileMetas(long messageId, final Message message) {
         ContentValues values = new ContentValues();
         values.put("keyString", message.getKeyString());
-        values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
+        if(message.getFileMetaKeyStrings() != null){
+            values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
+        }
         if (message.getFileMetas() != null ) {
             FileMeta fileMeta = message.getFileMetas();
             if (fileMeta != null) {

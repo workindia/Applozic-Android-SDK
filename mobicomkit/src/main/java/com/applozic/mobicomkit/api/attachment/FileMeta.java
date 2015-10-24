@@ -5,8 +5,8 @@ package com.applozic.mobicomkit.api.attachment;
  */
 public class FileMeta {
 
-    private String keyString;
-    private String suUserKeyString;
+    private String key;
+    private String userKey;
     private String blobKey;
     private String name;
     private String url;
@@ -16,19 +16,19 @@ public class FileMeta {
     private Long createdAtTime;
 
     public String getKeyString() {
-        return keyString;
+        return key;
     }
 
     public void setKeyString(String keyString) {
-        this.keyString = keyString;
+        this.key = keyString;
     }
 
     public String getSuUserKeyString() {
-        return suUserKeyString;
+        return userKey;
     }
 
     public void setSuUserKeyString(String suUserKeyString) {
-        this.suUserKeyString = suUserKeyString;
+        this.userKey = suUserKeyString;
     }
 
     public String getBlobKeyString() {
@@ -100,9 +100,9 @@ public class FileMeta {
     @Override
     public String toString() {
         return "FileMeta{" +
-                "keyString='" + keyString + '\'' +
-                ", suUserKeyString='" + suUserKeyString + '\'' +
-                ", blobKeyString='" + blobKey + '\'' +
+                "key='" + key+ '\'' +
+                ", userKey='" + userKey + '\'' +
+                ", blobKey='" + blobKey + '\'' +
                 ", url=" + url +
                 ", name='" + name + '\'' +
                 ", size=" + size +

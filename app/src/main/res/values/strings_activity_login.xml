@@ -16,11 +16,11 @@
     <string name="text_alert">Alert</string>
     <string name="mobicomkitdemo">Demo App</string>
     <string-array name="select_url">
+        <item>https://dashboard.applozic.com/applozic</item>
         <item>https://applozic.appspot.com</item>
         <item>https://mobi-com.appspot.com</item>
         <item>https://mobi-com-alpha.appspot.com</item>
         <item>https://mobicomkit-test.appspot.com</item>
         <item>http://dashboard.mobicomkit.com/applozic</item>
-        <item>http://dashboard.applozic.com/applozic</item>
     </string-array>
 </resources>
