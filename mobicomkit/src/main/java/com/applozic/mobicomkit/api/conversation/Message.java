@@ -119,7 +119,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isAttachmentUploadInProgress() {
-        return filePaths != null && !filePaths.isEmpty() && (fileMeta == null );
+        return filePaths != null && !filePaths.isEmpty() && !sentToServer;
     }
 
     public boolean isAttachmentDownloaded() {
