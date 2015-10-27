@@ -104,7 +104,7 @@ public class MobiComMessageService {
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-        if (BroadcastService.currentUserId == null) {
+       if (!(message.getTo().equals(BroadcastService.currentUserId ))) {
             MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
             BroadcastService.sendNotificationBroadcast(context, message);
         }
