@@ -513,7 +513,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         listView.setAdapter(conversationAdapter);
         registerForContextMenu(listView);
-
         processMobiTexterUserCheck();
 
         if (contact != null) {
@@ -1103,8 +1102,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 messageList.addAll(nextSmsList);
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!messageList.isEmpty()) {
-                    listView.setSelection(messageList.size() - 1);
+                    listView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setSelection(messageList.size() - 1);
+                        }
+                    });
                 }
+
             } else if (!nextSmsList.isEmpty()) {
                 messageList.addAll(0, nextSmsList);
                 listView.setSelection(nextSmsList.size());

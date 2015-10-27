@@ -36,7 +36,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
-
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -144,7 +143,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
-        new ConversationUIService(this).checkForStartNewConversation(getIntent());
+        onNewIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        new ConversationUIService(this).checkForStartNewConversation(intent);
     }
 
     private void showActionBar() {
