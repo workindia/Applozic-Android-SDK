@@ -70,7 +70,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             newIntent.putExtra("sms_body", "text");
             newIntent.setType("vnd.android-dir/mms-sms");
             newIntent.setAction(NotificationBroadcastReceiver.LAUNCH_APP);
-            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP |Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TOP );
             context.startActivity(newIntent);
         }
     }
