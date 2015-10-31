@@ -36,6 +36,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -58,6 +59,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static Uri capturedImageUri;
+    private static final String SHARE_TEXT ="share_text";
+    private static String inviteMessage;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
@@ -117,6 +120,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quickconversion_activity);
         mActionBar = getSupportActionBar();
+        inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
@@ -223,9 +227,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             new MobiComMessageService(this, MessageIntentService.class).syncMessagesWithServer(message);
         } else if (id == R.id.shareOptions) {
             Intent intent = new Intent(Intent.ACTION_SEND);
-            String textToShare = this.getResources().getString(R.string.invite_message);
             intent.setAction(Intent.ACTION_SEND)
-                    .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);
+                    .setType("text/plain").putExtra(Intent.EXTRA_TEXT, inviteMessage);
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {

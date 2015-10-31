@@ -47,7 +47,8 @@
     <string name="support_contact_emailId">devashish@applozic.com</string>
     <string name="support_contact_number">918042028425</string>
     <string name="support_contact_image_url">R.drawable.ic_launcher</string>
-
+    <string name="invite_message">Hey, check out Applozic -
+        Plug &amp; Play Messaging: http://www.applozic.com</string>
     <string name="facebook_app_id">2194468880571702</string>
 
 </resources>
