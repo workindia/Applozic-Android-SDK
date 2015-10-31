@@ -157,10 +157,9 @@ public class AttachmentTask implements
     }
 
     // Detects the state of caching
-    boolean isCacheEnabled() {
-        return false;
+    public boolean isCacheEnabled() {
+        return mCacheEnabled;
     }
-
 
     @Override
     public Message getMessage() {
@@ -294,7 +293,6 @@ public class AttachmentTask implements
     public String getImageURL() {
         return getPhotoView().getImageUrl();
     }
-
 
     // Implements PhotoDecodeRunnable.setImageDecodeThread(). Calls setCurrentThread().
     @Override
