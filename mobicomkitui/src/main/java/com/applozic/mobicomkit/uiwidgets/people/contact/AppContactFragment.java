@@ -51,7 +51,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     // Defines a tag for identifying log entries
     private static final String TAG = "MobiComKitContactsListFragment";
-
+    private static final String SHARE_TEXT ="share_text";
+    private static String inviteMessage;
     // Bundle key for saving previously selected search result item
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "net.mobitexter.mobiframework.contact.ui.SELECTED_ITEM";
@@ -94,6 +95,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         contactService = new AppContactService(getActivity().getApplicationContext());
         contactList = contactService.getAll();
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
+        inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(),SHARE_TEXT);
 
         if (savedInstanceState != null) {
             // If we're restoring state after this fragment was recreated then
@@ -142,8 +144,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 //        }
         shareButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String inviteMessage = getActivity().getResources().getString(R.string.invite_message);
-
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND)
                         .setType("text/plain").putExtra(Intent.EXTRA_TEXT, inviteMessage);

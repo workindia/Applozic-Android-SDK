@@ -679,9 +679,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         builder.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Intent share = new Intent(Intent.ACTION_SEND);
-                String textToShare = getActivity().getResources().getString(R.string.invite_message);
+               /* String textToShare = getActivity().getResources().getString(R.string.invite_message);
                 share.setAction(Intent.ACTION_SEND)
-                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);
+                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);*/
                 startActivity(Intent.createChooser(share, "Share Via"));
                 sendType.setSelection(0);
             }
