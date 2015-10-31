@@ -29,8 +29,8 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
                     MessageClientService.syncPendingMessages(context);
+                    MessageClientService.syncDeleteMessages(context);
                 }
             }).start();
         }

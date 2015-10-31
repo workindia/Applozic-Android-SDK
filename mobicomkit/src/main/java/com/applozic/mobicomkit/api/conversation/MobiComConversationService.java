@@ -5,20 +5,21 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.api.attachment.FileClientService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class MobiComConversationService {
                 }
             }
 
-           new MobiComMessageService(context,MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
+            new MobiComMessageService(context, MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
                     //TODO: remove this check..right now in some cases it is coming as null.
@@ -128,7 +129,7 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
-                    if(message.hasAttachment()){
+                    if (message.hasAttachment()) {
                         setFilePathifExist(message);
                     }
                     messageList.add(message);
@@ -153,8 +154,9 @@ public class MobiComConversationService {
     }
 
     private void setFilePathifExist(Message message) {
-        File file = FileClientService.getFilePath(message.getFileMetas().get(0).getName(), context, message.getFileMetas().get(0).getContentType());
-        if(file.exists()){
+        FileMeta fileMeta = message.getFileMetas().get(0);
+        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
+        if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
             message.setFilePaths(arrayList);
@@ -162,8 +164,16 @@ public class MobiComConversationService {
     }
 
     public boolean deleteMessage(Message message, Contact contact) {
-        messageClientService.deleteMessage(message, contact);
-        deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+        if (!message.isSentToServer()) {
+            deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+            return true;
+        }
+        String response = messageClientService.deleteMessage(message, contact);
+        if ("success".equals(response)) {
+            deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+        } else {
+            messageDatabaseService.updateDeleteSyncStatus(message, "1");
+        }
         return true;
     }
 
@@ -192,7 +202,7 @@ public class MobiComConversationService {
                 }
             }).start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(),"success");
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), "success");
     }
 
     public void deleteSync(final Contact contact) {
@@ -203,6 +213,7 @@ public class MobiComConversationService {
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
                 contact.getContactIds(), response);
     }
+
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }

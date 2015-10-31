@@ -110,6 +110,7 @@ public class BroadcastService {
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString());
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString());
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString());
 
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
@@ -118,7 +119,7 @@ public class BroadcastService {
     public enum INTENT_ACTIONS {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
-        UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, SMS_ATTACHMENT_DOWNLOAD_FAILD,
+        UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         CONTACT_VERIFIED, NOTIFY_USER
     }
 

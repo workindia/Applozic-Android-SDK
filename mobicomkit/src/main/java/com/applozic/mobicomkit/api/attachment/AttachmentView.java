@@ -37,8 +37,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 public class AttachmentView extends ImageView {
 
     // Indicates if caching should be used
-    private boolean mCacheFlag;
-
+    private boolean mCacheFlag = true;
     // Status flag that indicates if onDraw has completed
     private boolean mIsDrawn;
     /*
@@ -145,6 +144,15 @@ public class AttachmentView extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         // If the image isn't already drawn, and the URL is set
+        super.onDraw(canvas);
+
+        if (message != null && mCacheFlag) {
+            Bitmap bitmap = (AttachmentManager.getInstance()).getBitMapFromCache(message.getKeyString());
+            if (bitmap != null) {
+                setImageBitmap(bitmap);
+                return;
+            }
+        }
         if (!mIsDrawn && !AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
             // Starts downloading this View, using the current cache setting
             mDownloadThread = AttachmentManager.startDownload(this, mCacheFlag);
@@ -156,8 +164,6 @@ public class AttachmentView extends ImageView {
             if (mDownloadThread != null)
                 mDownloadThread.setAttachementView(this);
         }
-        // Always call the super method last
-        super.onDraw(canvas);
     }
 
     @Override
@@ -220,7 +226,11 @@ public class AttachmentView extends ImageView {
     public void cancelDownload() {
         AttachmentManager.removeDownload(mDownloadThread);
         getDownloadProgressLayout().setVisibility(GONE);
-        mIsDrawn= false;
+        mIsDrawn = false;
+    }
+
+    public void setmCacheFlag(boolean cacheFlag) {
+        this.mCacheFlag = cacheFlag;
     }
 
 }

@@ -47,9 +47,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.uiwidgets.R;
-
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -57,6 +54,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
@@ -69,12 +67,11 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.TitleNavigationAda
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
-
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.file.FilePathFinder;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
@@ -468,7 +465,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
 
-        if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2 ) {
+        if (!TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
@@ -516,7 +513,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         listView.setAdapter(conversationAdapter);
         registerForContextMenu(listView);
-
         processMobiTexterUserCheck();
 
         if (contact != null) {
@@ -570,6 +566,26 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             conversationAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    public void downloadFailed(final Message message) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int index = messageList.indexOf(message);
+                if (index != -1) {
+                    View view = listView.getChildAt(index -
+                            listView.getFirstVisiblePosition() + 1);
+
+                    if (view != null) {
+                        final LinearLayout attachmentDownloadLayout = (LinearLayout) view.findViewById(R.id.attachment_download_layout);
+                        attachmentDownloadLayout.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            }
+
+        });
     }
 
     abstract public void attachLocation(Location mCurrentLocation);
@@ -679,9 +695,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         builder.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Intent share = new Intent(Intent.ACTION_SEND);
-               /* String textToShare = getActivity().getResources().getString(R.string.invite_message);
+                String textToShare = getActivity().getResources().getString(R.string.invite_message);
                 share.setAction(Intent.ACTION_SEND)
-                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);*/
+                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);
                 startActivity(Intent.createChooser(share, "Share Via"));
                 sendType.setSelection(0);
             }
@@ -1086,8 +1102,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 messageList.addAll(nextSmsList);
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!messageList.isEmpty()) {
-                    listView.setSelection(messageList.size() - 1);
+                    listView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setSelection(messageList.size() - 1);
+                        }
+                    });
                 }
+
             } else if (!nextSmsList.isEmpty()) {
                 messageList.addAll(0, nextSmsList);
                 listView.setSelection(nextSmsList.size());

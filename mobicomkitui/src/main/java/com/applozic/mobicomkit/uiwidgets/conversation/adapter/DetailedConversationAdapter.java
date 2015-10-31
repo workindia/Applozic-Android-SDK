@@ -349,7 +349,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 public void onClick(View view) {
                     attachmentView.setVisibility(View.GONE);
                     attachmentView.cancelDownload();
-                    attachmentDownloadLayout.setVisibility(View.VISIBLE);
                     attachmentDownloadProgressLayout.setVisibility(View.GONE);
                     message.setAttDownloadInProgress(false);
                 }
