@@ -50,7 +50,7 @@ public class HttpRequestUtils {
 
     public static String USERID_HEADER_VALUE = "true";
 
-    public static String DEVICE_KEY_HEADER = "Device-key";
+    public static String DEVICE_KEY_HEADER = "Device-Key";
 
     public HttpRequestUtils(Context context) {
         this.context = context;
