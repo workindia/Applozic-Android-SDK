@@ -158,7 +158,7 @@ public class AttachmentTask implements
 
     // Detects the state of caching
     boolean isCacheEnabled() {
-        return false;
+        return mCacheEnabled;
     }
 
 

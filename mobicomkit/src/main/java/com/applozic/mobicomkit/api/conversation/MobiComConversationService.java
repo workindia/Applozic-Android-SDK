@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -153,7 +155,8 @@ public class MobiComConversationService {
     }
 
     private void setFilePathifExist(Message message) {
-        File file = FileClientService.getFilePath(message.getFileMetas().getName(), context, message.getFileMetas().getContentType());
+        FileMeta fileMeta = message.getFileMetas();
+        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
         if(file.exists()){
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
@@ -162,8 +165,16 @@ public class MobiComConversationService {
     }
 
     public boolean deleteMessage(Message message, Contact contact) {
-        messageClientService.deleteMessage(message, contact);
-        deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+        if (!message.isSentToServer()) {
+            deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+            return true;
+        }
+        String response = messageClientService.deleteMessage(message, contact);
+        if ("success".equals(response)) {
+            deleteMessageFromDevice(message, contact != null ? contact.getContactIds() : null);
+        } else {
+            messageDatabaseService.updateDeleteSyncStatus(message, "1");
+        }
         return true;
     }
 

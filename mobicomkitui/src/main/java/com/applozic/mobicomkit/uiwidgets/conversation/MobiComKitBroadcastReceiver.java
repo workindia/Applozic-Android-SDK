@@ -85,6 +85,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateUploadFailedStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {
             conversationUIService.updateDownloadStatus(message);
+        }else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString().equals(action) && message != null) {
+            conversationUIService.updateDownloadFailed(message);
         }
     }
 }

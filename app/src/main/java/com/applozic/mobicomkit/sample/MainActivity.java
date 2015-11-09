@@ -165,8 +165,9 @@ public class MainActivity extends MobiComActivityForFragment
     public void takeOrder(View v) {
         Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
         takeOrderIntent.putExtra(TAKE_ORDER, true);
-        takeOrderIntent.putExtra(USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
-        startActivity(takeOrderIntent);
+        takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+       // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
+         startActivity(takeOrderIntent);
     }
 
     public void onSectionAttached(int number) {
@@ -246,7 +247,6 @@ public class MainActivity extends MobiComActivityForFragment
     @Override
     public void updateLatestMessage(Message message, String formattedContactNumber) {
         new ConversationUIService(this).updateLatestMessage(message, formattedContactNumber);
-
 
     }
 

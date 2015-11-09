@@ -20,12 +20,10 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.personalization.PersonalizedMessage;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -104,7 +102,7 @@ public class MobiComMessageService {
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-        if (BroadcastService.currentUserId == null) {
+        if (!(message.getTo().equals(BroadcastService.currentUserId ))) {
             MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
             BroadcastService.sendNotificationBroadcast(context, message);
         }
@@ -118,7 +116,7 @@ public class MobiComMessageService {
         Log.i(TAG, "Starting syncMessages");
 
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
-        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getDeviceKeyString(), userpref.getLastSyncTime(),userpref.getDeviceRegistrationId());
+        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime());
         Log.i(TAG, "Got sync response " + syncMessageFeed);
 
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {

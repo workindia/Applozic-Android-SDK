@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.MessageResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -125,13 +127,47 @@ public class MessageClientService extends MobiComKitClientService {
         new MessageClientService(context).syncPendingMessages(true);
     }
 
-    public void syncPendingMessages(Boolean broadcast) {
+    public void syncPendingMessages(boolean broadcast) {
         List<Message> pendingMessages = messageDatabaseService.getPendingMessages();
         Log.i(TAG, "Found " + pendingMessages.size() + " pending messages to sync.");
         for (Message message : pendingMessages) {
             Log.i(TAG, "Syncing pending message: " + message);
             sendPendingMessageToServer(message, broadcast);
         }
+    }
+
+    public synchronized static void syncDeleteMessages(Context context) {
+        new MessageClientService(context).syncDeleteMessages(true);
+    }
+
+    public void syncDeleteMessages(boolean deleteMessage) {
+        List<Message> pendingDeleteMessages = messageDatabaseService.getPendingDeleteMessages();
+        Log.i(TAG, "Found " + pendingDeleteMessages.size() + " pending messages for Delete.");
+        for (Message message : pendingDeleteMessages) {
+            deletePendingMessages(message, deleteMessage);
+        }
+
+    }
+
+    public void deletePendingMessages(Message message, boolean deleteMessage) {
+
+        String contactNumberParameter = "";
+        String response = "";
+        if (message != null && !TextUtils.isEmpty(message.getContactIds())) {
+            try {
+                contactNumberParameter = "&userId=" + message.getContactIds();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (message.isSentToServer()) {
+            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+        }
+        Log.i(TAG, "Delete response from server for pending message: " + response);
+        if ("success".equals(response)) {
+            messageDatabaseService.deleteMessage(message, message.getContactIds());
+        }
+
     }
 
     public boolean syncMessagesWithServer(List<Message> messageList) {
@@ -217,6 +253,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
 */
         //recentMessageSentToServer.add(message);
+        BaseContactService baseContactService = new AppContactService(context);
 
         boolean isBroadcast = (message.getMessageId() == null);
 
@@ -225,7 +262,7 @@ public class MessageClientService extends MobiComKitClientService {
         message.setSendToDevice(Boolean.FALSE);
         message.setSuUserKeyString(userPreferences.getSuUserKeyString());
         message.processContactIds(context);
-
+        Contact contact = baseContactService.getContactById(message.getContactIds());
 
         long messageId = -1;
 
@@ -281,12 +318,19 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setSent(message.isSent());
         newMessage.setType(message.getType());
         newMessage.setTimeToLive(message.getTimeToLive());
-        newMessage.setPairedMessageKeyString(message.getPairedMessageKeyString());
         newMessage.setSource(message.getSource());
         newMessage.setScheduledAt(message.getScheduledAt());
         newMessage.setStoreOnDevice(message.isStoreOnDevice());
         newMessage.setDelivered(message.getDelivered());
         newMessage.setSendToDevice(message.isSendToDevice());
+
+        if(contact != null && !TextUtils.isEmpty(contact.getApplicationId())){
+            Log.i("contact is not null","gettingid"+contact.getApplicationId());
+            newMessage.setApplicationId(contact.getApplicationId());
+        }else{
+            Log.i("contact is  null","gettingid"+getApplicationKey(context));
+            newMessage.setApplicationId(getApplicationKey(context));
+        }
 
         //Todo: set filePaths
 
@@ -333,11 +377,10 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json", null, jsonFromObject);
     }
 
-    public SyncMessageFeed getMessageFeed(String deviceKeyString, String lastSyncKeyString, String registrationId) {
-        String url = getServerSyncUrl() + "?"
-                + DEVICE_KEY + "=" + deviceKeyString
-                + ARGUMRNT_SAPERATOR + REGISTRATION_ID + "=" + registrationId + ARGUMRNT_SAPERATOR + LAST_SYNC_KEY
-                + "=" + lastSyncKeyString;
+    public SyncMessageFeed getMessageFeed( String lastSyncTime) {
+        String url = getServerSyncUrl() + "?"+
+             LAST_SYNC_KEY
+                + "=" + lastSyncTime;
         try {
             Log.i(TAG, "Calling message feed url: " + url);
             String response = httpRequestUtils.getResponse(credentials, url, "application/json", "application/json");
@@ -354,7 +397,7 @@ public class MessageClientService extends MobiComKitClientService {
             return;
         }
         try {
-            String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds() + "&requestSource=1";
+            String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds();
             String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
         } catch (Exception e) {
@@ -366,7 +409,7 @@ public class MessageClientService extends MobiComKitClientService {
         String response = null;
         try {
             if (!TextUtils.isEmpty(contact.getContactIds())) {
-                String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds() + "&requestSource=1";
+                String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds();
                 response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
                 Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
             }
@@ -376,8 +419,9 @@ public class MessageClientService extends MobiComKitClientService {
         return response;
     }
 
-    public void deleteMessage(Message message, Contact contact) {
+    public String deleteMessage(Message message, Contact contact) {
         String contactNumberParameter = "";
+        String response = "";
         if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             try {
                 contactNumberParameter = "&userId=" + contact.getContactIds();
@@ -386,9 +430,10 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            String response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
             Log.i(TAG, "delete response is " + response);
         }
+        return response;
     }
 
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {

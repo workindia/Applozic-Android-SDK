@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,6 +116,7 @@ public class QuickConversationAdapter extends BaseAdapter {
 
             if (alphabeticTextView != null && contactReceiver != null) {
                 String contactNumber = contactReceiver.getContactNumber().toUpperCase();
+                Log.i("conatct id is","null"+contactReceiver.getDisplayName());
                 char firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
                 if (firstLetter != '+') {
                     alphabeticTextView.setText(String.valueOf(firstLetter));

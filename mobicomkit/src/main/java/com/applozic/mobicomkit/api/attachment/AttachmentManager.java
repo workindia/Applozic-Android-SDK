@@ -113,7 +113,7 @@ public class AttachmentManager {
      * Creates a cache of byte arrays indexed by image URLs. As new items are added to the
      * cache, the oldest items are ejected and subject to garbage collection.
      */
-    private final LruCache<String, Bitmap> mPhotoCache;
+    private LruCache<String, Bitmap> mPhotoCache = null;
     // A queue of Runnables for the image download pool
     private final BlockingQueue<Runnable> mDownloadWorkQueue;
     // A queue of Runnables for the image decoding pool
@@ -253,6 +253,7 @@ public class AttachmentManager {
                             } else if (localView.getProressBar() != null) {
                                 localView.getProressBar().setVisibility(View.GONE);
                             }
+                            BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString(), localView.getMessage());
                             localView.setImageBitmap(attachmentTask.getImage());
                             recycleTask(attachmentTask);
                             break;
@@ -263,6 +264,8 @@ public class AttachmentManager {
                             localView.getMessage().setAttDownloadInProgress(false);
                             localView.getDownloadProgressLayout().setVisibility(View.GONE);
                             localView.setVisibility(View.INVISIBLE);
+                            localView.cancelDownload();
+                            BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString(), localView.getMessage());
                             Toast.makeText(localView.getContext(), "Download failed.", Toast.LENGTH_SHORT).show();
                             // Attempts to re-use the Task object
                             recycleTask(attachmentTask);
@@ -448,7 +451,9 @@ public class AttachmentManager {
                     // If the task is set to cache the results, put the buffer
                     // that was
                     // successfully decoded into the cache
-                    mPhotoCache.put(photoTask.getImageURL(), photoTask.getImage());
+                    if (photoTask != null && photoTask.getImage() != null) {
+                        mPhotoCache.put(photoTask.getMessage().getKeyString(), photoTask.getImage());
+                    }
                 }
                 // Gets a Message object, stores the state in it, and sends it to the Handler
                 Message completeMessage = mHandler.obtainMessage(state, photoTask);
@@ -467,7 +472,6 @@ public class AttachmentManager {
                     //We need not to cache the Data here ..as we have nothing to load
                     // ...directly sending TASK complete message is enough
                     mHandler.obtainMessage(TASK_COMPLETE, photoTask).sendToTarget();
-                    BroadcastService.sendMessageUpdateBroadcast(photoTask.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString(), photoTask.getMessage());
                 }
 
                 // In all other cases, pass along the message without any other action.
@@ -491,6 +495,13 @@ public class AttachmentManager {
 
         // Puts the task object back into the queue for re-use.
         mPhotoTaskWorkQueue.offer(downloadTask);
+    }
+
+    public Bitmap getBitMapFromCache(String key) {
+        if (mPhotoCache != null) {
+            return mPhotoCache.get(key);
+        }
+        return null;
     }
 
 }

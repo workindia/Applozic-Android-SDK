@@ -46,6 +46,7 @@ public class Contact implements Serializable {
     private String localImageUrl;
     @Expose
     private String emailId;
+    private String applicationId;
 
     public Contact() {
 
@@ -224,6 +225,14 @@ public class Contact implements Serializable {
         return getPhoneNumbers() != null && !getPhoneNumbers().isEmpty() && getPhoneNumbers().size() > 1;
     }
 
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
     public void processFullName(String fullName) {
         this.fullName = fullName;
         if (fullName != null) {
@@ -264,6 +273,7 @@ public class Contact implements Serializable {
                 ", imageURL='" + imageURL + '\'' +
                 ", localImageUrl='" + localImageUrl + '\'' +
                 ", emailId='" + emailId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
                 '}';
     }
 

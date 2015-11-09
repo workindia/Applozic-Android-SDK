@@ -55,19 +55,19 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getFileUploadUrl() {
-        return DEFAULT_URL + FILE_UPLOAD_URL;
+        return FILE_BASE_URL + FILE_UPLOAD_URL;
     }
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
         File filePath;
         File dir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String folder = Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_OTHER_FILES_FOLDER;
+            String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_OTHER_FILES_FOLDER;
 
             if (contentType.startsWith("image")) {
-                folder = Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_IMAGES_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_IMAGES_FOLDER;
             } else if (contentType.startsWith("video")) {
-                folder = Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_VIDEOS_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_VIDEOS_FOLDER;
             }
             if (isThumbnail) {
                 folder = folder + MOBI_TEXTER_THUMBNAIL_SUFIX;

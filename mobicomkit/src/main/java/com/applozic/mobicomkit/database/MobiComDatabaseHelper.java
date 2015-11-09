@@ -4,16 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-//import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
-
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 2;
+    public static final int DB_VERSION = 3;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -27,16 +24,14 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String SCHEDULE_SMS_TABLE_NAME = "ScheduleSMS";
     public static final String SMS_TABLE_NAME = "sms";
     public static final String CONTACT_TABLE_NAME = "contact";
-
     public static final String FULL_NAME = "fullName";
-
     public static final String CONTACT_NO = "contactNO";
     public static final String DISPLAY_NAME = "displayName";
     public static final String CONTACT_IMAGE_LOCAL_URI = "contactImageLocalURI";
     public static final String CONTACT_IMAGE_URL = "contactImageURL";
     public static final String USERID = "userId";
     public static final String EMAIL = "email";
-
+    public static final String APPLICATION_ID ="applicationId";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -69,7 +64,13 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "metaFileKeyString varchar(2000), "
             + "blobKeyString varchar(2000), "
             + "canceled integer default 0, "
+            + "deleted integer default 0,"
+            + "applicationId varchar(2000) null,"
             + "UNIQUE (keyString, contactNumbers))";
+    
+    private static final String ALTER_SMS_TABLE_FOR_DELETE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN deleted integer default 0";
+    private static final String ALTER_CONTACT_TABLE_FOR_APPLICATION_ID_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN applicationId varchar(2000) null";
+    private static final String ALTER_SMS_TABLE_FOR__APPLICATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN applicationId varchar(2000) null";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -78,7 +79,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + DISPLAY_NAME + " VARCHAR(25), "
             + CONTACT_IMAGE_URL + " VARCHAR(200), "
             + CONTACT_IMAGE_LOCAL_URI + " VARCHAR(200), "
-            + EMAIL + " VARCHAR(100) "
+            + EMAIL + " VARCHAR(100), "
+            + APPLICATION_ID + " VARCHAR(2000) null"
             + " ) ";
 
     private static final String CREATE_INDEX_SMS_TYPE = "CREATE INDEX IF NOT EXISTS INDEX_SMS_TYPE ON sms (type)";
@@ -135,9 +137,17 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.isTableExists(database, "sms")) {
                 database.execSQL(CREATE_SMS_TABLE);
             }
-
             if (!DBUtils.isTableExists(database, SCHEDULE_SMS_TABLE_NAME)) {
                 database.execSQL(CREATE_SCHEDULE_SMS_TABLE);
+            }
+            if (!DBUtils.existsColumnInTable(database, "sms", "deleted")) {
+                database.execSQL(ALTER_SMS_TABLE_FOR_DELETE_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "sms", "applicationId")) {
+                database.execSQL(ALTER_SMS_TABLE_FOR__APPLICATION_ID_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "contact", "applicationId")) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_APPLICATION_ID_COLUMN);
             }
             database.execSQL(CREATE_INDEX_SMS_TYPE);
         } else {

@@ -44,6 +44,7 @@ public class ContactDatabase {
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
+        contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
         contact.processContactNumbers(context);
         return contact;
     }
@@ -115,6 +116,7 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
         contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
+        contentValues.put(MobiComDatabaseHelper.APPLICATION_ID,contact.getApplicationId());
         return contentValues;
     }
 

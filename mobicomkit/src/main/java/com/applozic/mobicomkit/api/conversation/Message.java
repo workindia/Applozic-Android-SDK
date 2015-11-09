@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.JsonMarker;
@@ -10,9 +9,6 @@ import com.google.gson.annotations.SerializedName;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +44,7 @@ public class Message extends JsonMarker {
     private Long messageId;
     private Boolean read = false;
     private boolean attDownloadInProgress;
+    private String applicationId;
 
     public Message() {
 
@@ -80,6 +77,8 @@ public class Message extends JsonMarker {
         this.setFilePaths(message.getFilePaths());
         this.setBroadcastGroupId(message.getBroadcastGroupId());
         this.setRead(message.isRead());
+       this.setApplicationId(message.getApplicationId());
+
     }
 
     public long getSentMessageTimeAtServer() {
@@ -363,6 +362,14 @@ public class Message extends JsonMarker {
         this.shared = shared;
     }
 
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -467,6 +474,7 @@ public class Message extends JsonMarker {
                 ", filePaths=" + filePaths +
                 ", fileMetas=" + fileMeta +
                 ", shared=" + shared +
+                ",applicationId="+applicationId+
                 '}';
     }
 

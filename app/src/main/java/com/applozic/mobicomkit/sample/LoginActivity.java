@@ -50,7 +50,6 @@ import com.facebook.login.widget.LoginButton;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A login screen that offers login via email/password.
  */
@@ -63,7 +62,6 @@ public class LoginActivity extends Activity {
 
     //flag variable for exiting the application
     private boolean exit = false;
-
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -232,7 +230,7 @@ public class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-        if(TextUtils.isEmpty(userId)){
+        if (TextUtils.isEmpty(userId)) {
             mUserIdView.setError(getString(R.string.error_field_required));
             focusView = mUserIdView;
             cancel = true;
@@ -306,7 +304,9 @@ public class LoginActivity extends Activity {
                                     dialog.dismiss();
                                 }
                             });
-                    alertDialog.show();
+                    if (!isFinishing()) {
+                        alertDialog.show();
+                    }
                 }
             };
 

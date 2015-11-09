@@ -31,6 +31,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                 public void run() {
 
                     MessageClientService.syncPendingMessages(context);
+                    MessageClientService.syncDeleteMessages(context);
                 }
             }).start();
         }

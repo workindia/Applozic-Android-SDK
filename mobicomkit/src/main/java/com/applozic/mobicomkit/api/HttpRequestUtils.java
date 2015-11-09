@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -47,6 +49,8 @@ public class HttpRequestUtils {
     public static String USERID_HEADER = "UserId-Enabled";
 
     public static String USERID_HEADER_VALUE = "true";
+
+    public static String DEVICE_KEY_HEADER = "Device-key";
 
     public HttpRequestUtils(Context context) {
         this.context = context;
@@ -207,6 +211,7 @@ public class HttpRequestUtils {
         request.addHeader(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
         request.addHeader(SOURCE_HEADER, SOURCE_HEADER_VALUE);
         request.addHeader(USERID_HEADER, USERID_HEADER_VALUE);
+        request.addHeader(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
     }
 
 }

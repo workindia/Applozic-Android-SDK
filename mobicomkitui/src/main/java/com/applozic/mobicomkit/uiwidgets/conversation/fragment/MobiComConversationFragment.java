@@ -48,6 +48,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -572,6 +573,26 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
+    public void downloadFailed(final Message message) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int index = messageList.indexOf(message);
+                if (index != -1) {
+                    View view = listView.getChildAt(index -
+                            listView.getFirstVisiblePosition() + 1);
+
+                    if (view != null) {
+                        final LinearLayout attachmentDownloadLayout = (LinearLayout) view.findViewById(R.id.attachment_download_layout);
+                        attachmentDownloadLayout.setVisibility(View.VISIBLE);
+                    }
+
+                }
+            }
+
+        });
+    }
+
     abstract public void attachLocation(Location mCurrentLocation);
 
     public void updateDeliveryStatus(final Message message) {
@@ -679,9 +700,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         builder.setPositiveButton(R.string.invite, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Intent share = new Intent(Intent.ACTION_SEND);
-                String textToShare = getActivity().getResources().getString(R.string.invite_message);
+               /* String textToShare = getActivity().getResources().getString(R.string.invite_message);
                 share.setAction(Intent.ACTION_SEND)
-                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);
+                        .setType("text/plain").putExtra(Intent.EXTRA_TEXT, textToShare);*/
                 startActivity(Intent.createChooser(share, "Share Via"));
                 sendType.setSelection(0);
             }
@@ -812,11 +833,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
                     if (view != null) {
                         final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
-                        attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                        final AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.main_attachment_view);
                         final ImageView preview = (ImageView) view.findViewById(R.id.preview);
-                        (view.findViewById(R.id.main_attachment_view)).setVisibility(view.GONE);
-                        preview.setVisibility(View.GONE);
+                        if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
+                            attachmentView.setVisibility(View.VISIBLE);
+                            preview.setVisibility(View.GONE);
+                            attachmentView.setMessage(smListItem);
+                            attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                        } else if (message.getFileMetas() != null && !message.getFileMetas().getContentType().contains("image")) {
+                            attachmentView.setMessage(smListItem);
+                            attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                            attachmentView.setVisibility(View.GONE);
+                            preview.setVisibility(View.GONE);
+                        }
                     }
+
                 }
             }
         });
@@ -1086,7 +1117,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 messageList.addAll(nextSmsList);
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!messageList.isEmpty()) {
-                    listView.setSelection(messageList.size() - 1);
+                    listView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setSelection(messageList.size() - 1);
+                        }
+                    });
                 }
             } else if (!nextSmsList.isEmpty()) {
                 messageList.addAll(0, nextSmsList);

@@ -10,9 +10,12 @@ import android.support.v4.app.NotificationCompat;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver;
 
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -66,11 +69,14 @@ public class NotificationService {
         if (message.hasAttachment()) {
             try {
                 InputStream in;
-                HttpURLConnection httpConn = new MobiComKitClientService(context).openHttpConnection(message.getFileMetas().getThumbnailUrl());
+                FileMeta fileMeta = message.getFileMetas();
+                HttpURLConnection httpConn = new MobiComKitClientService(context).openHttpConnection(fileMeta.getThumbnailUrl());
                 int response = httpConn.getResponseCode();
                 if (response == HttpURLConnection.HTTP_OK) {
                     in = httpConn.getInputStream();
                     Bitmap bitmap = BitmapFactory.decodeStream(in);
+                    String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+                    FileClientService.saveImageToInternalStorage(bitmap, imageName, context, fileMeta.getContentType());
                     mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Exception ex) {

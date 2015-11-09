@@ -33,6 +33,10 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
 
     public static final String SHARED_TEXT = "SHARED_TEXT";
     public static final String FORWARD_MESSAGE = "forwardMessage";
+    private static final String CONTACT_ID = "contactId";
+    private static final String GROUP_ID = "groupId";
+    private static final String GROUP_NAME = "groupName";
+    private static final String USER_ID = "userId";
     protected SearchView searchView;
     protected String searchTerm;
     AppContactFragment mContactsListFragment;
@@ -103,29 +107,29 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         }
 
         Intent intent = new Intent();
-        intent.putExtra("contactId", contactId);
+        intent.putExtra(CONTACT_ID, contactId);
         intent.setData(contactUri);
         finishActivity(intent);
     }
 
     public void startNewConversation(String contactNumber) {
         Intent intent = new Intent();
-        intent.putExtra("userId", contactNumber);
+        intent.putExtra(USER_ID, contactNumber);
         finishActivity(intent);
     }
 
     @Override
     public void onGroupSelected(Group group) {
         Intent intent = new Intent();
-        intent.putExtra("groupId", group.getGroupId());
-        intent.putExtra("groupName", group.getName());
+        intent.putExtra(GROUP_ID, group.getGroupId());
+        intent.putExtra(GROUP_NAME, group.getName());
         finishActivity(intent);
     }
 
     @Override
     public void onCustomContactSelected(Contact contact) {
         Intent intent = new Intent();
-        intent.putExtra("userId", contact.getUserId());
+        intent.putExtra(USER_ID, contact.getUserId());
         finishActivity(intent);
     }
 
