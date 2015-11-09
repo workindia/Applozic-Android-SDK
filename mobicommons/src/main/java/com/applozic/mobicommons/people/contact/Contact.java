@@ -202,7 +202,7 @@ public class Contact implements Serializable {
     }
 
     public String getDisplayName() {
-        return fullName == null ? getContactIds() : fullName;
+        return TextUtils.isEmpty(fullName) ? getContactIds() : fullName;
     }
 
     public String getFullName() {
