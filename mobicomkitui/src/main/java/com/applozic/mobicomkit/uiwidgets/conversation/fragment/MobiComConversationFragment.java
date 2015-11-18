@@ -71,6 +71,7 @@ import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
 
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -662,6 +663,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqWidth = displaymetrics.widthPixels;
             }
             previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight);
+            previewThumbnail = ImageUtils.getImageRotatedBitmap(previewThumbnail,filePath,previewThumbnail.getWidth(),previewThumbnail.getHeight());
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);

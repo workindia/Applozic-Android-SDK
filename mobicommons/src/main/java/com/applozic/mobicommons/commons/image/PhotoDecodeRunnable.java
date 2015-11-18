@@ -272,6 +272,7 @@ public class PhotoDecodeRunnable implements Runnable {
             } else {
 
                 // Sets the ImageView Bitmap
+                returnBitmap = ImageUtils.getImageRotatedBitmap(returnBitmap,imagePath,returnBitmap.getWidth(),returnBitmap.getHeight());
                 mPhotoTask.setImage(returnBitmap);
 
                 // Reports a status of "completed"
