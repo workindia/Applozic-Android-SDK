@@ -313,10 +313,10 @@ public class MessageDatabaseService {
     public synchronized void updateMessageFileMetas(long messageId, final Message message) {
         ContentValues values = new ContentValues();
         values.put("keyString", message.getKeyString());
-        if(message.getFileMetaKeyStrings() != null){
-            values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
+        if (message.getFileMetaKeyStrings() != null) {
+            values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
         }
-        if (message.getFileMetas() != null ) {
+        if (message.getFileMetas() != null) {
             FileMeta fileMeta = message.getFileMetas();
             if (fileMeta != null) {
                 values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
@@ -333,8 +333,8 @@ public class MessageDatabaseService {
 
     public synchronized long createMessage(final Message message) {
         long id = -1;
-        if(message.getMessageId() !=null){
-            return  message.getMessageId();
+        if (message.getMessageId() != null) {
+            return message.getMessageId();
         }
         id = createSingleMessage(message);
         message.setMessageId(id);
@@ -391,7 +391,7 @@ public class MessageDatabaseService {
                         new String[]{message.getKeyString(), message.getContactIds()});
             } else {
                 cursor = database.rawQuery(
-                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " +message.getCreatedAtTime(),
+                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " + message.getCreatedAtTime(),
                         new String[]{message.getContactIds(), message.getMessage()});
             }
 
@@ -421,16 +421,16 @@ public class MessageDatabaseService {
             values.put("broadcastGroupId", message.getBroadcastGroupId());
             values.put("canceled", message.isCanceled());
             values.put("read", message.isRead() ? 1 : 0);
-            values.put("applicationId",message.getApplicationId());
+            values.put("applicationId", message.getApplicationId());
 
-          if (message.getFileMetaKeyStrings() != null ) {
-                values.put("fileMetaKeyStrings",  message.getFileMetaKeyStrings());
+            if (message.getFileMetaKeyStrings() != null) {
+                values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
             }
             if (message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 values.put("filePaths", TextUtils.join(",", message.getFilePaths()));
             }
             //TODO:Right now we are supporting single image attachment...making entry in same table
-            if (message.getFileMetas() != null ) {
+            if (message.getFileMetas() != null) {
                 FileMeta fileMeta = message.getFileMetas();
                 if (fileMeta != null) {
                     values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
@@ -475,7 +475,7 @@ public class MessageDatabaseService {
             ContentValues values = new ContentValues();
             values.put("keyString", keyString);
             values.put("sentToServer", "1");
-            values.put("createdAt",message.getSentMessageTimeAtServer());
+            values.put("createdAt", message.getSentMessageTimeAtServer());
             dbHelper.getWritableDatabase().update("sms", values, "id=" + message.getMessageId(), null);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -527,9 +527,9 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int getUnreadSmsCount(Contact contact) {
+    public int getUnreadSmsCount(String contactNumbers) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contact.getContactNumber() + "'", null);
+        final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
         cursor.moveToFirst();
         int unreadSms = 0;
         if (cursor.getCount() > 0) {
@@ -550,6 +550,13 @@ public class MessageDatabaseService {
         cursor.close();
         dbHelper.close();
         return messages;
+    }
+
+    public void updateReadStatus(String contactNumbers) {
+        ContentValues values = new ContentValues();
+        values.put("read", 1);
+        dbHelper.getWritableDatabase().update("sms", values, " contactNumbers = " + "'" + contactNumbers + "'" + " and read = 0", null);
+        dbHelper.close();
     }
 
     public List<Message> getMessages(Long createdAt) {

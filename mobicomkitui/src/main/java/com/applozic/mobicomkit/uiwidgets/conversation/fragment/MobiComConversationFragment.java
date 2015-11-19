@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -478,13 +479,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         menu.removeItem(R.id.start_new);
     }
 
-    public void loadConversation(Contact contact, Group group) {
+    public void loadConversation(final Contact contact, Group group) {
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
         BroadcastService.currentUserId = contact.getContactIds();
-
-
+        new Thread(new Runnable() {
+           @Override
+           public void run() {
+               new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
+               new MessageClientService(getActivity()).updateReadStatus(contact);
+           }
+        }).start();
         /*
         filePath = null;*/
         if (TextUtils.isEmpty(filePath)) {
@@ -663,7 +669,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqWidth = displaymetrics.widthPixels;
             }
             previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight);
-            previewThumbnail = ImageUtils.getImageRotatedBitmap(previewThumbnail,filePath,previewThumbnail.getWidth(),previewThumbnail.getHeight());
+            previewThumbnail = ImageUtils.getImageRotatedBitmap(previewThumbnail, filePath, previewThumbnail.getWidth(), previewThumbnail.getHeight());
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);
