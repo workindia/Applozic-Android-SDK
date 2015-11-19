@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -95,7 +95,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
-
+            TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
             List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
             List<String> userIds = null;
             if (!TextUtils.isEmpty(message.getContactIds())) {
@@ -116,7 +116,6 @@ public class QuickConversationAdapter extends BaseAdapter {
 
             if (alphabeticTextView != null && contactReceiver != null) {
                 String contactNumber = contactReceiver.getContactNumber().toUpperCase();
-                Log.i("conatct id is","null"+contactReceiver.getDisplayName());
                 char firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
                 if (firstLetter != '+') {
                     alphabeticTextView.setText(String.valueOf(firstLetter));
@@ -179,6 +178,14 @@ public class QuickConversationAdapter extends BaseAdapter {
             }
             if (createdAtTime != null) {
                 createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+            }
+            if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
+                int messageUnReadCount = new MessageDatabaseService(context).getUnreadSmsCount(contactReceiver.getContactIds());
+                if(messageUnReadCount>0){
+                    unReadCountTextView.setText(String.valueOf(messageUnReadCount));
+                }else{
+                    unReadCountTextView.setVisibility(View.GONE);
+                }
             }
         }
 

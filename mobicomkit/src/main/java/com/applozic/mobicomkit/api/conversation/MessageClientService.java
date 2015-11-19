@@ -50,6 +50,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_DELETE_URL = "/rest/ws/message/delete";
     public static final String UPDATE_DELIVERY_FLAG_URL = "/rest/ws/sms/update/delivered";
     // public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
+    public static final String UPDATE_READ_STATUS_URL = "/rest/ws/message/read/conversation";
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
     public static final String ARGUMRNT_SAPERATOR = "&";
     private static final String TAG = "MessageClientService";
@@ -96,6 +97,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getMessageThreadDeleteUrl() {
         return getBaseUrl() + MESSAGE_THREAD_DELETE_URL;
+    }
+
+    public String getUpdateReadStatusUrl() {
+        return getBaseUrl() + UPDATE_READ_STATUS_URL;
     }
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -324,11 +329,9 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setDelivered(message.getDelivered());
         newMessage.setSendToDevice(message.isSendToDevice());
 
-        if(contact != null && !TextUtils.isEmpty(contact.getApplicationId())){
-            Log.i("contact is not null","gettingid"+contact.getApplicationId());
+        if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
             newMessage.setApplicationId(contact.getApplicationId());
-        }else{
-            Log.i("contact is  null","gettingid"+getApplicationKey(context));
+        } else {
             newMessage.setApplicationId(getApplicationKey(context));
         }
 
@@ -377,9 +380,9 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json", null, jsonFromObject);
     }
 
-    public SyncMessageFeed getMessageFeed( String lastSyncTime) {
-        String url = getServerSyncUrl() + "?"+
-             LAST_SYNC_KEY
+    public SyncMessageFeed getMessageFeed(String lastSyncTime) {
+        String url = getServerSyncUrl() + "?" +
+                LAST_SYNC_KEY
                 + "=" + lastSyncTime;
         try {
             Log.i(TAG, "Calling message feed url: " + url);
@@ -434,6 +437,20 @@ public class MessageClientService extends MobiComKitClientService {
             Log.i(TAG, "delete response is " + response);
         }
         return response;
+    }
+
+    public void updateReadStatus(Contact contact) {
+        String contactNumberParameter = "";
+        String response = "";
+        if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
+            try {
+                contactNumberParameter = "?userId=" + contact.getContactIds();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        response = httpRequestUtils.getResponse(credentials, getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
+        Log.i(TAG, "Read status response is " + response);
     }
 
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {

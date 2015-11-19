@@ -5,11 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 /**
  * Created by devashish on 21/12/14.
@@ -62,6 +65,35 @@ public class ImageUtils {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+
+    public static Bitmap getImageRotatedBitmap(Bitmap bitmap, String filePath, int reqWidth, int reqHeight) {
+        int rotate = 0;
+        try {
+            File imageFile = new File(filePath);
+            ExifInterface exif = new ExifInterface(
+                    imageFile.getAbsolutePath());
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotate);
+        return Bitmap.createBitmap(bitmap, 0, 0, reqWidth, reqHeight, matrix, true);
     }
 
 }
