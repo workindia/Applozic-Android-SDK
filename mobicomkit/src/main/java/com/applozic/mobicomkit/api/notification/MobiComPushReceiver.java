@@ -44,16 +44,20 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_MESSAGE");//14
     }
 
-    public static boolean isMobiComPushNotification(Context context, Intent intent) {
+    public static boolean isMobiComPushNotification(Intent intent) {
+       return isMobiComPushNotification(intent.getExtras());
+    }
+
+    public static boolean isMobiComPushNotification(Bundle bundle) {
         //This is to identify collapse key sent in notification..
-        String payLoad = intent.getStringExtra("collapse_key");
+        String payLoad = bundle.getString("collapse_key");
         Log.i(TAG, "Received notification: " + payLoad);
 
         if (payLoad != null && payLoad.contains(MTCOM_PREFIX) || notificationKeyList.contains(payLoad)) {
             return true;
         } else {
             for (String key : notificationKeyList) {
-                payLoad = intent.getStringExtra(key);
+                payLoad = bundle.getString(key);
                 if (payLoad != null) {
                     return true;
                 }
@@ -62,64 +66,68 @@ public class MobiComPushReceiver {
         }
     }
 
-    public static void processMessage(Context context, Intent intent) {
-        Bundle extras = intent.getExtras();
-        if (extras != null) {
+    public static void processMessage(Context context, Bundle bundle) {
+       // Bundle extras = intent.getExtras();
+        if (bundle != null) {
             // ToDo: do something for invalidkey ;
             // && extras.get("InvalidKey") != null
-            String message = intent.getStringExtra("collapse_key");
-            String deleteConversationForContact = intent.getStringExtra(notificationKeyList.get(6));
-            String deleteSms = intent.getStringExtra(notificationKeyList.get(4));
-            String multipleMessageDelete = intent.getStringExtra(notificationKeyList.get(5));
-            String mtexterUser = intent.getStringExtra(notificationKeyList.get(7));
-            String payloadForDelivered = intent.getStringExtra(notificationKeyList.get(2));
+            String message = bundle.getString("collapse_key");
+            String deleteConversationForContact = bundle.getString(notificationKeyList.get(6));
+            String deleteSms = bundle.getString(notificationKeyList.get(4));
+            String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
+            String mtexterUser = bundle.getString(notificationKeyList.get(7));
+            String payloadForDelivered = bundle.getString(notificationKeyList.get(2));
+            processMessage(context,message,deleteConversationForContact,deleteSms,multipleMessageDelete,mtexterUser,payloadForDelivered);
 
-            MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
-
-            if (!TextUtils.isEmpty(payloadForDelivered)) {
-                messageService.updateDeliveryStatus(payloadForDelivered);
-            }
-            if (!TextUtils.isEmpty(deleteConversationForContact)) {
-                MobiComConversationService conversationService = new MobiComConversationService(context);
-                conversationService.deleteConversationFromDevice(deleteConversationForContact);
-                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact, "success");
-            }
-
-            if (!TextUtils.isEmpty(mtexterUser)) {
-                Log.i(TAG, "Received GCM message MTEXTER_USER: " + mtexterUser);
-                if (mtexterUser.contains("{")) {
-                    Gson gson = new Gson();
-                    ContactContent contactContent = gson.fromJson(mtexterUser, ContactContent.class);
-                    ContactService.addUsersToContact(context, contactContent.getContactNumber(), contactContent.getAppVersion(), true);
-                } else {
-                    String[] details = mtexterUser.split(",");
-                    ContactService.addUsersToContact(context, details[0], Short.parseShort(details[1]), true);
-                }
-            }
-            if (!TextUtils.isEmpty(multipleMessageDelete)) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                MessageDeleteContent messageDeleteContent = gson.fromJson(multipleMessageDelete, MessageDeleteContent.class);
-
-                for (String deletedSmsKeyString : messageDeleteContent.getDeleteKeyStrings()) {
-                    processDeleteSingleMessageRequest(context, deletedSmsKeyString, messageDeleteContent.getContactNumber());
-                }
-            }
-
-            if (!TextUtils.isEmpty(deleteSms)) {
-                String contactNumbers = deleteSms.split(",").length > 1 ? deleteSms.split(",")[1] : null;
-                processDeleteSingleMessageRequest(context, deleteSms.split(",")[0], contactNumbers);
-            }
-
-            if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
-
-            } else if (notificationKeyList.get(0).equalsIgnoreCase(message)) {
-                messageService.syncMessages();
-            } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
-                //  MessageStatUtil.sendMessageStatsToServer(context);
-            }
         }
     }
 
+    public static void processMessage(Context context,String message,String deleteConversationForContact,String deleteSms,String multipleMessageDelete,String mtexterUser,String payloadForDelivered){
+
+        MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+
+        if (!TextUtils.isEmpty(payloadForDelivered)) {
+            messageService.updateDeliveryStatus(payloadForDelivered);
+        }
+        if (!TextUtils.isEmpty(deleteConversationForContact)) {
+            MobiComConversationService conversationService = new MobiComConversationService(context);
+            conversationService.deleteConversationFromDevice(deleteConversationForContact);
+            BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationForContact, "success");
+        }
+
+        if (!TextUtils.isEmpty(mtexterUser)) {
+            Log.i(TAG, "Received GCM message MTEXTER_USER: " + mtexterUser);
+            if (mtexterUser.contains("{")) {
+                Gson gson = new Gson();
+                ContactContent contactContent = gson.fromJson(mtexterUser, ContactContent.class);
+                ContactService.addUsersToContact(context, contactContent.getContactNumber(), contactContent.getAppVersion(), true);
+            } else {
+                String[] details = mtexterUser.split(",");
+                ContactService.addUsersToContact(context, details[0], Short.parseShort(details[1]), true);
+            }
+        }
+        if (!TextUtils.isEmpty(multipleMessageDelete)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            MessageDeleteContent messageDeleteContent = gson.fromJson(multipleMessageDelete, MessageDeleteContent.class);
+
+            for (String deletedSmsKeyString : messageDeleteContent.getDeleteKeyStrings()) {
+                processDeleteSingleMessageRequest(context, deletedSmsKeyString, messageDeleteContent.getContactNumber());
+            }
+        }
+
+        if (!TextUtils.isEmpty(deleteSms)) {
+            String contactNumbers = deleteSms.split(",").length > 1 ? deleteSms.split(",")[1] : null;
+            processDeleteSingleMessageRequest(context, deleteSms.split(",")[0], contactNumbers);
+        }
+
+        if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
+
+        } else if (notificationKeyList.get(0).equalsIgnoreCase(message)) {
+            messageService.syncMessages();
+        } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
+            //  MessageStatUtil.sendMessageStatsToServer(context);
+        }
+    }
 
     private static void processDeleteSingleMessageRequest(Context context, String deletedSmsKeyString, String contactNumber) {
         MobiComConversationService conversationService = new MobiComConversationService(context);
@@ -127,15 +135,20 @@ public class MobiComPushReceiver {
         BroadcastService.sendMessageDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString(), deletedSmsKeyString, contactNumber);
     }
 
-    public static void processMessageAsync(final Context context, final Intent intent) {
+    public static void processMessageAsync(final Context context, final Bundle bundle) {
         if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    processMessage(context, intent);
+                    processMessage(context, bundle);
                 }
             }).start();
         }
     }
+
+    public static void processMessageAsync(final Context context, final Intent intent) {
+        processMessageAsync(context, intent.getExtras());
+    }
+
 }
