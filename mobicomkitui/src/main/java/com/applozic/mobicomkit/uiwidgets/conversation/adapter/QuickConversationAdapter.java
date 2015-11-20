@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+//import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -36,6 +37,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+//import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by adarsh on 4/7/15.
@@ -91,6 +94,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
+            //CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
@@ -126,6 +130,8 @@ public class QuickConversationAdapter extends BaseAdapter {
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
                 alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
                 alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
+               /* GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+                bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));*/
             }
             if (contactReceiver.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
