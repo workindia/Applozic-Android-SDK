@@ -22,6 +22,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
@@ -147,6 +148,7 @@ public class MainActivity extends MobiComActivityForFragment
 
             Toast.makeText(getBaseContext(), "Log out successful", Toast.LENGTH_SHORT).show();
 
+            ApplozicSetting.getInstance(this).clearAll();
             new UserClientService(this).logout();
 
             Intent intent = new Intent(this, LoginActivity.class);

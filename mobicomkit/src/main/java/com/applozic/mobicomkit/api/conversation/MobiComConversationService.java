@@ -86,7 +86,8 @@ public class MobiComConversationService {
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
 
         if (!cachedMessageList.isEmpty() &&
-                (cachedMessageList.size() > 1 || !cachedMessageList.get(0).isLocalMessage())) {
+                ((cachedMessageList.size() > 1) || ((cachedMessageList.size() > 1) && !cachedMessageList.get(0).isLocalMessage()))) {
+            Log.i(TAG,"cachedMessageList size is : "+cachedMessageList.size());
             return cachedMessageList;
         }
 
@@ -96,7 +97,7 @@ public class MobiComConversationService {
             Log.i(TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return messageList;
+            return cachedMessageList;
         }
 
         if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
@@ -104,7 +105,7 @@ public class MobiComConversationService {
             if (group != null && group.getGroupId() != null) {
                 return cachedMessageList;
             }
-            return messageList;
+            return cachedMessageList;
         }
 
         try {

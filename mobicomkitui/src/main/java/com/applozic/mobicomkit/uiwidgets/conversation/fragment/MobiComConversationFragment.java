@@ -187,7 +187,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
         listView.setMessageEditText(messageEditText);
 
         ArrayAdapter<CharSequence> sendTypeAdapter = ArrayAdapter.createFromResource(getActivity(),
@@ -1054,7 +1053,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         protected void onPreExecute() {
             super.onPreExecute();
             emptyTextView.setVisibility(View.GONE);
-            swipeLayout.setRefreshing(true);
+            swipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeLayout.setRefreshing(true);
+                }
+            });
 
             if (!initial && messageList.isEmpty()) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
@@ -1100,9 +1104,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         protected void onPostExecute(Long result) {
             super.onPostExecute(result);
             //TODO: FIX ME
+            swipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeLayout.setRefreshing(true);
+                }
+            });
             if (this.contact != null && !PhoneNumberUtils.compare(this.contact.getFormattedContactNumber(), this.contact.getFormattedContactNumber()) || nextSmsList.isEmpty()) {
-                swipeLayout.setRefreshing(false);
                 swipeLayout.setEnabled(false);
+                swipeLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(false);
+                    }
+                });
                 return;
             }
 
@@ -1150,8 +1165,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (conversationAdapter != null) {
                 conversationAdapter.notifyDataSetChanged();
             }
+            swipeLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeLayout.setRefreshing(false);
+                }
+            });
 
-            swipeLayout.setRefreshing(false);
             loadMore = !nextSmsList.isEmpty();
         }
     }
