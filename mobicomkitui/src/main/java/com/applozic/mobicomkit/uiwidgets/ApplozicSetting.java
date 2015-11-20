@@ -106,4 +106,8 @@ public class ApplozicSetting {
         return this;
     }
 
+    public boolean clearAll() {
+        return sharedPreferences.edit().clear().commit();
+    }
+
 }
