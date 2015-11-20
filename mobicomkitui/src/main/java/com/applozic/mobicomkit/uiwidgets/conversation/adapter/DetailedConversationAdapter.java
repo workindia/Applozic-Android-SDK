@@ -34,6 +34,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
@@ -257,6 +258,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 deliveryStatus.setText("via Carrier");
             }*/
 
+            ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
             if (message.isTypeOutbox()) {
                 loadContactImage(senderContact, contactImage, alphabeticTextView);
             } else {
@@ -411,7 +413,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                 }
                 if (messageTextLayout != null) {
-                    messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
+                    //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
+                    messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());
+
                     if (message.hasAttachment()) {
                         messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
@@ -444,7 +449,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
             alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
+            alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
         }
+        contactImage.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
     }
 
     private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
