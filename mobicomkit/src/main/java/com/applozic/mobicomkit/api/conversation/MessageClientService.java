@@ -317,7 +317,7 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setMessage(message.getMessage());
         newMessage.setFileMetas(message.getFileMetas());
         newMessage.setCreatedAtTime(message.getCreatedAtTime());
-        newMessage.setRead(message.isRead());
+        newMessage.setRead(Boolean.TRUE);
         newMessage.setDeviceKeyString(message.getDeviceKeyString());
         newMessage.setSuUserKeyString(message.getSuUserKeyString());
         newMessage.setSent(message.isSent());
