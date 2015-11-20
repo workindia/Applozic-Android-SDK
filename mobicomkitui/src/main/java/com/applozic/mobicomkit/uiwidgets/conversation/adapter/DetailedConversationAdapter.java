@@ -177,8 +177,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
-            contactImage.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
-
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView deliveryStatus = (TextView) customView.findViewById(R.id.status);
@@ -451,7 +449,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
             alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
+            alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
         }
+        contactImage.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
     }
 
     private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
