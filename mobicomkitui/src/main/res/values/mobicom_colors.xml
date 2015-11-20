@@ -24,5 +24,5 @@
     <color name="contact_name_text_color">#ff000000</color>
     <color name="contact_userId_text_color">#838b83</color>
 
-
+    <color name="applozic_theme_color">#dddddd</color>
 </resources>
