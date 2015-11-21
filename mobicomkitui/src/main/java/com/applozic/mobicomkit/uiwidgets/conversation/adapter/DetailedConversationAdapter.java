@@ -414,11 +414,20 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
                 if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
-                    messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());
+                    /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*/
 
-                    if (message.hasAttachment()) {
-                        messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
+                   if (message.hasAttachment()) {
+                       if (TextUtils.isEmpty(message.getMessage())) {
+                           messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
+                       } else {
+                           if (message.isTypeOutbox()) {
+                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
+                           } else {
+                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
+                           }
+                       }
+                        //messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);
                     }
@@ -517,7 +526,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         float wt_px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, context.getResources().getDisplayMetrics());
         ViewGroup.MarginLayoutParams params;
         if (outBoxType) {
-            params = new RelativeLayout.LayoutParams(metrics.widthPixels, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params = new RelativeLayout.LayoutParams(metrics.widthPixels + (int) wt_px * 2, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins((int) wt_px, 0, (int) wt_px, 0);
         } else {
             params = new LinearLayout.LayoutParams(metrics.widthPixels - (int) wt_px * 2, ViewGroup.LayoutParams.WRAP_CONTENT);
