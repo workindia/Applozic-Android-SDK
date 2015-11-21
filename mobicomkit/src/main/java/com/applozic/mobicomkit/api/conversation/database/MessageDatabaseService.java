@@ -552,11 +552,12 @@ public class MessageDatabaseService {
         return messages;
     }
 
-    public void updateReadStatus(String contactNumbers) {
+    public int updateReadStatus(String contactNumbers) {
         ContentValues values = new ContentValues();
         values.put("read", 1);
-        dbHelper.getWritableDatabase().update("sms", values, " contactNumbers = " + "'" + contactNumbers + "'" + " and read = 0", null);
+        int read = dbHelper.getWritableDatabase().update("sms", values, " contactNumbers = " + "'" + contactNumbers + "'" + " and read = 0", null);
         dbHelper.close();
+        return read;
     }
 
     public List<Message> getMessages(Long createdAt) {
