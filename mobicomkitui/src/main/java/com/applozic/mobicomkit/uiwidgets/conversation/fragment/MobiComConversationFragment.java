@@ -148,6 +148,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                              Bundle savedInstanceState) {
         final View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
         listView = (ConversationListView) list.findViewById(R.id.messageList);
+        listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_background));
         listView.setScrollToBottomOnSizeChange(Boolean.TRUE);
         listView.setDivider(null);
         messageList = new ArrayList<Message>();
