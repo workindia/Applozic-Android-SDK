@@ -96,6 +96,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                              Bundle savedInstanceState) {
         View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
         listView = (ConversationListView) list.findViewById(R.id.messageList);
+        listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
 
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
