@@ -514,8 +514,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         new Thread(new Runnable() {
            @Override
            public void run() {
-               new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
-               new MessageClientService(getActivity()).updateReadStatus(contact);
+               int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
+
+               if (read > 0) {
+                   new MessageClientService(getActivity()).updateReadStatus(contact);
+               }
            }
         }).start();
         /*
