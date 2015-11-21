@@ -430,13 +430,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void loadContactImage(Contact contact, ImageView contactImage, TextView alphabeticTextView) {
-
+        if (!ApplozicSetting.getInstance(context).isConversationContactImageVisible()) {
+            return;
+        }
         if (contact.isDrawableResources()) {
             int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
             contactImage.setImageResource(drawableResourceId);
         } else {
             contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
         }
+
         if (alphabeticTextView != null) {
             String contactNumber = contact.getContactNumber().toUpperCase();
             char firstLetter = contact.getDisplayName().charAt(0);
