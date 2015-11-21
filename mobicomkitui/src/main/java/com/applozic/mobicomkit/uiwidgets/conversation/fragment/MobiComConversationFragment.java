@@ -221,8 +221,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             public void afterTextChanged(Editable s) {
-                sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
-                attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
+                //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
+                //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
             }
         });
 
@@ -250,13 +250,40 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                           @Override
                                           public void onClick(View view) {
                                               emoticonsFrameLayout.setVisibility(View.GONE);
-                                              sendMessage(messageEditText.getText().toString());
-                                              messageEditText.setText("");
-                                              scheduleOption.setText(R.string.ScheduleText);
-                                              if (scheduledTimeHolder.getTimestamp() != null) {
-                                                  showScheduleMessageToast();
+
+                                              if (TextUtils.isEmpty(messageEditText.getText().toString()) && TextUtils.isEmpty(filePath)) {
+
+                                                  final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                                                          setPositiveButton(R.string.yes_alert, new DialogInterface.OnClickListener() {
+                                                              @Override
+                                                              public void onClick(DialogInterface dialogInterface, int i) {
+                                                                  sendMessage(messageEditText.getText().toString());
+                                                                  messageEditText.setText("");
+                                                                  scheduleOption.setText(R.string.ScheduleText);
+                                                                  if (scheduledTimeHolder.getTimestamp() != null) {
+                                                                      showScheduleMessageToast();
+                                                                  }
+                                                                  scheduledTimeHolder.resetScheduledTimeHolder();
+                                                              }
+                                                          });
+                                                  alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                                      @Override
+                                                      public void onClick(DialogInterface dialogInterface, int i) {
+                                                      }
+                                                  });
+                                                  alertDialog.setTitle(getActivity().getString(R.string.alert_for_empty_message));
+                                                  alertDialog.setCancelable(true);
+                                                  alertDialog.create().show();
+                                              } else {
+                                                  sendMessage(messageEditText.getText().toString());
+                                                  messageEditText.setText("");
+                                                  scheduleOption.setText(R.string.ScheduleText);
+                                                  if (scheduledTimeHolder.getTimestamp() != null) {
+                                                      showScheduleMessageToast();
+                                                  }
+                                                  scheduledTimeHolder.resetScheduledTimeHolder();
+
                                               }
-                                              scheduledTimeHolder.resetScheduledTimeHolder();
                                           }
                                       }
         );
