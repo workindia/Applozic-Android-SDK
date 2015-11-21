@@ -2,9 +2,11 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.file.FileUtils;
@@ -33,6 +35,9 @@ import java.util.List;
 public class MobiComConversationService {
 
     private static final String TAG = "Conversation";
+    public static final String SERVER_SYNC = "SERVER_SYNC_";
+    private SharedPreferences sharedPreferences;
+
 
     protected Context context = null;
     protected MessageClientService messageClientService;
@@ -42,6 +47,7 @@ public class MobiComConversationService {
         this.context = context;
         this.messageClientService = new MessageClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
+        this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
     public void sendMessage(Message message) {
@@ -86,7 +92,7 @@ public class MobiComConversationService {
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
 
         if (!cachedMessageList.isEmpty() &&
-                ((cachedMessageList.size() > 1) || ((cachedMessageList.size() > 1) && !cachedMessageList.get(0).isLocalMessage()))) {
+                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, group))) {
             Log.i(TAG,"cachedMessageList size is : "+cachedMessageList.size());
             return cachedMessageList;
         }
@@ -106,6 +112,10 @@ public class MobiComConversationService {
                 return cachedMessageList;
             }
             return cachedMessageList;
+        }
+
+        if (contact != null || group != null) {
+            sharedPreferences.edit().putBoolean(SERVER_SYNC + (contact != null ? contact.getContactIds() : group.getGroupId()), true).commit();
         }
 
         try {
@@ -153,6 +163,10 @@ public class MobiComConversationService {
             }
         });
         return messageList;
+    }
+
+    private boolean wasServerCallDoneBefore(Contact contact, Group group) {
+        return sharedPreferences.getBoolean(SERVER_SYNC + contact.getContactIds(), false);
     }
 
     private void setFilePathifExist(Message message) {
