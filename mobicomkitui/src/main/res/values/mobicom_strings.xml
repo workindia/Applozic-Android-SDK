@@ -72,7 +72,7 @@
 
     <string name="ScheduleText">Schedule</string>
 
-    <string name="enter_mt_message_hint">enter message here</string>
+    <string name="enter_mt_message_hint">Write a Message..</string>
     <string name="messageOptions">Message Options</string>
     <string name="conversation">Conversation</string>
     <string name="enter_support_query_hint">enter your queries, bug reporting or feedback here</string>
@@ -103,6 +103,8 @@
     <string name="skip">Skip</string>
 
     <string name="quick_conversation_loading">loading conversation..</string>
+    <string name="alert_for_empty_message">Do you want to send a message without text?</string>
+    <string name ="yes_alert">Yes</string>
 
 
 </resources>
