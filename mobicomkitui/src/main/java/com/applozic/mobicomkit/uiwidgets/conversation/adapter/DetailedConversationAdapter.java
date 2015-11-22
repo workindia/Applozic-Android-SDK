@@ -439,13 +439,17 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void loadContactImage(Contact contact, ImageView contactImage, TextView alphabeticTextView) {
-        if (!ApplozicSetting.getInstance(context).isConversationContactImageVisible()) {
+        ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
+        if (!applozicSetting.isConversationContactImageVisible()) {
             return;
         }
-        if (contact.isDrawableResources()) {
+
+        if (contact.isDrawableResources() && contactImage != null) {
             int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
             contactImage.setImageResource(drawableResourceId);
-        } else {
+            contactImage.setVisibility(View.VISIBLE);
+            alphabeticTextView.setVisibility(View.GONE);
+        } else if (contactImage != null) {
             contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
         }
 
@@ -461,9 +465,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
             alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
-            alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
+            //alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
         }
-        contactImage.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
+
     }
 
     private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
