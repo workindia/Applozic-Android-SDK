@@ -414,11 +414,20 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
                 if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
-                    messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());
+                    /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*/
 
-                    if (message.hasAttachment()) {
-                        messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
+                   if (message.hasAttachment()) {
+                       if (TextUtils.isEmpty(message.getMessage())) {
+                           messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
+                       } else {
+                           if (message.isTypeOutbox()) {
+                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
+                           } else {
+                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
+                           }
+                       }
+                        //messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);
                     }
@@ -430,13 +439,17 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void loadContactImage(Contact contact, ImageView contactImage, TextView alphabeticTextView) {
-        if (!ApplozicSetting.getInstance(context).isConversationContactImageVisible()) {
+        ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
+        if (!applozicSetting.isConversationContactImageVisible()) {
             return;
         }
-        if (contact.isDrawableResources()) {
+
+        if (contact.isDrawableResources() && contactImage != null) {
             int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
             contactImage.setImageResource(drawableResourceId);
-        } else {
+            contactImage.setVisibility(View.VISIBLE);
+            alphabeticTextView.setVisibility(View.GONE);
+        } else if (contactImage != null) {
             contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
         }
 
@@ -452,9 +465,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
             alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
-            alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
+            //alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
         }
-        contactImage.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
+
     }
 
     private void showAttachmentIconAndText(TextView attachedFile, final Message message, final String mimeType) {
@@ -517,7 +530,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         float wt_px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, context.getResources().getDisplayMetrics());
         ViewGroup.MarginLayoutParams params;
         if (outBoxType) {
-            params = new RelativeLayout.LayoutParams(metrics.widthPixels, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params = new RelativeLayout.LayoutParams(metrics.widthPixels + (int) wt_px * 2, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins((int) wt_px, 0, (int) wt_px, 0);
         } else {
             params = new LinearLayout.LayoutParams(metrics.widthPixels - (int) wt_px * 2, ViewGroup.LayoutParams.WRAP_CONTENT);

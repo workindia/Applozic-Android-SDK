@@ -4,6 +4,7 @@
     android:id="@+id/attachment_preview_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="2dp"
     android:orientation="vertical">
 
     <com.applozic.mobicomkit.api.attachment.AttachmentView
