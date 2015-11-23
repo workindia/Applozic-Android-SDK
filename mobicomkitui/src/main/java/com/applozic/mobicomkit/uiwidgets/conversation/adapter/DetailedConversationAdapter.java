@@ -416,10 +416,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
                     }
                 }
-                if (messageTextLayout != null) {
+               /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
-                    /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*/
+                    *//*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*//*
 
                     if (message.hasAttachment()) {
                         if (TextUtils.isEmpty(message.getMessage())) {
@@ -435,7 +435,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);
                     }
-                }
+                }*/
             }
 
         }
