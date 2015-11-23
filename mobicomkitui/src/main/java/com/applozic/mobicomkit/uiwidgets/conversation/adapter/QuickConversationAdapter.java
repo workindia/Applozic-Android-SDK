@@ -89,15 +89,15 @@ public class QuickConversationAdapter extends BaseAdapter {
         View customView = inflater.inflate(R.layout.mobicom_message_row_view, parent, false);
         TextView smTime = (TextView) customView.findViewById(R.id.smTime);
         smTime.setVisibility(View.GONE);
+        Typeface robotoBold = Typeface.createFromAsset(context.getAssets(),
+                "fonts/Roboto-Bold.ttf");
+        Typeface robotoRegular = Typeface.createFromAsset(context.getAssets(),
+                "fonts/Roboto-Regular.ttf");
+
         final Message message = getItem(position);
         if (message != null) {
 
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
-
-            Typeface roboto = Typeface.createFromAsset(context.getAssets(),
-                    "fonts/Roboto-Bold.ttf");
-            smReceivers.setTypeface(roboto);
-
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
@@ -107,6 +107,10 @@ public class QuickConversationAdapter extends BaseAdapter {
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
             TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
+
+            smReceivers.setTypeface(robotoBold);
+            messageTextView.setTypeface(robotoRegular);
+
             List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
             List<String> userIds = null;
             if (!TextUtils.isEmpty(message.getContactIds())) {

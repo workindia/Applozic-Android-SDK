@@ -147,8 +147,8 @@
             android:paddingBottom="2dp"
             android:paddingLeft="4dp"
             android:text="message"
-            android:textColor="#342522"
-            android:textSize="15sp" />
+            android:textColor="#999"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/unreadSmsCount"
