@@ -39,6 +39,7 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -270,7 +271,7 @@ public class LoginActivity extends Activity {
                 public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
                     mAuthTask = null;
                     showProgress(false);
-
+                    ApplozicSetting.getInstance(context).hideConversationContactImage();
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
