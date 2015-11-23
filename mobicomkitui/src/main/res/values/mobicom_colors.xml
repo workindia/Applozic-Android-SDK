@@ -19,10 +19,10 @@
 
     <color name="message_details_text_color">#838b83</color>
     <color name="conversation_list_all_background">#FFFFFFFF</color>
-   <!-- <color name="conversation_list_all_background">#FFFAFAFA</color> -->
+    <!-- <color name="conversation_list_all_background">#FFFAFAFA</color> -->
 
     <!-- <color name="conversation_list_background">#FFFAFAFA</color> -->
-    <color name="conversation_list_background">#FFFFFFFF</color>
+    <color name="conversation_list_background">#FFFAFAFA</color>
 
 
     <color name="compose_action_button">#db4437</color>

@@ -258,7 +258,6 @@ public class ConversationUIService {
         ConversationFragment conversationFragment = getConversationFragment();
         if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
-
         }
     }
 

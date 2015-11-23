@@ -18,7 +18,7 @@
         android:textSize="32dp"
         android:visibility="gone" />
 
-    <ImageView
+    <!--<ImageView
         android:id="@+id/contactImage"
         android:layout_width="55dp"
         android:layout_height="55dp"
@@ -26,9 +26,9 @@
         android:layout_margin="4dp"
         android:layout_toRightOf="@+id/alphabeticImage"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
-        android:visibility="visible" />
+        android:visibility="visible" />-->
 
-   <!-- <de.hdodenhof.circleimageview.CircleImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/contactImage"
         android:layout_width="55dp"
@@ -37,7 +37,7 @@
         android:layout_margin="4dp"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:layout_gravity="center"
-        android:visibility="visible" />-->
+        android:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/name_time"

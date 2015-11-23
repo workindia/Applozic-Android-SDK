@@ -512,14 +512,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         BroadcastService.currentUserId = contact.getContactIds();
         new Thread(new Runnable() {
-           @Override
-           public void run() {
-               int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
+            @Override
+            public void run() {
+                int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
 
-               if (read > 0) {
-                   new MessageClientService(getActivity()).updateReadStatus(contact);
-               }
-           }
+                if (read > 0) {
+                    new MessageClientService(getActivity()).updateReadStatus(contact);
+                }
+            }
         }).start();
         /*
         filePath = null;*/
@@ -643,7 +643,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             listView.getFirstVisiblePosition() + 1);
                     if (view != null) {
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                        TextView status = (TextView) view.findViewById(R.id.status);
+                        status.setText("Delivered");
+                        //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
                     }
                 } else {
                     messageList.add(message);

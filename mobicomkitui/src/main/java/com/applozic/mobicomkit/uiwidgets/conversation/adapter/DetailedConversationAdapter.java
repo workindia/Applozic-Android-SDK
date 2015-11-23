@@ -174,6 +174,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         if (message != null) {
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
+            TextView status = (TextView) customView.findViewById(R.id.status);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
@@ -245,9 +246,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if (message.isCall() || message.isDummyEmptyMessage()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
             } else if (message.getKeyString() == null && !message.isSentToServer() && message.isTypeOutbox()) {
-                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
+                //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
             } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
-                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon), null);
+                //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon), null);
+                if (status != null && message.getDelivered()) {
+                    status.setText("Delivered");
+                }
             }
 
             if (message.isCall()) {
@@ -313,18 +317,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     int i = 0;
                     showPreview(message, preview, attachmentDownloadLayout);
                     //TODO: while doing multiple image support in single sms ...we might improve this
-                   // for (String fileKey : message.getFileMetaKeyStrings()) {
-                        if (message.getFileMetas() != null) {
-                            FileMeta fileMeta = message.getFileMetas();
-                            attachmentDownloadLayout.setVisibility(View.VISIBLE);
-                            attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                            downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
-                            final String mimeType = FileUtils.getMimeType(fileMeta.getName());
-                            if (!fileMeta.getContentType().contains("image")) {
-                                showAttachmentIconAndText(attachedFile, message, mimeType);
-                            }
-
+                    // for (String fileKey : message.getFileMetaKeyStrings()) {
+                    if (message.getFileMetas() != null) {
+                        FileMeta fileMeta = message.getFileMetas();
+                        attachmentDownloadLayout.setVisibility(View.VISIBLE);
+                        attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                        downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
+                        final String mimeType = FileUtils.getMimeType(fileMeta.getName());
+                        if (!fileMeta.getContentType().contains("image")) {
+                            showAttachmentIconAndText(attachedFile, message, mimeType);
                         }
+
+                    }
 
                     //  }
 
@@ -417,16 +421,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
                             applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*/
 
-                   if (message.hasAttachment()) {
-                       if (TextUtils.isEmpty(message.getMessage())) {
-                           messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
-                       } else {
-                           if (message.isTypeOutbox()) {
-                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
-                           } else {
-                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
-                           }
-                       }
+                    if (message.hasAttachment()) {
+                        if (TextUtils.isEmpty(message.getMessage())) {
+                            messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
+                        } else {
+                            if (message.isTypeOutbox()) {
+                                messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
+                            } else {
+                                messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
+                            }
+                        }
                         //messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);
