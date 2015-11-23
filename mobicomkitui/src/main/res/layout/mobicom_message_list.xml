@@ -175,7 +175,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#ffffff"
+        android:background="#fffafafa"
         android:orientation="horizontal"
         android:visibility="gone">
 
