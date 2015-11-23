@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -92,6 +93,11 @@ public class QuickConversationAdapter extends BaseAdapter {
         if (message != null) {
 
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
+
+            Typeface roboto = Typeface.createFromAsset(context.getAssets(),
+                    "fonts/Roboto-Bold.ttf");
+            smReceivers.setTypeface(roboto);
+
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);

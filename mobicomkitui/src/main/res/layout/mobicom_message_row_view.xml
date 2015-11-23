@@ -4,7 +4,10 @@
     android:longClickable="true"
     android:minHeight="70dp"
     android:orientation="horizontal"
-    android:padding="4dp">
+    android:paddingTop="6dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    >
 
     <TextView
         android:id="@+id/alphabeticImage"
@@ -13,9 +16,10 @@
         android:layout_margin="4dp"
         android:background="@drawable/mobiframework_circular_text_view"
         android:gravity="center"
+        android:layout_gravity="fill_vertical"
         android:text=""
         android:textColor="#ffffff"
-        android:textSize="32dp"
+        android:textSize="20dp"
         android:visibility="gone" />
 
     <!--<ImageView
@@ -31,8 +35,8 @@
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/contactImage"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_toRightOf="@+id/alphabeticImage"
         android:layout_margin="4dp"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
@@ -58,11 +62,10 @@
             android:layout_weight="22"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="MobiTexter"
-            android:textColor="#6F6F6F"
+            android:text=""
             android:textIsSelectable="false"
             android:textSize="16dp"
-            android:textStyle="bold" />
+             />
 
         <TextView
             android:id="@+id/createdAtTime"
