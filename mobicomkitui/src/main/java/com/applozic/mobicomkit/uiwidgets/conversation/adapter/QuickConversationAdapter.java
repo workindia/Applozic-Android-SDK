@@ -89,10 +89,10 @@ public class QuickConversationAdapter extends BaseAdapter {
         View customView = inflater.inflate(R.layout.mobicom_message_row_view, parent, false);
         TextView smTime = (TextView) customView.findViewById(R.id.smTime);
         smTime.setVisibility(View.GONE);
-        Typeface robotoBold = Typeface.createFromAsset(context.getAssets(),
+        /*Typeface robotoBold = Typeface.createFromAsset(context.getAssets(),
                 "fonts/Roboto-Bold.ttf");
         Typeface robotoRegular = Typeface.createFromAsset(context.getAssets(),
-                "fonts/Roboto-Regular.ttf");
+                "fonts/Roboto-Regular.ttf");*/
 
         final Message message = getItem(position);
         if (message != null) {
@@ -108,8 +108,8 @@ public class QuickConversationAdapter extends BaseAdapter {
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
             TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
 
-            smReceivers.setTypeface(robotoBold);
-            messageTextView.setTypeface(robotoRegular);
+            /*smReceivers.setTypeface(robotoBold);
+            messageTextView.setTypeface(robotoRegular);*/
 
             List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
             List<String> userIds = null;
