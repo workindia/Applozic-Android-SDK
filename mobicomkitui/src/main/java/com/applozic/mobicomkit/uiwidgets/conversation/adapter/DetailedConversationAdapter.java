@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
@@ -172,6 +173,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
 
         if (message != null) {
+
+            Typeface robotoRegular = Typeface.createFromAsset(context.getAssets(),
+                    "fonts/Roboto-Regular.ttf");
+
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
             TextView status = (TextView) customView.findViewById(R.id.status);
@@ -197,6 +202,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
             }
+
+            messageTextView.setTypeface(robotoRegular);
 
             if (attachmentIcon != null) {
                 attachmentIcon.setVisibility(View.GONE);

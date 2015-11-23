@@ -81,8 +81,8 @@
             android:paddingLeft="0dp"
             android:paddingRight="2dp"
             android:text=""
-            android:textColor="@color/message_details_text_color"
-            android:textSize="11dp" />
+            android:textColor="@color/applozic_message_status_color"
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/createdAtTime"
