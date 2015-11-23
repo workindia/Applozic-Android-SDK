@@ -13,7 +13,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ApplozicTheme"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/Applozic_PopUpTheme"/>
 
     <com.applozic.mobicomkit.api.attachment.AttachmentView
         android:id="@+id/full_screen_image"

@@ -13,7 +13,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ApplozicTheme"
-        app:popupTheme="@style/Theme.AppCompat.Light"/>
+        app:popupTheme="@style/Applozic_PopUpTheme"/>
 
      <RelativeLayout
         android:id="@+id/layout_child_activity"
