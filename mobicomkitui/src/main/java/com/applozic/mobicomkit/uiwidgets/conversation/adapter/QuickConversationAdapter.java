@@ -195,7 +195,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }
             }
             if (createdAtTime != null) {
-                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                createdAtTime.setText(DateUtils.getFormattedDateAndTime(message.getCreatedAtTime()));
             }
             if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
                 int messageUnReadCount = new MessageDatabaseService(context).getUnreadSmsCount(contactReceiver.getContactIds());
