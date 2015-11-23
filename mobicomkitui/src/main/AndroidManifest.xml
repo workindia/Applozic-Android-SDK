@@ -49,7 +49,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
         </activity>
-
+        <!--<service android:name="org.eclipse.paho.android.service.MqttService"></service>-->
     </application>
 
 </manifest>

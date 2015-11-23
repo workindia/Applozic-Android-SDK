@@ -132,6 +132,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
        /* Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);*/
+         /*MemoryPersistence persistence = new MemoryPersistence();
+        client = new MqttAndroidClient(this, "tcp://dashboard.applozic.com:1883", "sunil", persistence);*/
+
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
@@ -163,6 +166,53 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
+
+        /*
+        try {
+            client.connect(null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken iMqttToken) {
+                    Log.i("Client topics", "iMqttToken" + iMqttToken.getTopics());
+                    Log.i("connected", "onSuccess");
+                    MqttMessage message = new MqttMessage("Hello.".getBytes());
+                    message.setQos(2);
+                    message.setRetained(false);
+                    try {
+                        Log.i("conversation", "Message published" + client.publish("007", message));
+
+                        client.subscribe("suni", 0, null, new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken iMqttToken) {
+                                Log.i("Connected", "subscribe");
+
+                            }
+
+                            @Override
+                            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+
+                            }
+                        });
+                        client.disconnect();
+
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                    Log.i("connecting", "on failure" + iMqttToken.getException());
+
+                }
+            });
+            Log.i("is connected", "client.isConnected()" + client.isConnected());
+
+
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }*/
+
         onNewIntent(getIntent());
     }
 
