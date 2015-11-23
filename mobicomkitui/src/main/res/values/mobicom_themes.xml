@@ -17,14 +17,40 @@
     </style>
 
     <style name="ApplozicTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <item name="colorPrimary">@color/mg_theme_color_primary</item>
+
+        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimaryDark">@color/mg_theme_color_primary_dark</item>
+
+        <!-- colorAccent is used as the default value for colorControlActivated
+             which is used to tint widgets -->
+        <item name="colorAccent">@color/mg_theme_color_accent</item>
+
+        <!-- You can also set colorControlNormal, colorControlActivated
+             colorControlHighlight & colorSwitchThumbNormal. -->
+        <item name="colorControlNormal">#c5c5c5</item>
+        <item name="colorControlActivated">@color/mg_magic_brick_red</item>
+        <item name="colorControlHighlight">@color/mg_magic_brick_red</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">#000000</item>
+
+
+        <!--
         <item name="android:windowBackground">@color/applozic_theme_color</item>
-       <!-- <item name="android:actionBarItemBackground">@drawable/action_bar_background</item>-->
+        <item name="android:colorPrimaryDark">@color/mobitexter_main_color</item>
+
+        <item name="android:colorPrimary">@color/mobitexter_main_color</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
         <item name="android:actionButtonStyle">@style/ApplozicTheme_ActionButtonStyle</item>
+        <item name="actionMenuTextColor">#000000</item>
+        <item name="android:actionMenuTextColor">#000000</item>
         <item name="android:actionBarStyle">@style/ApplozicTheme.ActionBarStyle</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="colorControlNormal">#c5c5c5</item>
         <item name="colorControlActivated">@color/mobitexter_main_color</item>
-        <item name="colorControlHighlight">@color/mobitexter_main_color</item>
+        <item name="colorControlHighlight">@color/mobitexter_main_color</item>-->
     </style>
 
     <style name="ApplozicTheme.ActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">

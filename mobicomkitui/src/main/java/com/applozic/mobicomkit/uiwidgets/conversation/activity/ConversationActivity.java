@@ -17,7 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-//import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -130,8 +130,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quickconversion_activity);
-       /* Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);*/
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
@@ -155,9 +155,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             }
         });
         mActionBar.setTitle(R.string.conversations);
-        /*getSupportActionBar().setTitle(R.string.conversations);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);*/
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setHomeButtonEnabled(true);
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)

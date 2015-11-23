@@ -38,4 +38,14 @@
     <color name="contact_userId_text_color">#838b83</color>
 
     <color name="applozic_theme_color">#dddddd</color>
+
+    <color name="mg_theme_color_primary">#b51f23</color>
+    <color name="mg_theme_color_primary_dark">#9c1b1b</color>
+    <color name="mg_theme_color_accent">#b51f23</color>
+    <color name="mg_theme_color_app">#eeeeef</color>
+
+    <color name="mg_magic_brick_blue">#b51f23</color>
+    <color name="mg_magic_brick_red">#b51f23</color>
+    <color name="mg_magic_brick_randam">#8c8863</color>
+    <color name="mg_magic_brick_red_trans">#30b51f23</color>
 </resources>
