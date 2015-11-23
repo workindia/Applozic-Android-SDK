@@ -43,7 +43,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="Image"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/MobiComAppBaseTheme">
+            android:theme="@style/ApplozicTheme">
             <!-- Parent activity meta-data to support API level 7+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
