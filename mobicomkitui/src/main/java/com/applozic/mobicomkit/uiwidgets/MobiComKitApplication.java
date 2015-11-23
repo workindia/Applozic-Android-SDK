@@ -7,7 +7,7 @@ import android.app.Application;
  */
 public class MobiComKitApplication extends Application {
 
-    public static final String TITLE = "Conversations";
+    public static final String TITLE = "My Chats";
 
     @Override
     public void onCreate() {

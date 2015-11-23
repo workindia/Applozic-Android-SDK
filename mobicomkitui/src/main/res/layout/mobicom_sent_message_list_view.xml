@@ -88,7 +88,6 @@
             android:id="@+id/createdAtTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableRight="@drawable/applozic_ic_action_message_pending"
             android:gravity="center_vertical"
             android:paddingLeft="2dp"
             android:text="created at time"
