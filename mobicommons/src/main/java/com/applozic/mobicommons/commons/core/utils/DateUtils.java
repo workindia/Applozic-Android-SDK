@@ -13,6 +13,7 @@ import java.util.Date;
  */
 public class DateUtils {
 
+
     public static boolean isSameDay(Long timestamp) {
         Calendar calendarForCurrent = Calendar.getInstance();
         Calendar calendarForScheduled = Calendar.getInstance();
@@ -32,12 +33,12 @@ public class DateUtils {
         return sameDay ? simpleDateFormat.format(date) : fullDateFormat.format(date) + " " + simpleDateFormat.format(date);
     }
 
-    public static long getTimeDiffFromUtc(){
-        SntpClient sntpClient =  new SntpClient();
-        long diff=0;
+    public static long getTimeDiffFromUtc() {
+        SntpClient sntpClient = new SntpClient();
+        long diff = 0;
         if (sntpClient.requestTime("0.africa.pool.ntp.org", 30000)) {
-          long utcTime = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
-          diff =  utcTime -System.currentTimeMillis();
+            long utcTime = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+            diff = utcTime - System.currentTimeMillis();
         }
         return diff;
     }
@@ -49,22 +50,22 @@ public class DateUtils {
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
         Date newDate = new Date();
 
-        if(sameDay){
-            long currentTime = newDate.getTime()-date.getTime();
+        if (sameDay) {
+            long currentTime = newDate.getTime() - date.getTime();
             long diffMinutes = currentTime / (60 * 1000) % 60;
             long diffHours = currentTime / (60 * 60 * 1000) % 24;
 
-            if(diffMinutes <= 2   && diffHours == 0){
+            if (diffMinutes <= 2 && diffHours == 0) {
                 return "Just now";
             }
-            if(diffMinutes <= 59 && diffHours == 0){
-                return String.valueOf(diffMinutes)+" mins";
+            if (diffMinutes <= 59 && diffHours == 0) {
+                return String.valueOf(diffMinutes) + " mins";
             }
-            if( diffHours<=2){
-                return String.valueOf(diffHours)+" h";
+            if (diffHours <= 2) {
+                return String.valueOf(diffHours) + "h";
             }
             return simpleDateFormat.format(date);
-        }else{
+        } else {
             return fullDateFormat.format(date);
         }
 
