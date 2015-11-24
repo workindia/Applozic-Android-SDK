@@ -6,8 +6,7 @@
     android:orientation="horizontal"
     android:paddingTop="6dp"
     android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    >
+    android:paddingRight="10dp">
 
     <TextView
         android:id="@+id/alphabeticImage"
@@ -63,8 +62,7 @@
             android:singleLine="true"
             android:text=""
             android:textIsSelectable="false"
-            android:textSize="18dp"
-             />
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/createdAtTime"
@@ -72,6 +70,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0"
             android:ellipsize="end"
+            android:paddingTop="8dp"
             android:singleLine="true"
             android:text="22 Apr 08:10 AM"
             android:textColor="@color/message_details_text_color"
