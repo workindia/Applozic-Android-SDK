@@ -184,7 +184,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             menu.removeItem(R.id.start_new);
         }
         if(!ApplozicClient.getInstance(this).isHandleDial()){
-            menu.removeItem(R.id.dial);
+            menu.findItem(R.id.dial).setVisible(false);
         }
         showActionBar();
         return true;
