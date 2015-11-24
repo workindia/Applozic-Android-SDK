@@ -13,7 +13,16 @@ public class AlphaNumberColorUtil {
     public static Map<Character, Integer> alphabetBackgroundColorMap = new HashMap<Character, Integer>();
     public static Map<Character, Integer> alphabetTextColorMap = new HashMap<Character, Integer>();
 
+    public static Map<Integer, Integer> randomAlphabetBackgroundColorMap = new HashMap<Integer, Integer>();
+
     static {
+        randomAlphabetBackgroundColorMap.put(0, R.color.mg_alphabet_first);
+        randomAlphabetBackgroundColorMap.put(1, R.color.mg_alphabet_second);
+        randomAlphabetBackgroundColorMap.put(2, R.color.mg_alphabet_third);
+        randomAlphabetBackgroundColorMap.put(3, R.color.mg_alphabet_fourth);
+        randomAlphabetBackgroundColorMap.put(4, R.color.mg_alphabet_fifth);
+        randomAlphabetBackgroundColorMap.put(5, R.color.mg_alphabet_sixth);
+
         alphabetBackgroundColorMap.put(null, R.color.non_alpha);
         alphabetBackgroundColorMap.put('A', R.color.alphabet_a);
         alphabetBackgroundColorMap.put('B', R.color.alphabet_b);

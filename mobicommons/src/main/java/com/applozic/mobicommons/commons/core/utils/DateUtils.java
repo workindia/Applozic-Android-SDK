@@ -36,11 +36,38 @@ public class DateUtils {
         SntpClient sntpClient =  new SntpClient();
         long diff=0;
         if (sntpClient.requestTime("0.africa.pool.ntp.org", 30000)) {
-          long utcTime = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
-          diff =  utcTime -System.currentTimeMillis();
+            long utcTime = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+            diff =  utcTime -System.currentTimeMillis();
         }
         return diff;
     }
 
+    public static String getFormattedDateAndTime(Long timestamp) {
+        boolean sameDay = isSameDay(timestamp);
+        Date date = new Date(timestamp);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+        Date newDate = new Date();
+
+        if(sameDay){
+            long currentTime = newDate.getTime()-date.getTime();
+            long diffMinutes = currentTime / (60 * 1000) % 60;
+            long diffHours = currentTime / (60 * 60 * 1000) % 24;
+
+            if(diffMinutes <= 2   && diffHours == 0){
+                return "Just now";
+            }
+            if(diffMinutes <= 59 && diffHours == 0){
+                return String.valueOf(diffMinutes)+" mins";
+            }
+            if( diffHours<=2){
+                return String.valueOf(diffHours)+" h";
+            }
+            return simpleDateFormat.format(date);
+        }else{
+            return fullDateFormat.format(date);
+        }
+
+    }
 
 }
