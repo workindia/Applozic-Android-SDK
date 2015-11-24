@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
@@ -181,6 +182,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
+        }
+        if(!ApplozicClient.getInstance(this).isHandleDial()){
+            menu.removeItem(R.id.dial);
         }
         showActionBar();
         return true;
