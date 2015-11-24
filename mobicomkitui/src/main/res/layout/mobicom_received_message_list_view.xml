@@ -1,31 +1,34 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/messageLayout"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="left"
     android:longClickable="true"
     android:background="@color/conversation_list_background"
-    android:minHeight="70dp"
     android:padding="3dp"
     android:orientation="horizontal">
 
     <TextView
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_margin="4dp"
         android:text=""
         android:id="@+id/alphabeticImage"
+        android:background="@drawable/mobiframework_circular_text_view"
         android:textColor="#ffffff"
-        android:textSize="36dp"
+        android:layout_gravity="center"
+        android:textSize="20dp"
         android:gravity="center"
         android:layout_marginRight="4dp"
         android:visibility="gone" />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/contactImage"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_marginRight="4dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_margin="4dp"
         android:visibility="gone"
+        android:layout_toRightOf="@+id/alphabeticImage"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -33,15 +36,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_toRightOf="@+id/contactImage"
         android:layout_marginRight="59dp"
         android:minHeight="55dp"
-        >
+        android:background="@color/received_message_bg_color">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_gravity="start"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/attached_file"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:drawableLeft="@drawable/applozic_ic_action_attachment"
+                android:textColor="@color/mobitexter_main_color"
+                android:textSize="16dp" />
+
+            <include layout="@layout/mobicom_attachment_preview_layout" />
 
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"
@@ -55,20 +70,9 @@
                 android:autoLink="all"
                 android:text=""
                 android:padding="10dp"
-                android:background="@color/received_message_bg_color"
                 android:textColor="@color/message_text_color"
                 android:textSize="16dp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/attached_file"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:drawableLeft="@drawable/applozic_ic_action_attachment"
-            android:textColor="@color/mobitexter_main_color"
-            android:textSize="16dp" />
-
-        <include layout="@layout/mobicom_attachment_preview_layout" />
 
         <TextView
             android:id="@+id/selfDestruct"
@@ -82,48 +86,50 @@
             android:textSize="11dp"
             android:visibility="gone" />
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp"
+        android:background="@color/conversation_list_background"
+        android:layout_below="@+id/messageTextLayout"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp">
+
+        <TextView
+            android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="2dp"
-            android:background="@color/conversation_list_background"
-            android:orientation="horizontal">
+            android:gravity="center_vertical"
+            android:paddingLeft="0dp"
+            android:paddingRight="2dp"
+            android:text=""
+            android:textColor="@android:color/darker_gray"
+            android:textSize="11dp" />
 
-            <TextView
-                android:id="@+id/status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingLeft="0dp"
-                android:paddingRight="2dp"
-                android:text=""
-                android:textColor="@android:color/darker_gray"
-                android:textSize="11dp" />
+        <TextView
+            android:id="@+id/createdAtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:text="created at time"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="11dp" />
 
-            <TextView
-                android:id="@+id/createdAtTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:text="created at time"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="11dp" />
-
-            <TextView
-                android:id="@+id/tempForLayoutAdjustment"
-                android:visibility="invisible"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableRight="@drawable/applozic_ic_action_message_pending"
-                android:gravity="center_vertical"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="11dp" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tempForLayoutAdjustment"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/applozic_ic_action_message_pending"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="11dp" />
 
     </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>

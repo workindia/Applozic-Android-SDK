@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -57,6 +58,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by adarsh on 4/7/15.
@@ -174,9 +177,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         if (message != null) {
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
+            TextView status = (TextView) customView.findViewById(R.id.status);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
-            ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
+            CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
+            //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView deliveryStatus = (TextView) customView.findViewById(R.id.status);
@@ -455,7 +460,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
         if (alphabeticTextView != null) {
             String contactNumber = contact.getContactNumber().toUpperCase();
-            char firstLetter = contact.getDisplayName().charAt(0);
+            char firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
             if (firstLetter != '+') {
                 alphabeticTextView.setText(String.valueOf(firstLetter));
             } else if (contactNumber.length() >= 2) {
@@ -463,9 +468,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
 
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
-            alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
-            alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
-            //alphabeticTextView.setVisibility(ApplozicSetting.getInstance(context).isConversationContactImageVisible() ? View.VISIBLE : View.GONE);
+            /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
+            alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
+            GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+            bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
         }
 
     }

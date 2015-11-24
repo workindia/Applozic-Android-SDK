@@ -1,12 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/messageLayout"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/conversation_list_background"
     android:gravity="right"
     android:longClickable="true"
-    android:background="@color/conversation_list_background"
-    android:minHeight="70dp"
-    android:padding="3dp">
+    android:padding="5dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/messageTextLayout"
@@ -14,14 +13,27 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="59dp"
         android:minHeight="55dp"
-        android:orientation="vertical">
+        android:layout_alignParentRight="true"
+        android:gravity="right"
+        android:orientation="vertical"
+        android:background="@color/sent_message_bg_color">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:orientation="horizontal">
+            android:layout_gravity="start"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/attached_file"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/applozic_ic_action_attachment"
+                android:textColor="@color/mobitexter_main_color"
+                android:textSize="16dp" />
+
+            <include layout="@layout/mobicom_attachment_preview_layout" />
 
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"
@@ -30,25 +42,14 @@
 
             <TextView
                 android:id="@+id/message"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="all"
-                android:text=""
                 android:padding="10dp"
-                android:background="@color/sent_message_bg_color"
+                android:text=""
                 android:textColor="@color/sent_message_text_color"
                 android:textSize="16dp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/attached_file"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:drawableLeft="@drawable/applozic_ic_action_attachment"
-            android:textColor="@color/mobitexter_main_color"
-            android:textSize="16dp" />
-
-        <include layout="@layout/mobicom_attachment_preview_layout" />
 
         <TextView
             android:id="@+id/selfDestruct"
@@ -61,37 +62,37 @@
             android:textColor="@color/message_details_text_color"
             android:textSize="11dp"
             android:visibility="gone" />
+    </LinearLayout>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="2dp"
+        android:layout_below="@+id/messageTextLayout"
+        android:layout_alignParentRight="true"
+        android:paddingRight="15dp">
+
+        <TextView
+            android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="right"
-            android:paddingTop="2dp">
+            android:gravity="center_vertical"
+            android:paddingLeft="0dp"
+            android:paddingRight="2dp"
+            android:text=""
+            android:textColor="@color/applozic_message_status_color"
+            android:textSize="12dp" />
 
-            <TextView
-                android:id="@+id/status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingLeft="0dp"
-                android:paddingRight="2dp"
-                android:text=""
-                android:textColor="@color/message_details_text_color"
-                android:textSize="11dp" />
-
-            <TextView
-                android:id="@+id/createdAtTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawableRight="@drawable/applozic_ic_action_message_pending"
-                android:gravity="center_vertical"
-                android:paddingLeft="2dp"
-                android:text="created at time"
-                android:textColor="@color/message_details_text_color"
-                android:textSize="11dp" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/createdAtTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingLeft="2dp"
+            android:text="created at time"
+            android:textColor="@color/message_details_text_color"
+            android:textSize="11dp" />
 
     </LinearLayout>
 
