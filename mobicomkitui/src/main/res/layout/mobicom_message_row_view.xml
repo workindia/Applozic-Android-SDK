@@ -11,10 +11,9 @@
 
     <TextView
         android:id="@+id/alphabeticImage"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
         android:layout_margin="4dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/mobiframework_circular_text_view"
         android:gravity="center"
         android:layout_gravity="center"
@@ -51,7 +50,6 @@
         android:layout_toRightOf="@+id/contactImage"
         android:orientation="horizontal"
         android:paddingBottom="1dp"
-        android:paddingTop="4dp"
         android:layout_marginLeft="12dp"
         android:visibility="visible"
         android:weightSum="20">
