@@ -98,6 +98,16 @@ public class BroadcastService {
         context.sendBroadcast(notificationIntent);
     }
 
+    public static void sendUpdateLastSeenAtTimeBroadcast(Context context,String action,String lastSeenAtTime){
+        Log.i(TAG, "Sending lastSeenAtTime broadcast....");
+        Intent intentLastSeenAtTime = new Intent();
+        intentLastSeenAtTime.setAction(action);
+        intentLastSeenAtTime.putExtra("lastSeenAtTime", lastSeenAtTime);
+        intentLastSeenAtTime.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intentLastSeenAtTime);
+
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -111,7 +121,7 @@ public class BroadcastService {
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString());
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString());
-
+        intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -120,6 +130,7 @@ public class BroadcastService {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
+        UPDATE_LAST_SEEN_AT_TIME,
         CONTACT_VERIFIED, NOTIFY_USER
     }
 

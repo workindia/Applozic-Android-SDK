@@ -46,7 +46,7 @@ public class DateUtils {
     public static String getFormattedDateAndTime(Long timestamp) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
         Date newDate = new Date();
 
@@ -68,7 +68,31 @@ public class DateUtils {
         } else {
             return fullDateFormat.format(date);
         }
+    }
 
+    public static String getDateAndTimeForLastSeen(Long timestamp) {
+        boolean sameDay = isSameDay(timestamp);
+        Date date = new Date(timestamp);
+        //SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+        Date newDate = new Date();
+
+        if (sameDay) {
+            long currentTime = newDate.getTime() - date.getTime();
+            long diffMinutes = currentTime / (60 * 1000) % 60;
+            long diffHours = currentTime / (60 * 60 * 1000) % 24;
+
+            if (diffMinutes <= 1 && diffHours == 0) {
+                return "Just now";
+            }
+            if (diffMinutes <= 59 && diffHours == 0) {
+                return String.valueOf(diffMinutes) + " mins ago";
+            }
+            if (diffHours <= 24) {
+                return String.valueOf(diffHours) + " hrs ago";
+            }
+        }
+        return fullDateFormat.format(date) + " ago ";
     }
 
 }

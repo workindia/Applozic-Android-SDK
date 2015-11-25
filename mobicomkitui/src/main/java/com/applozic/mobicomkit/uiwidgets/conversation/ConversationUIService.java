@@ -291,6 +291,14 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
+    public void updateLastSeenAt(String lastSeenAtTime){
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        getConversationFragment().updateLastSeenAtTime(lastSeenAtTime);
+
+    }
+
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {
         if (message != null) {
             intent.putExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE, GsonUtils.getJsonFromObject(message, message.getClass()));

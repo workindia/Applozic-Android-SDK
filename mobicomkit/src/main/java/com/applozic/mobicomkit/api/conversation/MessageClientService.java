@@ -4,10 +4,14 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.MessageResponse;
+import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
+import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -52,6 +56,7 @@ public class MessageClientService extends MobiComKitClientService {
     // public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/mobicomkit/v1/message/delete/conversation.task";
     public static final String UPDATE_READ_STATUS_URL = "/rest/ws/message/read/conversation";
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
+    public static final String USER_DETAILS_URL = "/rest/ws/user/detail";
     public static final String ARGUMRNT_SAPERATOR = "&";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
@@ -65,6 +70,14 @@ public class MessageClientService extends MobiComKitClientService {
         this.context = context;
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
+    }
+
+    public synchronized static void syncPendingMessages(Context context) {
+        new MessageClientService(context).syncPendingMessages(true);
+    }
+
+    public synchronized static void syncDeleteMessages(Context context) {
+        new MessageClientService(context).syncDeleteMessages(true);
     }
 
     public String getMtextDeliveryUrl() {
@@ -103,6 +116,10 @@ public class MessageClientService extends MobiComKitClientService {
         return getBaseUrl() + UPDATE_READ_STATUS_URL;
     }
 
+    public String getUserDetailUrl() {
+        return getBaseUrl() + USER_DETAILS_URL;
+    }
+
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
         try {
             String argString = "?smsKeyString=" + message.getKeyString() + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + "&deviceKeyString=" + message.getDeviceKeyString()
@@ -128,10 +145,6 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public synchronized static void syncPendingMessages(Context context) {
-        new MessageClientService(context).syncPendingMessages(true);
-    }
-
     public void syncPendingMessages(boolean broadcast) {
         List<Message> pendingMessages = messageDatabaseService.getPendingMessages();
         Log.i(TAG, "Found " + pendingMessages.size() + " pending messages to sync.");
@@ -139,10 +152,6 @@ public class MessageClientService extends MobiComKitClientService {
             Log.i(TAG, "Syncing pending message: " + message);
             sendPendingMessageToServer(message, broadcast);
         }
-    }
-
-    public synchronized static void syncDeleteMessages(Context context) {
-        new MessageClientService(context).syncDeleteMessages(true);
     }
 
     public void syncDeleteMessages(boolean deleteMessage) {
@@ -491,6 +500,25 @@ public class MessageClientService extends MobiComKitClientService {
         if (MobiComUserPreference.getInstance(context).isWebHookEnable()) {
             processWebHook(message);
         }
+    }
+
+    public UserDetail[] getUserDetails(Contact contact) {
+        String contactNumberParameter = "";
+        String response = "";
+        if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
+            try {
+                contactNumberParameter = "?userIds=" + contact.getContactIds();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        response = httpRequestUtils.getResponse(credentials, getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
+        Log.i(TAG, "User details response is " + response);
+
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
+                .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
+
+        return gson.fromJson(response, UserDetail[].class);
     }
 
     public void processWebHook(final Message message) {

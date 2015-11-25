@@ -48,6 +48,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -72,6 +73,7 @@ import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
 
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
@@ -510,14 +512,28 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
+        final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UserDetail[] userDetail =  messageClientService.getUserDetails(contact);
+
+                for(UserDetail userDetails :userDetail){
+                    if(userDetails != null && userDetails.getLastSeenAtTime() != null) {
+                        BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()));
+                    }
+                }
+            }
+        }).start();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
 
                 if (read > 0) {
-                    new MessageClientService(getActivity()).updateReadStatus(contact);
+                    messageClientService.updateReadStatus(contact);
                 }
             }
         }).start();
@@ -893,6 +909,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
+    public void updateLastSeenAtTime(final String lastSeenAtTime) {
+       this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time)+" "+lastSeenAtTime);
+            }
+        });
+    }
 //    public void onEmojiconClicked(Emojicon emojicon) {
 //        //TODO: Move OntextChangeListiner to EmojiEditableTExt
 //        int currentPos = messageEditText.getSelectionStart();
