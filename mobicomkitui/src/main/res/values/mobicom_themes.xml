@@ -74,4 +74,13 @@
 
     <style name="actionDropDownStyle" parent="android:style/Widget.Holo.Light.Spinner"></style>
 
+    <style name="Applozic_FullScreen_Theme" parent="@style/Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimaryDark">@color/dark_black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
 </resources>
