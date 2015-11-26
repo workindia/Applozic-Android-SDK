@@ -73,8 +73,8 @@ public class DateUtils {
     public static String getDateAndTimeForLastSeen(Long timestamp) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
-        //SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
-        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yy,hh:mm aa");
+       // SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
         Date newDate = new Date();
 
         if (sameDay) {
@@ -92,7 +92,7 @@ public class DateUtils {
                 return String.valueOf(diffHours) + " hrs ago";
             }
         }
-        return fullDateFormat.format(date) + " ago ";
+        return simpleDateFormat.format(date) + " ago ";
     }
 
 }

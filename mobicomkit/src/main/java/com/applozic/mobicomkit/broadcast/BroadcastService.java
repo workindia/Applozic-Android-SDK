@@ -98,14 +98,14 @@ public class BroadcastService {
         context.sendBroadcast(notificationIntent);
     }
 
-    public static void sendUpdateLastSeenAtTimeBroadcast(Context context,String action,String lastSeenAtTime){
+    public static void sendUpdateLastSeenAtTimeBroadcast(Context context,String action,String userId,String lastSeenAtTime){
         Log.i(TAG, "Sending lastSeenAtTime broadcast....");
         Intent intentLastSeenAtTime = new Intent();
         intentLastSeenAtTime.setAction(action);
+        intentLastSeenAtTime.putExtra("userId",userId);
         intentLastSeenAtTime.putExtra("lastSeenAtTime", lastSeenAtTime);
         intentLastSeenAtTime.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intentLastSeenAtTime);
-
     }
 
     public static IntentFilter getIntentFilter() {

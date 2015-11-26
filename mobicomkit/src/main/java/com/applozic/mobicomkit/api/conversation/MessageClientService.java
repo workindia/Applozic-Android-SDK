@@ -502,23 +502,31 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public UserDetail[] getUserDetails(Contact contact) {
-        String contactNumberParameter = "";
-        String response = "";
-        if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
-            try {
-                contactNumberParameter = "?userIds=" + contact.getContactIds();
-            } catch (Exception e) {
-                e.printStackTrace();
+    public UserDetail[] getUserDetails(String userId) {
+
+        try{
+            String contactNumberParameter = "";
+            String response = "";
+            if (userId != null && !TextUtils.isEmpty(userId)) {
+                try {
+                    contactNumberParameter = "?userIds=" + userId;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            response = httpRequestUtils.getResponse(credentials, getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
+            Log.i(TAG, "User details response is " + response);
+            if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+                return null;
+            }
+
+            Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
+                    .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
+
+            return gson.fromJson(response, UserDetail[].class);
+        }catch (Exception e){
+            return null;
         }
-        response = httpRequestUtils.getResponse(credentials, getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
-        Log.i(TAG, "User details response is " + response);
-
-        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
-                .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
-
-        return gson.fromJson(response, UserDetail[].class);
     }
 
     public void processWebHook(final Message message) {

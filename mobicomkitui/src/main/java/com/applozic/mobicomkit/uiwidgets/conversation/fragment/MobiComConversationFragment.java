@@ -500,7 +500,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
 
-        if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2 ) {
+        if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
@@ -517,12 +517,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         new Thread(new Runnable() {
             @Override
             public void run() {
-                UserDetail[] userDetail =  messageClientService.getUserDetails(contact);
-
-                for(UserDetail userDetails :userDetail){
-                    if(userDetails != null && userDetails.getLastSeenAtTime() != null) {
-                        BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()));
+                try {
+                    UserDetail[] userDetail = messageClientService.getUserDetails(contact.getContactIds());
+                    if (userDetail != null) {
+                        for (UserDetail userDetails : userDetail) {
+                            if (userDetails.getLastSeenAtTime() != null) {
+                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()));
+                            }
+                        }
                     }
+                } catch (Exception e) {
+
                 }
             }
         }).start();
@@ -869,7 +874,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                         if (messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && messageListItem.getScheduledAt() == null) {
-                           // createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
+                            // createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
                         }
                     }
                 }
@@ -910,10 +915,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void updateLastSeenAtTime(final String lastSeenAtTime) {
-       this.getActivity().runOnUiThread(new Runnable() {
+        this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time)+" "+lastSeenAtTime);
+                ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time) + " " + lastSeenAtTime);
             }
         });
     }
