@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.google.gson.Gson;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -67,7 +68,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (response.contains(INVALID_APP_ID)) {
             throw new InvalidApplicationException("Invalid Application Id");
         }
-        RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
+      final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
         Log.i("registartion response ", "is " + registrationResponse);
 
         mobiComUserPreference.setCountryCode(user.getCountryCode());
@@ -96,7 +97,15 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setCountryCode(mobiComUserPreference.getCountryCode());
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
 
-        return createAccount(user);
+      final RegistrationResponse registrationResponse = createAccount(user);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApplozicMqttService.getInstance(context).connectPublish(registrationResponse.getUserKey(),"1");
+
+            }
+        }).start();
+        return  registrationResponse;
     }
 
     public RegistrationResponse updatePushNotificationId(final String pushNotificationId) throws Exception {
