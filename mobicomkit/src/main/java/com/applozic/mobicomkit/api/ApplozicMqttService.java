@@ -56,7 +56,7 @@ public class ApplozicMqttService implements MqttCallback {
         return client;
     }
 
-    public void connectPublish(String userKeyString, String status) {
+    public synchronized void connectPublish(String userKeyString, String status) {
         final MqttClient client = connect();
         try {
             MqttConnectOptions options = new MqttConnectOptions();

@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
-import com.applozic.mobicomkit.uiwidgets.MobiComKitApplication;
+import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -43,7 +43,7 @@ public class ConversationFragment extends MobiComConversationFragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        this.title = MobiComKitApplication.TITLE;
+        this.title = ApplozicApplication.TITLE;
         this.conversationService = new MobiComConversationService(getActivity());
         hideExtendedSendingOptionLayout = true;
 
@@ -79,7 +79,7 @@ public class ConversationFragment extends MobiComConversationFragment {
     }
 
     public void updateTitle() {
-        //((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(MobiComKitApplication.TITLE);
+        //((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(ApplozicApplication.TITLE);
         super.updateTitle();
     }
 

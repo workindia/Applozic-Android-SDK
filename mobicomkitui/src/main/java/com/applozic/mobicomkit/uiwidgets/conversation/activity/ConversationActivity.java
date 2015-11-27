@@ -26,10 +26,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.ApplozicMqttService;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -96,10 +99,34 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        if (!background) {
+            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ApplozicMqttService.getInstance(getApplicationContext()).disconnect(userKeyString, "0");
+                }
+            }).start();
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        if (background) {
+            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
+                }
+            }).start();
+        }
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
@@ -183,7 +210,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
         }
-        if(!ApplozicClient.getInstance(this).isHandleDial()){
+        if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
         showActionBar();
@@ -320,7 +347,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onLocationChanged(Location location) {
-
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         conversation.attachLocation(location);
     }
@@ -359,4 +385,5 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
     }
+
 }
