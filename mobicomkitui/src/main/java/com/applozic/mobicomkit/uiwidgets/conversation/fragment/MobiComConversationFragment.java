@@ -664,9 +664,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             listView.getFirstVisiblePosition() + 1);
                     if (view != null) {
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        TextView status = (TextView) view.findViewById(R.id.status);
-                        status.setText("Delivered");
-                        //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                        createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
                     }
                 } else {
                     messageList.add(message);
@@ -874,7 +872,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                         if (messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && messageListItem.getScheduledAt() == null) {
-                            // createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
                         }
                     }
                 }

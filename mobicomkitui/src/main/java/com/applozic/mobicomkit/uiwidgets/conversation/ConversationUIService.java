@@ -296,7 +296,6 @@ public class ConversationUIService {
             return;
         }
         getConversationFragment().updateLastSeenAtTime(lastSeenAtTime);
-
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {

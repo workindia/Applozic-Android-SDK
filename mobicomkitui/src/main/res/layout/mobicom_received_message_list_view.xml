@@ -55,16 +55,6 @@
                 android:layout_height="fill_parent"
                 android:drawableLeft="@drawable/applozic_ic_action_attachment"
                 android:textColor="@color/mobitexter_main_color"
-                android:textSize="16dp" />
-
-            <include layout="@layout/mobicom_attachment_preview_layout" />
-
-            <TextView
-                android:id="@+id/attached_file"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:drawableLeft="@drawable/applozic_ic_action_attachment"
-                android:textColor="@color/mobitexter_main_color"
                 android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
@@ -81,9 +71,8 @@
                 android:autoLink="all"
                 android:text=""
                 android:padding="10dp"
-                android:background="@color/received_message_bg_color"
                 android:textColor="@color/message_text_color"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <TextView
@@ -95,7 +84,7 @@
             android:paddingRight="2dp"
             android:text="Self destruct"
             android:textColor="@android:color/darker_gray"
-            android:textSize="11dp"
+            android:textSize="11sp"
             android:visibility="gone" />
 
     </LinearLayout>
