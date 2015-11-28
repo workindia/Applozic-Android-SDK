@@ -88,12 +88,7 @@ public class UserClientService extends MobiComKitClientService {
         MobiComUserPreference.getInstance(context).clearAll();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ApplozicMqttService.getInstance(context).disconnect(userKeyString,"0");
-            }
-        }).start();
+        ApplozicMqttService.getInstance(context).disconnectPublish(userKeyString, "0");
     }
 
     public String updateTimezone(String osuUserKeyString) {
