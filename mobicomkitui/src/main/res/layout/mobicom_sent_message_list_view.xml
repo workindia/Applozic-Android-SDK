@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/applozic_ic_action_attachment"
                 android:textColor="@color/mobitexter_main_color"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
 
@@ -48,7 +48,7 @@
                 android:padding="10dp"
                 android:text=""
                 android:textColor="@color/sent_message_text_color"
-                android:textSize="16dp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <TextView
@@ -83,7 +83,7 @@
             android:paddingRight="2dp"
             android:text=""
             android:textColor="@color/applozic_message_status_color"
-            android:textSize="12dp" />
+            android:textSize="11sp" />
 
         <TextView
             android:id="@+id/createdAtTime"
@@ -93,7 +93,7 @@
             android:paddingLeft="2dp"
             android:text="created at time"
             android:textColor="@color/message_details_text_color"
-            android:textSize="11dp" />
+            android:textSize="11sp" />
 
     </LinearLayout>
 

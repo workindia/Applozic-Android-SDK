@@ -168,7 +168,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         spinnerLayout = inflater.inflate(R.layout.mobicom_message_list_header_footer, null);
         infoBroadcast = (TextView) spinnerLayout.findViewById(R.id.info_broadcast);
-        emptyTextView = (TextView) spinnerLayout.findViewById(R.id.noConversations);
+        emptyTextView = (TextView) list.findViewById(R.id.noConversations);
         emoticonsBtn.setOnClickListener(this);
         listView.addHeaderView(spinnerLayout);
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);

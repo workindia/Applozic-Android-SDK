@@ -111,7 +111,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.addFooterView(spinnerLayout);
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
-        emptyTextView = (TextView) spinnerLayout.findViewById(R.id.noConversations);
+        emptyTextView = (TextView) list.findViewById(R.id.noConversations);
         startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);

@@ -33,6 +33,16 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
+        <TextView
+            android:id="@+id/noConversations"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:text="@string/no_conversation"
+            android:layout_centerInParent="true"/>
+
         <ImageButton
             android:id="@+id/fab_start_new"
             android:layout_width="55dp"
@@ -209,8 +219,8 @@
             android:layout_weight="8"
             android:hint="@string/enter_message_hint"
             android:maxLines="6"
-            android:textColor="@color/black"
             android:minLines="2"
+            android:textColor="@color/black"
             android:textSize="16sp" />
 
         <!--<com.rockerhieu.emojicon.EmojiconEditText-->
@@ -219,7 +229,6 @@
         <!--emojicon:emojiconSize="28sp"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="wrap_content"/>-->
-
 
 
         <ImageButton
