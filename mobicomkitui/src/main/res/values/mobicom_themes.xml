@@ -31,9 +31,9 @@
        <!-- <item name="colorControlNormal">#c5c5c5</item>-->
         <item name="colorControlActivated">@color/applozic_theme_color_control_activated</item>
         <item name="colorControlHighlight">@color/applozic_theme_color_control_highlight</item>
-        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorPrimary">@color/applozic_theme_primary_text</item>
          <!--actionbar icon color-->
-        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorSecondary">@color/applozic_theme_secondary_text</item>
 
         <!--
         <item name="android:windowBackground">@color/applozic_theme_color</item>
