@@ -147,10 +147,7 @@ public class MainActivity extends MobiComActivityForFragment
         if (position == 2) {
 
             Toast.makeText(getBaseContext(), "Log out successful", Toast.LENGTH_SHORT).show();
-
-            ApplozicSetting.getInstance(this).clearAll();
             new UserClientService(this).logout();
-
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);

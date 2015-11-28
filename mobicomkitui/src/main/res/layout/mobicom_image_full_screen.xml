@@ -6,15 +6,15 @@
     android:background="@android:color/background_dark"
     android:orientation="vertical">
 
-    <!-- For using toolBar
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:layout_height="wrap_content"
+        android:background="@android:color/background_dark"
         android:elevation="4dp"
-        android:theme="@style/ApplozicTheme"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>-->
+        android:paddingTop="10dp"
+        android:theme="@style/Applozic_FullScreen_Theme"
+        app:popupTheme="@style/Applozic_PopUpTheme"/>
 
     <com.applozic.mobicomkit.api.attachment.AttachmentView
         android:id="@+id/full_screen_image"

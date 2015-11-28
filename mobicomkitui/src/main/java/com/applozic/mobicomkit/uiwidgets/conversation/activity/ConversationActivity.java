@@ -25,10 +25,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.ApplozicMqttService;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -95,10 +99,34 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        if (!background) {
+            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ApplozicMqttService.getInstance(getApplicationContext()).disconnect(userKeyString, "0");
+                }
+            }).start();
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        if (background) {
+            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
+                }
+            }).start();
+        }
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
@@ -132,9 +160,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
        /* Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);*/
-         /*MemoryPersistence persistence = new MemoryPersistence();
-        client = new MqttAndroidClient(this, "tcp://dashboard.applozic.com:1883", "sunil", persistence);*/
-
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
@@ -166,53 +191,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
-
-        /*
-        try {
-            client.connect(null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken iMqttToken) {
-                    Log.i("Client topics", "iMqttToken" + iMqttToken.getTopics());
-                    Log.i("connected", "onSuccess");
-                    MqttMessage message = new MqttMessage("Hello.".getBytes());
-                    message.setQos(2);
-                    message.setRetained(false);
-                    try {
-                        Log.i("conversation", "Message published" + client.publish("007", message));
-
-                        client.subscribe("suni", 0, null, new IMqttActionListener() {
-                            @Override
-                            public void onSuccess(IMqttToken iMqttToken) {
-                                Log.i("Connected", "subscribe");
-
-                            }
-
-                            @Override
-                            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-
-                            }
-                        });
-                        client.disconnect();
-
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                @Override
-                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                    Log.i("connecting", "on failure" + iMqttToken.getException());
-
-                }
-            });
-            Log.i("is connected", "client.isConnected()" + client.isConnected());
-
-
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }*/
-
         onNewIntent(getIntent());
     }
 
@@ -232,6 +210,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
+        }
+        if (!ApplozicClient.getInstance(this).isHandleDial()) {
+            menu.findItem(R.id.dial).setVisible(false);
         }
         showActionBar();
         return true;
@@ -367,7 +348,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onLocationChanged(Location location) {
-
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         conversation.attachLocation(location);
     }
@@ -406,4 +386,5 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
     }
+
 }

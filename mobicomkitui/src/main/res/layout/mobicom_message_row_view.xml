@@ -31,7 +31,7 @@
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:visibility="visible" />-->
 
-    <de.hdodenhof.circleimageview.CircleImageView
+      <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/contactImage"
         android:layout_width="44dp"
         android:layout_height="44dp"

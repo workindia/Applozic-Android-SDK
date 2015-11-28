@@ -4,8 +4,8 @@
     <string name="app_name">Applozic</string>
     <string name="conversations">Conversations</string>
     <string name="empty_conversations">No conversations!!!</string>
-    <string name="enter_message_hint">Write a message...</string>
-    <string name="no_conversation">No past conversations, Start a new one today!</string>
+    <string name="enter_message_hint">Write a Message...</string>
+    <string name="no_conversation">You have no conversations</string>
     <string name="info_broadcast_message">Messages will be broadcasted to each recipient individually</string>
     <string name="shareOptions">Share</string>
 
@@ -105,6 +105,7 @@
     <string name="quick_conversation_loading">loading conversation..</string>
     <string name="alert_for_empty_message">Do you want to send a message without text?</string>
     <string name ="yes_alert">Yes</string>
+    <string name ="last_seen_at_time">Last seen</string>
 
 
 </resources>

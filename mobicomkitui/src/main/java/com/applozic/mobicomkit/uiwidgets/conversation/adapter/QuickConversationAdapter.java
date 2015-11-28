@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-//import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-//import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by adarsh on 4/7/15.

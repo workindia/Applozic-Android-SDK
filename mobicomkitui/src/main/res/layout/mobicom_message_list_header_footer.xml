@@ -6,15 +6,14 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical|center_horizontal">
     <!-- simplified -->
-  <TextView
-        android:id="@+id/noConversations"
+  <!--<TextView
+        android:id="@+id/no_conversation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical|center_horizontal"
-        android:visibility="gone"
-        android:paddingTop="10dp"
-        android:paddingBottom="4dp"
-        android:text="@string/no_conversation" />
+        android:gravity="center"
+        android:visibility="visible"
+        android:layout_gravity="center"
+        android:text="@string/no_conversation" />-->
 
     <TextView
         android:id="@+id/info_broadcast"
@@ -43,4 +42,5 @@
         android:typeface="normal"
         android:visibility="gone"
         android:layout_gravity="center" />
+
 </LinearLayout>

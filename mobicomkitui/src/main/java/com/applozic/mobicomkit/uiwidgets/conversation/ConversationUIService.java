@@ -258,7 +258,6 @@ public class ConversationUIService {
         ConversationFragment conversationFragment = getConversationFragment();
         if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
-
         }
     }
 
@@ -290,6 +289,14 @@ public class ConversationUIService {
             return;
         }
         getConversationFragment().updateDownloadStatus(message);
+    }
+
+    public void updateLastSeenAt(String lastSeenAtTime){
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        getConversationFragment().updateLastSeenAtTime(lastSeenAtTime);
+
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {

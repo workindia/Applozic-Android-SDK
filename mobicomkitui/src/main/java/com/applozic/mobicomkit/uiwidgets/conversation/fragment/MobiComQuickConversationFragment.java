@@ -31,7 +31,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
-import com.applozic.mobicomkit.uiwidgets.MobiComKitApplication;
+import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -111,7 +111,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.addFooterView(spinnerLayout);
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
-        emptyTextView = (TextView) spinnerLayout.findViewById(R.id.noConversations);
+        emptyTextView = (TextView) list.findViewById(R.id.noConversations);
         startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
@@ -301,7 +301,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(MobiComKitApplication.TITLE);
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(ApplozicApplication.TITLE);
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
         latestMessageForEachContact.clear();

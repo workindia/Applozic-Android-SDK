@@ -80,4 +80,5 @@ public class AlphaNumberColorUtil {
         alphabetTextColorMap.put('Y', R.color.alphabet_text_y);
         alphabetTextColorMap.put('Z', R.color.alphabet_text_z);
     }
+
 }

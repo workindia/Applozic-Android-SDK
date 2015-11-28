@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -81,11 +82,18 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void logout() {
+        final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
         MobiComUserPreference.getInstance(context).clearAll();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApplozicMqttService.getInstance(context).disconnect(userKeyString,"0");
+            }
+        }).start();
     }
 
     public String updateTimezone(String osuUserKeyString) {
