@@ -11,6 +11,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
@@ -47,6 +48,8 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         super.onCreate(savedInstanceState);
         setContentView(R.layout.people_activity);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
