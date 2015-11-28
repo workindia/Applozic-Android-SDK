@@ -99,8 +99,10 @@ public class ApplozicMqttService implements MqttCallback {
             @Override
             public void run() {
                 try {
-                    connectPublish(userKeyString,"1");
-                    client.subscribe(userKeyString, 0);
+                    connectPublish(userKeyString, "1");
+                    if (client != null) {
+                        client.subscribe(userKeyString, 0);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -168,6 +170,28 @@ public class ApplozicMqttService implements MqttCallback {
         }
 
     }
+
+/*
+    public synchronized void publishTyping(){
+
+        final MqttClient client = connect();
+        if (client == null) {
+            return;
+        }
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setWill(STATUS, (userKeyString + "," + "0").getBytes(), 0, true);
+        client.setCallback(ApplozicMqttService.this);
+        if (!client.isConnected()) {
+            client.connect(options);
+        }
+        MqttMessage message = new MqttMessage();
+        message.setRetained(false);
+        message.setPayload((userKeyString + "," + status).getBytes());
+        Log.i(TAG, "UserKeyString,status:" + userKeyString + ", " + status);
+        message.setQos(0);
+        client.publish(STATUS, message);
+
+    }*/
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
