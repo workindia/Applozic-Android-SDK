@@ -68,7 +68,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (response.contains(INVALID_APP_ID)) {
             throw new InvalidApplicationException("Invalid Application Id");
         }
-      final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
+        final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
         Log.i("registartion response ", "is " + registrationResponse);
 
         mobiComUserPreference.setCountryCode(user.getCountryCode());
@@ -97,15 +97,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setCountryCode(mobiComUserPreference.getCountryCode());
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
 
-      final RegistrationResponse registrationResponse = createAccount(user);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ApplozicMqttService.getInstance(context).connectPublish(registrationResponse.getUserKey(),"1");
-
-            }
-        }).start();
-        return  registrationResponse;
+        final RegistrationResponse registrationResponse = createAccount(user);
+        ApplozicMqttService.getInstance(context).connectPublish(registrationResponse.getUserKey(), "1");
+        return registrationResponse;
     }
 
     public RegistrationResponse updatePushNotificationId(final String pushNotificationId) throws Exception {

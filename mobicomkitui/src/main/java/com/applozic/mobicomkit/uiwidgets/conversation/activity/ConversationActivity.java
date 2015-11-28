@@ -64,8 +64,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
-    private static Uri capturedImageUri;
     private static final String SHARE_TEXT = "share_text";
+    private static Uri capturedImageUri;
     private static String inviteMessage;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
@@ -105,12 +105,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         boolean background = ActivityLifecycleHandler.isApplicationVisible();
         if (!background) {
             final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ApplozicMqttService.getInstance(getApplicationContext()).disconnect(userKeyString, "0");
-                }
-            }).start();
+            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
         }
     }
 
@@ -120,12 +115,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         boolean background = ActivityLifecycleHandler.isApplicationVisible();
         if (background) {
             final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
-                }
-            }).start();
+            ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
@@ -191,6 +181,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
+        ApplozicMqttService.getInstance(this).subscribe(MobiComUserPreference.getInstance(this).getSuUserKeyString());
     }
 
     @Override

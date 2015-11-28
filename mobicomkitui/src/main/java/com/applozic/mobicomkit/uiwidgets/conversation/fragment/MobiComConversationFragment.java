@@ -449,6 +449,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     listView.smoothScrollToPosition(messageList.size());
                     listView.setSelection(messageList.size());
                     emptyTextView.setVisibility(View.GONE);
+                    new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
                 }
 
                 selfDestructMessage(message);
