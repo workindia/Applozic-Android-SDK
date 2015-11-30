@@ -102,12 +102,21 @@ public class BroadcastService {
         Log.i(TAG, "Sending lastSeenAtTime broadcast....");
         Intent intentLastSeenAtTime = new Intent();
         intentLastSeenAtTime.setAction(action);
-        intentLastSeenAtTime.putExtra("userId",userId);
+        intentLastSeenAtTime.putExtra("userId", userId);
         intentLastSeenAtTime.putExtra("lastSeenAtTime", lastSeenAtTime);
         intentLastSeenAtTime.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intentLastSeenAtTime);
     }
 
+    public static void sendUpdateTypingBroadcast(Context context,String action,String userId,String isTyping){
+        Log.i(TAG,"Sending typing Broadcast.......");
+        Intent intentTyping = new Intent();
+        intentTyping.setAction(action);
+        intentTyping.putExtra("userId", userId);
+        intentTyping.putExtra("isTyping",isTyping);
+        intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intentTyping);
+    }
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -122,6 +131,7 @@ public class BroadcastService {
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
+        intentFilter.addAction(INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -130,7 +140,7 @@ public class BroadcastService {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
-        UPDATE_LAST_SEEN_AT_TIME,
+        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,
         CONTACT_VERIFIED, NOTIFY_USER
     }
 

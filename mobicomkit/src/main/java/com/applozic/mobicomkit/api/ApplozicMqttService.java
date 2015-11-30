@@ -1,11 +1,13 @@
 package com.applozic.mobicomkit.api;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -29,6 +31,7 @@ public class ApplozicMqttService implements MqttCallback {
     private static final String MQTT_URL = "tcp://apps.applozic.com";
     private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
+    private static final String TYPINGTOPIC = "typing-";
     private static ApplozicMqttService applozicMqttService;
     private MqttClient client;
     private MemoryPersistence memoryPersistence;
@@ -144,25 +147,32 @@ public class ApplozicMqttService implements MqttCallback {
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
 
         try {
-            final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
-            if (mqttMessageResponse != null) {
-                final MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i(TAG, "MQTT message calling ");
-                        if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
-                            messageService.syncMessages();
+            if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
+                String typingResponse[] = mqttMessage.toString().split(",");
+                String userId = typingResponse[0];
+                String isTypingStatus = typingResponse[1];
+                BroadcastService.sendUpdateTypingBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(),userId,isTypingStatus);
+            } else {
+                final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
+                if (mqttMessageResponse != null) {
+                    final MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.i(TAG, "MQTT message calling ");
+                            if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
+                                messageService.syncMessages();
+                            }
+                            if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType())) {
+                                String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
+                                String keyString = splitKeyString[0];
+                                String userId = splitKeyString[1];
+                                messageService.updateDeliveryStatus(keyString);
+                            }
                         }
-                        if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType())) {
-                            String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
-                            String keyString = splitKeyString[0];
-                            String userId = splitKeyString[1];
-                            messageService.updateDeliveryStatus(keyString);
-                        }
-                    }
-                }).start();
+                    }).start();
 
+                }
             }
 
         } catch (Exception e) {
@@ -171,27 +181,60 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
-/*
-    public synchronized void publishTyping(){
+    public synchronized void publishTopic(final String statusMessage, final String status, final String loggedInUserId, final String userId, final String userKeyString) {
 
-        final MqttClient client = connect();
-        if (client == null) {
-            return;
-        }
-        MqttConnectOptions options = new MqttConnectOptions();
-        options.setWill(STATUS, (userKeyString + "," + "0").getBytes(), 0, true);
-        client.setCallback(ApplozicMqttService.this);
-        if (!client.isConnected()) {
-            client.connect(options);
-        }
-        MqttMessage message = new MqttMessage();
-        message.setRetained(false);
-        message.setPayload((userKeyString + "," + status).getBytes());
-        Log.i(TAG, "UserKeyString,status:" + userKeyString + ", " + status);
-        message.setQos(0);
-        client.publish(STATUS, message);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final MqttClient client = connect();
+                    if (client == null) {
+                        return;
+                    }
+                    MqttConnectOptions options = new MqttConnectOptions();
+                    options.setWill(STATUS, (userKeyString + "," + "0").getBytes(), 0, true);
+                    client.setCallback(ApplozicMqttService.this);
+                    if (!client.isConnected()) {
+                        client.connect(options);
+                    }
+                    MqttMessage message = new MqttMessage();
+                    message.setRetained(false);
+                    message.setPayload((loggedInUserId + "," + status).getBytes());
+                    message.setQos(0);
+                    client.publish(statusMessage + userId, message);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
-    }*/
+    }
+
+    public synchronized void subscribeTopic(final String topicName, final String userKeyString, final String loggedInUser) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final MqttClient client = connect();
+                    if (client == null) {
+                        return;
+                    }
+                    MqttConnectOptions options = new MqttConnectOptions();
+                    options.setWill(STATUS, (userKeyString + "," + "0").getBytes(), 0, true);
+                    client.setCallback(ApplozicMqttService.this);
+                    if (!client.isConnected()) {
+                        client.connect(options);
+                    }
+                    client.subscribe(topicName + loggedInUser,0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+
+    }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {

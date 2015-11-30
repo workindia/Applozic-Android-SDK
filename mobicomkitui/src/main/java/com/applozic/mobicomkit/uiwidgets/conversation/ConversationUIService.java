@@ -291,11 +291,24 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
-    public void updateLastSeenAt(String lastSeenAtTime){
+    public void updateLastSeenAt(String currentUserId,String lastSeenAtTime){
         if (!BroadcastService.isIndividual()) {
             return;
         }
-        getConversationFragment().updateLastSeenAtTime(lastSeenAtTime);
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (currentUserId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateLastSeenAtTime(lastSeenAtTime);
+        }
+    }
+
+    public void updateTypingStatus(String userId,String isTypingStatus){
+        if(!BroadcastService.isIndividual()){
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (userId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
+        }
 
     }
 

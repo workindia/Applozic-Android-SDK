@@ -24,13 +24,13 @@
 
         <!-- colorAccent is used as the default value for colorControlActivated
              which is used to tint widgets -->
-        <item name="colorAccent">@color/white</item>
+        <item name="colorAccent">@color/mg_theme_color_accent</item>
 
         <!-- You can also set colorControlNormal, colorControlActivated
              colorControlHighlight & colorSwitchThumbNormal. -->
        <!-- <item name="colorControlNormal">#c5c5c5</item>-->
         <item name="colorControlActivated">@color/white</item>
-        <item name="colorControlHighlight">@color/white</item>
+        <item name="colorControlHighlight">@color/mg_theme_color_accent</item>
         <item name="android:textColorPrimary">@color/white</item>
          <!--actionbar icon color-->
         <item name="android:textColorSecondary">@color/white</item>

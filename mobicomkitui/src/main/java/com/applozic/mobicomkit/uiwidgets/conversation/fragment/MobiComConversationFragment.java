@@ -48,6 +48,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
@@ -135,6 +136,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected boolean hideExtendedSendingOptionLayout;
     private EmojiconHandler emojiIconHandler;
     private Bitmap previewThumbnail;
+    private MobiComUserPreference mobiComUserPreference;
+    private TextView isTyping;
+    private static String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
+    private static String applicationId;
+    private LinearLayout statusMessageLayout;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -149,6 +155,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
+        mobiComUserPreference = MobiComUserPreference.getInstance(getActivity());
         listView = (ConversationListView) list.findViewById(R.id.messageList);
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_background));
         listView.setScrollToBottomOnSizeChange(Boolean.TRUE);
@@ -159,7 +166,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
+        statusMessageLayout = (LinearLayout)list.findViewById(R.id.status_message_layout);
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);
+        isTyping = (TextView) list.findViewById(R.id.isTyping);
         mediaUploadProgressBar = (ProgressBar) attachmentLayout.findViewById(R.id.media_upload_progress_bar);
         emoticonsFrameLayout = (FrameLayout) list.findViewById(R.id.emojicons_frame_layout);
         emoticonsBtn = (ImageButton) list.findViewById(R.id.emoticons_btn);
@@ -191,6 +200,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         listView.setMessageEditText(messageEditText);
+
+        if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
+            applicationId = contact.getApplicationId();
+        } else {
+            applicationId = Utils.getMetaDataValue(getActivity(), APPLICATION_KEY_META_DATA);
+        }
 
         ArrayAdapter<CharSequence> sendTypeAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.send_type_options, R.layout.mobiframework_custom_spinner);
@@ -224,6 +239,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
+                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-" + applicationId + "-", "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                } else if (s.toString().trim().length() == 0) {
+                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-" + applicationId + "-", "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
                 //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
             }
@@ -513,6 +533,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
+        final MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(getActivity());
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
         new Thread(new Runnable() {
@@ -543,6 +564,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         }).start();
+        ApplozicMqttService.getInstance(getActivity()).subscribeTopic("typing-"+applicationId+"-", mobiComUserPreference.getSuUserKeyString(), mobiComUserPreference.getUserId());
         /*
         filePath = null;*/
         if (TextUtils.isEmpty(filePath)) {
@@ -923,6 +945,24 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
     }
+
+    public void updateUserTypingStatus(final String typingUserId, final String isTypingStatus) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isTypingStatus.equals("1")) {
+                    statusMessageLayout.setVisibility(View.VISIBLE);
+                    isTyping.setVisibility(View.VISIBLE);
+                    isTyping.setText(typingUserId + " " + getString(R.string.is_typing));
+                } else {
+                    statusMessageLayout.setVisibility(View.GONE);
+                    isTyping.setVisibility(View.GONE);
+                    isTyping.setText("");
+                }
+            }
+        });
+    }
+
 //    public void onEmojiconClicked(Emojicon emojicon) {
 //        //TODO: Move OntextChangeListiner to EmojiEditableTExt
 //        int currentPos = messageEditText.getSelectionStart();
