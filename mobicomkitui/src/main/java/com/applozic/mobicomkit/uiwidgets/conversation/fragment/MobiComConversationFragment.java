@@ -275,8 +275,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                               emoticonsFrameLayout.setVisibility(View.GONE);
 
                                               if (TextUtils.isEmpty(messageEditText.getText().toString()) && TextUtils.isEmpty(filePath)) {
-
-                                                  final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                                                /*final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
                                                           setPositiveButton(R.string.yes_alert, new DialogInterface.OnClickListener() {
                                                               @Override
                                                               public void onClick(DialogInterface dialogInterface, int i) {
@@ -296,7 +295,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                                   });
                                                   alertDialog.setTitle(getActivity().getString(R.string.alert_for_empty_message));
                                                   alertDialog.setCancelable(true);
-                                                  alertDialog.create().show();
+                                                  alertDialog.create().show();*/
                                               } else {
                                                   sendMessage(messageEditText.getText().toString());
                                                   messageEditText.setText("");
