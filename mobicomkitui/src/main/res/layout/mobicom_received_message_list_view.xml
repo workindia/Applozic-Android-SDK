@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginRight="59dp"
-        android:background="@drawable/applozic_recieve_message_bubble">
+        android:background="@drawable/applozic_receive_message_bubble">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"

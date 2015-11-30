@@ -19,7 +19,7 @@ public class DateUtils {
     private static final String HOURS = " hrs";
     private static final String H = "h";
     private static final String AGO = " ago";
-    private static final String YESTERDAY = " Yesterday";
+    private static final String YESTERDAY = "Yesterday";
 
     public static boolean isSameDay(Long timestamp) {
         Calendar calendarForCurrent = Calendar.getInstance();
