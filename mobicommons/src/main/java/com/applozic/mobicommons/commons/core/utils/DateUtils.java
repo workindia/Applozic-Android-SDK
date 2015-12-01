@@ -33,11 +33,11 @@ public class DateUtils {
     }
 
     public static String getFormattedDate(Long timestamp) {
-        boolean sameDay = isSameDay(timestamp);
+       // boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
-        return sameDay ? simpleDateFormat.format(date) : fullDateFormat.format(date) + " " + simpleDateFormat.format(date);
+        return  simpleDateFormat.format(date);
     }
 
     public static long getTimeDiffFromUtc() {
