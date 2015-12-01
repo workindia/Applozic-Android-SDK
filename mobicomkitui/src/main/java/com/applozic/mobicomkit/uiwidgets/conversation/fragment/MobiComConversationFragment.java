@@ -1209,7 +1209,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         @Override
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                Long lastConversationloadTime = messageList.isEmpty() ? 1L : messageList.get(messageList.size() - 1).getCreatedAtTime();
+                Long lastConversationloadTime = 1L;
+                if (!messageList.isEmpty()) {
+                    for (int i = messageList.size() - 1; i >= 0; i--) {
+                        if (messageList.get(i).isTempDateType()) {
+                            continue;
+                        }
+                        lastConversationloadTime = messageList.get(i).getCreatedAtTime();
+                        break;
+                    }
+                }
+
                 Log.i(TAG, " loading conversation with  lastConversationloadTime " + lastConversationloadTime);
                 nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, group);
             } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
@@ -1302,7 +1312,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (!messageList.isEmpty()) {
                 for (int i = messageList.size() - 1; i >= 0; i--) {
-                    if (!messageList.get(i).isRead()) {
+                    if (!messageList.get(i).isRead() && !messageList.get(i).isTempDateType()) {
                         messageList.get(i).setRead(Boolean.TRUE);
                         new MessageDatabaseService(getActivity()).updateSmsReadFlag(messageList.get(i).getMessageId(), true);
                     } else {
