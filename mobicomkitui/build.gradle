@@ -29,9 +29,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
-    compile 'com.google.android.gms:play-services:7.5.0'
+    //compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.google.android.gms:play-services:8.1.0'
     compile 'de.hdodenhof:circleimageview:2.0.0'
-    //compile 'com.android.support:design:23.0.1'
+    //compile 'com.android.support:design:22.0.1'
     compile project(':mobicomkit') //Note: use this for local development
     //compile 'com.applozic.communication.message:mobicomkit:2.0' //Todo: use this for prod
     compile 'com.android.support:multidex:1.0.1'

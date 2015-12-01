@@ -538,7 +538,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getViewTypeCount() {
-        return 2;
+        return 3;
     }
 
     @Override
