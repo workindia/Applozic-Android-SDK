@@ -49,18 +49,17 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
-import com.applozic.mobicomkit.api.conversation.MessageClientService;
-import com.applozic.mobicomkit.uiwidgets.R;
-
-import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
@@ -73,14 +72,13 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.TitleNavigationAda
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
-
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
-import com.applozic.mobicommons.commons.image.ImageUtils;
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.file.FilePathFinder;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
@@ -139,8 +137,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private Bitmap previewThumbnail;
     private MobiComUserPreference mobiComUserPreference;
     private TextView isTyping;
-    private static String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
-    private static String applicationId;
     private LinearLayout statusMessageLayout;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
@@ -202,12 +198,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 android.R.color.holo_red_light);
         listView.setMessageEditText(messageEditText);
 
-        if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
-            applicationId = contact.getApplicationId();
-        } else {
-            applicationId = Utils.getMetaDataValue(getActivity(), APPLICATION_KEY_META_DATA);
-        }
-
         ArrayAdapter<CharSequence> sendTypeAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.send_type_options, R.layout.mobiframework_custom_spinner);
 
@@ -241,9 +231,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
-                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-", applicationId, "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                    ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
                 } else if (s.toString().trim().length() == 0) {
-                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-", applicationId, "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                    ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
                 //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
@@ -564,7 +554,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         }).start();
-        ApplozicMqttService.getInstance(getActivity()).subscribeTopic("typing-", applicationId, mobiComUserPreference.getSuUserKeyString(), mobiComUserPreference.getUserId());
+
         /*
         filePath = null;*/
         if (TextUtils.isEmpty(filePath)) {
@@ -1037,6 +1027,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onPause() {
         super.onPause();
+        ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
         BroadcastService.currentUserId = null;
     }
 

@@ -9,7 +9,9 @@ import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -18,6 +20,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import static com.applozic.mobicomkit.api.MobiComKitConstants.APPLICATION_KEY_META_DATA;
 
 /**
  * Created by sunil on 26/11/15.
@@ -96,12 +100,23 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
-    public synchronized void subscribe(final String userKeyString) {
+    public synchronized  void subscribe() {
+        subscribeToConversation();
+        subscribeToTypingTopic();
+    }
+
+    public synchronized  void unSubscribe() {
+        unSubscribeToConversation();
+        unSubscribeToTypingTopic();
+    }
+
+    public synchronized void subscribeToConversation() {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
                     connectPublish(userKeyString, "1");
                     if (client != null) {
                         client.subscribe(userKeyString, 0);
@@ -114,9 +129,24 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
+    public synchronized  void unSubscribeToConversation() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (client == null || !client.isConnected()) {
+                        return;
+                    }
+                    String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+                    client.unsubscribe(userKeyString);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     public void disconnectPublish(String userKey, String status) {
-
         try {
             connectPublish(userKey, status);
             if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
@@ -140,7 +170,7 @@ public class ApplozicMqttService implements MqttCallback {
 
     @Override
     public void connectionLost(Throwable throwable) {
-
+        //Todo: add retry logic here
     }
 
     @Override
@@ -208,11 +238,9 @@ public class ApplozicMqttService implements MqttCallback {
                 }
             }
         }).start();
-
     }
 
-    public synchronized void subscribeTopic(final String topicName, final String applicationId, final String userKeyString, final String loggedInUser) {
-
+    public synchronized void subscribeToTypingTopic() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -221,13 +249,15 @@ public class ApplozicMqttService implements MqttCallback {
                     if (client == null) {
                         return;
                     }
+                    MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+
                     MqttConnectOptions options = new MqttConnectOptions();
-                    options.setWill(STATUS, (userKeyString + "," + "0").getBytes(), 0, true);
+                    options.setWill(STATUS, (mobiComUserPreference.getSuUserKeyString() + "," + "0").getBytes(), 0, true);
                     client.setCallback(ApplozicMqttService.this);
                     if (!client.isConnected()) {
                         client.connect(options);
                     }
-                    client.subscribe(topicName + applicationId + "-" + loggedInUser, 0);
+                    client.subscribe("typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId(), 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -237,10 +267,47 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
+    public void unSubscribeToTypingTopic() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (client == null || !client.isConnected()) {
+                        return;
+                    }
+                    MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+                    client.unsubscribe("typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
 
     }
+
+    public void typingStarted(Contact contact) {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        publishTopic("typing-", getApplicationId(contact), "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+    }
+
+    public void typingStopped(Contact contact) {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        publishTopic("typing-", getApplicationId(contact), "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+    }
+
+    public String getApplicationId(Contact contact) {
+        String applicationId = contact.getApplicationId();
+        if (TextUtils.isEmpty(applicationId)) {
+            applicationId = Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA);
+        }
+        return applicationId;
+    }
+
 }
 
 

@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+//import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -24,9 +24,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -82,10 +79,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public ConversationActivity() {
 
     }
-
-    /*
+/*
     public Snackbar snackbar;
-
 
     public void showErrorMessageView(String message){
         LinearLayout layout = (LinearLayout)findViewById(R.id.footerAd);
@@ -111,7 +106,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if(snackbar!=null){
             snackbar.dismiss();
         }
-    } */
+    }*/
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
@@ -152,11 +147,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        ApplozicMqttService.getInstance(this).subscribe();
     }
 
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        ApplozicMqttService.getInstance(this).unSubscribe();
         super.onPause();
     }
 
@@ -215,7 +212,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
-        ApplozicMqttService.getInstance(this).subscribe(MobiComUserPreference.getInstance(this).getSuUserKeyString());
+        //ApplozicMqttService.getInstance(this).subscribe();
     }
 
     @Override

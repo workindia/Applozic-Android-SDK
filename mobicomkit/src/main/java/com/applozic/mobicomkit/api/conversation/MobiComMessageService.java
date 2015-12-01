@@ -143,7 +143,18 @@ public class MobiComMessageService {
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
                 }
             }
+
+            updateDeliveredStatus(syncMessageFeed.getDeliveredMessageKeys());
             userpref.setLastSyncTime(String.valueOf(syncMessageFeed.getLastSyncTime()));
+        }
+    }
+
+    private void updateDeliveredStatus(List<String> deliveredMessageKeys) {
+        if (deliveredMessageKeys == null) {
+            return;
+        }
+        for (String messageKey: deliveredMessageKeys) {
+            messageDatabaseService.updateMessageDeliveryReport(messageKey, null);
         }
     }
 

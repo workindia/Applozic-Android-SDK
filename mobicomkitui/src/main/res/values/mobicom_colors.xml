@@ -51,4 +51,6 @@
     <color name="mg_magic_brick_red">#b51f23</color>
     <color name="mg_magic_brick_randam">#8c8863</color>
     <color name="mg_magic_brick_red_trans">#30b51f23</color>
+
+    <color name="error_background_color">#b51f23</color>
 </resources>
