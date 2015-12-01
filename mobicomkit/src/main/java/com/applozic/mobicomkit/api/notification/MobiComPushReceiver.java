@@ -7,6 +7,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -42,10 +45,12 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_DEVICE_CONTACT_MESSAGE");//12
         notificationKeyList.add("MT_CANCEL_CALL");//13
         notificationKeyList.add("MT_MESSAGE");//14
+        notificationKeyList.add("MT_USER_CONNECTED");//15
+        notificationKeyList.add("MT_USER_DISCONNECTED");//16
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
-       return isMobiComPushNotification(intent.getExtras());
+        return isMobiComPushNotification(intent.getExtras());
     }
 
     public static boolean isMobiComPushNotification(Bundle bundle) {
@@ -67,7 +72,7 @@ public class MobiComPushReceiver {
     }
 
     public static void processMessage(Context context, Bundle bundle) {
-       // Bundle extras = intent.getExtras();
+        // Bundle extras = intent.getExtras();
         if (bundle != null) {
             // ToDo: do something for invalidkey ;
             // && extras.get("InvalidKey") != null
@@ -77,14 +82,17 @@ public class MobiComPushReceiver {
             String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
             String mtexterUser = bundle.getString(notificationKeyList.get(7));
             String payloadForDelivered = bundle.getString(notificationKeyList.get(2));
-            processMessage(context,message,deleteConversationForContact,deleteSms,multipleMessageDelete,mtexterUser,payloadForDelivered);
+            String userConnected = bundle.getString(notificationKeyList.get(15));
+            String userDisconnected = bundle.getString(notificationKeyList.get(16));
+            processMessage(context, message, deleteConversationForContact, deleteSms, multipleMessageDelete, mtexterUser, payloadForDelivered, userConnected, userDisconnected);
 
         }
     }
 
-    public static void processMessage(Context context,String message,String deleteConversationForContact,String deleteSms,String multipleMessageDelete,String mtexterUser,String payloadForDelivered){
+    public static void processMessage(final Context context, String message, String deleteConversationForContact, String deleteSms, String multipleMessageDelete, String mtexterUser, String payloadForDelivered, String userConnected, String userDisconnected) {
 
         MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+        final MessageClientService messageClientService = new MessageClientService(context);
 
         if (!TextUtils.isEmpty(payloadForDelivered)) {
             messageService.updateDeliveryStatus(payloadForDelivered);
@@ -106,6 +114,41 @@ public class MobiComPushReceiver {
                 ContactService.addUsersToContact(context, details[0], Short.parseShort(details[1]), true);
             }
         }
+        if (!TextUtils.isEmpty(userConnected)) {
+            final String userId = userConnected;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
+                    if (userDetail != null) {
+
+                        for (UserDetail userDetails : userDetail) {
+                            if (userDetails != null && userDetails.isConnected()) {
+                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, String.valueOf(userDetails.getLastSeenAtTime()), userDetails.isConnected());
+                            }
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        if (!TextUtils.isEmpty(userDisconnected)) {
+            final String userId = userDisconnected;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
+                    if (userDetail != null) {
+                        for (UserDetail userDetails : userDetail) {
+                            if (userDetails != null && userDetails.getLastSeenAtTime() != null) {
+                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()), userDetails.isConnected());
+                            }
+                        }
+                    }
+                }
+            }).start();
+        }
+
         if (!TextUtils.isEmpty(multipleMessageDelete)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             MessageDeleteContent messageDeleteContent = gson.fromJson(multipleMessageDelete, MessageDeleteContent.class);

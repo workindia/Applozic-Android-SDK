@@ -91,7 +91,6 @@
     <string name="defaultTime">HH:MM:SS</string>
     <string name="selectionRequestText">Select date and time to schedule your message.</string>
 
-
     <string name="wearable_action_title">Reply</string>
     <string name="wearable_action_label">Reply to</string>
 
@@ -107,6 +106,7 @@
     <string name ="yes_alert">Yes</string>
     <string name ="last_seen_at_time">Last seen</string>
     <string name="is_typing">is typing...</string>
+    <string name="user_online">Online</string>
 
 
 </resources>

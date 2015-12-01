@@ -291,13 +291,13 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
-    public void updateLastSeenAt(String currentUserId,String lastSeenAtTime){
+    public void updateLastSeenAt(String currentUserId,String lastSeenAtTime,boolean status){
         if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
         if (currentUserId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateLastSeenAtTime(lastSeenAtTime);
+            conversationFragment.updateLastSeenAtTime(lastSeenAtTime, status);
         }
     }
 

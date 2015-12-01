@@ -544,7 +544,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (userDetail != null) {
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails.getLastSeenAtTime() != null) {
-                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()));
+                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()), userDetails.isConnected());
                             }
                         }
                     }
@@ -959,11 +959,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public void updateLastSeenAtTime(final String lastSeenAtTime) {
+    public void updateLastSeenAtTime(final String lastSeenAtTime, final boolean status) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time) + " " + lastSeenAtTime);
+
+                if (status) {
+                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.user_online));
+
+                } else {
+                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time) + " " + lastSeenAtTime);
+                }
+            }
+        });
+    }
+
+
+    public void updateOnlineStatus(final String userId, final boolean status) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (status) {
+                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.user_online));
+                } else {
+
+                }
+
             }
         });
     }
@@ -1225,7 +1246,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
                 loadMore = false;
                 Long endTime = null;
-                for (Message message: messageList) {
+                for (Message message : messageList) {
                     if (message.isTempDateType()) {
                         continue;
                     }

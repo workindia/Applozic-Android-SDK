@@ -90,7 +90,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString().equals(action)) {
             String lastSeenAtTime = intent.getStringExtra("lastSeenAtTime");
             String currentUserId = intent.getStringExtra("userId");
-            conversationUIService.updateLastSeenAt(currentUserId, lastSeenAtTime);
+            boolean status = intent.getBooleanExtra("status", false);
+            conversationUIService.updateLastSeenAt(currentUserId, lastSeenAtTime,status);
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString().equals(action)) {
             String currentUserId = intent.getStringExtra("userId");
             String isTyping = intent.getStringExtra("isTyping");
