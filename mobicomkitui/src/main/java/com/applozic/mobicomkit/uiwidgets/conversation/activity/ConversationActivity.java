@@ -5,12 +5,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-//import android.support.design.widget.Snackbar;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -24,6 +25,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -79,9 +83,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public ConversationActivity() {
 
     }
-/*
+
     public Snackbar snackbar;
 
+    @Override
     public void showErrorMessageView(String message){
         LinearLayout layout = (LinearLayout)findViewById(R.id.footerAd);
         layout.setVisibility(View.VISIBLE);
@@ -92,12 +97,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 snackbar.dismiss();
             }
         });
-        snackbar.setDuration(9000);
+        snackbar.setDuration(Snackbar.LENGTH_LONG);
         ViewGroup group = (ViewGroup) snackbar.getView();
-        TextView textView = (TextView) group.findViewById(android.support.design.R.id.snackbar_action);
+        TextView textView = (TextView) group.findViewById(R.id.snackbar_action);
         textView.setTextColor(Color.YELLOW);
         group.setBackgroundColor(getResources().getColor(R.color.error_background_color));
-        TextView txtView = (TextView) group.findViewById(android.support.design.R.id.snackbar_text);
+        TextView txtView = (TextView) group.findViewById(R.id.snackbar_text);
         txtView.setMaxLines(5);
         snackbar.show();
     }
@@ -106,7 +111,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if(snackbar!=null){
             snackbar.dismiss();
         }
-    }*/
+    }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();

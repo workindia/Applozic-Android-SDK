@@ -450,9 +450,11 @@ public class MobiComQuickConversationFragment extends Fragment {
                 listView.setSelection(firstVisibleItem);
             }
             if (isAdded()) {
-                //Todo: add snackbar
                 String errorMessage = getResources().getString(R.string.internet_connection_not_available);
-                Utils.isNetworkAvailable(getActivity(), errorMessage);
+                //Utils.isNetworkAvailable(getActivity(), errorMessage);
+                if (!Utils.isInternetAvailable(getActivity())) {
+                    ((MobiComKitActivityInterface) getActivity()).showErrorMessageView(errorMessage);
+                }
             }
 
             if (context != null && showInstruction) {

@@ -28,4 +28,6 @@ public interface MobiComKitActivityInterface {
 
     void startActivityForResult(Intent intent,int code);
 
+    void showErrorMessageView(String errorMessage);
+
 }
