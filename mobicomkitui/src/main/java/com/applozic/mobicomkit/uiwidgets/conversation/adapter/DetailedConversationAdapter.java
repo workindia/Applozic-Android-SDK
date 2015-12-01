@@ -43,7 +43,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
@@ -54,7 +53,9 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,12 +147,24 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         View customView;
         deviceTimeOffset = MobiComUserPreference.getInstance(context).getDeviceTimeOffset();
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (getItemViewType(position) == 0) {
+        final Message message = getItem(position);
+        int type = getItemViewType(position);
+        if (type == 2) {
+                //todo: change view to date time view
+                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE MMM dd,yyyy");
+                Date date = new Date(message.getCreatedAtTime());
+                customView = inflater.inflate(R.layout.mobicom_date_layout, parent, false);
+                TextView dateView = (TextView) customView.findViewById(R.id.day_and_time);
+                dateView.setText(simpleDateFormat.format(date));
+                //todo: add code to display date
+                return customView;
+
+        } else if (type == 0) {
             customView = inflater.inflate(R.layout.mobicom_received_message_list_view, parent, false);
         } else {
             customView = inflater.inflate(R.layout.mobicom_sent_message_list_view, parent, false);
         }
-        final Message message = getItem(position);
+
 
         List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
         List<String> userIds = null;
@@ -320,7 +333,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                     attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                 } else {
-                    String fileKeys =  message.getFileMetaKeyStrings();
+                    String fileKeys = message.getFileMetaKeyStrings();
                     int i = 0;
                     showPreview(message, preview, attachmentDownloadLayout);
                     //TODO: while doing multiple image support in single sms ...we might improve this
@@ -530,7 +543,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).isTypeOutbox() ? 1 : 0;
+        Message message = getItem(position);
+        if (message.isTempDateType()) {
+            return 2;
+        }
+        return message.isTypeOutbox() ? 1 : 0;
     }
 
 

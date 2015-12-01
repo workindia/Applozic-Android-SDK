@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:clickable="false"
+    android:longClickable="false"
+    android:paddingTop="15dp"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:paddingBottom="15dp"
+    android:orientation="horizontal"
+    android:layout_gravity="center"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/day_and_time"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clickable="false"
+        android:longClickable="false"
+        android:gravity="center"
+        android:text="Tuesday dec 23, 2015"
+        android:textColor="#333"
+        android:textSize="14sp" />
+</LinearLayout>

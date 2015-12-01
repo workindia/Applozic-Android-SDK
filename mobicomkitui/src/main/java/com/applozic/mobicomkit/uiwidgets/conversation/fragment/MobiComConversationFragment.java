@@ -85,6 +85,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 
@@ -166,7 +167,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
-        statusMessageLayout = (LinearLayout)list.findViewById(R.id.status_message_layout);
+        statusMessageLayout = (LinearLayout) list.findViewById(R.id.status_message_layout);
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);
         isTyping = (TextView) list.findViewById(R.id.isTyping);
         mediaUploadProgressBar = (ProgressBar) attachmentLayout.findViewById(R.id.media_upload_progress_bar);
@@ -240,9 +241,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
-                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-" + applicationId + "-", "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-", applicationId, "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
                 } else if (s.toString().trim().length() == 0) {
-                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-" + applicationId + "-", "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+                    ApplozicMqttService.getInstance(getActivity()).publishTopic("typing-", applicationId, "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
                 //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
@@ -563,7 +564,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         }).start();
-        ApplozicMqttService.getInstance(getActivity()).subscribeTopic("typing-"+applicationId+"-", mobiComUserPreference.getSuUserKeyString(), mobiComUserPreference.getUserId());
+        ApplozicMqttService.getInstance(getActivity()).subscribeTopic("typing-", applicationId, mobiComUserPreference.getSuUserKeyString(), mobiComUserPreference.getUserId());
         /*
         filePath = null;*/
         if (TextUtils.isEmpty(filePath)) {
@@ -651,6 +652,28 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             conversationAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    public int getTimeRemaining(Long date1, Long date2) {
+        Calendar sDate = toCalendar(date1);
+        Calendar eDate = toCalendar(date2);
+
+        long milis1 = sDate.getTimeInMillis();
+        long milis2 = eDate.getTimeInMillis();
+
+        long diff = Math.abs(milis2 - milis1);
+
+        return (int) (diff / (24 * 60 * 60 * 1000));
+    }
+
+    private Calendar toCalendar(long timestamp) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
     }
 
     public void downloadFailed(final Message message) {
@@ -1191,9 +1214,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, group);
             } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
                 loadMore = false;
-                Long endTime = messageList.get(0).getCreatedAtTime();
+                Long endTime = null;
+                for (Message message: messageList) {
+                    if (message.isTempDateType()) {
+                        continue;
+                    }
+                    endTime = messageList.get(0).getCreatedAtTime();
+                    break;
+                }
                 nextSmsList = conversationService.getMessages(null, endTime, contact, group);
             }
+
+            List<Message> createAtMessage = new ArrayList<Message>();
+            if (nextSmsList != null && !nextSmsList.isEmpty()) {
+                createAtMessage.add(nextSmsList.get(0));
+                for (int i = 1; i <= nextSmsList.size() - 1; i++) {
+                    int dayDiffrance = getTimeRemaining(nextSmsList.get(i - 1).getCreatedAtTime(), nextSmsList.get(i).getCreatedAtTime());
+                    if (dayDiffrance >= 1) {
+                        Message message = new Message();
+                        message.setTempDateType(Short.valueOf("100"));
+                        message.setCreatedAtTime(nextSmsList.get(i).getCreatedAtTime());
+                        createAtMessage.add(message);
+                    }
+                    createAtMessage.add(nextSmsList.get(i));
+                }
+            }
+            nextSmsList = createAtMessage;
 
             return 0L;
         }
