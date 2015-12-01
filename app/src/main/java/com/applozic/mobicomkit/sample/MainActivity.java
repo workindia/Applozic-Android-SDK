@@ -255,6 +255,11 @@ public class MainActivity extends MobiComActivityForFragment
         new ConversationUIService(this).removeConversation(message, formattedContactNumber);
     }
 
+    @Override
+    public void showErrorMessageView(String errorMessage) {
+
+    }
+
     private void buildSupportContactData() {
         Context context = getApplicationContext();
         AppContactService appContactService = new AppContactService(context);
