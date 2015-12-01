@@ -3,16 +3,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mobitexter="http://schemas.android.com/apk/res-auto">
 
-    <!--
+
     <item
         android:id="@+id/forward"
         android:orderInCategory="1"
         android:icon="@drawable/applozic_ic_action_forward"
+        android:visible="false"
         mobitexter:showAsAction="always"
         android:showAsAction="always"
         android:actionProviderClass="android.support.v7.widget.ShareActionProvider"
         android:title="@string/shareOptions" />
-        -->
 
     <item
         android:id="@+id/shareOptions"
