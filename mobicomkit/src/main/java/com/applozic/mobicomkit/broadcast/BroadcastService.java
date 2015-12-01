@@ -108,10 +108,11 @@ public class BroadcastService {
         sendBroadcast(context, intentLastSeenAtTime);
     }
 
-    public static void sendUpdateTypingBroadcast(Context context,String action,String userId,String isTyping){
-        Log.i(TAG,"Sending typing Broadcast.......");
+    public static void sendUpdateTypingBroadcast(Context context,String applicationId,String action,String userId,String isTyping){
+        Log.i(TAG, "Sending typing Broadcast.......");
         Intent intentTyping = new Intent();
         intentTyping.setAction(action);
+        intentTyping.putExtra("applicationId", applicationId);
         intentTyping.putExtra("userId", userId);
         intentTyping.putExtra("isTyping",isTyping);
         intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
