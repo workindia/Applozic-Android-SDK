@@ -175,14 +175,14 @@ public class ApplozicMqttService implements MqttCallback {
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-
+        Log.i(TAG, "Received MQTT message: " + new String(mqttMessage.getPayload()));
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
                 String typingResponse[] = mqttMessage.toString().split(",");
                 String applicationId = typingResponse[0];
                 String userId = typingResponse[1];
                 String isTypingStatus =typingResponse[2];
-                BroadcastService.sendUpdateTypingBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(),applicationId, userId, isTypingStatus);
+                BroadcastService.sendUpdateTypingBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(), applicationId, userId, isTypingStatus);
             } else {
                 final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
                 if (mqttMessageResponse != null) {
@@ -232,7 +232,8 @@ public class ApplozicMqttService implements MqttCallback {
                     message.setRetained(false);
                     message.setPayload((applicationId + "," + loggedInUserId + "," + status).getBytes());
                     message.setQos(0);
-                    client.publish(statusMessage + applicationId + "-" + userId, message);
+                    client.publish(statusMessage + "-" + applicationId + "-" + userId, message);
+                    Log.i(TAG, "Published: " + statusMessage + "-" + applicationId + "-" + userId);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -258,6 +259,7 @@ public class ApplozicMqttService implements MqttCallback {
                         client.connect(options);
                     }
                     client.subscribe("typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId(), 0);
+                    Log.i(TAG, "Subscribed to topic: " + "typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -292,12 +294,12 @@ public class ApplozicMqttService implements MqttCallback {
 
     public void typingStarted(Contact contact) {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-        publishTopic("typing-", getApplicationId(contact), "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+        publishTopic("typing", getApplicationId(contact), "1", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
     }
 
     public void typingStopped(Contact contact) {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-        publishTopic("typing-", getApplicationId(contact), "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
+        publishTopic("typing", getApplicationId(contact), "0", mobiComUserPreference.getUserId(), contact.getUserId(), mobiComUserPreference.getSuUserKeyString());
     }
 
     public String getApplicationId(Contact contact) {

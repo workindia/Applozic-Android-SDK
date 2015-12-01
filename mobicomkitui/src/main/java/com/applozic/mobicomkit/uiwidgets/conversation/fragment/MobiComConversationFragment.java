@@ -974,7 +974,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 } else {
 
                 }
-
             }
         });
     }

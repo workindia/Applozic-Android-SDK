@@ -306,6 +306,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
+        Log.i(TAG, "Received typing status for: " + userId);
         if (userId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }

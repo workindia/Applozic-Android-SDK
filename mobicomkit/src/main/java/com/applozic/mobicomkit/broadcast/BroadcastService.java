@@ -109,7 +109,7 @@ public class BroadcastService {
         sendBroadcast(context, intentLastSeenAtTime);
     }
 
-    public static void sendUpdateTypingBroadcast(Context context,String applicationId,String action,String userId,String isTyping){
+    public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping){
         Log.i(TAG, "Sending typing Broadcast.......");
         Intent intentTyping = new Intent();
         intentTyping.setAction(action);
