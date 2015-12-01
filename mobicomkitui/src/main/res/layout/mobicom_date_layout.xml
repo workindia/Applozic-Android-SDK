@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:clickable="false"
     android:longClickable="false"
-    android:paddingTop="15dp"
-    android:focusable="false"
-    android:focusableInTouchMode="false"
-    android:paddingBottom="15dp"
+    android:gravity="center"
     android:orientation="horizontal"
-    android:layout_gravity="center"
-    android:gravity="center">
+    android:paddingBottom="15dp"
+    android:paddingTop="15dp">
 
     <TextView
-        android:id="@+id/day_and_time"
+        android:id="@+id/chat_screen_day"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:clickable="false"
-        android:longClickable="false"
+        android:layout_gravity="center_vertical"
         android:gravity="center"
-        android:text="Tuesday dec 23, 2015"
+        android:paddingRight="75dp"
+        android:text=""
+        android:textColor="#333"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/chat_screen_date"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/chat_screen_day"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:paddingLeft="75dp"
+        android:text=""
         android:textColor="#333"
         android:textSize="14sp" />
-</LinearLayout>
+</RelativeLayout>

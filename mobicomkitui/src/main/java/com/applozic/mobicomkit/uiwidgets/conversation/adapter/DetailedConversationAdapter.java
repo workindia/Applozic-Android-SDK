@@ -150,13 +150,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         final Message message = getItem(position);
         int type = getItemViewType(position);
         if (type == 2) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE MMM dd, yyyy");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");
+            SimpleDateFormat simpleDateFormatDay = new SimpleDateFormat("EEEE");
             customView = inflater.inflate(R.layout.mobicom_date_layout, parent, false);
-            TextView dateView = (TextView) customView.findViewById(R.id.day_and_time);
+            TextView dateView = (TextView) customView.findViewById(R.id.chat_screen_date);
+            TextView dayTextView = (TextView) customView.findViewById(R.id.chat_screen_day);
             Date date = new Date(message.getCreatedAtTime());
             if (DateUtils.isSameDay(message.getCreatedAtTime())) {
-                dateView.setText("Today");
+                dayTextView.setText("Today");
             } else {
+                dayTextView.setText(simpleDateFormatDay.format(date));
                 dateView.setText(simpleDateFormat.format(date));
             }
             return customView;

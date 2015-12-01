@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtils {
 
-    private static final String JUST_NOW = " Just now";
+    private static final String JUST_NOW = "Just now";
     private static final String MINUTES = " mins";
     private static final String HOURS = " hrs";
     private static final String H = "h";
@@ -105,7 +105,7 @@ public class DateUtils {
             if (isYesterday(timestamp)) {
                 return YESTERDAY;
             }
-            return simpleDateFormat.format(date) + AGO;
+            return simpleDateFormat.format(date);
         } catch (Exception e) {
             e.printStackTrace();
         }
