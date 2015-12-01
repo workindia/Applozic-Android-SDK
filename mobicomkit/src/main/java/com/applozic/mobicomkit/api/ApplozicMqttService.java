@@ -170,7 +170,7 @@ public class ApplozicMqttService implements MqttCallback {
 
     @Override
     public void connectionLost(Throwable throwable) {
-        //Todo: add retry logic here
+        BroadcastService.sendMQTTDisconnected(context, BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
     }
 
     @Override

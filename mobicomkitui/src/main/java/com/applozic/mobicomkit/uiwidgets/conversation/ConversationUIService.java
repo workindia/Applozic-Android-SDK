@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -30,6 +31,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionF
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 
 import com.applozic.mobicommons.commons.core.utils.Support;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -424,4 +426,9 @@ public class ConversationUIService {
         }
     }
 
+    public void reconnectMQTT() {
+        if (Utils.isInternetAvailable(fragmentActivity)) {
+            ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+        }
+    }
 }

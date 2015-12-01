@@ -120,6 +120,14 @@ public class BroadcastService {
         sendBroadcast(context, intentTyping);
     }
 
+    public static void sendMQTTDisconnected(Context context, String action){
+        Log.i(TAG, "Sending typing Broadcast.......");
+        Intent intentTyping = new Intent();
+        intentTyping.setAction(action);
+        intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intentTyping);
+    }
+
    /* public static void sendUpdateOnlineStatus(Context context,String action,String userId,boolean status){
         Log.i(TAG, "sending update for online staus Brodcast");
         Intent connectedOrDisconnected = new Intent();
@@ -146,6 +154,8 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_ONLINE_OFFLINE_STATUS.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
+
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -155,7 +165,7 @@ public class BroadcastService {
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,UPDATE_ONLINE_OFFLINE_STATUS,
-        CONTACT_VERIFIED, NOTIFY_USER
+        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED
     }
 
     public static void sendBroadcast(Context context, Intent intent) {

@@ -96,6 +96,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             String currentUserId = intent.getStringExtra("userId");
             String isTyping = intent.getStringExtra("isTyping");
             conversationUIService.updateTypingStatus(currentUserId, isTyping);
+        } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
+            conversationUIService.reconnectMQTT();
         }
     }
 }
