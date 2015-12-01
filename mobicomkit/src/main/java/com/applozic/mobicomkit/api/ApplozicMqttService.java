@@ -149,9 +149,10 @@ public class ApplozicMqttService implements MqttCallback {
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
                 String typingResponse[] = mqttMessage.toString().split(",");
-                String userId = typingResponse[0];
-                String isTypingStatus = typingResponse[1];
-                BroadcastService.sendUpdateTypingBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(),userId,isTypingStatus);
+                String applicationId = typingResponse[0];
+                String userId = typingResponse[1];
+                String isTypingStatus =typingResponse[2];
+                BroadcastService.sendUpdateTypingBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(),applicationId, userId, isTypingStatus);
             } else {
                 final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
                 if (mqttMessageResponse != null) {
@@ -181,7 +182,7 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
-    public synchronized void publishTopic(final String statusMessage, final String status, final String loggedInUserId, final String userId, final String userKeyString) {
+    public synchronized void publishTopic(final String statusMessage, final String applicationId, final String status, final String loggedInUserId, final String userId, final String userKeyString) {
 
         new Thread(new Runnable() {
             @Override
@@ -199,9 +200,9 @@ public class ApplozicMqttService implements MqttCallback {
                     }
                     MqttMessage message = new MqttMessage();
                     message.setRetained(false);
-                    message.setPayload((loggedInUserId + "," + status).getBytes());
+                    message.setPayload((applicationId + "," + loggedInUserId + "," + status).getBytes());
                     message.setQos(0);
-                    client.publish(statusMessage + userId, message);
+                    client.publish(statusMessage + applicationId + "-" + userId, message);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -210,7 +211,7 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
-    public synchronized void subscribeTopic(final String topicName, final String userKeyString, final String loggedInUser) {
+    public synchronized void subscribeTopic(final String topicName, final String applicationId, final String userKeyString, final String loggedInUser) {
 
         new Thread(new Runnable() {
             @Override
@@ -226,7 +227,7 @@ public class ApplozicMqttService implements MqttCallback {
                     if (!client.isConnected()) {
                         client.connect(options);
                     }
-                    client.subscribe(topicName + loggedInUser,0);
+                    client.subscribe(topicName + applicationId + "-" + loggedInUser, 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
