@@ -83,12 +83,11 @@ public class MobiComPushReceiver {
             String payloadForDelivered = bundle.getString(notificationKeyList.get(2));
             String userConnected = bundle.getString(notificationKeyList.get(15));
             String userDisconnected = bundle.getString(notificationKeyList.get(16));
-            processMessage(context, message, deleteConversationForContact, deleteSms, multipleMessageDelete, mtexterUser, payloadForDelivered, userConnected, userDisconnected);
-
+            processMessage(context, bundle, message, deleteConversationForContact, deleteSms, multipleMessageDelete, mtexterUser, payloadForDelivered, userConnected, userDisconnected);
         }
     }
 
-    public static void processMessage(final Context context, String message, String deleteConversationForContact, String deleteSms, String multipleMessageDelete, String mtexterUser, String payloadForDelivered, String userConnected, String userDisconnected) {
+    public static void processMessage(final Context context, Bundle bundle, String message, String deleteConversationForContact, String deleteSms, String multipleMessageDelete, String mtexterUser, String payloadForDelivered, String userConnected, String userDisconnected) {
         SyncCallService syncCallService = SyncCallService.getInstance(context);
         final MessageClientService messageClientService = new MessageClientService(context);
 
@@ -161,10 +160,14 @@ public class MobiComPushReceiver {
             processDeleteSingleMessageRequest(context, deleteSms.split(",")[0], contactNumbers);
         }
 
+        String messageKey = bundle.getString(notificationKeyList.get(0));
         if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
 
+        } else if (!TextUtils.isEmpty(messageKey)) {
+            Log.i(TAG, "MT sync for key: " + messageKey);
+            syncCallService.syncMessages(messageKey);
         } else if (notificationKeyList.get(0).equalsIgnoreCase(message)) {
-            syncCallService.syncMessages();
+            syncCallService.syncMessages(null);
         } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
             //  MessageStatUtil.sendMessageStatsToServer(context);
         }

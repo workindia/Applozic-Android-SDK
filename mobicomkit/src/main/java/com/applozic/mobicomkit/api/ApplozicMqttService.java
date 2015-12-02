@@ -59,23 +59,23 @@ public class ApplozicMqttService implements MqttCallback {
 
     private MqttClient connect() {
         String userId = MobiComUserPreference.getInstance(context).getUserId();
-        if (client == null) {
             try {
-                client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
-                if (client != null) {
+                if (client == null) {
+                    client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
+                }
+
+                if (!client.isConnected()) {
+                    Log.i(TAG, "Connecting to mqtt...");
                     MqttConnectOptions options = new MqttConnectOptions();
                     options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + "0").getBytes(), 0, true);
                     client.setCallback(ApplozicMqttService.this);
 
-                    if (!client.isConnected()) {
-                        Log.i(TAG, "Connecting to mqtt...");
-                        client.connect(options);
-                    }
+                    client.connect(options);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+
         return client;
     }
 
@@ -201,7 +201,7 @@ public class ApplozicMqttService implements MqttCallback {
                         public void run() {
                             Log.i(TAG, "MQTT message calling ");
                             if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
-                                syncCallService.syncMessages();
+                                syncCallService.syncMessages(null);
                             }
                             if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
