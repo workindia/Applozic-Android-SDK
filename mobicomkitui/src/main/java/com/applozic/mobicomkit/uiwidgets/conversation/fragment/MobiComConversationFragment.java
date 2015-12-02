@@ -482,6 +482,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             Message message = messageList.get(positionInSmsList);
 
+            if (message.isTempDateType()) {
+                return;
+            }
+
             String[] menuItems = getResources().getStringArray(R.array.menu);
 
             for (int i = 0; i < menuItems.length; i++) {
@@ -1095,6 +1099,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return true;
         }
         Message message = messageList.get(position);
+        if (message.isTempDateType()) {
+            return true;
+        }
 
         switch (item.getItemId()) {
             case 0:
