@@ -153,6 +153,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         ApplozicMqttService.getInstance(this).subscribe();
+
+        if (!Utils.isInternetAvailable(this)) {
+            String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+            showErrorMessageView(errorMessage);
+        }
     }
 
     @Override

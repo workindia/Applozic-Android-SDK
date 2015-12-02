@@ -229,13 +229,19 @@ public class MessageClientService extends MobiComKitClientService {
         if (message.hasAttachment()) {
             return;
         }
-        String response = sendMessage(message);
-        MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
 
-        if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        message.setDeviceKeyString(mobiComUserPreference.getDeviceKeyString());
+        message.setSuUserKeyString(mobiComUserPreference.getSuUserKeyString());
+
+        String response = sendMessage(message);
+
+        if (TextUtils.isEmpty(response) || response.contains("<html>") || response.equals("error")) {
+            Log.w(TAG, "Error while sending pending messages.");
             return;
         }
 
+        MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
         String keyString = messageResponse.getMessageKey();
         String createdAt = messageResponse.getCreatedAtTime();
         message.setSentMessageTimeAtServer(Long.parseLong(createdAt));

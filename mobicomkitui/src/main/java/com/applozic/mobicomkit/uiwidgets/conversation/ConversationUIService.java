@@ -428,6 +428,7 @@ public class ConversationUIService {
 
     public void reconnectMQTT() {
         if (Utils.isInternetAvailable(fragmentActivity)) {
+            Log.i(TAG, "Reconnecting to mqtt.");
             ApplozicMqttService.getInstance(fragmentActivity).subscribe();
         }
     }

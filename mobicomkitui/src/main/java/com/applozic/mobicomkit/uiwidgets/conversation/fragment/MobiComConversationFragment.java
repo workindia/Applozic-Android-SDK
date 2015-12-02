@@ -231,8 +231,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
+                    //Log.i(TAG, "typing started event...");
                     ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
                 } else if (s.toString().trim().length() == 0) {
+                    //Log.i(TAG, "typing stopped event...");
                     ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);

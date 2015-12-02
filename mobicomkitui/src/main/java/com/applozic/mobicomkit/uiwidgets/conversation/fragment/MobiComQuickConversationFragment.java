@@ -449,13 +449,13 @@ public class MobiComQuickConversationFragment extends Fragment {
             } else {
                 listView.setSelection(firstVisibleItem);
             }
-            if (isAdded()) {
-                String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+            /*if (isAdded()) {
                 //Utils.isNetworkAvailable(getActivity(), errorMessage);
                 if (!Utils.isInternetAvailable(getActivity())) {
+                    String errorMessage = getResources().getString(R.string.internet_connection_not_available);
                     ((MobiComKitActivityInterface) getActivity()).showErrorMessageView(errorMessage);
                 }
-            }
+            }*/
 
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
