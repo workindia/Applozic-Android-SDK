@@ -127,6 +127,9 @@ public class ApplozicMqttService implements MqttCallback {
     public synchronized void subscribeToConversation() {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+            if (TextUtils.isEmpty(userKeyString)) {
+                return;
+            }
             if (client != null && client.isConnected()) {
                 Log.i(TAG, "Subscribing to conversation topic.");
                 client.subscribe(userKeyString, 0);
