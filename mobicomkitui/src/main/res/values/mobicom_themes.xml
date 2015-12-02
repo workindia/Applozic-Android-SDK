@@ -16,6 +16,8 @@
 
     </style>
 
+    <!--http://stackoverflow.com/questions/21536018/android-get-support-action-bar-always-returns-null
+    use android:windowNoTitle as false-->
      <style name="ApplozicTheme" parent="Theme.AppCompat.Light.NoActionBar">
 
         <item name="colorPrimary">@color/mg_theme_color_primary</item>
