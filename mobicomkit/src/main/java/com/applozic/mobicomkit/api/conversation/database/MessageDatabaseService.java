@@ -527,7 +527,7 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int getUnreadSmsCount(String contactNumbers) {
+    public int getUnreadMessageCount(String contactNumbers) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
         cursor.moveToFirst();

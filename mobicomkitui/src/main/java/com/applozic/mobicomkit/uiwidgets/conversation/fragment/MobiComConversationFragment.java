@@ -457,6 +457,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 //Todo: Handle disappearing messages.
                 boolean added = updateMessageList(message, false);
                 if (added) {
+                    //Todo: update unread count
                     conversationAdapter.notifyDataSetChanged();
                     listView.smoothScrollToPosition(messageList.size());
                     listView.setSelection(messageList.size());

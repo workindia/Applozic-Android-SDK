@@ -5,8 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
-import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -126,17 +125,15 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public synchronized void subscribeToConversation() {
-
-                try {
-                    String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
-                    if (client != null && client.isConnected()) {
-                        Log.i(TAG, "Subscribing to conversation topic.");
-                        client.subscribe(userKeyString, 0);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
+        try {
+            String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+            if (client != null && client.isConnected()) {
+                Log.i(TAG, "Subscribing to conversation topic.");
+                client.subscribe(userKeyString, 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized  void unSubscribeToConversation() {
@@ -195,19 +192,19 @@ public class ApplozicMqttService implements MqttCallback {
             } else {
                 final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
                 if (mqttMessageResponse != null) {
-                    final MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+                    final SyncCallService syncCallService = SyncCallService.getInstance(context);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             Log.i(TAG, "MQTT message calling ");
                             if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
-                                messageService.syncMessages();
+                                syncCallService.syncMessages();
                             }
                             if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
                                 String keyString = splitKeyString[0];
                                 String userId = splitKeyString[1];
-                                messageService.updateDeliveryStatus(keyString);
+                                syncCallService.updateDeliveryStatus(keyString);
                             }
                         }
                     }).start();
@@ -222,7 +219,6 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public synchronized void publishTopic(final String applicationId, final String status, final String loggedInUserId, final String userId) {
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -245,21 +241,17 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public synchronized void subscribeToTypingTopic() {
-
-                try {
-                    final MqttClient client = connect();
-                    if (client == null || !client.isConnected()) {
-                        return;
-                    }
-                    MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-                    client.subscribe("typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId(), 0);
-                    Log.i(TAG, "Subscribed to topic: " + "typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-
+        try {
+            final MqttClient client = connect();
+            if (client == null || !client.isConnected()) {
+                return;
+            }
+            MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+            client.subscribe("typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId(), 0);
+            Log.i(TAG, "Subscribed to topic: " + "typing-" + Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA) + "-" + mobiComUserPreference.getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void unSubscribeToTypingTopic() {

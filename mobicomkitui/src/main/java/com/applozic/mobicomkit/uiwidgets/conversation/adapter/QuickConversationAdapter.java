@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -50,6 +49,7 @@ public class QuickConversationAdapter extends BaseAdapter {
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
     private ImageLoader contactImageLoader;
     private Context context;
+    private MessageDatabaseService messageDatabaseService;
     private List<Message> messageList;
     private BaseContactService contactService;
     private EmojiconHandler emojiconHandler;
@@ -69,6 +69,7 @@ public class QuickConversationAdapter extends BaseAdapter {
         this.context = context;
         this.emojiconHandler = emojiconHandler;
         this.contactService = new AppContactService(context);
+        this.messageDatabaseService = new MessageDatabaseService(context);
         this.messageList = messageList;
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
@@ -198,10 +199,11 @@ public class QuickConversationAdapter extends BaseAdapter {
                 createdAtTime.setText(DateUtils.getFormattedDateAndTime(message.getCreatedAtTime()));
             }
             if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
-                int messageUnReadCount = new MessageDatabaseService(context).getUnreadSmsCount(contactReceiver.getContactIds());
-                if(messageUnReadCount>0){
+                int messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
+                if(messageUnReadCount > 0) {
+                    unReadCountTextView.setVisibility(View.VISIBLE);
                     unReadCountTextView.setText(String.valueOf(messageUnReadCount));
-                }else{
+                } else {
                     unReadCountTextView.setVisibility(View.GONE);
                 }
             }

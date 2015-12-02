@@ -9,15 +9,14 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
-import com.applozic.mobicommons.commons.core.utils.DateUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
-import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.people.ContactContent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.ContactService;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,12 +89,11 @@ public class MobiComPushReceiver {
     }
 
     public static void processMessage(final Context context, String message, String deleteConversationForContact, String deleteSms, String multipleMessageDelete, String mtexterUser, String payloadForDelivered, String userConnected, String userDisconnected) {
-
-        MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+        SyncCallService syncCallService = SyncCallService.getInstance(context);
         final MessageClientService messageClientService = new MessageClientService(context);
 
         if (!TextUtils.isEmpty(payloadForDelivered)) {
-            messageService.updateDeliveryStatus(payloadForDelivered);
+            syncCallService.updateDeliveryStatus(payloadForDelivered);
         }
         if (!TextUtils.isEmpty(deleteConversationForContact)) {
             MobiComConversationService conversationService = new MobiComConversationService(context);
@@ -166,7 +164,7 @@ public class MobiComPushReceiver {
         if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
 
         } else if (notificationKeyList.get(0).equalsIgnoreCase(message)) {
-            messageService.syncMessages();
+            syncCallService.syncMessages();
         } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
             //  MessageStatUtil.sendMessageStatsToServer(context);
         }
