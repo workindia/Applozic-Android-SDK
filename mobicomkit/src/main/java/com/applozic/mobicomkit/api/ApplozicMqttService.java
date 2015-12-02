@@ -33,6 +33,7 @@ public class ApplozicMqttService implements MqttCallback {
     private static final String STATUS = "status";
     private static final String MESSAGE_RECEIVED = "MESSAGE_RECEIVED";
     private static final String MESSAGE_DELIVERED = "MESSAGE_DELIVERED";
+    private static final String MESSAGE_DELIVERED_READ = "MESSAGE_DELIVERED_READ";
     private static final String MQTT_URL = "tcp://apps.applozic.com";
     private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
@@ -203,7 +204,7 @@ public class ApplozicMqttService implements MqttCallback {
                             if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
-                            if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType())) {
+                            if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType()) || MESSAGE_DELIVERED_READ.equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
                                 String keyString = splitKeyString[0];
                                 String userId = splitKeyString[1];
