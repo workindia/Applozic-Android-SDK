@@ -146,11 +146,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onResume() {
         super.onResume();
-        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        /*boolean background = ActivityLifecycleHandler.isApplicationVisible();
         if (background) {
             final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
-        }
+        }*/
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         ApplozicMqttService.getInstance(this).subscribe();
 
@@ -163,7 +163,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
-        ApplozicMqttService.getInstance(this).unSubscribe();
+        //ApplozicMqttService.getInstance(this).unSubscribe();
         super.onPause();
     }
 
