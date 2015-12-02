@@ -157,6 +157,10 @@ public class MobiComMessageService {
         }
     }
 
+    public boolean isMessagePresent(String key) {
+        return messageDatabaseService.isMessagePresent(key);
+    }
+
     public synchronized void syncMessagesWithServer(String syncMessage) {
         Toast.makeText(context, syncMessage, Toast.LENGTH_LONG).show();
         new Thread(new Runnable() {

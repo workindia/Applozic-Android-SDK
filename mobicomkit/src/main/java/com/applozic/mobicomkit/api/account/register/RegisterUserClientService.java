@@ -27,7 +27,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
-    public static final Short MOBICOMKIT_VERSION_CODE = 71;
+    public static final Short MOBICOMKIT_VERSION_CODE = 101;
 
 
     private HttpRequestUtils httpRequestUtils;
@@ -69,7 +69,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new InvalidApplicationException("Invalid Application Id");
         }
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-        Log.i("registartion response ", "is " + registrationResponse);
+        Log.i("Registration response ", "is " + registrationResponse);
 
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());

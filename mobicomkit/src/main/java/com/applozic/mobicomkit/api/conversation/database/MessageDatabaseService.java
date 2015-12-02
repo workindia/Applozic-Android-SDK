@@ -214,6 +214,20 @@ public class MessageDatabaseService {
         return message1;
     }
 
+    public boolean isMessagePresent(String key) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Cursor cursor = database.rawQuery(
+                    "SELECT COUNT(*) FROM sms WHERE keyString = ?",
+                    new String[]{key});
+        cursor.moveToFirst();
+        boolean present = cursor.getInt(0) > 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        dbHelper.close();
+        return present;
+    }
+
     public Message getMessage(String keyString) {
         if (TextUtils.isEmpty(keyString)) {
             return null;
