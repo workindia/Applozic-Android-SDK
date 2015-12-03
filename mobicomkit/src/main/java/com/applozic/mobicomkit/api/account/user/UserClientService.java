@@ -174,10 +174,11 @@ public class UserClientService extends MobiComKitClientService {
 
         String userIdParam = "";
         for (String userId : userIds) {
-            userIdParam += "&userIds" + "=" + userId;
+            userIdParam += "&userIds" + "=" + URLEncoder.encode(userId, "UTF-8");
         }
 
         String response = httpRequestUtils.getResponse(credentials, getUserInfoUrl() + userIdParam, "application/json", "application/json");
+        Log.i(TAG, "Response: " + response);
 
         JSONObject jsonObject = new JSONObject(response);
 
