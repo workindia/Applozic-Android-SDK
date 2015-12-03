@@ -46,6 +46,7 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_MESSAGE");//14
         notificationKeyList.add("MT_USER_CONNECTED");//15
         notificationKeyList.add("MT_USER_DISCONNECTED");//16
+        notificationKeyList.add("MT_MESSAGE_DELIVERED_READ"); //17 MESSAGE_DELIVERED_READ
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
@@ -81,6 +82,9 @@ public class MobiComPushReceiver {
             String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
             String mtexterUser = bundle.getString(notificationKeyList.get(7));
             String payloadForDelivered = bundle.getString(notificationKeyList.get(2));
+            if (TextUtils.isEmpty(payloadForDelivered)) {
+                payloadForDelivered = bundle.getString(notificationKeyList.get(17));
+            }
             String userConnected = bundle.getString(notificationKeyList.get(15));
             String userDisconnected = bundle.getString(notificationKeyList.get(16));
             processMessage(context, bundle, message, deleteConversationForContact, deleteSms, multipleMessageDelete, mtexterUser, payloadForDelivered, userConnected, userDisconnected);
