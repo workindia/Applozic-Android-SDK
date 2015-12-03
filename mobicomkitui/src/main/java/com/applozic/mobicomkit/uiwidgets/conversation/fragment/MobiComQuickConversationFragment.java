@@ -368,24 +368,14 @@ public class MobiComQuickConversationFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] connectedUsers) {
             try {
-                if (connectedUsers != null) {
+                if (connectedUsers != null && connectedUsers.length > 0) {
                     for (int i = 0; i <= connectedUsers.length - 1; i++) {
                         Message message = latestMessageForEachContact.get(connectedUsers[i]);
-                        if (message.getContactIds().equals(connectedUsers[i])) {
-                            int index = messageList.indexOf(message);
-                            if (index != -1) {
-                                View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
-                                if (view != null) {
-                                    message.setConnected(true);
-                                    TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
-                                    onlineTextView.setVisibility(View.VISIBLE);
-                                }
-                            }
+                        if (message != null) {
+                            message.setConnected(true);
                         }
-
                     }
                     conversationAdapter.notifyDataSetChanged();
-
                 }
             } catch (Exception e) {
                 e.printStackTrace();
