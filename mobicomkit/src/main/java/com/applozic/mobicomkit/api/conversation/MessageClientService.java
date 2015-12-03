@@ -508,9 +508,25 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
+    public String[] getConnectedUsers() {
+        try {
+            String response = getMessages(null, null, null, null);
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access") || !response.contains("{")) {
+                return null;
+            }
+            JsonParser parser = new JsonParser();
+            String element = parser.parse(response).getAsJsonObject().get("connectedUsers").toString();
+            return (String[]) GsonUtils.getObjectFromJson(element, String[].class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public UserDetail[] getUserDetails(String userId) {
 
-        try{
+        try {
             String contactNumberParameter = "";
             String response = "";
             if (userId != null && !TextUtils.isEmpty(userId)) {
@@ -530,7 +546,7 @@ public class MessageClientService extends MobiComKitClientService {
                     .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
 
             return gson.fromJson(response, UserDetail[].class);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -256,9 +257,9 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
-    public void removeConversation(final Contact contact,String response) {
+    public void removeConversation(final Contact contact, String response) {
 
-        if("success".equals(response)){
+        if ("success".equals(response)) {
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -269,9 +270,9 @@ public class MobiComQuickConversationFragment extends Fragment {
                     checkForEmptyConversations();
                 }
             });
-        }else {
+        } else {
 
-            Toast.makeText(getActivity(),"delete failed ",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "delete failed ", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -341,6 +342,56 @@ public class MobiComQuickConversationFragment extends Fragment {
                 }
             }
         });
+    }
+
+
+    public class ConnectedUsers extends AsyncTask<Void, Void, String[]> {
+
+        public ConnectedUsers() {
+
+        }
+
+        @Override
+        protected String[] doInBackground(Void... params) {
+            final MessageClientService messageClientService = new MessageClientService(getActivity());
+            try {
+                String[] connectedUsers = messageClientService.getConnectedUsers();
+                if (connectedUsers != null) {
+                    return connectedUsers;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] connectedUsers) {
+            try {
+                if (connectedUsers != null) {
+                    for (int i = 0; i <= connectedUsers.length - 1; i++) {
+                        Message message = latestMessageForEachContact.get(connectedUsers[i]);
+                        if (message.getContactIds().equals(connectedUsers[i])) {
+                            int index = messageList.indexOf(message);
+                            if (index != -1) {
+                                View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
+                                if (view != null) {
+                                    message.setConnected(true);
+                                    TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
+                                    onlineTextView.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+
+                    }
+                    conversationAdapter.notifyDataSetChanged();
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public void downloadConversations() {
@@ -449,6 +500,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             } else {
                 listView.setSelection(firstVisibleItem);
             }
+            new ConnectedUsers().execute();
             /*if (isAdded()) {
                 //Utils.isNetworkAvailable(getActivity(), errorMessage);
                 if (!Utils.isInternetAvailable(getActivity())) {

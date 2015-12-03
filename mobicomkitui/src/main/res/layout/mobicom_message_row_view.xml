@@ -4,9 +4,19 @@
     android:longClickable="true"
     android:minHeight="70dp"
     android:orientation="horizontal"
-    android:paddingTop="6dp"
     android:paddingLeft="10dp"
-    android:paddingRight="10dp">
+    android:paddingRight="10dp"
+    android:paddingTop="6dp">
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/layout_online"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/onlineTextView"
+        android:layout_marginBottom="40dp"
+        android:layout_marginLeft="40dp">
+    </FrameLayout>
+
 
     <TextView
         android:id="@+id/alphabeticImage"
@@ -31,8 +41,7 @@
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:visibility="visible" />-->
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/contactImage"
         android:layout_width="44dp"
         android:layout_height="44dp"
@@ -46,10 +55,10 @@
         android:id="@+id/name_time"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
         android:layout_toRightOf="@+id/contactImage"
         android:orientation="horizontal"
         android:paddingBottom="1dp"
-        android:layout_marginLeft="12dp"
         android:visibility="visible"
         android:weightSum="20">
 
@@ -167,6 +176,19 @@
         android:text="Self destruct"
         android:textColor="@color/message_details_text_color"
         android:textSize="12dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/onlineTextView"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignBottom="@+id/alphabeticImage"
+        android:layout_alignEnd="@+id/alphabeticImage"
+        android:layout_alignRight="@+id/alphabeticImage"
+        android:layout_gravity="left|top"
+        android:background="@drawable/online_circle"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:visibility="gone" />
 
 </RelativeLayout>

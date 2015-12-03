@@ -45,6 +45,7 @@ public class Message extends JsonMarker {
     private Boolean read = false;
     private boolean attDownloadInProgress;
     private String applicationId;
+    private boolean connected = false;
 
     public Message() {
 
@@ -368,6 +369,14 @@ public class Message extends JsonMarker {
 
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
     @Override
