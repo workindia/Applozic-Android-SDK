@@ -104,6 +104,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
             CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
+            TextView onlineTextView = (TextView) customView.findViewById(R.id.onlineTextView);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
@@ -142,9 +143,12 @@ public class QuickConversationAdapter extends BaseAdapter {
                 /*Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
                 alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
                 alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
-                GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+                GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
                 //bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.randomAlphabetBackgroundColorMap.get(new Random().nextInt(6))));
+                if (message.isConnected()) {
+                    onlineTextView.setVisibility(View.VISIBLE);
+                }
             }
             if (contactReceiver.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
@@ -200,7 +204,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             }
             if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
                 int messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
-                if(messageUnReadCount > 0) {
+                if (messageUnReadCount > 0) {
                     unReadCountTextView.setVisibility(View.VISIBLE);
                     unReadCountTextView.setText(String.valueOf(messageUnReadCount));
                 } else {
