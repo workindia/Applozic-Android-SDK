@@ -1117,16 +1117,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     clipboard.setPrimaryClip(clip);
                 }
                 break;
-            case 1:
+            /*case 1:
                 new ConversationUIService(getActivity()).startContactActivityForResult(message, null);
-                break;
-            case 2:
+                break;*/
+            case 1:
                 Message messageToResend = new Message(message);
                 //messageToResend.setCreatedAtTime(new Date().getTime());
                 messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
                 conversationService.sendMessage(messageToResend, messageIntentClass);
                 break;
-            case 3:
+            case 2:
                 String messageKeyString = message.getKeyString();
                 new DeleteConversationAsyncTask(conversationService, message, contact).execute();
                 deleteMessageFromDeviceList(messageKeyString);
