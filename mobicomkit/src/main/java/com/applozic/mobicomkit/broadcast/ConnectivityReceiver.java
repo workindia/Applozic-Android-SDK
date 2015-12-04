@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 
 /**
  * Created by devashish on 29/08/15.
@@ -25,6 +26,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         Log.i(TAG,action);
 
         if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE)) {
+            if (!Utils.isInternetAvailable(context)) {
+                return;
+            }
 
             new Thread(new Runnable() {
                 @Override
