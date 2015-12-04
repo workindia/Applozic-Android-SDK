@@ -228,7 +228,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        new ConversationUIService(this).checkForStartNewConversation(getIntent());
+        try {
+            new ConversationUIService(this).checkForStartNewConversation(getIntent());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void showActionBar() {
