@@ -105,7 +105,11 @@ public class ApplozicMqttService implements MqttCallback {
 
     }
 
-    public synchronized  void subscribe() {
+    public synchronized void subscribe() {
+        if (!Utils.isInternetAvailable(context)) {
+            return;
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {

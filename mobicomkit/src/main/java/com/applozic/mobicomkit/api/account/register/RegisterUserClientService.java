@@ -61,7 +61,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         Log.i(TAG, "Registration response is: " + response);
 
-        if (response.contains("<html")) {
+        if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw new UnknownHostException("Error 404");
 //            return null;
         }
