@@ -157,8 +157,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             TextView dayTextView = (TextView) customView.findViewById(R.id.chat_screen_day);
             Date date = new Date(message.getCreatedAtTime());
             if (DateUtils.isSameDay(message.getCreatedAtTime())) {
+                dayTextView.setVisibility(View.VISIBLE);
                 dayTextView.setText("Today");
             } else {
+                dayTextView.setVisibility(View.VISIBLE);
+                dateView.setVisibility(View.VISIBLE);
                 dayTextView.setText(simpleDateFormatDay.format(date));
                 dateView.setText(simpleDateFormat.format(date));
             }

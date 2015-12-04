@@ -128,16 +128,6 @@ public class BroadcastService {
         sendBroadcast(context, intentTyping);
     }
 
-   /* public static void sendUpdateOnlineStatus(Context context,String action,String userId,boolean status){
-        Log.i(TAG, "sending update for online staus Brodcast");
-        Intent connectedOrDisconnected = new Intent();
-        connectedOrDisconnected.setAction(action);
-        connectedOrDisconnected.putExtra("userId", userId);
-        connectedOrDisconnected.putExtra("status", status);
-        connectedOrDisconnected.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, connectedOrDisconnected);
-
-    }*/
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -153,7 +143,6 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString());
-        intentFilter.addAction(INTENT_ACTIONS.UPDATE_ONLINE_OFFLINE_STATUS.toString());
         intentFilter.addAction(INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
 
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -164,7 +153,7 @@ public class BroadcastService {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
-        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,UPDATE_ONLINE_OFFLINE_STATUS,
+        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,
         CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED
     }
 

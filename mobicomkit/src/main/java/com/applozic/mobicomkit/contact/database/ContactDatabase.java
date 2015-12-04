@@ -45,6 +45,8 @@ public class ContactDatabase {
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
         contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
+        Long connected = cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.CONNECTED));
+        contact.setConnected(connected != 0 && connected.intValue() == 1);
         contact.processContactNumbers(context);
         return contact;
     }
@@ -99,6 +101,18 @@ public class ContactDatabase {
         dbHelper.close();
     }
 
+    public void updateConnectedOrDisconnectedStatus(String userId, boolean connected) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
+        try {
+            dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+              e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
     public void addContact(Contact contact) {
         if (TextUtils.isEmpty(contact.getContactNumber())) {
             contact.setContactNumber(contact.getUserId());
@@ -116,7 +130,8 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
         contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
-        contentValues.put(MobiComDatabaseHelper.APPLICATION_ID,contact.getApplicationId());
+        contentValues.put(MobiComDatabaseHelper.APPLICATION_ID, contact.getApplicationId());
+        contentValues.put(MobiComDatabaseHelper.CONNECTED, contact.isConnected() ? 1 : 0);
         return contentValues;
     }
 

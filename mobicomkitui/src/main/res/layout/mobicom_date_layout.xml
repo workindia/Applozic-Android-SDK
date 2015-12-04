@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:clickable="false"
+    android:layout_centerInParent="true"
     android:longClickable="false"
     android:gravity="center"
     android:orientation="horizontal"
@@ -12,25 +13,25 @@
 
     <TextView
         android:id="@+id/chat_screen_day"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center"
-        android:paddingRight="75dp"
-        android:text=""
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:text="10"
         android:textColor="#333"
         android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/chat_screen_date"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/chat_screen_day"
-        android:layout_gravity="center"
+        android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:paddingLeft="75dp"
+        android:paddingLeft="10dp"
         android:text=""
+        android:visibility="gone"
         android:textColor="#333"
         android:textSize="14sp" />
-</RelativeLayout>
+</LinearLayout>

@@ -217,8 +217,8 @@ public class MessageDatabaseService {
     public boolean isMessagePresent(String key) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         Cursor cursor = database.rawQuery(
-                    "SELECT COUNT(*) FROM sms WHERE keyString = ?",
-                    new String[]{key});
+                "SELECT COUNT(*) FROM sms WHERE keyString = ?",
+                new String[]{key});
         cursor.moveToFirst();
         boolean present = cursor.getInt(0) > 0;
         if (cursor != null) {
@@ -566,7 +566,7 @@ public class MessageDatabaseService {
         dbHelper.close();
         return conversationCount;
     }
-    
+
     public int getUnreadMessageCount(){
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Cursor cursor = db.rawQuery("SELECT COUNT(1) FROM sms WHERE read = 0 ", null);

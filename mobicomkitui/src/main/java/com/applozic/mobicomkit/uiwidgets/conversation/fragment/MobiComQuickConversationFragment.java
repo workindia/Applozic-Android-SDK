@@ -345,45 +345,6 @@ public class MobiComQuickConversationFragment extends Fragment {
     }
 
 
-    public class ConnectedUsers extends AsyncTask<Void, Void, String[]> {
-
-        public ConnectedUsers() {
-
-        }
-
-        @Override
-        protected String[] doInBackground(Void... params) {
-            final MessageClientService messageClientService = new MessageClientService(getActivity());
-            try {
-                String[] connectedUsers = messageClientService.getConnectedUsers();
-                if (connectedUsers != null) {
-                    return connectedUsers;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String[] connectedUsers) {
-            try {
-                if (connectedUsers != null && connectedUsers.length > 0) {
-                    for (int i = 0; i <= connectedUsers.length - 1; i++) {
-                        Message message = latestMessageForEachContact.get(connectedUsers[i]);
-                        if (message != null) {
-                            message.setConnected(true);
-                        }
-                    }
-                    conversationAdapter.notifyDataSetChanged();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
     public void downloadConversations() {
         downloadConversations(false);
     }
@@ -490,7 +451,6 @@ public class MobiComQuickConversationFragment extends Fragment {
             } else {
                 listView.setSelection(firstVisibleItem);
             }
-            new ConnectedUsers().execute();
             /*if (isAdded()) {
                 //Utils.isNetworkAvailable(getActivity(), errorMessage);
                 if (!Utils.isInternetAvailable(getActivity())) {

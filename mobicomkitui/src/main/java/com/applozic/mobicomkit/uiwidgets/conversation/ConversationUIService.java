@@ -293,7 +293,7 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
-    public void updateLastSeenAt(String currentUserId,String lastSeenAtTime,boolean status){
+    public void updateLastSeenAt(String currentUserId, String lastSeenAtTime, boolean status) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
@@ -303,8 +303,8 @@ public class ConversationUIService {
         }
     }
 
-    public void updateTypingStatus(String userId,String isTypingStatus){
-        if(!BroadcastService.isIndividual()){
+    public void updateTypingStatus(String userId, String isTypingStatus) {
+        if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();

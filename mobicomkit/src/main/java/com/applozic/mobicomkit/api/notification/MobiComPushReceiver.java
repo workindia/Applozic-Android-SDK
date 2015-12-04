@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.people.ContactContent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.ContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -122,9 +123,9 @@ public class MobiComPushReceiver {
                 public void run() {
                     UserDetail[] userDetail = messageClientService.getUserDetails(userId);
                     if (userDetail != null) {
-
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails != null && userDetails.isConnected()) {
+                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId,userDetails.isConnected());
                                 BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, String.valueOf(userDetails.getLastSeenAtTime()), userDetails.isConnected());
                             }
                         }
@@ -142,6 +143,7 @@ public class MobiComPushReceiver {
                     if (userDetail != null) {
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails != null && userDetails.getLastSeenAtTime() != null) {
+                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId,userDetails.isConnected());
                                 BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()), userDetails.isConnected());
                             }
                         }

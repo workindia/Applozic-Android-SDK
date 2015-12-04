@@ -47,6 +47,7 @@ public class Contact implements Serializable {
     @Expose
     private String emailId;
     private String applicationId;
+    private boolean connected;
 
     public Contact() {
 
@@ -233,6 +234,14 @@ public class Contact implements Serializable {
         this.applicationId = applicationId;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
     public void processFullName(String fullName) {
         this.fullName = fullName;
         if (fullName != null) {
@@ -274,6 +283,7 @@ public class Contact implements Serializable {
                 ", localImageUrl='" + localImageUrl + '\'' +
                 ", emailId='" + emailId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
+                ", connected='" + connected + '\'' +
                 '}';
     }
 
