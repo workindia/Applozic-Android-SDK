@@ -392,7 +392,7 @@ public class MessageClientService extends MobiComKitClientService {
     public String sendMessage(Message message) {
         String jsonFromObject = GsonUtils.getJsonFromObject(message, message.getClass());
         Log.i(TAG, "Sending message to server: " + jsonFromObject);
-        return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json", null, jsonFromObject);
+        return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
     }
 
     public SyncMessageFeed getMessageFeed(String lastSyncTime) {

@@ -41,12 +41,6 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,18 +66,18 @@ public class LoginActivity extends Activity {
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
-    CallbackManager callbackManager;
+    //CallbackManager callbackManager;
     private TextView mTitleView;
     private Spinner mSpinnerView;
     private int touchCount = 0;
     private MobiComUserPreference mobiComUserPreference;
-    private LoginButton loginButton;
+    //private LoginButton loginButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(this);
+        //FacebookSdk.sdkInitialize(this);
 
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.layout));
@@ -121,28 +115,7 @@ public class LoginActivity extends Activity {
         mProgressView = findViewById(R.id.login_progress);
 
 
-        callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-
-        loginButton.setReadPermissions("user_friends");
-
-        // Callback registration
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                mUserIdView.setText(loginResult.getAccessToken().getUserId());
-                mPasswordView.setText(loginResult.getAccessToken().getToken());
-                attemptLogin(User.AuthenticationType.FACEBOOK);
-            }
-
-            @Override
-            public void onCancel() {
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-            }
-        });
+        //callbackManager = CallbackManager.Factory.create();
 
         mSpinnerView = (Spinner) findViewById(R.id.spinner_for_url);
         mSpinnerView.setVisibility(View.INVISIBLE);
@@ -321,7 +294,6 @@ public class LoginActivity extends Activity {
             mAuthTask = new UserLoginTask(user, listener, this);
             mEmailSignInButton.setVisibility(View.INVISIBLE);
             mSpinnerView.setVisibility(View.INVISIBLE);
-            loginButton.setVisibility(View.INVISIBLE);
             mAuthTask.execute((Void) null);
         }
     }
@@ -433,7 +405,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
 
