@@ -40,7 +40,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String SETTING_UPDATE_URL = "/rest/ws/setting/single/update";
     public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
     public static final String USER_INFO_URL = "/rest/ws/user/info?";
-    public static final Short MOBICOMKIT_VERSION_CODE = 71;
+    public static final Short MOBICOMKIT_VERSION_CODE = 105;
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -174,10 +174,11 @@ public class UserClientService extends MobiComKitClientService {
 
         String userIdParam = "";
         for (String userId : userIds) {
-            userIdParam += "&userIds" + "=" + userId;
+            userIdParam += "&userIds" + "=" + URLEncoder.encode(userId, "UTF-8");
         }
 
         String response = httpRequestUtils.getResponse(credentials, getUserInfoUrl() + userIdParam, "application/json", "application/json");
+        Log.i(TAG, "Response: " + response);
 
         JSONObject jsonObject = new JSONObject(response);
 

@@ -27,7 +27,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
-    public static final Short MOBICOMKIT_VERSION_CODE = 71;
+    public static final Short MOBICOMKIT_VERSION_CODE = 101;
 
 
     private HttpRequestUtils httpRequestUtils;
@@ -61,7 +61,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         Log.i(TAG, "Registration response is: " + response);
 
-        if (response.contains("<html")) {
+        if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw new UnknownHostException("Error 404");
 //            return null;
         }
@@ -69,7 +69,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new InvalidApplicationException("Invalid Application Id");
         }
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-        Log.i("registartion response ", "is " + registrationResponse);
+        Log.i("Registration response ", "is " + registrationResponse);
 
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
@@ -83,7 +83,18 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return registrationResponse;
     }
 
+
     public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        mobiComUserPreference.clearAll();
+
+        return updateAccount(email, userId, phoneNumber, displayName, pushNotificationId);
+    }
+
+
+    public RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+
         User user = new User();
         user.setUserId(userId);
         user.setEmail(email);
@@ -92,7 +103,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setTimezone(TimeZone.getDefault().getID());
         user.setRegistrationId(pushNotificationId);
         user.setDisplayName(displayName);
-        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         user.setCountryCode(mobiComUserPreference.getCountryCode());
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
@@ -111,7 +121,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             pref.setDeviceRegistrationId(pushNotificationId);
         }
         if (pref.isRegistered()) {
-            registrationResponse = createAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pref.getDisplayName(), pushNotificationId);
+            registrationResponse = updateAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pref.getDisplayName(), pushNotificationId);
         }
         return registrationResponse;
     }

@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -23,15 +25,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -79,6 +86,35 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     }
 
+    public Snackbar snackbar;
+
+    @Override
+    public void showErrorMessageView(String message) {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.footerAd);
+        layout.setVisibility(View.VISIBLE);
+        snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setDuration(Snackbar.LENGTH_LONG);
+        ViewGroup group = (ViewGroup) snackbar.getView();
+        TextView textView = (TextView) group.findViewById(R.id.snackbar_action);
+        textView.setTextColor(Color.YELLOW);
+        group.setBackgroundColor(getResources().getColor(R.color.error_background_color));
+        TextView txtView = (TextView) group.findViewById(R.id.snackbar_text);
+        txtView.setMaxLines(5);
+        snackbar.show();
+    }
+
+    public void dismissErrorMessage() {
+        if (snackbar != null) {
+            snackbar.dismiss();
+        }
+    }
+
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
@@ -112,17 +148,24 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onResume() {
         super.onResume();
-        boolean background = ActivityLifecycleHandler.isApplicationVisible();
+        /*boolean background = ActivityLifecycleHandler.isApplicationVisible();
         if (background) {
             final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
-        }
+        }*/
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        ApplozicMqttService.getInstance(this).subscribe();
+
+        if (!Utils.isInternetAvailable(this)) {
+            String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+            showErrorMessageView(errorMessage);
+        }
     }
 
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        //ApplozicMqttService.getInstance(this).unSubscribe();
         super.onPause();
     }
 
@@ -152,6 +195,23 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
+        try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String[] connectedUsers = new MessageClientService(ConversationActivity.this).getConnectedUsers();
+                    ContactDatabase contactDatabase = new ContactDatabase(ConversationActivity.this);
+                    if (connectedUsers != null && connectedUsers.length > 0) {
+                        for (int i = 0; i <= connectedUsers.length - 1; i++) {
+                            contactDatabase.updateConnectedOrDisconnectedStatus(connectedUsers[i], true);
+                        }
+                    }
+                }
+            }).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
@@ -181,13 +241,23 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
-        ApplozicMqttService.getInstance(this).subscribe(MobiComUserPreference.getInstance(this).getSuUserKeyString());
+        //ApplozicMqttService.getInstance(this).subscribe();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        new ConversationUIService(this).checkForStartNewConversation(getIntent());
+        if (!MobiComUserPreference.getInstance(this).isLoggedIn()) {
+            //user is not logged in
+            Log.i("AL", "user is not logged in yet.");
+            return;
+        }
+
+        try {
+            new ConversationUIService(this).checkForStartNewConversation(getIntent());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showActionBar() {

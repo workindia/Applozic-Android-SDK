@@ -39,6 +39,7 @@
         android:id="@+id/shareOptions"
         android:orderInCategory="10"
         android:icon="@drawable/mobicom_social_share"
+        android:visible="false"
         mobitexter:showAsAction="collapseActionView"
         android:showAsAction="collapseActionView"
         android:actionProviderClass="android.support.v7.widget.ShareActionProvider"

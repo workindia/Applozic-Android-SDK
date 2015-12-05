@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -256,9 +257,9 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
-    public void removeConversation(final Contact contact,String response) {
+    public void removeConversation(final Contact contact, String response) {
 
-        if("success".equals(response)){
+        if ("success".equals(response)) {
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -269,9 +270,9 @@ public class MobiComQuickConversationFragment extends Fragment {
                     checkForEmptyConversations();
                 }
             });
-        }else {
+        } else {
 
-            Toast.makeText(getActivity(),"delete failed ",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "delete failed ", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -342,6 +343,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             }
         });
     }
+
 
     public void downloadConversations() {
         downloadConversations(false);
@@ -449,10 +451,13 @@ public class MobiComQuickConversationFragment extends Fragment {
             } else {
                 listView.setSelection(firstVisibleItem);
             }
-            if (isAdded()) {
-                String errorMessage = getResources().getString(R.string.internet_connection_not_available);
-                Utils.isNetworkAvailable(getActivity(), errorMessage);
-            }
+            /*if (isAdded()) {
+                //Utils.isNetworkAvailable(getActivity(), errorMessage);
+                if (!Utils.isInternetAvailable(getActivity())) {
+                    String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+                    ((MobiComKitActivityInterface) getActivity()).showErrorMessageView(errorMessage);
+                }
+            }*/
 
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());

@@ -7,14 +7,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
-import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.people.ContactContent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.ContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +45,13 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_DEVICE_CONTACT_MESSAGE");//12
         notificationKeyList.add("MT_CANCEL_CALL");//13
         notificationKeyList.add("MT_MESSAGE");//14
+        notificationKeyList.add("MT_USER_CONNECTED");//15
+        notificationKeyList.add("MT_USER_DISCONNECTED");//16
+        notificationKeyList.add("MT_MESSAGE_DELIVERED_READ"); //17 MESSAGE_DELIVERED_READ
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
-       return isMobiComPushNotification(intent.getExtras());
+        return isMobiComPushNotification(intent.getExtras());
     }
 
     public static boolean isMobiComPushNotification(Bundle bundle) {
@@ -67,7 +73,7 @@ public class MobiComPushReceiver {
     }
 
     public static void processMessage(Context context, Bundle bundle) {
-       // Bundle extras = intent.getExtras();
+        // Bundle extras = intent.getExtras();
         if (bundle != null) {
             // ToDo: do something for invalidkey ;
             // && extras.get("InvalidKey") != null
@@ -77,17 +83,21 @@ public class MobiComPushReceiver {
             String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
             String mtexterUser = bundle.getString(notificationKeyList.get(7));
             String payloadForDelivered = bundle.getString(notificationKeyList.get(2));
-            processMessage(context,message,deleteConversationForContact,deleteSms,multipleMessageDelete,mtexterUser,payloadForDelivered);
-
+            if (TextUtils.isEmpty(payloadForDelivered)) {
+                payloadForDelivered = bundle.getString(notificationKeyList.get(17));
+            }
+            String userConnected = bundle.getString(notificationKeyList.get(15));
+            String userDisconnected = bundle.getString(notificationKeyList.get(16));
+            processMessage(context, bundle, message, deleteConversationForContact, deleteSms, multipleMessageDelete, mtexterUser, payloadForDelivered, userConnected, userDisconnected);
         }
     }
 
-    public static void processMessage(Context context,String message,String deleteConversationForContact,String deleteSms,String multipleMessageDelete,String mtexterUser,String payloadForDelivered){
-
-        MobiComMessageService messageService = new MobiComMessageService(context, MessageIntentService.class);
+    public static void processMessage(final Context context, Bundle bundle, String message, String deleteConversationForContact, String deleteSms, String multipleMessageDelete, String mtexterUser, String payloadForDelivered, String userConnected, String userDisconnected) {
+        SyncCallService syncCallService = SyncCallService.getInstance(context);
+        final MessageClientService messageClientService = new MessageClientService(context);
 
         if (!TextUtils.isEmpty(payloadForDelivered)) {
-            messageService.updateDeliveryStatus(payloadForDelivered);
+            syncCallService.updateDeliveryStatus(payloadForDelivered);
         }
         if (!TextUtils.isEmpty(deleteConversationForContact)) {
             MobiComConversationService conversationService = new MobiComConversationService(context);
@@ -106,6 +116,42 @@ public class MobiComPushReceiver {
                 ContactService.addUsersToContact(context, details[0], Short.parseShort(details[1]), true);
             }
         }
+        if (!TextUtils.isEmpty(userConnected)) {
+            final String userId = userConnected;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
+                    if (userDetail != null) {
+                        for (UserDetail userDetails : userDetail) {
+                            if (userDetails != null && userDetails.isConnected()) {
+                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
+                            }
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        if (!TextUtils.isEmpty(userDisconnected)) {
+            final String userId = userDisconnected;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
+                    if (userDetail != null) {
+                        for (UserDetail userDetails : userDetail) {
+                            if (userDetails != null && userDetails.getLastSeenAtTime() != null) {
+                                ContactDatabase contactDatabase = new ContactDatabase(context);
+                                contactDatabase.updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
+                                contactDatabase.updateLastSeenTimeAt(userId, userDetails.getLastSeenAtTime());
+                            }
+                        }
+                    }
+                }
+            }).start();
+        }
+
         if (!TextUtils.isEmpty(multipleMessageDelete)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             MessageDeleteContent messageDeleteContent = gson.fromJson(multipleMessageDelete, MessageDeleteContent.class);
@@ -120,10 +166,14 @@ public class MobiComPushReceiver {
             processDeleteSingleMessageRequest(context, deleteSms.split(",")[0], contactNumbers);
         }
 
+        String messageKey = bundle.getString(notificationKeyList.get(0));
         if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
 
+        } else if (!TextUtils.isEmpty(messageKey)) {
+            Log.i(TAG, "MT sync for key: " + messageKey);
+            syncCallService.syncMessages(messageKey);
         } else if (notificationKeyList.get(0).equalsIgnoreCase(message)) {
-            messageService.syncMessages();
+            syncCallService.syncMessages(null);
         } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
             //  MessageStatUtil.sendMessageStatsToServer(context);
         }

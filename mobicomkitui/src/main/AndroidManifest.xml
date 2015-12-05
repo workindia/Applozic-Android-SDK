@@ -1,58 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.applozic.mobicomkit.uiwidgets">
 
-    <!--  xmlns:tools="http://schemas.android.com/tools" -->
-
-    <!--
-    <uses-permission android:name="android.permission.INTERNET" tools:node="replace" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" tools:node="replace" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" tools:node="replace" />
-    <uses-permission android:name="android.permission.VIBRATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.CALL_PHONE" tools:node="replace" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_PROFILE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="replace" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="replace" />
-    -->
-
     <application>
-<!--
-        <activity
-            android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/activity_contacts_list"
-            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/ApplozicTheme"
-            android:windowSoftInputMode="adjustResize">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
 
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable_contacts" />
-        </activity>
 
-        <activity
-            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="Image"
-            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/Applozic_FullScreen_Theme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-        </activity>
-        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
-        -->
     </application>
 
 </manifest>

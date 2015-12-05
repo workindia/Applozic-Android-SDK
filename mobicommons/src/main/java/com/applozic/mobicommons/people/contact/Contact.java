@@ -47,6 +47,8 @@ public class Contact implements Serializable {
     @Expose
     private String emailId;
     private String applicationId;
+    private boolean connected;
+    private long lastSeenAtTime;
 
     public Contact() {
 
@@ -233,6 +235,14 @@ public class Contact implements Serializable {
         this.applicationId = applicationId;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
     public void processFullName(String fullName) {
         this.fullName = fullName;
         if (fullName != null) {
@@ -274,6 +284,8 @@ public class Contact implements Serializable {
                 ", localImageUrl='" + localImageUrl + '\'' +
                 ", emailId='" + emailId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
+                ", connected='" + connected + '\'' +
+                ", lastSeenAtTime='" + lastSeenAtTime + '\'' +
                 '}';
     }
 
@@ -313,12 +325,21 @@ public class Contact implements Serializable {
         this.emailId = emailId;
     }
 
-    public boolean isDrawableResources(){
-     return (imageURL!=null && imageURL.startsWith(R_DRAWABLE));
+    public boolean isDrawableResources() {
+        return (imageURL != null && imageURL.startsWith(R_DRAWABLE));
     }
 
-    public String getrDrawableName(){
-      return  getImageURL()==null ? getImageURL() : getImageURL().substring(R_DRAWABLE.length()+1);
+    public String getrDrawableName() {
+        return getImageURL() == null ? getImageURL() : getImageURL().substring(R_DRAWABLE.length() + 1);
 
     }
+
+    public long getLastSeenAt() {
+        return lastSeenAtTime;
+    }
+
+    public void setLastSeenAt(long lastSeenAt) {
+        this.lastSeenAtTime = lastSeenAt;
+    }
+
 }

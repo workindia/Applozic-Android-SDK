@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtils {
 
-    private static final String JUST_NOW = " Just now";
+    private static final String JUST_NOW = "Just now";
     private static final String MINUTES = " mins";
     private static final String HOURS = " hrs";
     private static final String H = "h";
     private static final String AGO = " ago";
-    private static final String YESTERDAY = " Yesterday";
+    private static final String YESTERDAY = "Yesterday";
 
     public static boolean isSameDay(Long timestamp) {
         Calendar calendarForCurrent = Calendar.getInstance();
@@ -33,11 +33,11 @@ public class DateUtils {
     }
 
     public static String getFormattedDate(Long timestamp) {
-        boolean sameDay = isSameDay(timestamp);
+       // boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
-        return sameDay ? simpleDateFormat.format(date) : fullDateFormat.format(date) + " " + simpleDateFormat.format(date);
+        return  simpleDateFormat.format(date);
     }
 
     public static long getTimeDiffFromUtc() {
@@ -105,7 +105,7 @@ public class DateUtils {
             if (isYesterday(timestamp)) {
                 return YESTERDAY;
             }
-            return simpleDateFormat.format(date) + AGO;
+            return simpleDateFormat.format(date);
         } catch (Exception e) {
             e.printStackTrace();
         }

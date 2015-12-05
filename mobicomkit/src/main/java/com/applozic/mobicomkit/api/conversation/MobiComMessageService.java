@@ -113,9 +113,8 @@ public class MobiComMessageService {
     }
 
     public synchronized void syncMessages() {
-        Log.i(TAG, "Starting syncMessages");
-
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
+        Log.i(TAG, "Starting syncMessages for lastSyncTime: " + userpref.getLastSyncTime());
         SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime());
         Log.i(TAG, "Got sync response " + syncMessageFeed);
 
@@ -143,8 +142,23 @@ public class MobiComMessageService {
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
                 }
             }
+
+            updateDeliveredStatus(syncMessageFeed.getDeliveredMessageKeys());
             userpref.setLastSyncTime(String.valueOf(syncMessageFeed.getLastSyncTime()));
         }
+    }
+
+    private void updateDeliveredStatus(List<String> deliveredMessageKeys) {
+        if (deliveredMessageKeys == null) {
+            return;
+        }
+        for (String messageKey: deliveredMessageKeys) {
+            messageDatabaseService.updateMessageDeliveryReport(messageKey, null);
+        }
+    }
+
+    public boolean isMessagePresent(String key) {
+        return messageDatabaseService.isMessagePresent(key);
     }
 
     public synchronized void syncMessagesWithServer(String syncMessage) {
@@ -262,12 +276,12 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
-    public void updateDeliveryStatus(String key) {
+    public synchronized void updateDeliveryStatus(String key) {
         //Todo: Check if this is possible? In case the delivery report reaches before the sms is reached, then wait for the sms.
         Log.i(TAG, "Got the delivery report for key: " + key);
         String keyParts[] = key.split((","));
         Message message = messageDatabaseService.getMessage(keyParts[0]);
-        if (message != null) {
+        if (message != null && !message.getDelivered()) {
             message.setDelivered(Boolean.TRUE);
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number

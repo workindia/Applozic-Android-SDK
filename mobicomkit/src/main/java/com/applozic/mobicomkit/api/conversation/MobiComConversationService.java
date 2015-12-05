@@ -9,6 +9,8 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -89,11 +91,12 @@ public class MobiComConversationService {
 
     public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Group group) {
         List<Message> messageList = new ArrayList<Message>();
+        BaseContactService baseContactService = new AppContactService(context);
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
 
         if (!cachedMessageList.isEmpty() &&
                 (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, group))) {
-            Log.i(TAG,"cachedMessageList size is : "+cachedMessageList.size());
+            Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
@@ -126,6 +129,9 @@ public class MobiComConversationService {
             Message[] messages = gson.fromJson(element, Message[].class);
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
+            String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
+            String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);
+
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
                     Log.i(TAG, "Both messages are same.");
@@ -133,7 +139,7 @@ public class MobiComConversationService {
                 }
             }
 
-           new MobiComMessageService(context,MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
+            new MobiComMessageService(context, MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
                     //TODO: remove this check..right now in some cases it is coming as null.
@@ -141,7 +147,19 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
-                    if(message.hasAttachment()){
+                    if(connectedUserIds != null && connectedUserIds.length>0){
+                        for (String userId : connectedUserIds) {
+                            if (message.getTo().equals(userId)) {
+                                Contact connectedContact = new Contact();
+                                connectedContact.setUserId(userId);
+                                connectedContact.setConnected(true);
+                                connectedContact.setContactNumber(userId);
+                                baseContactService.upsert(connectedContact);
+                            }
+                        }
+                    }
+
+                    if (message.hasAttachment()) {
                         setFilePathifExist(message);
                     }
                     messageList.add(message);
@@ -172,7 +190,7 @@ public class MobiComConversationService {
     private void setFilePathifExist(Message message) {
         FileMeta fileMeta = message.getFileMetas();
         File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
-        if(file.exists()){
+        if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
             message.setFilePaths(arrayList);
@@ -218,7 +236,7 @@ public class MobiComConversationService {
                 }
             }).start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(),"success");
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), "success");
     }
 
     public void deleteSync(final Contact contact) {

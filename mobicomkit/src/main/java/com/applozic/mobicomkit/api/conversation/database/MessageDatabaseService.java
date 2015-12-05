@@ -214,6 +214,20 @@ public class MessageDatabaseService {
         return message1;
     }
 
+    public boolean isMessagePresent(String key) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Cursor cursor = database.rawQuery(
+                "SELECT COUNT(*) FROM sms WHERE keyString = ?",
+                new String[]{key});
+        cursor.moveToFirst();
+        boolean present = cursor.getInt(0) > 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        dbHelper.close();
+        return present;
+    }
+
     public Message getMessage(String keyString) {
         if (TextUtils.isEmpty(keyString)) {
             return null;
@@ -527,7 +541,7 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int getUnreadSmsCount(String contactNumbers) {
+    public int getUnreadMessageCount(String contactNumbers) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
         cursor.moveToFirst();
@@ -552,8 +566,8 @@ public class MessageDatabaseService {
         dbHelper.close();
         return conversationCount;
     }
-    
-    public int getUnreadMessageCount(){
+
+    public int getUnreadMessageCount() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         final Cursor cursor = db.rawQuery("SELECT COUNT(1) FROM sms WHERE read = 0 ", null);
         cursor.moveToFirst();

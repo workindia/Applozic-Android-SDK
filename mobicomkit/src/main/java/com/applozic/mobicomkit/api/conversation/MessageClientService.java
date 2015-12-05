@@ -229,13 +229,19 @@ public class MessageClientService extends MobiComKitClientService {
         if (message.hasAttachment()) {
             return;
         }
-        String response = sendMessage(message);
-        MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
 
-        if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        message.setDeviceKeyString(mobiComUserPreference.getDeviceKeyString());
+        message.setSuUserKeyString(mobiComUserPreference.getSuUserKeyString());
+
+        String response = sendMessage(message);
+
+        if (TextUtils.isEmpty(response) || response.contains("<html>") || response.equals("error")) {
+            Log.w(TAG, "Error while sending pending messages.");
             return;
         }
 
+        MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
         String keyString = messageResponse.getMessageKey();
         String createdAt = messageResponse.getCreatedAtTime();
         message.setSentMessageTimeAtServer(Long.parseLong(createdAt));
@@ -386,7 +392,7 @@ public class MessageClientService extends MobiComKitClientService {
     public String sendMessage(Message message) {
         String jsonFromObject = GsonUtils.getJsonFromObject(message, message.getClass());
         Log.i(TAG, "Sending message to server: " + jsonFromObject);
-        return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json", null, jsonFromObject);
+        return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
     }
 
     public SyncMessageFeed getMessageFeed(String lastSyncTime) {
@@ -502,9 +508,25 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
+    public String[] getConnectedUsers() {
+        try {
+            String response = getMessages(null, null, null, null);
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access") || !response.contains("{")) {
+                return null;
+            }
+            JsonParser parser = new JsonParser();
+            String element = parser.parse(response).getAsJsonObject().get("connectedUsers").toString();
+            return (String[]) GsonUtils.getObjectFromJson(element, String[].class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public UserDetail[] getUserDetails(String userId) {
 
-        try{
+        try {
             String contactNumberParameter = "";
             String response = "";
             if (userId != null && !TextUtils.isEmpty(userId)) {
@@ -524,7 +546,7 @@ public class MessageClientService extends MobiComKitClientService {
                     .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
 
             return gson.fromJson(response, UserDetail[].class);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

@@ -30,18 +30,17 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true" />
 
-
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <TextView
             android:id="@+id/noConversations"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
+            android:layout_centerInParent="true"
             android:layout_gravity="center"
+            android:gravity="center"
             android:text="@string/no_conversation"
-            android:layout_centerInParent="true"/>
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/fab_start_new"
@@ -181,11 +180,37 @@
     </LinearLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/status_message_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/conversation_list_background"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/isTyping"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_gravity="left"
+            android:background="@color/conversation_list_background"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/individual_message_send_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/applozic_send_message_layout_background_color"
+        android:background="@drawable/layout_shadow_border"
         android:orientation="horizontal"
         android:visibility="gone">
 

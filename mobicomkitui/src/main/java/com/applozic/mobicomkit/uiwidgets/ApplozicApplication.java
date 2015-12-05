@@ -2,7 +2,9 @@ package com.applozic.mobicomkit.uiwidgets;
 
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
+//import android.support.multidex.MultiDex;
 
 /**
  * Created by devashish on 28/4/14.
@@ -23,6 +25,12 @@ public class ApplozicApplication extends Application {
         } catch (ClassNotFoundException e) {
         }
         super.onCreate();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+       // MultiDex.install(this);
     }
 
 }

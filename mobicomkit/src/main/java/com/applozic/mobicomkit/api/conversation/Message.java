@@ -45,6 +45,7 @@ public class Message extends JsonMarker {
     private Boolean read = false;
     private boolean attDownloadInProgress;
     private String applicationId;
+    private boolean connected = false;
 
     public Message() {
 
@@ -370,11 +371,23 @@ public class Message extends JsonMarker {
         this.applicationId = applicationId;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
+
+        if (message.isTempDateType() || isTempDateType()) {
+            return false;
+        }
 
         if (getMessageId() != null && message.getMessageId() != null && getMessageId().equals(message.getMessageId())) {
             return true;
@@ -428,6 +441,9 @@ public class Message extends JsonMarker {
     public int hashCode() {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
+        if (isTempDateType()) {
+            result = 31 * result + getCreatedAtTime().hashCode();
+        }
         return result;
     }
 
@@ -478,6 +494,14 @@ public class Message extends JsonMarker {
                 '}';
     }
 
+    public boolean isTempDateType() {
+        return type.equals(MessageType.DATE_TEMP.value);
+    }
+
+    public  void setTempDateType(short tempDateType){
+            this.type = tempDateType;
+    }
+
     public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));
@@ -496,7 +520,8 @@ public class Message extends JsonMarker {
 
         INBOX(Short.valueOf("0")), OUTBOX(Short.valueOf("1")), DRAFT(Short.valueOf("2")),
         OUTBOX_SENT_FROM_DEVICE(Short.valueOf("3")), MT_INBOX(Short.valueOf("4")),
-        MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7"));
+        MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7")),
+        DATE_TEMP(Short.valueOf("100"));
         private Short value;
 
         MessageType(Short c) {

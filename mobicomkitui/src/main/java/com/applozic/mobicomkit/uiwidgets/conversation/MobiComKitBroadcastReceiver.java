@@ -87,9 +87,12 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateDownloadStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString().equals(action) && message != null) {
             conversationUIService.updateDownloadFailed(message);
-        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString().equals(action)) {
-            String lastSeenAtTime = intent.getStringExtra("lastSeenAtTime");
-            conversationUIService.updateLastSeenAt(lastSeenAtTime);
+        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString().equals(action)) {
+            String currentUserId = intent.getStringExtra("userId");
+            String isTyping = intent.getStringExtra("isTyping");
+            conversationUIService.updateTypingStatus(currentUserId, isTyping);
+        } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
+            conversationUIService.reconnectMQTT();
         }
     }
 }

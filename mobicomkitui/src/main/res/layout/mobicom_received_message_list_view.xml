@@ -39,6 +39,7 @@
         android:layout_toRightOf="@+id/contactImage"
         android:layout_marginTop="4dp"
         android:layout_marginRight="59dp"
+        android:background="@drawable/applozic_receive_message_bubble">
         android:minHeight="55dp"
         android:background="@color/received_message_bg_color">
 
