@@ -51,4 +51,6 @@
     <color name="applozic_theme_icons">#FF727272</color>
     <color name="applozic_theme_divider">#FFB6B6B6</color>
 
+    <color name="error_background_color">#ff0000</color>
+
   </resources>

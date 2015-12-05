@@ -44,6 +44,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
