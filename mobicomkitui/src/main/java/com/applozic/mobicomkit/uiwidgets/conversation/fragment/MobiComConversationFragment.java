@@ -59,9 +59,10 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
-import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
@@ -72,7 +73,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.TitleNavigationAda
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
-import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -135,7 +135,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected boolean hideExtendedSendingOptionLayout;
     private EmojiconHandler emojiIconHandler;
     private Bitmap previewThumbnail;
-    private MobiComUserPreference mobiComUserPreference;
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
 
@@ -152,7 +151,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
-        mobiComUserPreference = MobiComUserPreference.getInstance(getActivity());
         listView = (ConversationListView) list.findViewById(R.id.messageList);
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_background));
         listView.setScrollToBottomOnSizeChange(Boolean.TRUE);
@@ -530,7 +528,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
-        final MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(getActivity());
+        final BaseContactService baseContactService = new AppContactService(getActivity());
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
         new Thread(new Runnable() {
@@ -541,12 +539,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (userDetail != null) {
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails.getLastSeenAtTime() != null) {
-                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(getActivity().getApplicationContext(), BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds(), DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()), userDetails.isConnected());
+                                if (!userDetails.isConnected()) {
+                                    contact.setLastSeenAt(userDetails.getLastSeenAtTime());
+                                    baseContactService.upsert(contact);
+                                }
                             }
                         }
                     }
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
         }).start();
@@ -950,35 +951,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             preview.setVisibility(View.GONE);
                         }
                     }
-
-                }
-            }
-        });
-    }
-
-    public void updateLastSeenAtTime(final String lastSeenAtTime, final boolean status) {
-        this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                if (status) {
-                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.user_online));
-
-                } else {
-                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.last_seen_at_time) + " " + lastSeenAtTime);
-                }
-            }
-        });
-    }
-
-
-    public void updateOnlineStatus(final String userId, final boolean status) {
-        this.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (status) {
-                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getString(R.string.user_online));
-                } else {
 
                 }
             }

@@ -47,6 +47,7 @@ public class ContactDatabase {
         contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
         Long connected = cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.CONNECTED));
         contact.setConnected(connected != 0 && connected.intValue() == 1);
+        contact.setLastSeenAt(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_SEEN_AT_TIME)));
         contact.processContactNumbers(context);
         return contact;
     }
@@ -107,7 +108,19 @@ public class ContactDatabase {
         try {
             dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
         } catch (Exception e) {
-              e.printStackTrace();
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
+    public void updateLastSeenTimeAt(String userId, long lastSeenTime) {
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, lastSeenTime);
+            dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             dbHelper.close();
         }
@@ -132,6 +145,7 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
         contentValues.put(MobiComDatabaseHelper.APPLICATION_ID, contact.getApplicationId());
         contentValues.put(MobiComDatabaseHelper.CONNECTED, contact.isConnected() ? 1 : 0);
+        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
         return contentValues;
     }
 

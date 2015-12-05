@@ -293,15 +293,6 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
-    public void updateLastSeenAt(String currentUserId, String lastSeenAtTime, boolean status) {
-        if (!BroadcastService.isIndividual()) {
-            return;
-        }
-        ConversationFragment conversationFragment = getConversationFragment();
-        if (currentUserId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateLastSeenAtTime(lastSeenAtTime, status);
-        }
-    }
 
     public void updateTypingStatus(String userId, String isTypingStatus) {
         if (!BroadcastService.isIndividual()) {

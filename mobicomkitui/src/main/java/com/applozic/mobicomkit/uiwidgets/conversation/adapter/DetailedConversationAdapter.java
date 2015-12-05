@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -222,6 +223,17 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if (attachedFile != null) {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
+            }
+            if (receiverContact != null) {
+                if (receiverContact.isConnected()) {
+                    ((ActionBarActivity) context).getSupportActionBar().setSubtitle(context.getString(R.string.user_online));
+                } else {
+                    if (receiverContact.getLastSeenAt() == 0) {
+
+                    } else {
+                        ((ActionBarActivity) context).getSupportActionBar().setSubtitle(context.getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(receiverContact.getLastSeenAt()));
+                    }
+                }
             }
 
             messageTextView.setTypeface(robotoRegular);

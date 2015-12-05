@@ -48,6 +48,7 @@ public class Contact implements Serializable {
     private String emailId;
     private String applicationId;
     private boolean connected;
+    private long lastSeenAtTime;
 
     public Contact() {
 
@@ -284,6 +285,7 @@ public class Contact implements Serializable {
                 ", emailId='" + emailId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", connected='" + connected + '\'' +
+                ", lastSeenAtTime='" + lastSeenAtTime + '\'' +
                 '}';
     }
 
@@ -323,12 +325,21 @@ public class Contact implements Serializable {
         this.emailId = emailId;
     }
 
-    public boolean isDrawableResources(){
-     return (imageURL!=null && imageURL.startsWith(R_DRAWABLE));
+    public boolean isDrawableResources() {
+        return (imageURL != null && imageURL.startsWith(R_DRAWABLE));
     }
 
-    public String getrDrawableName(){
-      return  getImageURL()==null ? getImageURL() : getImageURL().substring(R_DRAWABLE.length()+1);
+    public String getrDrawableName() {
+        return getImageURL() == null ? getImageURL() : getImageURL().substring(R_DRAWABLE.length() + 1);
 
     }
+
+    public long getLastSeenAt() {
+        return lastSeenAtTime;
+    }
+
+    public void setLastSeenAt(long lastSeenAt) {
+        this.lastSeenAtTime = lastSeenAt;
+    }
+
 }

@@ -125,8 +125,7 @@ public class MobiComPushReceiver {
                     if (userDetail != null) {
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails != null && userDetails.isConnected()) {
-                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId,userDetails.isConnected());
-                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, String.valueOf(userDetails.getLastSeenAtTime()), userDetails.isConnected());
+                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
                             }
                         }
                     }
@@ -143,8 +142,9 @@ public class MobiComPushReceiver {
                     if (userDetail != null) {
                         for (UserDetail userDetails : userDetail) {
                             if (userDetails != null && userDetails.getLastSeenAtTime() != null) {
-                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId,userDetails.isConnected());
-                                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId, DateUtils.getDateAndTimeForLastSeen(userDetails.getLastSeenAtTime()), userDetails.isConnected());
+                                ContactDatabase contactDatabase = new ContactDatabase(context);
+                                contactDatabase.updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
+                                contactDatabase.updateLastSeenTimeAt(userId, userDetails.getLastSeenAtTime());
                             }
                         }
                     }

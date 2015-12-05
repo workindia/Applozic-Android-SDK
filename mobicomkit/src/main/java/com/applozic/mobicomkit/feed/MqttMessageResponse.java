@@ -1,12 +1,14 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicomkit.api.conversation.Message;
+
 /**
  * Created by sunil on 28/11/15.
  */
 public class MqttMessageResponse {
 
     private String type;
-    private String message;
+    private Object message;
     private boolean notifyUser;
 
     public String getType() {
@@ -17,11 +19,11 @@ public class MqttMessageResponse {
         this.type = type;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 

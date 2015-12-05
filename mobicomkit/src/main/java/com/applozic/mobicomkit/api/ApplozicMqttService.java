@@ -31,9 +31,6 @@ public class ApplozicMqttService implements MqttCallback {
 
 
     private static final String STATUS = "status";
-    private static final String MESSAGE_RECEIVED = "MESSAGE_RECEIVED";
-    private static final String MESSAGE_DELIVERED = "MESSAGE_DELIVERED";
-    private static final String MESSAGE_DELIVERED_READ = "MESSAGE_DELIVERED_READ";
     private static final String MQTT_URL = "tcp://apps.applozic.com";
     private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
@@ -42,6 +39,22 @@ public class ApplozicMqttService implements MqttCallback {
     private MqttClient client;
     private MemoryPersistence memoryPersistence;
     private Context context;
+
+    public static enum NOTIFICATION_TYPE {
+        MESSAGE_RECEIVED("APPLOZIC_01"), MESSAGE_SENT("APPLOZIC_02"),
+        MESSAGE_SENT_UPDATE("APPLOZIC_03"), MESSAGE_DELIVERED("APPLOZIC_04"),
+        MESSAGE_DELETED("APPLOZIC_05"), CONVERSATION_DELETED("APPLOZIC_06"),
+        MESSAGE_READ("APPLOZIC_07"), MESSAGE_DELIVERED_AND_READ("APPLOZIC_08"),
+        CONVERSATION_READ("APPLOZIC_09"), CONVERSATION_DELIVERED_AND_READ("APPLOZIC_10"),
+        USER_CONNECTED("APPLOZIC_11"), USER_DISCONNECTED("APPLOZIC_12"),
+        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14");
+        private String value;
+
+        private NOTIFICATION_TYPE(String c) {
+            value = c;
+        }
+
+    }
 
 
     private ApplozicMqttService(Context context) {
@@ -60,22 +73,22 @@ public class ApplozicMqttService implements MqttCallback {
 
     private MqttClient connect() {
         String userId = MobiComUserPreference.getInstance(context).getUserId();
-            try {
-                if (client == null) {
-                    client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
-                }
-
-                if (!client.isConnected()) {
-                    Log.i(TAG, "Connecting to mqtt...");
-                    MqttConnectOptions options = new MqttConnectOptions();
-                    options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + "0").getBytes(), 0, true);
-                    client.setCallback(ApplozicMqttService.this);
-
-                    client.connect(options);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            if (client == null) {
+                client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
             }
+
+            if (!client.isConnected()) {
+                Log.i(TAG, "Connecting to mqtt...");
+                MqttConnectOptions options = new MqttConnectOptions();
+                options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + "0").getBytes(), 0, true);
+                client.setCallback(ApplozicMqttService.this);
+
+                client.connect(options);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return client;
     }
@@ -144,7 +157,7 @@ public class ApplozicMqttService implements MqttCallback {
         }
     }
 
-    public synchronized  void unSubscribeToConversation() {
+    public synchronized void unSubscribeToConversation() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -205,11 +218,11 @@ public class ApplozicMqttService implements MqttCallback {
                         @Override
                         public void run() {
                             Log.i(TAG, "MQTT message calling ");
-                            if (MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
-                            if (MESSAGE_DELIVERED.equals(mqttMessageResponse.getType()) || MESSAGE_DELIVERED_READ.equals(mqttMessageResponse.getType())) {
-                                String splitKeyString[] = (mqttMessageResponse.getMessage()).split(",");
+                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.equals(mqttMessageResponse.getType())) {
+                                String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
                                 String userId = splitKeyString[1];
                                 syncCallService.updateDeliveryStatus(keyString);
