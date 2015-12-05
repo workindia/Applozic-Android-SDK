@@ -66,7 +66,8 @@ public class ApplozicSetting {
     }
 
     public boolean isConversationContactImageVisible() {
-        return sharedPreferences.getBoolean(CONVERSATION_CONTACT_IMAGE_VISIBILITY, true);
+        //return sharedPreferences.getBoolean(CONVERSATION_CONTACT_IMAGE_VISIBILITY, true);
+        return false;
     }
 
     public ApplozicSetting showStartNewButton() {
@@ -80,7 +81,8 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewButtonVisible() {
-        return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
+        //return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
+        return false;
     }
 
     public ApplozicSetting showStartNewFloatingActionButton() {
@@ -94,7 +96,8 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewFloatingActionButtonVisible() {
-        return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
+        //return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
+        return false;
     }
 
     public String getNoConversationLabel() {
@@ -109,5 +112,4 @@ public class ApplozicSetting {
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();
     }
-
 }
