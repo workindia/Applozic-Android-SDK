@@ -83,7 +83,18 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return registrationResponse;
     }
 
+
     public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        mobiComUserPreference.clearAll();
+
+        return updateAccount(email, userId, phoneNumber, displayName, pushNotificationId);
+    }
+
+
+    public RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+
         User user = new User();
         user.setUserId(userId);
         user.setEmail(email);
@@ -92,7 +103,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setTimezone(TimeZone.getDefault().getID());
         user.setRegistrationId(pushNotificationId);
         user.setDisplayName(displayName);
-        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         user.setCountryCode(mobiComUserPreference.getCountryCode());
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
@@ -111,7 +121,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             pref.setDeviceRegistrationId(pushNotificationId);
         }
         if (pref.isRegistered()) {
-            registrationResponse = createAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pref.getDisplayName(), pushNotificationId);
+            registrationResponse = updateAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pref.getDisplayName(), pushNotificationId);
         }
         return registrationResponse;
     }
