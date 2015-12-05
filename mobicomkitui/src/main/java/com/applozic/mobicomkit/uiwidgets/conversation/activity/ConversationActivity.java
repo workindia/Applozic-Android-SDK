@@ -34,9 +34,11 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -87,8 +89,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public Snackbar snackbar;
 
     @Override
-    public void showErrorMessageView(String message){
-        LinearLayout layout = (LinearLayout)findViewById(R.id.footerAd);
+    public void showErrorMessageView(String message) {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.footerAd);
         layout.setVisibility(View.VISIBLE);
         snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction("OK", new View.OnClickListener() {
@@ -107,8 +109,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         snackbar.show();
     }
 
-    public void dismissErrorMessage(){
-        if(snackbar!=null){
+    public void dismissErrorMessage() {
+        if (snackbar != null) {
             snackbar.dismiss();
         }
     }
@@ -193,6 +195,23 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
+        try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String[] connectedUsers = new MessageClientService(ConversationActivity.this).getConnectedUsers();
+                    ContactDatabase contactDatabase = new ContactDatabase(ConversationActivity.this);
+                    if (connectedUsers != null && connectedUsers.length > 0) {
+                        for (int i = 0; i <= connectedUsers.length - 1; i++) {
+                            contactDatabase.updateConnectedOrDisconnectedStatus(connectedUsers[i], true);
+                        }
+                    }
+                }
+            }).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
@@ -230,7 +249,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         super.onNewIntent(intent);
         try {
             new ConversationUIService(this).checkForStartNewConversation(getIntent());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
