@@ -16,7 +16,7 @@
        android:layout_alignParentRight="true"
         android:gravity="right"
         android:orientation="vertical"
-        android:background="@color/sent_message_bg_color">
+        android:background="@drawable/applozic_sent_message_bubble">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"
