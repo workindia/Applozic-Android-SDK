@@ -149,7 +149,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/activity_contacts_list"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/ContactTheme"
+            android:theme="@style/ApplozicTheme"
             android:windowSoftInputMode="adjustResize">
             <!-- Parent activity meta-data to support API level 7+ -->
             <meta-data

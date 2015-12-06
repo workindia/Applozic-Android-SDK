@@ -39,8 +39,8 @@
         android:layout_toRightOf="@+id/contactImage"
         android:layout_marginTop="4dp"
         android:layout_marginRight="59dp"
-        android:background="@drawable/applozic_receive_message_bubble">
-        android:minHeight="55dp"*>
+        android:background="@drawable/applozic_receive_message_bubble"
+        android:minHeight="55dp">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"
@@ -98,7 +98,7 @@
         android:layout_alignParentLeft="true"
         android:orientation="horizontal"
         android:paddingLeft="15dp"
-        android:paddingBottom="10dp">
+        android:paddingBottom="6dp">
 
         <TextView
             android:id="@+id/status"
@@ -116,7 +116,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:paddingLeft="3dp"
             android:paddingRight="3dp"
             android:text="created at time"
             android:textColor="@android:color/darker_gray"

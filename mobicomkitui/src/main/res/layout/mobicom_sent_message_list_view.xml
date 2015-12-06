@@ -11,9 +11,10 @@
         android:id="@+id/messageTextLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:layout_marginLeft="59dp"
         android:minHeight="55dp"
-       android:layout_alignParentRight="true"
+        android:layout_alignParentRight="true"
         android:gravity="right"
         android:orientation="vertical"
         android:background="@drawable/applozic_sent_message_bubble">
@@ -72,7 +73,7 @@
         android:layout_below="@+id/messageTextLayout"
         android:layout_alignParentRight="true"
         android:paddingRight="15dp"
-        android:paddingBottom="10dp">
+        android:paddingBottom="6dp">
 
         <TextView
             android:id="@+id/status"
