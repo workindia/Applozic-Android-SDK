@@ -86,7 +86,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        String url = mobiComUserPreference.getUrl();
         mobiComUserPreference.clearAll();
+        mobiComUserPreference.setUrl(url);
 
         return updateAccount(email, userId, phoneNumber, displayName, pushNotificationId);
     }
