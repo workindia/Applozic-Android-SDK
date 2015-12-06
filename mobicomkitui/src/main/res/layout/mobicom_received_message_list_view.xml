@@ -92,13 +92,14 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="2dp"
         android:background="@color/conversation_list_background"
         android:layout_below="@+id/messageTextLayout"
         android:layout_alignParentLeft="true"
         android:orientation="horizontal"
+        android:gravity="bottom"
         android:paddingLeft="15dp"
-        android:paddingBottom="6dp">
+        android:layout_marginTop="5dp"
+        >
 
         <TextView
             android:id="@+id/status"
@@ -108,17 +109,17 @@
             android:paddingLeft="0dp"
             android:paddingRight="2dp"
             android:text=""
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/message_details_text_color"
             android:textSize="11sp" />
 
         <TextView
             android:id="@+id/createdAtTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingRight="3dp"
+            android:gravity="center"
+            android:paddingRight="2dp"
             android:text="created at time"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/message_details_text_color"
             android:textSize="11sp" />
 
         <TextView
