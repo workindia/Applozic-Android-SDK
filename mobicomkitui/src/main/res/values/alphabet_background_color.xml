@@ -10,13 +10,13 @@
 
 
     <color name="non_alpha">#FFDDA185</color>
-    <color name="alphabet_a">#FFE06055</color>
+    <color name="alphabet_a">#FF4FC3F7</color>
     <color name="alphabet_b">#FFF06292</color>
     <color name="alphabet_c">#FFBA68C8</color>
     <color name="alphabet_d">#FF9575CD</color>
     <color name="alphabet_e">#FF7986CB</color>
     <color name="alphabet_f">#FF4FC3F7</color>
-    <color name="alphabet_g">#FF4FC3F7</color>
+    <color name="alphabet_g">#FFE06055</color>
     <color name="alphabet_h">#FF4DD0E1</color>
     <color name="alphabet_i">#FF4DB6AC</color>
     <color name="alphabet_j">#FF57BB8A</color>

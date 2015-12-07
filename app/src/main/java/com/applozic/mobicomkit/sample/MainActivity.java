@@ -289,28 +289,41 @@ public class MainActivity extends MobiComActivityForFragment
             //Adarsh....
             Contact contact = new Contact();
             contact.setUserId("adarshk");
-            contact.setFullName("Adarsh");
-            contact.setImageURL("R.drawable.applozic_ic_contact_picture_holo_light");
-            contact.setEmailId("applozic.connect@gmail.com");
+            contact.setFullName("John");
+            contact.setImageURL("R.drawable.couple");
             contactList.add(contact);
             //Adarsh
             Contact contact2 = new Contact();
             contact2.setUserId("rathan");
-            contact2.setFullName("Rathan");
-            contact2.setImageURL("R.drawable.contact_rathan");
-            contact2.setEmailId("rathu.rathan@gmail.com");
+            contact2.setFullName("Liz");
+            contact2.setImageURL("R.drawable.liz");
             contactList.add(contact2);
 
             Contact contact3 = new Contact();
-            contact3.setUserId("shanki.gupta");
-            contact3.setFullName("Shanki Gupta");
-            contact3.setImageURL("R.drawable.contact_shanki");
-            contact3.setEmailId("gupta.shanki91@gmail.com");
+            contact3.setUserId("clem");
+            contact3.setFullName("Clement");
+            contact3.setImageURL("R.drawable.shivam");
             contactList.add(contact3);
 
+            Contact contact4 = new Contact();
+            contact4.setUserId("shanki.gupta");
+            contact4.setFullName("Bill");
+            contact4.setImageURL("R.drawable.contact_shanki");
+            contactList.add(contact4);
+
+            Contact contact6 = new Contact();
+            contact6.setUserId("krishna");
+            contact6.setFullName("Krishi");
+            contact6.setImageURL("R.drawable.girl");
+            contactList.add(contact6);
+
+            Contact contact7 = new Contact();
+            contact7.setUserId("heather");
+            contact7.setFullName("Heather");
+            contact7.setImageURL("R.drawable.heather");
+            contactList.add(contact7);
+
             appContactService.addAll(contactList);
-
-
         }
     }
 

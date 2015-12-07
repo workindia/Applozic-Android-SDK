@@ -2,13 +2,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:longClickable="true"
-    android:minHeight="66dp"
+    android:minHeight="68dp"
     android:orientation="horizontal"
     android:gravity="center"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp"
+    android:paddingTop="9dp"
+    android:paddingBottom="9dp"
     >
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,8 +23,8 @@
 
     <TextView
         android:id="@+id/alphabeticImage"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
         android:layout_margin="4dp"
         android:background="@drawable/mobiframework_circular_text_view"
         android:gravity="center"
@@ -46,8 +46,8 @@
 
       <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/contactImage"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
         android:layout_toRightOf="@+id/alphabeticImage"
         android:layout_margin="4dp"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
@@ -149,7 +149,8 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:paddingBottom="2dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
             android:text="message"
             android:textColor="#999"
             android:textSize="14sp" />
