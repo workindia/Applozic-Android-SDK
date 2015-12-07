@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -261,9 +260,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 selfDestruct.setText("");
                 selfDestruct.setVisibility(View.GONE);
             }
-            if (attachedFile != null) {
-                attachedFile.setTextColor(Color.BLACK);
-            }
 
             if (sentOrReceived != null) {
                 if ((!message.isCall()) || message.isDummyEmptyMessage()) {
@@ -451,10 +447,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
                     }
                 }
-                if (messageTextLayout != null) {
+              /*if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
                     /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*/
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());
 
                    if (message.hasAttachment()) {
                        if (TextUtils.isEmpty(message.getMessage())) {
@@ -470,7 +466,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);
                     }
-                }
+                }*/
             }
 
         }
