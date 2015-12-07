@@ -32,7 +32,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/applozic_ic_action_attachment"
-                android:textColor="@color/mobitexter_main_color"
+                android:drawablePadding="8dp"
+                android:textColor="@color/white"
                 android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
@@ -48,6 +49,7 @@
                 android:layout_height="wrap_content"
                 android:autoLink="all"
                 android:padding="10dp"
+                android:textColorLink="@color/white"
                 android:text=""
                 android:textColor="@color/sent_message_text_color"
                 android:textSize="16sp" />
@@ -73,8 +75,8 @@
         android:background="@color/conversation_list_background"
         android:layout_below="@+id/messageTextLayout"
         android:layout_alignParentRight="true"
-        android:paddingRight="15dp"
-        >
+        android:paddingBottom="10dp"
+        android:paddingRight="15dp">
 
         <TextView
             android:id="@+id/status"
