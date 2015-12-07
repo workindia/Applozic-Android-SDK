@@ -263,9 +263,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 selfDestruct.setText("");
                 selfDestruct.setVisibility(View.GONE);
             }
-            if (attachedFile != null) {
-                attachedFile.setTextColor(Color.BLACK);
-            }
 
             if (sentOrReceived != null) {
                 if ((!message.isCall()) || message.isDummyEmptyMessage()) {

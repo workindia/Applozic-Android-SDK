@@ -47,7 +47,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:drawableLeft="@drawable/applozic_ic_action_attachment"
-                android:textColor="@color/mobitexter_main_color"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
                 android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
