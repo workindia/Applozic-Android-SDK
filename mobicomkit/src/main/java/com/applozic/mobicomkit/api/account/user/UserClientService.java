@@ -81,14 +81,21 @@ public class UserClientService extends MobiComKitClientService {
         return getBaseUrl() + USER_INFO_URL;
     }
 
+
     public void logout() {
+        logout(false);
+    }
+
+    public void logout(boolean fromLogin) {
         final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
         MobiComUserPreference.getInstance(context).clearAll();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
-        ApplozicMqttService.getInstance(context).disconnectPublish(userKeyString, "0");
+        if (!fromLogin) {
+            ApplozicMqttService.getInstance(context).disconnectPublish(userKeyString, "0");
+        }
     }
 
     public String updateTimezone(String osuUserKeyString) {

@@ -47,6 +47,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
+            new UserClientService(context).logout();
             registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName, "");
         } catch (Exception e) {
             e.printStackTrace();
