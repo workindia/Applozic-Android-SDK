@@ -182,6 +182,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
+            Utils.toggleSoftKeyBoard(this,true);
             return true;
         }
         return false;

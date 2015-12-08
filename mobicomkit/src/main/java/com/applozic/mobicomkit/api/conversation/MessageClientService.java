@@ -471,7 +471,9 @@ public class MessageClientService extends MobiComKitClientService {
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {
         String contactNumber = (contact != null ? contact.getFormattedContactNumber() : "");
         String params = "";
-        params = "startIndex=0&pageSize=50" + "&";
+        if (contact != null || group != null) {
+            params = "startIndex=0&pageSize=50" + "&";
+        }
         if (contact != null && !TextUtils.isEmpty(contact.getUserId())) {
             params += "userId=" + contact.getUserId() + "&";
         }

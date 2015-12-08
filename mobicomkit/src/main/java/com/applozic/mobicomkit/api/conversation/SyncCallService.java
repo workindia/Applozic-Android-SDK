@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.List;
 /**
  * Created by applozic on 12/2/15.
  */
@@ -13,9 +14,11 @@ public class SyncCallService {
 
     private static SyncCallService syncCallService;
     private MobiComMessageService mobiComMessageService;
+    private MobiComConversationService mobiComConversationService;
 
     private SyncCallService(Context context) {
         this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
+        this.mobiComConversationService = new MobiComConversationService(context);
     }
 
     public synchronized static SyncCallService getInstance(Context context) {
@@ -28,6 +31,14 @@ public class SyncCallService {
 
     public synchronized void updateDeliveryStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key);
+    }
+
+    public synchronized List<Message> getLatestMessagesGroupByPeople(){
+        return mobiComConversationService.getLatestMessagesGroupByPeople(null);
+    }
+
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt){
+        return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt);
     }
 
     public synchronized void syncMessages(String key) {
