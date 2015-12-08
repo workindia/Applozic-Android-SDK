@@ -914,7 +914,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
                     if (view != null) {
                         ProgressBar mediaUploadProgressBarIndividualMessage = (ProgressBar) view.findViewById(R.id.media_upload_progress_bar);
-                        mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
+                        if (mediaUploadProgressBarIndividualMessage != null) {
+                            mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
+                        }
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                         if (messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && messageListItem.getScheduledAt() == null) {
                             // createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
@@ -1234,6 +1236,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 firstDateMessage.setTempDateType(Short.valueOf("100"));
                 firstDateMessage.setCreatedAtTime(nextSmsList.get(0).getCreatedAtTime());
                 createAtMessage.add(firstDateMessage);
+                messageList.remove(createAtMessage);
+
                 createAtMessage.add(nextSmsList.get(0));
                 for (int i = 1; i <= nextSmsList.size() - 1; i++) {
                     int dayDiffrance = getTimeRemaining(nextSmsList.get(i - 1).getCreatedAtTime(), nextSmsList.get(i).getCreatedAtTime());
@@ -1242,10 +1246,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         message.setTempDateType(Short.valueOf("100"));
                         message.setCreatedAtTime(nextSmsList.get(i).getCreatedAtTime());
                         createAtMessage.add(message);
+                        messageList.remove(message);
                     }
                     createAtMessage.add(nextSmsList.get(i));
                 }
-                messageList.removeAll(createAtMessage);
             }
             nextSmsList = createAtMessage;
 

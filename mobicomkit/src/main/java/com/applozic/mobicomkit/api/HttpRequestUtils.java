@@ -87,7 +87,7 @@ public class HttpRequestUtils {
                 request.addHeader("Accept", accept);
             }
 
-            request.addHeader(new BasicScheme().authenticate(credentials, request));
+            //request.addHeader(new BasicScheme().authenticate(credentials, request));
             HttpClient httpclient = new DefaultHttpClient();
 
             if (nameValuePairs != null && !nameValuePairs.isEmpty()) {
@@ -176,7 +176,7 @@ public class HttpRequestUtils {
                 request.addHeader("Accept", accept);
             }
 
-            request.addHeader(new BasicScheme().authenticate(credentials, request));
+            //request.addHeader(new BasicScheme().authenticate(credentials, request));
             addGlobalHeaders(request);
 
             HttpClient httpclient = new DefaultHttpClient();
@@ -207,11 +207,26 @@ public class HttpRequestUtils {
         return null;
     }
 
-    public void addGlobalHeaders(HttpRequest request) {
+    public void addGlobalHeaders(HttpRequest request) throws AuthenticationException {
         request.addHeader(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
         request.addHeader(SOURCE_HEADER, SOURCE_HEADER_VALUE);
         request.addHeader(USERID_HEADER, USERID_HEADER_VALUE);
         request.addHeader(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (userPreferences.isRegistered()) {
+            request.addHeader(new BasicScheme().authenticate(getCredentials(), request));
+        }
     }
+
+
+    public UsernamePasswordCredentials getCredentials() {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (!userPreferences.isRegistered()) {
+            return null;
+        }
+        return new UsernamePasswordCredentials(userPreferences.getUserId(), userPreferences.getDeviceKeyString());
+    }
+
 
 }

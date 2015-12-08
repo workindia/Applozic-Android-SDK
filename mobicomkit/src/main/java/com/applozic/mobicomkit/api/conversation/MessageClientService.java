@@ -138,7 +138,7 @@ public class MessageClientService extends MobiComKitClientService {
             if (TextUtils.isEmpty(messageKeyString) || TextUtils.isEmpty(userId)) {
                 return;
             }
-            httpRequestUtils.getResponse(credentials, getMtextDeliveryUrl() + "?key=" + messageKeyString
+            httpRequestUtils.getResponse(getCredentials(), getMtextDeliveryUrl() + "?key=" + messageKeyString
                     + "&userId=" + userId, "text/plain", "text/plain");
         } catch (Exception ex) {
             Log.e(TAG, "Exception while updating delivery report for MT message", ex);
@@ -175,7 +175,7 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
         }
         Log.i(TAG, "Delete response from server for pending message: " + response);
         if ("success".equals(response)) {
@@ -386,13 +386,13 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String syncMessages(SmsSyncRequest smsSyncRequest) throws Exception {
         String data = GsonUtils.getJsonFromObject(smsSyncRequest, SmsSyncRequest.class);
-        return httpRequestUtils.postData(credentials, getSyncSmsUrl(), "application/json", null, data);
+        return httpRequestUtils.postData(getCredentials(), getSyncSmsUrl(), "application/json", null, data);
     }
 
     public String sendMessage(Message message) {
         String jsonFromObject = GsonUtils.getJsonFromObject(message, message.getClass());
         Log.i(TAG, "Sending message to server: " + jsonFromObject);
-        return httpRequestUtils.postData(credentials, getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
+        return httpRequestUtils.postData(getCredentials(), getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
     }
 
     public SyncMessageFeed getMessageFeed(String lastSyncTime) {
@@ -401,7 +401,7 @@ public class MessageClientService extends MobiComKitClientService {
                 + "=" + lastSyncTime;
         try {
             Log.i(TAG, "Calling message feed url: " + url);
-            String response = httpRequestUtils.getResponse(credentials, url, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
             Log.i(TAG, "Response: " + response);
             return (SyncMessageFeed) GsonUtils.getObjectFromJson(response, SyncMessageFeed.class);
         } catch (Exception e) {
@@ -416,7 +416,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
         try {
             String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds();
-            String response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
         } catch (Exception e) {
             e.printStackTrace();
@@ -428,7 +428,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             if (!TextUtils.isEmpty(contact.getContactIds())) {
                 String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds();
-                response = httpRequestUtils.getResponse(credentials, url, "text/plain", "text/plain");
+                response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
                 Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
             }
         } catch (Exception e) {
@@ -448,7 +448,7 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            response = httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
             Log.i(TAG, "delete response is " + response);
         }
         return response;
@@ -464,7 +464,7 @@ public class MessageClientService extends MobiComKitClientService {
                 e.printStackTrace();
             }
         }
-        response = httpRequestUtils.getResponse(credentials, getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
+        response = httpRequestUtils.getResponse(getCredentials(), getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
         Log.i(TAG, "Read status response is " + response);
     }
 
@@ -479,7 +479,7 @@ public class MessageClientService extends MobiComKitClientService {
         params += (endTime != null && endTime.intValue() != 0) ? "endTime=" + endTime : "";
         //params += (group != null && group.getGroupId() != null) ? "broadcastGroupId=" + group.getGroupId() + "&" : "";
 
-        return httpRequestUtils.getResponse(credentials, getMessageListUrl() + "?" + params
+        return httpRequestUtils.getResponse(getCredentials(), getMessageListUrl() + "?" + params
                 , "application/json", "application/json");
     }
 
@@ -488,7 +488,7 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public String deleteMessage(String keyString) {
-        return httpRequestUtils.getResponse(credentials, getMessageDeleteUrl() + "?key=" + keyString, "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + keyString, "text/plain", "text/plain");
     }
 
     public void updateMessageDeliveryReport(final Message message, final String contactNumber) throws Exception {
@@ -536,7 +536,7 @@ public class MessageClientService extends MobiComKitClientService {
                     e.printStackTrace();
                 }
             }
-            response = httpRequestUtils.getResponse(credentials, getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
+            response = httpRequestUtils.getResponse(getCredentials(), getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
             Log.i(TAG, "User details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                 return null;

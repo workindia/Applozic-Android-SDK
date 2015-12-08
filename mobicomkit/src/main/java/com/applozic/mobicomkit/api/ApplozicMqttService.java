@@ -90,6 +90,8 @@ public class ApplozicMqttService implements MqttCallback {
 
                 client.connect(options);
             }
+        } catch (MqttException e) {
+            Log.d(TAG, "Connecting already in progress.");
         } catch (Exception e) {
             e.printStackTrace();
         }

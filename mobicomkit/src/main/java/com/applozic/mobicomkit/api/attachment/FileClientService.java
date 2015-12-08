@@ -156,7 +156,7 @@ public class FileClientService extends MobiComKitClientService {
         HttpPost httppost = new HttpPost(getUploadKey());
 
         BasicScheme scheme = new BasicScheme();
-        httppost.addHeader(scheme.authenticate(credentials, httppost));
+        httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
         httpRequestUtils.addGlobalHeaders(httppost);
 
         try {
@@ -177,6 +177,6 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        return httpRequestUtils.getResponse(credentials, getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getCredentials(), getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
     }
 }
