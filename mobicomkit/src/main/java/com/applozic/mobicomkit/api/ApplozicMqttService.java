@@ -54,6 +54,10 @@ public class ApplozicMqttService implements MqttCallback {
             value = c;
         }
 
+        public String getValue() {
+            return String.valueOf(value);
+        }
+
     }
 
 
@@ -218,10 +222,11 @@ public class ApplozicMqttService implements MqttCallback {
                         @Override
                         public void run() {
                             Log.i(TAG, "MQTT message calling ");
-                            if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
-                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
+                                    || "MESSAGE_DELIVERED".equals(mqttMessageResponse.getType()) || "MESSAGE_DELIVERED_AND_READ".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
                                 String userId = splitKeyString[1];
