@@ -73,6 +73,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.TitleNavigationAda
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -83,7 +84,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
@@ -652,28 +653,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
-    public int getTimeRemaining(Long date1, Long date2) {
-        Calendar sDate = toCalendar(date1);
-        Calendar eDate = toCalendar(date2);
-
-        long milis1 = sDate.getTimeInMillis();
-        long milis2 = eDate.getTimeInMillis();
-
-        long diff = Math.abs(milis2 - milis1);
-
-        return (int) (diff / (24 * 60 * 60 * 1000));
-    }
-
-    private Calendar toCalendar(long timestamp) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp);
-        calendar.set(Calendar.HOUR, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar;
-    }
-
     public void downloadFailed(final Message message) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -931,29 +910,33 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int index = messageList.indexOf(message);
-                if (index != -1) {
-                    Message smListItem = messageList.get(index);
-                    smListItem.setKeyString(message.getKeyString());
-                    smListItem.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
-                    View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
-                    if (view != null) {
-                        final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
-                        final AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.main_attachment_view);
-                        final ImageView preview = (ImageView) view.findViewById(R.id.preview);
-                        if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
-                            attachmentView.setVisibility(View.VISIBLE);
-                            preview.setVisibility(View.GONE);
-                            attachmentView.setMessage(smListItem);
-                            attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                        } else if (message.getFileMetas() != null && !message.getFileMetas().getContentType().contains("image")) {
-                            attachmentView.setMessage(smListItem);
-                            attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                            attachmentView.setVisibility(View.GONE);
-                            preview.setVisibility(View.GONE);
+                try {
+                    int index = messageList.indexOf(message);
+                    if (index != -1) {
+                        Message smListItem = messageList.get(index);
+                        smListItem.setKeyString(message.getKeyString());
+                        smListItem.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
+                        View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
+                        if (view != null) {
+                            final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
+                            final AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.main_attachment_view);
+                            final ImageView preview = (ImageView) view.findViewById(R.id.preview);
+                            if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
+                                attachmentView.setVisibility(View.VISIBLE);
+                                preview.setVisibility(View.GONE);
+                                attachmentView.setMessage(smListItem);
+                                attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                            } else if (message.getFileMetas() != null && !message.getFileMetas().getContentType().contains("image")) {
+                                attachmentView.setMessage(smListItem);
+                                attachmentDownloadProgressLayout.setVisibility(View.GONE);
+                                attachmentView.setVisibility(View.GONE);
+                                preview.setVisibility(View.GONE);
+                            }
                         }
-                    }
 
+                    }
+                } catch(Exception ex) {
+                    Log.i(TAG, "Exception while updating download status: " + ex.getMessage());
                 }
             }
         });
@@ -1240,7 +1223,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 createAtMessage.add(nextSmsList.get(0));
                 for (int i = 1; i <= nextSmsList.size() - 1; i++) {
-                    int dayDiffrance = getTimeRemaining(nextSmsList.get(i - 1).getCreatedAtTime(), nextSmsList.get(i).getCreatedAtTime());
+                    long dayDiffrance = DateUtils.daysBetween(new Date(nextSmsList.get(i - 1).getCreatedAtTime()), new Date(nextSmsList.get(i).getCreatedAtTime()));
+
                     if (dayDiffrance >= 1) {
                         Message message = new Message();
                         message.setTempDateType(Short.valueOf("100"));
