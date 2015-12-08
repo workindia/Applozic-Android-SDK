@@ -82,7 +82,7 @@ public class ApplozicSetting {
 
     public boolean isStartNewButtonVisible() {
         //return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
-        return true;
+        return false;
     }
 
     public ApplozicSetting showStartNewFloatingActionButton() {

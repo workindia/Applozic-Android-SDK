@@ -316,7 +316,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public String getApplicationId(Contact contact) {
-        String applicationId = contact.getApplicationId();
+        String applicationId = contact != null ? contact.getApplicationId() : null;
         if (TextUtils.isEmpty(applicationId)) {
             applicationId = Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA);
         }
