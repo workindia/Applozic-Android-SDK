@@ -87,12 +87,18 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void logout(boolean fromLogin) {
-        final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        final String userKeyString = mobiComUserPreference.getSuUserKeyString();
+        String url = mobiComUserPreference.getUrl();
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
-        MobiComUserPreference.getInstance(context).clearAll();
+        mobiComUserPreference.clearAll();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
+
+        mobiComUserPreference.setUrl(url);
+
         if (!fromLogin) {
             ApplozicMqttService.getInstance(context).disconnectPublish(userKeyString, "0");
         }
