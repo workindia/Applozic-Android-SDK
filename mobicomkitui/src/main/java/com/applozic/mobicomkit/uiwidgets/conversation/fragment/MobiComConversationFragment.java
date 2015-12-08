@@ -1230,6 +1230,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             List<Message> createAtMessage = new ArrayList<Message>();
             if (nextSmsList != null && !nextSmsList.isEmpty()) {
+                Message firstDateMessage = new Message();
+                firstDateMessage.setTempDateType(Short.valueOf("100"));
+                firstDateMessage.setCreatedAtTime(nextSmsList.get(0).getCreatedAtTime());
+                createAtMessage.add(firstDateMessage);
                 createAtMessage.add(nextSmsList.get(0));
                 for (int i = 1; i <= nextSmsList.size() - 1; i++) {
                     int dayDiffrance = getTimeRemaining(nextSmsList.get(i - 1).getCreatedAtTime(), nextSmsList.get(i).getCreatedAtTime());
@@ -1241,6 +1245,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                     createAtMessage.add(nextSmsList.get(i));
                 }
+                messageList.removeAll(createAtMessage);
             }
             nextSmsList = createAtMessage;
 
