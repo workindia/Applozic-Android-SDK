@@ -11,7 +11,7 @@ import android.os.Build;
  */
 public class ApplozicApplication extends Application {
 
-    public static final String TITLE = "My Chats";
+    public static final String TITLE = "Chats";
 
     @Override
     public void onCreate() {
