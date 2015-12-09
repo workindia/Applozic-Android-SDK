@@ -50,7 +50,6 @@
                 android:autoLink="all"
                 android:textColorLink="@color/white"
                 android:padding="10dp"
-                android:textColorLink="@color/white"
                 android:text=""
                 android:textColor="@color/sent_message_text_color"
                 android:textSize="16sp" />
