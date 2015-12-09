@@ -62,11 +62,11 @@ public class MobiComQuickConversationFragment extends Fragment {
     protected List<Message> messageList = new ArrayList<Message>();
     protected QuickConversationAdapter conversationAdapter = null;
     protected boolean loadMore = false;
+    protected SyncCallService syncCallService;
     private ApplozicSetting applozicSetting;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
-    protected SyncCallService syncCallService;
 
     public ConversationListView getListView() {
         return listView;
@@ -169,8 +169,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        menu.removeItem(R.id.dial);
-        menu.removeItem(R.id.deleteConversation);
+       /* menu.removeItem(R.id.dial);
+        menu.removeItem(R.id.deleteConversation);*/
     }
 
     public void addMessage(final Message message) {

@@ -47,7 +47,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
@@ -515,14 +514,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        String contactNumber = contact != null ? contact.getContactNumber() : null;
+        /*String contactNumber = contact != null ? contact.getContactNumber() : null;
 
         if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
         }
-        menu.removeItem(R.id.start_new);
+        menu.removeItem(R.id.start_new);*/
     }
 
     public void loadConversation(final Contact contact, Group group) {
@@ -935,7 +934,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
 
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Log.i(TAG, "Exception while updating download status: " + ex.getMessage());
                 }
             }
