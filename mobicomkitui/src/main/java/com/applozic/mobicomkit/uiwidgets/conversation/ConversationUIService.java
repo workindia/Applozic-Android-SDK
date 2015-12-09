@@ -372,6 +372,10 @@ public class ConversationUIService {
         }
 
         String userId = intent.getStringExtra(USER_ID);
+        if (TextUtils.isEmpty(userId)) {
+            userId = intent.getStringExtra("contactId");
+        }
+
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
         }

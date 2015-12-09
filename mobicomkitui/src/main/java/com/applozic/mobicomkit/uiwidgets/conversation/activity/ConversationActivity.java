@@ -248,6 +248,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        //setIntent(intent);
         if (!MobiComUserPreference.getInstance(this).isLoggedIn()) {
             //user is not logged in
             Log.i("AL", "user is not logged in yet.");
@@ -255,7 +256,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
 
         try {
-            new ConversationUIService(this).checkForStartNewConversation(getIntent());
+            new ConversationUIService(this).checkForStartNewConversation(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }

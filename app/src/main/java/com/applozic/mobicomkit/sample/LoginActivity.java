@@ -252,13 +252,6 @@ public class LoginActivity extends Activity {
                     //starting main MainActivity
                     Intent intent = new Intent(context, MainActivity.class);
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            new MobiComConversationService(context).getLatestMessagesGroupByPeople();
-                        }
-                    }).start();
-
                     startActivity(intent);
                     finish();
                 }
