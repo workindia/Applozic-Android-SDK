@@ -39,7 +39,7 @@
         android:orientation="vertical"
         android:layout_toRightOf="@+id/contactImage"
         android:layout_marginRight="59dp"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/applozic_received_message"
         android:minHeight="55dp">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
