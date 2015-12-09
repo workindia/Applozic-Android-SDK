@@ -67,7 +67,7 @@ public class MobiComMessageService {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             messageDatabaseService.createMessage(message);
         }
-        Log.i(TAG, "Sending message: " + message);
+        Log.i(TAG, "processing message: " + message);
         return message;
     }
 
@@ -131,10 +131,8 @@ public class MobiComMessageService {
         }
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
             List<Message> messageList = syncMessageFeed.getMessages();
-            Log.i(TAG, "got messages : " + messageList.size());
 
             for (final Message message : messageList) {
-                Log.i(TAG, "calling syncMessages : " + message.getTo() + " " + message.getMessage());
                 String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
 
                 for (String tofield : toList) {
@@ -178,7 +176,6 @@ public class MobiComMessageService {
             if(!ApplozicClient.getInstance(context).isHandleDisplayName()){
                 return;
             }
-            Log.i(TAG, "message size" + messages.size());
             Set<String> userIds = new HashSet<String>();
 
             for (Message msg : messages) {
