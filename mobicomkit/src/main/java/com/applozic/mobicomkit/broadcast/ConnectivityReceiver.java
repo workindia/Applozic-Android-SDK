@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 /**
@@ -33,7 +34,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
+                    SyncCallService.getInstance(context).syncMessages(null);
                     MessageClientService.syncPendingMessages(context);
                     MessageClientService.syncDeleteMessages(context);
                 }

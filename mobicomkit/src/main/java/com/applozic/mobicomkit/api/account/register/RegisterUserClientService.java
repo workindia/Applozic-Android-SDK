@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.google.gson.Gson;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -41,7 +42,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return getBaseUrl() + CREATE_ACCOUNT_URL;
     }
 
-    public RegistrationResponse createAccount(User user) throws Exception {
+    private RegistrationResponse createAccount(User user) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
@@ -79,7 +80,13 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKey());
         mobiComUserPreference.setEmailIdValue(user.getEmail());
         mobiComUserPreference.setSuUserKeyString(registrationResponse.getUserKey());
-        mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getLastSyncTime()));
+        mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SyncCallService.getInstance(context).getLatestMessagesGroupByPeople();
+            }
+        }).start();
         return registrationResponse;
     }
 
@@ -93,8 +100,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return updateAccount(email, userId, phoneNumber, displayName, pushNotificationId);
     }
 
-
-    public RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
+    private RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         User user = new User();

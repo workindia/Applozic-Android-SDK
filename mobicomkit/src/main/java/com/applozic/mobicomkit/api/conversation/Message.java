@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.annotations.SerializedName;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -385,8 +386,8 @@ public class Message extends JsonMarker {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
 
-        if (message.isTempDateType() || isTempDateType()) {
-            return false;
+        if (message.isTempDateType() && isTempDateType()) {
+            return DateUtils.getDate(message.getCreatedAtTime()).equals(DateUtils.getDate(getCreatedAtTime()));
         }
 
         if (getMessageId() != null && message.getMessageId() != null && getMessageId().equals(message.getMessageId())) {
@@ -442,7 +443,7 @@ public class Message extends JsonMarker {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
         if (isTempDateType()) {
-            result = 31 * result + getCreatedAtTime().hashCode();
+            result = 31 * result + DateUtils.getDate(getCreatedAtTime()).hashCode();
         }
         return result;
     }

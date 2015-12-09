@@ -135,6 +135,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -182,6 +183,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
+            Utils.toggleSoftKeyBoard(this, true);
             return true;
         }
         return false;
@@ -247,6 +249,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        //setIntent(intent);
         if (!MobiComUserPreference.getInstance(this).isLoggedIn()) {
             //user is not logged in
             Log.i("AL", "user is not logged in yet.");
@@ -254,7 +257,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
 
         try {
-            new ConversationUIService(this).checkForStartNewConversation(getIntent());
+            new ConversationUIService(this).checkForStartNewConversation(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -267,15 +270,16 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
+        showActionBar();
+        return false;
+       /* getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
         }
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
-        showActionBar();
-        return true;
+      */
     }
 
     @Override
@@ -325,8 +329,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
+      /*  //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
         } else if (id == R.id.refresh) {
@@ -340,7 +343,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
             conversation.deleteConversationThread();
-        }
+        }*/
         return false;
     }
 

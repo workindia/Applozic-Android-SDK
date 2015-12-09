@@ -30,7 +30,6 @@ public class ApplozicBridge {
                     String pushNotificationId = "";//Todo: get pushnotification id.
                     gcmRegister(context, pushNotificationId);
                     showChatActvity(context, contactId, displayName);
-
                 }
 
                 @Override

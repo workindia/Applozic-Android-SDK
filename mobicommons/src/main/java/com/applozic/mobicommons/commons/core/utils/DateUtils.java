@@ -33,11 +33,17 @@ public class DateUtils {
     }
 
     public static String getFormattedDate(Long timestamp) {
-       // boolean sameDay = isSameDay(timestamp);
+        // boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
-        return  simpleDateFormat.format(date);
+        return simpleDateFormat.format(date);
+    }
+
+    public static String getDate(Long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM yyyy");
+        return fullDateFormat.format(date);
     }
 
     public static long getTimeDiffFromUtc() {
@@ -122,5 +128,32 @@ public class DateUtils {
         return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
                 && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
     }
+
+    public static Calendar getDatePart(Date date) {
+        Calendar cal = Calendar.getInstance();       // get calendar instance
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);            // set hour to midnight
+        cal.set(Calendar.MINUTE, 0);                 // set minute in hour
+        cal.set(Calendar.SECOND, 0);                 // set second in minute
+        cal.set(Calendar.MILLISECOND, 0);            // set millisecond in second
+
+        return cal;                                  // return the date part
+    }
+
+    /**
+     * This method also assumes endDate >= startDate
+     **/
+    public static long daysBetween(Date startDate, Date endDate) {
+        Calendar sDate = getDatePart(startDate);
+        Calendar eDate = getDatePart(endDate);
+
+        long daysBetween = 0;
+        while (sDate.before(eDate)) {
+            sDate.add(Calendar.DAY_OF_MONTH, 1);
+            daysBetween++;
+        }
+        return daysBetween;
+    }
+
 
 }

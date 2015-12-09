@@ -24,8 +24,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageClientService;
-import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -40,7 +39,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -54,7 +52,6 @@ import java.util.Map;
 public class MobiComQuickConversationFragment extends Fragment {
 
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
-    protected MobiComConversationService conversationService;
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
     protected TextView emptyTextView;
@@ -65,6 +62,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     protected List<Message> messageList = new ArrayList<Message>();
     protected QuickConversationAdapter conversationAdapter = null;
     protected boolean loadMore = false;
+    protected SyncCallService syncCallService;
     private ApplozicSetting applozicSetting;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
@@ -78,7 +76,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         applozicSetting = ApplozicSetting.getInstance(getActivity());
-        conversationService = new MobiComConversationService(getActivity());
+        syncCallService = SyncCallService.getInstance(getActivity());
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
         baseContactService = new AppContactService(getActivity());
@@ -171,8 +169,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        menu.removeItem(R.id.dial);
-        menu.removeItem(R.id.deleteConversation);
+       /* menu.removeItem(R.id.dial);
+        menu.removeItem(R.id.deleteConversation);*/
     }
 
     public void addMessage(final Message message) {
@@ -395,7 +393,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = conversationService.getLatestMessagesGroupByPeople();
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople();
                 if (!nextMessageList.isEmpty()) {
                     minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
                 }
@@ -403,7 +401,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                 listIndex = firstVisibleItem;
                 Long createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = conversationService.getLatestMessagesGroupByPeople(minCreatedAtTime);
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime);
             }
 
             return 0L;

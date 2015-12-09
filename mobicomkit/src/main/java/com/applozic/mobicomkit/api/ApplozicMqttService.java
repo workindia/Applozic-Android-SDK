@@ -54,6 +54,10 @@ public class ApplozicMqttService implements MqttCallback {
             value = c;
         }
 
+        public String getValue() {
+            return String.valueOf(value);
+        }
+
     }
 
 
@@ -86,6 +90,8 @@ public class ApplozicMqttService implements MqttCallback {
 
                 client.connect(options);
             }
+        } catch (MqttException e) {
+            Log.d(TAG, "Connecting already in progress.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -218,10 +224,12 @@ public class ApplozicMqttService implements MqttCallback {
                         @Override
                         public void run() {
                             Log.i(TAG, "MQTT message calling ");
-                            if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
-                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
+                                    || "MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())
+                                    || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
                                 String userId = splitKeyString[1];
@@ -309,7 +317,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public String getApplicationId(Contact contact) {
-        String applicationId = contact.getApplicationId();
+        String applicationId = contact != null ? contact.getApplicationId() : null;
         if (TextUtils.isEmpty(applicationId)) {
             applicationId = Utils.getMetaDataValue(context, APPLICATION_KEY_META_DATA);
         }

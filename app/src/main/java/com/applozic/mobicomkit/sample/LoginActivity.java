@@ -37,9 +37,9 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
-import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 import java.util.ArrayList;
@@ -250,15 +250,7 @@ public class LoginActivity extends Activity {
                     gcmRegistrationUtils.setUpGcmNotification();
 
                     //starting main MainActivity
-                    Intent intent = new Intent(context, MainActivity.class);
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            new MobiComConversationService(context).getLatestMessagesGroupByPeople();
-                        }
-                    }).start();
-
+                    Intent intent = new Intent(context, ConversationActivity.class);
                     startActivity(intent);
                     finish();
                 }

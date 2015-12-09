@@ -568,16 +568,20 @@ public class MessageDatabaseService {
     }
 
     public int getUnreadMessageCount() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Cursor cursor = db.rawQuery("SELECT COUNT(1) FROM sms WHERE read = 0 ", null);
-        cursor.moveToFirst();
-        int unreadMessageCount = 0;
-        if (cursor.getCount() > 0) {
-            unreadMessageCount = cursor.getInt(0);
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(1) FROM sms WHERE read = 0 ", null);
+            cursor.moveToFirst();
+            int unreadMessageCount = 0;
+            if (cursor.getCount() > 0) {
+                unreadMessageCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return unreadMessageCount;
+        } catch(Exception ex) {
+            return 0;
         }
-        cursor.close();
-        dbHelper.close();
-        return unreadMessageCount;
     }
 
     public List<Message> getLatestMessage(String contactNumbers) {

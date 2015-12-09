@@ -103,7 +103,6 @@ public class MainActivity extends MobiComActivityForFragment
 
         //Contact data for demo...
         buildContactData();
-
         MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
         if (!userPreference.isRegistered()) {
             Intent intent = new Intent(this, LoginActivity.class);
@@ -112,6 +111,9 @@ public class MainActivity extends MobiComActivityForFragment
             startActivity(intent);
             finish();
             return;
+        }else{
+            Intent intent = new Intent(this, ConversationActivity.class);
+            startActivity(intent);
         }
 
     }
