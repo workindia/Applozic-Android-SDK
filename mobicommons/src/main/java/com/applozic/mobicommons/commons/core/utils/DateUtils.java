@@ -42,7 +42,7 @@ public class DateUtils {
 
     public static String getDate(Long timestamp) {
         Date date = new Date(timestamp);
-        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM yyyy");
         return fullDateFormat.format(date);
     }
 
