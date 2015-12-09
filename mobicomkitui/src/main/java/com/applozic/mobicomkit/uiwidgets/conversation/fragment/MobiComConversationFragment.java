@@ -1222,8 +1222,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 firstDateMessage.setTempDateType(Short.valueOf("100"));
                 firstDateMessage.setCreatedAtTime(nextSmsList.get(0).getCreatedAtTime());
                 createAtMessage.add(firstDateMessage);
-                messageList.remove(createAtMessage);
-
+                messageList.remove(firstDateMessage);
                 createAtMessage.add(nextSmsList.get(0));
                 for (int i = 1; i <= nextSmsList.size() - 1; i++) {
                     long dayDiffrance = DateUtils.daysBetween(new Date(nextSmsList.get(i - 1).getCreatedAtTime()), new Date(nextSmsList.get(i).getCreatedAtTime()));

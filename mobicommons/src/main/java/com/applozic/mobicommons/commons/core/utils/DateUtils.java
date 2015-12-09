@@ -33,11 +33,17 @@ public class DateUtils {
     }
 
     public static String getFormattedDate(Long timestamp) {
-       // boolean sameDay = isSameDay(timestamp);
+        // boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
-        return  simpleDateFormat.format(date);
+        return simpleDateFormat.format(date);
+    }
+
+    public static String getDate(Long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+        return fullDateFormat.format(date);
     }
 
     public static long getTimeDiffFromUtc() {
@@ -123,7 +129,7 @@ public class DateUtils {
                 && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static Calendar getDatePart(Date date){
+    public static Calendar getDatePart(Date date) {
         Calendar cal = Calendar.getInstance();       // get calendar instance
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, 0);            // set hour to midnight
@@ -148,4 +154,6 @@ public class DateUtils {
         }
         return daysBetween;
     }
+
+
 }

@@ -387,7 +387,7 @@ public class Message extends JsonMarker {
         Message message = (Message) o;
 
         if (message.isTempDateType() || isTempDateType()) {
-            return DateUtils.getDateAndTimeForLastSeen(message.getCreatedAtTime()).equals(DateUtils.getDateAndTimeForLastSeen(getCreatedAtTime()));
+            return DateUtils.getDate(message.getCreatedAtTime()).equals(DateUtils.getDate(getCreatedAtTime()));
         }
 
         if (getMessageId() != null && message.getMessageId() != null && getMessageId().equals(message.getMessageId())) {
@@ -443,7 +443,7 @@ public class Message extends JsonMarker {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
             if (isTempDateType()) {
-                result = 31 * result + DateUtils.getDateAndTimeForLastSeen(getCreatedAtTime()).hashCode();
+                result = 31 * result + DateUtils.getDate(getCreatedAtTime()).hashCode();
             }
         return result;
     }
