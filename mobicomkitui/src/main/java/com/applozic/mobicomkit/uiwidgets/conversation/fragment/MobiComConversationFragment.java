@@ -678,23 +678,27 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int index = messageList.indexOf(message);
-                if (index != -1) {
-                    messageList.get(index).setDelivered(true);
-                    View view = listView.getChildAt(index -
-                            listView.getFirstVisiblePosition() + 1);
-                    if (view != null) {
-                        TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        TextView status = (TextView) view.findViewById(R.id.status);
-                        status.setText("Delivered");
-                        //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                try {
+                    int index = messageList.indexOf(message);
+                    if (index != -1) {
+                        messageList.get(index).setDelivered(true);
+                        View view = listView.getChildAt(index -
+                                listView.getFirstVisiblePosition() + 1);
+                        if (view != null) {
+                            TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
+                            TextView status = (TextView) view.findViewById(R.id.status);
+                            status.setText("Delivered");
+                            //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                        }
+                    } else {
+                        messageList.add(message);
+                        listView.smoothScrollToPosition(messageList.size());
+                        listView.setSelection(messageList.size());
+                        emptyTextView.setVisibility(View.GONE);
+                        conversationAdapter.notifyDataSetChanged();
                     }
-                } else {
-                    messageList.add(message);
-                    listView.smoothScrollToPosition(messageList.size());
-                    listView.setSelection(messageList.size());
-                    emptyTextView.setVisibility(View.GONE);
-                    conversationAdapter.notifyDataSetChanged();
+                } catch(Exception ex) {
+                    Log.i(TAG, "Exception while updating delivery status in UI.");
                 }
             }
         });
