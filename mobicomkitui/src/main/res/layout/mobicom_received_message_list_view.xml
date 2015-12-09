@@ -5,6 +5,7 @@
     android:gravity="left"
     android:longClickable="true"
     android:background="@color/conversation_list_background"
+    android:layout_marginTop="2dp"
     android:padding="3dp"
     android:orientation="horizontal">
 
@@ -37,7 +38,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_toRightOf="@+id/contactImage"
-        android:layout_marginTop="6dp"
         android:layout_marginRight="59dp"
         android:background="@drawable/rounded_corner"
         android:minHeight="55dp">
@@ -95,11 +95,11 @@
         android:layout_height="wrap_content"
         android:background="@color/conversation_list_background"
         android:layout_below="@+id/messageTextLayout"
-        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="44dp"
         android:orientation="horizontal"
         android:gravity="bottom"
         android:paddingLeft="15dp"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/status"
