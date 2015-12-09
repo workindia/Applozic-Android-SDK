@@ -400,9 +400,8 @@ public class MessageClientService extends MobiComKitClientService {
                 LAST_SYNC_KEY
                 + "=" + lastSyncTime;
         try {
-            Log.i(TAG, "Calling message feed url: " + url);
             String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
-            Log.i(TAG, "Response: " + response);
+            Log.i(TAG, "Sync call response: " + response);
             return (SyncMessageFeed) GsonUtils.getObjectFromJson(response, SyncMessageFeed.class);
         } catch (Exception e) {
             // showAlert("Unable to Process request .Please Contact Support");

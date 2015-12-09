@@ -116,9 +116,9 @@ public class MobiComMessageService {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         Log.i(TAG, "Starting syncMessages for lastSyncTime: " + userpref.getLastSyncTime());
         SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime());
-        Log.i(TAG, "Got sync response " + syncMessageFeed);
 
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
+            Log.i(TAG, "Got sync response " + syncMessageFeed.getMessages().size() + " messages.");
             processContactFromMessages(syncMessageFeed.getMessages());
         }
         // if regIdInvalid in syncrequest, tht means device reg with c2dm is no

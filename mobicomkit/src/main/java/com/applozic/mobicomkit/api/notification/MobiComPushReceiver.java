@@ -51,6 +51,7 @@ public class MobiComPushReceiver {
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
+        Log.i(TAG, "checking for Applozic notification.");
         return isMobiComPushNotification(intent.getExtras());
     }
 
