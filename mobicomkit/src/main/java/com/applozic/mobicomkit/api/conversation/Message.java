@@ -386,7 +386,7 @@ public class Message extends JsonMarker {
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
 
-        if (message.isTempDateType() || isTempDateType()) {
+        if (message.isTempDateType() && isTempDateType()) {
             return DateUtils.getDate(message.getCreatedAtTime()).equals(DateUtils.getDate(getCreatedAtTime()));
         }
 
@@ -442,9 +442,9 @@ public class Message extends JsonMarker {
     public int hashCode() {
         int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
-            if (isTempDateType()) {
-                result = 31 * result + DateUtils.getDate(getCreatedAtTime()).hashCode();
-            }
+        if (isTempDateType()) {
+            result = 31 * result + DateUtils.getDate(getCreatedAtTime()).hashCode();
+        }
         return result;
     }
 
