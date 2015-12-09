@@ -22,8 +22,8 @@
     <color name="conversation_list_all_background">#FFFFFFFF</color>
     <!-- <color name="conversation_list_all_background">#FFFAFAFA</color> -->
 
-    <!-- <color name="conversation_list_background">#FFFAFAFA</color> -->
-    <color name="conversation_list_background">#FFF1F1F1</color>
+    <color name="conversation_list_background">#FFFAFAFA</color>
+  <!--  <color name="conversation_list_background">#FFF1F1F1</color> -->
     <color name="applozic_message_status_color">#ff000000</color>
 
 

@@ -66,8 +66,7 @@ public class ApplozicSetting {
     }
 
     public boolean isConversationContactImageVisible() {
-        //return sharedPreferences.getBoolean(CONVERSATION_CONTACT_IMAGE_VISIBILITY, true);
-        return false;
+        return sharedPreferences.getBoolean(CONVERSATION_CONTACT_IMAGE_VISIBILITY, true);
     }
 
     public ApplozicSetting showStartNewButton() {

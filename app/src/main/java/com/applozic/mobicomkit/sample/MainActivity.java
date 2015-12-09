@@ -101,8 +101,6 @@ public class MainActivity extends MobiComActivityForFragment
         //Put Support Contact Data
         buildSupportContactData();
 
-        //Contact data for demo...
-        buildContactData();
         MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
         if (!userPreference.isRegistered()) {
             Intent intent = new Intent(this, LoginActivity.class);
@@ -274,58 +272,6 @@ public class MainActivity extends MobiComActivityForFragment
             contact.setImageURL(getString(R.string.support_contact_image_url));
             contact.setEmailId(getString(R.string.support_contact_emailId));
             appContactService.add(contact);
-        }
-    }
-
-    /**
-     * Don't use this method...this is only for demo purpose..
-     */
-    private void buildContactData() {
-
-        Context context = getApplicationContext();
-        AppContactService appContactService = new AppContactService(context);
-        // avoid each time update ....
-        if (!appContactService.isContactExists("adarshk")) {
-
-            List<Contact> contactList = new ArrayList<Contact>();
-            //Adarsh....
-            Contact contact = new Contact();
-            contact.setUserId("adarshk");
-            contact.setFullName("John");
-            contact.setImageURL("R.drawable.couple");
-            contactList.add(contact);
-            //Adarsh
-            Contact contact2 = new Contact();
-            contact2.setUserId("rathan");
-            contact2.setFullName("Liz");
-            contact2.setImageURL("R.drawable.liz");
-            contactList.add(contact2);
-
-            Contact contact3 = new Contact();
-            contact3.setUserId("clem");
-            contact3.setFullName("Clement");
-            contact3.setImageURL("R.drawable.shivam");
-            contactList.add(contact3);
-
-            Contact contact4 = new Contact();
-            contact4.setUserId("shanki.gupta");
-            contact4.setFullName("Bill");
-            contact4.setImageURL("R.drawable.contact_shanki");
-            contactList.add(contact4);
-
-            Contact contact6 = new Contact();
-            contact6.setUserId("krishna");
-            contact6.setFullName("Krishi");
-            contact6.setImageURL("R.drawable.girl");
-            contactList.add(contact6);
-
-            Contact contact7 = new Contact();
-            contact7.setUserId("heather");
-            contact7.setFullName("Heather");
-            contact7.setImageURL("R.drawable.heather");
-            contactList.add(contact7);
-
-            appContactService.addAll(contactList);
         }
     }
 

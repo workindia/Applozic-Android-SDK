@@ -37,9 +37,11 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,6 +250,8 @@ public class LoginActivity extends Activity {
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 
+                    buildContactData();
+
                     //starting main MainActivity
                     Intent intent = new Intent(context, ConversationActivity.class);
                     startActivity(intent);
@@ -286,6 +290,58 @@ public class LoginActivity extends Activity {
             mEmailSignInButton.setVisibility(View.INVISIBLE);
             mSpinnerView.setVisibility(View.INVISIBLE);
             mAuthTask.execute((Void) null);
+        }
+    }
+
+    /**
+     * Don't use this method...this is only for demo purpose..
+     */
+    private void buildContactData() {
+
+        Context context = getApplicationContext();
+        AppContactService appContactService = new AppContactService(context);
+        // avoid each time update ....
+        if (!appContactService.isContactExists("adarshk")) {
+
+            List<Contact> contactList = new ArrayList<Contact>();
+            //Adarsh....
+            Contact contact = new Contact();
+            contact.setUserId("adarshk");
+            contact.setFullName("John");
+            contact.setImageURL("R.drawable.couple");
+            contactList.add(contact);
+            //Adarsh
+            Contact contact2 = new Contact();
+            contact2.setUserId("rathan");
+            contact2.setFullName("Liz");
+            contact2.setImageURL("R.drawable.liz");
+            contactList.add(contact2);
+
+            Contact contact3 = new Contact();
+            contact3.setUserId("clem");
+            contact3.setFullName("Clement");
+            contact3.setImageURL("R.drawable.shivam");
+            contactList.add(contact3);
+
+            Contact contact4 = new Contact();
+            contact4.setUserId("shanki.gupta");
+            contact4.setFullName("Bill");
+            contact4.setImageURL("R.drawable.contact_shanki");
+            contactList.add(contact4);
+
+            Contact contact6 = new Contact();
+            contact6.setUserId("krishna");
+            contact6.setFullName("Krishi");
+            contact6.setImageURL("R.drawable.girl");
+            contactList.add(contact6);
+
+            Contact contact7 = new Contact();
+            contact7.setUserId("heather");
+            contact7.setFullName("Heather");
+            contact7.setImageURL("R.drawable.heather");
+            contactList.add(contact7);
+
+            appContactService.addAll(contactList);
         }
     }
 
