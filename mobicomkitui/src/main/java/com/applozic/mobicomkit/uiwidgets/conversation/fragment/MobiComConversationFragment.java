@@ -761,6 +761,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageList.remove(message);
             messageList.add(message);
         } else if (toAdd) {
+            Message firstDateMessage = new Message();
+            firstDateMessage.setTempDateType(Short.valueOf("100"));
+            firstDateMessage.setCreatedAtTime(message.getCreatedAtTime());
+            if (!messageList.contains(firstDateMessage)) {
+                messageList.add(firstDateMessage);
+            }
+
             messageList.add(message);
         }
         return toAdd;
