@@ -47,6 +47,7 @@ public class Message extends JsonMarker {
     private boolean attDownloadInProgress;
     private String applicationId;
     private boolean connected = false;
+    private short contentType = ContentType.DEFAULT.getValue();
 
     public Message() {
 
@@ -79,7 +80,8 @@ public class Message extends JsonMarker {
         this.setFilePaths(message.getFilePaths());
         this.setBroadcastGroupId(message.getBroadcastGroupId());
         this.setRead(message.isRead());
-       this.setApplicationId(message.getApplicationId());
+        this.setApplicationId(message.getApplicationId());
+        this.setContentType(message.getContentType());
 
     }
 
@@ -112,11 +114,11 @@ public class Message extends JsonMarker {
     }
 
     public boolean isUploadRequired() {
-        return hasAttachment() && (fileMeta == null );
+        return hasAttachment() && (fileMeta == null);
     }
 
     public boolean hasAttachment() {
-        return ((filePaths != null && !filePaths.isEmpty()) || (fileMeta != null ));
+        return ((filePaths != null && !filePaths.isEmpty()) || (fileMeta != null));
     }
 
     public boolean isAttachmentUploadInProgress() {
@@ -238,7 +240,7 @@ public class Message extends JsonMarker {
     public void processContactIds(Context context) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (TextUtils.isEmpty(getContactIds())) {
-                setContactIds(getTo());
+            setContactIds(getTo());
 
         }
     }
@@ -380,6 +382,14 @@ public class Message extends JsonMarker {
         this.connected = connected;
     }
 
+    public short getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(short contentType) {
+        this.contentType = contentType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -491,7 +501,8 @@ public class Message extends JsonMarker {
                 ", filePaths=" + filePaths +
                 ", fileMetas=" + fileMeta +
                 ", shared=" + shared +
-                ",applicationId="+applicationId+
+                ",applicationId=" + applicationId +
+                ",contentType=" + contentType +
                 '}';
     }
 
@@ -499,8 +510,8 @@ public class Message extends JsonMarker {
         return type.equals(MessageType.DATE_TEMP.value);
     }
 
-    public  void setTempDateType(short tempDateType){
-            this.type = tempDateType;
+    public void setTempDateType(short tempDateType) {
+        this.type = tempDateType;
     }
 
     public enum Source {
@@ -527,6 +538,21 @@ public class Message extends JsonMarker {
 
         MessageType(Short c) {
             value = c;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
+    public  enum ContentType {
+
+        DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
+        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4"));
+        private Short value;
+
+        ContentType(Short value) {
+            this.value = value;
         }
 
         public Short getValue() {

@@ -9,6 +9,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -439,29 +440,33 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             String mimeType = "";
             if (messageTextView != null) {
-                messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
-                if (mimeType != null && attachmentIcon != null) {
-                    if (mimeType.startsWith("image")) {
-                        attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
-                    } else if (mimeType.startsWith("video")) {
-                        attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
+                if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
+                    messageTextView.setText(Html.fromHtml(message.getMessage()));
+                } else {
+                    messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
+                    if (mimeType != null && attachmentIcon != null) {
+                        if (mimeType.startsWith("image")) {
+                            attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
+                        } else if (mimeType.startsWith("video")) {
+                            attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
+                        }
                     }
                 }
-              /*if (messageTextLayout != null) {
+               /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
-                    /*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());
+                    *//*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor());*//*
 
-                   if (message.hasAttachment()) {
-                       if (TextUtils.isEmpty(message.getMessage())) {
-                           messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
-                       } else {
-                           if (message.isTypeOutbox()) {
-                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
-                           } else {
-                               messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
-                           }
-                       }
+                    if (message.hasAttachment()) {
+                        if (TextUtils.isEmpty(message.getMessage())) {
+                            messageTextView.setBackgroundColor(context.getResources().getColor(R.color.conversation_list_background));
+                        } else {
+                            if (message.isTypeOutbox()) {
+                                messageTextView.setBackgroundColor(context.getResources().getColor(R.color.sent_message_bg_color));
+                            } else {
+                                messageTextView.setBackgroundColor(context.getResources().getColor(R.color.received_message_bg_color));
+                            }
+                        }
                         //messageTextLayout.setLayoutParams(getImageLayoutParam(message.isTypeOutbox()));
                         //messageTextLayout.setBackgroundResource(R.drawable.send_sms_background);
                         customView.findViewById(R.id.messageTextInsideLayout).setBackgroundResource(R.color.attachment_background_color);

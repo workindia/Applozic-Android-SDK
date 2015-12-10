@@ -652,7 +652,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
     }
-    
 
     public void downloadFailed(final Message message) {
         this.getActivity().runOnUiThread(new Runnable() {
@@ -688,8 +687,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 listView.getFirstVisiblePosition() + 1);
                         if (view != null) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                            TextView status = (TextView) view.findViewById(R.id.status);
-                            status.setText("Delivered");
+                            /*TextView status = (TextView) view.findViewById(R.id.status);
+                            status.setText("Delivered");*/
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
                         }
                     } else {
@@ -699,7 +698,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         emptyTextView.setVisibility(View.GONE);
                         conversationAdapter.notifyDataSetChanged();
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Log.i(TAG, "Exception while updating delivery status in UI.");
                 }
             }

@@ -449,4 +449,5 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
     }
+
 }

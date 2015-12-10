@@ -85,6 +85,7 @@ public class MessageDatabaseService {
         long broadcastGroupId = cursor.getLong(cursor.getColumnIndex("timeToLive"));
         message.setBroadcastGroupId(broadcastGroupId != 0 ? broadcastGroupId : null);
         message.setApplicationId(cursor.getString(cursor.getColumnIndex("applicationId")));
+        message.setContentType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE)));
         if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
             //file is not present...  Don't set anything ...
         } else {
@@ -436,6 +437,7 @@ public class MessageDatabaseService {
             values.put("canceled", message.isCanceled());
             values.put("read", message.isRead() ? 1 : 0);
             values.put("applicationId", message.getApplicationId());
+            values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE,message.getContentType());
 
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());

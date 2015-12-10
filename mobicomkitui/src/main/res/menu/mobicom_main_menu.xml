@@ -3,7 +3,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mobitexter="http://schemas.android.com/apk/res-auto">
 
-    <item
+   <!-- <item
         android:id="@+id/conversations"
         android:orderInCategory="1"
         android:icon="@drawable/applozic_ic_action_chat"
@@ -60,7 +60,7 @@
         android:showAsAction="collapseActionView"
         android:title="Settings" />
 
-    <!--
+    &lt;!&ndash;
     <item
             android:id="@+id/verifyNumber"
             android:orderInCategory="6"
@@ -68,7 +68,7 @@
             mobitexter:showAsAction="collapseActionView"
             android:showAsAction="collapseActionView"
             android:title="Verify Phone #"/>
-            -->
+            &ndash;&gt;
 
     <item
         android:id="@+id/help"
@@ -78,14 +78,14 @@
         android:showAsAction="collapseActionView"
         android:title="FAQ" />
 
-    <!--
+    &lt;!&ndash;
     <item
             android:id="@+id/start_tour"
             android:orderInCategory="101"
             android:icon="@drawable/abc_ic_go"
             mobitexter:showAsAction="collapseActionView"
             android:showAsAction="collapseActionView"
-            android:title="Start Tour"/> -->
+            android:title="Start Tour"/> &ndash;&gt;
 
     <item
         android:id="@+id/support"
@@ -115,10 +115,8 @@
         android:title="@string/shareOptions" />
 
 
-    <!--
         <item
                 android:id="@+id/markAllSmsAsRead"
                 android:orderInCategory="100"
-                android:title="@string/markAllAsRead"/>
-        -->
+                android:title="@string/markAllAsRead"/>-->
 </menu>
