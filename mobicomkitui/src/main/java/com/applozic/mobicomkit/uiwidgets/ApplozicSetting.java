@@ -80,8 +80,7 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewButtonVisible() {
-        //return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
-        return false;
+        return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, false);
     }
 
     public ApplozicSetting showStartNewFloatingActionButton() {
@@ -95,8 +94,7 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewFloatingActionButtonVisible() {
-        //return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, true);
-        return false;
+        return sharedPreferences.getBoolean(START_NEW_BUTTON_DISPLAY, false);
     }
 
     public String getNoConversationLabel() {

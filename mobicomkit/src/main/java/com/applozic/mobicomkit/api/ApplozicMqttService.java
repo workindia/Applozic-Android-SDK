@@ -192,7 +192,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public void disconnect() {
-        if (client != null) {
+        if (client != null && client.isConnected()) {
             try {
                 client.disconnect();
             } catch (MqttException e) {
