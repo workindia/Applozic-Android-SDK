@@ -307,11 +307,17 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public void typingStarted(Contact contact) {
+        if (contact == null || TextUtils.isEmpty(contact.getUserId())) {
+            return;
+        }
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
         publishTopic(getApplicationId(contact), "1", mobiComUserPreference.getUserId(), contact.getUserId());
     }
 
     public void typingStopped(Contact contact) {
+        if (contact == null || TextUtils.isEmpty(contact.getUserId())) {
+            return;
+        }
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
         publishTopic(getApplicationId(contact), "0", mobiComUserPreference.getUserId(), contact.getUserId());
     }

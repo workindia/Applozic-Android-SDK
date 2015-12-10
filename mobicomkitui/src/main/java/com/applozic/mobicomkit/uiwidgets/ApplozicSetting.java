@@ -20,6 +20,7 @@ public class ApplozicSetting {
     private static final String CONVERSATION_CONTACT_IMAGE_VISIBILITY = "CONVERSATION_CONTACT_IMAGE_VISIBILITY";
     private static final String SENT_MESSAGE_BACKGROUND_COLOR = "SENT_MESSAGE_BACKGROUND_COLOR";
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
+    private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
 
 
     public static ApplozicSetting applozicSetting;
@@ -53,6 +54,20 @@ public class ApplozicSetting {
 
     public int getReceivedMessageBackgroundColor() {
         return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, Color.WHITE);
+    }
+
+    public ApplozicSetting showOnlineStatusInMasterList() {
+        sharedPreferences.edit().putBoolean(ONLINE_STATUS_MASTER_LIST, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideOnlineStatusInMasterList() {
+        sharedPreferences.edit().putBoolean(ONLINE_STATUS_MASTER_LIST, false).commit();
+        return this;
+    }
+
+    public boolean isOnlineStatusInMasterListVisible() {
+        return sharedPreferences.getBoolean(ONLINE_STATUS_MASTER_LIST, false);
     }
 
     public ApplozicSetting showConversationContactImage() {
@@ -109,4 +124,5 @@ public class ApplozicSetting {
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();
     }
+
 }

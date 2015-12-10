@@ -18,6 +18,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -136,7 +137,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
                 GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
-                if (contactReceiver != null  && contactReceiver.isConnected()) {
+                if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible() && contactReceiver != null  && contactReceiver.isConnected()) {
                     onlineTextView.setVisibility(View.VISIBLE);
                 }
             }
