@@ -22,25 +22,19 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
-import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -267,20 +261,20 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         mActionBar.setDisplayShowTitleEnabled(true);
     }
 
-    @Override
+  /* @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         showActionBar();
         return false;
-       /* getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
+        getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
         }
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
-      */
-    }
+
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -323,13 +317,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
     }
 
-    @Override
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-      /*  //noinspection SimplifiableIfStatement
+        //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
         } else if (id == R.id.refresh) {
@@ -343,9 +337,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
             conversation.deleteConversationThread();
-        }*/
+        }
         return false;
-    }
+    }*/
 
     @Override
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {

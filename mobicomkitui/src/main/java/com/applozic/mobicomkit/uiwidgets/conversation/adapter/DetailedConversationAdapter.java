@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -445,12 +445,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             String mimeType = "";
             if (messageTextView != null) {
-                messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
-                if (mimeType != null && attachmentIcon != null) {
-                    if (mimeType.startsWith("image")) {
-                        attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
-                    } else if (mimeType.startsWith("video")) {
-                        attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
+                if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
+                    messageTextView.setText(Html.fromHtml(message.getMessage()));
+                } else {
+                    messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
+                    if (mimeType != null && attachmentIcon != null) {
+                        if (mimeType.startsWith("image")) {
+                            attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
+                        } else if (mimeType.startsWith("video")) {
+                            attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
+                        }
                     }
                 }
                /* if (messageTextLayout != null) {

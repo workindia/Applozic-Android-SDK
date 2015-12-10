@@ -510,19 +510,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    @Override
+   /* @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        /*String contactNumber = contact != null ? contact.getContactNumber() : null;
+        *//*String contactNumber = contact != null ? contact.getContactNumber() : null;
 
         if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.matches("[0-9]+") && contactNumber.length() > 2) {
             menu.findItem(R.id.dial).setVisible(true);
         } else {
             menu.findItem(R.id.dial).setVisible(false);
         }
-        menu.removeItem(R.id.start_new);*/
-    }
+        menu.removeItem(R.id.start_new);*//*
+    }*/
 
     public void loadConversation(final Contact contact, Group group) {
         if (downloadConversation != null) {
@@ -697,7 +697,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         emptyTextView.setVisibility(View.GONE);
                         conversationAdapter.notifyDataSetChanged();
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Log.i(TAG, "Exception while updating delivery status in UI.");
                 }
             }

@@ -165,13 +165,13 @@ public class MobiComQuickConversationFragment extends Fragment {
         return true;
     }
 
-    @Override
+   /* @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-       /* menu.removeItem(R.id.dial);
-        menu.removeItem(R.id.deleteConversation);*/
-    }
+       *//* menu.removeItem(R.id.dial);
+        menu.removeItem(R.id.deleteConversation);*//*
+    }*/
 
     public void addMessage(final Message message) {
         final Context context = getActivity();
