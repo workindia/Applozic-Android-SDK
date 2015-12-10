@@ -48,6 +48,7 @@ public class MobiComPushReceiver {
         notificationKeyList.add("MT_USER_CONNECTED");//15
         notificationKeyList.add("MT_USER_DISCONNECTED");//16
         notificationKeyList.add("MT_MESSAGE_DELIVERED_READ"); //17 MESSAGE_DELIVERED_READ
+        notificationKeyList.add("MT_CONVERSATION_READ"); //18
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
@@ -177,6 +178,10 @@ public class MobiComPushReceiver {
             syncCallService.syncMessages(null);
         } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
             //  MessageStatUtil.sendMessageStatsToServer(context);
+        } else if (notificationKeyList.get(18).equals(message)) {
+            String contactId = bundle.getString(notificationKeyList.get(18));
+            Log.i(TAG, "Got conversation read for contactId: " + contactId);
+            syncCallService.updateDeliveryStatusForContact(contactId);
         }
     }
 

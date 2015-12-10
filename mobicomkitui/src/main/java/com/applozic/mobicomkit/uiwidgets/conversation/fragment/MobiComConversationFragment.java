@@ -698,6 +698,33 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     abstract public void attachLocation(Location mCurrentLocation);
 
+    public void updateDeliveryStatusForAllMessages() {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (int index = 0; index < messageList.size(); index++) {
+                        Message message = messageList.get(index);
+                        if (message.getDelivered() || message.isTempDateType()) {
+                            continue;
+                        }
+                        message.setDelivered(true);
+                        View view = listView.getChildAt(index -
+                                listView.getFirstVisiblePosition() + 1);
+                        if (view != null) {
+                            TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
+                            TextView status = (TextView) view.findViewById(R.id.status);
+                            status.setText("Delivered");
+                            //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                        }
+                    }
+                } catch (Exception ex) {
+                    Log.i(TAG, "Exception while updating delivery status in UI.");
+                }
+            }
+        });
+    }
+
     public void updateDeliveryStatus(final Message message) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -705,6 +732,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 try {
                     int index = messageList.indexOf(message);
                     if (index != -1) {
+                        if (messageList.get(index).getDelivered() || messageList.get(index).isTempDateType()) {
+                            return;
+                        }
                         messageList.get(index).setDelivered(true);
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);

@@ -253,6 +253,16 @@ public class ConversationUIService {
         }
     }
 
+    public void updateDeliveryStatusForContact(String contactId) {
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateDeliveryStatusForAllMessages();
+        }
+    }
+
     public void updateDeliveryStatus(Message message, String formattedContactNumber) {
         if (!BroadcastService.isIndividual()) {
             return;
