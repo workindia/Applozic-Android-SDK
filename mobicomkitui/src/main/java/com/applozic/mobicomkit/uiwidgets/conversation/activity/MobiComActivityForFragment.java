@@ -90,7 +90,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
-   /* @Override
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (true) {
             menu.removeItem(R.id.start_new);
@@ -105,7 +105,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.removeItem(R.id.conversations);
         return super.onCreateOptionsMenu(menu);
-    }*/
+    }
 
     @Override
     protected void onStart() {
