@@ -352,30 +352,54 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void deleteMessageFromDeviceList(String messageKeyString) {
-        int position;
-        boolean updateQuickConversation = false;
-        for (Message message : messageList) {
-            if (message.getKeyString() != null && message.getKeyString().equals(messageKeyString)) {
-                position = messageList.indexOf(message);
-                if (position == messageList.size() - 1) {
-                    updateQuickConversation = true;
+        try{
+            int position;
+            boolean updateQuickConversation = false;
+            int index;
+            for (Message message : messageList) {
+                boolean value = message.getKeyString() != null ? message.getKeyString().equals(messageKeyString) : false;
+                if (value) {
+                    index = messageList.indexOf(message);
+                    if (index != -1) {
+                        int aboveIndex = index - 1;
+                        int belowIndex = index + 1;
+                        Message aboveMessage = messageList.get(aboveIndex);
+                        if (belowIndex != messageList.size()) {
+                            Message  belowMessage = messageList.get(belowIndex);
+                            if (aboveMessage.isTempDateType() && belowMessage.isTempDateType()) {
+                                messageList.remove(aboveMessage);
+                            }
+                        } else if (belowIndex == messageList.size() && aboveMessage.isTempDateType()) {
+                            messageList.remove(aboveMessage);
+                        }
+                    }
                 }
-                if (message.getScheduledAt() != null && message.getScheduledAt() != 0) {
-                    new MessageDatabaseService(getActivity()).deleteScheduledMessage(messageKeyString);
+                if (message.getKeyString() != null && message.getKeyString().equals(messageKeyString)) {
+                    position = messageList.indexOf(message);
+
+                    if (position == messageList.size() - 1) {
+                        updateQuickConversation = true;
+                    }
+                    if (message.getScheduledAt() != null && message.getScheduledAt() != 0) {
+                        new MessageDatabaseService(getActivity()).deleteScheduledMessage(messageKeyString);
+                    }
+                    messageList.remove(position);
+                    conversationAdapter.notifyDataSetChanged();
+                    if (messageList.isEmpty()) {
+                        emptyTextView.setVisibility(View.VISIBLE);
+                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, contact.getFormattedContactNumber());
+                    }
+                    break;
                 }
-                messageList.remove(position);
-                conversationAdapter.notifyDataSetChanged();
-                if (messageList.isEmpty()) {
-                    emptyTextView.setVisibility(View.VISIBLE);
-                    ((MobiComKitActivityInterface) getActivity()).removeConversation(message, contact.getFormattedContactNumber());
-                }
-                break;
             }
+            int messageListSize = messageList.size();
+            if (messageListSize > 0 && updateQuickConversation) {
+                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), contact.getFormattedContactNumber());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        int messageListSize = messageList.size();
-        if (messageListSize > 0 && updateQuickConversation) {
-            ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), contact.getFormattedContactNumber());
-        }
+
     }
 
     public String getCurrentUserId() {
