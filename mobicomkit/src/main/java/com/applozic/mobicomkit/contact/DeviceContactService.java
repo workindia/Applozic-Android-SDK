@@ -83,4 +83,8 @@ public class DeviceContactService implements BaseContactService {
         return false;
     }
 
+    @Override
+    public void updateConnectedStatus(String contactId, boolean connected) {
+
+    }
 }

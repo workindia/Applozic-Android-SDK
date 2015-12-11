@@ -119,7 +119,8 @@ public class MobiComPushReceiver {
             }
         }
         if (!TextUtils.isEmpty(userConnected)) {
-            final String userId = userConnected;
+            syncCallService.updateConnectedStatus(userConnected, true);
+            /*final String userId = userConnected;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -132,11 +133,12 @@ public class MobiComPushReceiver {
                         }
                     }
                 }
-            }).start();
+            }).start();*/
         }
 
         if (!TextUtils.isEmpty(userDisconnected)) {
-            final String userId = userDisconnected;
+            syncCallService.updateConnectedStatus(userDisconnected, false);
+            /*final String userId = userDisconnected;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -151,7 +153,7 @@ public class MobiComPushReceiver {
                         }
                     }
                 }
-            }).start();
+            }).start();*/
         }
 
         if (!TextUtils.isEmpty(multipleMessageDelete)) {

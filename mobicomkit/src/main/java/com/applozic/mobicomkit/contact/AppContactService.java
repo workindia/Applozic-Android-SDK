@@ -146,5 +146,11 @@ public class AppContactService implements BaseContactService {
         return contactDatabase.getContactById(contactId) != null;
     }
 
+    @Override
+    public void updateConnectedStatus(String contactId, boolean connected) {
+        //Broadcast to UI
+        //Update database
+        contactDatabase.updateConnectedOrDisconnectedStatus(contactId, connected);
+    }
 }
 

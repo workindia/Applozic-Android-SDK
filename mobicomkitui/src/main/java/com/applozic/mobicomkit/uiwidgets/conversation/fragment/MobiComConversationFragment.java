@@ -1011,7 +1011,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (isTypingStatus.equals("1")) {
                     statusMessageLayout.setVisibility(View.VISIBLE);
                     isTyping.setVisibility(View.VISIBLE);
-                    isTyping.setText(typingUserId + " " + getString(R.string.is_typing));
+                    isTyping.setText(contact.getDisplayName() + " " + getString(R.string.is_typing));
                 } else {
                     statusMessageLayout.setVisibility(View.GONE);
                     isTyping.setVisibility(View.GONE);
