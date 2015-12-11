@@ -705,7 +705,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 try {
                     for (int index = 0; index < messageList.size(); index++) {
                         Message message = messageList.get(index);
-                        if (message.getDelivered() || message.isTempDateType()) {
+                        if (message.getDelivered() || message.isTempDateType() || !message.isTypeOutbox()) {
                             continue;
                         }
                         message.setDelivered(true);
