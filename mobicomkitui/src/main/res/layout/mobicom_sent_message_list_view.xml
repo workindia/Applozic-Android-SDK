@@ -75,7 +75,7 @@
         android:background="@color/conversation_list_background"
         android:layout_below="@+id/messageTextLayout"
         android:layout_alignParentRight="true"
-        android:paddingBottom="0dp"
+        android:paddingBottom="6dp"
         android:paddingRight="4dp">
 
         <TextView
