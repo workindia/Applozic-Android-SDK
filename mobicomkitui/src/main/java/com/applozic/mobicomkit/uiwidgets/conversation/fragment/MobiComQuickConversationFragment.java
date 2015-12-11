@@ -111,7 +111,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
-        startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
+       // startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
 
@@ -192,7 +192,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                 //listView.smoothScrollToPosition(messageList.size());
                 listView.setSelection(0);
                 emptyTextView.setVisibility(View.GONE);
-                startNewButton.setVisibility(View.GONE);
+               // startNewButton.setVisibility(View.GONE);
             }
         });
     }
@@ -232,7 +232,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                     conversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                        startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+                       // startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
                     }
                 }
             }
@@ -279,10 +279,10 @@ public class MobiComQuickConversationFragment extends Fragment {
         boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
-            startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+            //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
-            startNewButton.setVisibility(View.GONE);
+           // startNewButton.setVisibility(View.GONE);
         }
     }
 
@@ -322,7 +322,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         //FlurryAgent.logEvent(QUICK_CONVERSATION_EVENT);
         listView.setAdapter(conversationAdapter);
-        startNewButton.setOnClickListener(startNewConversation());
+       // startNewButton.setOnClickListener(startNewConversation());
         fabButton.setOnClickListener(startNewConversation());
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -441,7 +441,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (applozicSetting.isStartNewButtonVisible()) {
-                    startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                   // startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 }
                 if (!messageList.isEmpty()) {
                     listView.setSelection(0);
