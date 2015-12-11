@@ -253,6 +253,17 @@ public class ConversationUIService {
         }
     }
 
+    public void updateLastSeenStatus(String contactId) {
+        if (!BroadcastService.isIndividual()) {
+            getQuickConversationFragment().updateLastSeenStatus(contactId);
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateLastSeenStatus();
+        }
+    }
+
     public void updateDeliveryStatusForContact(String contactId) {
         if (!BroadcastService.isIndividual()) {
             return;
@@ -437,4 +448,5 @@ public class ConversationUIService {
             ApplozicMqttService.getInstance(fragmentActivity).subscribe();
         }
     }
+
 }

@@ -107,15 +107,13 @@ public class BroadcastService {
         context.sendBroadcast(notificationIntent);
     }
 
-    public static void sendUpdateLastSeenAtTimeBroadcast(Context context,String action,String userId,String lastSeenAtTime,boolean status){
-        Log.i(TAG, "Sending lastSeenAtTime broadcast....");
-        Intent intentLastSeenAtTime = new Intent();
-        intentLastSeenAtTime.setAction(action);
-        intentLastSeenAtTime.putExtra("userId", userId);
-        intentLastSeenAtTime.putExtra("lastSeenAtTime", lastSeenAtTime);
-        intentLastSeenAtTime.putExtra("status", status);
-        intentLastSeenAtTime.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intentLastSeenAtTime);
+    public static void sendUpdateLastSeenAtTimeBroadcast(Context context, String action, String contactId){
+        Log.i(TAG, "Sending lastSeenAt broadcast....");
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra("contactId", contactId);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
     }
 
     public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping){

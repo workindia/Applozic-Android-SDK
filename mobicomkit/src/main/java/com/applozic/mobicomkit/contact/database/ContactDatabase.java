@@ -103,10 +103,10 @@ public class ContactDatabase {
         dbHelper.close();
     }
 
-    public void updateConnectedOrDisconnectedStatus(String userId, boolean connected) {
+    public void updateConnectedOrDisconnectedStatus(String userId, Date date, boolean connected) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
-        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, new Date().getTime());
+        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, date.getTime());
 
         try {
             dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});

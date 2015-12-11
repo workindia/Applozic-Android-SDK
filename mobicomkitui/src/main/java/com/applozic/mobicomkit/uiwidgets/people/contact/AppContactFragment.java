@@ -371,7 +371,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
             TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
             QuickContactBadge icon = (QuickContactBadge) itemLayout.findViewById(android.R.id.icon);
-            text1.setText(contact.getFullName());
+            text1.setText(contact.getDisplayName());
             text2.setText(contact.getUserId());
             if (contact.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());

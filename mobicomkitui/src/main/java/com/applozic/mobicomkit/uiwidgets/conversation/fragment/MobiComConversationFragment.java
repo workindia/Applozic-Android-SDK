@@ -555,24 +555,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         final BaseContactService baseContactService = new AppContactService(getActivity());
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
-                    if (userDetails != null) {
-                        for (UserDetail userDetail : userDetails) {
-                            contact.setFullName(userDetail.getDisplayName());
-                            contact.setConnected(userDetail.isConnected());
-                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
-                            baseContactService.upsert(contact);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
 
         new Thread(new Runnable() {
             @Override
@@ -646,7 +628,47 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         emoticonsFrameLayout.setVisibility(View.GONE);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
+                    if (userDetails != null) {
+                        for (UserDetail userDetail : userDetails) {
+                            contact.setFullName(userDetail.getDisplayName());
+                            contact.setConnected(userDetail.isConnected());
+                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                            baseContactService.upsert(contact);
+                        }
+                        updateLastSeenStatus();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
+    }
+
+    public void updateLastSeenStatus() {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (contact != null) {
+                    if (contact.isConnected()) {
+                        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
+                    } else {
+                        if (contact.getLastSeenAt() == 0) {
+
+                        } else {
+                            ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
+                        }
+                    }
+                }
+            }
+
+        });
     }
 
     public boolean isBroadcastedToGroup(Long groupId) {
@@ -1066,6 +1088,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (title != null) {
             ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(title);
         }
+
+        updateLastSeenStatus();
     }
 
     public void loadConversation(Group group) {

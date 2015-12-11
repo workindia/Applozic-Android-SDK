@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.contact.ContactUtils;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,7 +85,7 @@ public class DeviceContactService implements BaseContactService {
     }
 
     @Override
-    public void updateConnectedStatus(String contactId, boolean connected) {
+    public void updateConnectedStatus(String contactId, Date date, boolean connected) {
 
     }
 }

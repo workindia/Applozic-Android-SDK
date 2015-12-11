@@ -242,13 +242,19 @@ public class ApplozicMqttService implements MqttCallback {
                             }
 
                             if (NOTIFICATION_TYPE.USER_CONNECTED.getValue().equals(mqttMessageResponse.getType())) {
-                                syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), true);
+                                syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), new Date(), true);
                             }
 
                             if (NOTIFICATION_TYPE.USER_DISCONNECTED.getValue().equals(mqttMessageResponse.getType())) {
-                                syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), false);
+                                //disconnect comes with timestamp, ranjeet,1449866097000
+                                String[] parts = mqttMessageResponse.getMessage().toString().split(",");
+                                String userId = parts[0];
+                                Date lastSeenAt = new Date();
+                                if (parts.length >= 2) {
+                                    lastSeenAt = new Date(Long.valueOf(parts[1]));
+                                }
+                                syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
                             }
-
 
                         }
                     }).start();

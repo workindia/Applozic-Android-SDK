@@ -52,6 +52,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.Date;
+
 
 /**
  * Created by devashish on 6/25/2015.
@@ -199,7 +201,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                     ContactDatabase contactDatabase = new ContactDatabase(ConversationActivity.this);
                     if (connectedUsers != null && connectedUsers.length > 0) {
                         for (int i = 0; i <= connectedUsers.length - 1; i++) {
-                            contactDatabase.updateConnectedOrDisconnectedStatus(connectedUsers[i], true);
+                            contactDatabase.updateConnectedOrDisconnectedStatus(connectedUsers[i], new Date(), true);
                         }
                     }
                 }

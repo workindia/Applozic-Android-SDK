@@ -146,9 +146,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
                 //bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.randomAlphabetBackgroundColorMap.get(new Random().nextInt(6))));
-                if (contactReceiver != null  && contactReceiver.isConnected()) {
-                    onlineTextView.setVisibility(View.VISIBLE);
-                }
+                onlineTextView.setVisibility(contactReceiver != null  && contactReceiver.isConnected() ? View.VISIBLE : View.GONE);
             }
             if (contactReceiver.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
