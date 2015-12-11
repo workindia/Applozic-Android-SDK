@@ -151,7 +151,7 @@ public class MobiComMessageService {
             return;
         }
         for (String messageKey: deliveredMessageKeys) {
-            messageDatabaseService.updateMessageDeliveryReport(messageKey, null);
+            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, null);
         }
     }
 
@@ -273,6 +273,15 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
+    public synchronized void updateDeliveryStatusForContact(String contactId) {
+        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId);
+        Log.i(TAG, "Updated delivery report of " + rows + " messages for contactId: " + contactId);
+
+        if (rows > 0) {
+            BroadcastService.sendDeliveryReportForContactBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString(), contactId);
+        }
+    }
+
     public synchronized void updateDeliveryStatus(String key) {
         //Todo: Check if this is possible? In case the delivery report reaches before the sms is reached, then wait for the sms.
         Log.i(TAG, "Got the delivery report for key: " + key);
@@ -282,13 +291,13 @@ public class MobiComMessageService {
             message.setDelivered(Boolean.TRUE);
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number
-            messageDatabaseService.updateMessageDeliveryReport(keyParts[0], null);
+            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null);
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
             if (message.getTimeToLive() != null && message.getTimeToLive() != 0) {
                 Timer timer = new Timer();
                 timer.schedule(new DisappearingMessageTask(context, new MobiComConversationService(context), message), message.getTimeToLive() * 60 * 1000);
             }
-        } else {
+        } else if (message == null) {
             Log.i(TAG, "Message is not present in table, keyString: " + keyParts[0]);
         }
         map.remove(key);

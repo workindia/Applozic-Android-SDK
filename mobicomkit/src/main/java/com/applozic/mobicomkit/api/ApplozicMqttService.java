@@ -223,7 +223,7 @@ public class ApplozicMqttService implements MqttCallback {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.i(TAG, "MQTT message calling ");
+                            Log.i(TAG, "MQTT message type: " + mqttMessageResponse.getType());
                             if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
@@ -235,6 +235,12 @@ public class ApplozicMqttService implements MqttCallback {
                                 String userId = splitKeyString[1];
                                 syncCallService.updateDeliveryStatus(keyString);
                             }
+
+                            if (NOTIFICATION_TYPE.CONVERSATION_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())) {
+                                String contactId = mqttMessageResponse.getMessage().toString();
+                                syncCallService.updateDeliveryStatusForContact(contactId);
+                            }
+
                         }
                     }).start();
 

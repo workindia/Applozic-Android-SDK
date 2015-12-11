@@ -48,4 +48,8 @@ public class SyncCallService {
             mobiComMessageService.syncMessages();
         }
     }
+
+    public synchronized void updateDeliveryStatusForContact(String contactId) {
+        mobiComMessageService.updateDeliveryStatusForContact(contactId);
+    }
 }

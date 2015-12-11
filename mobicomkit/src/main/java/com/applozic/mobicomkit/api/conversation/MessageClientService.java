@@ -494,7 +494,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void updateMessageDeliveryReport(final Message message, final String contactNumber) throws Exception {
         message.setDelivered(Boolean.TRUE);
-        messageDatabaseService.updateMessageDeliveryReport(message.getKeyString(), contactNumber);
+        messageDatabaseService.updateMessageDeliveryReportForContact(message.getKeyString(), contactNumber);
 
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
         new Thread(new Runnable() {

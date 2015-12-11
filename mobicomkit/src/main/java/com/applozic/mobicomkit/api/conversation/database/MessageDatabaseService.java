@@ -474,14 +474,23 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public void updateMessageDeliveryReport(String messageKeyString, String contactNumber) {
+    public int updateMessageDeliveryReportForContact(String contactId) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("delivered", "1");
+        int rows = database.update("sms", values, "contactNumbers='" + contactId + "' and delivered = 0 and type = 5", null);
+        dbHelper.close();
+        return rows;
+    }
+
+    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("delivered", "1");
         if (TextUtils.isEmpty(contactNumber)) {
-            database.update("sms", values, "keyString='" + messageKeyString + "'", null);
+            database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);
         } else {
-            database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "'", null);
+            database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "' and type = 5", null);
         }
         dbHelper.close();
     }
