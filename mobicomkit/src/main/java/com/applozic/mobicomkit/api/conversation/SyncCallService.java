@@ -4,6 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
+
 import java.util.List;
 /**
  * Created by applozic on 12/2/15.
@@ -15,10 +18,12 @@ public class SyncCallService {
     private static SyncCallService syncCallService;
     private MobiComMessageService mobiComMessageService;
     private MobiComConversationService mobiComConversationService;
+    private BaseContactService contactService;
 
     private SyncCallService(Context context) {
         this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
         this.mobiComConversationService = new MobiComConversationService(context);
+        this.contactService = new AppContactService(context);
     }
 
     public synchronized static SyncCallService getInstance(Context context) {
@@ -52,4 +57,9 @@ public class SyncCallService {
     public synchronized void updateDeliveryStatusForContact(String contactId) {
         mobiComMessageService.updateDeliveryStatusForContact(contactId);
     }
+
+    public synchronized void updateConnectedStatus(String contactId, boolean connected) {
+        contactService.updateConnectedStatus(contactId, connected);
+    }
+
 }

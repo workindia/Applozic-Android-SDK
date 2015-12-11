@@ -33,4 +33,6 @@ public interface BaseContactService {
     Contact getContactReceiver(List<String> items, List<String> userIds);
 
     boolean isContactExists(String contactId);
+
+    void updateConnectedStatus(String contactId, boolean connected);
 }

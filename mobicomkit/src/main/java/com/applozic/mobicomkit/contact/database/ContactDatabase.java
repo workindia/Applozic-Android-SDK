@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -105,6 +106,8 @@ public class ContactDatabase {
     public void updateConnectedOrDisconnectedStatus(String userId, boolean connected) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
+        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, new Date().getTime());
+
         try {
             dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
         } catch (Exception e) {

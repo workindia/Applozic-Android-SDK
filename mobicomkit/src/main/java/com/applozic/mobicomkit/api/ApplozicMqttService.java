@@ -241,6 +241,15 @@ public class ApplozicMqttService implements MqttCallback {
                                 syncCallService.updateDeliveryStatusForContact(contactId);
                             }
 
+                            if (NOTIFICATION_TYPE.USER_CONNECTED.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), true);
+                            }
+
+                            if (NOTIFICATION_TYPE.USER_DISCONNECTED.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), false);
+                            }
+
+
                         }
                     }).start();
 
