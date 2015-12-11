@@ -48,7 +48,7 @@ public class Contact implements Serializable {
     private String emailId;
     private String applicationId;
     private boolean connected;
-    private long lastSeenAtTime;
+    private Long lastSeenAtTime;
 
     public Contact() {
 
@@ -335,10 +335,10 @@ public class Contact implements Serializable {
     }
 
     public long getLastSeenAt() {
-        return lastSeenAtTime;
+        return lastSeenAtTime == null ? 0 : lastSeenAtTime;
     }
 
-    public void setLastSeenAt(long lastSeenAt) {
+    public void setLastSeenAt(Long lastSeenAt) {
         this.lastSeenAtTime = lastSeenAt;
     }
 
