@@ -7,24 +7,23 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-import com.applozic.mobicomkit.api.attachment.FileClientService;
-import com.applozic.mobicomkit.api.attachment.FileMeta;
-import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicommons.file.FileUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,7 +90,6 @@ public class MobiComConversationService {
 
     public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Group group) {
         List<Message> messageList = new ArrayList<Message>();
-        BaseContactService baseContactService = new AppContactService(context);
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
 
         if (!cachedMessageList.isEmpty() &&
@@ -126,11 +124,18 @@ public class MobiComConversationService {
                     .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
             JsonParser parser = new JsonParser();
             String element = parser.parse(data).getAsJsonObject().get("message").toString();
+            String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+
             Message[] messages = gson.fromJson(element, Message[].class);
+            if (!TextUtils.isEmpty(userDetailsElement)) {
+                UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
+                processUserDetails(userDetails);
+            }
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
-            String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
-            String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);
+
+            /*String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
+            String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);*/
 
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
@@ -147,7 +152,7 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
-                    if(connectedUserIds != null && connectedUserIds.length>0){
+                    /*if(connectedUserIds != null && connectedUserIds.length>0){
                         for (String userId : connectedUserIds) {
                             if (message.getTo().equals(userId)) {
                                 Contact connectedContact = new Contact();
@@ -157,7 +162,7 @@ public class MobiComConversationService {
                                 baseContactService.upsert(connectedContact);
                             }
                         }
-                    }
+                    }*/
 
                     if (message.hasAttachment()) {
                         setFilePathifExist(message);
@@ -181,6 +186,19 @@ public class MobiComConversationService {
             }
         });
         return messageList;
+    }
+
+    private void processUserDetails(UserDetail[] userDetails) {
+        for (UserDetail userDetail : userDetails) {
+            Contact contact = new Contact();
+            contact.setUserId(userDetail.getUserId());
+            contact.setContactNumber(userDetail.getUserId());
+            //contact.setApplicationId(); Todo: set the application id
+            contact.setConnected(userDetail.isConnected());
+            contact.setFullName(userDetail.getDisplayName());
+            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+            new AppContactService(context).upsert(contact);
+        }
     }
 
     private boolean wasServerCallDoneBefore(Contact contact, Group group) {

@@ -553,29 +553,39 @@ public class MessageDatabaseService {
     }
 
     public int getUnreadMessageCount(String contactNumbers) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
-        cursor.moveToFirst();
-        int unreadSms = 0;
-        if (cursor.getCount() > 0) {
-            unreadSms = cursor.getInt(0);
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
+            cursor.moveToFirst();
+            int unreadSms = 0;
+            if (cursor.getCount() > 0) {
+                unreadSms = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return unreadSms;
+        } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread message count for a contact.");
         }
-        cursor.close();
-        dbHelper.close();
-        return unreadSms;
+        return 0;
     }
 
     public int getUnreadConversationCount() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT (contactNumbers)) FROM sms WHERE read = 0 ", null);
-        cursor.moveToFirst();
-        int conversationCount = 0;
-        if (cursor.getCount() > 0) {
-            conversationCount = cursor.getInt(0);
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT (contactNumbers)) FROM sms WHERE read = 0 ", null);
+            cursor.moveToFirst();
+            int conversationCount = 0;
+            if (cursor.getCount() > 0) {
+                conversationCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return conversationCount;
+        } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread conversation count");
         }
-        cursor.close();
-        dbHelper.close();
-        return conversationCount;
+        return 0;
     }
 
     public int getUnreadMessageCount() {
@@ -591,6 +601,7 @@ public class MessageDatabaseService {
             dbHelper.close();
             return unreadMessageCount;
         } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread message count");
             return 0;
         }
     }

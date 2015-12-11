@@ -560,15 +560,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 try {
-                    UserDetail[] userDetail = messageClientService.getUserDetails(contact.getContactIds());
-                    if (userDetail != null) {
-                        for (UserDetail userDetails : userDetail) {
-                            if (userDetails.getLastSeenAtTime() != null) {
-                                if (!userDetails.isConnected()) {
-                                    contact.setLastSeenAt(userDetails.getLastSeenAtTime());
-                                    baseContactService.upsert(contact);
-                                }
-                            }
+                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
+                    if (userDetails != null) {
+                        for (UserDetail userDetail : userDetails) {
+                            contact.setFullName(userDetail.getDisplayName());
+                            contact.setConnected(userDetail.isConnected());
+                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                            baseContactService.upsert(contact);
                         }
                     }
                 } catch (Exception e) {
@@ -1251,55 +1249,59 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         @Override
         protected Long doInBackground(Void... voids) {
-            if (initial) {
-                Long lastConversationloadTime = 1L;
-                if (!messageList.isEmpty()) {
-                    for (int i = messageList.size() - 1; i >= 0; i--) {
-                        if (messageList.get(i).isTempDateType()) {
+            try {
+                if (initial) {
+                    Long lastConversationloadTime = 1L;
+                    if (!messageList.isEmpty()) {
+                        for (int i = messageList.size() - 1; i >= 0; i--) {
+                            if (messageList.get(i).isTempDateType()) {
+                                continue;
+                            }
+                            lastConversationloadTime = messageList.get(i).getCreatedAtTime();
+                            break;
+                        }
+                    }
+
+                    Log.i(TAG, " loading conversation with  lastConversationloadTime " + lastConversationloadTime);
+                    nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, group);
+                } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
+                    loadMore = false;
+                    Long endTime = null;
+                    for (Message message : messageList) {
+                        if (message.isTempDateType()) {
                             continue;
                         }
-                        lastConversationloadTime = messageList.get(i).getCreatedAtTime();
+                        endTime = messageList.get(0).getCreatedAtTime();
                         break;
                     }
+                    nextSmsList = conversationService.getMessages(null, endTime, contact, group);
                 }
 
-                Log.i(TAG, " loading conversation with  lastConversationloadTime " + lastConversationloadTime);
-                nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, group);
-            } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
-                loadMore = false;
-                Long endTime = null;
-                for (Message message : messageList) {
-                    if (message.isTempDateType()) {
-                        continue;
+                List<Message> createAtMessage = new ArrayList<Message>();
+                if (nextSmsList != null && !nextSmsList.isEmpty()) {
+                    Message firstDateMessage = new Message();
+                    firstDateMessage.setTempDateType(Short.valueOf("100"));
+                    firstDateMessage.setCreatedAtTime(nextSmsList.get(0).getCreatedAtTime());
+                    createAtMessage.add(firstDateMessage);
+                    messageList.remove(firstDateMessage);
+                    createAtMessage.add(nextSmsList.get(0));
+                    for (int i = 1; i <= nextSmsList.size() - 1; i++) {
+                        long dayDiffrance = DateUtils.daysBetween(new Date(nextSmsList.get(i - 1).getCreatedAtTime()), new Date(nextSmsList.get(i).getCreatedAtTime()));
+
+                        if (dayDiffrance >= 1) {
+                            Message message = new Message();
+                            message.setTempDateType(Short.valueOf("100"));
+                            message.setCreatedAtTime(nextSmsList.get(i).getCreatedAtTime());
+                            createAtMessage.add(message);
+                            messageList.remove(message);
+                        }
+                        createAtMessage.add(nextSmsList.get(i));
                     }
-                    endTime = messageList.get(0).getCreatedAtTime();
-                    break;
                 }
-                nextSmsList = conversationService.getMessages(null, endTime, contact, group);
+                nextSmsList = createAtMessage;
+            } catch(Exception ex) {
+                ex.printStackTrace();
             }
-
-            List<Message> createAtMessage = new ArrayList<Message>();
-            if (nextSmsList != null && !nextSmsList.isEmpty()) {
-                Message firstDateMessage = new Message();
-                firstDateMessage.setTempDateType(Short.valueOf("100"));
-                firstDateMessage.setCreatedAtTime(nextSmsList.get(0).getCreatedAtTime());
-                createAtMessage.add(firstDateMessage);
-                messageList.remove(firstDateMessage);
-                createAtMessage.add(nextSmsList.get(0));
-                for (int i = 1; i <= nextSmsList.size() - 1; i++) {
-                    long dayDiffrance = DateUtils.daysBetween(new Date(nextSmsList.get(i - 1).getCreatedAtTime()), new Date(nextSmsList.get(i).getCreatedAtTime()));
-
-                    if (dayDiffrance >= 1) {
-                        Message message = new Message();
-                        message.setTempDateType(Short.valueOf("100"));
-                        message.setCreatedAtTime(nextSmsList.get(i).getCreatedAtTime());
-                        createAtMessage.add(message);
-                        messageList.remove(message);
-                    }
-                    createAtMessage.add(nextSmsList.get(i));
-                }
-            }
-            nextSmsList = createAtMessage;
 
             return 0L;
         }
