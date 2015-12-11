@@ -559,15 +559,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 try {
-                    UserDetail[] userDetail = messageClientService.getUserDetails(contact.getContactIds());
-                    if (userDetail != null) {
-                        for (UserDetail userDetails : userDetail) {
-                            if (userDetails.getLastSeenAtTime() != null) {
-                                if (!userDetails.isConnected()) {
-                                    contact.setLastSeenAt(userDetails.getLastSeenAtTime());
-                                    baseContactService.upsert(contact);
-                                }
-                            }
+                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
+                    if (userDetails != null) {
+                        for (UserDetail userDetail : userDetails) {
+                            contact.setFullName(userDetail.getDisplayName());
+                            contact.setConnected(userDetail.isConnected());
+                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                            baseContactService.upsert(contact);
                         }
                     }
                 } catch (Exception e) {
