@@ -269,6 +269,23 @@ public class MobiComConversationService {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }
 
+    public void processLastSeenAtStatus() {
+        try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    UserDetail[] userDetails = new MessageClientService(context).getUserDetails();
+                    if (userDetails != null && userDetails.length > 0) {
+                        processUserDetails(userDetails);
+                    }
+                }
+            }).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 //    public void addFileMetaDetails(String responseString, Message message) {
 //        JsonParser jsonParser = new JsonParser();
 //        List<FileMeta> metaFileList = new ArrayList<FileMeta>();

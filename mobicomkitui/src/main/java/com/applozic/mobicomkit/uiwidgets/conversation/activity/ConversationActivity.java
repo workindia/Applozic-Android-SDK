@@ -31,9 +31,8 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -42,7 +41,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
-
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
@@ -51,8 +49,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
-import java.util.Date;
 
 
 /**
@@ -193,23 +189,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
-        try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String[] connectedUsers = new MessageClientService(ConversationActivity.this).getConnectedUsers();
-                    ContactDatabase contactDatabase = new ContactDatabase(ConversationActivity.this);
-                    if (connectedUsers != null && connectedUsers.length > 0) {
-                        for (int i = 0; i <= connectedUsers.length - 1; i++) {
-                            contactDatabase.updateConnectedOrDisconnectedStatus(connectedUsers[i], new Date(), true);
-                        }
-                    }
-                }
-            }).start();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
@@ -239,6 +219,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
+
+        new MobiComConversationService(this).processLastSeenAtStatus();
         //ApplozicMqttService.getInstance(this).subscribe();
     }
 

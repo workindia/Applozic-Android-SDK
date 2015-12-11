@@ -652,6 +652,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void updateLastSeenStatus() {
+        if (this.getActivity() == null) {
+            return;
+        }
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
