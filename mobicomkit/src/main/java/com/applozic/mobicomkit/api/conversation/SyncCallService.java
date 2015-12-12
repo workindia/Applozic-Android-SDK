@@ -7,6 +7,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 
+import java.util.Date;
 import java.util.List;
 /**
  * Created by applozic on 12/2/15.
@@ -58,8 +59,8 @@ public class SyncCallService {
         mobiComMessageService.updateDeliveryStatusForContact(contactId);
     }
 
-    public synchronized void updateConnectedStatus(String contactId, boolean connected) {
-        contactService.updateConnectedStatus(contactId, connected);
+    public synchronized void updateConnectedStatus(String contactId, Date date, boolean connected) {
+        contactService.updateConnectedStatus(contactId, date, connected);
     }
 
 }

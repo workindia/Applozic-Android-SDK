@@ -224,17 +224,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
             }
-            if (receiverContact != null) {
-                if (receiverContact.isConnected()) {
-                    ((ActionBarActivity) context).getSupportActionBar().setSubtitle(context.getString(R.string.user_online));
-                } else {
-                    if (receiverContact.getLastSeenAt() == 0) {
-
-                    } else {
-                        ((ActionBarActivity) context).getSupportActionBar().setSubtitle(context.getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(receiverContact.getLastSeenAt()));
-                    }
-                }
-            }
 
             if (attachmentIcon != null) {
                 attachmentIcon.setVisibility(View.GONE);

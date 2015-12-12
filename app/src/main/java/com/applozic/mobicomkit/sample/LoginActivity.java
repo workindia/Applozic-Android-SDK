@@ -312,6 +312,14 @@ public class LoginActivity extends Activity {
             contact.setFullName("John");
             contact.setImageURL("R.drawable.couple");
             contactList.add(contact);
+
+            Contact contactRaj = new Contact();
+            contactRaj.setUserId("raj");
+            contactRaj.setFullName("rajni");
+            contactRaj.setImageURL("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p200x200/12049601_556630871166455_1647160929759032778_n.jpg?oh=7ab819fc614f202e144cecaad0eb696b&oe=56EBA555&__gda__=1457202000_85552414c5142830db00c1571cc50641");
+            contactList.add(contactRaj);
+
+
             //Adarsh
             Contact contact2 = new Contact();
             contact2.setUserId("rathan");

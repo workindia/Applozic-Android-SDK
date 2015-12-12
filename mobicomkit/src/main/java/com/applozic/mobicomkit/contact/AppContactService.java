@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -15,6 +16,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -147,10 +149,9 @@ public class AppContactService implements BaseContactService {
     }
 
     @Override
-    public void updateConnectedStatus(String contactId, boolean connected) {
-        //Broadcast to UI
-        //Update database
-        contactDatabase.updateConnectedOrDisconnectedStatus(contactId, connected);
+    public void updateConnectedStatus(String contactId, Date date, boolean connected) {
+        contactDatabase.updateConnectedOrDisconnectedStatus(contactId, date, connected);
+        BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
     }
 }
 

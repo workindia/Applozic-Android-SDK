@@ -7,19 +7,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.people.ContactContent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.ContactService;
-import com.applozic.mobicomkit.contact.database.ContactDatabase;
-import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -119,7 +117,7 @@ public class MobiComPushReceiver {
             }
         }
         if (!TextUtils.isEmpty(userConnected)) {
-            syncCallService.updateConnectedStatus(userConnected, true);
+            syncCallService.updateConnectedStatus(userConnected, new Date(), true);
             /*final String userId = userConnected;
             new Thread(new Runnable() {
                 @Override
@@ -137,7 +135,13 @@ public class MobiComPushReceiver {
         }
 
         if (!TextUtils.isEmpty(userDisconnected)) {
-            syncCallService.updateConnectedStatus(userDisconnected, false);
+            String[] parts = userDisconnected.split(",");
+            String userId = parts[0];
+            Date lastSeenAt = new Date();
+            if (parts.length >= 2) {
+                lastSeenAt = new Date(Long.valueOf(parts[1]));
+            }
+            syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
             /*final String userId = userDisconnected;
             new Thread(new Runnable() {
                 @Override

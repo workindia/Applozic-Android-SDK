@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 21
         versionCode 1
-        versionName "1.32"
+        versionName "3.012"
     }
     buildTypes {
         release {
@@ -52,7 +52,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '1.32'
+    libraryVersion = '3.012'
 
     developerId = 'devashish'
     developerName = 'Applozic'

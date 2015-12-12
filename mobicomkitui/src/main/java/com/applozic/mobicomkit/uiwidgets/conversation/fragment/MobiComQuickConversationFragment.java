@@ -353,6 +353,30 @@ public class MobiComQuickConversationFragment extends Fragment {
         downloadConversation.execute();
     }
 
+    public void updateLastSeenStatus(final String userId) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message message = latestMessageForEachContact.get(userId);
+                    if (message != null) {
+                        int index = messageList.indexOf(message);
+                        View view = listView.getChildAt(index -
+                                listView.getFirstVisiblePosition() + 1);
+                        if (view != null) {
+                            TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
+                            Contact contact = baseContactService.getContactById(userId);
+                            onlineTextView.setVisibility((contact != null && contact.isConnected()) ? View.VISIBLE : View.GONE);
+                        }
+                    }
+                } catch(Exception ex) {
+                    Log.w("AL", "Exception while updating online status.");
+                }
+            }
+        });
+
+    }
+
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
         private AbsListView view;
