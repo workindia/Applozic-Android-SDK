@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Applozic-Android-SDK-Master.iml" filepath="$PROJECT_DIR$/Applozic-Android-SDK-Master.iml" />
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/applozicconnect/applozicconnect.iml" filepath="$PROJECT_DIR$/applozicconnect/applozicconnect.iml" />
@@ -11,4 +12,3 @@
     </modules>
   </component>
 </project>
-
