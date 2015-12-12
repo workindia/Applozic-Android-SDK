@@ -142,13 +142,24 @@ public class ContactDatabase {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
-        contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
-        contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
+        if (!TextUtils.isEmpty(contact.getImageURL())) {
+            contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
+        }
+        if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
+            contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
+        }
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
-        contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
-        contentValues.put(MobiComDatabaseHelper.APPLICATION_ID, contact.getApplicationId());
+        if (!TextUtils.isEmpty(contact.getEmailId())) {
+            contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
+        }
+        if (!TextUtils.isEmpty(contact.getApplicationId())) {
+            contentValues.put(MobiComDatabaseHelper.APPLICATION_ID, contact.getApplicationId());
+        }
+
         contentValues.put(MobiComDatabaseHelper.CONNECTED, contact.isConnected() ? 1 : 0);
-        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
+        if (contact.getLastSeenAt() != 0) {
+            contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
+        }
         return contentValues;
     }
 
@@ -174,7 +185,4 @@ public class ContactDatabase {
         }
     }
 
-
 }
-
-

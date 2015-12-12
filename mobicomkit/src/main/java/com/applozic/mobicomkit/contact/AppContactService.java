@@ -40,7 +40,9 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void addAll(List<Contact> contactList) {
-        contactDatabase.addAllContact(contactList);
+        for (Contact contact: contactList) {
+            upsert(contact);
+        }
     }
 
     @Override
@@ -154,4 +156,3 @@ public class AppContactService implements BaseContactService {
         BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
     }
 }
-
