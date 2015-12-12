@@ -12,20 +12,15 @@
         android:id="@+id/layout_online"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/onlineTextView"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="40dp">
-    </FrameLayout>
-
-
+        android:layout_alignTop="@+id/onlineTextView"/>
     <TextView
         android:id="@+id/alphabeticImage"
         android:layout_width="44dp"
         android:layout_height="44dp"
+        android:layout_gravity="center"
         android:layout_margin="4dp"
         android:background="@drawable/mobiframework_circular_text_view"
         android:gravity="center"
-        android:layout_gravity="center"
         android:text=""
         android:textColor="#ffffff"
         android:textSize="20dp"
@@ -45,10 +40,10 @@
         android:id="@+id/contactImage"
         android:layout_width="44dp"
         android:layout_height="44dp"
-        android:layout_toRightOf="@+id/alphabeticImage"
-        android:layout_margin="4dp"
-        android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:layout_gravity="center"
+        android:layout_margin="4dp"
+        android:layout_toRightOf="@+id/alphabeticImage"
+        android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:visibility="visible" />
 
     <LinearLayout
@@ -144,8 +139,8 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="90dp"
             android:layout_weight="1"
-            android:maxWidth="60dp"
             android:maxLines="2"
+            android:maxWidth="60dp"
             android:paddingBottom="2dp"
             android:text=""
             android:textColor="#999"

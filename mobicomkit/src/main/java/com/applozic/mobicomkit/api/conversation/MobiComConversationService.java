@@ -277,7 +277,7 @@ public class MobiComConversationService {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }
 
-    public void processLastSeenAtStatus() {
+    public synchronized void processLastSeenAtStatus() {
         try {
             new Thread(new Runnable() {
                 @Override

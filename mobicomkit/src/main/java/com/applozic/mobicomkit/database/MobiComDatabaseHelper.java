@@ -188,7 +188,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("delete from " + CONTACT_TABLE_NAME);
 
-        db.close();
+       // db.close();
 
         return 0;
     }
