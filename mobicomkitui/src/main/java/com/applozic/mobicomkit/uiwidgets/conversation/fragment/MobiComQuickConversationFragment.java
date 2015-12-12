@@ -354,6 +354,9 @@ public class MobiComQuickConversationFragment extends Fragment {
     }
 
     public void updateLastSeenStatus(final String userId) {
+        if (!ApplozicSetting.getInstance(getActivity()).isOnlineStatusInMasterListVisible()) {
+            return;
+        }
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

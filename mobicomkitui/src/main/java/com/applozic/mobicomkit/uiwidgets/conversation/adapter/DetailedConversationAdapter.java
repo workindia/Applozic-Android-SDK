@@ -550,6 +550,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     @Override
     public int getItemViewType(int position) {
         Message message = getItem(position);
+        if (message == null) {
+            return 0;
+        }
         if (message.isTempDateType()) {
             return 2;
         }
