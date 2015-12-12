@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
@@ -35,19 +36,19 @@ import java.util.List;
 
 public class MobiComConversationService {
 
-    private static final String TAG = "Conversation";
     public static final String SERVER_SYNC = "SERVER_SYNC_";
-    private SharedPreferences sharedPreferences;
-
-
+    private static final String TAG = "Conversation";
     protected Context context = null;
     protected MessageClientService messageClientService;
     protected MessageDatabaseService messageDatabaseService;
+    private SharedPreferences sharedPreferences;
+    private BaseContactService baseContactService;
 
     public MobiComConversationService(Context context) {
         this.context = context;
         this.messageClientService = new MessageClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
+        this.baseContactService = new AppContactService(context);
         this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
@@ -127,10 +128,10 @@ public class MobiComConversationService {
             String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
 
             Message[] messages = gson.fromJson(element, Message[].class);
-            if (!TextUtils.isEmpty(userDetailsElement)) {
+           /* if (!TextUtils.isEmpty(userDetailsElement)) {
                 UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
                 processUserDetails(userDetails);
-            }
+            }*/
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
 
@@ -190,6 +191,7 @@ public class MobiComConversationService {
 
     private void processUserDetails(UserDetail[] userDetails) {
         for (UserDetail userDetail : userDetails) {
+            Contact newContact = baseContactService.getContactById(userDetail.getUserId());
             Contact contact = new Contact();
             contact.setUserId(userDetail.getUserId());
             contact.setContactNumber(userDetail.getUserId());
@@ -197,6 +199,11 @@ public class MobiComConversationService {
             contact.setConnected(userDetail.isConnected());
             contact.setFullName(userDetail.getDisplayName());
             contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+            if (newContact != null) {
+                if (newContact.isConnected() != contact.isConnected()) {
+                    BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
+                }
+            }
             new AppContactService(context).upsert(contact);
         }
     }
@@ -265,11 +272,12 @@ public class MobiComConversationService {
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
                 contact.getContactIds(), response);
     }
+
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
     }
 
-    public void processLastSeenAtStatus() {
+    public synchronized void processLastSeenAtStatus() {
         try {
             new Thread(new Runnable() {
                 @Override

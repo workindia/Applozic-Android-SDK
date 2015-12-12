@@ -156,4 +156,3 @@ public class AppContactService implements BaseContactService {
         BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
     }
 }
-

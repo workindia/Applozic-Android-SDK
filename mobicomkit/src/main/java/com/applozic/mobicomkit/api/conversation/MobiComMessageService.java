@@ -195,7 +195,7 @@ public class MobiComMessageService {
                     Contact contact = new Contact();
                     contact.setUserId(keyValue.getKey());
                     contact.setFullName(keyValue.getValue());
-                    baseContactService.add(contact);
+                    baseContactService.upsert(contact);
                 }
 
             } catch (JSONException e) {

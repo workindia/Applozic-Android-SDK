@@ -361,8 +361,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                     Message message = latestMessageForEachContact.get(userId);
                     if (message != null) {
                         int index = messageList.indexOf(message);
-                        View view = listView.getChildAt(index -
-                                listView.getFirstVisiblePosition() + 1);
+                        View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
                         if (view != null) {
                             TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
                             Contact contact = baseContactService.getContactById(userId);

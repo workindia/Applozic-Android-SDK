@@ -352,7 +352,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void deleteMessageFromDeviceList(String messageKeyString) {
-        try{
+        try {
             int position;
             boolean updateQuickConversation = false;
             int index;
@@ -365,7 +365,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         int belowIndex = index + 1;
                         Message aboveMessage = messageList.get(aboveIndex);
                         if (belowIndex != messageList.size()) {
-                            Message  belowMessage = messageList.get(belowIndex);
+                            Message belowMessage = messageList.get(belowIndex);
                             if (aboveMessage.isTempDateType() && belowMessage.isTempDateType()) {
                                 messageList.remove(aboveMessage);
                             }
@@ -396,7 +396,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (messageListSize > 0 && updateQuickConversation) {
                 ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), contact.getFormattedContactNumber());
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -553,7 +553,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
-        final BaseContactService baseContactService = new AppContactService(getActivity());
+
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
 
@@ -633,16 +633,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 try {
-                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
-                    if (userDetails != null) {
-                        for (UserDetail userDetail : userDetails) {
-                            contact.setFullName(userDetail.getDisplayName());
-                            contact.setConnected(userDetail.isConnected());
-                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
-                            baseContactService.upsert(contact);
-                        }
-                        updateLastSeenStatus();
-                    }
+                    messageClientService.processUserStatus(contact);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -656,19 +647,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (this.getActivity() == null) {
             return;
         }
+        contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (contact != null) {
                     if (contact.isConnected()) {
-                        //getActivity() is coming null sometimes
                         ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
-                    } else {
-                        if (contact.getLastSeenAt() == 0) {
-
-                        } else {
-                            ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
-                        }
+                    } else if (contact.getLastSeenAt() != 0) {
+                        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
                     }
                 }
             }
@@ -1327,7 +1314,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
                 nextSmsList = createAtMessage;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
 

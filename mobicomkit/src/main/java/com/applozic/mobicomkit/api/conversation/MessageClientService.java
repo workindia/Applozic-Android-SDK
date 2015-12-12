@@ -64,12 +64,14 @@ public class MessageClientService extends MobiComKitClientService {
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private HttpRequestUtils httpRequestUtils;
+    private BaseContactService baseContactService ;
 
     public MessageClientService(Context context) {
         super(context);
         this.context = context;
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
+        this.baseContactService = new AppContactService(context);
     }
 
     public synchronized static void syncPendingMessages(Context context) {
@@ -273,7 +275,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
 */
         //recentMessageSentToServer.add(message);
-        BaseContactService baseContactService = new AppContactService(context);
+
 
         boolean isBroadcast = (message.getMessageId() == null);
 
@@ -542,30 +544,38 @@ public class MessageClientService extends MobiComKitClientService {
         return null;
     }
 
-    public UserDetail[] getUserDetails(String userId) {
+    public void processUserStatus(Contact contact) {
 
         try {
             String contactNumberParameter = "";
             String response = "";
-            if (userId != null && !TextUtils.isEmpty(userId)) {
+            if (contact != null && contact.getContactIds() != null) {
                 try {
-                    contactNumberParameter = "?userIds=" + userId;
-                } catch (Exception e) {
+                    contactNumberParameter = "?userIds=" + URLEncoder.encode(contact.getContactIds());
+                }catch (Exception e){
+                    contactNumberParameter = "?userIds=" +contact.getContactIds();
                     e.printStackTrace();
                 }
             }
             response = httpRequestUtils.getResponse(getCredentials(), getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
             Log.i(TAG, "User details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
-                return null;
+                return;
             }
 
-            Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
-                    .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
+            UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
 
-            return gson.fromJson(response, UserDetail[].class);
+            if (userDetails != null) {
+                for (UserDetail userDetail : userDetails) {
+                    contact.setFullName(userDetail.getDisplayName());
+                    contact.setConnected(userDetail.isConnected());
+                    contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                    baseContactService.upsert(contact);
+                }
+                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(),contact.getContactIds());
+            }
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
     }
 
