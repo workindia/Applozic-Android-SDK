@@ -137,8 +137,8 @@ public class QuickConversationAdapter extends BaseAdapter {
                 alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
                 GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
-                if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible() && contactReceiver != null  && contactReceiver.isConnected()) {
-                    onlineTextView.setVisibility(View.VISIBLE);
+                if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
+                    onlineTextView.setVisibility((contactReceiver != null  && contactReceiver.isConnected()) ? View.VISIBLE : View.GONE);
                 }
             }
             
