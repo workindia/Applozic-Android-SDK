@@ -40,7 +40,9 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void addAll(List<Contact> contactList) {
-        contactDatabase.addAllContact(contactList);
+        for (Contact contact: contactList) {
+            upsert(contact);
+        }
     }
 
     @Override

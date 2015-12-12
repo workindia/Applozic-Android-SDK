@@ -661,6 +661,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void run() {
                 if (contact != null) {
                     if (contact.isConnected()) {
+                        //getActivity() is coming null sometimes
                         ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
                     } else {
                         if (contact.getLastSeenAt() == 0) {
