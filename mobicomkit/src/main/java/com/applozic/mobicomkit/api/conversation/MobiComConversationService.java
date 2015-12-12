@@ -200,8 +200,7 @@ public class MobiComConversationService {
             contact.setFullName(userDetail.getDisplayName());
             contact.setLastSeenAt(userDetail.getLastSeenAtTime());
             if (newContact != null) {
-                if (newContact.isConnected() == contact.isConnected()) {
-                } else {
+                if (!(newContact.isConnected() == contact.isConnected())) {
                     BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
                 }
             }
