@@ -484,15 +484,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             return;
         }
 
-        if (contact.isDrawableResources() && contactImage != null) {
-            int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
-            contactImage.setImageResource(drawableResourceId);
-            contactImage.setVisibility(View.VISIBLE);
-            alphabeticTextView.setVisibility(View.GONE);
-        } else if (contactImage != null) {
-            contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
-        }
-
         if (alphabeticTextView != null) {
             String contactNumber = contact.getContactNumber().toUpperCase();
             char firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
@@ -507,6 +498,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
             GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
             bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+        }
+
+        if (contact.isDrawableResources() && contactImage != null) {
+            int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
+            contactImage.setImageResource(drawableResourceId);
+            contactImage.setVisibility(View.VISIBLE);
+            alphabeticTextView.setVisibility(View.GONE);
+        } else if (contactImage != null) {
+            contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
         }
 
     }
