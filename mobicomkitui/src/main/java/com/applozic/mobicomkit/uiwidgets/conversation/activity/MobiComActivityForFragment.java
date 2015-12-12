@@ -78,16 +78,16 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     protected void onResume() {
         super.onResume();
         InstructionUtil.enabled = true;
-        mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+       // mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
+       // LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         InstructionUtil.enabled = false;
-        mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+      //  mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
+       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
    /* @Override

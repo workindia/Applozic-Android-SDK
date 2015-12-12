@@ -552,7 +552,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
-        final BaseContactService baseContactService = new AppContactService(getActivity());
+
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
 
@@ -632,16 +632,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 try {
-                    UserDetail[] userDetails = messageClientService.getUserDetails(contact.getContactIds());
-                    if (userDetails != null) {
-                        for (UserDetail userDetail : userDetails) {
-                            contact.setFullName(userDetail.getDisplayName());
-                            contact.setConnected(userDetail.isConnected());
-                            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
-                            baseContactService.upsert(contact);
-                        }
-                        updateLastSeenStatus();
-                    }
+                    messageClientService.processUserStatus(contact);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -661,15 +652,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (contact != null) {
                     if (contact.isConnected()) {
                         ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
-                    } else {
-                        if (contact.getLastSeenAt() == 0) {
-
-                        } else {
+                    } else if (contact.getLastSeenAt() != 0){
                             ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
                         }
                     }
-                }
-            }
+             }
 
         });
     }
