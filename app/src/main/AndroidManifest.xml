@@ -100,16 +100,19 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
         <meta-data
+            android:name="com.applozic.mobicomkit.notification.smallIcon"
+            android:resource="@drawable/ic_launcher" />
+        <meta-data
             android:name="com.package.name"
             android:value="${applicationId}" />
         <meta-data
             android:name="share_text"
             android:value="@string/invite_message" />
-        <activity
+        <!--<activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />-->
 
 
 

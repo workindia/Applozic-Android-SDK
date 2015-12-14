@@ -44,7 +44,12 @@ public class ContactDatabase {
         contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
-        contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
+        String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
+        if (TextUtils.isEmpty(contactNumber)) {
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        } else {
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
+        }
         contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
         Long connected = cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.CONNECTED));
         contact.setConnected(connected != 0 && connected.intValue() == 1);

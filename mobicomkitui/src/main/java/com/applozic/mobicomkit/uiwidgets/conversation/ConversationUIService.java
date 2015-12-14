@@ -254,14 +254,14 @@ public class ConversationUIService {
     }
 
     public void updateLastSeenStatus(String contactId) {
-        if (!BroadcastService.isIndividual()) {
+        if (BroadcastService.isQuick()) {
             getQuickConversationFragment().updateLastSeenStatus(contactId);
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateLastSeenStatus();
-        }
+            if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+                conversationFragment.updateLastSeenStatus();
+            }
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
