@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -18,7 +17,6 @@ import android.widget.TextView;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -78,16 +76,16 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     protected void onResume() {
         super.onResume();
         InstructionUtil.enabled = true;
-        mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-        LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+     //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
+     //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         InstructionUtil.enabled = false;
-        mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+      // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
+       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
