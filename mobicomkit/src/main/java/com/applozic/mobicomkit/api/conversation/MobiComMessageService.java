@@ -152,6 +152,10 @@ public class MobiComMessageService {
         }
         for (String messageKey: deliveredMessageKeys) {
             messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, null);
+            Message message = messageDatabaseService.getMessage(messageKey);
+            if (message != null) {
+                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
+            }
         }
     }
 
