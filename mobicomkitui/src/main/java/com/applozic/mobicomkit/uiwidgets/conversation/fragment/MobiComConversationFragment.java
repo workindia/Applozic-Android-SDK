@@ -49,7 +49,6 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -59,7 +58,6 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
@@ -137,6 +135,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private Bitmap previewThumbnail;
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
+    private String defaultText;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -184,6 +183,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         attachButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.attach_button);
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
         messageEditText = (EditText) individualMessageSendLayout.findViewById(R.id.conversation_message);
+        if(!TextUtils.isEmpty(defaultText)){
+            messageEditText.setText(defaultText);
+            defaultText = "";
+        }
         scheduleOption = (Button) extendedSendingOptionLayout.findViewById(R.id.scheduleOption);
         mediaContainer = (ImageView) attachmentLayout.findViewById(R.id.media_container);
         attachedFile = (TextView) attachmentLayout.findViewById(R.id.attached_file);
@@ -1017,6 +1020,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
+    public void setDefaultText(String defaultText){
+        this.defaultText = defaultText;
+    }
     public void updateUserTypingStatus(final String typingUserId, final String isTypingStatus) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -1239,6 +1245,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     swipeLayout.setRefreshing(true);
                 }
             });
+            if (initial) {
+                sendButton.setEnabled(false);
+                messageEditText.setEnabled(false);
+            }
 
             if (!initial && messageList.isEmpty()) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
@@ -1395,7 +1405,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     swipeLayout.setRefreshing(false);
                 }
             });
-
+            if (initial) {
+                sendButton.setEnabled(true);
+                messageEditText.setEnabled(true);
+            }
             loadMore = !nextSmsList.isEmpty();
         }
     }
