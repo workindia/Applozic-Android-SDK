@@ -1352,6 +1352,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         swipeLayout.setRefreshing(false);
                     }
                 });
+                if (initial) {
+                    sendButton.setEnabled(true);
+                    messageEditText.setEnabled(true);
+                }
                 return;
             }
 
