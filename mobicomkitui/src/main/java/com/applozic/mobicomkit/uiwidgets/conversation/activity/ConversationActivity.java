@@ -375,17 +375,20 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onConnected(Bundle bundle) {
-        Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (mCurrentLocation == null) {
-            Toast.makeText(this, R.string.waiting_for_current_location, Toast.LENGTH_SHORT).show();
-            locationRequest = new LocationRequest();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(UPDATE_INTERVAL);
-            locationRequest.setFastestInterval(FASTEST_INTERVAL);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-        }
-        if (mCurrentLocation != null) {
-            conversation.attachLocation(mCurrentLocation);
+        try {
+            Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (mCurrentLocation == null) {
+                Toast.makeText(this, R.string.waiting_for_current_location, Toast.LENGTH_SHORT).show();
+                locationRequest = new LocationRequest();
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                locationRequest.setInterval(UPDATE_INTERVAL);
+                locationRequest.setFastestInterval(FASTEST_INTERVAL);
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            }
+            if (mCurrentLocation != null && conversation != null) {
+                conversation.attachLocation(mCurrentLocation);
+            }
+        } catch (Exception e) {
         }
 
     }
@@ -399,8 +402,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onLocationChanged(Location location) {
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-        conversation.attachLocation(location);
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            if (conversation != null && location != null) {
+                conversation.attachLocation(location);
+            }
+        } catch (Exception e) {
+        }
     }
 
     @Override
