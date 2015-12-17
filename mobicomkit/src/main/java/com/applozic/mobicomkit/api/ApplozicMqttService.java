@@ -78,6 +78,9 @@ public class ApplozicMqttService implements MqttCallback {
     private MqttClient connect() {
         String userId = MobiComUserPreference.getInstance(context).getUserId();
         try {
+            if(TextUtils.isEmpty(userId)){
+                return client;
+            }
             if (client == null) {
                 client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
             }
@@ -128,16 +131,33 @@ public class ApplozicMqttService implements MqttCallback {
         if (!Utils.isInternetAvailable(context)) {
             return;
         }
+       final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+        if(TextUtils.isEmpty(userKeyString)) {
+           return;
+        }
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                connect();
-                connectPublish(MobiComUserPreference.getInstance(context).getSuUserKeyString(), "1");
-                subscribeToConversation();
-                subscribeToTypingTopic();
-                if (client != null) {
-                    client.setCallback(ApplozicMqttService.this);
+                try {
+                    final MqttClient client = connect();
+                    if (client == null || !client.isConnected()) {
+                        return;
+                    }
+                    MqttMessage message = new MqttMessage();
+                    message.setRetained(false);
+                    message.setPayload((userKeyString+ "," + "1").getBytes());
+                    Log.i(TAG, "UserKeyString, status:" + userKeyString + ", " + "1");
+                    message.setQos(0);
+                    client.publish(STATUS, message);
+                    subscribeToConversation();
+                    subscribeToTypingTopic();
+                    if (client != null) {
+                        client.setCallback(ApplozicMqttService.this);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }).start();

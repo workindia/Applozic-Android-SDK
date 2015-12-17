@@ -73,6 +73,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
+    private static int retry ;
 
     public ConversationActivity() {
 
@@ -101,6 +102,15 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         snackbar.show();
     }
 
+    @Override
+    public void retry() {
+        retry++;
+    }
+
+    @Override
+    public int getRetryCount() {
+        return retry;
+    }
     public void dismissErrorMessage() {
         if (snackbar != null) {
             snackbar.dismiss();
@@ -189,7 +199,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
-
+        retry = 0;
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);

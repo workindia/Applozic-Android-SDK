@@ -450,9 +450,16 @@ public class ConversationUIService {
     }
 
     public void reconnectMQTT() {
-        if (Utils.isInternetAvailable(fragmentActivity)) {
-            Log.i(TAG, "Reconnecting to mqtt.");
-            ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+        try {
+            if(((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3){
+                if (Utils.isInternetAvailable(fragmentActivity)) {
+                    Log.i(TAG, "Reconnecting to mqtt.");
+                    ((MobiComKitActivityInterface) fragmentActivity).retry();
+                    ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -263,6 +263,16 @@ public class MainActivity extends MobiComActivityForFragment
 
     }
 
+    @Override
+    public void retry() {
+
+    }
+
+    @Override
+    public int getRetryCount() {
+        return 0;
+    }
+
     private void buildSupportContactData() {
         Context context = getApplicationContext();
         AppContactService appContactService = new AppContactService(context);
