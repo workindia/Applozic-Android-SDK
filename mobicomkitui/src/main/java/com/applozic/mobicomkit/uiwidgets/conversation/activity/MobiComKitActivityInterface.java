@@ -30,4 +30,8 @@ public interface MobiComKitActivityInterface {
 
     void showErrorMessageView(String errorMessage);
 
+    void retry();
+
+    int getRetryCount();
+
 }

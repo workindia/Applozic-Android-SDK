@@ -47,7 +47,6 @@ public class ConversationUIService {
     public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
-    private static final String TAG = "ConversationUIService";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
@@ -56,6 +55,8 @@ public class ConversationUIService {
     public static final String CONTACT_ID = "contactId";
     public static final String CONTACT_NUMBER = "contactNumber";
     public static final String APPLICATION_ID = "applicationId";
+    public static final String DEFAULT_TEXT = "defaultText";
+    private static final String TAG = "ConversationUIService";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
@@ -440,12 +441,25 @@ public class ConversationUIService {
         if (!TextUtils.isEmpty(sharedText)) {
             getConversationFragment().sendMessage(sharedText);
         }
+
+        String defaultText = intent.getStringExtra(ConversationUIService.DEFAULT_TEXT);
+        if (!TextUtils.isEmpty(defaultText)) {
+            getConversationFragment().setDefaultText(defaultText);
+        }
+
     }
 
     public void reconnectMQTT() {
-        if (Utils.isInternetAvailable(fragmentActivity)) {
-            Log.i(TAG, "Reconnecting to mqtt.");
-            ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+        try {
+            if(((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3){
+                if (Utils.isInternetAvailable(fragmentActivity)) {
+                    Log.i(TAG, "Reconnecting to mqtt.");
+                    ((MobiComKitActivityInterface) fragmentActivity).retry();
+                    ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

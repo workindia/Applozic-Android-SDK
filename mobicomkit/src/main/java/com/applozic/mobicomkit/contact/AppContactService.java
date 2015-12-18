@@ -152,7 +152,10 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateConnectedStatus(String contactId, Date date, boolean connected) {
-        contactDatabase.updateConnectedOrDisconnectedStatus(contactId, date, connected);
-        BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
+        Contact contact = getContactById(contactId);
+            if(contact != null && contact.isConnected() != connected){
+                contactDatabase.updateConnectedOrDisconnectedStatus(contactId, date, connected);
+                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
+            }
     }
 }

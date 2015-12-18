@@ -165,6 +165,7 @@ public class MainActivity extends MobiComActivityForFragment
         Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
         takeOrderIntent.putExtra(TAKE_ORDER, true);
         takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT,"Hello I am interested in your property, Can we chat?");
        // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
          startActivity(takeOrderIntent);
     }
@@ -258,6 +259,16 @@ public class MainActivity extends MobiComActivityForFragment
     @Override
     public void showErrorMessageView(String errorMessage) {
 
+    }
+
+    @Override
+    public void retry() {
+
+    }
+
+    @Override
+    public int getRetryCount() {
+        return 0;
     }
 
     private void buildSupportContactData() {
