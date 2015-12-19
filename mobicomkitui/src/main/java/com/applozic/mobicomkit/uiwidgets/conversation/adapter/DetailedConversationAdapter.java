@@ -39,6 +39,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 
@@ -81,7 +82,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
     }
 
-    private ImageLoader contactImageLoader;
+    private ImageLoader contactImageLoader, loadImage;
     private Context context;
     private Contact contact;
     private Group group;
@@ -132,6 +133,14 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         contactImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
 
+        loadImage = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
+            @Override
+            protected Bitmap processBitmap(Object data) {
+                return fileClientService.loadMessageImage(getContext(), (String) data);
+            }
+        };
+        loadImage.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+        loadImage.setImageFadeIn(false);
         imageThumbnailLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -289,7 +298,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 loadContactImage(receiverContact, contactImage, alphabeticTextView);
             }
-            if (message.hasAttachment() && attachedFile != null) {
+            if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
                     attachedFile.setVisibility(View.GONE);
@@ -387,6 +396,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     //TODO: 1. get the image Size and decide if we can download directly
                     //2. if already downloaded to ds card show it directly ....
                     //3. if deleted from sd crad only ...ask user to download it again or skip ...
+                    if (message.getContentType() == Message.ContentType.TEXT_URL.getValue()) {
+                        return;
+                    }
                     if (message.isAttachmentDownloaded()) {
                         showFullView(message);
                     } else {
@@ -429,8 +441,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             String mimeType = "";
             if (messageTextView != null) {
-                if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
-                    messageTextView.setText(Html.fromHtml(message.getMessage()));
+                if (message.getContentType() == Message.ContentType.TEXT_URL.getValue()) {
+                    try {
+                        attachedFile.setVisibility(View.GONE);
+                        preview.setVisibility(View.VISIBLE);
+                        messageTextView.setText(message.getMessage());
+                        loadImage.setImageFadeIn(false);
+                        loadImage.loadImage(message.getFileMetas().getBlobKeyString(), preview);
+                        attachmentDownloadLayout.setVisibility(View.GONE);
+                    } catch (Exception e) {
+                    }
+                } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
+                    messageTextView.setText(ConversationUIService.FINAL_PRICE_TEXT + message.getMessage());
                 } else {
                     messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
                     if (mimeType != null && attachmentIcon != null) {
@@ -485,7 +507,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
             /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
             alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
-            GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+            GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
             bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
         }
 

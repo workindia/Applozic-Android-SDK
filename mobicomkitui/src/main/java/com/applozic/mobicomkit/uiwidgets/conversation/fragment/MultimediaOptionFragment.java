@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.file.FileUtils;
 
@@ -49,6 +50,9 @@ public class MultimediaOptionFragment extends DialogFragment {
         builder.setItems(menuOptionsResourceId, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
+                    case 0:
+                        ((ConversationActivity) getActivity()).processLocation();
+                        break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         // Ensure that there's a camera activity to handle the intent
@@ -76,8 +80,9 @@ public class MultimediaOptionFragment extends DialogFragment {
                         Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
                         getActivity().startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
                         break;
-                    case 0:
-                        ((ConversationActivity) getActivity()).processLocation();
+
+                    case 3:
+                        new ConversationUIService(getActivity()).sendPriceMessage();
                         break;
                     default:
                 }

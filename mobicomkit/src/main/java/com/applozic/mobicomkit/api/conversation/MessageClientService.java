@@ -8,10 +8,7 @@ import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.MessageResponse;
-import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
-import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -345,6 +342,8 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setStoreOnDevice(message.isStoreOnDevice());
         newMessage.setDelivered(message.getDelivered());
         newMessage.setSendToDevice(message.isSendToDevice());
+        newMessage.setContentType(message.getContentType());
+        newMessage.setConversationId(message.getConversationId());
 
         if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
             newMessage.setApplicationId(contact.getApplicationId());

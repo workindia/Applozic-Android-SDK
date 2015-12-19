@@ -266,7 +266,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         // Inflate the menu; this adds items to the action bar if it is present.
         showActionBar();
         //return false;
-       getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
+        getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
         }

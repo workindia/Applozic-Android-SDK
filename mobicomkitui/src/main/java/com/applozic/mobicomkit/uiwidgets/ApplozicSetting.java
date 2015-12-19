@@ -21,6 +21,7 @@ public class ApplozicSetting {
     private static final String SENT_MESSAGE_BACKGROUND_COLOR = "SENT_MESSAGE_BACKGROUND_COLOR";
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
     private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
+    private static final String PRICE_WIDGET = "PRICE_WIDGET";
 
 
     public static ApplozicSetting applozicSetting;
@@ -119,6 +120,20 @@ public class ApplozicSetting {
     public ApplozicSetting setNoConversationLabel(String label) {
         sharedPreferences.edit().putString(NO_CONVERSATION_LABEL, label).commit();
         return this;
+    }
+
+    public ApplozicSetting showPriceOption() {
+        sharedPreferences.edit().putBoolean(PRICE_WIDGET, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hidePriceOption() {
+        sharedPreferences.edit().putBoolean(PRICE_WIDGET, false).commit();
+        return this;
+    }
+
+    public boolean isPriceOptionVisible() {
+        return sharedPreferences.getBoolean(PRICE_WIDGET, false);
     }
 
     public boolean clearAll() {

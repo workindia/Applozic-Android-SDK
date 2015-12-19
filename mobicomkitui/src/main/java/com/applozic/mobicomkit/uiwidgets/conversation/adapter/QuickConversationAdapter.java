@@ -21,6 +21,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 
@@ -160,13 +161,15 @@ public class QuickConversationAdapter extends BaseAdapter {
                 Group group = message.getBroadcastGroupId() != null ? GroupUtils.fetchGroup(context, message.getBroadcastGroupId()) : null;
             }
 
-            if (message.hasAttachment() && attachmentIcon != null) {
+            if (message.hasAttachment() && attachmentIcon != null && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 //Todo: handle it for fileKeyStrings when filePaths is empty
                 String filePath = message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
                         message.getFileMetas() != null ? message.getFileMetas().getName() : "";
                 attachmentIcon.setVisibility(View.VISIBLE);
                 messageTextView.setText(filePath + " " + messageTextView.getText());
-            } else {
+            } else if(message.getContentType() == Message.ContentType.PRICE.getValue()){
+                messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT+message.getMessage(), emojiconHandler));
+            } else{
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
             }
 

@@ -41,4 +41,11 @@
         <item>Attach file</item>
     </string-array>
 
+    <string-array name="multimediaOptions_with_price">
+        <item>Current location</item>
+        <item>Take photo</item>
+        <item>Attach file</item>
+        <item>Attach price</item>
+    </string-array>
+
 </resources>

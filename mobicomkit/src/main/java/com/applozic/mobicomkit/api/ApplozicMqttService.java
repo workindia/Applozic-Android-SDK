@@ -146,7 +146,7 @@ public class ApplozicMqttService implements MqttCallback {
                     }
                     MqttMessage message = new MqttMessage();
                     message.setRetained(false);
-                    message.setPayload((userKeyString+ "," + "1").getBytes());
+                    message.setPayload((userKeyString + "," + "1").getBytes());
                     Log.i(TAG, "UserKeyString, status:" + userKeyString + ", " + "1");
                     message.setQos(0);
                     client.publish(STATUS, message);

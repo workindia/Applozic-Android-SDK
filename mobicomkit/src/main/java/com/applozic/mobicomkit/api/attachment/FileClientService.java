@@ -29,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.Date;
@@ -139,6 +140,28 @@ public class FileClientService extends MobiComKitClientService {
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false;
             attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
+            return attachedImage;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "File not found on server: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
+        }
+
+        return null;
+    }
+
+    public Bitmap loadMessageImage(Context context, String url) {
+        try {
+            Bitmap attachedImage = null;
+
+            if (attachedImage == null) {
+                InputStream in = new java.net.URL(url).openStream();
+                if (in != null) {
+                    attachedImage = BitmapFactory.decodeStream(in);
+                }
+            }
             return attachedImage;
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();

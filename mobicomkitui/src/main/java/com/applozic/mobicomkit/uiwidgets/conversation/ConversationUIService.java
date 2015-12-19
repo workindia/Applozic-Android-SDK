@@ -9,9 +9,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.PhoneNumberUtils;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
@@ -47,6 +50,7 @@ public class ConversationUIService {
     public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
+    private static final String TAG = "ConversationUIService";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
@@ -56,7 +60,7 @@ public class ConversationUIService {
     public static final String CONTACT_NUMBER = "contactNumber";
     public static final String APPLICATION_ID = "applicationId";
     public static final String DEFAULT_TEXT = "defaultText";
-    private static final String TAG = "ConversationUIService";
+    public static final String FINAL_PRICE_TEXT = "Final agreed price ";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
@@ -260,9 +264,9 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-            if (contactId.equals(conversationFragment.getContact().getContactIds())) {
-                conversationFragment.updateLastSeenStatus();
-            }
+        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateLastSeenStatus();
+        }
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
@@ -349,6 +353,46 @@ public class ConversationUIService {
         Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
 
         startContactActivityForResult(intent, message, messageContent);
+    }
+
+    public void sendPriceMessage() {
+
+        try {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragmentActivity);
+            alertDialog.setTitle("Price");
+            alertDialog.setMessage("Enter your amount");
+
+            final EditText inputText = new EditText(fragmentActivity);
+            inputText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            inputText.setLayoutParams(linearParams);
+            alertDialog.setView(inputText);
+
+            alertDialog.setPositiveButton(fragmentActivity.getString(R.string.send_text),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (!TextUtils.isEmpty(inputText.getText().toString())) {
+                                getConversationFragment().sendMessage(inputText.getText().toString(),Message.ContentType.PRICE.getValue());
+                            }
+                        }
+                    });
+
+            alertDialog.setNegativeButton(fragmentActivity.getString(R.string.cancel_text),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            if (!fragmentActivity.isFinishing()) {
+                alertDialog.show();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void checkForStartNewConversation(Intent intent) {

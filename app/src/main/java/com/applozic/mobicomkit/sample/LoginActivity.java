@@ -246,7 +246,7 @@ public class LoginActivity extends Activity {
                 public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
                     mAuthTask = null;
                     showProgress(false);
-                    ApplozicSetting.getInstance(context).showStartNewButton();
+                    ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);

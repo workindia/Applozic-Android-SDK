@@ -46,6 +46,7 @@ public class Message extends JsonMarker {
     private Boolean read = false;
     private boolean attDownloadInProgress;
     private String applicationId;
+    private Integer conversationId;
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
 
@@ -82,7 +83,7 @@ public class Message extends JsonMarker {
         this.setRead(message.isRead());
         this.setApplicationId(message.getApplicationId());
         this.setContentType(message.getContentType());
-
+        this.setConversationId(message.getConversationId());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -390,6 +391,14 @@ public class Message extends JsonMarker {
         this.contentType = contentType;
     }
 
+    public Integer getConversationId() {
+        return conversationId ;
+    }
+
+    public void setConversationId(Integer conversationId) {
+        this.conversationId = conversationId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -503,6 +512,7 @@ public class Message extends JsonMarker {
                 ", shared=" + shared +
                 ",applicationId=" + applicationId +
                 ",contentType=" + contentType +
+                ",conversationId=" + conversationId +
                 '}';
     }
 
@@ -548,7 +558,7 @@ public class Message extends JsonMarker {
     public  enum ContentType {
 
         DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
-        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4"));
+        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4")),TEXT_URL(Short.valueOf("5"));
         private Short value;
 
         ContentType(Short value) {

@@ -86,6 +86,12 @@ public class MessageDatabaseService {
         message.setBroadcastGroupId(broadcastGroupId != 0 ? broadcastGroupId : null);
         message.setApplicationId(cursor.getString(cursor.getColumnIndex("applicationId")));
         message.setContentType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE)));
+        int conversationId =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CONVERSATION_ID));
+        if(conversationId == 0){
+            message.setConversationId(null);
+        }else {
+            message.setConversationId(conversationId);
+        }
         if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
             //file is not present...  Don't set anything ...
         } else {
@@ -438,6 +444,7 @@ public class MessageDatabaseService {
             values.put("read", message.isRead() ? 1 : 0);
             values.put("applicationId", message.getApplicationId());
             values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE,message.getContentType());
+            values.put(MobiComDatabaseHelper.CONVERSATION_ID,message.getConversationId());
 
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());

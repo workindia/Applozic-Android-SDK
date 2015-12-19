@@ -105,6 +105,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected boolean loadMore = true;
     protected Contact contact;
     protected Group group;
+    protected  static Integer currentConversationId;
     protected EditText messageEditText;
     protected ImageButton sendButton;
     protected ImageButton attachButton;
@@ -489,6 +490,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     listView.setSelection(messageList.size());
                     emptyTextView.setVisibility(View.GONE);
                     new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
+                    currentConversationId = message.getConversationId();
                 }
 
                 selfDestructMessage(message);
@@ -894,10 +896,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (messageToForward.isAttachmentDownloaded()) {
             filePath = messageToForward.getFilePaths().get(0);
         }
-        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings());
+        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings(),Message.ContentType.DEFAULT.getValue());
     }
 
-    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings) {
+    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings,short messageContentType ) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 
@@ -918,11 +920,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageToSend.setContactIds(contact.getContactIds());
         }
 
+        messageToSend.setContentType(messageContentType);
         messageToSend.setRead(Boolean.TRUE);
         messageToSend.setStoreOnDevice(Boolean.TRUE);
         if (messageToSend.getCreatedAtTime() == null) {
             messageToSend.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
         }
+        messageToSend.setConversationId(currentConversationId);
         messageToSend.setSendToDevice(Boolean.FALSE);
         messageToSend.setType(sendType.getSelectedItemId() == 1 ? Message.MessageType.MT_OUTBOX.getValue() : Message.MessageType.OUTBOX.getValue());
         messageToSend.setTimeToLive(getTimeToLive());
@@ -955,7 +959,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void sendMessage(String message) {
-        sendMessage(message, null, null);
+        sendMessage(message, null, null, Message.ContentType.DEFAULT.getValue());
+    }
+
+    public void sendMessage(String message, short messageContentType) {
+        sendMessage(message, null, null, messageContentType);
     }
 
     public void updateMessageKeyString(final Message message) {
@@ -1410,6 +1418,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     swipeLayout.setRefreshing(false);
                 }
             });
+
+            if(!messageList.isEmpty()){
+                currentConversationId = messageList.get(messageList.size()-1).getConversationId();
+            }
             if (initial) {
                 sendButton.setEnabled(true);
                 messageEditText.setEnabled(true);
