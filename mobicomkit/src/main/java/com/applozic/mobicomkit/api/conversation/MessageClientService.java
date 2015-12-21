@@ -4,27 +4,27 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.api.account.user.UserDetail;
-import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.feed.MessageResponse;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduledMessageUtil;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
-
+import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -54,6 +54,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String UPDATE_READ_STATUS_URL = "/rest/ws/message/read/conversation";
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail";
+    public static final String USER_DETAILS_LIST_URL = "/rest/ws/user/status";
     public static final String ARGUMRNT_SAPERATOR = "&";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
@@ -117,6 +118,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getUserDetailUrl() {
         return getBaseUrl() + USER_DETAILS_URL;
+    }
+
+    public String getUserDetailsListUrl() {
+        return getBaseUrl() + USER_DETAILS_LIST_URL;
     }
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -510,21 +515,21 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public UserDetail[] getUserDetails() {
+    public SyncUserDetailsResponse getUserDetailsList(String lastSeenAt) {
         try {
-            String response = getMessages(null, null, null, null);
-            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access") || !response.contains("{")) {
+            String url = getUserDetailsListUrl() + "?lastSeenAt=" + lastSeenAt;
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
                 return null;
             }
-            JsonParser parser = new JsonParser();
-            String element = parser.parse(response).getAsJsonObject().get("userDetails").toString();
-            if (!TextUtils.isEmpty(element)) {
-                return (UserDetail[]) GsonUtils.getObjectFromJson(element, UserDetail[].class);
-            }
+            Log.i(TAG,"Sync UserDetails response is:"+response);
+            SyncUserDetailsResponse userDetails = (SyncUserDetailsResponse) GsonUtils.getObjectFromJson(response, SyncUserDetailsResponse.class);
+            return userDetails;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public String[] getConnectedUsers() {

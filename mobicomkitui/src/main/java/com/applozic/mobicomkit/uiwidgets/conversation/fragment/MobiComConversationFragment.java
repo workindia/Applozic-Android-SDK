@@ -138,6 +138,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
     private String defaultText;
+    private boolean  is_typing_started;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -235,9 +236,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
                     //Log.i(TAG, "typing started event...");
+                    is_typing_started = true;
                     ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
-                } else if (s.toString().trim().length() == 0) {
+                } else if (s.toString().trim().length() == 0 && is_typing_started) {
                     //Log.i(TAG, "typing stopped event...");
+                    is_typing_started = false;
                     ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
@@ -561,6 +564,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
+        is_typing_started = false;
 
         new Thread(new Runnable() {
             @Override
@@ -1080,8 +1084,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onPause() {
         super.onPause();
-        ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
         BroadcastService.currentUserId = null;
+         if(is_typing_started){
+             ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
+         }
     }
 
     public void updateTitle() {
