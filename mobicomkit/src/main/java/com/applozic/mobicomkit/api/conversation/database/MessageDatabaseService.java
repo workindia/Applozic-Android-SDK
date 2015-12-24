@@ -92,6 +92,7 @@ public class MessageDatabaseService {
         }else {
             message.setConversationId(conversationId);
         }
+        message.setTopicId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.TOPIC_ID)));
         if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
             //file is not present...  Don't set anything ...
         } else {
@@ -445,6 +446,7 @@ public class MessageDatabaseService {
             values.put("applicationId", message.getApplicationId());
             values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE,message.getContentType());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID,message.getConversationId());
+            values.put(MobiComDatabaseHelper.TOPIC_ID,message.getTopicId());
 
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());

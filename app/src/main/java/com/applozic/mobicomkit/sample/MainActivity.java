@@ -22,7 +22,6 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
@@ -30,19 +29,11 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragm
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class MainActivity extends MobiComActivityForFragment
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
 
-    public static final String DATABASE_NAME = "yourappdb";
-    public static final String MOBICOMKIT = "applozic.connect";
-    public static final String USER_ID = "userId";
     public static final String TAKE_ORDER = "takeOrder";
     public static final String TAKE_ORDER_USERID_METADATA = "com.applozic.take.order.userId";
-    public static final int DATABASE_VERSION = 1;
     private static final String CONVERSATION_FRAGMENT = "ConversationFragment";
 
     /**
@@ -166,8 +157,10 @@ public class MainActivity extends MobiComActivityForFragment
         takeOrderIntent.putExtra(TAKE_ORDER, true);
         takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
         takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT,"Hello I am interested in your property, Can we chat?");
-       // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
-         startActivity(takeOrderIntent);
+        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_TOPIC_ID, "Ebco Strip Light Connection Cord 4");
+        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_IMAGE_URL, "https://www.applozic.com/resources/sidebox/images/applozic.png");
+        // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
+        startActivity(takeOrderIntent);
     }
 
     public void onSectionAttached(int number) {

@@ -8,8 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -139,8 +137,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 return fileClientService.loadMessageImage(getContext(), (String) data);
             }
         };
-        loadImage.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         loadImage.setImageFadeIn(false);
+        loadImage.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         imageThumbnailLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -187,7 +185,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
 
 
-        List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
+        List<String> items = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
         List<String> userIds = null;
         if (!TextUtils.isEmpty(message.getContactIds())) {
             userIds = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
@@ -410,6 +408,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                     }
 
+                }
+            });
+            preview.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
                 }
             });
             attachmentView.setOnClickListener(new View.OnClickListener() {

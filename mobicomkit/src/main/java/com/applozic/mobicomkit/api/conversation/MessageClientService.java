@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.MessageResponse;
+import com.applozic.mobicomkit.feed.ProductConversationIdResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
@@ -25,6 +26,8 @@ import com.applozic.mobicommons.people.group.Group;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -55,6 +58,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail";
     public static final String USER_DETAILS_LIST_URL = "/rest/ws/user/status";
+    public static final String PRODUCT_CONVERSATION_ID_URL ="/rest/ws/conversation/id";
     public static final String ARGUMRNT_SAPERATOR = "&";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
@@ -122,6 +126,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getUserDetailsListUrl() {
         return getBaseUrl() + USER_DETAILS_LIST_URL;
+    }
+
+    public String getProductConversationUrl() {
+        return getBaseUrl() + PRODUCT_CONVERSATION_ID_URL;
     }
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -580,6 +588,29 @@ public class MessageClientService extends MobiComKitClientService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public synchronized Integer getConversationId(String topicId, String userId) {
+        try {
+            int conversationId = 0;
+            String url = getProductConversationUrl() + "?topicId=" + topicId + ARGUMRNT_SAPERATOR + "userId=" + userId;
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
+                return null;
+            }
+            Log.i(TAG, "Response for Product ConversationId :" + response);
+            ProductConversationIdResponse productConversationIdResponse = (ProductConversationIdResponse) GsonUtils.getObjectFromJson(response, ProductConversationIdResponse.class);
+            if ("success".equals(productConversationIdResponse.getStatus())) {
+                JSONObject jsonObject = new JSONObject(productConversationIdResponse.getResponse().toString());
+                if (jsonObject.has("conversationId")) {
+                    conversationId = jsonObject.getInt("conversationId");
+                }
+            }
+            return conversationId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

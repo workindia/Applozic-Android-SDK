@@ -11,7 +11,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 6;
+    public static final int DB_VERSION = 7;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -37,6 +37,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String LAST_SEEN_AT_TIME = "lastSeenAt";
     public static final String MESSAGE_CONTENT_TYPE = "messageContentType";
     public static final String CONVERSATION_ID = "conversationId";
+    public static final String TOPIC_ID ="topicId";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -73,6 +74,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "applicationId varchar(2000) null,"
             + "messageContentType integer default 0,"
             + "conversationId integer default 0,"
+            + "topicId varchar(300) null,"
             + "UNIQUE (keyString, contactNumbers))";
 
     private static final String ALTER_SMS_TABLE_FOR_DELETE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN deleted integer default 0";
@@ -82,6 +84,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_CONNECTED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + CONNECTED + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_LAST_SEEN_AT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + LAST_SEEN_AT_TIME + " integer default 0";
     private static final String ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + CONVERSATION_ID + " integer default 0";
+    private static final String ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + TOPIC_ID + " varchar(300) null";
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
             + FULL_NAME + " VARCHAR(200), "
@@ -172,6 +175,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, "sms", CONVERSATION_ID)) {
                 database.execSQL(ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "sms", TOPIC_ID)) {
+                database.execSQL( ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN);
             }
             database.execSQL(CREATE_INDEX_SMS_TYPE);
         } else {

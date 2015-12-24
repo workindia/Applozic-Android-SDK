@@ -47,6 +47,7 @@ public class Message extends JsonMarker {
     private boolean attDownloadInProgress;
     private String applicationId;
     private Integer conversationId;
+    private String topicId;
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
 
@@ -84,6 +85,7 @@ public class Message extends JsonMarker {
         this.setApplicationId(message.getApplicationId());
         this.setContentType(message.getContentType());
         this.setConversationId(message.getConversationId());
+        this.setTopicId(message.getTopicId());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -399,6 +401,14 @@ public class Message extends JsonMarker {
         this.conversationId = conversationId;
     }
 
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -513,6 +523,7 @@ public class Message extends JsonMarker {
                 ",applicationId=" + applicationId +
                 ",contentType=" + contentType +
                 ",conversationId=" + conversationId +
+                ",topicId=" + topicId +
                 '}';
     }
 

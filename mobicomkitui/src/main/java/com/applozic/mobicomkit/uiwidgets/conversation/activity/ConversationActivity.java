@@ -336,7 +336,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
-            conversation.deleteConversationThread();
+            if(conversation != null){
+                conversation.deleteConversationThread();
+            }
         }
         return false;
     }

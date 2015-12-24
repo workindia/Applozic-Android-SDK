@@ -54,6 +54,7 @@ import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
@@ -105,7 +106,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected boolean loadMore = true;
     protected Contact contact;
     protected Group group;
-    protected  static Integer currentConversationId;
+    protected Integer currentConversationId;
     protected EditText messageEditText;
     protected ImageButton sendButton;
     protected ImageButton attachButton;
@@ -903,7 +904,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings(),Message.ContentType.DEFAULT.getValue());
     }
 
-    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings,short messageContentType ) {
+    public void sendMessage(String message,FileMeta fileMetas, String fileMetaKeyStrings,short messageContentType ) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 
@@ -953,6 +954,34 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         attachmentLayout.setVisibility(View.GONE);
         filePath = null;
+    }
+
+    public void sendProductMessage(final String messageToSend,final FileMeta fileMeta,final Contact contact,final short messageContentType) {
+     final Message message = new Message();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MobiComConversationService conversationService = new MobiComConversationService(getActivity());
+                MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
+                currentConversationId = new MessageClientService(getActivity()).getConversationId(messageToSend,contact.getUserId());
+                message.setContactIds(contact.getUserId());
+                message.setTo(contact.getUserId());
+                message.setMessage(messageToSend);
+                message.setRead(Boolean.TRUE);
+                message.setStoreOnDevice(Boolean.TRUE);
+                message.setSendToDevice(Boolean.FALSE);
+                message.setContentType(messageContentType);
+                message.setType(Message.MessageType.MT_OUTBOX.getValue());
+                message.setDeviceKeyString(userPreferences.getDeviceKeyString());
+                message.setSource(Message.Source.MT_MOBILE_APP.getValue());
+                message.setTopicId(messageToSend);
+                message.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+                message.setConversationId(currentConversationId);
+                message.setFileMetas(fileMeta);
+                conversationService.sendMessage(message, MessageIntentService.class);
+            }
+        }).start();
+
     }
 
     private Integer getTimeToLive() {

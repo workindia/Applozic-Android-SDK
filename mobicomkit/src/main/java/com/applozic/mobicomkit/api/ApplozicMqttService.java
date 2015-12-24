@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
+import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -28,7 +29,6 @@ import static com.applozic.mobicomkit.api.MobiComKitConstants.APPLICATION_KEY_ME
  * Created by sunil on 26/11/15.
  */
 public class ApplozicMqttService implements MqttCallback {
-
 
     private static final String STATUS = "status";
     private static final String MQTT_URL = "tcp://apps.applozic.com";
@@ -239,7 +239,11 @@ public class ApplozicMqttService implements MqttCallback {
             } else {
                 final MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), MqttMessageResponse.class);
                 if (mqttMessageResponse != null) {
+                    if(MobiComPushReceiver.processPushNotificationId(mqttMessageResponse.getId())){
+                      return;
+                    }
                     final SyncCallService syncCallService = SyncCallService.getInstance(context);
+                    MobiComPushReceiver.addPushNotificationId(mqttMessageResponse.getId());
                     new Thread(new Runnable() {
                         @Override
                         public void run() {

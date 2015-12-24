@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -61,6 +62,8 @@ public class ConversationUIService {
     public static final String APPLICATION_ID = "applicationId";
     public static final String DEFAULT_TEXT = "defaultText";
     public static final String FINAL_PRICE_TEXT = "Final agreed price ";
+    public static final String PRODUCT_TOPIC_ID = "topicId";
+    public static final String PRODUCT_IMAGE_URL = "productImageUrl";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
@@ -374,7 +377,7 @@ public class ConversationUIService {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             if (!TextUtils.isEmpty(inputText.getText().toString())) {
-                                getConversationFragment().sendMessage(inputText.getText().toString(),Message.ContentType.PRICE.getValue());
+                                getConversationFragment().sendMessage(inputText.getText().toString(), Message.ContentType.PRICE.getValue());
                             }
                         }
                     });
@@ -491,11 +494,23 @@ public class ConversationUIService {
             getConversationFragment().setDefaultText(defaultText);
         }
 
+        String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
+        String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);
+        if (!TextUtils.isEmpty(productTopicId) && !TextUtils.isEmpty(productImageUrl)) {
+            try {
+                FileMeta fileMeta = new FileMeta();
+                fileMeta.setContentType("image");
+                fileMeta.setBlobKeyString(productImageUrl);
+                getConversationFragment().sendProductMessage(productTopicId, fileMeta, contact, Message.ContentType.TEXT_URL.getValue());
+            } catch (Exception e) {
+            }
+        }
+
     }
 
     public void reconnectMQTT() {
         try {
-            if(((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3){
+            if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
