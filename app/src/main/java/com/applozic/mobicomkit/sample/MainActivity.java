@@ -100,10 +100,10 @@ public class MainActivity extends MobiComActivityForFragment
             startActivity(intent);
             finish();
             return;
-        } else {
+        } /*else {
             Intent intent = new Intent(this, ConversationActivity.class);
-            startActivity(intent);
-        }
+                startActivity(intent);
+        }*/
 
     }
 
