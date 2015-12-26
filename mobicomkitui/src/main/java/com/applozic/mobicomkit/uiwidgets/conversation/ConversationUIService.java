@@ -247,7 +247,7 @@ public class ConversationUIService {
         }
         String userId = message.getContactIds();
         ConversationFragment conversationFragment = getConversationFragment();
-        if (userId.equals(conversationFragment.getContact().getUserId()) ||
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
                 conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
             conversationFragment.updateMessageKeyString(message);
         }
@@ -267,7 +267,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateLastSeenStatus();
         }
     }
@@ -277,7 +277,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+        if ( conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatusForAllMessages();
         }
     }
@@ -287,7 +287,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
@@ -329,7 +329,7 @@ public class ConversationUIService {
         }
         ConversationFragment conversationFragment = getConversationFragment();
         Log.i(TAG, "Received typing status for: " + userId);
-        if (userId.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 

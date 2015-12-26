@@ -25,8 +25,8 @@ public class MobiComPushReceiver {
 
     public static final String MTCOM_PREFIX = "APPLOZIC_";
     public static final List<String> notificationKeyList = new ArrayList<String>();
-    private static Queue<String> notificationIdList = new LinkedList<String>();
     private static final String TAG = "MobiComPushReceiver";
+    private static Queue<String> notificationIdList = new LinkedList<String>();
 
     static {
 
@@ -121,6 +121,12 @@ public class MobiComPushReceiver {
             // ToDo: do something for invalidkey ;
             // && extras.get("InvalidKey") != null
             String message = bundle.getString("collapse_key");
+
+            /*
+            "key" : "APPLOZIC_01",
+            "value" : "{sadjflkjalsdfj}
+            MqttResponse
+            * */
 
             String deleteConversationForContact = bundle.getString(notificationKeyList.get(5));
             String deleteMessage = bundle.getString(notificationKeyList.get(4));
@@ -248,6 +254,16 @@ public class MobiComPushReceiver {
                 processDeleteSingleMessageRequest(context, deleteMessageKeyAndUserId.split(",")[0], contactNumbers);
             }
 
+            String messageSent = bundle.getString(notificationKeyList.get(1));
+            if (!TextUtils.isEmpty(messageSent)) {
+                MqttMessageResponse syncSentMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(messageSent, MqttMessageResponse.class);
+                if (processPushNotificationId(syncSentMessageResponse.getId())) {
+                    return;
+                }
+                addPushNotificationId(syncSentMessageResponse.getId());
+                syncCallService.syncMessages(null);
+            }
+
             String messageKey = bundle.getString(notificationKeyList.get(0));
             Message messageObj = null;
             MqttMessageResponse syncMessageResponse = null;
@@ -258,25 +274,34 @@ public class MobiComPushReceiver {
                 }
                 addPushNotificationId(syncMessageResponse.getId());
                 messageObj = (Message) GsonUtils.getObjectFromJson(syncMessageResponse.getMessage().toString(), Message.class);
+                if (!TextUtils.isEmpty(messageObj.getKeyString())){
+                    syncCallService.syncMessages(messageObj.getKeyString());
+                }else {
+                    syncCallService.syncMessages(null);
+                }
+
             }
 
-            if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
+           /* if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
 
             } else if (messageObj != null && messageObj.getKeyString() != null && !TextUtils.isEmpty(messageObj.getKeyString())) {
                 Log.i(TAG, "MT sync for key: " + messageObj.getKeyString());
                 syncCallService.syncMessages(messageObj.getKeyString());
-            } else if (notificationKeyList.get(0).equalsIgnoreCase(messageKey)) {
+            } else if (syncMessageResponse != null && notificationKeyList.get(0).equalsIgnoreCase(syncMessageResponse.getId())) {
                 syncCallService.syncMessages(null);
-            } else if (notificationKeyList.get(3).equalsIgnoreCase(bundle.getString(notificationKeyList.get(3)))) {
+            } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
                 //  MessageStatUtil.sendMessageStatsToServer(context);
-            } else if (notificationKeyList.get(9).equals(bundle.getString(notificationKeyList.get(9)))) {
-                String ConversationReadResponse = bundle.getString(notificationKeyList.get(9));
-                MqttMessageResponse updateDeliveryStatusForContactResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(ConversationReadResponse, MqttMessageResponse.class);
-                if (processPushNotificationId(updateDeliveryStatusForContactResponse.getId())) {
-                    return;
+            }*/
+            String conversationReadResponse = bundle.getString(notificationKeyList.get(9));
+            if (!TextUtils.isEmpty(conversationReadResponse)) {
+                MqttMessageResponse updateDeliveryStatusForContactResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(conversationReadResponse, MqttMessageResponse.class);
+                if (notificationKeyList.get(9).equals(updateDeliveryStatusForContactResponse.getType())) {
+                    if (processPushNotificationId(updateDeliveryStatusForContactResponse.getId())) {
+                        return;
+                    }
+                    addPushNotificationId(updateDeliveryStatusForContactResponse.getId());
+                    syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString());
                 }
-                addPushNotificationId(updateDeliveryStatusForContactResponse.getId());
-                syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString());
             }
 
         } catch (Exception e) {

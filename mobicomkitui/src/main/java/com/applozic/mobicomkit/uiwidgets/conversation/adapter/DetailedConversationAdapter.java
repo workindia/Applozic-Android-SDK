@@ -183,8 +183,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         } else {
             customView = inflater.inflate(R.layout.mobicom_sent_message_list_view, parent, false);
         }
-
-
+        if (message != null) {
         List<String> items = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
         List<String> userIds = null;
         if (!TextUtils.isEmpty(message.getContactIds())) {
@@ -204,7 +203,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             receiverContact = contactService.getContactReceiver(items, userIds);
         }
 
-        if (message != null) {
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
             TextView status = (TextView) customView.findViewById(R.id.status);

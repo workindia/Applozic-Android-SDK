@@ -115,6 +115,10 @@
             android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
             android:exported="false" />
 
+        <service
+            android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
+            android:exported="false" />
+
         <receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="applozic.LAUNCH_APP" />

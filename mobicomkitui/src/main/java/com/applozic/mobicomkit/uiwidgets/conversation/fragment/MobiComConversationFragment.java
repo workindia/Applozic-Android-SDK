@@ -52,6 +52,7 @@ import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -139,7 +140,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
     private String defaultText;
-    private boolean  is_typing_started;
+    private boolean  typingStarted;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -237,11 +238,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
                     //Log.i(TAG, "typing started event...");
-                    is_typing_started = true;
+                    typingStarted = true;
                     ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
-                } else if (s.toString().trim().length() == 0 && is_typing_started) {
+                } else if (s.toString().trim().length() == 0 && typingStarted) {
                     //Log.i(TAG, "typing stopped event...");
-                    is_typing_started = false;
+                    typingStarted = false;
                     ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
@@ -493,8 +494,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     listView.smoothScrollToPosition(messageList.size());
                     listView.setSelection(messageList.size());
                     emptyTextView.setVisibility(View.GONE);
-                    new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
                     currentConversationId = message.getConversationId();
+                    new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
+                    if(Message.MessageType.MT_INBOX.getValue().equals(message.getType()) ){
+                        Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
+                        intent.putExtra(ApplozicIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
+                        getActivity().startService(intent);
+                    }
                 }
 
                 selfDestructMessage(message);
@@ -565,18 +571,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
-        is_typing_started = false;
+        typingStarted = false;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
-
-                if (read > 0) {
-                    messageClientService.updateReadStatus(contact);
-                }
-            }
-        }).start();
+        Intent readStatusIntent =  new Intent(getActivity(),ApplozicIntentService.class);
+        readStatusIntent.putExtra(ApplozicIntentService.CONTACT,contact);
+        getActivity().startService(readStatusIntent);
 
         /*
         filePath = null;*/
@@ -736,8 +735,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if (view != null) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             TextView status = (TextView) view.findViewById(R.id.status);
-                            status.setText("Delivered");
-                            //createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                            //status.setText("Delivered");
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
                         }
                     }
                 } catch (Exception ex) {
@@ -1114,9 +1113,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onPause() {
         super.onPause();
         BroadcastService.currentUserId = null;
-         if(is_typing_started){
+       /*  if(typingStarted){
              ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
-         }
+         }*/
     }
 
     public void updateTitle() {

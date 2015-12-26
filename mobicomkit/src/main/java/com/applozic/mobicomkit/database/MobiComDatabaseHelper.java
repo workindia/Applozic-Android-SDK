@@ -6,7 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
@@ -37,7 +38,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String LAST_SEEN_AT_TIME = "lastSeenAt";
     public static final String MESSAGE_CONTENT_TYPE = "messageContentType";
     public static final String CONVERSATION_ID = "conversationId";
-    public static final String TOPIC_ID ="topicId";
+    public static final String TOPIC_ID = "topicId";
+    public static final String GROUP_KEY = "groupKey";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -177,9 +179,20 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
                 database.execSQL(ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN);
             }
             if (!DBUtils.existsColumnInTable(database, "sms", TOPIC_ID)) {
-                database.execSQL( ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN);
+                database.execSQL(ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN);
             }
             database.execSQL(CREATE_INDEX_SMS_TYPE);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        new UserClientService(context).updateCodeVersion(MobiComUserPreference.getInstance(context).getDeviceKeyString());
+                    }catch (Exception e){
+
+                    }
+                }
+            }).start();
+
         } else {
             onCreate(database);
         }

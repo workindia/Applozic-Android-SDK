@@ -129,14 +129,10 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void updateCodeVersion(final String deviceKeyString) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
                 String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKeyString=" + deviceKeyString;
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
                 Log.i(TAG, "Version update response: " + response);
-            }
-        }).start();
+
     }
 
     public String updatePhoneNumber(String contactNumber) throws UnsupportedEncodingException {

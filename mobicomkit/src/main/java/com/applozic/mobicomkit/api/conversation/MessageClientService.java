@@ -60,6 +60,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String USER_DETAILS_LIST_URL = "/rest/ws/user/status";
     public static final String PRODUCT_CONVERSATION_ID_URL ="/rest/ws/conversation/id";
     public static final String ARGUMRNT_SAPERATOR = "&";
+    public static final String UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL = "/rest/ws/message/read";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
      public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
@@ -130,6 +131,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getProductConversationUrl() {
         return getBaseUrl() + PRODUCT_CONVERSATION_ID_URL;
+    }
+
+    public String getSingleMessageReadUrl() {
+        return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
     }
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -479,6 +484,21 @@ public class MessageClientService extends MobiComKitClientService {
         }
         response = httpRequestUtils.getResponse(getCredentials(), getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
         Log.i(TAG, "Read status response is " + response);
+    }
+
+    public void updateReadStatusForSingleMessage(String  pairedmessagekey) {
+        String singleReadMessageParm = "";
+        String response = "";
+        if (!TextUtils.isEmpty(pairedmessagekey)) {
+            try {
+                singleReadMessageParm = "?key=" + pairedmessagekey;
+                response = httpRequestUtils.getResponse(getCredentials(), getSingleMessageReadUrl() + singleReadMessageParm, "text/plain", "text/plain");
+                Log.i(TAG, "Read status response for single message is " + response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {

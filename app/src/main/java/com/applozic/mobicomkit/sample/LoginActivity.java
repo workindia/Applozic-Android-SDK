@@ -255,6 +255,8 @@ public class LoginActivity extends Activity {
                     buildContactData();
 
                     //starting main MainActivity
+                    Intent mainActvity = new Intent(context, MainActivity.class);
+                    startActivity(mainActvity);
                     Intent intent = new Intent(context, ConversationActivity.class);
                     startActivity(intent);
                     finish();
