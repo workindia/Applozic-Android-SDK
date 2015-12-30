@@ -11,6 +11,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -256,7 +257,7 @@ public class MobiComPushReceiver {
 
             String messageSent = bundle.getString(notificationKeyList.get(1));
             if (!TextUtils.isEmpty(messageSent)) {
-                MqttMessageResponse syncSentMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(messageSent, MqttMessageResponse.class);
+                GcmMessageResponse syncSentMessageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageSent, GcmMessageResponse.class);
                 if (processPushNotificationId(syncSentMessageResponse.getId())) {
                     return;
                 }
@@ -265,18 +266,17 @@ public class MobiComPushReceiver {
             }
 
             String messageKey = bundle.getString(notificationKeyList.get(0));
-            Message messageObj = null;
-            MqttMessageResponse syncMessageResponse = null;
+            GcmMessageResponse syncMessageResponse = null;
             if (!TextUtils.isEmpty(messageKey)) {
-                syncMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(messageKey, MqttMessageResponse.class);
+                syncMessageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageKey, GcmMessageResponse.class);
                 if (processPushNotificationId(syncMessageResponse.getId())) {
                     return;
                 }
                 addPushNotificationId(syncMessageResponse.getId());
-                messageObj = (Message) GsonUtils.getObjectFromJson(syncMessageResponse.getMessage().toString(), Message.class);
-                if (!TextUtils.isEmpty(messageObj.getKeyString())){
+                Message messageObj = syncMessageResponse.getMessage();
+                if (!TextUtils.isEmpty(messageObj.getKeyString())) {
                     syncCallService.syncMessages(messageObj.getKeyString());
-                }else {
+                } else {
                     syncCallService.syncMessages(null);
                 }
 

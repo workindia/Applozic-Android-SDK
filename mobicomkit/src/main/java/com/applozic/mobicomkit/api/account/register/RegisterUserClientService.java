@@ -1,20 +1,21 @@
 package com.applozic.mobicomkit.api.account.register;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
-import com.applozic.mobicomkit.api.account.user.User;
-import com.applozic.mobicomkit.api.conversation.SyncCallService;
-import com.google.gson.Gson;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.google.gson.Gson;
 
 import java.net.ConnectException;
 import java.net.UnknownHostException;
@@ -117,7 +118,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
 
         final RegistrationResponse registrationResponse = createAccount(user);
-        ApplozicMqttService.getInstance(context).connectPublish(registrationResponse.getUserKey(), "1");
+        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+        intent.putExtra("connectedPublish",true);
+        context.startService(intent);
         return registrationResponse;
     }
 

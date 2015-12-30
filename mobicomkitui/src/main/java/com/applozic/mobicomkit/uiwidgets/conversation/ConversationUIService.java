@@ -17,9 +17,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -277,7 +277,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if ( conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatusForAllMessages();
         }
     }
@@ -514,7 +514,9 @@ public class ConversationUIService {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
-                    ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+                    Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
+                    intent.putExtra("subscribe", "subscribe");
+                    fragmentActivity.startService(intent);
                 }
             }
         } catch (Exception e) {

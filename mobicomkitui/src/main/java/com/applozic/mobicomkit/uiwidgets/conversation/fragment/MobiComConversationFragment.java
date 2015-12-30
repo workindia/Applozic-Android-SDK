@@ -49,11 +49,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -240,11 +240,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
                     //Log.i(TAG, "typing started event...");
                     typingStarted = true;
-                    ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
+                    Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                    intent.putExtra("contact",contact);
+                    intent.putExtra("typing", typingStarted);
+                    getActivity().startService(intent);
                 } else if (s.toString().trim().length() == 0 && typingStarted) {
                     //Log.i(TAG, "typing stopped event...");
                     typingStarted = false;
-                    ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
+                    Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                    intent.putExtra("contact",contact);
+                    intent.putExtra("typing", typingStarted);
+                    getActivity().startService(intent);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
                 //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);

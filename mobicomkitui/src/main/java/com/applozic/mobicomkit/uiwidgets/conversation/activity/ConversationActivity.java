@@ -31,14 +31,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -145,25 +144,21 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        boolean background = ActivityLifecycleHandler.isApplicationVisible();
-        if (!background) {
-            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+        Intent intent = new Intent(this, ApplozicMqttIntentService.class);
+        intent.putExtra("userKeyString", userKeyString);
+        startService(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        /*boolean background = ActivityLifecycleHandler.isApplicationVisible();
-        if (background) {
-            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-            ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
-        }*/
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
-        ApplozicMqttService.getInstance(this).subscribe();
+        Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
+        subscribeIntent.putExtra("subscribe", "subscribe");
+        startService(subscribeIntent);
 
         if (!Utils.isInternetAvailable(this)) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
