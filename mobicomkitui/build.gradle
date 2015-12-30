@@ -36,7 +36,7 @@ dependencies {
     compile project(':mobicomkit')
     //Note: use this for local development
     //compile 'com.applozic.communication.message:mobicomkit:2.0' //Todo: use this for prod
-    compile 'com.android.support:multidex:1.0.1'
+   // compile 'com.android.support:multidex:1.0.1'
 }
 
 

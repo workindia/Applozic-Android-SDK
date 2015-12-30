@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -80,12 +81,14 @@ public class MobiComQuickConversationFragment extends Fragment {
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
         baseContactService = new AppContactService(getActivity());
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 MobiComUserPreference.getInstance(getActivity()).setDeviceTimeOffset(DateUtils.getTimeDiffFromUtc());
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
         setHasOptionsMenu(true);
 
     }

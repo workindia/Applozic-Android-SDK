@@ -1,14 +1,13 @@
 package com.applozic.mobicomkit.uiwidgets;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
 
 /**
  * Created by devashish on 28/4/14.
  */
-public class ApplozicApplication extends MultiDexApplication {
+public class ApplozicApplication extends Application {
 
     public static final String TITLE = "Chats";
 
@@ -29,7 +28,7 @@ public class ApplozicApplication extends MultiDexApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
+       // MultiDex.install(this);
     }
 
 }

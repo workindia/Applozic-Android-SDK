@@ -2,9 +2,8 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Process;
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -27,21 +26,28 @@ public class ApplozicIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
         final String pairedMessageKeyString = intent.getStringExtra(PAIRED_MESSAGE_KEY_STRING);
         final Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
-        final MessageClientService messageClientService = new MessageClientService(getApplicationContext());
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        if (!TextUtils.isEmpty(pairedMessageKeyString)) {
-            messageClientService.updateReadStatusForSingleMessage(pairedMessageKeyString);
-        }
-        if (contact != null) {
-            int read = new MessageDatabaseService(getApplicationContext()).updateReadStatus(contact.getContactIds());
+                final MessageClientService messageClientService = new MessageClientService(getApplicationContext());
 
-            if (read > 0) {
-                messageClientService.updateReadStatus(contact);
+                if (!TextUtils.isEmpty(pairedMessageKeyString)) {
+                    messageClientService.updateReadStatusForSingleMessage(pairedMessageKeyString);
+                }
+                if (contact != null) {
+                    int read = new MessageDatabaseService(getApplicationContext()).updateReadStatus(contact.getContactIds());
+
+                    if (read > 0) {
+                        messageClientService.updateReadStatus(contact);
+                    }
+                }
             }
-        }
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
     }
 }

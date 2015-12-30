@@ -14,6 +14,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Process;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -638,7 +639,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         emoticonsFrameLayout.setVisibility(View.GONE);
 
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -647,7 +648,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }

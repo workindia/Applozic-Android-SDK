@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Process;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -25,22 +26,24 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
 
-        Log.i(TAG,action);
+        Log.i(TAG, action);
 
         if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE)) {
             if (!Utils.isInternetAvailable(context)) {
                 return;
             }
 
-            if( MobiComUserPreference.getInstance(context).isLoggedIn()){
-                new Thread(new Runnable() {
+            if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
+                Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         SyncCallService.getInstance(context).syncMessages(null);
                         MessageClientService.syncPendingMessages(context);
                         MessageClientService.syncDeleteMessages(context);
                     }
-                }).start();
+                });
+                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                thread.start();
             }
         }
     }

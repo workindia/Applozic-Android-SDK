@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -256,12 +257,14 @@ public class MobiComConversationService {
     public void deleteAndBroadCast(final Contact contact, boolean deleteFromServer) {
         deleteConversationFromDevice(contact.getContactIds());
         if (deleteFromServer) {
-            new Thread(new Runnable() {
+         Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     messageClientService.deleteConversationThreadFromServer(contact);
                 }
-            }).start();
+            });
+            thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
         }
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), "success");
     }
@@ -280,7 +283,7 @@ public class MobiComConversationService {
     }
 
     public synchronized void processLastSeenAtStatus() {
-        new Thread(new Runnable() {
+      Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -292,7 +295,9 @@ public class MobiComConversationService {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
     }
 

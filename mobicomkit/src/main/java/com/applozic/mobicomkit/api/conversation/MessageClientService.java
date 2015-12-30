@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -531,12 +532,14 @@ public class MessageClientService extends MobiComKitClientService {
         messageDatabaseService.updateMessageDeliveryReportForContact(message.getKeyString(), contactNumber);
 
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 updateDeliveryStatus(message, contactNumber, MobiComUserPreference.getInstance(context).getCountryCode());
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
         if (MobiComUserPreference.getInstance(context).isWebHookEnable()) {
             processWebHook(message);

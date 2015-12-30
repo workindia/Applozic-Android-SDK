@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api;
 
 import android.content.Context;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -88,6 +89,7 @@ public class ApplozicMqttService implements MqttCallback {
             if (!client.isConnected()) {
                 Log.i(TAG, "Connecting to mqtt...");
                 MqttConnectOptions options = new MqttConnectOptions();
+                options.setConnectionTimeout(60);
                 options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + "0").getBytes(), 0, true);
                 client.setCallback(ApplozicMqttService.this);
 
@@ -104,7 +106,7 @@ public class ApplozicMqttService implements MqttCallback {
 
     public synchronized void connectPublish(final String userKeyString, final String status) {
 
-        new Thread(new Runnable() {
+     Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -123,8 +125,9 @@ public class ApplozicMqttService implements MqttCallback {
                 }
 
             }
-        }).start();
-
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 
     public synchronized void subscribe() {
@@ -135,8 +138,7 @@ public class ApplozicMqttService implements MqttCallback {
         if(TextUtils.isEmpty(userKeyString)) {
            return;
         }
-
-        new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -160,7 +162,9 @@ public class ApplozicMqttService implements MqttCallback {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 
     public synchronized void unSubscribe() {
@@ -184,7 +188,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public synchronized void unSubscribeToConversation() {
-        new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -197,7 +201,9 @@ public class ApplozicMqttService implements MqttCallback {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 
     public void disconnectPublish(String userKey, String status) {
@@ -244,7 +250,7 @@ public class ApplozicMqttService implements MqttCallback {
                     }
                     final SyncCallService syncCallService = SyncCallService.getInstance(context);
                     MobiComPushReceiver.addPushNotificationId(mqttMessageResponse.getId());
-                    new Thread(new Runnable() {
+                 Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             Log.i(TAG, "MQTT message type: " + mqttMessageResponse.getType());
@@ -284,7 +290,8 @@ public class ApplozicMqttService implements MqttCallback {
                             }
 
                         }
-                    }).start();
+                    });
+                    thread.start();
 
                 }
             }
@@ -296,7 +303,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public synchronized void publishTopic(final String applicationId, final String status, final String loggedInUserId, final String userId) {
-        new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -314,7 +321,9 @@ public class ApplozicMqttService implements MqttCallback {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 
     public synchronized void subscribeToTypingTopic() {
@@ -332,7 +341,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     public void unSubscribeToTypingTopic() {
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -346,7 +355,9 @@ public class ApplozicMqttService implements MqttCallback {
                 }
 
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 
     @Override
