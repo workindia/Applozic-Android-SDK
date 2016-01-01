@@ -294,7 +294,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else {
                 loadContactImage(receiverContact, contactImage, alphabeticTextView);
             }
-            if (message.hasAttachment() && attachedFile != null) {
+            if (message.hasAttachment() && attachedFile != null && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
                     attachedFile.setVisibility(View.GONE);

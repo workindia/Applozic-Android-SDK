@@ -165,7 +165,7 @@ public class MobiComConversationService {
                         }
                     }*/
 
-                    if (message.hasAttachment()) {
+                    if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                         setFilePathifExist(message);
                     }
                     messageList.add(message);

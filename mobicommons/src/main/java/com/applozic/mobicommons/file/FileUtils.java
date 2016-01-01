@@ -527,19 +527,27 @@ public class FileUtils {
     }
 
     public static String getMimeType(String url) {
-        String type = null;
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
 
-        if (TextUtils.isEmpty(extension) && url.contains(".")) {
-            extension = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+        try {
+            String type = null;
+            String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+
+            if (TextUtils.isEmpty(extension) && url.contains(".")) {
+                extension = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+            }
+
+            if (extension != null) {
+                MimeTypeMap mime = MimeTypeMap.getSingleton();
+                type = mime.getMimeTypeFromExtension(extension);
+            }
+
+            return type;
+
+
+        } catch (Exception e) {
+
         }
-
-        if (extension != null) {
-            MimeTypeMap mime = MimeTypeMap.getSingleton();
-            type = mime.getMimeTypeFromExtension(extension);
-        }
-
-        return type;
+        return null;
     }
 
     public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight) {

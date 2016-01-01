@@ -548,7 +548,7 @@ public class Message extends JsonMarker {
     public  enum ContentType {
 
         DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
-        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4"));
+        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4")),TEXT_URL(Short.valueOf("5"));
         private Short value;
 
         ContentType(Short value) {
