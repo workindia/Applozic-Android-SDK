@@ -77,6 +77,9 @@ public class MobiComConversationService {
         Iterator<Message> messageIterator = messageList.iterator();
         while (messageIterator.hasNext()) {
             Message message = messageIterator.next();
+            if(Message.ContentType.TEXT_URL.getValue() == message.getContentType()){
+                messageIterator.remove();
+            }
             if (message.isSentToMany()) {
                 messageIterator.remove();
             }
