@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -24,13 +25,15 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
 
-        Log.i(TAG,action);
+        Log.i(TAG, action);
 
         if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE)) {
             if (!Utils.isInternetAvailable(context)) {
                 return;
             }
-
+            if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
+                return;
+            }
             new Thread(new Runnable() {
                 @Override
                 public void run() {
