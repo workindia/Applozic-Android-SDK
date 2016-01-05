@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
@@ -77,7 +78,7 @@ public class MobiComConversationService {
         Iterator<Message> messageIterator = messageList.iterator();
         while (messageIterator.hasNext()) {
             Message message = messageIterator.next();
-            if(Message.ContentType.TEXT_URL.getValue() == message.getContentType()){
+            if (Message.ContentType.TEXT_URL.getValue() == message.getContentType()) {
                 messageIterator.remove();
             }
             if (message.isSentToMany()) {
@@ -192,8 +193,8 @@ public class MobiComConversationService {
         return messageList;
     }
 
-    private void processUserDetails(UserDetail[] userDetails) {
-        for (UserDetail userDetail : userDetails) {
+    private void processUserDetails(SyncUserDetailsResponse userDetailsResponse) {
+        for (UserDetail userDetail : userDetailsResponse.getResponse()) {
             Contact newContact = baseContactService.getContactById(userDetail.getUserId());
             Contact contact = new Contact();
             contact.setUserId(userDetail.getUserId());
@@ -209,6 +210,7 @@ public class MobiComConversationService {
             }
             new AppContactService(context).upsert(contact);
         }
+        MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
     }
 
     private boolean wasServerCallDoneBefore(Contact contact, Group group) {
@@ -281,21 +283,24 @@ public class MobiComConversationService {
     }
 
     public synchronized void processLastSeenAtStatus() {
-        try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    UserDetail[] userDetails = new MessageClientService(context).getUserDetails();
-                    if (userDetails != null && userDetails.length > 0) {
-                        processUserDetails(userDetails);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SyncUserDetailsResponse userDetailsResponse = new MessageClientService(context).getUserDetailsList(MobiComUserPreference.getInstance(context).getLastSeenAtSyncTime());
+                    if (userDetailsResponse != null && userDetailsResponse.getResponse() != null && "success".equals(userDetailsResponse.getStatus())) {
+                        processUserDetails(userDetailsResponse);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }).start();
+            }
+        });
+        thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
 
 //    public void addFileMetaDetails(String responseString, Message message) {
 //        JsonParser jsonParser = new JsonParser();

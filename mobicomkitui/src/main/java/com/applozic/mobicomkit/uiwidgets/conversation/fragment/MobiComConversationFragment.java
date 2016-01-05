@@ -12,8 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
+import android.os.*;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,7 +26,6 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +45,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -59,7 +57,9 @@ import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessage
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
@@ -136,6 +136,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
     private String defaultText;
+    private boolean  typingStarted;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -233,10 +234,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void afterTextChanged(Editable s) {
                 if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1) {
                     //Log.i(TAG, "typing started event...");
-                    ApplozicMqttService.getInstance(getActivity()).typingStarted(contact);
-                } else if (s.toString().trim().length() == 0) {
-                    //Log.i(TAG, "typing stopped event...");
-                    ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
+                    typingStarted = true;
+                    Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                    intent.putExtra(ConversationUIService.CONTACT,contact);
+                    intent.putExtra(ConversationUIService.TYPING, typingStarted);
+                    getActivity().startService(intent);
+                } else if (s.toString().trim().length() == 0 && typingStarted) {
+                    typingStarted = false;
+                    Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                    intent.putExtra(ConversationUIService.CONTACT,contact);
+                    intent.putExtra(ConversationUIService.TYPING, typingStarted);
+                    getActivity().startService(intent);
+
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
                 //attachButton.setVisibility(s == null || s.toString().trim().length() == 0 ? View.VISIBLE : View.GONE);
@@ -256,6 +265,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    if(typingStarted){
+                        Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                        intent.putExtra(ConversationUIService.CONTACT,contact);
+                        intent.putExtra(ConversationUIService.TYPING, typingStarted);
+                        getActivity().startService(intent);
+                    }
                     emoticonsFrameLayout.setVisibility(View.GONE);
                 }
             }
@@ -488,6 +503,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     listView.setSelection(messageList.size());
                     emptyTextView.setVisibility(View.GONE);
                     new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
+                    if(Message.MessageType.MT_INBOX.getValue().equals(message.getType()) ){
+                        Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
+                        intent.putExtra(ApplozicIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
+                        getActivity().startService(intent);
+                    }
                 }
 
                 selfDestructMessage(message);
@@ -558,17 +578,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         final MessageClientService messageClientService = new MessageClientService(getActivity());
         BroadcastService.currentUserId = contact.getContactIds();
+        typingStarted = false;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int read = new MessageDatabaseService(getActivity()).updateReadStatus(contact.getContactIds());
-
-                if (read > 0) {
-                    messageClientService.updateReadStatus(contact);
-                }
-            }
-        }).start();
+        Intent readStatusIntent =  new Intent(getActivity(),ApplozicIntentService.class);
+        readStatusIntent.putExtra(ApplozicIntentService.CONTACT,contact);
+        getActivity().startService(readStatusIntent);
 
         /*
         filePath = null;*/
@@ -631,7 +645,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         emoticonsFrameLayout.setVisibility(View.GONE);
 
-        new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -640,7 +654,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
+        thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
 
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }
@@ -1071,7 +1087,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onPause() {
         super.onPause();
-        ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
+        if(typingStarted){
+                Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                intent.putExtra(ConversationUIService.CONTACT,contact);
+                intent.putExtra(ConversationUIService.TYPING, false);
+                getActivity().startService(intent);
+        }
         BroadcastService.currentUserId = null;
     }
 

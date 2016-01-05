@@ -28,12 +28,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.uiwidgets.ActivityLifecycleHandler;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -73,7 +72,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
-    private static int retry ;
+    private static int retry;
 
     public ConversationActivity() {
 
@@ -141,11 +140,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     protected void onStop() {
         super.onStop();
-        boolean background = ActivityLifecycleHandler.isApplicationVisible();
-        if (!background) {
-            final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
-        }
+        final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+        Intent intent = new Intent(this, ApplozicMqttIntentService.class);
+        intent.putExtra(ConversationUIService.USER_KEY_STRING, userKeyString);
+        startService(intent);
+            /*final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");*/
+
     }
 
     @Override
@@ -157,7 +158,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(userKeyString, "1");
         }*/
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
-        ApplozicMqttService.getInstance(this).subscribe();
+        Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
+        subscribeIntent.putExtra(ConversationUIService.SUBSCRIBE, "subscribe");
+        startService(subscribeIntent);
 
         if (!Utils.isInternetAvailable(this)) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);

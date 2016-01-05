@@ -14,14 +14,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -29,7 +28,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragm
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
-
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -47,6 +45,10 @@ public class ConversationUIService {
     public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
+    public static final String CONTACT = "contact";
+    public static final String TYPING = "typing";
+    public static final String USER_KEY_STRING = "userKeyString";
+    public static final String SUBSCRIBE = "subscribe";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
@@ -240,7 +242,7 @@ public class ConversationUIService {
         }
         String userId = message.getContactIds();
         ConversationFragment conversationFragment = getConversationFragment();
-        if (userId.equals(conversationFragment.getContact().getUserId()) ||
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
                 conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
             conversationFragment.updateMessageKeyString(message);
         }
@@ -260,9 +262,9 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-            if (contactId.equals(conversationFragment.getContact().getContactIds())) {
-                conversationFragment.updateLastSeenStatus();
-            }
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateLastSeenStatus();
+        }
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
@@ -270,7 +272,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (contactId.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatusForAllMessages();
         }
     }
@@ -280,7 +282,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+        if ( conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
@@ -322,7 +324,7 @@ public class ConversationUIService {
         }
         ConversationFragment conversationFragment = getConversationFragment();
         Log.i(TAG, "Received typing status for: " + userId);
-        if (userId.equals(conversationFragment.getContact().getContactIds())) {
+        if ( conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 
@@ -451,11 +453,13 @@ public class ConversationUIService {
 
     public void reconnectMQTT() {
         try {
-            if(((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3){
+            if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
-                    ApplozicMqttService.getInstance(fragmentActivity).subscribe();
+                    Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
+                    intent.putExtra(ConversationUIService.SUBSCRIBE, "subscribe");
+                    fragmentActivity.startService(intent);
                 }
             }
         } catch (Exception e) {

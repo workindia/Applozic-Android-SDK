@@ -81,6 +81,14 @@
         <meta-data
             android:name="com.applozic.mobicomkit.notification.icon"
             android:resource="@drawable/ic_launcher" />
+        <service
+            android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
+            android:exported="false" />
+
+        <service
+            android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

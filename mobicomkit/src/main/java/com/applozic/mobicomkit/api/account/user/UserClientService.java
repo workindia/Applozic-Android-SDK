@@ -2,11 +2,12 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
-import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 
@@ -100,7 +101,9 @@ public class UserClientService extends MobiComKitClientService {
         mobiComUserPreference.setUrl(url);
 
         if (!fromLogin) {
-            ApplozicMqttService.getInstance(context).disconnectPublish(userKeyString, "0");
+            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+            intent.putExtra("userKeyString", userKeyString);
+            context.startService(intent);
         }
     }
 

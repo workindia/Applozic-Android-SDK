@@ -8,10 +8,8 @@ import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.MessageResponse;
-import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
-import com.applozic.mobicommons.json.ArrayAdapterFactory;
+import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -57,7 +55,9 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String UPDATE_READ_STATUS_URL = "/rest/ws/message/read/conversation";
     public static final String MESSAGE_THREAD_DELETE_URL = "/rest/ws/message/delete/conversation";
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail";
+    public static final String USER_DETAILS_LIST_URL = "/rest/ws/user/status";
     public static final String ARGUMRNT_SAPERATOR = "&";
+    public static final String UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL = "/rest/ws/message/read";
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
      public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
@@ -120,6 +120,14 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getUserDetailUrl() {
         return getBaseUrl() + USER_DETAILS_URL;
+    }
+
+    public String getUserDetailsListUrl() {
+        return getBaseUrl() + USER_DETAILS_LIST_URL;
+    }
+
+    public String getSingleMessageReadUrl() {
+        return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
     }
 
     public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
@@ -469,6 +477,21 @@ public class MessageClientService extends MobiComKitClientService {
         Log.i(TAG, "Read status response is " + response);
     }
 
+    public void updateReadStatusForSingleMessage(String  pairedmessagekey) {
+        String singleReadMessageParm = "";
+        String response = "";
+        if (!TextUtils.isEmpty(pairedmessagekey)) {
+            try {
+                singleReadMessageParm = "?key=" + pairedmessagekey;
+                response = httpRequestUtils.getResponse(getCredentials(), getSingleMessageReadUrl() + singleReadMessageParm, "text/plain", "text/plain");
+                Log.i(TAG, "Read status response for single message is " + response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
     public String getMessages(Contact contact, Group group, Long startTime, Long endTime) throws UnsupportedEncodingException {
         String contactNumber = (contact != null ? contact.getFormattedContactNumber() : "");
         String params = "";
@@ -527,6 +550,25 @@ public class MessageClientService extends MobiComKitClientService {
         }
         return null;
     }
+
+
+    public SyncUserDetailsResponse getUserDetailsList(String lastSeenAt) {
+        try {
+            String url = getUserDetailsListUrl() + "?lastSeenAt=" + lastSeenAt;
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
+                return null;
+            }
+            Log.i(TAG,"Sync UserDetails response is:"+response);
+            SyncUserDetailsResponse userDetails = (SyncUserDetailsResponse) GsonUtils.getObjectFromJson(response, SyncUserDetailsResponse.class);
+            return userDetails;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public String[] getConnectedUsers() {
         try {
