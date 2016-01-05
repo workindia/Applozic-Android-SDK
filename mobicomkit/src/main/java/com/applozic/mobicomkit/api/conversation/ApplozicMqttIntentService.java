@@ -17,7 +17,12 @@ public class ApplozicMqttIntentService extends IntentService {
      *
      * @param name Used to name the worker thread, important only for debugging.
      */
-    private static final String TAG = "ApplozicMqttIntentService";
+    public static final String TAG = "ApplozicMqttIntentService";
+    public static final String SUBSCRIBE = "subscribe";
+    public static final String USER_KEY_STRING = "userKeyString";
+    public static final String CONNECTED_PUBLISH = "connectedPublish";
+    public static final String CONTACT = "contact";
+    public static final String TYPING = "typing";
 
     public ApplozicMqttIntentService() {
         super(TAG);
@@ -25,22 +30,22 @@ public class ApplozicMqttIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String subscribe = intent.getStringExtra("subscribe");
-        if (!TextUtils.isEmpty(subscribe)) {
+        boolean subscribe = intent.getBooleanExtra(SUBSCRIBE,false);
+        if (subscribe) {
             ApplozicMqttService.getInstance(getApplicationContext()).subscribe();
         }
-        String userKeyString = intent.getStringExtra("userKeyString");
+        String userKeyString = intent.getStringExtra(USER_KEY_STRING);
         if (!TextUtils.isEmpty(userKeyString)) {
             ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
         }
 
-        boolean connectedStatus = intent.getBooleanExtra("connectedPublish", false);
+        boolean connectedStatus = intent.getBooleanExtra(CONNECTED_PUBLISH, false);
         if (connectedStatus) {
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(), "1");
         }
-        Contact contact = (Contact) intent.getSerializableExtra("contact");
+        Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
         if (contact != null) {
-            boolean typing = intent.getBooleanExtra("typing", false);
+            boolean typing = intent.getBooleanExtra(TYPING, false);
             if (typing) {
                 ApplozicMqttService.getInstance(getApplicationContext()).typingStarted(contact);
             } else {

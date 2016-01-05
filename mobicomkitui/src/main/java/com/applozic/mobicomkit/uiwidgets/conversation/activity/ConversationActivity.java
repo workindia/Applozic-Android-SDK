@@ -144,11 +144,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
         Intent intent = new Intent(this, ApplozicMqttIntentService.class);
-        intent.putExtra("userKeyString", userKeyString);
+        intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
         startService(intent);
     }
 
@@ -157,7 +157,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
-        subscribeIntent.putExtra("subscribe", "subscribe");
+        subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
         startService(subscribeIntent);
 
         if (!Utils.isInternetAvailable(this)) {

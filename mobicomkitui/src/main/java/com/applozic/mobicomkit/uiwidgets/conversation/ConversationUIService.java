@@ -515,7 +515,7 @@ public class ConversationUIService {
                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
-                    intent.putExtra("subscribe", "subscribe");
+                    intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
                     fragmentActivity.startService(intent);
                 }
             }

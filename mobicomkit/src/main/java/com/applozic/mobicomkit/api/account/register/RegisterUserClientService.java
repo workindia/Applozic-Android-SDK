@@ -119,7 +119,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         final RegistrationResponse registrationResponse = createAccount(user);
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        intent.putExtra("connectedPublish",true);
+        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH,true);
         context.startService(intent);
         return registrationResponse;
     }

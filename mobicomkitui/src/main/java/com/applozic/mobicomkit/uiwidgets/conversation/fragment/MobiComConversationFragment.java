@@ -241,15 +241,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     //Log.i(TAG, "typing started event...");
                     typingStarted = true;
                     Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
-                    intent.putExtra("contact",contact);
-                    intent.putExtra("typing", typingStarted);
+                    intent.putExtra(ApplozicMqttIntentService.CONTACT,contact);
+                    intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
                     getActivity().startService(intent);
                 } else if (s.toString().trim().length() == 0 && typingStarted) {
                     //Log.i(TAG, "typing stopped event...");
                     typingStarted = false;
                     Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
-                    intent.putExtra("contact",contact);
-                    intent.putExtra("typing", typingStarted);
+                    intent.putExtra(ApplozicMqttIntentService.CONTACT,contact);
+                    intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
                     getActivity().startService(intent);
                 }
                 //sendButton.setVisibility((s == null || s.toString().trim().length() == 0) && TextUtils.isEmpty(filePath) ? View.GONE : View.VISIBLE);
@@ -270,6 +270,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    if(typingStarted){
+                        Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+                        intent.putExtra(ApplozicMqttIntentService.CONTACT,contact);
+                        intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
+                        getActivity().startService(intent);
+                    }
                     emoticonsFrameLayout.setVisibility(View.GONE);
                 }
             }
@@ -1122,9 +1128,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onPause() {
         super.onPause();
         BroadcastService.currentUserId = null;
-       /*  if(typingStarted){
-             ApplozicMqttService.getInstance(getActivity()).typingStopped(contact);
-         }*/
+        if(typingStarted){
+            Intent intent =  new Intent(getActivity(), ApplozicMqttIntentService.class);
+            intent.putExtra(ApplozicMqttIntentService.CONTACT,contact);
+            intent.putExtra(ApplozicMqttIntentService.TYPING, false);
+            getActivity().startService(intent);
+        }
     }
 
     public void updateTitle() {

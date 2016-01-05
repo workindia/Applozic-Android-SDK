@@ -102,7 +102,7 @@ public class UserClientService extends MobiComKitClientService {
 
         if (!fromLogin) {
             Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-            intent.putExtra("userKeyString", userKeyString);
+            intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
             context.startService(intent);
         }
     }

@@ -32,19 +32,21 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             if (!Utils.isInternetAvailable(context)) {
                 return;
             }
-
-            if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        SyncCallService.getInstance(context).syncMessages(null);
-                        MessageClientService.syncPendingMessages(context);
-                        MessageClientService.syncDeleteMessages(context);
-                    }
-                });
-                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                thread.start();
+            if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
+                return;
             }
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    SyncCallService.getInstance(context).syncMessages(null);
+                    MessageClientService.syncPendingMessages(context);
+                    MessageClientService.syncDeleteMessages(context);
+                }
+            });
+            thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
+
         }
     }
 
