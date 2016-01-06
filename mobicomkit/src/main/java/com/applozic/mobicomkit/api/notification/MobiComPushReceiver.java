@@ -90,23 +90,27 @@ public class MobiComPushReceiver {
         }
     }
 
-    public static boolean processPushNotificationId(String id) {
+    public synchronized static boolean processPushNotificationId(String id) {
         if (id != null && notificationIdList != null && notificationIdList.contains(id)) {
-            notificationIdList.remove(id);
+            if(notificationIdList.size()>0){
+                notificationIdList.remove(id);
+            }
             return true;
         }
         return false;
     }
 
-    public static void addPushNotificationId(String notificationId) {
+    public synchronized static void addPushNotificationId(String notificationId) {
 
         try {
             if (notificationIdList != null && notificationIdList.size() < 20) {
                 notificationIdList.add(notificationId);
             }
             if (notificationIdList != null && notificationIdList.size() == 20) {
-                for (int i = 0; i <= 14; i++) {
-                    notificationIdList.remove();
+                for (int i = 1; i <= 14; i++) {
+                    if(notificationIdList.size()>0){
+                        notificationIdList.remove();
+                    }
                 }
             }
         } catch (Exception e) {
