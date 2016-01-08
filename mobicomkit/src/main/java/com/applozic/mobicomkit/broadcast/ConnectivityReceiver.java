@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -18,6 +19,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
     static final private String TAG = "ConnectivityReceiver";
     static final private String CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     Context context;
+    private static boolean firstConnect = true;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -29,19 +31,27 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
         if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE)) {
             if (!Utils.isInternetAvailable(context)) {
+                firstConnect = true;
                 return;
             }
             if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
                 return;
             }
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    SyncCallService.getInstance(context).syncMessages(null);
-                    MessageClientService.syncPendingMessages(context);
-                    MessageClientService.syncDeleteMessages(context);
+            ConnectivityManager cm = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+            if (cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected()) {
+                if (firstConnect) {
+                    firstConnect = false;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SyncCallService.getInstance(context).syncMessages(null);
+                            MessageClientService.syncPendingMessages(context);
+                            MessageClientService.syncDeleteMessages(context);
+                        }
+                    }).start();
                 }
-            }).start();
+            }
+
         }
     }
 
