@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -75,6 +76,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.deleteMessage(message, keyString, userId);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action)) {
             conversationUIService.updateDeliveryStatus(message, userId);
+        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString().equals(action)) {
+            conversationUIService.updateDeliveryStatusForContact(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString().equals(action)) {
             String contactNumber = intent.getStringExtra("contactNumber");
             String response = intent.getStringExtra("response");
@@ -86,6 +89,14 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateDownloadStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString().equals(action) && message != null) {
             conversationUIService.updateDownloadFailed(message);
+        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString().equals(action)) {
+            String currentUserId = intent.getStringExtra("userId");
+            String isTyping = intent.getStringExtra("isTyping");
+            conversationUIService.updateTypingStatus(currentUserId, isTyping);
+        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString().equals(action)) {
+            conversationUIService.updateLastSeenStatus(intent.getStringExtra("contactId"));
+        } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
+            conversationUIService.reconnectMQTT();
         }
     }
 }

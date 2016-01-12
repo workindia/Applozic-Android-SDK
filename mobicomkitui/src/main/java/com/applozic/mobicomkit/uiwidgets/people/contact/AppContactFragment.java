@@ -307,7 +307,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     /**
      * This is a subclass of CursorAdapter that supports binding Cursor columns to a view layout.
      * If those items are part of search results, the search string is marked by highlighting the
-     * query text. An {@link android.widget.AlphabetIndexer} is used to allow quicker navigation up and down the
+     * query text. An {@link AlphabetIndexer} is used to allow quicker navigation up and down the
      * ListView.
      */
     private class ContactsAdapter extends BaseAdapter {
@@ -371,7 +371,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
             TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
             QuickContactBadge icon = (QuickContactBadge) itemLayout.findViewById(android.R.id.icon);
-            text1.setText(contact.getFullName());
+            text1.setText(contact.getDisplayName());
             text2.setText(contact.getUserId());
             if (contact.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());

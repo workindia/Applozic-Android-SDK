@@ -20,12 +20,10 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.personalization.PersonalizedMessage;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -69,7 +67,7 @@ public class MobiComMessageService {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             messageDatabaseService.createMessage(message);
         }
-        Log.i(TAG, "Sending message: " + message);
+        Log.i(TAG, "processing message: " + message);
         return message;
     }
 
@@ -104,7 +102,7 @@ public class MobiComMessageService {
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-       if (!(message.getTo().equals(BroadcastService.currentUserId ))) {
+        if (!(message.getTo().equals(BroadcastService.currentUserId ))) {
             MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
             BroadcastService.sendNotificationBroadcast(context, message);
         }
@@ -115,13 +113,12 @@ public class MobiComMessageService {
     }
 
     public synchronized void syncMessages() {
-        Log.i(TAG, "Starting syncMessages");
-
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
-        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getDeviceKeyString(), userpref.getLastSyncTime());
-        Log.i(TAG, "Got sync response " + syncMessageFeed);
+        Log.i(TAG, "Starting syncMessages for lastSyncTime: " + userpref.getLastSyncTime());
+        SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime());
 
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
+            Log.i(TAG, "Got sync response " + syncMessageFeed.getMessages().size() + " messages.");
             processContactFromMessages(syncMessageFeed.getMessages());
         }
         // if regIdInvalid in syncrequest, tht means device reg with c2dm is no
@@ -134,10 +131,8 @@ public class MobiComMessageService {
         }
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
             List<Message> messageList = syncMessageFeed.getMessages();
-            Log.i(TAG, "got messages : " + messageList.size());
 
             for (final Message message : messageList) {
-                Log.i(TAG, "calling syncMessages : " + message.getTo() + " " + message.getMessage());
                 String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
 
                 for (String tofield : toList) {
@@ -145,8 +140,27 @@ public class MobiComMessageService {
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
                 }
             }
+
+            updateDeliveredStatus(syncMessageFeed.getDeliveredMessageKeys());
             userpref.setLastSyncTime(String.valueOf(syncMessageFeed.getLastSyncTime()));
         }
+    }
+
+    private void updateDeliveredStatus(List<String> deliveredMessageKeys) {
+        if (deliveredMessageKeys == null) {
+            return;
+        }
+        for (String messageKey: deliveredMessageKeys) {
+            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, null);
+            Message message = messageDatabaseService.getMessage(messageKey);
+            if (message != null) {
+                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
+            }
+        }
+    }
+
+    public boolean isMessagePresent(String key) {
+        return messageDatabaseService.isMessagePresent(key);
     }
 
     public synchronized void syncMessagesWithServer(String syncMessage) {
@@ -166,7 +180,6 @@ public class MobiComMessageService {
             if(!ApplozicClient.getInstance(context).isHandleDisplayName()){
                 return;
             }
-            Log.i(TAG, "message size" + messages.size());
             Set<String> userIds = new HashSet<String>();
 
             for (Message msg : messages) {
@@ -186,7 +199,7 @@ public class MobiComMessageService {
                     Contact contact = new Contact();
                     contact.setUserId(keyValue.getKey());
                     contact.setFullName(keyValue.getValue());
-                    baseContactService.add(contact);
+                    baseContactService.upsert(contact);
                 }
 
             } catch (JSONException e) {
@@ -219,15 +232,15 @@ public class MobiComMessageService {
             mTextMessageReceived.setSource(Message.Source.MT_MOBILE_APP.getValue());
             mTextMessageReceived.setTimeToLive(timeToLive);
 
-            if (json.has("fileMetaKeyStrings")) {
+         /*   if (json.has("fileMetaKeyStrings")) {
                 JSONArray fileMetaKeyStringsJSONArray = json.getJSONArray("fileMetaKeyStrings");
                 List<String> fileMetaKeyStrings = new ArrayList<String>();
                 for (int i = 0; i < fileMetaKeyStringsJSONArray.length(); i++) {
                     JSONObject fileMeta = fileMetaKeyStringsJSONArray.getJSONObject(i);
                     fileMetaKeyStrings.add(fileMeta.toString());
                 }
-                mTextMessageReceived.setFileMetaKeyStrings(fileMetaKeyStrings);
-            }
+                //mTextMessageReceived.setFileMetaKeyStrings(fileMetaKeyStrings);
+            }*/
 
             mTextMessageReceived.processContactIds(context);
 
@@ -264,22 +277,31 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
-    public void updateDeliveryStatus(String key) {
+    public synchronized void updateDeliveryStatusForContact(String contactId) {
+        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId);
+        Log.i(TAG, "Updated delivery report of " + rows + " messages for contactId: " + contactId);
+
+        if (rows > 0) {
+            BroadcastService.sendDeliveryReportForContactBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString(), contactId);
+        }
+    }
+
+    public synchronized void updateDeliveryStatus(String key) {
         //Todo: Check if this is possible? In case the delivery report reaches before the sms is reached, then wait for the sms.
         Log.i(TAG, "Got the delivery report for key: " + key);
         String keyParts[] = key.split((","));
         Message message = messageDatabaseService.getMessage(keyParts[0]);
-        if (message != null) {
+        if (message != null && !message.getDelivered()) {
             message.setDelivered(Boolean.TRUE);
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number
-            messageDatabaseService.updateMessageDeliveryReport(keyParts[0], null);
+            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null);
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
             if (message.getTimeToLive() != null && message.getTimeToLive() != 0) {
                 Timer timer = new Timer();
                 timer.schedule(new DisappearingMessageTask(context, new MobiComConversationService(context), message), message.getTimeToLive() * 60 * 1000);
             }
-        } else {
+        } else if (message == null) {
             Log.i(TAG, "Message is not present in table, keyString: " + keyParts[0]);
         }
         map.remove(key);

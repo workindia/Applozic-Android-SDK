@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -24,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -47,6 +50,8 @@ public class HttpRequestUtils {
     public static String USERID_HEADER = "UserId-Enabled";
 
     public static String USERID_HEADER_VALUE = "true";
+
+    public static String DEVICE_KEY_HEADER = "Device-Key";
 
     public HttpRequestUtils(Context context) {
         this.context = context;
@@ -83,7 +88,7 @@ public class HttpRequestUtils {
                 request.addHeader("Accept", accept);
             }
 
-            request.addHeader(new BasicScheme().authenticate(credentials, request));
+            //request.addHeader(new BasicScheme().authenticate(credentials, request));
             HttpClient httpclient = new DefaultHttpClient();
 
             if (nameValuePairs != null && !nameValuePairs.isEmpty()) {
@@ -103,6 +108,8 @@ public class HttpRequestUtils {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             Log.i(TAG, "Response: " + sb.toString());
             return sb.toString();
@@ -113,6 +120,8 @@ public class HttpRequestUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (AuthenticationException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Log.e(TAG, "Http call failed");
@@ -172,7 +181,7 @@ public class HttpRequestUtils {
                 request.addHeader("Accept", accept);
             }
 
-            request.addHeader(new BasicScheme().authenticate(credentials, request));
+            //request.addHeader(new BasicScheme().authenticate(credentials, request));
             addGlobalHeaders(request);
 
             HttpClient httpclient = new DefaultHttpClient();
@@ -189,8 +198,12 @@ public class HttpRequestUtils {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return sb.toString();
+        } catch (ConnectException e) {
+            Log.i(TAG, "failed to connect Internet is not working");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (AuthenticationException e) {
@@ -199,14 +212,32 @@ public class HttpRequestUtils {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public void addGlobalHeaders(HttpRequest request) {
+    public void addGlobalHeaders(HttpRequest request) throws AuthenticationException {
         request.addHeader(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
         request.addHeader(SOURCE_HEADER, SOURCE_HEADER_VALUE);
         request.addHeader(USERID_HEADER, USERID_HEADER_VALUE);
+        request.addHeader(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (userPreferences.isRegistered()) {
+            request.addHeader(new BasicScheme().authenticate(getCredentials(), request));
+        }
     }
+
+
+    public UsernamePasswordCredentials getCredentials() {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (!userPreferences.isRegistered()) {
+            return null;
+        }
+        return new UsernamePasswordCredentials(userPreferences.getUserId(), userPreferences.getDeviceKeyString());
+    }
+
 
 }

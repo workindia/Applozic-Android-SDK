@@ -11,6 +11,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
@@ -18,10 +19,12 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.uiwidgets.R;
+
 import com.applozic.mobicomkit.uiwidgets.people.contact.AppContactFragment;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.contact.ContactUtils;
+
 import com.applozic.mobicommons.people.group.Group;
 
 import java.util.Map;
@@ -35,7 +38,6 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     private static final String GROUP_ID = "groupId";
     private static final String GROUP_NAME = "groupName";
     private static final String USER_ID = "userId";
-
     protected SearchView searchView;
     protected String searchTerm;
     AppContactFragment mContactsListFragment;
@@ -46,6 +48,8 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         super.onCreate(savedInstanceState);
         setContentView(R.layout.people_activity);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);

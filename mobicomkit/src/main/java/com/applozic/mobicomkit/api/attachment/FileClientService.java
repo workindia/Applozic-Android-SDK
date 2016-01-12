@@ -29,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.Date;
@@ -43,7 +44,7 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
     public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
     public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
-    public static final String FILE_UPLOAD_URL = "/rest/ws/file/url";
+    public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
     private HttpRequestUtils httpRequestUtils;
@@ -55,7 +56,7 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getFileUploadUrl() {
-        return getBaseUrl() + FILE_UPLOAD_URL;
+        return FILE_BASE_URL + FILE_UPLOAD_URL;
     }
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
@@ -151,12 +152,34 @@ public class FileClientService extends MobiComKitClientService {
         return null;
     }
 
+    public Bitmap loadMessageImage(Context context, String url) {
+        try {
+            Bitmap attachedImage = null;
+
+            if (attachedImage == null) {
+                InputStream in = new java.net.URL(url).openStream();
+                if (in != null) {
+                    attachedImage = BitmapFactory.decodeStream(in);
+                }
+            }
+            return attachedImage;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "File not found on server: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
+        }
+
+        return null;
+    }
+
     public String uploadBlobImage(String path) throws UnsupportedEncodingException, AuthenticationException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(getUploadKey());
 
         BasicScheme scheme = new BasicScheme();
-        httppost.addHeader(scheme.authenticate(credentials, httppost));
+        httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
         httpRequestUtils.addGlobalHeaders(httppost);
 
         try {
@@ -177,6 +200,6 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        return httpRequestUtils.getResponse(credentials, getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getCredentials(), getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
     }
 }

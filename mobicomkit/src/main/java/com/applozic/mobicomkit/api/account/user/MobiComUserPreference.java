@@ -43,6 +43,7 @@ public class MobiComUserPreference {
     private static String base_url = "base_url";
     private static String display_name = "display_name";
     private static String logged_in = "logged_in";
+    private static String lastSeenAtSyncTime ="lastSeenAtSyncTime";
 
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
 
@@ -325,6 +326,14 @@ public class MobiComUserPreference {
 
     public boolean isLoggedIn() {
         return !TextUtils.isEmpty(getUserId());
+    }
+
+    public String getLastSeenAtSyncTime() {
+        return sharedPreferences.getString(lastSeenAtSyncTime, "0");
+    }
+
+    public void setLastSeenAtSyncTime(String lastSeenAtTime) {
+        sharedPreferences.edit().putString(lastSeenAtSyncTime, lastSeenAtTime).commit();
     }
 
     @Override

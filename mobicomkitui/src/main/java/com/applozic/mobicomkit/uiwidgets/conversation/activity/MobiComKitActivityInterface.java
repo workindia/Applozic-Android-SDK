@@ -22,10 +22,16 @@ public interface MobiComKitActivityInterface {
 
     void addFragment(ConversationFragment conversationFragment);
 
-    void updateLatestMessage(Message message,String number);
+    void updateLatestMessage(Message message, String number);
 
-    void removeConversation(Message message,String number);
+    void removeConversation(Message message, String number);
 
-    void startActivityForResult(Intent intent,int code);
+    void startActivityForResult(Intent intent, int code);
+
+    void showErrorMessageView(String errorMessage);
+
+    void retry();
+
+    int getRetryCount();
 
 }

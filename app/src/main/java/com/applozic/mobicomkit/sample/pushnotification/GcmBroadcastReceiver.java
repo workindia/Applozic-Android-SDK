@@ -9,14 +9,12 @@ import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 
 public class GcmBroadcastReceiver extends BroadcastReceiver {
 
-
     private static final String TAG = "GcmBroadcastReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "Received notification: " + intent.getExtras().toString());
-        if (MobiComPushReceiver.isMobiComPushNotification(context, intent)) {
-            Log.i(TAG, "Yes it is a MT notification....");
+        if (MobiComPushReceiver.isMobiComPushNotification(intent)) {
+            Log.i(TAG, "Applozic notification processing...");
             MobiComPushReceiver.processMessageAsync(context, intent);
             return;
         }

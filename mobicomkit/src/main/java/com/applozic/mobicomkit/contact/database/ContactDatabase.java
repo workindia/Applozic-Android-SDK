@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,7 +44,16 @@ public class ContactDatabase {
         contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
-        contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
+        String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
+        if (TextUtils.isEmpty(contactNumber)) {
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        } else {
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
+        }
+        contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
+        Long connected = cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.CONNECTED));
+        contact.setConnected(connected != 0 && connected.intValue() == 1);
+        contact.setLastSeenAt(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_SEEN_AT_TIME)));
         contact.processContactNumbers(context);
         return contact;
     }
@@ -98,6 +108,32 @@ public class ContactDatabase {
         dbHelper.close();
     }
 
+    public void updateConnectedOrDisconnectedStatus(String userId, Date date, boolean connected) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
+        contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, date.getTime());
+
+        try {
+            dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
+    public void updateLastSeenTimeAt(String userId, long lastSeenTime) {
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, lastSeenTime);
+            dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
     public void addContact(Contact contact) {
         if (TextUtils.isEmpty(contact.getContactNumber())) {
             contact.setContactNumber(contact.getUserId());
@@ -111,10 +147,24 @@ public class ContactDatabase {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
-        contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
-        contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
+        if (!TextUtils.isEmpty(contact.getImageURL())) {
+            contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
+        }
+        if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
+            contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
+        }
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
-        contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
+        if (!TextUtils.isEmpty(contact.getEmailId())) {
+            contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
+        }
+        if (!TextUtils.isEmpty(contact.getApplicationId())) {
+            contentValues.put(MobiComDatabaseHelper.APPLICATION_ID, contact.getApplicationId());
+        }
+
+        contentValues.put(MobiComDatabaseHelper.CONNECTED, contact.isConnected() ? 1 : 0);
+        if (contact.getLastSeenAt() != 0) {
+            contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
+        }
         return contentValues;
     }
 
@@ -140,7 +190,4 @@ public class ContactDatabase {
         }
     }
 
-
 }
-
-

@@ -8,12 +8,11 @@ import com.applozic.mobicomkit.api.JsonMarker;
 public class User extends JsonMarker {
 
     private String userId;
-    private String emailId;
+    private String email;
     private String password;
     private String registrationId;
     private String applicationId;
     private String contactNumber;
-    private String displayName;
     private String countryCode;
     private Short prefContactAPI = Short.valueOf("2");
     private boolean emailVerified = true;
@@ -22,6 +21,7 @@ public class User extends JsonMarker {
     private String roleName = "USER";
     private Short deviceType;
     private Short authenticationTypeId = AuthenticationType.CLIENT.getValue();
+    private String displayName;
 
     public String getUserId() {
         return userId;
@@ -31,12 +31,12 @@ public class User extends JsonMarker {
         this.userId = userId;
     }
 
-    public String getEmailId() {
-        return emailId;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmailId(String emailId) {
-        this.emailId = emailId;
+    public void setEmail(String emailId) {
+        this.email = emailId;
     }
 
     public String getPassword() {
@@ -47,9 +47,13 @@ public class User extends JsonMarker {
         this.password = password;
     }
 
-    public String getDisplayName() { return displayName;}
+    public String getDisplayName() {
+        return displayName;
+    }
 
-    public void setDisplayName(String displayName) { this.displayName = displayName;}
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
     public String getRegistrationId() {
         return registrationId;

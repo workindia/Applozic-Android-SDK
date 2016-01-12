@@ -2,15 +2,22 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
@@ -31,16 +38,20 @@ import java.util.List;
 
 public class MobiComConversationService {
 
+    public static final String SERVER_SYNC = "SERVER_SYNC_";
     private static final String TAG = "Conversation";
-
     protected Context context = null;
     protected MessageClientService messageClientService;
     protected MessageDatabaseService messageDatabaseService;
+    private SharedPreferences sharedPreferences;
+    private BaseContactService baseContactService;
 
     public MobiComConversationService(Context context) {
         this.context = context;
         this.messageClientService = new MessageClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
+        this.baseContactService = new AppContactService(context);
+        this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
     public void sendMessage(Message message) {
@@ -85,7 +96,8 @@ public class MobiComConversationService {
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
 
         if (!cachedMessageList.isEmpty() &&
-                (cachedMessageList.size() > 1 || !cachedMessageList.get(0).isLocalMessage())) {
+                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, group))) {
+            Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
@@ -95,7 +107,7 @@ public class MobiComConversationService {
             Log.i(TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return messageList;
+            return cachedMessageList;
         }
 
         if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
@@ -103,7 +115,11 @@ public class MobiComConversationService {
             if (group != null && group.getGroupId() != null) {
                 return cachedMessageList;
             }
-            return messageList;
+            return cachedMessageList;
+        }
+
+        if (contact != null || group != null) {
+            sharedPreferences.edit().putBoolean(SERVER_SYNC + (contact != null ? contact.getContactIds() : group.getGroupId()), true).commit();
         }
 
         try {
@@ -111,8 +127,18 @@ public class MobiComConversationService {
                     .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
             JsonParser parser = new JsonParser();
             String element = parser.parse(data).getAsJsonObject().get("message").toString();
+            String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+
             Message[] messages = gson.fromJson(element, Message[].class);
+           /* if (!TextUtils.isEmpty(userDetailsElement)) {
+                UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
+                processUserDetails(userDetails);
+            }*/
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+
+
+            /*String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
+            String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);*/
 
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
@@ -129,7 +155,19 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
-                    if (message.hasAttachment()) {
+                    /*if(connectedUserIds != null && connectedUserIds.length>0){
+                        for (String userId : connectedUserIds) {
+                            if (message.getTo().equals(userId)) {
+                                Contact connectedContact = new Contact();
+                                connectedContact.setUserId(userId);
+                                connectedContact.setConnected(true);
+                                connectedContact.setContactNumber(userId);
+                                baseContactService.upsert(connectedContact);
+                            }
+                        }
+                    }*/
+
+                    if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                         setFilePathifExist(message);
                     }
                     messageList.add(message);
@@ -153,8 +191,32 @@ public class MobiComConversationService {
         return messageList;
     }
 
+    private void processUserDetails(SyncUserDetailsResponse userDetailsResponse) {
+        for (UserDetail userDetail : userDetailsResponse.getResponse()) {
+            Contact newContact = baseContactService.getContactById(userDetail.getUserId());
+            Contact contact = new Contact();
+            contact.setUserId(userDetail.getUserId());
+            contact.setContactNumber(userDetail.getUserId());
+            //contact.setApplicationId(); Todo: set the application id
+            contact.setConnected(userDetail.isConnected());
+            contact.setFullName(userDetail.getDisplayName());
+            contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+            if (newContact != null) {
+                if (newContact.isConnected() != contact.isConnected()) {
+                    BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
+                }
+            }
+            new AppContactService(context).upsert(contact);
+        }
+        MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
+    }
+
+    private boolean wasServerCallDoneBefore(Contact contact, Group group) {
+        return sharedPreferences.getBoolean(SERVER_SYNC + contact.getContactIds(), false);
+    }
+
     private void setFilePathifExist(Message message) {
-        FileMeta fileMeta = message.getFileMetas().get(0);
+        FileMeta fileMeta = message.getFileMetas();
         File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
         if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
@@ -195,12 +257,14 @@ public class MobiComConversationService {
     public void deleteAndBroadCast(final Contact contact, boolean deleteFromServer) {
         deleteConversationFromDevice(contact.getContactIds());
         if (deleteFromServer) {
-            new Thread(new Runnable() {
+         Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     messageClientService.deleteConversationThreadFromServer(contact);
                 }
-            }).start();
+            });
+            thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
         }
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), "success");
     }
@@ -216,6 +280,25 @@ public class MobiComConversationService {
 
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
         return deleteMessageFromDevice(messageDatabaseService.getMessage(keyString), contactNumber);
+    }
+
+    public synchronized void processLastSeenAtStatus() {
+      Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SyncUserDetailsResponse userDetailsResponse = new MessageClientService(context).getUserDetailsList(MobiComUserPreference.getInstance(context).getLastSeenAtSyncTime());
+                    if (userDetailsResponse != null && userDetailsResponse.getResponse() != null && "success".equals(userDetailsResponse.getStatus())) {
+                        processUserDetails(userDetailsResponse);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
     }
 
 //    public void addFileMetaDetails(String responseString, Message message) {

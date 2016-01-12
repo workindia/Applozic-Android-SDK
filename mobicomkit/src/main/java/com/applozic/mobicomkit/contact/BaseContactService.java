@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,4 +34,6 @@ public interface BaseContactService {
     Contact getContactReceiver(List<String> items, List<String> userIds);
 
     boolean isContactExists(String contactId);
+
+    void updateConnectedStatus(String contactId, Date date, boolean connected);
 }

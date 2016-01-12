@@ -10,7 +10,7 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
+       // multiDexEnabled true
     }
     buildTypes {
         release {
@@ -43,9 +43,12 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //compile project(':mobicomkitui') //Note: use this for local development
-    compile 'com.applozic.communication.uiwidget:mobicomkitui:1.33' //Note: use this for prod
-    compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.facebook.android:facebook-android-sdk:4.1.0'  
+    compile project(':mobicomkitui') //Note: use this for local development
+    //compile 'com.applozic.communication.uiwidget:mobicomkitui:2.0' //Note: use this for prod
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:support-v4:22.2.1'
+    //compile 'com.facebook.android:facebook-android-sdk:4.1.0'
+    compile 'com.android.support:design:22.2.1'
+    //compile 'com.android.support:cardview-v7:22.0'
+    //compile 'com.android.support:recyclerview-v7:22.0'
 }

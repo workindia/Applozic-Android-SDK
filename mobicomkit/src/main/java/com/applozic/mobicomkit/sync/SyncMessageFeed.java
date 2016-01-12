@@ -18,6 +18,7 @@ public class SyncMessageFeed extends JsonMarker {
     private Long currentSyncTime;
     private List<Message> messages;
     private boolean regIdInvalid;
+    private List<String> deliveredMessageKeys;
 
     public Long getLastSyncTime() {
         return lastSyncTime;
@@ -51,4 +52,11 @@ public class SyncMessageFeed extends JsonMarker {
         this.regIdInvalid = regIdInvalid;
     }
 
+    public List<String> getDeliveredMessageKeys() {
+        return deliveredMessageKeys;
+    }
+
+    public void setDeliveredMessageKeys(List<String> deliveredMessageKeys) {
+        this.deliveredMessageKeys = deliveredMessageKeys;
+    }
 }

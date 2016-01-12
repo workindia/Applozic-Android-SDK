@@ -157,9 +157,10 @@ public class AttachmentTask implements
     }
 
     // Detects the state of caching
-    public boolean isCacheEnabled() {
+    boolean isCacheEnabled() {
         return mCacheEnabled;
     }
+
 
     @Override
     public Message getMessage() {
@@ -182,8 +183,8 @@ public class AttachmentTask implements
             final String mimeType = FileUtils.getMimeType(filePath);
             return mimeType;
 
-        } else if (message.getFileMetas() != null || message.getFileMetas().isEmpty()) {
-            return message.getFileMetas().get(0).getContentType();
+        } else if (message.getFileMetas() != null ) {
+            return message.getFileMetas().getContentType();
         }
         return null;
     }
@@ -293,6 +294,7 @@ public class AttachmentTask implements
     public String getImageURL() {
         return getPhotoView().getImageUrl();
     }
+
 
     // Implements PhotoDecodeRunnable.setImageDecodeThread(). Calls setCurrentThread().
     @Override

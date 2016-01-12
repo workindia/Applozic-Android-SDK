@@ -37,19 +37,15 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
-import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * A login screen that offers login via email/password.
@@ -64,7 +60,6 @@ public class LoginActivity extends Activity {
     //flag variable for exiting the application
     private boolean exit = false;
 
-
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mUserIdView;
@@ -73,18 +68,18 @@ public class LoginActivity extends Activity {
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
-    CallbackManager callbackManager;
+    //CallbackManager callbackManager;
     private TextView mTitleView;
     private Spinner mSpinnerView;
     private int touchCount = 0;
     private MobiComUserPreference mobiComUserPreference;
-    private LoginButton loginButton;
+    //private LoginButton loginButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(this);
+        //FacebookSdk.sdkInitialize(this);
 
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.layout));
@@ -122,28 +117,7 @@ public class LoginActivity extends Activity {
         mProgressView = findViewById(R.id.login_progress);
 
 
-        callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-
-        loginButton.setReadPermissions("user_friends");
-
-        // Callback registration
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                mUserIdView.setText(loginResult.getAccessToken().getUserId());
-                mPasswordView.setText(loginResult.getAccessToken().getToken());
-                attemptLogin(User.AuthenticationType.FACEBOOK);
-            }
-
-            @Override
-            public void onCancel() {
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-            }
-        });
+        //callbackManager = CallbackManager.Factory.create();
 
         mSpinnerView = (Spinner) findViewById(R.id.spinner_for_url);
         mSpinnerView.setVisibility(View.INVISIBLE);
@@ -232,7 +206,7 @@ public class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-        if(TextUtils.isEmpty(userId)){
+        if (TextUtils.isEmpty(userId)) {
             mUserIdView.setError(getString(R.string.error_field_required));
             focusView = mUserIdView;
             cancel = true;
@@ -272,21 +246,18 @@ public class LoginActivity extends Activity {
                 public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
                     mAuthTask = null;
                     showProgress(false);
-
+                    ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
+                    //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 
+                    buildContactData();
+
                     //starting main MainActivity
-                    Intent intent = new Intent(context, MainActivity.class);
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            new MobiComConversationService(context).getLatestMessagesGroupByPeople();
-                        }
-                    }).start();
-
+                    Intent mainActvity = new Intent(context, MainActivity.class);
+                    startActivity(mainActvity);
+                    Intent intent = new Intent(context, ConversationActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -306,13 +277,15 @@ public class LoginActivity extends Activity {
                                     dialog.dismiss();
                                 }
                             });
-                    alertDialog.show();
+                    if (!isFinishing()) {
+                        alertDialog.show();
+                    }
                 }
             };
 
             User user = new User();
             user.setUserId(userId);
-            user.setEmailId(email);
+            user.setEmail(email);
             user.setPassword(password);
             user.setContactNumber(phoneNumber);
             user.setAuthenticationTypeId(authenticationType.getValue());
@@ -320,8 +293,67 @@ public class LoginActivity extends Activity {
             mAuthTask = new UserLoginTask(user, listener, this);
             mEmailSignInButton.setVisibility(View.INVISIBLE);
             mSpinnerView.setVisibility(View.INVISIBLE);
-            loginButton.setVisibility(View.INVISIBLE);
             mAuthTask.execute((Void) null);
+        }
+    }
+
+    /**
+     * Don't use this method...this is only for demo purpose..
+     */
+    private void buildContactData() {
+
+        Context context = getApplicationContext();
+        AppContactService appContactService = new AppContactService(context);
+        // avoid each time update ....
+        if (!appContactService.isContactExists("adarshk")) {
+
+            List<Contact> contactList = new ArrayList<Contact>();
+            //Adarsh....
+            Contact contact = new Contact();
+            contact.setUserId("adarshk");
+            contact.setFullName("John");
+            contact.setImageURL("R.drawable.couple");
+            contactList.add(contact);
+
+            Contact contactRaj = new Contact();
+            contactRaj.setUserId("raj");
+            contactRaj.setFullName("rajni");
+            contactRaj.setImageURL("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p200x200/12049601_556630871166455_1647160929759032778_n.jpg?oh=7ab819fc614f202e144cecaad0eb696b&oe=56EBA555&__gda__=1457202000_85552414c5142830db00c1571cc50641");
+            contactList.add(contactRaj);
+
+
+            //Adarsh
+            Contact contact2 = new Contact();
+            contact2.setUserId("rathan");
+            contact2.setFullName("Liz");
+            contact2.setImageURL("R.drawable.liz");
+            contactList.add(contact2);
+
+            Contact contact3 = new Contact();
+            contact3.setUserId("clem");
+            contact3.setFullName("Clement");
+            contact3.setImageURL("R.drawable.shivam");
+            contactList.add(contact3);
+
+            Contact contact4 = new Contact();
+            contact4.setUserId("shanki.gupta");
+            contact4.setFullName("Bill");
+            contact4.setImageURL("R.drawable.contact_shanki");
+            contactList.add(contact4);
+
+            Contact contact6 = new Contact();
+            contact6.setUserId("krishna");
+            contact6.setFullName("Krishi");
+            contact6.setImageURL("R.drawable.girl");
+            contactList.add(contact6);
+
+            Contact contact7 = new Contact();
+            contact7.setUserId("heather");
+            contact7.setFullName("Heather");
+            contact7.setImageURL("R.drawable.heather");
+            contactList.add(contact7);
+
+            appContactService.addAll(contactList);
         }
     }
 
@@ -432,7 +464,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
 

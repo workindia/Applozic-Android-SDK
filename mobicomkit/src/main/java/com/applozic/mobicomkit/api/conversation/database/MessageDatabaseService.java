@@ -76,7 +76,7 @@ public class MessageDatabaseService {
         message.setTimeToLive(timeToLive != 0 ? timeToLive : null);
         String fileMetaKeyStrings = cursor.getString(cursor.getColumnIndex("fileMetaKeyStrings"));
         if (!TextUtils.isEmpty(fileMetaKeyStrings)) {
-            message.setFileMetaKeyStrings(Arrays.asList(fileMetaKeyStrings.split(",")));
+            message.setFileMetaKeyStrings(fileMetaKeyStrings);
         }
         String filePaths = cursor.getString(cursor.getColumnIndex("filePaths"));
         if (!TextUtils.isEmpty(filePaths)) {
@@ -84,6 +84,15 @@ public class MessageDatabaseService {
         }
         long broadcastGroupId = cursor.getLong(cursor.getColumnIndex("timeToLive"));
         message.setBroadcastGroupId(broadcastGroupId != 0 ? broadcastGroupId : null);
+        message.setApplicationId(cursor.getString(cursor.getColumnIndex("applicationId")));
+        message.setContentType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE)));
+        int conversationId =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CONVERSATION_ID));
+        if(conversationId == 0){
+            message.setConversationId(null);
+        }else {
+            message.setConversationId(conversationId);
+        }
+        message.setTopicId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.TOPIC_ID)));
         if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
             //file is not present...  Don't set anything ...
         } else {
@@ -94,11 +103,8 @@ public class MessageDatabaseService {
             fileMeta.setSize(cursor.getInt(cursor.getColumnIndex("size")));
             fileMeta.setName(cursor.getString(cursor.getColumnIndex("name")));
             fileMeta.setContentType(cursor.getString(cursor.getColumnIndex("contentType")));
-            List<FileMeta> list = new ArrayList<FileMeta>();
-            list.add(fileMeta);
-            message.setFileMetas(list);
+            message.setFileMetas(fileMeta);
         }
-
         return message;
     }
 
@@ -179,7 +185,6 @@ public class MessageDatabaseService {
         List<Message> messageList = getMessageList(cursor);
         cursor.close();
         return messageList;
-
     }
 
     public long getMinCreatedAtFromMessageTable() {
@@ -215,6 +220,20 @@ public class MessageDatabaseService {
         cursor.close();
         dbHelper.close();
         return message1;
+    }
+
+    public boolean isMessagePresent(String key) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Cursor cursor = database.rawQuery(
+                "SELECT COUNT(*) FROM sms WHERE keyString = ?",
+                new String[]{key});
+        cursor.moveToFirst();
+        boolean present = cursor.getInt(0) > 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        dbHelper.close();
+        return present;
     }
 
     public Message getMessage(String keyString) {
@@ -316,11 +335,11 @@ public class MessageDatabaseService {
     public synchronized void updateMessageFileMetas(long messageId, final Message message) {
         ContentValues values = new ContentValues();
         values.put("keyString", message.getKeyString());
-        if (message.getFileMetaKeyStrings() != null && !message.getFileMetaKeyStrings().isEmpty()) {
-            values.put("fileMetaKeyStrings", TextUtils.join(",", message.getFileMetaKeyStrings()));
+        if (message.getFileMetaKeyStrings() != null) {
+            values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
         }
-        if (message.getFileMetas() != null && !message.getFileMetas().isEmpty()) {
-            FileMeta fileMeta = message.getFileMetas().get(0);
+        if (message.getFileMetas() != null) {
+            FileMeta fileMeta = message.getFileMetas();
             if (fileMeta != null) {
                 values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
                 values.put("size", fileMeta.getSize());
@@ -424,16 +443,20 @@ public class MessageDatabaseService {
             values.put("broadcastGroupId", message.getBroadcastGroupId());
             values.put("canceled", message.isCanceled());
             values.put("read", message.isRead() ? 1 : 0);
+            values.put("applicationId", message.getApplicationId());
+            values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE,message.getContentType());
+            values.put(MobiComDatabaseHelper.CONVERSATION_ID,message.getConversationId());
+            values.put(MobiComDatabaseHelper.TOPIC_ID,message.getTopicId());
 
-            if (message.getFileMetaKeyStrings() != null && !message.getFileMetaKeyStrings().isEmpty()) {
-                values.put("fileMetaKeyStrings", TextUtils.join(",", message.getFileMetaKeyStrings()));
+            if (message.getFileMetaKeyStrings() != null) {
+                values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
             }
             if (message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 values.put("filePaths", TextUtils.join(",", message.getFilePaths()));
             }
             //TODO:Right now we are supporting single image attachment...making entry in same table
-            if (message.getFileMetas() != null && !message.getFileMetas().isEmpty()) {
-                FileMeta fileMeta = message.getFileMetas().get(0);
+            if (message.getFileMetas() != null) {
+                FileMeta fileMeta = message.getFileMetas();
                 if (fileMeta != null) {
                     values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
                     values.put("size", fileMeta.getSize());
@@ -460,14 +483,23 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public void updateMessageDeliveryReport(String messageKeyString, String contactNumber) {
+    public int updateMessageDeliveryReportForContact(String contactId) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("delivered", "1");
+        int rows = database.update("sms", values, "contactNumbers='" + contactId + "' and delivered = 0 and type = 5", null);
+        dbHelper.close();
+        return rows;
+    }
+
+    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("delivered", "1");
         if (TextUtils.isEmpty(contactNumber)) {
-            database.update("sms", values, "keyString='" + messageKeyString + "'", null);
+            database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);
         } else {
-            database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "'", null);
+            database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "' and type = 5", null);
         }
         dbHelper.close();
     }
@@ -496,7 +528,6 @@ public class MessageDatabaseService {
         } finally {
             dbHelper.close();
         }
-
     }
 
     public void updateInternalFilePath(String keyString, String filePath) {
@@ -530,17 +561,58 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int getUnreadSmsCount(Contact contact) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contact.getContactNumber() + "'", null);
-        cursor.moveToFirst();
-        int unreadSms = 0;
-        if (cursor.getCount() > 0) {
-            unreadSms = cursor.getInt(0);
+    public int getUnreadMessageCount(String contactNumbers) {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
+            cursor.moveToFirst();
+            int unreadSms = 0;
+            if (cursor.getCount() > 0) {
+                unreadSms = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return unreadSms;
+        } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread message count for a contact.");
         }
-        cursor.close();
-        dbHelper.close();
-        return unreadSms;
+        return 0;
+    }
+
+    public int getUnreadConversationCount() {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT (contactNumbers)) FROM sms WHERE read = 0 ", null);
+            cursor.moveToFirst();
+            int conversationCount = 0;
+            if (cursor.getCount() > 0) {
+                conversationCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return conversationCount;
+        } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread conversation count");
+        }
+        return 0;
+    }
+
+    public int getUnreadMessageCount() {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(1) FROM sms WHERE read = 0 ", null);
+            cursor.moveToFirst();
+            int unreadMessageCount = 0;
+            if (cursor.getCount() > 0) {
+                unreadMessageCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return unreadMessageCount;
+        } catch(Exception ex) {
+            Log.w(TAG, "Exception while fetching unread message count");
+            return 0;
+        }
     }
 
     public List<Message> getLatestMessage(String contactNumbers) {
@@ -555,12 +627,19 @@ public class MessageDatabaseService {
         return messages;
     }
 
+    public int updateReadStatus(String contactNumbers) {
+        ContentValues values = new ContentValues();
+        values.put("read", 1);
+        int read = dbHelper.getWritableDatabase().update("sms", values, " contactNumbers = " + "'" + contactNumbers + "'" + " and read = 0", null);
+        dbHelper.close();
+        return read;
+    }
+
     public List<Message> getMessages(Long createdAt) {
         String createdAtClause = "";
         if (createdAt != null && createdAt > 0) {
             createdAtClause = " and m1.createdAt < " + createdAt;
         }
-
         createdAtClause += " and m1.deleted = 0";
 
         String messageTypeClause = "";

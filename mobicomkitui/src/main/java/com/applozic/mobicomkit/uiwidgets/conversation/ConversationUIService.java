@@ -9,17 +9,23 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.PhoneNumberUtils;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -27,7 +33,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragm
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
+
 import com.applozic.mobicommons.commons.core.utils.Support;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -44,14 +52,19 @@ public class ConversationUIService {
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     private static final String TAG = "ConversationUIService";
-    public static String DISPLAY_NAME = "displayName";
+    public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
     public static final String GROUP_NAME = "groupName";
     public static final String FIRST_TIME_MTEXTER_FRIEND = "firstTimeMTexterFriend";
     public static final String CONTACT_ID = "contactId";
     public static final String CONTACT_NUMBER = "contactNumber";
-
+    public static final String APPLICATION_ID = "applicationId";
+    public static final String DEFAULT_TEXT = "defaultText";
+    public static final String FINAL_PRICE_TEXT = "Final agreed price ";
+    public static final String PRODUCT_TOPIC_ID = "topicId";
+    public static final String PRODUCT_IMAGE_URL = "productImageUrl";
+    private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
 
@@ -93,12 +106,11 @@ public class ConversationUIService {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                //Todo: load fragment from backstack if available and avoid creating new fragment.
                 ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
                 if (conversationFragment == null) {
                     conversationFragment = new ConversationFragment(contact);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
-                } else  {
+                } else {
                     conversationFragment.loadConversation(contact);
                 }
             }
@@ -118,6 +130,7 @@ public class ConversationUIService {
                     && resultCode == Activity.RESULT_OK) {
                 Uri selectedFileUri = (intent == null ? null : intent.getData());
                 if (selectedFileUri == null) {
+
                     selectedFileUri = ((ConversationActivity) fragmentActivity).getCapturedImageUri();
                     ImageUtils.addImageToGallery(FilePathFinder.getPath(fragmentActivity, selectedFileUri), fragmentActivity);
                 }
@@ -234,7 +247,7 @@ public class ConversationUIService {
         }
         String userId = message.getContactIds();
         ConversationFragment conversationFragment = getConversationFragment();
-        if (userId.equals(conversationFragment.getContact().getUserId()) ||
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
                 conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
             conversationFragment.updateMessageKeyString(message);
         }
@@ -248,14 +261,34 @@ public class ConversationUIService {
         }
     }
 
+    public void updateLastSeenStatus(String contactId) {
+        if (BroadcastService.isQuick()) {
+            getQuickConversationFragment().updateLastSeenStatus(contactId);
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateLastSeenStatus();
+        }
+    }
+
+    public void updateDeliveryStatusForContact(String contactId) {
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateDeliveryStatusForAllMessages();
+        }
+    }
+
     public void updateDeliveryStatus(Message message, String formattedContactNumber) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatus(message);
-
         }
     }
 
@@ -275,7 +308,6 @@ public class ConversationUIService {
         getConversationFragment().updateUploadFailedStatus(message);
     }
 
-
     public void updateDownloadFailed(Message message) {
         if (!BroadcastService.isIndividual()) {
             return;
@@ -288,6 +320,19 @@ public class ConversationUIService {
             return;
         }
         getConversationFragment().updateDownloadStatus(message);
+    }
+
+
+    public void updateTypingStatus(String userId, String isTypingStatus) {
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        ConversationFragment conversationFragment = getConversationFragment();
+        Log.i(TAG, "Received typing status for: " + userId);
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds())) {
+            conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
+        }
+
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {
@@ -311,6 +356,46 @@ public class ConversationUIService {
         Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
 
         startContactActivityForResult(intent, message, messageContent);
+    }
+
+    public void sendPriceMessage() {
+
+        try {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragmentActivity);
+            alertDialog.setTitle("Price");
+            alertDialog.setMessage("Enter your amount");
+
+            final EditText inputText = new EditText(fragmentActivity);
+            inputText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            inputText.setLayoutParams(linearParams);
+            alertDialog.setView(inputText);
+
+            alertDialog.setPositiveButton(fragmentActivity.getString(R.string.send_text),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (!TextUtils.isEmpty(inputText.getText().toString())) {
+                                getConversationFragment().sendMessage(inputText.getText().toString(), Message.ContentType.PRICE.getValue());
+                            }
+                        }
+                    });
+
+            alertDialog.setNegativeButton(fragmentActivity.getString(R.string.cancel_text),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            if (!fragmentActivity.isFinishing()) {
+                alertDialog.show();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void checkForStartNewConversation(Intent intent) {
@@ -356,16 +441,24 @@ public class ConversationUIService {
         }
 
         String userId = intent.getStringExtra(USER_ID);
+        if (TextUtils.isEmpty(userId)) {
+            userId = intent.getStringExtra("contactId");
+        }
+
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
         }
 
+        String applicationId = intent.getStringExtra(APPLICATION_ID);
+        if (contact != null) {
+            contact.setApplicationId(applicationId);
+            baseContactService.upsert(contact);
+        }
         String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
             contact.setFullName(fullName);
             baseContactService.upsert(contact);
         }
-
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         if (!TextUtils.isEmpty(messageJson)) {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
@@ -394,6 +487,40 @@ public class ConversationUIService {
         String sharedText = intent.getStringExtra(MobiComKitPeopleActivity.SHARED_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {
             getConversationFragment().sendMessage(sharedText);
+        }
+
+        String defaultText = intent.getStringExtra(ConversationUIService.DEFAULT_TEXT);
+        if (!TextUtils.isEmpty(defaultText)) {
+            getConversationFragment().setDefaultText(defaultText);
+        }
+
+        String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
+        String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);
+        if (!TextUtils.isEmpty(productTopicId) && !TextUtils.isEmpty(productImageUrl)) {
+            try {
+                FileMeta fileMeta = new FileMeta();
+                fileMeta.setContentType("image");
+                fileMeta.setBlobKeyString(productImageUrl);
+                getConversationFragment().sendProductMessage(productTopicId, fileMeta, contact, Message.ContentType.TEXT_URL.getValue());
+            } catch (Exception e) {
+            }
+        }
+
+    }
+
+    public void reconnectMQTT() {
+        try {
+            if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
+                if (Utils.isInternetAvailable(fragmentActivity)) {
+                    Log.i(TAG, "Reconnecting to mqtt.");
+                    ((MobiComKitActivityInterface) fragmentActivity).retry();
+                    Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
+                    intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
+                    fragmentActivity.startService(intent);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

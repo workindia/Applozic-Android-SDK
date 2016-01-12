@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -24,14 +25,14 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
-import com.applozic.mobicomkit.uiwidgets.MobiComKitApplication;
+import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -39,7 +40,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -53,7 +53,6 @@ import java.util.Map;
 public class MobiComQuickConversationFragment extends Fragment {
 
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
-    protected MobiComConversationService conversationService;
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
     protected TextView emptyTextView;
@@ -64,6 +63,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     protected List<Message> messageList = new ArrayList<Message>();
     protected QuickConversationAdapter conversationAdapter = null;
     protected boolean loadMore = false;
+    protected SyncCallService syncCallService;
     private ApplozicSetting applozicSetting;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
@@ -77,16 +77,18 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         applozicSetting = ApplozicSetting.getInstance(getActivity());
-        conversationService = new MobiComConversationService(getActivity());
+        syncCallService = SyncCallService.getInstance(getActivity());
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
         baseContactService = new AppContactService(getActivity());
-        new Thread(new Runnable() {
+       Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 MobiComUserPreference.getInstance(getActivity()).setDeviceTimeOffset(DateUtils.getTimeDiffFromUtc());
             }
-        }).start();
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
         setHasOptionsMenu(true);
 
     }
@@ -96,6 +98,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                              Bundle savedInstanceState) {
         View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
         listView = (ConversationListView) list.findViewById(R.id.messageList);
+        listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
 
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
@@ -110,8 +113,8 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.addFooterView(spinnerLayout);
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
-        emptyTextView = (TextView) spinnerLayout.findViewById(R.id.noConversations);
-        startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
+        emptyTextView = (TextView) list.findViewById(R.id.noConversations);
+       // startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
 
@@ -192,7 +195,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                 //listView.smoothScrollToPosition(messageList.size());
                 listView.setSelection(0);
                 emptyTextView.setVisibility(View.GONE);
-                startNewButton.setVisibility(View.GONE);
+               // startNewButton.setVisibility(View.GONE);
             }
         });
     }
@@ -232,7 +235,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                     conversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                        startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+                       // startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
                     }
                 }
             }
@@ -255,9 +258,9 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
-    public void removeConversation(final Contact contact,String response) {
+    public void removeConversation(final Contact contact, String response) {
 
-        if("success".equals(response)){
+        if ("success".equals(response)) {
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -268,9 +271,9 @@ public class MobiComQuickConversationFragment extends Fragment {
                     checkForEmptyConversations();
                 }
             });
-        }else {
+        } else {
 
-            Toast.makeText(getActivity(),"delete failed ",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "delete failed ", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -279,10 +282,10 @@ public class MobiComQuickConversationFragment extends Fragment {
         boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
-            startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+            //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
-            startNewButton.setVisibility(View.GONE);
+           // startNewButton.setVisibility(View.GONE);
         }
     }
 
@@ -300,7 +303,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(MobiComKitApplication.TITLE);
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(ApplozicApplication.TITLE);
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
         latestMessageForEachContact.clear();
@@ -321,7 +325,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         //FlurryAgent.logEvent(QUICK_CONVERSATION_EVENT);
         listView.setAdapter(conversationAdapter);
-        startNewButton.setOnClickListener(startNewConversation());
+       // startNewButton.setOnClickListener(startNewConversation());
         fabButton.setOnClickListener(startNewConversation());
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -341,6 +345,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
+
     public void downloadConversations() {
         downloadConversations(false);
     }
@@ -349,6 +354,32 @@ public class MobiComQuickConversationFragment extends Fragment {
         minCreatedAtTime = null;
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, showInstruction);
         downloadConversation.execute();
+    }
+
+    public void updateLastSeenStatus(final String userId) {
+        if (!ApplozicSetting.getInstance(getActivity()).isOnlineStatusInMasterListVisible()) {
+            return;
+        }
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Message message = latestMessageForEachContact.get(userId);
+                    if (message != null) {
+                        int index = messageList.indexOf(message);
+                        View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
+                        if (view != null) {
+                            TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
+                            Contact contact = baseContactService.getContactById(userId);
+                            onlineTextView.setVisibility((contact != null && contact.isConnected()) ? View.VISIBLE : View.GONE);
+                        }
+                    }
+                } catch(Exception ex) {
+                    Log.w("AL", "Exception while updating online status.");
+                }
+            }
+        });
+
     }
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
@@ -391,7 +422,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = conversationService.getLatestMessagesGroupByPeople();
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople();
                 if (!nextMessageList.isEmpty()) {
                     minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
                 }
@@ -399,7 +430,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                 listIndex = firstVisibleItem;
                 Long createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = conversationService.getLatestMessagesGroupByPeople(minCreatedAtTime);
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime);
             }
 
             return 0L;
@@ -439,7 +470,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (applozicSetting.isStartNewButtonVisible()) {
-                    startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                   // startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 }
                 if (!messageList.isEmpty()) {
                     listView.setSelection(0);
@@ -447,10 +478,13 @@ public class MobiComQuickConversationFragment extends Fragment {
             } else {
                 listView.setSelection(firstVisibleItem);
             }
-            if (isAdded()) {
-                String errorMessage = getResources().getString(R.string.internet_connection_not_available);
-                Utils.isNetworkAvailable(getActivity(), errorMessage);
-            }
+            /*if (isAdded()) {
+                //Utils.isNetworkAvailable(getActivity(), errorMessage);
+                if (!Utils.isInternetAvailable(getActivity())) {
+                    String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+                    ((MobiComKitActivityInterface) getActivity()).showErrorMessageView(errorMessage);
+                }
+            }*/
 
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());

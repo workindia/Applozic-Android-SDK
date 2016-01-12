@@ -96,18 +96,24 @@ public class AttachmentManager {
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
     // A single instance of PhotoManager, used to implement the singleton pattern
     private static AttachmentManager sInstance = null;
+    public final List<String> attachmentInProgress;
+    public final List<AttachmentTask> attachmentTaskList;
 
     // A static block that sets class fields
     static {
 
         // The time unit for "keep alive" is in seconds
         KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+
         // Creates a single static instance of PhotoManager
         sInstance = new AttachmentManager();
     }
 
-    public final List<String> attachmentInProgress;
-    public final List<AttachmentTask> attachmentTaskList;
+    /*
+     * Creates a cache of byte arrays indexed by image URLs. As new items are added to the
+     * cache, the oldest items are ejected and subject to garbage collection.
+     */
+    private LruCache<String, Bitmap> mPhotoCache = null;
     // A queue of Runnables for the image download pool
     private final BlockingQueue<Runnable> mDownloadWorkQueue;
     // A queue of Runnables for the image decoding pool
@@ -116,14 +122,10 @@ public class AttachmentManager {
     private final Queue<AttachmentTask> mPhotoTaskWorkQueue;
     // A managed pool of background download threads
     private final ThreadPoolExecutor mDownloadThreadPool;
+
     //taking reference for future use ::
     // A managed pool of background decoder threads
     private final ThreadPoolExecutor mDecodeThreadPool;
-    /*
-     * Creates a cache of byte arrays indexed by image URLs. As new items are added to the
-     * cache, the oldest items are ejected and subject to garbage collection.
-     */
-    private LruCache<String, Bitmap> mPhotoCache = null;
     // An object that manages Messages in a Thread
     private Handler mHandler;
 
@@ -251,6 +253,7 @@ public class AttachmentManager {
                             } else if (localView.getProressBar() != null) {
                                 localView.getProressBar().setVisibility(View.GONE);
                             }
+                            BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString(), localView.getMessage());
                             localView.setImageBitmap(attachmentTask.getImage());
                             recycleTask(attachmentTask);
                             break;
@@ -410,6 +413,7 @@ public class AttachmentManager {
             //imageView.getProressBar().setVisibility(View.VISIBLE);
             sInstance.handleState(downloadTask, DOWNLOAD_COMPLETE);
         }
+
         // Returns a task object, either newly-created or one from the task pool
         return downloadTask;
     }
@@ -450,7 +454,6 @@ public class AttachmentManager {
                     if (photoTask != null && photoTask.getImage() != null) {
                         mPhotoCache.put(photoTask.getMessage().getKeyString(), photoTask.getImage());
                     }
-
                 }
                 // Gets a Message object, stores the state in it, and sends it to the Handler
                 Message completeMessage = mHandler.obtainMessage(state, photoTask);
@@ -469,7 +472,6 @@ public class AttachmentManager {
                     //We need not to cache the Data here ..as we have nothing to load
                     // ...directly sending TASK complete message is enough
                     mHandler.obtainMessage(TASK_COMPLETE, photoTask).sendToTarget();
-                    BroadcastService.sendMessageUpdateBroadcast(photoTask.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString(), photoTask.getMessage());
                 }
 
                 // In all other cases, pass along the message without any other action.

@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * <p/>
  * Objects of this class are instantiated and managed by instances of PhotoTask, which
  * implements the methods of TaskRunnableDecodeMethods. PhotoTask objects call
- * {@link #AttachmentDownloader(AttachmentDownloader.TaskRunnableDownloadMethods) PhotoDownloadRunnable()} with
+ * {@link #AttachmentDownloader(TaskRunnableDownloadMethods) PhotoDownloadRunnable()} with
  * themselves as the argument. In effect, an PhotoTask object and a
  * PhotoDownloadRunnable object communicate through the fields of the PhotoTask.
  */
@@ -150,7 +150,7 @@ class AttachmentDownloader implements Runnable {
         File file = null;
         try {
             InputStream inputStream = null;
-            FileMeta fileMeta = message.getFileMetas().get(0);
+            FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
             String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
@@ -158,7 +158,7 @@ class AttachmentDownloader implements Runnable {
             String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
             file = FileClientService.getFilePath(imageName, context, contentType);
             if (!file.exists()) {
-                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileKey);
+                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {

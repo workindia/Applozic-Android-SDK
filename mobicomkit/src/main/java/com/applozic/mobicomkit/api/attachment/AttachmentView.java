@@ -38,6 +38,7 @@ public class AttachmentView extends ImageView {
 
     // Indicates if caching should be used
     private boolean mCacheFlag = true;
+
     // Status flag that indicates if onDraw has completed
     private boolean mIsDrawn;
     /*
@@ -143,9 +144,7 @@ public class AttachmentView extends ImageView {
      */
     @Override
     protected void onDraw(Canvas canvas) {
-        // If the image isn't already drawn, and the URL is set
         super.onDraw(canvas);
-
         if (message != null && mCacheFlag) {
             Bitmap bitmap = (AttachmentManager.getInstance()).getBitMapFromCache(message.getKeyString());
             if (bitmap != null) {
@@ -153,6 +152,7 @@ public class AttachmentView extends ImageView {
                 return;
             }
         }
+        // If the image isn't already drawn, and the URL is set
         if (!mIsDrawn && !AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
             // Starts downloading this View, using the current cache setting
             mDownloadThread = AttachmentManager.startDownload(this, mCacheFlag);
@@ -193,10 +193,10 @@ public class AttachmentView extends ImageView {
     }
 
     public String getImageUrl() {
-        if (message == null || message.getFileMetas() == null || message.getFileMetas().isEmpty()) {
+        if (message == null || message.getFileMetas() == null ) {
             return null;
         }
-        return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().get(0).getKeyString();
+        return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().getBlobKeyString();
     }
 
     public String getLocalPath() {
@@ -204,7 +204,7 @@ public class AttachmentView extends ImageView {
     }
 
     public String contentType() {
-        return message.getFileMetas().get(0).getContentType();
+        return message.getFileMetas().getContentType();
     }
 
     public ProgressBar getProressBar() {
@@ -226,10 +226,9 @@ public class AttachmentView extends ImageView {
     public void cancelDownload() {
         AttachmentManager.removeDownload(mDownloadThread);
         getDownloadProgressLayout().setVisibility(GONE);
-        mIsDrawn = false;
+        mIsDrawn= false;
     }
-
-    public void setmCacheFlag(boolean cacheFlag) {
+    public void setMCacheFlag(boolean cacheFlag) {
         this.mCacheFlag = cacheFlag;
     }
 

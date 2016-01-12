@@ -53,6 +53,15 @@ public class BroadcastService {
         sendBroadcast(context, intent);
     }
 
+    public static void sendDeliveryReportForContactBroadcast(Context context, String action, String contactId) {
+        Log.i(TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
+        Intent intentUpdate = new Intent();
+        intentUpdate.setAction(action);
+        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
+        intentUpdate.putExtra(MobiComKitConstants.CONTACT_ID, contactId);
+        sendBroadcast(context, intentUpdate);
+    }
+
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
         Log.i(TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
         Intent intentUpdate = new Intent();
@@ -98,19 +107,51 @@ public class BroadcastService {
         context.sendBroadcast(notificationIntent);
     }
 
+    public static void sendUpdateLastSeenAtTimeBroadcast(Context context, String action, String contactId){
+        Log.i(TAG, "Sending lastSeenAt broadcast....");
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra("contactId", contactId);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
+    public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping){
+        Log.i(TAG, "Sending typing Broadcast.......");
+        Intent intentTyping = new Intent();
+        intentTyping.setAction(action);
+        intentTyping.putExtra("applicationId", applicationId);
+        intentTyping.putExtra("userId", userId);
+        intentTyping.putExtra("isTyping",isTyping);
+        intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intentTyping);
+    }
+
+    public static void sendMQTTDisconnected(Context context, String action){
+        Log.i(TAG, "Sending typing Broadcast.......");
+        Intent intentTyping = new Intent();
+        intentTyping.setAction(action);
+        intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intentTyping);
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.LOAD_MORE.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString());
-        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
+        intentFilter.addAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.LOAD_MORE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString());
+        intentFilter.addAction(INTENT_ACTIONS.SYNC_MESSAGE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.DELETE_MESSAGE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.DELETE_CONVERSATION.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_DELIVERY.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString());
+        intentFilter.addAction(INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.INSTRUCTION.toString());
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString());
+        intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
+        intentFilter.addAction(INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
 
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
@@ -118,9 +159,10 @@ public class BroadcastService {
 
     public enum INTENT_ACTIONS {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
-        SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, INSTRUCTION,
+        SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, MESSAGE_DELIVERY_FOR_CONTACT, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
-        CONTACT_VERIFIED, NOTIFY_USER
+        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,
+        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED
     }
 
     public static void sendBroadcast(Context context, Intent intent) {

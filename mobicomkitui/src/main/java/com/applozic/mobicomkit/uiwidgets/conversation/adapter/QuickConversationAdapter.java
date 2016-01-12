@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -14,10 +15,13 @@ import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 
@@ -35,6 +39,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by adarsh on 4/7/15.
@@ -44,6 +51,7 @@ public class QuickConversationAdapter extends BaseAdapter {
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
     private ImageLoader contactImageLoader;
     private Context context;
+    private MessageDatabaseService messageDatabaseService;
     private List<Message> messageList;
     private BaseContactService contactService;
     private EmojiconHandler emojiconHandler;
@@ -63,6 +71,7 @@ public class QuickConversationAdapter extends BaseAdapter {
         this.context = context;
         this.emojiconHandler = emojiconHandler;
         this.contactService = new AppContactService(context);
+        this.messageDatabaseService = new MessageDatabaseService(context);
         this.messageList = messageList;
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
@@ -89,12 +98,14 @@ public class QuickConversationAdapter extends BaseAdapter {
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
-            ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
+            //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
+            CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
+            TextView onlineTextView = (TextView) customView.findViewById(R.id.onlineTextView);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
-
+            TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
             List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
             List<String> userIds = null;
             if (!TextUtils.isEmpty(message.getContactIds())) {
@@ -123,9 +134,15 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }
 
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
-                alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
-                alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));
+                /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
+                alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
+                GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+                bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+                if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
+                    onlineTextView.setVisibility((contactReceiver != null  && contactReceiver.isConnected()) ? View.VISIBLE : View.GONE);
+                }
             }
+            
             if (contactReceiver.isDrawableResources()) {
                 int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
                 contactImage.setImageResource(drawableResourceId);
@@ -144,13 +161,15 @@ public class QuickConversationAdapter extends BaseAdapter {
                 Group group = message.getBroadcastGroupId() != null ? GroupUtils.fetchGroup(context, message.getBroadcastGroupId()) : null;
             }
 
-            if (message.hasAttachment() && attachmentIcon != null) {
+            if (message.hasAttachment() && attachmentIcon != null && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 //Todo: handle it for fileKeyStrings when filePaths is empty
                 String filePath = message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
-                        message.getFileMetas() != null ? message.getFileMetas().get(0).getName() : "";
+                        message.getFileMetas() != null ? message.getFileMetas().getName() : "";
                 attachmentIcon.setVisibility(View.VISIBLE);
                 messageTextView.setText(filePath + " " + messageTextView.getText());
-            } else {
+            } else if(message.getContentType() == Message.ContentType.PRICE.getValue()){
+                messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT+message.getMessage(), emojiconHandler));
+            } else{
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
             }
 
@@ -176,7 +195,16 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }
             }
             if (createdAtTime != null) {
-                createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                createdAtTime.setText(DateUtils.getFormattedDateAndTime(message.getCreatedAtTime()));
+            }
+            if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
+                int messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
+                if (messageUnReadCount > 0) {
+                    unReadCountTextView.setVisibility(View.VISIBLE);
+                    unReadCountTextView.setText(String.valueOf(messageUnReadCount));
+                } else {
+                    unReadCountTextView.setVisibility(View.GONE);
+                }
             }
         }
 

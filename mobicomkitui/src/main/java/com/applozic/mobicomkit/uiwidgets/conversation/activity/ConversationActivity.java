@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -17,15 +19,23 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
@@ -58,8 +68,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
+    private static final String SHARE_TEXT = "share_text";
     private static Uri capturedImageUri;
-    private static final String SHARE_TEXT ="share_text";
     private static String inviteMessage;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
@@ -68,9 +78,48 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
+    private static int retry ;
 
     public ConversationActivity() {
 
+    }
+
+    public Snackbar snackbar;
+
+    @Override
+    public void showErrorMessageView(String message) {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.footerAd);
+        layout.setVisibility(View.VISIBLE);
+        snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.setDuration(Snackbar.LENGTH_LONG);
+        ViewGroup group = (ViewGroup) snackbar.getView();
+        TextView textView = (TextView) group.findViewById(R.id.snackbar_action);
+        textView.setTextColor(Color.YELLOW);
+        group.setBackgroundColor(getResources().getColor(R.color.error_background_color));
+        TextView txtView = (TextView) group.findViewById(R.id.snackbar_text);
+        txtView.setMaxLines(5);
+        snackbar.show();
+    }
+
+    @Override
+    public void retry() {
+        retry++;
+    }
+
+    @Override
+    public int getRetryCount() {
+        return retry;
+    }
+    public void dismissErrorMessage() {
+        if (snackbar != null) {
+            snackbar.dismiss();
+        }
     }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
@@ -95,14 +144,32 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
+        Intent intent = new Intent(this, ApplozicMqttIntentService.class);
+        intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
+        startService(intent);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
+        startService(subscribeIntent);
+
+        if (!Utils.isInternetAvailable(this)) {
+            String errorMessage = getResources().getString(R.string.internet_connection_not_available);
+            showErrorMessageView(errorMessage);
+        }
     }
 
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        //ApplozicMqttService.getInstance(this).unSubscribe();
         super.onPause();
     }
 
@@ -116,11 +183,24 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            Utils.toggleSoftKeyBoard(this, true);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.quickconversion_activity);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
+        retry = 0;
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
@@ -142,18 +222,34 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             }
         });
         mActionBar.setTitle(R.string.conversations);
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar.setHomeButtonEnabled(true);
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
+
+        new MobiComConversationService(this).processLastSeenAtStatus();
+        //ApplozicMqttService.getInstance(this).subscribe();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        new ConversationUIService(this).checkForStartNewConversation(intent);
+        //setIntent(intent);
+        if (!MobiComUserPreference.getInstance(this).isLoggedIn()) {
+            //user is not logged in
+            Log.i("AL", "user is not logged in yet.");
+            return;
+        }
+
+        try {
+            new ConversationUIService(this).checkForStartNewConversation(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void showActionBar() {
@@ -163,11 +259,15 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        showActionBar();
+        //return false;
         getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
         if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
             menu.removeItem(R.id.start_new);
         }
-        showActionBar();
+        if (!ApplozicClient.getInstance(this).isHandleDial()) {
+            menu.findItem(R.id.dial).setVisible(false);
+        }
         return true;
     }
 
@@ -218,7 +318,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
@@ -232,15 +331,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
-            conversation.deleteConversationThread();
+            if(conversation != null){
+                conversation.deleteConversationThread();
+            }
         }
         return false;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        getSupportFragmentManager().popBackStack();
-        return true;
     }
 
     @Override
@@ -283,17 +378,20 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onConnected(Bundle bundle) {
-        Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (mCurrentLocation == null) {
-            Toast.makeText(this, R.string.waiting_for_current_location, Toast.LENGTH_SHORT).show();
-            locationRequest = new LocationRequest();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(UPDATE_INTERVAL);
-            locationRequest.setFastestInterval(FASTEST_INTERVAL);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-        }
-        if (mCurrentLocation != null) {
-            conversation.attachLocation(mCurrentLocation);
+        try {
+            Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (mCurrentLocation == null) {
+                Toast.makeText(this, R.string.waiting_for_current_location, Toast.LENGTH_SHORT).show();
+                locationRequest = new LocationRequest();
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                locationRequest.setInterval(UPDATE_INTERVAL);
+                locationRequest.setFastestInterval(FASTEST_INTERVAL);
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            }
+            if (mCurrentLocation != null && conversation != null) {
+                conversation.attachLocation(mCurrentLocation);
+            }
+        } catch (Exception e) {
         }
 
     }
@@ -307,9 +405,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void onLocationChanged(Location location) {
-
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-        conversation.attachLocation(location);
+        try {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            if (conversation != null && location != null) {
+                conversation.attachLocation(location);
+            }
+        } catch (Exception e) {
+        }
     }
 
     @Override
@@ -346,4 +448,5 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
     }
+
 }

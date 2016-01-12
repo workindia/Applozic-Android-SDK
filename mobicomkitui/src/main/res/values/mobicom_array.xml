@@ -25,7 +25,7 @@
 
     <string-array name="menu">
         <item>Copy</item>
-        <item>Forward</item>
+      <!--  <item>Forward</item> -->
         <item>Resend</item>
         <item>Delete</item>
     </string-array>
@@ -39,6 +39,13 @@
         <item>Current location</item>
         <item>Take photo</item>
         <item>Attach file</item>
+    </string-array>
+
+    <string-array name="multimediaOptions_with_price">
+        <item>Current location</item>
+        <item>Take photo</item>
+        <item>Attach file</item>
+        <item>Attach price</item>
     </string-array>
 
 </resources>

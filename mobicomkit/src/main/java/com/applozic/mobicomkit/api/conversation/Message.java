@@ -1,18 +1,15 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.annotations.SerializedName;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,9 +18,11 @@ public class Message extends JsonMarker {
     private Long createdAtTime = new Date().getTime();
     private String to;
     private String message;
-    private String keyString;
-    private String deviceKeyString;
-    private String suUserKeyString;
+    private String key;
+    private String deviceKey;
+    private String userKey;
+    private String emailIds;
+    private boolean shared;
     private boolean sent;
     private Boolean delivered;
     private Short type = MessageType.MT_OUTBOX.getValue();
@@ -35,16 +34,22 @@ public class Message extends JsonMarker {
     private Short source = Source.MT_MOBILE_APP.getValue();
     private Integer timeToLive;
     private boolean sentToServer = true;
-    private List<String> fileMetaKeyStrings;
+    private String fileMetaKey;
     private List<String> filePaths;
-    private String pairedMessageKeyString;
+    private String pairedMessageKey;
     private long sentMessageTimeAtServer;
     private boolean canceled = false;
-    private List<FileMeta> fileMetas;
+    @SerializedName("fileMeta")
+    private FileMeta fileMeta;
     @SerializedName("id")
     private Long messageId;
-    private boolean read = false;
+    private Boolean read = false;
     private boolean attDownloadInProgress;
+    private String applicationId;
+    private Integer conversationId;
+    private String topicId;
+    private boolean connected = false;
+    private short contentType = ContentType.DEFAULT.getValue();
 
     public Message() {
 
@@ -77,6 +82,10 @@ public class Message extends JsonMarker {
         this.setFilePaths(message.getFilePaths());
         this.setBroadcastGroupId(message.getBroadcastGroupId());
         this.setRead(message.isRead());
+        this.setApplicationId(message.getApplicationId());
+        this.setContentType(message.getContentType());
+        this.setConversationId(message.getConversationId());
+        this.setTopicId(message.getTopicId());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -95,11 +104,11 @@ public class Message extends JsonMarker {
         this.attDownloadInProgress = attDownloadInProgress;
     }
 
-    public boolean isRead() {
+    public Boolean isRead() {
         return read || isTypeOutbox() || getScheduledAt() != null;
     }
 
-    public void setRead(boolean read) {
+    public void setRead(Boolean read) {
         this.read = read;
     }
 
@@ -108,15 +117,15 @@ public class Message extends JsonMarker {
     }
 
     public boolean isUploadRequired() {
-        return hasAttachment() && (fileMetas == null || fileMetas.isEmpty());
+        return hasAttachment() && (fileMeta == null);
     }
 
     public boolean hasAttachment() {
-        return ((filePaths != null && !filePaths.isEmpty()) || (fileMetas != null && !fileMetas.isEmpty()));
+        return ((filePaths != null && !filePaths.isEmpty()) || (fileMeta != null));
     }
 
     public boolean isAttachmentUploadInProgress() {
-        return filePaths != null && !filePaths.isEmpty() && (getFileMetaKeyStrings() == null || getFileMetaKeyStrings().isEmpty());
+        return filePaths != null && !filePaths.isEmpty() && !sentToServer;
     }
 
     public boolean isAttachmentDownloaded() {
@@ -152,11 +161,11 @@ public class Message extends JsonMarker {
     }
 
     public String getKeyString() {
-        return keyString;
+        return key;
     }
 
     public void setKeyString(String keyString) {
-        this.keyString = keyString;
+        this.key = keyString;
     }
 
     public Long getCreatedAtTime() {
@@ -208,19 +217,19 @@ public class Message extends JsonMarker {
     }
 
     public String getDeviceKeyString() {
-        return deviceKeyString;
+        return deviceKey;
     }
 
     public void setDeviceKeyString(String deviceKeyString) {
-        this.deviceKeyString = deviceKeyString;
+        this.deviceKey = deviceKeyString;
     }
 
     public String getSuUserKeyString() {
-        return suUserKeyString;
+        return userKey;
     }
 
     public void setSuUserKeyString(String suUserKeyString) {
-        this.suUserKeyString = suUserKeyString;
+        this.userKey = suUserKeyString;
     }
 
     public Short getType() {
@@ -234,16 +243,13 @@ public class Message extends JsonMarker {
     public void processContactIds(Context context) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (TextUtils.isEmpty(getContactIds())) {
-            if (userPreferences.getCountryCode() != null) {
-                setContactIds(ContactNumberUtils.getPhoneNumber(getTo(), userPreferences.getCountryCode()));
-            } else {
-                setContactIds(getTo());
-            }
+            setContactIds(getTo());
+
         }
     }
 
     public String getContactIds() {
-        return contactIds;
+        return getTo();
     }
 
     public void setContactIds(String contactIds) {
@@ -315,12 +321,12 @@ public class Message extends JsonMarker {
         this.timeToLive = timeToLive;
     }
 
-    public List<String> getFileMetaKeyStrings() {
-        return fileMetaKeyStrings;
+    public String getFileMetaKeyStrings() {
+        return fileMetaKey;
     }
 
-    public void setFileMetaKeyStrings(List<String> fileMetaKeyStrings) {
-        this.fileMetaKeyStrings = fileMetaKeyStrings;
+    public void setFileMetaKeyStrings(String fileMetaKeyStrings) {
+        this.fileMetaKey = fileMetaKeyStrings;
     }
 
     public List<String> getFilePaths() {
@@ -332,25 +338,75 @@ public class Message extends JsonMarker {
     }
 
     public String getPairedMessageKeyString() {
-        return pairedMessageKeyString;
+        return pairedMessageKey;
     }
 
     public void setPairedMessageKeyString(String pairedMessageKeyString) {
-        this.pairedMessageKeyString = pairedMessageKeyString;
+        this.pairedMessageKey = pairedMessageKeyString;
     }
 
-    public List<FileMeta> getFileMetas() {
-        return fileMetas;
+    public FileMeta getFileMetas() {
+        return fileMeta;
     }
 
-    public void setFileMetas(List<FileMeta> fileMetas) {
-        this.fileMetas = fileMetas;
-        if (getFileMetas() != null && !getFileMetas().isEmpty()) {
-            fileMetaKeyStrings = new ArrayList<String>();
-            for (FileMeta filemeta : getFileMetas()) {
-                fileMetaKeyStrings.add(filemeta.getKeyString());
-            }
-        }
+    public void setFileMetas(FileMeta fileMetas) {
+        this.fileMeta = fileMetas;
+    }
+
+    public String getEmailIds() {
+        return emailIds;
+    }
+
+    public void setEmailIds(String emailIds) {
+        this.emailIds = emailIds;
+    }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
+    public short getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(short contentType) {
+        this.contentType = contentType;
+    }
+
+    public Integer getConversationId() {
+        return conversationId ;
+    }
+
+    public void setConversationId(Integer conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
     }
 
     @Override
@@ -358,6 +414,10 @@ public class Message extends JsonMarker {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
+
+        if (message.isTempDateType() && isTempDateType()) {
+            return DateUtils.getDate(message.getCreatedAtTime()).equals(DateUtils.getDate(getCreatedAtTime()));
+        }
 
         if (getMessageId() != null && message.getMessageId() != null && getMessageId().equals(message.getMessageId())) {
             return true;
@@ -409,8 +469,11 @@ public class Message extends JsonMarker {
 
     @Override
     public int hashCode() {
-        int result = keyString != null ? keyString.hashCode() : 0;
+        int result = key != null ? key.hashCode() : 0;
         result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
+        if (isTempDateType()) {
+            result = 31 * result + DateUtils.getDate(getCreatedAtTime()).hashCode();
+        }
         return result;
     }
 
@@ -438,9 +501,9 @@ public class Message extends JsonMarker {
                 ", id=" + messageId +
                 ", to='" + to + '\'' +
                 ", message='" + message + '\'' +
-                ", keyString='" + keyString + '\'' +
-                ", deviceKeyString='" + deviceKeyString + '\'' +
-                ", suUserKeyString='" + suUserKeyString + '\'' +
+                ", key='" + key + '\'' +
+                ", deviceKey='" + deviceKey + '\'' +
+                ", userKey='" + userKey + '\'' +
                 ", sent=" + sent +
                 ", delivered=" + delivered +
                 ", type=" + type +
@@ -450,13 +513,26 @@ public class Message extends JsonMarker {
                 ", scheduledAt=" + scheduledAt +
                 ", source=" + source +
                 ", timeToLive=" + timeToLive +
-                ", pairedMessageKeyString=" + pairedMessageKeyString +
+                ", pairedMessageKey=" + pairedMessageKey +
                 ", sentToServer=" + sentToServer +
                 ", broadcastGroupId=" + broadcastGroupId +
-                ", fileMetaKeyStrings=" + getFileMetaKeyStrings() +
+                ", fileMetaKey=" + getFileMetaKeyStrings() +
                 ", filePaths=" + filePaths +
-                ", fileMetas=" + fileMetas +
+                ", fileMetas=" + fileMeta +
+                ", shared=" + shared +
+                ",applicationId=" + applicationId +
+                ",contentType=" + contentType +
+                ",conversationId=" + conversationId +
+                ",topicId=" + topicId +
                 '}';
+    }
+
+    public boolean isTempDateType() {
+        return type.equals(MessageType.DATE_TEMP.value);
+    }
+
+    public void setTempDateType(short tempDateType) {
+        this.type = tempDateType;
     }
 
     public enum Source {
@@ -477,11 +553,27 @@ public class Message extends JsonMarker {
 
         INBOX(Short.valueOf("0")), OUTBOX(Short.valueOf("1")), DRAFT(Short.valueOf("2")),
         OUTBOX_SENT_FROM_DEVICE(Short.valueOf("3")), MT_INBOX(Short.valueOf("4")),
-        MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7"));
+        MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7")),
+        DATE_TEMP(Short.valueOf("100"));
         private Short value;
 
         MessageType(Short c) {
             value = c;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
+    public  enum ContentType {
+
+        DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
+        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4")),TEXT_URL(Short.valueOf("5"));
+        private Short value;
+
+        ContentType(Short value) {
+            this.value = value;
         }
 
         public Short getValue() {

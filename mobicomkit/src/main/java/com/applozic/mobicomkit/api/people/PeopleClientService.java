@@ -32,11 +32,11 @@ public class PeopleClientService extends MobiComKitClientService {
 
 
     public String getGoogleContacts(int page) {
-        return httpRequestUtils.getResponse(credentials,getGoogleContactUrl() + "?page=" + page, "application/json", "application/json");
+        return httpRequestUtils.getResponse(getCredentials(),getGoogleContactUrl() + "?page=" + page, "application/json", "application/json");
     }
 
     public String getContactsInCurrentPlatform() {
-        return httpRequestUtils.getResponse(credentials, getPlatformContactUrl() + "?mtexter=true", "application/json", "application/json");
+        return httpRequestUtils.getResponse(getCredentials(), getPlatformContactUrl() + "?mtexter=true", "application/json", "application/json");
     }
 
     public void addContacts(String url, ContactList contactList, boolean completed) throws Exception {
@@ -45,6 +45,6 @@ public class PeopleClientService extends MobiComKitClientService {
         if (completed) {
             url = url + "?completed=true";
         }
-        httpRequestUtils.postData(credentials, url, "application/json", null, requestString);
+        httpRequestUtils.postData(getCredentials(), url, "application/json", null, requestString);
     }
 }

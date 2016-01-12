@@ -21,12 +21,13 @@ import java.net.URLConnection;
 public class MobiComKitClientService {
 
     protected Context context;
-    protected UsernamePasswordCredentials credentials;
     public static final String BASE_URL_METADATA = "com.applozic.server.url";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
-    public static final String FILE_URL = "/rest/ws/file/";
-    private String DEFAULT_URL = "https://applozic.appspot.com";
+    public static final String FILE_URL = "/rest/ws/aws/file/";
+    protected String DEFAULT_URL = "https://apps.applozic.com";
+    protected String FILE_BASE_URL = "https://applozic.appspot.com";
+
 
     public MobiComKitClientService() {
 
@@ -34,7 +35,6 @@ public class MobiComKitClientService {
 
     public MobiComKitClientService(Context context) {
         this.context = context;
-        this.credentials = getCredentials(context);
     }
 
     protected String getBaseUrl() {
@@ -51,7 +51,7 @@ public class MobiComKitClientService {
         return DEFAULT_URL;
     }
 
-    public UsernamePasswordCredentials getCredentials(Context context) {
+    public UsernamePasswordCredentials getCredentials() {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isRegistered()) {
             return null;
@@ -73,7 +73,7 @@ public class MobiComKitClientService {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            String userCredentials = credentials.getUserName() + ":" + credentials.getPassword();
+            String userCredentials = getCredentials().getUserName() + ":" + getCredentials().getPassword();
             String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
             httpConn.setRequestProperty("Authorization", basicAuth);
             httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));
@@ -99,7 +99,7 @@ public class MobiComKitClientService {
     }
 
     public String getFileUrl() {
-        return getBaseUrl() + FILE_URL;
+        return FILE_BASE_URL + FILE_URL;
     }
 
 }

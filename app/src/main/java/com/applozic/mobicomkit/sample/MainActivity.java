@@ -29,19 +29,11 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragm
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class MainActivity extends MobiComActivityForFragment
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
 
-    public static final String DATABASE_NAME = "yourappdb";
-    public static final String MOBICOMKIT = "applozic.connect";
-    public static final String USER_ID = "userId";
     public static final String TAKE_ORDER = "takeOrder";
     public static final String TAKE_ORDER_USERID_METADATA = "com.applozic.take.order.userId";
-    public static final int DATABASE_VERSION = 1;
     private static final String CONVERSATION_FRAGMENT = "ConversationFragment";
 
     /**
@@ -100,9 +92,6 @@ public class MainActivity extends MobiComActivityForFragment
         //Put Support Contact Data
         buildSupportContactData();
 
-        //Contact data for demo...
-        buildContactData();
-
         MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
         if (!userPreference.isRegistered()) {
             Intent intent = new Intent(this, LoginActivity.class);
@@ -111,7 +100,10 @@ public class MainActivity extends MobiComActivityForFragment
             startActivity(intent);
             finish();
             return;
-        }
+        } /*else {
+            Intent intent = new Intent(this, ConversationActivity.class);
+                startActivity(intent);
+        }*/
 
     }
 
@@ -146,9 +138,7 @@ public class MainActivity extends MobiComActivityForFragment
         if (position == 2) {
 
             Toast.makeText(getBaseContext(), "Log out successful", Toast.LENGTH_SHORT).show();
-
             new UserClientService(this).logout();
-
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -165,7 +155,11 @@ public class MainActivity extends MobiComActivityForFragment
     public void takeOrder(View v) {
         Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
         takeOrderIntent.putExtra(TAKE_ORDER, true);
-        takeOrderIntent.putExtra(USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+        takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT,"Hello I am interested in your property, Can we chat?");
+        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_TOPIC_ID, "Ebco Strip Light Connection Cord 4");
+        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_IMAGE_URL, "https://www.applozic.com/resources/sidebox/images/applozic.png");
+        // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
         startActivity(takeOrderIntent);
     }
 
@@ -247,13 +241,27 @@ public class MainActivity extends MobiComActivityForFragment
     public void updateLatestMessage(Message message, String formattedContactNumber) {
         new ConversationUIService(this).updateLatestMessage(message, formattedContactNumber);
 
-
     }
 
     @Override
     public void removeConversation(Message message, String formattedContactNumber) {
 
         new ConversationUIService(this).removeConversation(message, formattedContactNumber);
+    }
+
+    @Override
+    public void showErrorMessageView(String errorMessage) {
+
+    }
+
+    @Override
+    public void retry() {
+
+    }
+
+    @Override
+    public int getRetryCount() {
+        return 0;
     }
 
     private void buildSupportContactData() {
@@ -268,45 +276,6 @@ public class MainActivity extends MobiComActivityForFragment
             contact.setImageURL(getString(R.string.support_contact_image_url));
             contact.setEmailId(getString(R.string.support_contact_emailId));
             appContactService.add(contact);
-        }
-    }
-
-    /**
-     * Don't use this method...this is only for demo purpose..
-     */
-    private void buildContactData() {
-
-        Context context = getApplicationContext();
-        AppContactService appContactService = new AppContactService(context);
-        // avoid each time update ....
-        if (!appContactService.isContactExists("adarshk")) {
-
-            List<Contact> contactList = new ArrayList<Contact>();
-            //Adarsh....
-            Contact contact = new Contact();
-            contact.setUserId("adarshk");
-            contact.setFullName("Adarsh");
-            contact.setImageURL("R.drawable.applozic_ic_contact_picture_holo_light");
-            contact.setEmailId("applozic.connect@gmail.com");
-            contactList.add(contact);
-            //Adarsh
-            Contact contact2 = new Contact();
-            contact2.setUserId("rathan");
-            contact2.setFullName("Rathan");
-            contact2.setImageURL("R.drawable.contact_rathan");
-            contact2.setEmailId("rathu.rathan@gmail.com");
-            contactList.add(contact2);
-
-            Contact contact3 = new Contact();
-            contact3.setUserId("shanki.gupta");
-            contact3.setFullName("Shanki Gupta");
-            contact3.setImageURL("R.drawable.contact_shanki");
-            contact3.setEmailId("gupta.shanki91@gmail.com");
-            contactList.add(contact3);
-
-            appContactService.addAll(contactList);
-
-
         }
     }
 

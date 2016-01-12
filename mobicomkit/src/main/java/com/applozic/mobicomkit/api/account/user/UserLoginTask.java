@@ -17,7 +17,7 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     public interface TaskListener {
-        void onSuccess(RegistrationResponse registrationResponse,Context context);
+        void onSuccess(RegistrationResponse registrationResponse, Context context);
 
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 
@@ -36,7 +36,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     public UserLoginTask(User user, TaskListener listener, Context context) {
         mUserId = user.getUserId();
-        mEmail = user.getEmailId();
+        mEmail = user.getEmail();
         mPassword = user.getPassword();
         mPhoneNumber = user.getContactNumber();
         mDisplayName = user.getDisplayName();
@@ -47,6 +47,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
+            new UserClientService(context).logout();
             registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName, "");
         } catch (Exception e) {
             e.printStackTrace();

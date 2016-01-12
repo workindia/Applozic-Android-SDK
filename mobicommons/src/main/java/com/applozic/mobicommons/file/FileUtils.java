@@ -294,7 +294,7 @@ public class FileUtils {
      * @param uri     The Uri to query.
      * @author paulburke
      * @see #isLocal(String)
-     * @see #getFile(android.content.Context, android.net.Uri)
+     * @see #getFile(Context, Uri)
      */
 
     public static String getPath(final Context context, final Uri uri) {
@@ -386,7 +386,7 @@ public class FileUtils {
      * @return file A local file that the Uri was pointing to, or null if the
      * Uri is unsupported or pointed to a remote resource.
      * @author paulburke
-     * @see #getPath(android.content.Context, android.net.Uri)
+     * @see #getPath(Context, Uri)
      */
     public static File getFile(Context context, Uri uri) {
         if (uri != null) {
