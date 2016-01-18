@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -8,7 +9,6 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.util.TextUtils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
