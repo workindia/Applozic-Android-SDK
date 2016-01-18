@@ -145,7 +145,9 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
+        if(!TextUtils.isEmpty(contact.getFullName())){
+            contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
+        }
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
