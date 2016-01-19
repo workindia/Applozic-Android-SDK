@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.feed;
 /**
  * Created by sunil on 23/12/15.
  */
-public class ProductConversationIdResponse {
+public class ApiResponse {
 
 
     private String status;
@@ -36,7 +36,7 @@ public class ProductConversationIdResponse {
 
     @Override
     public String toString() {
-        return "ProductConversationIdResponse{" +
+        return "ApiResponse{" +
                 "status='" + status + '\'' +
                 ", generatedAt='" + generatedAt + '\'' +
                 ", response='" + response + '\'' +
