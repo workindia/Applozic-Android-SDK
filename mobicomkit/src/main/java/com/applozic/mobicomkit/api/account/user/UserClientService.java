@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.account.user;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -10,6 +11,8 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.json.GsonUtils;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -42,6 +45,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
     public static final String USER_INFO_URL = "/rest/ws/user/info?";
     public static final Short MOBICOMKIT_VERSION_CODE = 105;
+    public static final String USER_DISPLAY_NAME_UPDATE = "/rest/ws/user/name?";
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -64,6 +68,10 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getVerificationCodeContactNumberUrl() {
         return getBaseUrl() + VERIFICATION_CODE_CONTACT_NUMBER_URL;
+    }
+
+    public String getUpdateUserDisplayNameUrl() {
+        return getBaseUrl() + USER_DISPLAY_NAME_UPDATE;
     }
 
     public String getAppVersionUpdateUrl() {
@@ -203,5 +211,28 @@ public class UserClientService extends MobiComKitClientService {
             info.put(key, value);
         }
         return info;
+    }
+
+    public void updateUserDisplayName(final String userId, final String displayName) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String parameters = "";
+                try {
+                    if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
+                        parameters = "userId=" + userId + "&displayName=" + displayName;
+                    }
+                    String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
+
+                    ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                    Log.i(TAG, " Update display name Response :" + apiResponse.getStatus());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
     }
 }

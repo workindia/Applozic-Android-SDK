@@ -16,8 +16,8 @@ import com.applozic.mobicomkit.api.conversation.schedule.ScheduledMessageUtil;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.MessageResponse;
-import com.applozic.mobicomkit.feed.ProductConversationIdResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
@@ -623,7 +623,7 @@ public class MessageClientService extends MobiComKitClientService {
                 return null;
             }
             Log.i(TAG, "Response for Product ConversationId :" + response);
-            ProductConversationIdResponse productConversationIdResponse = (ProductConversationIdResponse) GsonUtils.getObjectFromJson(response, ProductConversationIdResponse.class);
+            ApiResponse productConversationIdResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             if ("success".equals(productConversationIdResponse.getStatus())) {
                 JSONObject jsonObject = new JSONObject(productConversationIdResponse.getResponse().toString());
                 if (jsonObject.has("conversationId")) {
