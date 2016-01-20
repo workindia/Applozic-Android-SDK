@@ -140,9 +140,9 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void updateCodeVersion(final String deviceKeyString) {
-                String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKeyString=" + deviceKeyString;
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
-                Log.i(TAG, "Version update response: " + response);
+        String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKeyString=" + deviceKeyString;
+        String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
+        Log.i(TAG, "Version update response: " + response);
 
     }
 
@@ -220,16 +220,16 @@ public class UserClientService extends MobiComKitClientService {
                 String parameters = "";
                 try {
                     if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
-                        parameters = "userId=" + userId + "&displayName=" + displayName;
+                        parameters = "userId=" + URLEncoder.encode(userId, "UTF-8") + "&displayName=" + URLEncoder.encode(displayName, "UTF-8");
+                        String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
+
+                        ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                        Log.i(TAG, " Update display name Response :" + apiResponse.getStatus());
                     }
-                    String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
-
-                    ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                    Log.i(TAG, " Update display name Response :" + apiResponse.getStatus());
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
         });
         thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
