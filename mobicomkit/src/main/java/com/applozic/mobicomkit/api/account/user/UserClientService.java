@@ -220,7 +220,7 @@ public class UserClientService extends MobiComKitClientService {
                 String parameters = "";
                 try {
                     if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
-                        parameters = "userId=" + userId + "&displayName=" + displayName;
+                        parameters = "userId=" + URLEncoder.encode(userId, "UTF-8") + "&displayName=" + URLEncoder.encode(displayName, "UTF-8");
                     }
                     String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
 
