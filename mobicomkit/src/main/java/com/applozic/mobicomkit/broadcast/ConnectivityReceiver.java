@@ -19,6 +19,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
     static final private String TAG = "ConnectivityReceiver";
     static final private String CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
+    private static final String BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";
     Context context;
     private static boolean firstConnect = true;
 
@@ -30,7 +31,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
         Log.i(TAG, action);
 
-        if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE)) {
+        if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE) ||  action.equalsIgnoreCase(BOOT_COMPLETED)) {
             if (!Utils.isInternetAvailable(context)) {
                 firstConnect = true;
                 return;
