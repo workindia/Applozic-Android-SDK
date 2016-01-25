@@ -74,7 +74,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
     private EditText mUserIdView;
     private EditText mPhoneNumberView;
     private EditText mPasswordView;
-    private EditText mdispalyname;
+    private EditText mDispalyName;
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
@@ -102,7 +102,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         mPhoneNumberView.setVisibility(View.GONE);
         mUserIdView = (EditText) findViewById(R.id.userId);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mdispalyname = (EditText) findViewById(R.id.displayName);
+        mDispalyName = (EditText) findViewById(R.id.displayName);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -191,7 +191,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             // Use AccountManager (API 8+)
             new SetupEmailAutoCompleteTask().execute(null, null);
         } else if (Utils.hasMarshmallow()) {
-            showRunTimePermisson();
+            showRunTimePermission();
         }
     }
 
@@ -209,14 +209,14 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         mUserIdView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        mdispalyname.setError(null);
+        mDispalyName.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String phoneNumber = mPhoneNumberView.getText().toString();
         String userId = mUserIdView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String displayname = mdispalyname.getText().toString();
+        String displayName = mDispalyName.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -302,7 +302,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             user.setUserId(userId);
             user.setEmail(email);
             user.setPassword(password);
-            user.setDisplayName(displayname);
+            user.setDisplayName(displayName);
             user.setContactNumber(phoneNumber);
             user.setAuthenticationTypeId(authenticationType.getValue());
 
@@ -453,7 +453,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         //callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void showRunTimePermisson() {
+    public void showRunTimePermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
