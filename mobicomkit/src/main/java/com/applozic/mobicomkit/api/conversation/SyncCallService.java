@@ -63,4 +63,8 @@ public class SyncCallService {
         contactService.updateConnectedStatus(contactId, date, connected);
     }
 
+    public synchronized void deleteConversationThread(String userId){
+         mobiComConversationService.deleteConversationFromDevice(userId);
+    }
+
 }

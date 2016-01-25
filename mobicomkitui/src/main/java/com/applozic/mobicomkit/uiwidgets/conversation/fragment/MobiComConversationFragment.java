@@ -1461,15 +1461,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
             }
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
-            }
+
             swipeLayout.post(new Runnable() {
                 @Override
                 public void run() {
                     swipeLayout.setRefreshing(false);
                 }
             });
+
+            if (conversationAdapter != null) {
+                conversationAdapter.notifyDataSetChanged();
+            }
 
             if(!messageList.isEmpty()){
                 currentConversationId = messageList.get(messageList.size()-1).getConversationId();

@@ -275,6 +275,10 @@ public class ApplozicMqttService implements MqttCallback {
                                 syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
                             }
 
+                            if(NOTIFICATION_TYPE.CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.deleteConversationThread(mqttMessageResponse.getMessage().toString());
+                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), "success");
+                            }
                         }
                     });
                     thread.start();

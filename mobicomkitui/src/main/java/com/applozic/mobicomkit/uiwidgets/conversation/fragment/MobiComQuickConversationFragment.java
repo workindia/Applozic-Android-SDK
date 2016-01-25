@@ -317,6 +317,12 @@ public class MobiComQuickConversationFragment extends Fragment {
             }
         }
         downloadConversations();
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            public void onRefresh() {
+                SyncMessages syncMessages = new SyncMessages();
+                syncMessages.execute();
+            }
+        });
     }
 
     @Override
@@ -441,7 +447,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         }
 
         protected void onPostExecute(Long result) {
-            swipeLayout.setEnabled(false);
+            swipeLayout.setEnabled(true);
             swipeLayout.post(new Runnable() {
                 @Override
                 public void run() {
@@ -489,6 +495,22 @@ public class MobiComQuickConversationFragment extends Fragment {
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
             }
+        }
+    }
+
+    private class SyncMessages extends AsyncTask<Void, Integer, Long>{
+        SyncMessages(){
+        }
+        @Override
+        protected Long doInBackground(Void... params) {
+            syncCallService.syncMessages(null);
+            return 1l;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            swipeLayout.setRefreshing(false);
         }
     }
 }

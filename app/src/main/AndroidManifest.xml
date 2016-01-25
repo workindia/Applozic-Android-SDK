@@ -140,7 +140,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver">
+        <receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver" android:exported="true" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

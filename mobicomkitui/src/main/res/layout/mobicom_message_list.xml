@@ -210,9 +210,20 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@drawable/layout_shadow_border"
         android:orientation="horizontal"
+        android:background="@color/conversation_list_background"
         android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/input">
 
         <ImageButton
             android:id="@+id/emoticons_btn"
@@ -231,12 +242,13 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:background="@android:color/transparent"
-            android:paddingLeft="20dp"
+            android:paddingLeft="10dp"
             android:paddingRight="20dp"
-            android:scaleType="center"
+            android:layout_gravity="bottom"
             android:src="@drawable/applozic_ic_action_attachment"
             android:visibility="visible" />
 
+<!--
         <EditText
             android:id="@+id/conversation_message"
             android:layout_width="fill_parent"
@@ -247,6 +259,23 @@
             android:minLines="2"
             android:textColor="@color/black"
             android:textSize="16sp" />
+-->
+        <EditText
+            android:id="@+id/conversation_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_weight="8"
+            android:background="@android:color/transparent"
+            android:hint="@string/enter_message_hint"
+            android:textColorHint="@color/edittext_hint_color"
+            android:cursorVisible="true"
+            android:maxLines="6"
+            android:minLines="2"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+        </LinearLayout>
+
 
         <!--<com.rockerhieu.emojicon.EmojiconEditText-->
         <!--android:id="@+id/conversation_message"-->
@@ -255,18 +284,17 @@
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="wrap_content"/>-->
 
-
         <ImageButton
             android:id="@+id/conversation_send"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:background="@android:color/transparent"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/button_circle"
             android:clickable="true"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:gravity="center"
+            android:layout_gravity="bottom|right"
             android:scaleType="center"
-            android:src="@drawable/mobicom_ic_action_send_now"
+            android:layout_margin="10dp"
+            android:src="@drawable/mobicom_ic_action_send"
             android:visibility="visible" />
     </LinearLayout>
 
