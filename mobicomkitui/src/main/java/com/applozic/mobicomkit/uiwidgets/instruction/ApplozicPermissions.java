@@ -21,7 +21,6 @@ public class ApplozicPermissions {
         this.snackBarLayout = linearLayout;
     }
 
-
     public void checkRuntimePermissionForStorage() {
         if (PermissionsUtils.checkSelfForStoragePermission(activity)) {
             requestStoragePermissions();
@@ -36,18 +35,16 @@ public class ApplozicPermissions {
         }
     }
 
-
     private void requestStoragePermissions() {
-        if (PermissionsUtils.ShouldShowRequestForStoragePermission(activity)) {
+        if (PermissionsUtils.shouldShowRequestForStoragePermission(activity)) {
             showSnackBar(R.string.storage_permission, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
         } else {
             PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
         }
-
     }
 
     public void requestLocationPermissions() {
-        if (PermissionsUtils.ShouldShowRequestForLocationPermission(activity)) {
+        if (PermissionsUtils.shouldShowRequestForLocationPermission(activity)) {
             showSnackBar(R.string.location_permission, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_LOCATION);
         } else {
             PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_LOCATION);

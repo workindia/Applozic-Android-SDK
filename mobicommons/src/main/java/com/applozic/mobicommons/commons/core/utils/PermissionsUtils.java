@@ -31,50 +31,34 @@ public class PermissionsUtils {
         return true;
     }
 
-
-    public static boolean ShouldShowRequestForLocationPermission(Activity activity) {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+    public static boolean shouldShowRequestForLocationPermission(Activity activity) {
+        return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 || ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            return true;
-        }
-
-        return false;
+                Manifest.permission.ACCESS_COARSE_LOCATION));
     }
 
-    public static boolean ShouldShowRequestForStoragePermission(Activity activity) {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+    public static boolean shouldShowRequestForStoragePermission(Activity activity) {
+        return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 || ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            return true;
-        }
-        return false;
+                Manifest.permission.READ_EXTERNAL_STORAGE));
     }
 
 
     public static boolean checkSelfForStoragePermission(Activity activity) {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return false;
+                != PackageManager.PERMISSION_GRANTED);
     }
 
 
     public static boolean checkSelfPermissionForLocation(Activity activity) {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return false;
+                != PackageManager.PERMISSION_GRANTED);
     }
 
     public static void requestPermissions(Activity activity, String[] permissions, int requestCode) {

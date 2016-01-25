@@ -74,7 +74,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
     private EditText mUserIdView;
     private EditText mPhoneNumberView;
     private EditText mPasswordView;
-    private EditText mDispalyName;
+    private EditText mDisplayName;
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
@@ -102,7 +102,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         mPhoneNumberView.setVisibility(View.GONE);
         mUserIdView = (EditText) findViewById(R.id.userId);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mDispalyName = (EditText) findViewById(R.id.displayName);
+        mDisplayName = (EditText) findViewById(R.id.displayName);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -209,14 +209,14 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         mUserIdView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        mDispalyName.setError(null);
+        mDisplayName.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String phoneNumber = mPhoneNumberView.getText().toString();
         String userId = mUserIdView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String displayName = mDispalyName.getText().toString();
+        String displayName = mDisplayName.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
