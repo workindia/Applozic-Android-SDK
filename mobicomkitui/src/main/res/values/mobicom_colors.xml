@@ -8,6 +8,7 @@
 
     <color name="instruction_color">#ff337ab7</color>
     <color name="empty_conversation_text_color">#838b83</color>
+    <color name="edittext_hint_color">#bdbdbd</color>
 
     <color name="sent_message_text_color">#ffffffff</color>
     <color name="message_text_color">#ff000000</color>

@@ -2,15 +2,12 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 
-
-import java.util.Date;
 
 
 public class MobiComUserPreference {
@@ -287,16 +284,21 @@ public class MobiComUserPreference {
 
     //Local initialization of few fields)
     public void initialize(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
-        String contactNumber = telephonyManager.getLine1Number();
-        setCountryCode(countryCode);
-        if (!TextUtils.isEmpty(contactNumber)) {
-            setContactNumber(contactNumber);
+       /* try {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
+            String contactNumber = telephonyManager.getLine1Number();
+            setCountryCode(countryCode);
+            if (!TextUtils.isEmpty(contactNumber)) {
+                setContactNumber(contactNumber);
+            }
+            if (getLastMessageStatSyncTime() == null || getLastMessageStatSyncTime() == 0) {
+                setLastMessageStatSyncTime(new Date().getTime());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (getLastMessageStatSyncTime() == null || getLastMessageStatSyncTime() == 0) {
-            setLastMessageStatSyncTime(new Date().getTime());
-        }
+*/
     }
 
     public boolean isMobiTexterContactSyncCompleted() {

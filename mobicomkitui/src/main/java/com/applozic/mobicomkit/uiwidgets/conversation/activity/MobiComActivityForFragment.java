@@ -69,7 +69,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+      //  mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
     }
 
     @Override

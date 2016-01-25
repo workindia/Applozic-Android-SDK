@@ -128,6 +128,22 @@
                 android:padding="10dp"
                 android:phoneNumber="false"
                 android:singleLine="true" />
+
+            <EditText
+                android:id="@+id/displayName"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="5dp"
+                android:background="#FFF"
+                android:hint="Display Name"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:maxLines="2"
+                android:padding="10dp"
+                android:password="false"
+                android:singleLine="true" />
         </LinearLayout>
     </ScrollView>
 
@@ -145,6 +161,14 @@
         android:textColor="#ffffff"
         android:textSize="20sp" />
 
+    <LinearLayout
+        android:id="@+id/footerSnack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_gravity="top">
+        </LinearLayout>
     <!--
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
@@ -156,6 +180,4 @@
         -->
 
 </LinearLayout>
-
-
 

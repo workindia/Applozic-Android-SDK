@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -45,7 +47,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
@@ -59,7 +63,7 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -69,8 +73,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String SHARE_TEXT = "share_text";
+    private static final String TAG = "ConversationActiity";
     private static Uri capturedImageUri;
     private static String inviteMessage;
+    private static int retry ;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
@@ -78,7 +84,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
-    private static int retry ;
+    private LinearLayout layout;
 
     public ConversationActivity() {
 
@@ -88,7 +94,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void showErrorMessageView(String message) {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.footerAd);
+
         layout.setVisibility(View.VISIBLE);
         snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction("OK", new View.OnClickListener() {
@@ -198,6 +204,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        layout = (LinearLayout) findViewById(R.id.footerAd);
+        if (Utils.hasMarshmallow()) {
+            new  ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForStorage();
+        }
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
@@ -285,7 +295,37 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
     }
 
-    public void processLocation() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.storage_permission_granted);
+            } else {
+                showSnackBar(R.string.storage_permission_not_granted);
+            }
+
+        } else if (requestCode == PermissionsUtils.REQUEST_LOCATION) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.location_permission_granted);
+                processingLocation();
+            } else {
+                showSnackBar(R.string.location_permission_not_granted);
+            }
+
+        } else if (requestCode == PermissionsUtils.REQUEST_PHONE_STATE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.phone_state_permission_granted);
+            } else {
+                showSnackBar(R.string.phone_state_permission_not_granted);
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+
+
+    public void processingLocation(){
         if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -309,6 +349,14 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         } else {
             googleApiClient.disconnect();
             googleApiClient.connect();
+        }
+    }
+
+    public void processLocation() {
+        if(Utils.hasMarshmallow()){
+            new ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForLocation();
+        }else {
+            processingLocation();
         }
     }
 
@@ -447,6 +495,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
+    }
+
+    public void showSnackBar(int resId){
+        snackbar = Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
 }
