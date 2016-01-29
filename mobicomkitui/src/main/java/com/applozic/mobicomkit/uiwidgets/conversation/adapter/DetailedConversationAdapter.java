@@ -465,6 +465,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 }
+
+                if (messageTextLayout != null) {
+                    GradientDrawable bgShape = (GradientDrawable)messageTextLayout.getBackground();
+                    bgShape.setColor(context.getResources().getColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor()));
+                }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
                     *//*messageTextLayout.setBackgroundColor(message.isTypeOutbox() ?
