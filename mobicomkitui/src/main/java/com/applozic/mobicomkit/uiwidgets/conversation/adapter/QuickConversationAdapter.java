@@ -189,7 +189,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 String filePath = message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
                         message.getFileMetas() != null ? message.getFileMetas().getName() : "";
                 attachmentIcon.setVisibility(View.VISIBLE);
-                messageTextView.setText(filePath + " " + messageTextView.getText());
+                messageTextView.setText(filePath);
             } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT + message.getMessage(), emojiconHandler));
             } else {
