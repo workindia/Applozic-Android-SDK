@@ -50,7 +50,6 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         } else if (message != null && message.isSentToMany() && BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(intent.getAction())) {
             for (String toField : message.getTo().split(",")) {
                 Message singleMessage = new Message(message);
-                singleMessage.setBroadcastGroupId(null);
                 singleMessage.setKeyString(message.getKeyString());
                 singleMessage.setTo(toField);
                 singleMessage.processContactIds(context);
@@ -63,7 +62,14 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
 
         if (BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString().equals(action)) {
             InstructionUtil.showInstruction(context, intent.getIntExtra("resId", -1), intent.getBooleanExtra("actionable", false), R.color.instruction_color);
-        } else if (BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString().equals(action)) {
+        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_NAME.toString().equals(action)) {
+            Integer channelKey = intent.getIntExtra("channelKey",0);
+            if(channelKey == 0){
+                channelKey = null;
+            }
+            conversationUIService.updateName(channelKey);
+        }
+        else if (BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString().equals(action)) {
             conversationUIService.downloadConversations(true);
         } else if (BroadcastService.INTENT_ACTIONS.LOAD_MORE.toString().equals(action)) {
             conversationUIService.setLoadMore(intent.getBooleanExtra("loadMore", true));
@@ -80,9 +86,13 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateDeliveryStatusForContact(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString().equals(action)) {
             String contactNumber = intent.getStringExtra("contactNumber");
+            Integer channelKey = intent.getIntExtra("channelKey", 0);
             String response = intent.getStringExtra("response");
-            Contact contact = baseContactService.getContactById(contactNumber);
-            conversationUIService.deleteConversation(contact, response);
+            Contact contact = null;
+            if(contactNumber != null){
+                contact = baseContactService.getContactById(contactNumber);
+            }
+            conversationUIService.deleteConversation(contact, channelKey, response);
         } else if (BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString().equals(action) && message != null) {
             conversationUIService.updateUploadFailedStatus(message);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {

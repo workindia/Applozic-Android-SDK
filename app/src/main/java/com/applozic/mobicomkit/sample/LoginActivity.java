@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.sample;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -9,6 +10,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,6 +18,8 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.KeyEvent;
@@ -29,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +46,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -50,21 +56,25 @@ import java.util.List;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
+    private static final String TAG = "LoginActivity";
+    private static final int REQUEST_CONTACTS = 1;
+    private static String[] PERMISSIONS_CONTACT = {Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS};
+    LinearLayout layout;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
     //flag variable for exiting the application
     private boolean exit = false;
-
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mUserIdView;
     private EditText mPhoneNumberView;
     private EditText mPasswordView;
+    private EditText mDisplayName;
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
@@ -75,7 +85,6 @@ public class LoginActivity extends Activity {
     private MobiComUserPreference mobiComUserPreference;
     //private LoginButton loginButton;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +92,7 @@ public class LoginActivity extends Activity {
 
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.layout));
+        layout = (LinearLayout) findViewById(R.id.footerSnack);
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -92,6 +102,7 @@ public class LoginActivity extends Activity {
         mPhoneNumberView.setVisibility(View.GONE);
         mUserIdView = (EditText) findViewById(R.id.userId);
         mPasswordView = (EditText) findViewById(R.id.password);
+        mDisplayName = (EditText) findViewById(R.id.displayName);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -176,9 +187,11 @@ public class LoginActivity extends Activity {
     }
 
     private void populateAutoComplete() {
-        if (VERSION.SDK_INT >= 8) {
+        if (Utils.isBetweenGingerBreadAndKitKat()) {
             // Use AccountManager (API 8+)
             new SetupEmailAutoCompleteTask().execute(null, null);
+        } else if (Utils.hasMarshmallow()) {
+            showRunTimePermission();
         }
     }
 
@@ -196,12 +209,14 @@ public class LoginActivity extends Activity {
         mUserIdView.setError(null);
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mDisplayName.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String phoneNumber = mPhoneNumberView.getText().toString();
         String userId = mUserIdView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String displayName = mDisplayName.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -287,6 +302,7 @@ public class LoginActivity extends Activity {
             user.setUserId(userId);
             user.setEmail(email);
             user.setPassword(password);
+            user.setDisplayName(displayName);
             user.setContactNumber(phoneNumber);
             user.setAuthenticationTypeId(authenticationType.getValue());
 
@@ -431,6 +447,70 @@ public class LoginActivity extends Activity {
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void showRunTimePermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestContactsPermissions();
+
+        } else {
+
+            new SetupEmailAutoCompleteTask().execute(null, null);
+        }
+    }
+
+    private void requestContactsPermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_CONTACTS)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_CONTACTS)) {
+
+            Snackbar.make(layout, R.string.contact_permission,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat
+                                    .requestPermissions(LoginActivity.this, PERMISSIONS_CONTACT,
+                                            REQUEST_CONTACTS);
+                        }
+                    }).show();
+        } else {
+            ActivityCompat.requestPermissions(this, PERMISSIONS_CONTACT, REQUEST_CONTACTS);
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        if (requestCode == REQUEST_CONTACTS) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.contact_permission_granted);
+                new SetupEmailAutoCompleteTask().execute(null, null);
+
+            } else {
+                showSnackBar(R.string.contact_permission_granted);
+            }
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public void showSnackBar(int resId) {
+        Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT)
+                .show();
+    }
+
     /**
      * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
      * the email text field with results on the main UI thread.
@@ -460,12 +540,4 @@ public class LoginActivity extends Activity {
             addEmailsToAutoComplete(emailAddressCollection);
         }
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-
 }

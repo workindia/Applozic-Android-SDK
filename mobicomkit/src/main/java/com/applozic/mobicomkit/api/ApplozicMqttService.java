@@ -6,9 +6,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -48,7 +50,7 @@ public class ApplozicMqttService implements MqttCallback {
         MESSAGE_READ("APPLOZIC_07"), MESSAGE_DELIVERED_AND_READ("APPLOZIC_08"),
         CONVERSATION_READ("APPLOZIC_09"), CONVERSATION_DELIVERED_AND_READ("APPLOZIC_10"),
         USER_CONNECTED("APPLOZIC_11"), USER_DISCONNECTED("APPLOZIC_12"),
-        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14");
+        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14"), GROUP_SYNC("APPLOZIC_15");
         private String value;
 
         private NOTIFICATION_TYPE(String c) {
@@ -219,7 +221,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     @Override
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String s,final MqttMessage mqttMessage) throws Exception {
         Log.i(TAG, "Received MQTT message: " + new String(mqttMessage.getPayload()));
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
@@ -243,9 +245,11 @@ public class ApplozicMqttService implements MqttCallback {
                             if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
                                 syncCallService.syncMessages(null);
                             }
-                            if (NOTIFICATION_TYPE.MESSAGE_SENT.getValue().equals(mqttMessageResponse.getType())) {
-                                syncCallService.syncMessages(null);
+
+                            if (NOTIFICATION_TYPE.GROUP_SYNC.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.syncChannel();
                             }
+
                             if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
                                     || "MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())
                                     || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
@@ -277,7 +281,13 @@ public class ApplozicMqttService implements MqttCallback {
 
                             if(NOTIFICATION_TYPE.CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
                                 syncCallService.deleteConversationThread(mqttMessageResponse.getMessage().toString());
-                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), "success");
+                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), 0, "success");
+                            }
+
+                            if (NOTIFICATION_TYPE.MESSAGE_SENT.getValue().equals(mqttMessageResponse.getType())) {
+                                GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), GcmMessageResponse.class);
+                                Message sentMessageSync = messageResponse.getMessage();
+                                syncCallService.syncMessages(sentMessageSync.getKeyString());
                             }
                         }
                     });

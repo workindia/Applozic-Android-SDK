@@ -15,18 +15,22 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,19 +95,19 @@ public class MobiComConversationService {
         return getMessages(startTime, endTime, new Contact(userId), null);
     }
 
-    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Group group) {
+    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel) {
         List<Message> messageList = new ArrayList<Message>();
-        List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, group);
+        List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel);
 
         if (!cachedMessageList.isEmpty() &&
-                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, group))) {
+                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel))) {
             Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
         String data;
         try {
-            data = messageClientService.getMessages(contact, group, startTime, endTime);
+            data = messageClientService.getMessages(contact, channel, startTime, endTime);
             Log.i(TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -111,23 +115,30 @@ public class MobiComConversationService {
         }
 
         if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
-            //Note: currently not supporting syncing old group messages from server
-            if (group != null && group.getGroupId() != null) {
+            //Note: currently not supporting syncing old channel messages from server
+            if (channel != null && channel.getKey() != null) {
                 return cachedMessageList;
             }
             return cachedMessageList;
         }
 
-        if (contact != null || group != null) {
-            sharedPreferences.edit().putBoolean(SERVER_SYNC + (contact != null ? contact.getContactIds() : group.getGroupId()), true).commit();
+        if (contact != null || channel != null) {
+            sharedPreferences.edit().putBoolean(SERVER_SYNC + (contact != null ? contact.getContactIds() : channel.getKey()), true).commit();
         }
 
         try {
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
                     .setExclusionStrategies(new AnnotationExclusionStrategy()).create();
             JsonParser parser = new JsonParser();
+            JSONObject jsonObject = new JSONObject(data);
+            String channelFeedResponse = "";
             String element = parser.parse(data).getAsJsonObject().get("message").toString();
-            String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+            // String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+            if (jsonObject.has("groupFeeds")) {
+                channelFeedResponse = parser.parse(data).getAsJsonObject().get("groupFeeds").toString();
+                ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
+                ChannelService.getInstance(context).processChannelFeedList(channelFeeds);
+            }
 
             Message[] messages = gson.fromJson(element, Message[].class);
            /* if (!TextUtils.isEmpty(userDetailsElement)) {
@@ -211,8 +222,13 @@ public class MobiComConversationService {
         MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
     }
 
-    private boolean wasServerCallDoneBefore(Contact contact, Group group) {
-        return sharedPreferences.getBoolean(SERVER_SYNC + contact.getContactIds(), false);
+    private boolean wasServerCallDoneBefore(Contact contact, Channel channel) {
+        if (contact != null) {
+            return sharedPreferences.getBoolean(SERVER_SYNC + contact.getContactIds(), false);
+        } else {
+            return sharedPreferences.getBoolean(SERVER_SYNC + channel.getKey(), false);
+        }
+
     }
 
     private void setFilePathifExist(Message message) {
@@ -257,7 +273,7 @@ public class MobiComConversationService {
     public void deleteAndBroadCast(final Contact contact, boolean deleteFromServer) {
         deleteConversationFromDevice(contact.getContactIds());
         if (deleteFromServer) {
-         Thread thread = new Thread(new Runnable() {
+            Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     messageClientService.deleteConversationThreadFromServer(contact);
@@ -266,16 +282,23 @@ public class MobiComConversationService {
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             thread.start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), "success");
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(),0, "success");
     }
 
-    public void deleteSync(final Contact contact) {
-        String response = messageClientService.syncDeleteConversationThreadFromServer(contact);
+    public void deleteSync(final Contact contact,final Channel channel) {
+        String response = "";
+            response =   messageClientService.syncDeleteConversationThreadFromServer(contact,channel);
+
         if ("success".equals(response)) {
-            messageDatabaseService.deleteConversation(contact.getContactIds());
+            if(contact != null){
+                messageDatabaseService.deleteConversation(contact.getContactIds());
+            }else {
+                messageDatabaseService.deleteChannelConversation(channel.getKey());
+            }
+
         }
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
-                contact.getContactIds(), response);
+                contact != null ? contact.getContactIds():null,channel != null ?channel.getKey():null, response);
     }
 
     public String deleteMessageFromDevice(String keyString, String contactNumber) {
@@ -283,7 +306,7 @@ public class MobiComConversationService {
     }
 
     public synchronized void processLastSeenAtStatus() {
-      Thread thread = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {

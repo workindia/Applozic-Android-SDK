@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 public class ConversationFragment extends MobiComConversationFragment {
@@ -26,9 +27,10 @@ public class ConversationFragment extends MobiComConversationFragment {
         this.messageIntentClass = MessageIntentService.class;
     }
 
-    public ConversationFragment(Contact contact) {
+    public ConversationFragment(Contact contact,Channel channel) {
         this.messageIntentClass = MessageIntentService.class;
         this.contact = contact;
+        this.channel = channel;
 
     }
 

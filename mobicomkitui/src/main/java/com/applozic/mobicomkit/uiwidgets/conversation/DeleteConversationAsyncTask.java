@@ -8,6 +8,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
@@ -21,6 +22,7 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     private boolean isThreaddelete=false;
     private ProgressDialog progressDialog;
     private Context context;
+    private Channel channel;
 
 
     public DeleteConversationAsyncTask(MobiComConversationService conversationService, Message message, Contact contact) {
@@ -29,9 +31,10 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
         this.conversationService = conversationService;
     }
 
-    public DeleteConversationAsyncTask( MobiComConversationService conversationService,Contact contact,Context context){
+    public DeleteConversationAsyncTask( MobiComConversationService conversationService,Contact contact,Channel channel,Context context){
         this.contact = contact;
         this.context= context;
+        this.channel = channel;
         this.conversationService = conversationService;
         this.isThreaddelete = true;
 
@@ -49,7 +52,7 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     @Override
     protected Long doInBackground(Void... params) {
         if(isThreaddelete){
-            conversationService.deleteSync(contact);
+            conversationService.deleteSync(contact,channel);
         }else{
             conversationService.deleteMessage(message, contact);
         }

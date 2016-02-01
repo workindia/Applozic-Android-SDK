@@ -78,7 +78,10 @@ public class MobiComMessageService {
         message.setPairedMessageKeyString(messageToProcess.getPairedMessageKeyString());
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
-            Contact contact = baseContactService.getContactById(tofield);
+            Contact contact = null;
+            if(message.getGroupId() == null){
+                contact = baseContactService.getContactById(tofield);
+            }
             if (contact != null) {
                 message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), contact));
             }
@@ -88,9 +91,15 @@ public class MobiComMessageService {
 
     public Contact addMTMessage(Message message) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-
+        Contact receiverContact = null;
         message.processContactIds(context);
-        Contact receiverContact = baseContactService.getContactById(message.getTo());
+        String currentId = null;
+        if(message.getGroupId() != null){
+            currentId = String.valueOf(message.getGroupId());
+        }else {
+            receiverContact = baseContactService.getContactById(message.getTo());
+            currentId = message.getTo();
+        }
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
             message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), receiverContact));
@@ -98,18 +107,17 @@ public class MobiComMessageService {
 
         messageDatabaseService.createMessage(message);
 
-        Contact contact = baseContactService.getContactById(message.getTo());
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-        if (!(message.getTo().equals(BroadcastService.currentUserId ))) {
+        if (!(currentId.equals(BroadcastService.currentUserId ))) {
             MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
             BroadcastService.sendNotificationBroadcast(context, message);
         }
 
         Log.i(TAG, "Updating delivery status: " + message.getPairedMessageKeyString() + ", " + userPreferences.getUserId() + ", " + userPreferences.getContactNumber());
         messageClientService.updateDeliveryStatus(message.getPairedMessageKeyString(), userPreferences.getUserId(), userPreferences.getContactNumber());
-        return contact;
+        return receiverContact;
     }
 
     public synchronized void syncMessages() {
@@ -183,7 +191,7 @@ public class MobiComMessageService {
             Set<String> userIds = new HashSet<String>();
 
             for (Message msg : messages) {
-                if (!baseContactService.isContactExists(msg.getContactIds())) {
+                if (msg.getGroupId() == null && !baseContactService.isContactExists(msg.getContactIds())) {
                     userIds.add(msg.getContactIds());
                 }
             }

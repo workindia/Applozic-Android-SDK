@@ -45,6 +45,7 @@ public class MobiComPushReceiver {
         notificationKeyList.add("APPLOZIC_12");// 11 for USER_DISCONNECTED//done
         notificationKeyList.add("APPLOZIC_13");// 12 for GROUP_DELETED
         notificationKeyList.add("APPLOZIC_14");// 13 for GROUP_LEFT
+        notificationKeyList.add("APPLOZIC_15");// 13 for group_sync
 
        /* notificationKeyList.add("MT_SYNC"); // 0
         notificationKeyList.add("MT_MARK_ALL_MESSAGE_AS_READ"); //1
@@ -158,7 +159,7 @@ public class MobiComPushReceiver {
                 addPushNotificationId(messageResponseForDelivered.getId());
                 String splitKeyString[] = (messageResponseForDelivered.getMessage()).toString().split(",");
                 String keyString = splitKeyString[0];
-                String userId = splitKeyString[1];
+               // String userId = splitKeyString[1];
                 syncCallService.updateDeliveryStatus(keyString);
             }
 
@@ -170,7 +171,7 @@ public class MobiComPushReceiver {
                 addPushNotificationId(deleteConversationResponse.getId());
                 MobiComConversationService conversationService = new MobiComConversationService(context);
                 conversationService.deleteConversationFromDevice(deleteConversationResponse.getMessage().toString());
-                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationResponse.getMessage().toString(), "success");
+                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), deleteConversationResponse.getMessage().toString(), 0, "success");
             }
 
         /*if (!TextUtils.isEmpty(mtexterUser)) {
@@ -283,6 +284,17 @@ public class MobiComPushReceiver {
                 } else {
                     syncCallService.syncMessages(null);
                 }
+
+            }
+
+            String channelSync = bundle.getString(notificationKeyList.get(14));
+            if (!TextUtils.isEmpty(channelSync)) {
+                MqttMessageResponse syncChannelResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(channelSync, MqttMessageResponse.class);
+                if (processPushNotificationId(syncChannelResponse.getId())) {
+                    return;
+                }
+                addPushNotificationId(syncChannelResponse.getId());
+                syncCallService.syncChannel();
 
             }
 

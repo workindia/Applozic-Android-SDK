@@ -6,8 +6,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
@@ -20,13 +25,17 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 
+import com.applozic.mobicomkit.uiwidgets.people.channel.ChannelFragment;
 import com.applozic.mobicomkit.uiwidgets.people.contact.AppContactFragment;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.contact.ContactUtils;
 
-import com.applozic.mobicommons.people.group.Group;
+import com.applozic.mobicommons.people.channel.Channel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MobiComKitPeopleActivity extends ActionBarActivity implements OnContactsInteractionListener,
@@ -42,6 +51,10 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     protected String searchTerm;
     AppContactFragment mContactsListFragment;
     private boolean isSearchResultView = false;
+    ViewPager viewPager;
+    TabLayout tabLayout;
+    ActionBar actionBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +64,19 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
+        actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(R.string.activity_contacts_title);
+        actionBar.setTitle("Select");
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        setupViewPager(viewPager);
 
-        mContactsListFragment = (AppContactFragment)
-                getSupportFragmentManager().findFragmentById(R.id.contact_list);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
+
+      /*  mContactsListFragment = (AppContactFragment)
+                getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
 
         // This flag notes that the Activity is doing a search, and so the result will be
         // search results rather than all contacts. This prevents the Activity and Fragment
@@ -73,9 +91,9 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         String title = getString(R.string.contacts_list_search_results_title, searchQuery);
         setTitle(title);
 
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+      /*  if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             mContactsListFragment.onQueryTextChange(searchQuery);
-        }
+        }*/
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -85,9 +103,12 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         MenuItem searchItem = menu.findItem(R.id.menu_search);
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setQueryHint(getResources().getString(R.string.search_hint));
+        if(Utils.hasICS()){
+            searchItem.collapseActionView();
+        }
         searchView.setOnQueryTextListener(this);
         searchView.setSubmitButtonEnabled(true);
-        searchView.setIconified(false);
+        searchView.setIconified(true);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -122,10 +143,10 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     }
 
     @Override
-    public void onGroupSelected(Group group) {
+    public void onGroupSelected(Channel channel) {
         Intent intent = new Intent();
-        intent.putExtra(GROUP_ID, group.getGroupId());
-        intent.putExtra(GROUP_NAME, group.getName());
+        intent.putExtra(GROUP_ID, channel.getKey());
+        intent.putExtra(GROUP_NAME, channel.getName());
         finishActivity(intent);
     }
 
@@ -192,8 +213,46 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     @Override
     public boolean onQueryTextChange(String query) {
         this.searchTerm = query;
-        mContactsListFragment.onQueryTextChange(query);
+      /*  mContactsListFragment.onQueryTextChange(query);*/
         return false;
+    }
+
+
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(new AppContactFragment(), "Contact");
+        adapter.addFrag(new ChannelFragment(), "Group");
+        viewPager.setAdapter(adapter);
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> fragmentList = new ArrayList<>();
+        private final List<String> titleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentList.size();
+        }
+
+        public void addFrag(Fragment fragment, String title) {
+            fragmentList.add(fragment);
+            titleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titleList.get(position);
+        }
+
     }
 
 }

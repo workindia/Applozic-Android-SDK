@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -45,8 +47,11 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -59,11 +64,12 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback  {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
+    public static final String CHANNEL = "channel";
     protected static final long UPDATE_INTERVAL = 5;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -78,7 +84,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
-    private static int retry ;
+    private Channel channel;
+    private static int retry;
+    private LinearLayout layout;
 
     public ConversationActivity() {
 
@@ -88,7 +96,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void showErrorMessageView(String message) {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.footerAd);
         layout.setVisibility(View.VISIBLE);
         snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction("OK", new View.OnClickListener() {
@@ -138,7 +145,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
       /*if (activeFragment != null) {
             fragmentTransaction.hide(activeFragment);
         }*/
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
     }
@@ -175,17 +182,23 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         if (capturedImageUri != null) {
             savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
             savedInstanceState.putSerializable(CONTACT, contact);
+            savedInstanceState.putSerializable(CHANNEL, channel);
         }
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
+            Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
+            if (takeOrder) {
+                this.finish();
+            } else {
+                getSupportFragmentManager().popBackStack();
+            }
             Utils.toggleSoftKeyBoard(this, true);
             return true;
         }
@@ -198,13 +211,22 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        layout = (LinearLayout) findViewById(R.id.footerAd);
+        if (Utils.hasMarshmallow()) {
+            new  ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForStorage();
+        }
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
-            conversation = new ConversationFragment(contact);
+            channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
+            if (channel != null) {
+                conversation = new ConversationFragment(null, channel);
+            } else {
+                conversation = new ConversationFragment(contact, null);
+            }
             addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         } else {
             quickConversationFragment = new MobiComQuickConversationFragment();
@@ -285,7 +307,36 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
     }
 
-    public void processLocation() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.storage_permission_granted);
+            } else {
+                showSnackBar(R.string.storage_permission_not_granted);
+            }
+
+        } else if (requestCode == PermissionsUtils.REQUEST_LOCATION) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.location_permission_granted);
+                processingLocation();
+            } else {
+                showSnackBar(R.string.location_permission_not_granted);
+            }
+
+        } else if (requestCode == PermissionsUtils.REQUEST_PHONE_STATE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.phone_state_permission_granted);
+            } else {
+                showSnackBar(R.string.phone_state_permission_not_granted);
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+
+    public void processingLocation() {
         if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -312,6 +363,14 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         }
     }
 
+    public void processLocation() {
+        if(Utils.hasMarshmallow()){
+            new ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForLocation();
+        }else {
+            processingLocation();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -331,7 +390,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
-            if(conversation != null){
+            if (conversation != null) {
                 conversation.deleteConversationThread();
             }
         }
@@ -339,9 +398,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
-    public void onQuickConversationFragmentItemClick(View view, Contact contact) {
-        conversation = new ConversationFragment(contact);
+    public void onQuickConversationFragmentItemClick(View view, Contact contact, Channel channel) {
+        conversation = new ConversationFragment(contact, channel);
         addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
+        this.channel = channel;
         this.contact = contact;
     }
 
@@ -441,12 +501,22 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         return contact;
     }
 
+    public Channel getChannel() {
+        return channel;
+    }
+
     public static Uri getCapturedImageUri() {
         return capturedImageUri;
     }
 
     public static void setCapturedImageUri(Uri capturedImageUri) {
         ConversationActivity.capturedImageUri = capturedImageUri;
+    }
+
+    public void showSnackBar(int resId){
+        snackbar = Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
 }

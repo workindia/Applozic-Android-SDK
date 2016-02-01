@@ -4,7 +4,9 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Process;
 import android.text.TextUtils;
+
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
@@ -18,6 +20,7 @@ public class ApplozicIntentService extends IntentService {
      */
     public static final String PAIRED_MESSAGE_KEY_STRING = "pairedMessageKey";
     public static final String CONTACT = "contact";
+    public static final String CHANNEL = "channel";
     private static final String TAG = "ApplozicIntentService";
 
     public ApplozicIntentService() {
@@ -28,21 +31,23 @@ public class ApplozicIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         final String pairedMessageKeyString = intent.getStringExtra(PAIRED_MESSAGE_KEY_STRING);
         final Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
+        final Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-
+                int read = 0;
                 final MessageClientService messageClientService = new MessageClientService(getApplicationContext());
 
                 if (!TextUtils.isEmpty(pairedMessageKeyString)) {
                     messageClientService.updateReadStatusForSingleMessage(pairedMessageKeyString);
                 }
                 if (contact != null) {
-                    int read = new MessageDatabaseService(getApplicationContext()).updateReadStatus(contact.getContactIds());
-
-                    if (read > 0) {
-                        messageClientService.updateReadStatus(contact);
-                    }
+                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatus(contact.getContactIds());
+                } else if (channel != null) {
+                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatusForChannel(String.valueOf(channel.getKey()));
+                }
+                if (read > 0) {
+                    messageClientService.updateReadStatus(contact, channel);
                 }
             }
         });

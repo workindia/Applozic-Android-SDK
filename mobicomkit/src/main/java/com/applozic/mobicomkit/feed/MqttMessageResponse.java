@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.feed;
 
-import com.applozic.mobicomkit.api.conversation.Message;
 
 /**
  * Created by sunil on 28/11/15.

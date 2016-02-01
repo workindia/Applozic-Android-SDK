@@ -18,15 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -34,15 +35,14 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragm
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
-
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
-import com.applozic.mobicommons.people.group.GroupUtils;
 
 
 public class ConversationUIService {
@@ -52,7 +52,6 @@ public class ConversationUIService {
     public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
-    private static final String TAG = "ConversationUIService";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
@@ -65,7 +64,9 @@ public class ConversationUIService {
     public static final String FINAL_PRICE_TEXT = "Final agreed price ";
     public static final String PRODUCT_TOPIC_ID = "topicId";
     public static final String PRODUCT_IMAGE_URL = "productImageUrl";
+    private static final String TAG = "ConversationUIService";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
+    public static final String GROUP = "group-";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
 
@@ -91,7 +92,8 @@ public class ConversationUIService {
 
         if (conversationFragment == null) {
             Contact contact = ((ConversationActivity) fragmentActivity).getContact();
-            conversationFragment = new ConversationFragment(contact);
+            Channel channel = ((ConversationActivity) fragmentActivity).getChannel();
+            conversationFragment = new ConversationFragment(contact, channel);
             ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
         }
         return conversationFragment;
@@ -109,7 +111,7 @@ public class ConversationUIService {
             public void run() {
                 ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
                 if (conversationFragment == null) {
-                    conversationFragment = new ConversationFragment(contact);
+                    conversationFragment = new ConversationFragment(contact, null);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
                     conversationFragment.loadConversation(contact);
@@ -118,10 +120,14 @@ public class ConversationUIService {
         });
     }
 
-    public void openConversationFragment(Group group) {
-        ConversationFragment conversationFragment = new ConversationFragment();
-        ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
-        conversationFragment.loadConversation(group);
+    public void openConversationFragment(final Channel channel) {
+        ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
+        if (conversationFragment == null) {
+            conversationFragment = new ConversationFragment(null, channel);
+            ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
+        } else {
+            conversationFragment.loadConversation(channel);
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -152,12 +158,12 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteConversationThread(final Contact contact, String name) {
+    public void deleteConversationThread(final Contact contact, final Channel channel) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragmentActivity).
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity), contact, fragmentActivity).execute();
+                        new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity), contact, channel, fragmentActivity).execute();
 
                     }
                 });
@@ -166,6 +172,12 @@ public class ConversationUIService {
             public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
+        String name = "";
+        if (channel != null) {
+            name = ChannelUtils.getChannelTitleName(channel,MobiComUserPreference.getInstance(fragmentActivity).getUserId());
+        } else {
+            name = contact.getDisplayName();
+        }
         alertDialog.setTitle(fragmentActivity.getString(R.string.dialog_delete_conversation_title).replace("[name]", name));
         alertDialog.setMessage(fragmentActivity.getString(R.string.dialog_delete_conversation_confir).replace("[name]", name));
         alertDialog.setCancelable(true);
@@ -205,25 +217,24 @@ public class ConversationUIService {
         getQuickConversationFragment().updateLastMessage(keyString, userId);
     }
 
-    public boolean isBroadcastedToGroup(Long broadcastGroupId) {
+    public boolean isBroadcastedToGroup(Integer channelKey) {
         if (!BroadcastService.isIndividual()) {
             return false;
         }
-        return getConversationFragment().isBroadcastedToGroup(broadcastGroupId);
+        return getConversationFragment().isBroadcastedToChannel(channelKey);
     }
 
     public void syncMessages(Message message, String keyString) {
         String userId = message.getContactIds();
-
         if (BroadcastService.isIndividual()) {
             ConversationFragment conversationFragment = getConversationFragment();
-            if (userId.equals(conversationFragment.getCurrentUserId()) ||
-                    conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
+            if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
+                    conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
                 conversationFragment.addMessage(message);
             }
         }
 
-        if (message.getBroadcastGroupId() == null) {
+        if (message.getGroupId() == null) {
             updateLastMessage(keyString, userId);
         }
     }
@@ -248,8 +259,8 @@ public class ConversationUIService {
         }
         String userId = message.getContactIds();
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
-                conversationFragment.isBroadcastedToGroup(message.getBroadcastGroupId())) {
+        if (!TextUtils.isEmpty(userId) && conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
+                conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
             conversationFragment.updateMessageKeyString(message);
         }
     }
@@ -278,7 +289,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+        if (!TextUtils.isEmpty(contactId) && conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
             conversationFragment.updateDeliveryStatusForAllMessages();
         }
     }
@@ -293,12 +304,12 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteConversation(Contact contact, String response) {
+    public void deleteConversation(Contact contact, Integer channelKey, String response) {
         if (BroadcastService.isIndividual()) {
             getConversationFragment().clearList();
         }
         if (BroadcastService.isQuick()) {
-            getQuickConversationFragment().removeConversation(contact, response);
+            getQuickConversationFragment().removeConversation(contact, channelKey, response);
         }
     }
 
@@ -323,6 +334,12 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
+    public void updateName(Integer channelKey) {
+        if (BroadcastService.isIndividual()) {
+            return;
+        }
+        getQuickConversationFragment().updateUserName(channelKey);
+    }
 
     public void updateTypingStatus(String userId, String isTypingStatus) {
         if (!BroadcastService.isIndividual()) {
@@ -401,7 +418,7 @@ public class ConversationUIService {
 
     public void checkForStartNewConversation(Intent intent) {
         Contact contact = null;
-        Group group = null;
+        Channel channel = null;
 
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getType() != null) {
             if ("text/plain".equals(intent.getType())) {
@@ -425,10 +442,16 @@ public class ConversationUIService {
             contact = baseContactService.getContactById(String.valueOf(contactId));
         }
 
-        Long groupId = intent.getLongExtra(GROUP_ID, -1);
-        String groupName = intent.getStringExtra(GROUP_NAME);
-        if (groupId != -1) {
-            group = GroupUtils.fetchGroup(fragmentActivity, groupId, groupName);
+        Integer channelKey = intent.getIntExtra(GROUP_ID, -1);
+        String channelName = intent.getStringExtra(GROUP_NAME);
+
+        if (channelKey != -1 && channelKey != null && channelKey != 0) {
+            channel = ChannelService.getInstance(fragmentActivity).getChannel(channelKey);
+        }
+
+        if(channel != null && !TextUtils.isEmpty(channelName) && TextUtils.isEmpty(channel.getName())){
+            channel.setName(channelName);
+            ChannelService.getInstance(fragmentActivity).updateChannel(channel);
         }
 
         String contactNumber = intent.getStringExtra(CONTACT_NUMBER);
@@ -464,7 +487,11 @@ public class ConversationUIService {
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         if (!TextUtils.isEmpty(messageJson)) {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
-            contact = baseContactService.getContactById(message.getContactIds());
+            if (message.getGroupId() != null) {
+                channel = ChannelService.getInstance(fragmentActivity).getChannelByChannelKey(message.getGroupId());
+            } else {
+                contact = baseContactService.getContactById(message.getContactIds());
+            }
         }
 
         boolean support = intent.getBooleanExtra(Support.SUPPORT_INTENT_KEY, false);
@@ -476,8 +503,8 @@ public class ConversationUIService {
             openConversationFragment(contact);
         }
 
-        if (group != null) {
-            openConversationFragment(group);
+        if (channel != null) {
+            openConversationFragment(channel);
         }
 
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);

@@ -1,3 +1,5 @@
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -9,19 +11,27 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 
-import static com.applozic.mobicomkit.api.account.user.UserLoginTask.*;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.applozic.mobicomkit.api.account.user.UserLoginTask.TaskListener;
 
 /**
  * Created by applozic on 12/5/15.
  */
 public class ApplozicBridge {
 
-    public static void startChatActivity(Context context, final String contactId, final String displayName) {
+    /**
+     * Starts the chat activity if user is not loggedIn then it will login to applozic server and launch the chat-list
+     * else if user is loggedIn then directly opens chat-list
+     *
+     * @param context
+     * @param user    :User object
+     */
+
+    private static void startChatActivity(Context context, User user) {
         if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
-            //perform login action first then show chat screen
-            //get the email and
 
             TaskListener listener = new TaskListener() {
 
@@ -29,7 +39,7 @@ public class ApplozicBridge {
                 public void onSuccess(RegistrationResponse registrationResponse, Context context) {
                     String pushNotificationId = "";//Todo: get pushnotification id.
                     gcmRegister(context, pushNotificationId);
-                    showChatActvity(context, contactId, displayName);
+                    launchChat(context);
                 }
 
                 @Override
@@ -38,23 +48,47 @@ public class ApplozicBridge {
                 }
             };
 
-            String userId = ""; //Todo: fetch this from gmail accounts.
-            User user = new User();
-            user.setUserId(userId);
-            //user.setEmail(userId); //optional
+            user = user != null ? user : getLoggedInUserInformation();
 
             new UserLoginTask(user, listener, context).execute((Void) null);
 
         } else {
-            showChatActvity(context, contactId, displayName);
+            launchChat(context);
         }
     }
 
-    public static void startChatActivity(Context context) {
-       startChatActivity(context, null, null);
+    /**
+     * Method  to launch chat activity if user is already registered with applozic server
+     *
+     * @param context
+     */
+
+    public static void launchChat(Context context) {
+        Intent intent = new Intent(context, ConversationActivity.class);
+        context.startActivity(intent);
     }
 
-    public static void showChatActvity(Context context, String userId, String displayName) {
+    /**
+     * Method to Registers the User and launch the chat list
+     *
+     * @param context
+     * @param user    :user object
+     */
+
+    public static void registerUserAndLaunchChat(Context context, User user) {
+        startChatActivity(context, user);
+    }
+
+
+    /**
+     * Method to launch Individual chat pass userId and display name to whom u want to launch Individual Chat directly
+     *
+     * @param context
+     * @param userId
+     * @param displayName
+     */
+
+    public static void launchIndividualChat(Context context, String userId, String displayName) {
         Intent intent = new Intent(context, ConversationActivity.class);
         if (!TextUtils.isEmpty(userId)) {
             intent.putExtra(ConversationUIService.USER_ID, userId);
@@ -81,6 +115,83 @@ public class ApplozicBridge {
         pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, context);
         pushNotificationTask.execute((Void) null);
 
+    }
+
+    /**
+     * This method can be used to get app logged-in user's information.
+     * if user information is stored in DB or preference, Code to get user's information should go here
+     *
+     * @return
+     */
+
+    public static User getLoggedInUserInformation() {
+        User user = new User();
+        user.setUserId("Applozic-test");//useIid of user
+        user.setDisplayName("ApplozicChat");//displayName of user
+        //user.setEmail(); optional
+        return user;
+    }
+
+    /**
+     * Method to get the  Email Id  from google primary account
+     *
+     * @param context
+     * @return
+     */
+
+    public static String getUserEmailId(Context context) {
+        String userEmailId = "";
+        try {
+            AccountManager manager = AccountManager.get(context);
+            Account[] accounts = manager.getAccountsByType("com.google");
+            List<String> possibleEmails = new LinkedList<String>();
+
+            for (Account account : accounts) {
+                // TODO: Check possibleEmail against an email regex or treat
+                // account.name as an email address only for certain
+                // account.type values.
+                possibleEmails.add(account.name);
+            }
+
+            if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
+                userEmailId = possibleEmails.get(0);
+            }
+        } catch (Exception e) {
+
+        }
+        return userEmailId;
+    }
+
+    /**
+     * Method to get the User Name  from google primary account
+     *
+     * @param context
+     * @return
+     */
+
+    public static String getUsername(Context context) {
+        try {
+            AccountManager manager = AccountManager.get(context);
+            Account[] accounts = manager.getAccountsByType("com.google");
+            List<String> possibleEmails = new LinkedList<String>();
+
+            for (Account account : accounts) {
+                // TODO: Check possibleEmail against an email regex or treat
+                possibleEmails.add(account.name);
+            }
+
+            if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
+                String email = possibleEmails.get(0);
+                String[] parts = email.split("@");
+
+                if (parts.length > 1)
+                    return parts[0];
+            }
+
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 
 }

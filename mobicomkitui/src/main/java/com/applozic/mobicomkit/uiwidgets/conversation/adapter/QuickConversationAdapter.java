@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
@@ -24,22 +25,20 @@ import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
-
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.emoticon.EmoticonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
-import com.applozic.mobicommons.people.group.GroupUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,13 +48,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class QuickConversationAdapter extends BaseAdapter {
 
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
-    private ImageLoader contactImageLoader;
-    private Context context;
-    private MessageDatabaseService messageDatabaseService;
-    private List<Message> messageList;
-    private BaseContactService contactService;
-    private EmojiconHandler emojiconHandler;
-    private long deviceTimeOffset = 0;
 
     static {
         messageTypeColorMap.put(Message.MessageType.INBOX.getValue(), R.color.message_type_inbox);
@@ -66,6 +58,14 @@ public class QuickConversationAdapter extends BaseAdapter {
         messageTypeColorMap.put(Message.MessageType.CALL_INCOMING.getValue(), R.color.message_type_incoming_call);
         messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
     }
+
+    private ImageLoader contactImageLoader;
+    private Context context;
+    private MessageDatabaseService messageDatabaseService;
+    private List<Message> messageList;
+    private BaseContactService contactService;
+    private EmojiconHandler emojiconHandler;
+    private long deviceTimeOffset = 0;
 
     public QuickConversationAdapter(final Context context, List<Message> messageList, EmojiconHandler emojiconHandler) {
         this.context = context;
@@ -79,7 +79,6 @@ public class QuickConversationAdapter extends BaseAdapter {
                 return contactService.downloadContactImage((Activity) context, (Contact) data);
             }
         };
-        contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);
         contactImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
     }
@@ -106,10 +105,16 @@ public class QuickConversationAdapter extends BaseAdapter {
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
             final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
             TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
-            List<String> items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
+            List<String> items = null;
             List<String> userIds = null;
-            if (!TextUtils.isEmpty(message.getContactIds())) {
-                userIds = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
+
+            final Channel channel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+
+            if (channel == null && message.getGroupId() == null) {
+                items = Arrays.asList(message.getTo().split("\\s*,\\s*"));
+                if (!TextUtils.isEmpty(message.getContactIds())) {
+                    userIds = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
+                }
             }
 
             final Contact contactReceiver = contactService.getContactReceiver(items, userIds);
@@ -123,32 +128,53 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }
                 smReceivers.setText(contactInfo);
             }
+            if (message.getGroupId() == null) {
+                contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);
+            } else {
+                contactImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
+            }
+            String contactNumber = "";
+            char firstLetter = 0;
+            if (channel != null && message.getGroupId() != null) {
+                smReceivers.setText(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId()));
+            } else if (contactReceiver != null) {
+                contactNumber = contactReceiver.getContactNumber().toUpperCase();
+                firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
 
-            if (alphabeticTextView != null && contactReceiver != null) {
-                String contactNumber = contactReceiver.getContactNumber().toUpperCase();
-                char firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
+                if (contactReceiver.isDrawableResources()) {
+                    int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
+                    contactImage.setImageResource(drawableResourceId);
+                } else {
+                    contactImageLoader.loadImage(contactReceiver, contactImage, alphabeticTextView);
+                }
+            }
+            if (channel != null) {
+                contactImage.setImageResource(R.drawable.applozic_group_icon);
+            }
+            if (contactReceiver != null && message.getGroupId() == null) {
                 if (firstLetter != '+') {
                     alphabeticTextView.setText(String.valueOf(firstLetter));
                 } else if (contactNumber.length() >= 2) {
                     alphabeticTextView.setText(String.valueOf(contactNumber.charAt(1)));
                 }
-
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
                 /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
                 alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
-                GradientDrawable bgShape = (GradientDrawable)alphabeticTextView.getBackground();
+                GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
-                if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
-                    onlineTextView.setVisibility((contactReceiver != null  && contactReceiver.isConnected()) ? View.VISIBLE : View.GONE);
+            }
+            if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
+                onlineTextView.setVisibility((contactReceiver != null && contactReceiver.isConnected()) ? View.VISIBLE : View.GONE);
+            }
+
+            customView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    InstructionUtil.hideInstruction(context, R.string.instruction_open_conversation_thread);
+                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver, channel);
                 }
-            }
-            
-            if (contactReceiver.isDrawableResources()) {
-                int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
-                contactImage.setImageResource(drawableResourceId);
-            } else {
-                contactImageLoader.loadImage(contactReceiver, contactImage, alphabeticTextView);
-            }
+            });
+
             if (attachedFile != null) {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
@@ -157,9 +183,6 @@ public class QuickConversationAdapter extends BaseAdapter {
             if (attachmentIcon != null) {
                 attachmentIcon.setVisibility(View.GONE);
             }
-            if (message.isSentToMany()) {
-                Group group = message.getBroadcastGroupId() != null ? GroupUtils.fetchGroup(context, message.getBroadcastGroupId()) : null;
-            }
 
             if (message.hasAttachment() && attachmentIcon != null && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 //Todo: handle it for fileKeyStrings when filePaths is empty
@@ -167,19 +190,11 @@ public class QuickConversationAdapter extends BaseAdapter {
                         message.getFileMetas() != null ? message.getFileMetas().getName() : "";
                 attachmentIcon.setVisibility(View.VISIBLE);
                 messageTextView.setText(filePath + " " + messageTextView.getText());
-            } else if(message.getContentType() == Message.ContentType.PRICE.getValue()){
-                messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT+message.getMessage(), emojiconHandler));
-            } else{
+            } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
+                messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT + message.getMessage(), emojiconHandler));
+            } else {
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
             }
-
-            customView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    InstructionUtil.hideInstruction(context, R.string.instruction_open_conversation_thread);
-                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver);
-                }
-            });
 
             if (contactReceiver != null && new Support(context).isSupportNumber(contactReceiver.getContactNumber()) && (!message.isTypeOutbox())) {
                 contactImage.setImageResource(R.drawable.mobicom_ic_launcher);
@@ -197,16 +212,21 @@ public class QuickConversationAdapter extends BaseAdapter {
             if (createdAtTime != null) {
                 createdAtTime.setText(DateUtils.getFormattedDateAndTime(message.getCreatedAtTime()));
             }
-            if (contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
-                int messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
-                if (messageUnReadCount > 0) {
-                    unReadCountTextView.setVisibility(View.VISIBLE);
-                    unReadCountTextView.setText(String.valueOf(messageUnReadCount));
-                } else {
-                    unReadCountTextView.setVisibility(View.GONE);
-                }
+            int messageUnReadCount = 0;
+            if (message.getGroupId() == null && contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
+                messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
+
+            } else if (channel != null && channel.getKey() != null && channel.getKey() != 0) {
+                messageUnReadCount = messageDatabaseService.getUnreadMessageCountForChannel(channel.getKey());
+            }
+            if (messageUnReadCount > 0) {
+                unReadCountTextView.setVisibility(View.VISIBLE);
+                unReadCountTextView.setText(String.valueOf(messageUnReadCount));
+            } else {
+                unReadCountTextView.setVisibility(View.GONE);
             }
         }
+
 
         return customView;
     }

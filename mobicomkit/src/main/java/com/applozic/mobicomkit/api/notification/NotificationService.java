@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -17,6 +18,8 @@ import com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.InputStream;
@@ -31,12 +34,12 @@ import java.net.HttpURLConnection;
 public class NotificationService {
 
     private static final int NOTIFICATION_ID = 1000;
+    private static final String NOTIFICATION_SMALL_ICON_METADATA = "com.applozic.mobicomkit.notification.smallIcon";
     private Context context;
     private int iconResourceId;
     private int wearable_action_title;
     private int wearable_action_label;
     private int wearable_send_icon;
-    private static final String NOTIFICATION_SMALL_ICON_METADATA = "com.applozic.mobicomkit.notification.smallIcon";
 
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
@@ -49,7 +52,13 @@ public class NotificationService {
 
     }
 
-    public void notifyUser(Contact contact, Message message) {
+    public void notifyUser(Contact contact, Channel channel, Message message) {
+        String title;
+        if (message.getGroupId() != null) {
+            title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
+        } else {
+            title = contact.getDisplayName();
+        }
         Intent intent = new Intent();
         intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         intent.setAction(NotificationBroadcastReceiver.LAUNCH_APP);
@@ -63,8 +72,8 @@ public class NotificationService {
                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setWhen(System.currentTimeMillis())
-                        .setContentTitle(contact.getDisplayName())
-                        .setContentText(message.getMessage())
+                        .setContentTitle(title)
+                        .setContentText(channel != null ? message.getTo() + ": " + message.getMessage() : message.getMessage())
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
@@ -72,14 +81,17 @@ public class NotificationService {
             try {
                 InputStream in;
                 FileMeta fileMeta = message.getFileMetas();
-                HttpURLConnection httpConn = new MobiComKitClientService(context).openHttpConnection(fileMeta.getThumbnailUrl());
-                int response = httpConn.getResponseCode();
-                if (response == HttpURLConnection.HTTP_OK) {
-                    in = httpConn.getInputStream();
-                    Bitmap bitmap = BitmapFactory.decodeStream(in);
-                    String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
-                    FileClientService.saveImageToInternalStorage(bitmap, imageName, context, fileMeta.getContentType());
-                    mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                HttpURLConnection httpConn = null;
+                if (fileMeta.getThumbnailUrl() != null) {
+                    httpConn = new MobiComKitClientService(context).openHttpConnection(fileMeta.getThumbnailUrl());
+                    int response = httpConn.getResponseCode();
+                    if (response == HttpURLConnection.HTTP_OK) {
+                        in = httpConn.getInputStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(in);
+                        String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+                        FileClientService.saveImageToInternalStorage(bitmap, imageName, context, fileMeta.getContentType());
+                        mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

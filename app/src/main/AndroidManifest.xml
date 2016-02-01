@@ -10,10 +10,10 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
+   <!-- <uses-permission android:name="android.permission.CALL_PHONE" />-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+   <!-- <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -35,6 +35,7 @@
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/ecommerce"
+            android:exported="true"
             android:theme="@style/MobiComAppBaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,6 +68,7 @@
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_login"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
         <receiver
@@ -154,7 +156,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/activity_contacts_list"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/ApplozicTheme"
+            android:theme="@style/Applozic.People.Theme"
             android:windowSoftInputMode="adjustResize">
             <!-- Parent activity meta-data to support API level 7+ -->
             <meta-data

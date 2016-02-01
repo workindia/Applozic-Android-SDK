@@ -8,6 +8,7 @@ import com.applozic.mobicomkit.api.JsonMarker;
 public class MessageResponse extends JsonMarker {
     private String messageKey;
     private String createdAt;
+    private Integer conversationId;
 
     public MessageResponse() {
     }
@@ -27,4 +28,22 @@ public class MessageResponse extends JsonMarker {
     public void setCreatedAtTime(String createdAtTime) {
         this.createdAt = createdAtTime;
     }
+
+    public Integer getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(Integer conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageResponse{" +
+                "messageKey='" + messageKey + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", conversationId=" + conversationId +
+                '}';
+    }
+
 }

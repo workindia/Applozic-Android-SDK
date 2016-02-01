@@ -81,10 +81,11 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
-    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, String response) {
+    public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, Integer channelKey,String response) {
         Log.i(TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
+        intentDelete.putExtra("channelKey", channelKey);
         intentDelete.putExtra("contactNumber", contactNumber);
         intentDelete.putExtra("response", response);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
@@ -135,6 +136,15 @@ public class BroadcastService {
         sendBroadcast(context, intentTyping);
     }
 
+    public static void sendUpdateForName(Context context,Integer channelKey,String action){
+        Log.i(TAG, "Sending  Broadcast for dataChange.......");
+        Intent intent = new Intent();
+        intent.putExtra("channelKey", channelKey);
+        intent.setAction(action);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -152,7 +162,7 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString());
         intentFilter.addAction(INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
-
+        intentFilter.addAction(INTENT_ACTIONS.UPDATE_NAME.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -162,7 +172,7 @@ public class BroadcastService {
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, MESSAGE_DELIVERY_FOR_CONTACT, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,
-        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED
+        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED,UPDATE_NAME
     }
 
     public static void sendBroadcast(Context context, Intent intent) {
