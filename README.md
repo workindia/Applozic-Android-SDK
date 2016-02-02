@@ -3,7 +3,7 @@ Applozic-Android-SDK
 [![Build Status](https://travis-ci.org/AppLozic/Applozic-Android-SDK.svg?branch=master)](https://travis-ci.org/AppLozic/Applozic-Android-SDK)
 
 
-Integrate messaging into your mobile apps and website without developing or maintaining any infrastructure.
+Add chat and messaging into your mobile apps and website without developing or maintaining any infrastructure.
 Register at https://www.applozic.com to get the application id.
 
 <img  align="middle"  src="img/applozic.jpg"/>
@@ -18,11 +18,14 @@ Getting Started
 
 To integrate messaging into your android app, register at Applozic to get the application key.
 
-** Step 1: Add the following in build.gradle **:
+
+
+Step 1: Add the following in build.gradle **:
 
 compile 'com.applozic.communication.uiwidget:mobicomkitui:3.019'
 
 Add the following in gradle android target:
+
 
 packagingOptions    
  {           
@@ -33,8 +36,11 @@ packagingOptions
  exclude 'META-INF/NOTICE.txt' 
  exclude 'META-INF/ECLIPSE_.SF'
  exclude 'META-INF/ECLIPSE_.RSA'
- }                
+ }             
+ 
+ 
 Step 2: Addition of Permissions, Services and Receivers in androidmanifest.xml:
+
 
 Applozic Application Key:
 
@@ -70,7 +76,9 @@ Define below in your string.xml.
 <string name="default_media_location_folder"><YOUR_APP_NAME></string> 
 Register at Applozic to get the application key.
 
+
 Permissions:
+
 
 <uses-permission android:name="<APP_PKG_NAME>.permission.C2D_MESSAGE" />
 <permission android:name="<APP_PKG_NAME>.permission.C2D_MESSAGE" android:protectionLevel="signature" />
@@ -89,16 +97,21 @@ Permissions:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+
 Broadcast Registration For PushNotification:
+
 
 <receiver android:name="com.applozic.mobicomkit.uiwidgets.notification.MTNotificationBroadcastReceiver">
    <intent-filter>            
         <action android:name="${applicationId}.send.notification"/>                    
    </intent-filter>           
 </receiver>                  
+
 Note: If you are not using gradle build you need to replace ${applicationId} with your Android app package name
 
 Paste the following in your androidmanifest.xml:
+
 
  <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
            android:configChanges="keyboardHidden|orientation|screenSize"
@@ -174,8 +187,11 @@ Paste the following in your androidmanifest.xml:
                   <action android:name="android.intent.action.BOOT_COMPLETED" />
                   <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
           </intent-filter>
-</receiver>                  
+</receiver>     
+
+
 Replace APP_PARENT_ACTIVITY with your app's parent activity.
+
 
 Step 3: Register user account:
 
@@ -195,8 +211,11 @@ User user = new User();
 user.setUserId(userId); 
 user.setDisplayName(displayName); 
 user.setEmail(email); //optional                        
-new UserLoginTask(user, listener, this).execute((Void) null);                                      
+new UserLoginTask(user, listener, this).execute((Void) null);    
+
+
 If it is a new user, new user account will get created else existing user will be logged in to the application.
+
 
 Step 4: Updating GCM registration id:
 
@@ -222,14 +241,18 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 } };                    
 
 pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
-pushNotificationTask.execute((Void) null);                          
+pushNotificationTask.execute((Void) null);              
+
+
 *Step 5: Handling push notification * Add the following in your GcmBroadcastReceiver's onReceive method.
 
 if(MobiComPushReceiver.isMobiComPushNotification(intent))       
 {            
 MobiComPushReceiver.processMessageAsync(context, intent);               
 return;          
-}                     
+}     
+
+
 Step 6: For starting the messaging activity:
 
 Intent intent = new Intent(this, ConversationActivity.class);            
@@ -242,6 +265,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 For easy insertion of Admin/Support Contact information, please changes following values in string.xml. You can take sample app method ( MainActivity.buildSupportContactData() ) as reference for contact information insertion.
 
+
 <string name="support_contact_display_name">AppLozic Support</string>               
 <string name="support_contact_userId">applozic</string>             
 <string name="support_contact_emailId">devashish@applozic.com</string>              
@@ -249,11 +273,15 @@ For easy insertion of Admin/Support Contact information, please changes followin
 <string name="support_contact_image_url">R.drawable.ic_launcher</string>                                  
 support_contact_image_url also supports url eg: https://www.applozic.com/resources/sidebox/images/applozic.png
 
+
 Step 7: On logout, call the following:
+
 
 new UserClientService(this).logout();
 
+
 Note: If you are running ProGuard, please add following lines:
+
 
  #keep json classes                
  -keepclassmembernames class * extends com.applozic.mobicomkit.api.JsonMarker         
@@ -264,25 +292,15 @@ Note: If you are running ProGuard, please add following lines:
 -keepattributes Signature          
 -keep class sun.misc.Unsafe { *; }           
 -keep class com.google.gson.examples.android.model.** { *; }            
--keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; }                                    
+-keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; }        
+
+
+
 Trying out the demo app:
 
 Open project in Android Studio to run the sample app in your device. Send messages between multiple devices.
 
 Display name for users: You can either choose to handle display name from your app or have Applozic handle it. From your app's first activity, set the following to disable display name feature: ApplozicClient.getInstance(this).setHandleDisplayName(false); By default, the display name feature is enabled.
 
-UI Customization:
-
-Clone the repository : https://github.com/AppLozic/Applozic-Android-SDK
-
-Import MobiComKitUI Library into your android project and add the following in the build.gradle file:
-
-compile project(':mobicomkitui')
-
-MobiComKitUI contains the ui related source code, icons, layouts and other resources which you can customize based on your design needs.
-
-For your custom contact list, replace MobiComKitPeopleActivity with your contact list activity.
-
-Sample app with integration is available under app
-
+For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
 
