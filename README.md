@@ -13,6 +13,29 @@ Register at https://www.applozic.com to get the application id.
 <img align="right" src="img/android.jpg" />
 
 
+Applozic Chat & Messaging SDK allows developers to add in-app chat messaging in android applications.
+
+Features:
+One to one and Group Chat
+Image capture 
+Photo sharing
+File attachment
+Location sharing via Chat
+Push notifications
+In-App chat notifications
+Online presence
+Last seen at 
+Unread message count
+Tying indicator
+Message sent, delivery report
+Offline messaging
+Multi Device sync
+Application to user messaging
+Customized chat bubble
+UI Customization
+Cross Platform Support (iOS, Android & Web)
+
+
 
 ### Getting Started       
 
