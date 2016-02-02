@@ -22,6 +22,7 @@ public class ApplozicSetting {
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
     private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
     private static final String PRICE_WIDGET = "PRICE_WIDGET";
+    private static final String SEND_BUTTON_BACKGROUND_COLOR ="SEND_BUTTON_BACKGROUND_COLOR";
 
 
     public static ApplozicSetting applozicSetting;
@@ -50,11 +51,11 @@ public class ApplozicSetting {
     }
 
     public int getSentMessageBackgroundColor() {
-        return sharedPreferences.getInt(SENT_MESSAGE_BACKGROUND_COLOR, Color.WHITE);
+        return sharedPreferences.getInt(SENT_MESSAGE_BACKGROUND_COLOR, R.color.applozic_theme_color_primary);
     }
 
     public int getReceivedMessageBackgroundColor() {
-        return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, Color.WHITE);
+        return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, R.color.white);
     }
 
     public ApplozicSetting showOnlineStatusInMasterList() {
@@ -134,6 +135,15 @@ public class ApplozicSetting {
 
     public boolean isPriceOptionVisible() {
         return sharedPreferences.getBoolean(PRICE_WIDGET, false);
+    }
+
+    public ApplozicSetting setSendButtonBackgroundColor(int color) {
+        sharedPreferences.edit().putInt(SEND_BUTTON_BACKGROUND_COLOR, color).commit();
+        return this;
+    }
+
+    public int getSendButtonBackgroundColor() {
+        return sharedPreferences.getInt(SEND_BUTTON_BACKGROUND_COLOR, R.color.applozic_theme_color_primary);
     }
 
     public boolean clearAll() {

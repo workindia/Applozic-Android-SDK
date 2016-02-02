@@ -3,12 +3,12 @@
     android:shape="rectangle">
 
     <!-- view background color -->
-    <solid android:color="#ffffff" />
+    <solid android:color="@color/white" />
 
     <!-- view border color and width -->
     <stroke
         android:width="3dp"
-        android:color="#f5f5f5" />
+        android:color="@color/applozic_message_border_color" />
 
     <!-- If you want to add some padding -->
     <padding

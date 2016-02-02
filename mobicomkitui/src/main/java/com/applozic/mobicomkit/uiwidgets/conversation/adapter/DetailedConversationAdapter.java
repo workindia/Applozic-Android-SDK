@@ -225,7 +225,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final RelativeLayout mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
             final ProgressBar mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
-            TextView nametextView = (TextView) customView.findViewById(R.id.name_textView);
+            TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
+
+            if(TextUtils.isEmpty(message.getMessage())){
+               messageTextView.setVisibility(View.GONE);
+             }
             if (attachedFile != null) {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
@@ -235,15 +239,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 attachmentIcon.setVisibility(View.GONE);
             }
 
-            if(channel  != null && nametextView != null){
-                nametextView.setVisibility(View.VISIBLE);
+            if(channel  != null && nameTextView != null){
+                nameTextView.setVisibility(View.VISIBLE);
                 String userId = message.getTo();
                 char firstLetter = message.getTo().toUpperCase().charAt(0);
                 if(userId.length() >0) {
-                    nametextView.setText(String.valueOf(userId));
+                    nameTextView.setText(String.valueOf(userId));
                 }
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
-                nametextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+                nameTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
 
             attachmentDownloadLayout.setVisibility(View.GONE);
@@ -476,6 +480,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                             attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
                         }
                     }
+                }
+
+                if (messageTextLayout != null) {
+                    GradientDrawable bgShape = (GradientDrawable)messageTextLayout.getBackground();
+                    bgShape.setColor(context.getResources().getColor(message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor()));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
