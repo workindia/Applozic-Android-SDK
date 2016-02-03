@@ -29,6 +29,7 @@ public class ChannelClientService extends MobiComKitClientService {
 
 
     private ChannelClientService(Context context) {
+        super(context);
         this.context = context;
         this.channelDatabaseService = ChannelDatabaseService.getInstance(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
