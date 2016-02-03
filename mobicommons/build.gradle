@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "3.013"
+        versionName "3.21"
     }
     buildTypes {
         release {
@@ -45,7 +45,7 @@ ext {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '3.013'
+    libraryVersion = '3.21'
 
     developerId = 'devashish'
     developerName = 'Applozic'
