@@ -37,6 +37,7 @@
     <string name="application_key">applozic-sample-app</string>
     <string name="support_phone_number">+918042028425</string>
     <string name="default_server_url">https://apps.applozic.com</string>
+    <string name="default_mqtt_server_url">tcp://apps.applozic.com</string>
     <string name="default_media_location_folder">Applozic</string>
     <string name="order_sample_button">Chat with seller</string>
     <string name="take_order_userid">ApplozicShop</string>

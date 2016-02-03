@@ -22,11 +22,13 @@ public class MobiComKitClientService {
 
     protected Context context;
     public static final String BASE_URL_METADATA = "com.applozic.server.url";
+    public static final String MQTT_BASE_URL_METADATA = "com.applozic.mqtt.server.url";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
     public static final String FILE_URL = "/rest/ws/aws/file/";
     protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
+    protected String DEFAULT_MQTT_URL = "tcp://apps.applozic.com";
 
 
     public MobiComKitClientService() {
@@ -49,6 +51,14 @@ public class MobiComKitClientService {
         }
 
         return DEFAULT_URL;
+    }
+
+    protected String getMqttBaseUrl() {
+        String MQTT_BASE_URL = Utils.getMetaDataValue(context, MQTT_BASE_URL_METADATA);
+        if (!TextUtils.isEmpty(MQTT_BASE_URL)) {
+            return MQTT_BASE_URL;
+        }
+        return DEFAULT_MQTT_URL;
     }
 
     public UsernamePasswordCredentials getCredentials() {

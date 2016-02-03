@@ -31,10 +31,9 @@ import static com.applozic.mobicomkit.api.MobiComKitConstants.APPLICATION_KEY_ME
 /**
  * Created by sunil on 26/11/15.
  */
-public class ApplozicMqttService implements MqttCallback {
+public class ApplozicMqttService extends MobiComKitClientService implements MqttCallback {
 
     private static final String STATUS = "status";
-    private static final String MQTT_URL = "tcp://apps.applozic.com";
     private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
     private static final String TYPINGTOPIC = "typing-";
@@ -65,6 +64,7 @@ public class ApplozicMqttService implements MqttCallback {
 
 
     private ApplozicMqttService(Context context) {
+        super(context);
         this.context = context;
         memoryPersistence = new MemoryPersistence();
     }
@@ -85,7 +85,7 @@ public class ApplozicMqttService implements MqttCallback {
                 return client;
             }
             if (client == null) {
-                client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
+                client = new MqttClient(getMqttBaseUrl() + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
             }
 
             if (!client.isConnected()) {

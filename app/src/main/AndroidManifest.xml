@@ -92,6 +92,9 @@
         <meta-data
             android:name="com.applozic.server.url"
             android:value="@string/default_server_url" />
+       <meta-data
+            android:name="com.applozic.mqtt.server.url"
+            android:value="@string/default_mqtt_server_url" />
         <meta-data
             android:name="main_folder_name"
             android:value="@string/default_media_location_folder" />
