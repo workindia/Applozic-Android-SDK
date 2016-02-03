@@ -48,7 +48,7 @@ To integrate messaging into your android app, register at [Applozic](https://www
 
 
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.019' `      
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.2' `      
 
 
 Add the following in gradle android target:      
@@ -153,9 +153,6 @@ Permissions:
 <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 <uses-permission android:name="android.permission.VIBRATE"/>
 <uses-permission android:name="android.permission.WAKE_LOCK" />
-<uses-permission android:name="android.permission.CALL_PHONE"/>
-<uses-permission android:name="android.permission.READ_PROFILE" />
-<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -203,7 +200,7 @@ Paste the following in your androidmanifest.xml:
           android:configChanges="keyboardHidden|orientation|screenSize"
           android:label="@string/activity_contacts_list"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme"
+          android:theme="@style/Applozic.People.Theme"
           android:windowSoftInputMode="adjustResize">
      <!-- Parent activity meta-data to support API level 7+ -->
 <meta-data
