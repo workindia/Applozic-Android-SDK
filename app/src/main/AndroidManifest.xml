@@ -10,10 +10,10 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-   <!-- <uses-permission android:name="android.permission.CALL_PHONE" />-->
+    <!-- <uses-permission android:name="android.permission.CALL_PHONE" />-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-   <!-- <uses-permission android:name="android.permission.READ_PROFILE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
+    <!-- <uses-permission android:name="android.permission.READ_PROFILE" />
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -34,8 +34,8 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/ecommerce"
             android:exported="true"
+            android:label="@string/ecommerce"
             android:theme="@style/MobiComAppBaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,8 +67,8 @@
         <activity
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/title_activity_login"
             android:exported="true"
+            android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
         <receiver
@@ -92,7 +92,7 @@
         <meta-data
             android:name="com.applozic.server.url"
             android:value="@string/default_server_url" />
-       <meta-data
+        <meta-data
             android:name="com.applozic.mqtt.server.url"
             android:value="@string/default_mqtt_server_url" />
         <meta-data
@@ -129,6 +129,10 @@
             android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
             android:exported="false" />
 
+        <service
+            android:name="com.applozic.mobicomkit.api.conversation.ApplozicChannelIntentService"
+            android:exported="false" />
+
         <receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="applozic.LAUNCH_APP" />
@@ -145,7 +149,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver" android:exported="true" android:enabled="true">
+        <receiver
+            android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

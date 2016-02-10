@@ -121,19 +121,16 @@ public class ChannelService {
         userpref.setChannelSyncTime(syncChannelFeed.getUpdatedAt());
     }
 
-    public synchronized void createChannel(final ChannelCreate channelCreate) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ChannelFeed channelFeed = channelClientService.createChannel(channelCreate);
-                if (channelFeed != null) {
-                    ChannelFeed[] channelFeeds = new ChannelFeed[1];
-                    channelFeeds[0] = channelFeed;
-                    channelService.processChannelFeedList(channelFeeds);
-                }
-
-            }
-        }).start();
+    public synchronized Channel createChannel(final ChannelCreate channelCreate) {
+        Channel channel = null;
+        ChannelFeed channelFeed = channelClientService.createChannel(channelCreate);
+        if (channelFeed != null) {
+            ChannelFeed[] channelFeeds = new ChannelFeed[1];
+            channelFeeds[0] = channelFeed;
+            channelService.processChannelFeedList(channelFeeds);
+            channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType());
+        }
+        return channel;
     }
 
 }

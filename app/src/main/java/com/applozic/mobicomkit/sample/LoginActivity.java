@@ -221,7 +221,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         boolean cancel = false;
         View focusView = null;
 
-        if (TextUtils.isEmpty(userId)) {
+        if (TextUtils.isEmpty(mUserIdView.getText().toString()) || mUserIdView.getText().toString().trim().length() == 0) {
             mUserIdView.setError(getString(R.string.error_field_required));
             focusView = mUserIdView;
             cancel = true;

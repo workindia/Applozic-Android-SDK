@@ -2,8 +2,6 @@ package com.applozic.mobicomkit.uiwidgets;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.view.View;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 

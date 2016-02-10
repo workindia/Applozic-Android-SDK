@@ -1,16 +1,20 @@
 package com.applozic.mobicomkit.channel.service;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.people.ChannelCreate;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
+import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.json.GsonUtils;
+
+import java.net.URLEncoder;
 
 /**
  * Created by sunil on 29/12/15.
@@ -19,8 +23,14 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String CHANNEL_INFO_URL = "/rest/ws/group/info";
     private static final String CHANNEL_SYNC_URL = "/rest/ws/group/list";
     private static final String CREATE_CHANNEL_URL = "/rest/ws/group/create";
+    private static final String ADD_MEMBER_TO_CHANNEL_URL = "/rest/ws/group/add/member";
+    private static final String REMOVE_MEMBER_FROM_CHANNEL_URL = "/rest/ws/group/remove/member";
+    private static final String CHANNEL_NAME_CHANGE_URL = "/rest/ws/group/change/name";
 
     private static final String UPDATED_AT = "updatedAt";
+    private static final String USER_ID = "userId";
+    private static final String NEW_CHANNEL_NAME = "newName";
+    private static final String GROUP_ID = "groupId";
     private static final String TAG = "ChannelClientService";
     private static ChannelClientService channelClientService;
     private Context context;
@@ -55,6 +65,17 @@ public class ChannelClientService extends MobiComKitClientService {
         return getBaseUrl() + CREATE_CHANNEL_URL;
     }
 
+    public String getAddMemberToGroup() {
+        return getBaseUrl() + ADD_MEMBER_TO_CHANNEL_URL;
+    }
+
+    public String getRemoveMemberUrl() {
+        return getBaseUrl() + REMOVE_MEMBER_FROM_CHANNEL_URL;
+    }
+
+    public String getUpdateNewChannelNameUrl() {
+        return getBaseUrl() + CHANNEL_NAME_CHANGE_URL;
+    }
 
     public ChannelFeed getChannelInfo(Integer channelKey) {
         String response = "";
@@ -107,4 +128,50 @@ public class ChannelClientService extends MobiComKitClientService {
         }
         return channelFeed;
     }
+
+    public synchronized void addMemberToChannel(Integer channelKey, String userId) {
+        try {
+            if (channelKey != null && !TextUtils.isEmpty(userId)) {
+                String url = getAddMemberToGroup() + "?" +
+                        GROUP_ID
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
+                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void removeMemberFromChannel(Integer channelKey, String userId) {
+        try {
+            if (channelKey != null && !TextUtils.isEmpty(userId)) {
+                String url = getRemoveMemberUrl() + "?" +
+                        GROUP_ID
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
+                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updateChannelName(Integer channelKey, String newChannelName) {
+        try {
+            if (channelKey != null && !TextUtils.isEmpty(newChannelName)) {
+                String url = getUpdateNewChannelNameUrl() + "?" +
+                        GROUP_ID
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + NEW_CHANNEL_NAME + "=" + URLEncoder.encode(newChannelName, "UTF-8");
+                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/x-www-form-urlencoded;charset=UTF-8", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                Log.i(TAG, "Update Channel name response: " + apiResponse.getStatus());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
