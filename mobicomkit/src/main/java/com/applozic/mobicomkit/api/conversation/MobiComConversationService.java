@@ -223,12 +223,10 @@ public class MobiComConversationService {
     }
 
     private boolean wasServerCallDoneBefore(Contact contact, Channel channel) {
-        if (contact != null) {
-            return sharedPreferences.getBoolean(SERVER_SYNC + contact.getContactIds(), false);
-        } else {
-            return sharedPreferences.getBoolean(SERVER_SYNC + channel.getKey(), false);
+        if (contact != null||channel != null) {
+            return sharedPreferences.getBoolean(SERVER_SYNC + (contact!= null?contact.getContactIds():channel != null?channel.getKey():""), false);
         }
-
+        return false;
     }
 
     private void setFilePathifExist(Message message) {
@@ -282,23 +280,23 @@ public class MobiComConversationService {
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             thread.start();
         }
-        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(),0, "success");
+        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), 0, "success");
     }
 
-    public void deleteSync(final Contact contact,final Channel channel) {
+    public void deleteSync(final Contact contact, final Channel channel) {
         String response = "";
-            response =   messageClientService.syncDeleteConversationThreadFromServer(contact,channel);
+        response = messageClientService.syncDeleteConversationThreadFromServer(contact, channel);
 
         if ("success".equals(response)) {
-            if(contact != null){
+            if (contact != null) {
                 messageDatabaseService.deleteConversation(contact.getContactIds());
-            }else {
+            } else {
                 messageDatabaseService.deleteChannelConversation(channel.getKey());
             }
 
         }
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
-                contact != null ? contact.getContactIds():null,channel != null ?channel.getKey():null, response);
+                contact != null ? contact.getContactIds() : null, channel != null ? channel.getKey() : null, response);
     }
 
     public String deleteMessageFromDevice(String keyString, String contactNumber) {

@@ -185,6 +185,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
         if (message != null) {
              Contact receiverContact = null;
+             Contact contactDisplayName = null;
            if(message.getGroupId() == null){
                List<String> items = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
                List<String> userIds = null;
@@ -200,6 +201,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                    contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(items.get(0), MobiComUserPreference.getInstance(context).getCountryCode()));
                } else {
                    receiverContact = contactService.getContactReceiver(items, userIds);
+               }
+           }else {
+               if(!TextUtils.isEmpty(message.getContactIds())){
+                   contactDisplayName = contactService.getContactById(message.getContactIds());
                }
            }
 
@@ -239,10 +244,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 attachmentIcon.setVisibility(View.GONE);
             }
 
-            if(channel  != null && nameTextView != null){
+            if(channel  != null && nameTextView != null && contactDisplayName != null){
                 nameTextView.setVisibility(View.VISIBLE);
-                String userId = message.getTo();
-                char firstLetter = message.getTo().toUpperCase().charAt(0);
+                String userId = contactDisplayName.getDisplayName();
+                char firstLetter = contactDisplayName.getDisplayName().charAt(0);
                 if(userId.length() >0) {
                     nameTextView.setText(String.valueOf(userId));
                 }
@@ -306,9 +311,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
                 if (message.isTypeOutbox()) {
-                    loadContactImage(senderContact,message, contactImage, alphabeticTextView);
+                    loadContactImage(senderContact,contactDisplayName,message, contactImage, alphabeticTextView);
                 } else {
-                    loadContactImage(receiverContact, message,contactImage, alphabeticTextView);
+                    loadContactImage(receiverContact,contactDisplayName, message,contactImage, alphabeticTextView);
                 }
             if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
@@ -513,7 +518,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         return customView;
     }
 
-    private void loadContactImage(Contact contact,Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
+    private void loadContactImage(Contact contact,Contact contactDisplayName ,Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
         ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
         if (!applozicSetting.isConversationContactImageVisible()) {
             return;
@@ -525,10 +530,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if(contact != null){
                 contactNumber =  contact.getContactNumber().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
-            }else {
+            }else if(channel != null && !TextUtils.isEmpty(contactDisplayName.getDisplayName())){
                 alphabeticTextView.setVisibility(View.VISIBLE);
                 contactImage.setVisibility(View.GONE);
-                firstLetter = messageObj.getContactIds().toUpperCase().charAt(0);
+                firstLetter = contactDisplayName.getDisplayName().toUpperCase().charAt(0);
             }
 
             if (firstLetter != '+') {

@@ -127,9 +127,12 @@ public class MessageDatabaseService {
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
 
-        if (channel != null && channel.getKey() != null) {
+        if (channel != null && channel.getKey() != null ) {
             structuredNameWhere += "channelKey = ? AND ";
             structuredNameParamsList.add(String.valueOf(channel.getKey()));
+        }else {
+            structuredNameWhere += "channelKey = ? AND ";
+            structuredNameParamsList.add("0");
         }
         if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             structuredNameWhere += "contactNumbers = ? AND ";
@@ -454,8 +457,9 @@ public class MessageDatabaseService {
             values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE, message.getContentType());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
-            values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
-
+            if(message.getGroupId() != null) {
+                values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
+            }
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
             }

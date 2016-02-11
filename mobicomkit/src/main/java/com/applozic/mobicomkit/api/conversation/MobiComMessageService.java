@@ -191,7 +191,7 @@ public class MobiComMessageService {
             Set<String> userIds = new HashSet<String>();
 
             for (Message msg : messages) {
-                if (msg.getGroupId() == null && !baseContactService.isContactExists(msg.getContactIds())) {
+                if (!baseContactService.isContactExists(msg.getContactIds())) {
                     userIds.add(msg.getContactIds());
                 }
             }

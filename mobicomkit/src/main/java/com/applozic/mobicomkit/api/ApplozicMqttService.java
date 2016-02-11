@@ -255,7 +255,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
-                                String userId = splitKeyString[1];
+                                //String userId = splitKeyString[1];
                                 syncCallService.updateDeliveryStatus(keyString);
                             }
 

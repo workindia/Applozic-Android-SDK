@@ -370,7 +370,7 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setSendToDevice(message.isSendToDevice());
         newMessage.setContentType(message.getContentType());
         newMessage.setConversationId(message.getConversationId());
-        if (message.getGroupId() != null) {
+        if (message.getGroupId() != null ) {
             newMessage.setGroupId(message.getGroupId());
         }
 
