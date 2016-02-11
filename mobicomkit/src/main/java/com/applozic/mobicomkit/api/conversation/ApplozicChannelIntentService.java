@@ -12,10 +12,10 @@ import com.applozic.mobicomkit.channel.service.ChannelClientService;
 public class ApplozicChannelIntentService extends IntentService {
 
 
-    private static final String REMOVE_USER_ID_FROM_CHANNEL = "removeUserId";
-    private static final String CHANGE_CHANNEL_NAME = "channelName";
-    private static final String ADD_USER_TO_CHANNEL = "addUserId";
-    private static final String CHANNEL_KEY = "channelKey";
+    public static final String REMOVE_USER_ID_FROM_CHANNEL = "removeUserId";
+    public static final String CHANGE_CHANNEL_NAME = "channelName";
+    public static final String ADD_USER_TO_CHANNEL = "addUserId";
+    public static final String CHANNEL_KEY = "channelKey";
     private static final String TAG ="ApplozicChannelIntentService";
 
     public ApplozicChannelIntentService() {
