@@ -4,7 +4,8 @@ Applozic-Android-SDK
 
 ### Overview         
 
-Add chat and messaging into your mobile apps and website without developing or maintaining any infrastructure.
+Open source Chat and Messaging SDK that lets you add real time messaging in your mobile (android, iOS)c applications and website.
+
 Register at https://www.applozic.com to get the application id.
 
 <img  align="middle"  src="img/applozic.jpg"/>
@@ -12,7 +13,6 @@ Register at https://www.applozic.com to get the application id.
 <img align="right" src="img/android.jpg" />
 
 
-Applozic Chat & Messaging SDK allows developers to add in-app chat messaging in android applications.
 
 Features:
 
@@ -25,11 +25,11 @@ Features:
  
  File attachment
  
- Location sharing via Chat
+ Location sharing
  
  Push notifications
  
- In-App chat notifications
+ In-App notifications
  
  Online presence
  
@@ -60,7 +60,7 @@ Features:
 
 ###### Quick Start for Applozic Messaging   
 
-To integrate messaging into your android app, register at [Applozic](https://www.applozic.com/) to get the application key.
+To integrate chat into your android app, register at [Applozic](https://www.applozic.com/) to get the application key.
 
 **Step 1: Add the following in build.gradle**:      
 
@@ -457,4 +457,4 @@ By default, the display name feature is enabled.
 
 For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
 
-Applozic is the best android chat sdk, still not convinced? Write to us at contact@applozic.com and we will be happy to schedule a demo for you.
+Applozic is the best android chat sdk, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
