@@ -457,4 +457,4 @@ By default, the display name feature is enabled.
 
 For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
 
-Applozic is the best android chat sdk, still not convinced? Write to us at contact@applozic.com and we will be happy to schedule a demo for you.
+Applozic is the best android chat sdk, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
