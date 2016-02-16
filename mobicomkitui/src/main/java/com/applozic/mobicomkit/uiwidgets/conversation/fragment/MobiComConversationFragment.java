@@ -587,6 +587,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.dial).setVisible(false);
         }
         menu.removeItem(R.id.start_new);
+        menu.removeItem(R.id.conversations);
     }
 
     public void loadConversation(final Contact contact, Channel channel) {
@@ -1508,15 +1509,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
             }
+            if (conversationAdapter != null) {
+                conversationAdapter.notifyDataSetChanged();
+            }
             swipeLayout.post(new Runnable() {
                 @Override
                 public void run() {
                     swipeLayout.setRefreshing(false);
                 }
             });
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
-            }
 
             if (!messageList.isEmpty()) {
                 currentConversationId = messageList.get(messageList.size() - 1).getConversationId();

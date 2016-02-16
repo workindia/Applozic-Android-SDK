@@ -21,6 +21,7 @@ public class ApplozicSetting {
     private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
     private static final String PRICE_WIDGET = "PRICE_WIDGET";
     private static final String SEND_BUTTON_BACKGROUND_COLOR ="SEND_BUTTON_BACKGROUND_COLOR";
+    private static final String START_NEW_GROUP ="START_NEW_GROUP";
 
 
     public static ApplozicSetting applozicSetting;
@@ -142,6 +143,20 @@ public class ApplozicSetting {
 
     public int getSendButtonBackgroundColor() {
         return sharedPreferences.getInt(SEND_BUTTON_BACKGROUND_COLOR, R.color.applozic_theme_color_primary);
+    }
+
+    public ApplozicSetting showStartNewGroupButton() {
+        sharedPreferences.edit().putBoolean(START_NEW_GROUP, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideStartNewGroupButton() {
+        sharedPreferences.edit().putBoolean(START_NEW_GROUP, false).commit();
+        return this;
+    }
+
+    public boolean isStartNewGroupButtonVisible() {
+        return sharedPreferences.getBoolean(START_NEW_GROUP, false);
     }
 
     public boolean clearAll() {

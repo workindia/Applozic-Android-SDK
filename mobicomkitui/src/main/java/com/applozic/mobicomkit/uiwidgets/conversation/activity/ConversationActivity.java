@@ -290,6 +290,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
+        if(!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+            menu.removeItem(R.id.conversations);
+        }
         return true;
     }
 
@@ -380,6 +383,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
+        }else if(id == R.id.conversations){
+            Intent intent =  new Intent(this,ChannelCreateActivity.class);
+            startActivity(intent);
         } else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);
             new MobiComMessageService(this, MessageIntentService.class).syncMessagesWithServer(message);
