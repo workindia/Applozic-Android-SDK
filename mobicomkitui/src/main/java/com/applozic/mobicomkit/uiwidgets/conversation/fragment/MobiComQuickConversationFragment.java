@@ -28,18 +28,19 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
-import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
-
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
         baseContactService = new AppContactService(getActivity());
-       Thread thread = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 MobiComUserPreference.getInstance(getActivity()).setDeviceTimeOffset(DateUtils.getTimeDiffFromUtc());
@@ -114,7 +115,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
-       // startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
+        // startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
 
@@ -159,8 +160,14 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         switch (item.getItemId()) {
             case 0:
-                Contact contact = baseContactService.getContactById(message.getContactIds());
-                new ConversationUIService(getActivity()).deleteConversationThread(contact, contact.getDisplayName());
+                Channel channel = null;
+                Contact contact = null;
+                if (message.getGroupId() != null) {
+                    channel = ChannelDatabaseService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
+                } else {
+                    contact = baseContactService.getContactById(message.getContactIds());
+                }
+                new ConversationUIService(getActivity()).deleteConversationThread(contact, channel);
                 break;
             default:
                 return super.onContextItemSelected(item);
@@ -182,20 +189,29 @@ public class MobiComQuickConversationFragment extends Fragment {
             @Override
             public void run() {
                 message.processContactIds(context);
-                Message recentMessage = latestMessageForEachContact.get(message.getContactIds());
+                Message recentMessage;
+                if (message.getGroupId() != null) {
+                    recentMessage = latestMessageForEachContact.get(ConversationUIService.GROUP + message.getGroupId());
+                } else {
+                    recentMessage = latestMessageForEachContact.get(message.getContactIds());
+                }
+
                 if (recentMessage != null && message.getCreatedAtTime() >= recentMessage.getCreatedAtTime()) {
                     messageList.remove(recentMessage);
                 } else if (recentMessage != null) {
                     return;
                 }
-
-                latestMessageForEachContact.put(message.getContactIds(), message);
+                if (message.getGroupId() != null) {
+                    latestMessageForEachContact.put(ConversationUIService.GROUP + message.getGroupId(), message);
+                } else {
+                    latestMessageForEachContact.put(message.getContactIds(), message);
+                }
                 messageList.add(0, message);
                 conversationAdapter.notifyDataSetChanged();
                 //listView.smoothScrollToPosition(messageList.size());
                 listView.setSelection(0);
                 emptyTextView.setVisibility(View.GONE);
-               // startNewButton.setVisibility(View.GONE);
+                // startQNewButton.setVisibility(View.GONE);
             }
         });
     }
@@ -223,19 +239,61 @@ public class MobiComQuickConversationFragment extends Fragment {
         return null;
     }
 
+    public void updateUserName(final Integer channelKey) {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    conversationAdapter.notifyDataSetChanged();
+                   /* Message message = latestMessageForEachContact.get("group-" + channelKey);
+                    if (message != null) {
+                        int index = messageList.indexOf(message);
+                        if (index != -1) {
+                            View view = listView.getChildAt(index -
+                                    listView.getFirstVisiblePosition());
+                            if (view != null) {
+                                TextView receiver = (TextView) view.findViewById(R.id.smReceivers);
+                                Channel channel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channelKey);
+                                if(channel != null){
+                                    receiver.setText(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getActivity()).getUserId()));
+                                    conversationAdapter.notifyDataSetChanged();
+                                }
+
+                            }
+                        }
+                    }*/
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+
     public void deleteMessage(final Message message, final String userId) {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Message recentMessage = latestMessageForEachContact.get(userId);
+                Message recentMessage;
+                if (message.getGroupId() != null) {
+                    recentMessage = latestMessageForEachContact.get(ConversationUIService.GROUP + message.getGroupId());
+                } else {
+                    recentMessage = latestMessageForEachContact.get(userId);
+                }
                 if (recentMessage != null && message.getCreatedAtTime() <= recentMessage.getCreatedAtTime()) {
-                    latestMessageForEachContact.put(userId, message);
+                    if (message.getGroupId() != null) {
+                        latestMessageForEachContact.put(ConversationUIService.GROUP + message.getGroupId(), message);
+                    } else {
+                        latestMessageForEachContact.put(userId, message);
+                    }
+
                     messageList.set(messageList.indexOf(recentMessage), message);
 
                     conversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                       // startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
+                        // startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
                     }
                 }
             }
@@ -258,15 +316,24 @@ public class MobiComQuickConversationFragment extends Fragment {
         });
     }
 
-    public void removeConversation(final Contact contact, String response) {
+    public void removeConversation(final Contact contact, final Integer channelKey, String response) {
 
         if ("success".equals(response)) {
             this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Message message = latestMessageForEachContact.get(contact.getUserId());
+                    Message message = null;
+                    if (channelKey != null && channelKey != 0) {
+                        message = latestMessageForEachContact.get(ConversationUIService.GROUP + channelKey);
+                    } else {
+                        message = latestMessageForEachContact.get(contact.getUserId());
+                    }
                     messageList.remove(message);
-                    latestMessageForEachContact.remove(contact.getUserId());
+                    if (channelKey != null && channelKey != 0) {
+                        latestMessageForEachContact.remove(ConversationUIService.GROUP + channelKey);
+                    } else {
+                        latestMessageForEachContact.remove(contact.getUserId());
+                    }
                     conversationAdapter.notifyDataSetChanged();
                     checkForEmptyConversations();
                 }
@@ -285,7 +352,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
-           // startNewButton.setVisibility(View.GONE);
+            // startNewButton.setVisibility(View.GONE);
         }
     }
 
@@ -331,7 +398,7 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         //FlurryAgent.logEvent(QUICK_CONVERSATION_EVENT);
         listView.setAdapter(conversationAdapter);
-       // startNewButton.setOnClickListener(startNewConversation());
+        // startNewButton.setOnClickListener(startNewConversation());
         fabButton.setOnClickListener(startNewConversation());
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
@@ -380,7 +447,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                             onlineTextView.setVisibility((contact != null && contact.isConnected()) ? View.VISIBLE : View.GONE);
                         }
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Log.w("AL", "Exception while updating online status.");
                 }
             }
@@ -458,16 +525,32 @@ public class MobiComQuickConversationFragment extends Fragment {
                 if (currentMessage.isSentToMany()) {
                     continue;
                 }
-                Message recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
+                Message recentSms;
+                if (currentMessage.getGroupId() != null) {
+                    recentSms = latestMessageForEachContact.get(ConversationUIService.GROUP + currentMessage.getGroupId());
+                } else {
+                    recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
+                }
+
                 if (recentSms != null) {
                     if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
-                        latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                        if (currentMessage.getGroupId() != null) {
+                            latestMessageForEachContact.put(ConversationUIService.GROUP + currentMessage.getGroupId(), currentMessage);
+                        } else {
+                            latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                        }
+
                         Log.d("Current message", "message" + currentMessage);
                         messageList.remove(recentSms);
                         messageList.add(currentMessage);
                     }
                 } else {
-                    latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                    if (currentMessage.getGroupId() != null) {
+                        latestMessageForEachContact.put(ConversationUIService.GROUP + currentMessage.getGroupId(), currentMessage);
+                    } else {
+                        latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                    }
+
                     messageList.add(currentMessage);
                 }
             }
@@ -476,7 +559,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (applozicSetting.isStartNewButtonVisible()) {
-                   // startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                    // startNewButton.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 }
                 if (!messageList.isEmpty()) {
                     listView.setSelection(0);
@@ -497,7 +580,6 @@ public class MobiComQuickConversationFragment extends Fragment {
             }
         }
     }
-
     private class SyncMessages extends AsyncTask<Void, Integer, Long>{
         SyncMessages(){
         }
@@ -513,5 +595,4 @@ public class MobiComQuickConversationFragment extends Fragment {
             swipeLayout.setRefreshing(false);
         }
     }
-
 }

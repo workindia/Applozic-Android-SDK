@@ -3,8 +3,8 @@ package com.applozic.mobicomkit.broadcast;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Process;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -31,7 +31,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
         Log.i(TAG, action);
 
-        if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE) || action.equalsIgnoreCase(BOOT_COMPLETED)) {
+        if (action.equalsIgnoreCase(CONNECTIVITY_CHANGE) ||  action.equalsIgnoreCase(BOOT_COMPLETED)) {
             if (!Utils.isInternetAvailable(context)) {
                 firstConnect = true;
                 return;
@@ -43,7 +43,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
             if (cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected()) {
                 if (firstConnect) {
                     firstConnect = false;
-                    Thread thread = new Thread(new Runnable() {
+                    Thread thread =  new Thread(new Runnable() {
                         @Override
                         public void run() {
                             SyncCallService.getInstance(context).syncMessages(null);

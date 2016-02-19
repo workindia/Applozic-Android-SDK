@@ -10,11 +10,12 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.notification.NotificationService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
-
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
@@ -28,7 +29,7 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
     private static String NOTIFICATION_ICON_METADATA = "com.applozic.mobicomkit.notification.icon";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
 
         Integer notificationId = Utils.getMetaDataValueForResources(context, NOTIFICATION_ICON_METADATA);
 
@@ -40,13 +41,17 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
             final NotificationService notificationService =
                     new NotificationService(notificationId == null ? R.drawable.mobicom_ic_launcher : notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
 
-            final Contact contact = new AppContactService(context).getContactById(message.getContactIds());
 
             if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        notificationService.notifyUser(contact, message);
+                        Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+                        Contact contact = null;
+                        if (message.getGroupId() == null) {
+                            contact = new AppContactService(context).getContactById(message.getContactIds());
+                        }
+                        notificationService.notifyUser(contact, channel, message);
                     }
                 }).start();
             }

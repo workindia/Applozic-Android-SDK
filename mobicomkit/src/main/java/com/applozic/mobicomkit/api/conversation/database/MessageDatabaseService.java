@@ -14,10 +14,9 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
-
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,17 +81,22 @@ public class MessageDatabaseService {
         if (!TextUtils.isEmpty(filePaths)) {
             message.setFilePaths(Arrays.asList(filePaths.split(",")));
         }
-        long broadcastGroupId = cursor.getLong(cursor.getColumnIndex("timeToLive"));
-        message.setBroadcastGroupId(broadcastGroupId != 0 ? broadcastGroupId : null);
         message.setApplicationId(cursor.getString(cursor.getColumnIndex("applicationId")));
         message.setContentType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE)));
-        int conversationId =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CONVERSATION_ID));
-        if(conversationId == 0){
+        int conversationId = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CONVERSATION_ID));
+        if (conversationId == 0) {
             message.setConversationId(null);
-        }else {
+        } else {
             message.setConversationId(conversationId);
         }
         message.setTopicId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.TOPIC_ID)));
+        int channelKey = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_KEY));
+        if (channelKey == 0) {
+            message.setGroupId(null);
+        } else {
+            message.setGroupId(channelKey);
+        }
+
         if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
             //file is not present...  Don't set anything ...
         } else {
@@ -119,13 +123,16 @@ public class MessageDatabaseService {
         return smsList;
     }
 
-    public List<Message> getMessages(Long startTime, Long endTime, Contact contact, Group group) {
+    public List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel) {
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
 
-        if (group != null && group.getGroupId() != null) {
-            structuredNameWhere += "broadcastGroupId = ? AND ";
-            structuredNameParamsList.add(String.valueOf(group.getGroupId()));
+        if (channel != null && channel.getKey() != null ) {
+            structuredNameWhere += "channelKey = ? AND ";
+            structuredNameParamsList.add(String.valueOf(channel.getKey()));
+        }else {
+            structuredNameWhere += "channelKey = ? AND ";
+            structuredNameParamsList.add("0");
         }
         if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
             structuredNameWhere += "contactNumbers = ? AND ";
@@ -365,7 +372,7 @@ public class MessageDatabaseService {
             for (String tofield : toList) {
                 Message singleMessage = new Message(message);
                 singleMessage.setKeyString(message.getKeyString());
-                singleMessage.setBroadcastGroupId(null);
+              //  singleMessage.setBroadcastGroupId(null);
                 singleMessage.setTo(tofield);
                 singleMessage.processContactIds(context);
                 singleMessage.setMessageId(createSingleMessage(singleMessage));
@@ -400,21 +407,25 @@ public class MessageDatabaseService {
                 cursor = database.rawQuery(
                         "SELECT COUNT(*) FROM sms WHERE keyString = ? and contactNumbers = ?",
                         new String[]{message.getKeyString(), message.getContactIds()});
-            } else {
-                cursor = database.rawQuery(
-                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt between " + (message.getCreatedAtTime() - 120000) + " and " + (message.getCreatedAtTime() + 120000),
-                        new String[]{message.getContactIds(), message.getMessage()});
-            }*/
+    } else {
+        cursor = database.rawQuery(
+                "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt between " + (message.getCreatedAtTime() - 120000) + " and " + (message.getCreatedAtTime() + 120000),
+                new String[]{message.getContactIds(), message.getMessage()});
+    }*/
+            String queryClause = "";
 
+            if (message.getGroupId() != null) {
+                queryClause = "channelKey ='" + String.valueOf(message.getGroupId()) + "'";
+            } else {
+                queryClause = "contactNumbers ='" + message.getContactIds() + "'";
+            }
 
             if (message.isSentToServer() && !TextUtils.isEmpty(message.getKeyString())) {
                 cursor = database.rawQuery(
-                        "SELECT COUNT(*) FROM sms WHERE keyString = ? and contactNumbers = ?",
-                        new String[]{message.getKeyString(), message.getContactIds()});
+                        "SELECT COUNT(*) FROM sms WHERE keyString = ? and " + queryClause, new String[]{message.getKeyString()});
             } else {
                 cursor = database.rawQuery(
-                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and contactNumbers = ? and message = ? and createdAt = " + message.getCreatedAtTime(),
-                        new String[]{message.getContactIds(), message.getMessage()});
+                        "SELECT COUNT(*) FROM sms WHERE sentToServer=0 and " + queryClause + " and message = ? and createdAt = " + message.getCreatedAtTime(), new String[]{message.getMessage()});
             }
 
             cursor.moveToFirst();
@@ -440,14 +451,15 @@ public class MessageDatabaseService {
             values.put("keyString", message.getKeyString());
             values.put("source", message.getSource());
             values.put("timeToLive", message.getTimeToLive());
-            values.put("broadcastGroupId", message.getBroadcastGroupId());
             values.put("canceled", message.isCanceled());
             values.put("read", message.isRead() ? 1 : 0);
             values.put("applicationId", message.getApplicationId());
-            values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE,message.getContentType());
-            values.put(MobiComDatabaseHelper.CONVERSATION_ID,message.getConversationId());
-            values.put(MobiComDatabaseHelper.TOPIC_ID,message.getTopicId());
-
+            values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE, message.getContentType());
+            values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
+            values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
+            if(message.getGroupId() != null) {
+                values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
+            }
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
             }
@@ -573,7 +585,25 @@ public class MessageDatabaseService {
             cursor.close();
             dbHelper.close();
             return unreadSms;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
+            Log.w(TAG, "Exception while fetching unread message count for a contact.");
+        }
+        return 0;
+    }
+
+    public int getUnreadMessageCountForChannel(Integer channelKey) {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND channelKey = " + "'" + String.valueOf(channelKey) + "'", null);
+            cursor.moveToFirst();
+            int unreadSms = 0;
+            if (cursor.getCount() > 0) {
+                unreadSms = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return unreadSms;
+        } catch (Exception ex) {
             Log.w(TAG, "Exception while fetching unread message count for a contact.");
         }
         return 0;
@@ -591,7 +621,7 @@ public class MessageDatabaseService {
             cursor.close();
             dbHelper.close();
             return conversationCount;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Log.w(TAG, "Exception while fetching unread conversation count");
         }
         return 0;
@@ -609,7 +639,7 @@ public class MessageDatabaseService {
             cursor.close();
             dbHelper.close();
             return unreadMessageCount;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Log.w(TAG, "Exception while fetching unread message count");
             return 0;
         }
@@ -635,6 +665,14 @@ public class MessageDatabaseService {
         return read;
     }
 
+    public int updateReadStatusForChannel(String channelKey) {
+        ContentValues values = new ContentValues();
+        values.put("read", 1);
+        int read = dbHelper.getWritableDatabase().update("sms", values, " channelKey = " + "'" + channelKey + "'" + " and read = 0", null);
+        dbHelper.close();
+        return read;
+    }
+
     public List<Message> getMessages(Long createdAt) {
         String createdAtClause = "";
         if (createdAt != null && createdAt > 0) {
@@ -654,7 +692,7 @@ public class MessageDatabaseService {
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
                 "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
         final Cursor cursor = db.rawQuery("select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                + " and m1.contactNumbers like m2.contactNumbers and m1.deleted like m2.deleted " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
+                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
                 + " order by m1.createdAt desc", null);
 
         /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +
@@ -689,6 +727,13 @@ public class MessageDatabaseService {
     public void deleteConversation(String contactNumber) {
         Log.i(TAG, "Deleting conversation for contactNumber: " + contactNumber);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=?", new String[]{contactNumber});
+        dbHelper.close();
+        Log.i(TAG, "Delete " + deletedRows + " messages.");
+    }
+
+    public void deleteChannelConversation(Integer channelKey) {
+        Log.i(TAG, "Deleting  Conversation for channel: " + channelKey);
+        int deletedRows = dbHelper.getWritableDatabase().delete("sms", "channelKey=?", new String[]{String.valueOf(channelKey)});
         dbHelper.close();
         Log.i(TAG, "Delete " + deletedRows + " messages.");
     }

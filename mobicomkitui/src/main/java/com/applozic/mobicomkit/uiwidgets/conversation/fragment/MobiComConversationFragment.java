@@ -15,7 +15,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Process;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -62,6 +61,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -83,8 +83,10 @@ import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUserMapper;
+import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,7 +111,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected TextView emptyTextView;
     protected boolean loadMore = true;
     protected Contact contact;
-    protected Group group;
+    protected Channel channel;
     protected Integer currentConversationId;
     protected EditText messageEditText;
     protected ImageButton sendButton;
@@ -143,7 +145,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private TextView isTyping;
     private LinearLayout statusMessageLayout;
     private String defaultText;
-    private boolean  typingStarted;
+    private boolean typingStarted;
+    private Integer channelKey;
+    private StringBuffer stringBuffer;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -194,7 +198,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         attachButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.attach_button);
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
         messageEditText = (EditText) individualMessageSendLayout.findViewById(R.id.conversation_message);
-        if(!TextUtils.isEmpty(defaultText)){
+        if (!TextUtils.isEmpty(defaultText)) {
             messageEditText.setText(defaultText);
             defaultText = "";
         }
@@ -414,14 +418,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     conversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, contact.getFormattedContactNumber());
+                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
                     }
                     break;
                 }
             }
             int messageListSize = messageList.size();
             if (messageListSize > 0 && updateQuickConversation) {
-                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), contact.getFormattedContactNumber());
+                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -513,8 +517,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     listView.setSelection(messageList.size());
                     emptyTextView.setVisibility(View.GONE);
                     currentConversationId = message.getConversationId();
-                    new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
-                    if(Message.MessageType.MT_INBOX.getValue().equals(message.getType()) ){
+                    channelKey = message.getGroupId();
+                    if (!TextUtils.isEmpty(message.getTo())) {
+                        new MessageDatabaseService(getActivity()).updateReadStatus(message.getTo());
+                    }
+                    if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())) {
                         Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
                         intent.putExtra(ApplozicIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
                         getActivity().startService(intent);
@@ -580,19 +587,26 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.dial).setVisible(false);
         }
         menu.removeItem(R.id.start_new);
+        menu.removeItem(R.id.conversations);
     }
 
-    public void loadConversation(final Contact contact, Group group) {
+    public void loadConversation(final Contact contact, Channel channel) {
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
 
         final MessageClientService messageClientService = new MessageClientService(getActivity());
-        BroadcastService.currentUserId = contact.getContactIds();
+        BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
         typingStarted = false;
+        stringBuffer = null;
 
-        Intent readStatusIntent =  new Intent(getActivity(),ApplozicIntentService.class);
-        readStatusIntent.putExtra(ApplozicIntentService.CONTACT,contact);
+        Intent readStatusIntent = new Intent(getActivity(), ApplozicIntentService.class);
+        if(channel != null){
+            readStatusIntent.putExtra(ApplozicIntentService.CHANNEL,channel);
+        }else {
+            readStatusIntent.putExtra(ApplozicIntentService.CONTACT, contact);
+        }
+
         getActivity().startService(readStatusIntent);
 
         /*
@@ -601,10 +615,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentLayout.setVisibility(View.GONE);
         }
 
-        infoBroadcast.setVisibility(group != null ? View.VISIBLE : View.GONE);
+        // infoBroadcast.setVisibility(channel != null ? View.VISIBLE : View.GONE);
 
         setContact(contact);
-        setGroup(group);
+        setChannel(channel);
 
         individualMessageSendLayout.setVisibility(View.VISIBLE);
         extendedSendingOptionLayout.setVisibility(View.VISIBLE);
@@ -621,9 +635,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (contact != null) {
             conversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
-        } else if (group != null) {
+        } else if (channel != null) {
             conversationAdapter = new DetailedConversationAdapter(getActivity(),
-                    R.layout.mobicom_message_row_view, messageList, group, messageIntentClass, emojiIconHandler);
+                    R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
         }
 
         listView.setAdapter(conversationAdapter);
@@ -633,7 +647,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (contact != null) {
             processPhoneNumbers();
-
             if (!TextUtils.isEmpty(contact.getContactIds())) {
                 NotificationManager notificationManager =
                         (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -641,7 +654,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
-        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, group);
+        if (channel != null) {
+            NotificationManager notificationManager =
+                    (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(channel.getKey().hashCode());
+        }
+        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel);
         downloadConversation.execute();
 
         if (contact != null && support.isSupportNumber(contact.getFormattedContactNumber())) {
@@ -656,18 +674,36 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         emoticonsFrameLayout.setVisibility(View.GONE);
 
-       Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    messageClientService.processUserStatus(contact);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if (contact != null ) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        messageClientService.processUserStatus(contact);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+            }).start();
+
+        }
+        if (channel != null) {
+            List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
+            if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
+                stringBuffer = new StringBuffer();
+                for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
+                    if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
+                        stringBuffer.append(channelUserMapper.getUserKey()).append(",");
+                    }
+                }
+                if (!TextUtils.isEmpty(stringBuffer)) {
+                    int lastIndex = stringBuffer.lastIndexOf(",");
+                    String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
+                    ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(userIds);
+                }
+
             }
-        });
-        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
+        }
 
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }
@@ -676,11 +712,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (this.getActivity() == null) {
             return;
         }
-        contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
+        if (contact != null) {
+            contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
+        }
+
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (contact != null) {
+                if (contact != null && channel == null) {
                     if (contact.isConnected()) {
                         ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
                     } else if (contact.getLastSeenAt() != 0) {
@@ -692,16 +731,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public boolean isBroadcastedToGroup(Long groupId) {
-        return getGroup() != null && getGroup().getGroupId().equals(groupId);
+    public boolean isBroadcastedToChannel(Integer channelKey) {
+        return getChannel() != null && getChannel().getKey().equals(channelKey);
     }
 
-    public Group getGroup() {
-        return group;
+    public Channel getChannel() {
+        return channel;
     }
 
-    protected void setGroup(Group group) {
-        this.group = group;
+    protected void setChannel(Channel channel) {
+        this.channel = channel;
     }
 
 //    public void onEmojiconBackspace() {
@@ -908,8 +947,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public String getNameForInviteDialog() {
         if (contact != null) {
             return contact.getDisplayName();
-        } else if (group != null) {
-            return group.getName();
+        } else if (channel != null) {
+            return ChannelUtils.getChannelTitleName(channel,MobiComUserPreference.getInstance(getActivity()).getUserId());
         }
         return "";
     }
@@ -920,25 +959,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (messageToForward.isAttachmentDownloaded()) {
             filePath = messageToForward.getFilePaths().get(0);
         }
-        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings(),Message.ContentType.DEFAULT.getValue());
+        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings(), Message.ContentType.DEFAULT.getValue());
     }
 
-    public void sendMessage(String message,FileMeta fileMetas, String fileMetaKeyStrings,short messageContentType ) {
+    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings, short messageContentType) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 
-        if (group != null && group.getGroupId() != null) {
-            messageToSend.setBroadcastGroupId(group.getGroupId());
-            List<String> contactIds = new ArrayList<String>();
+        if (channel != null) {
+            messageToSend.setGroupId(channel.getKey());
+            /*   List<String> contactIds = new ArrayList<String>();
             List<String> toList = new ArrayList<String>();
-            for (Contact contact : group.getContacts()) {
+            for (Contact contact : channel.getContacts()) {
                 if (!TextUtils.isEmpty(contact.getContactNumber())) {
                     toList.add(contact.getContactNumber());
                     contactIds.add(contact.getFormattedContactNumber());
                 }
             }
             messageToSend.setTo(TextUtils.join(",", toList));
-            messageToSend.setContactIds(TextUtils.join(",", contactIds));
+            messageToSend.setContactIds(TextUtils.join(",", contactIds));*/
         } else {
             messageToSend.setTo(contact.getContactIds());
             messageToSend.setContactIds(contact.getContactIds());
@@ -975,16 +1014,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         filePath = null;
     }
 
-    public void sendProductMessage(final String messageToSend,final FileMeta fileMeta,final Contact contact,final short messageContentType) {
-     final Message message = new Message();
+    public void sendProductMessage(final String messageToSend, final FileMeta fileMeta, final Contact contact, final short messageContentType) {
+        final Message message = new Message();
         new Thread(new Runnable() {
             @Override
             public void run() {
+                String topicId;
                 MobiComConversationService conversationService = new MobiComConversationService(getActivity());
                 MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
-                currentConversationId = new MessageClientService(getActivity()).getConversationId(messageToSend,contact.getUserId());
-                message.setContactIds(contact.getUserId());
-                message.setTo(contact.getUserId());
+                topicId = new MessageClientService(getActivity()).getTopicId(currentConversationId);
+                if (getChannel() != null) {
+                    message.setGroupId(channelKey);
+                } else {
+                    message.setContactIds(contact.getUserId());
+                    message.setTo(contact.getUserId());
+                }
                 message.setMessage(messageToSend);
                 message.setRead(Boolean.TRUE);
                 message.setStoreOnDevice(Boolean.TRUE);
@@ -995,6 +1039,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 message.setSource(Message.Source.MT_MOBILE_APP.getValue());
                 message.setTopicId(messageToSend);
                 message.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+                message.setTopicId(topicId);
                 message.setConversationId(currentConversationId);
                 message.setFileMetas(fileMeta);
                 conversationService.sendMessage(message, MessageIntentService.class);
@@ -1081,7 +1126,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public void setDefaultText(String defaultText){
+    public void setDefaultText(String defaultText) {
         this.defaultText = defaultText;
     }
     public void updateUserTypingStatus(final String typingUserId, final String isTypingStatus) {
@@ -1145,8 +1190,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         String title = null;
         if (contact != null) {
             title = contact.getDisplayName();
-        } else if (group != null) {
-            title = group.getName();
+        } else if (channel != null) {
+            title = ChannelUtils.getChannelTitleName(channel,MobiComUserPreference.getInstance(getActivity()).getUserId());
         }
         if (title != null) {
             ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(title);
@@ -1155,8 +1200,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         updateLastSeenStatus();
     }
 
-    public void loadConversation(Group group) {
-        loadConversation(null, group);
+    public void loadConversation(Channel channel) {
+        loadConversation(null, channel);
     }
 
     public void loadConversation(Contact contact) {
@@ -1168,7 +1213,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, getActivity()).execute();
+                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, channel, getActivity()).execute();
                     }
                 });
         alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -1244,25 +1289,27 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onResume() {
         super.onResume();
-        if (contact != null || group != null) {
-            BroadcastService.currentUserId = contact.getContactIds();
-            String ns = Context.NOTIFICATION_SERVICE;
-            NotificationManager nMgr = (NotificationManager) getActivity().getSystemService(ns);
-            nMgr.cancel(BroadcastService.currentUserId.hashCode());
+        if (contact != null || channel != null) {
+            BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
+            if (BroadcastService.currentUserId != null) {
+                String ns = Context.NOTIFICATION_SERVICE;
+                NotificationManager nMgr = (NotificationManager) getActivity().getSystemService(ns);
+                nMgr.cancel(BroadcastService.currentUserId.hashCode());
+            }
 
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
             }
             if (messageList.isEmpty()) {
-                loadConversation(contact, group);
+                loadConversation(contact, channel);
             } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
-                loadnewMessageOnResume(contact, group);
+                loadnewMessageOnResume(contact, channel);
             }
             MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
         }
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
-                downloadConversation = new DownloadConversation(listView, false, 1, 1, 1, contact, group);
+                downloadConversation = new DownloadConversation(listView, false, 1, 1, 1, contact, channel);
                 downloadConversation.execute();
             }
         });
@@ -1275,8 +1322,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void loadnewMessageOnResume(Contact contact, Group group) {
-        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, group);
+    public void loadnewMessageOnResume(Contact contact, Channel channel) {
+        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel);
         downloadConversation.execute();
     }
 
@@ -1288,17 +1335,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private int totalItems;
         private boolean initial;
         private Contact contact;
-        private Group group;
+        private Channel channel;
         private List<Message> nextSmsList = new ArrayList<Message>();
 
-        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Group group) {
+        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel) {
             this.view = view;
             this.initial = initial;
             this.firstVisibleItem = firstVisibleItem;
             this.amountVisible = amountVisible;
             this.totalItems = totalItems;
             this.contact = contact;
-            this.group = group;
+            this.channel = channel;
         }
 
         @Override
@@ -1353,7 +1400,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
 
                     Log.i(TAG, " loading conversation with  lastConversationloadTime " + lastConversationloadTime);
-                    nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, group);
+                    nextSmsList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, channel);
                 } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
                     loadMore = false;
                     Long endTime = null;
@@ -1364,7 +1411,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         endTime = messageList.get(0).getCreatedAtTime();
                         break;
                     }
-                    nextSmsList = conversationService.getMessages(null, endTime, contact, group);
+                    nextSmsList = conversationService.getMessages(null, endTime, contact, channel);
                 }
 
                 List<Message> createAtMessage = new ArrayList<Message>();
@@ -1425,10 +1472,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 return;
             }
 
-            if (this.group != null && !this.group.getGroupId().equals(this.group.getGroupId())) {
-                return;
-            }
-
             //Note: This is done to avoid duplicates with same timestamp entries
             if (!messageList.isEmpty() && !nextSmsList.isEmpty() &&
                     messageList.get(0).equals(nextSmsList.get(nextSmsList.size() - 1))) {
@@ -1466,7 +1509,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
             }
-
+            if (conversationAdapter != null) {
+                conversationAdapter.notifyDataSetChanged();
+            }
             swipeLayout.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1474,12 +1519,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             });
 
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
-            }
-
-            if(!messageList.isEmpty()){
-                currentConversationId = messageList.get(messageList.size()-1).getConversationId();
+            if (!messageList.isEmpty()) {
+                currentConversationId = messageList.get(messageList.size() - 1).getConversationId();
+                channelKey = messageList.get(messageList.size() - 1).getGroupId();
             }
             if (initial) {
                 sendButton.setEnabled(true);

@@ -33,9 +33,9 @@ import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
-import com.applozic.mobicommons.people.group.GroupUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 
 import java.util.ArrayList;
 
@@ -69,7 +69,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      //  mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+       // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
     }
 
     @Override
@@ -154,7 +154,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     public abstract void startContactActivityForResult(Message message, String messageContent);
 
     @Override
-    public void onQuickConversationFragmentItemClick(View view, Contact contact) {
+    public void onQuickConversationFragmentItemClick(View view, Contact contact,Channel channel) {
         TextView textView = (TextView) view.findViewById(R.id.unreadSmsCount);
         textView.setVisibility(View.GONE);
         openConversationFragment(contact);
@@ -166,12 +166,12 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         conversationFragment.loadConversation(contact);
     }
 
-    public void openConversationFragment(Group group) {
-        conversationFragment.loadConversation(group);
+    public void openConversationFragment(Channel channel) {
+        conversationFragment.loadConversation(channel);
     }
 
     public void loadLatestInConversationFragment() {
-        if (conversationFragment.getContact() != null || conversationFragment.getGroup() != null) {
+        if (conversationFragment.getContact() != null || conversationFragment.getChannel() != null) {
             return;
         }
         String latestContact = quickConversationFragment.getLatestContact();
@@ -227,7 +227,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
 
     public void checkForStartNewConversation(Intent intent) {
         Contact contact = null;
-        Group group = null;
+        Channel channel = null;
 
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getType() != null) {
             if ("text/plain".equals(intent.getType())) {
@@ -250,10 +250,10 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
             contact = baseContactService.getContactById(String.valueOf(contactId));
         }
 
-        Long groupId = intent.getLongExtra("groupId", -1);
+        Integer groupId = intent.getIntExtra("groupId", -1);
         String groupName = intent.getStringExtra("groupName");
         if (groupId != -1) {
-            group = GroupUtils.fetchGroup(this, groupId, groupName);
+            channel = ChannelUtils.fetchGroup(this, groupId, groupName);
         }
 
         String contactNumber = intent.getStringExtra("contactNumber");
@@ -284,8 +284,8 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
             openConversationFragment(contact);
         }
 
-        if (group != null) {
-            openConversationFragment(group);
+        if (channel != null) {
+            openConversationFragment(channel);
         }
 
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);

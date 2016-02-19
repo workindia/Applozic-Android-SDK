@@ -221,7 +221,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         boolean cancel = false;
         View focusView = null;
 
-        if (TextUtils.isEmpty(userId)) {
+        if (TextUtils.isEmpty(mUserIdView.getText().toString()) || mUserIdView.getText().toString().trim().length() == 0) {
             mUserIdView.setError(getString(R.string.error_field_required));
             focusView = mUserIdView;
             cancel = true;
@@ -264,6 +264,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
                     //Start GCM registration....
+                    ApplozicSetting.getInstance(context).hideStartNewGroupButton();
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 
@@ -474,7 +475,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
             Snackbar.make(layout, R.string.contact_permission,
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                    .setAction(android.R.string.ok, new OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ActivityCompat
@@ -505,6 +506,12 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         }
     }
 
+    public void showSnackBar(int resId) {
+        Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT)
+                .show();
+    }
+
     /**
      * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
      * the email text field with results on the main UI thread.
@@ -533,11 +540,5 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         protected void onPostExecute(List<String> emailAddressCollection) {
             addEmailsToAutoComplete(emailAddressCollection);
         }
-    }
-
-   public void showSnackBar(int resId){
-       Snackbar.make(layout,resId ,
-               Snackbar.LENGTH_SHORT)
-               .show();
     }
 }

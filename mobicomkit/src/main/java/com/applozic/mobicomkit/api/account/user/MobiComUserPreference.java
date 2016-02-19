@@ -2,12 +2,15 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 
+
+import java.util.Date;
 
 
 public class MobiComUserPreference {
@@ -41,7 +44,7 @@ public class MobiComUserPreference {
     private static String display_name = "display_name";
     private static String logged_in = "logged_in";
     private static String lastSeenAtSyncTime ="lastSeenAtSyncTime";
-
+    private static String channelSyncTime ="channelSyncTime";
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
 
     public SharedPreferences sharedPreferences;
@@ -284,21 +287,16 @@ public class MobiComUserPreference {
 
     //Local initialization of few fields)
     public void initialize(Context context) {
-       /* try {
-            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
-            String contactNumber = telephonyManager.getLine1Number();
-            setCountryCode(countryCode);
-            if (!TextUtils.isEmpty(contactNumber)) {
-                setContactNumber(contactNumber);
-            }
-            if (getLastMessageStatSyncTime() == null || getLastMessageStatSyncTime() == 0) {
-                setLastMessageStatSyncTime(new Date().getTime());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+      /*  TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
+        String contactNumber = telephonyManager.getLine1Number();
+        setCountryCode(countryCode);
+        if (!TextUtils.isEmpty(contactNumber)) {
+            setContactNumber(contactNumber);
         }
-*/
+        if (getLastMessageStatSyncTime() == null || getLastMessageStatSyncTime() == 0) {
+            setLastMessageStatSyncTime(new Date().getTime());
+        }*/
     }
 
     public boolean isMobiTexterContactSyncCompleted() {
@@ -336,6 +334,14 @@ public class MobiComUserPreference {
 
     public void setLastSeenAtSyncTime(String lastSeenAtTime) {
         sharedPreferences.edit().putString(lastSeenAtSyncTime, lastSeenAtTime).commit();
+    }
+
+    public String getChannelSyncTime() {
+        return sharedPreferences.getString(channelSyncTime, "0");
+    }
+
+    public void setChannelSyncTime(String syncChannelTime) {
+        sharedPreferences.edit().putString(channelSyncTime, syncChannelTime).commit();
     }
 
     @Override

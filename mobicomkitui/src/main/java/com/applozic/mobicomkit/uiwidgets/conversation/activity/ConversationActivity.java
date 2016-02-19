@@ -51,6 +51,7 @@ import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -63,20 +64,19 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback {
+public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback  {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
+    public static final String CHANNEL = "channel";
     protected static final long UPDATE_INTERVAL = 5;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String SHARE_TEXT = "share_text";
-    private static final String TAG = "ConversationActiity";
     private static Uri capturedImageUri;
     private static String inviteMessage;
-    private static int retry ;
     protected ConversationFragment conversation;
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
@@ -84,6 +84,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     protected GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     private Contact contact;
+    private Channel channel;
+    private static int retry;
     private LinearLayout layout;
 
     public ConversationActivity() {
@@ -94,7 +96,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     public void showErrorMessageView(String message) {
-
         layout.setVisibility(View.VISIBLE);
         snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction("OK", new View.OnClickListener() {
@@ -144,7 +145,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
       /*if (activeFragment != null) {
             fragmentTransaction.hide(activeFragment);
         }*/
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
     }
@@ -181,17 +182,23 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         if (capturedImageUri != null) {
             savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
             savedInstanceState.putSerializable(CONTACT, contact);
+            savedInstanceState.putSerializable(CHANNEL, channel);
         }
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
+            Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
+            if (takeOrder) {
+                this.finish();
+            } else {
+                getSupportFragmentManager().popBackStack();
+            }
             Utils.toggleSoftKeyBoard(this, true);
             return true;
         }
@@ -214,7 +221,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
             capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
-            conversation = new ConversationFragment(contact);
+            channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
+            if (channel != null) {
+                conversation = new ConversationFragment(null, channel);
+            } else {
+                conversation = new ConversationFragment(contact, null);
+            }
             addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         } else {
             quickConversationFragment = new MobiComQuickConversationFragment();
@@ -278,6 +290,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
+        if(!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+            menu.removeItem(R.id.conversations);
+        }
         return true;
     }
 
@@ -324,8 +339,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
 
-
-    public void processingLocation(){
+    public void processingLocation() {
         if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -369,6 +383,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
+        }else if(id == R.id.conversations){
+            Intent intent =  new Intent(this,ChannelCreateActivity.class);
+            startActivity(intent);
         } else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);
             new MobiComMessageService(this, MessageIntentService.class).syncMessagesWithServer(message);
@@ -379,7 +396,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
         } else if (id == R.id.deleteConversation) {
-            if(conversation != null){
+            if (conversation != null) {
                 conversation.deleteConversationThread();
             }
         }
@@ -387,9 +404,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     @Override
-    public void onQuickConversationFragmentItemClick(View view, Contact contact) {
-        conversation = new ConversationFragment(contact);
+    public void onQuickConversationFragmentItemClick(View view, Contact contact, Channel channel) {
+        conversation = new ConversationFragment(contact, channel);
         addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
+        this.channel = channel;
         this.contact = contact;
     }
 
@@ -487,6 +505,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     public Contact getContact() {
         return contact;
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 
     public static Uri getCapturedImageUri() {

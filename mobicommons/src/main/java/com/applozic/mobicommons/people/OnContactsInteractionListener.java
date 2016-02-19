@@ -3,7 +3,7 @@ package com.applozic.mobicommons.people;
 import android.net.Uri;
 
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.group.Group;
+import com.applozic.mobicommons.people.channel.Channel;
 
 /**
  * This interface must be implemented by any activity that loads this fragment. When an
@@ -18,7 +18,7 @@ public interface OnContactsInteractionListener {
      */
     void onContactSelected(Uri contactUri);
 
-    void onGroupSelected(Group group);
+    void onGroupSelected(Channel channel);
 
     void onCustomContactSelected(Contact contact);
     /**

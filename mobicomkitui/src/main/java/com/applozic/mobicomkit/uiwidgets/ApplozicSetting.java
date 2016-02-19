@@ -2,8 +2,6 @@ package com.applozic.mobicomkit.uiwidgets;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.view.View;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
@@ -23,6 +21,7 @@ public class ApplozicSetting {
     private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
     private static final String PRICE_WIDGET = "PRICE_WIDGET";
     private static final String SEND_BUTTON_BACKGROUND_COLOR ="SEND_BUTTON_BACKGROUND_COLOR";
+    private static final String START_NEW_GROUP ="START_NEW_GROUP";
 
 
     public static ApplozicSetting applozicSetting;
@@ -137,10 +136,6 @@ public class ApplozicSetting {
         return sharedPreferences.getBoolean(PRICE_WIDGET, false);
     }
 
-    public boolean clearAll() {
-        return sharedPreferences.edit().clear().commit();
-    }
-
     public ApplozicSetting setSendButtonBackgroundColor(int color) {
         sharedPreferences.edit().putInt(SEND_BUTTON_BACKGROUND_COLOR, color).commit();
         return this;
@@ -148,6 +143,24 @@ public class ApplozicSetting {
 
     public int getSendButtonBackgroundColor() {
         return sharedPreferences.getInt(SEND_BUTTON_BACKGROUND_COLOR, R.color.applozic_theme_color_primary);
+    }
+
+    public ApplozicSetting showStartNewGroupButton() {
+        sharedPreferences.edit().putBoolean(START_NEW_GROUP, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideStartNewGroupButton() {
+        sharedPreferences.edit().putBoolean(START_NEW_GROUP, false).commit();
+        return this;
+    }
+
+    public boolean isStartNewGroupButtonVisible() {
+        return sharedPreferences.getBoolean(START_NEW_GROUP, false);
+    }
+
+    public boolean clearAll() {
+        return sharedPreferences.edit().clear().commit();
     }
 
 }

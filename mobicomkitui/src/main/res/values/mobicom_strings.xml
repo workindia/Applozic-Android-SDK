@@ -3,6 +3,10 @@
 
     <string name="app_name">Applozic</string>
     <string name="conversations">Conversations</string>
+    <string name="channel_create_title">New group</string>
+    <string name="channel_members_title">Add Members</string>
+    <string name="select_at_least">At least  1 contact must be selected</string>
+    <string name="group_name_hint">Name of the group</string>
     <string name="empty_conversations">No conversations!!!</string>
     <string name="enter_message_hint">Write a Message...</string>
     <string name="send_text">SEND</string>

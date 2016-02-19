@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.people.ChannelCreate;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -28,6 +30,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityFo
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends MobiComActivityForFragment
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
@@ -135,6 +140,29 @@ public class MainActivity extends MobiComActivityForFragment
             return;
         }
 
+       if (position == 3) {
+
+            String groupname = "Applozic Team";
+            List<String> groupMemberList = new ArrayList<String>();
+
+            groupMemberList.add("adarsh");
+            groupMemberList.add("devashish");
+            groupMemberList.add("applozic");
+            groupMemberList.add("anshul")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ;
+            groupMemberList.add("nitin");
+            groupMemberList.add("ranjeet");
+            groupMemberList.add("divjyot");
+            groupMemberList.add("pravin");
+            groupMemberList.add("abhishek");
+            groupMemberList.add("shanki");
+            groupMemberList.add("sunil");
+
+            ChannelCreate channelCreate = new ChannelCreate(groupname,groupMemberList);
+            ChannelService.getInstance(this).createChannel(channelCreate);
+
+
+        }
+
         if (position == 2) {
 
             Toast.makeText(getBaseContext(), "Log out successful", Toast.LENGTH_SHORT).show();
@@ -156,11 +184,19 @@ public class MainActivity extends MobiComActivityForFragment
         Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
         takeOrderIntent.putExtra(TAKE_ORDER, true);
         takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
-        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT,"Hello I am interested in your property, Can we chat?");
+        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
         takeOrderIntent.putExtra(ConversationUIService.PRODUCT_TOPIC_ID, "Ebco Strip Light Connection Cord 4");
         takeOrderIntent.putExtra(ConversationUIService.PRODUCT_IMAGE_URL, "https://www.applozic.com/resources/sidebox/images/applozic.png");
         // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
         startActivity(takeOrderIntent);
+    }
+
+    public void groupChat(View v) {
+        Intent groupChat = new Intent(this, ConversationActivity.class);
+        groupChat.putExtra(TAKE_ORDER, true);
+        groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
+        groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
+        startActivity(groupChat);
     }
 
     public void onSectionAttached(int number) {

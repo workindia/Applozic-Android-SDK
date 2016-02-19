@@ -49,6 +49,7 @@ public class Contact implements Serializable {
     private String applicationId;
     private boolean connected;
     private Long lastSeenAtTime;
+    private boolean checked = false;
 
     public Contact() {
 
@@ -241,6 +242,18 @@ public class Contact implements Serializable {
 
     public void setConnected(boolean connected) {
         this.connected = connected;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
+
+    public void toggleChecked() {
+        checked = !checked;
     }
 
     public void processFullName(String fullName) {

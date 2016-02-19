@@ -40,7 +40,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String NOTIFY_CONTACTS_ABOUT_JOINING_MT = "/rest/ws/registration/notify/contacts";
     public static final String VERIFICATION_CONTACT_NUMBER_URL = "/rest/ws/verification/number";
     public static final String VERIFICATION_CODE_CONTACT_NUMBER_URL = "/rest/ws/verification/code";
-    public static final String APP_VERSION_UPDATE_URL = "/rest/ws/registration/version/update";
+    public static final String APP_VERSION_UPDATE_URL = "/rest/ws/register/version/update";
     public static final String SETTING_UPDATE_URL = "/rest/ws/setting/single/update";
     public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
     public static final String USER_INFO_URL = "/rest/ws/user/info?";
@@ -70,12 +70,12 @@ public class UserClientService extends MobiComKitClientService {
         return getBaseUrl() + VERIFICATION_CODE_CONTACT_NUMBER_URL;
     }
 
-    public String getUpdateUserDisplayNameUrl() {
-        return getBaseUrl() + USER_DISPLAY_NAME_UPDATE;
-    }
-
     public String getAppVersionUpdateUrl() {
         return getBaseUrl() + APP_VERSION_UPDATE_URL;
+    }
+
+    public String getUpdateUserDisplayNameUrl() {
+        return getBaseUrl() + USER_DISPLAY_NAME_UPDATE;
     }
 
     public String getSettingUpdateUrl() {
@@ -140,9 +140,9 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public void updateCodeVersion(final String deviceKeyString) {
-                String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKeyString=" + deviceKeyString;
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
-                Log.i(TAG, "Version update response: " + response);
+        String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKey=" + deviceKeyString;
+        String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
+        Log.i(TAG, "Version update response: " + response);
 
     }
 
@@ -221,18 +221,19 @@ public class UserClientService extends MobiComKitClientService {
                 try {
                     if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
                         parameters = "userId=" + URLEncoder.encode(userId, "UTF-8") + "&displayName=" + URLEncoder.encode(displayName, "UTF-8");
+                        String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
+
+                        ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                        Log.i(TAG, " Update display name Response :" + apiResponse.getStatus());
                     }
-                    String response = httpRequestUtils.getResponse(getCredentials(), getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
-
-                    ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                    Log.i(TAG, " Update display name Response :" + apiResponse.getStatus());
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
             }
         });
         thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
     }
+
 }

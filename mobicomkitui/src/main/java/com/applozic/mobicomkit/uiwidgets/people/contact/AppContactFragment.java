@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 /**
  * Created by adarsh on 1/8/15.
  */
@@ -368,9 +370,9 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                     mInflater.inflate(R.layout.contact_list_item, parent, false);
 
             Contact contact = contactList.get(position);
-            TextView text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
-            TextView text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
-            QuickContactBadge icon = (QuickContactBadge) itemLayout.findViewById(android.R.id.icon);
+            TextView text1 = (TextView) itemLayout.findViewById(R.id.text1);
+            TextView text2 = (TextView) itemLayout.findViewById(R.id.text2);
+            CircleImageView icon = (CircleImageView) itemLayout.findViewById(R.id.contactImage);
             text1.setText(contact.getDisplayName());
             text2.setText(contact.getUserId());
             if (contact.isDrawableResources()) {

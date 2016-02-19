@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 
@@ -20,11 +21,13 @@ public class SyncCallService {
     private MobiComMessageService mobiComMessageService;
     private MobiComConversationService mobiComConversationService;
     private BaseContactService contactService;
+    private ChannelService channelService;
 
     private SyncCallService(Context context) {
         this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
         this.mobiComConversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
+        this.channelService = ChannelService.getInstance(context);
     }
 
     public synchronized static SyncCallService getInstance(Context context) {
@@ -39,11 +42,11 @@ public class SyncCallService {
         mobiComMessageService.updateDeliveryStatus(key);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(){
+    public synchronized List<Message> getLatestMessagesGroupByPeople() {
         return mobiComConversationService.getLatestMessagesGroupByPeople(null);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt){
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt) {
         return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt);
     }
 
@@ -55,6 +58,10 @@ public class SyncCallService {
         }
     }
 
+    public synchronized void syncChannel() {
+        channelService.syncChannels();
+    }
+
     public synchronized void updateDeliveryStatusForContact(String contactId) {
         mobiComMessageService.updateDeliveryStatusForContact(contactId);
     }
@@ -63,7 +70,7 @@ public class SyncCallService {
         contactService.updateConnectedStatus(contactId, date, connected);
     }
 
-    public synchronized void deleteConversationThread(String userId){
+    public synchronized void deleteConversationThread(String userId) {
         mobiComConversationService.deleteConversationFromDevice(userId);
     }
 

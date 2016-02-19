@@ -4,11 +4,11 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.annotations.SerializedName;
-import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.attachment.FileMeta;
 
 import java.util.Date;
 import java.util.List;
@@ -28,7 +28,7 @@ public class Message extends JsonMarker {
     private Short type = MessageType.MT_OUTBOX.getValue();
     private boolean storeOnDevice;
     private String contactIds = "";
-    private Long broadcastGroupId;
+    private Integer groupId;
     private boolean sendToDevice;
     private Long scheduledAt;
     private Short source = Source.MT_MOBILE_APP.getValue();
@@ -80,7 +80,7 @@ public class Message extends JsonMarker {
         this.setFileMetas(message.getFileMetas());
         this.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
         this.setFilePaths(message.getFilePaths());
-        this.setBroadcastGroupId(message.getBroadcastGroupId());
+        this.setGroupId(message.getGroupId());
         this.setRead(message.isRead());
         this.setApplicationId(message.getApplicationId());
         this.setContentType(message.getContentType());
@@ -256,14 +256,6 @@ public class Message extends JsonMarker {
         this.contactIds = contactIds;
     }
 
-    public Long getBroadcastGroupId() {
-        return broadcastGroupId;
-    }
-
-    public void setBroadcastGroupId(Long broadcastGroupId) {
-        this.broadcastGroupId = broadcastGroupId;
-    }
-
     public boolean isSendToDevice() {
         return sendToDevice;
     }
@@ -394,7 +386,7 @@ public class Message extends JsonMarker {
     }
 
     public Integer getConversationId() {
-        return conversationId ;
+        return conversationId;
     }
 
     public void setConversationId(Integer conversationId) {
@@ -407,6 +399,14 @@ public class Message extends JsonMarker {
 
     public void setTopicId(String topicId) {
         this.topicId = topicId;
+    }
+
+    public Integer getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
     @Override
@@ -515,7 +515,6 @@ public class Message extends JsonMarker {
                 ", timeToLive=" + timeToLive +
                 ", pairedMessageKey=" + pairedMessageKey +
                 ", sentToServer=" + sentToServer +
-                ", broadcastGroupId=" + broadcastGroupId +
                 ", fileMetaKey=" + getFileMetaKeyStrings() +
                 ", filePaths=" + filePaths +
                 ", fileMetas=" + fileMeta +
@@ -524,6 +523,7 @@ public class Message extends JsonMarker {
                 ",contentType=" + contentType +
                 ",conversationId=" + conversationId +
                 ",topicId=" + topicId +
+                ", groupId=" + groupId +
                 '}';
     }
 
@@ -566,10 +566,10 @@ public class Message extends JsonMarker {
         }
     }
 
-    public  enum ContentType {
+    public enum ContentType {
 
         DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
-        TEXT_HTML (Short.valueOf("3")), PRICE(Short.valueOf("4")),TEXT_URL(Short.valueOf("5"));
+        TEXT_HTML(Short.valueOf("3")), PRICE(Short.valueOf("4")), TEXT_URL(Short.valueOf("5"));
         private Short value;
 
         ContentType(Short value) {

@@ -31,10 +31,9 @@ import static com.applozic.mobicomkit.api.MobiComKitConstants.APPLICATION_KEY_ME
 /**
  * Created by sunil on 26/11/15.
  */
-public class ApplozicMqttService implements MqttCallback {
+public class ApplozicMqttService extends MobiComKitClientService implements MqttCallback {
 
     private static final String STATUS = "status";
-    private static final String MQTT_URL = "tcp://apps.applozic.com";
     private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
     private static final String TYPINGTOPIC = "typing-";
@@ -50,7 +49,7 @@ public class ApplozicMqttService implements MqttCallback {
         MESSAGE_READ("APPLOZIC_07"), MESSAGE_DELIVERED_AND_READ("APPLOZIC_08"),
         CONVERSATION_READ("APPLOZIC_09"), CONVERSATION_DELIVERED_AND_READ("APPLOZIC_10"),
         USER_CONNECTED("APPLOZIC_11"), USER_DISCONNECTED("APPLOZIC_12"),
-        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14");
+        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14"), GROUP_SYNC("APPLOZIC_15");
         private String value;
 
         private NOTIFICATION_TYPE(String c) {
@@ -65,6 +64,7 @@ public class ApplozicMqttService implements MqttCallback {
 
 
     private ApplozicMqttService(Context context) {
+        super(context);
         this.context = context;
         memoryPersistence = new MemoryPersistence();
     }
@@ -85,7 +85,7 @@ public class ApplozicMqttService implements MqttCallback {
                 return client;
             }
             if (client == null) {
-                client = new MqttClient(MQTT_URL + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
+                client = new MqttClient(getMqttBaseUrl() + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
             }
 
             if (!client.isConnected()) {
@@ -221,7 +221,7 @@ public class ApplozicMqttService implements MqttCallback {
     }
 
     @Override
-    public void messageArrived(String s, final MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String s,final MqttMessage mqttMessage) throws Exception {
         Log.i(TAG, "Received MQTT message: " + new String(mqttMessage.getPayload()));
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
@@ -246,12 +246,16 @@ public class ApplozicMqttService implements MqttCallback {
                                 syncCallService.syncMessages(null);
                             }
 
+                            if (NOTIFICATION_TYPE.GROUP_SYNC.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.syncChannel();
+                            }
+
                             if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
                                     || "MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())
                                     || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
-                                String userId = splitKeyString[1];
+                                //String userId = splitKeyString[1];
                                 syncCallService.updateDeliveryStatus(keyString);
                             }
 
@@ -275,9 +279,9 @@ public class ApplozicMqttService implements MqttCallback {
                                 syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
                             }
 
-                            if (NOTIFICATION_TYPE.CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
+                            if(NOTIFICATION_TYPE.CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
                                 syncCallService.deleteConversationThread(mqttMessageResponse.getMessage().toString());
-                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), "success");
+                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), 0, "success");
                             }
 
                             if (NOTIFICATION_TYPE.MESSAGE_SENT.getValue().equals(mqttMessageResponse.getType())) {
@@ -285,7 +289,6 @@ public class ApplozicMqttService implements MqttCallback {
                                 Message sentMessageSync = messageResponse.getMessage();
                                 syncCallService.syncMessages(sentMessageSync.getKeyString());
                             }
-
                         }
                     });
                     thread.start();

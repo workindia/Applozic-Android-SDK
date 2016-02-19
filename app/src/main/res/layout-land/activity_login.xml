@@ -134,7 +134,6 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:layout_marginBottom="5dp"
                 android:background="#FFF"
                 android:hint="Display Name"
@@ -168,7 +167,8 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:layout_gravity="top">
-        </LinearLayout>
+    </LinearLayout>
+
     <!--
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
@@ -180,4 +180,6 @@
         -->
 
 </LinearLayout>
+
+
 
