@@ -60,7 +60,7 @@ Features:
 
 ###### Quick Start for Applozic Messaging   
 
-To integrate chat into your android app, register at [Applozic](https://www.applozic.com/) to get the application key.
+To integrate chat into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=android&utm_medium=github) to get the application key.
 
 **Step 1: Add the following in build.gradle**:      
 
