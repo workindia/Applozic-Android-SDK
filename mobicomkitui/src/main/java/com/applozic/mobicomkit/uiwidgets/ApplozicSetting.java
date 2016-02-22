@@ -22,6 +22,7 @@ public class ApplozicSetting {
     private static final String PRICE_WIDGET = "PRICE_WIDGET";
     private static final String SEND_BUTTON_BACKGROUND_COLOR ="SEND_BUTTON_BACKGROUND_COLOR";
     private static final String START_NEW_GROUP ="START_NEW_GROUP";
+    private static final String IMAGE_COMPRESSION ="IMAGE_COMPRESSION";
 
 
     public static ApplozicSetting applozicSetting;
@@ -158,6 +159,22 @@ public class ApplozicSetting {
     public boolean isStartNewGroupButtonVisible() {
         return sharedPreferences.getBoolean(START_NEW_GROUP, false);
     }
+
+
+    public ApplozicSetting enableImageCompression() {
+        sharedPreferences.edit().putBoolean(IMAGE_COMPRESSION, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting disableImageCompression() {
+        sharedPreferences.edit().putBoolean(IMAGE_COMPRESSION, false).commit();
+        return this;
+    }
+
+    public boolean isImageCompressionEnabled() {
+        return sharedPreferences.getBoolean(IMAGE_COMPRESSION, false);
+    }
+
 
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();
