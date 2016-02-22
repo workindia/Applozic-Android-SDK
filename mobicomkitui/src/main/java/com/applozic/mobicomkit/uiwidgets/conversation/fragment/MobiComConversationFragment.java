@@ -152,7 +152,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -880,8 +879,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqHeight = displaymetrics.heightPixels;
                 reqWidth = displaymetrics.widthPixels;
             }
-            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight);
-            previewThumbnail = ImageUtils.getImageRotatedBitmap(previewThumbnail, filePath, previewThumbnail.getWidth(), previewThumbnail.getHeight());
+            if(ApplozicSetting.getInstance(getActivity()).isImageCompressionEnabled()){
+                previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,true);
+            }else {
+                previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,false);
+            }
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);
