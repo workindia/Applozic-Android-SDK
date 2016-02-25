@@ -299,7 +299,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) ||conversationFragment.getChannel() != null && message.getGroupId()!= null && message.getGroupId().equals(conversationFragment.getChannel().getKey())  ) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
