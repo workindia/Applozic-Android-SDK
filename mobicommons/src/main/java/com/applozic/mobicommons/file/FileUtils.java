@@ -61,6 +61,8 @@ public class FileUtils {
     public static final String MIME_TYPE_VIDEO = "video/*";
     public static final String MIME_TYPE_APP = "application/*";
     public static final String HIDDEN_PREFIX = ".";
+    private static final float MAX_HEIGHT = 1332.0f;
+    private static final float MAX_WIDTH = 1776.0f;
     /**
      * TAG for log messages.
      */
@@ -560,22 +562,20 @@ public class FileUtils {
 
             int actualHeight = options.outHeight;
             int actualWidth = options.outWidth;
-            float maxHeight = 1332.0f;
-            float maxWidth = 1776.0f;
             float imgRatio = actualWidth / actualHeight;
-            float maxRatio = maxWidth / maxHeight;
-            if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            float maxRatio = MAX_WIDTH / MAX_HEIGHT;
+            if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
                 if (imgRatio < maxRatio) {
-                    imgRatio = maxHeight / actualHeight;
+                    imgRatio = MAX_HEIGHT / actualHeight;
                     actualWidth = (int) (imgRatio * actualWidth);
-                    actualHeight = (int) maxHeight;
+                    actualHeight = (int) MAX_HEIGHT;
                 } else if (imgRatio > maxRatio) {
-                    imgRatio = maxWidth / actualWidth;
+                    imgRatio = MAX_WIDTH / actualWidth;
                     actualHeight = (int) (imgRatio * actualHeight);
-                    actualWidth = (int) maxWidth;
+                    actualWidth = (int) MAX_WIDTH;
                 } else {
-                    actualHeight = (int) maxHeight;
-                    actualWidth = (int) maxWidth;
+                    actualHeight = (int) MAX_HEIGHT;
+                    actualWidth = (int) MAX_WIDTH;
                 }
             }
             options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);

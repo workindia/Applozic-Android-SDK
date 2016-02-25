@@ -879,11 +879,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqHeight = displaymetrics.heightPixels;
                 reqWidth = displaymetrics.widthPixels;
             }
-            if(ApplozicSetting.getInstance(getActivity()).isImageCompressionEnabled()){
-                previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,true);
-            }else {
-                previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,false);
-            }
+            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,ApplozicSetting.getInstance(getActivity()).isImageCompressionEnabled());
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);

@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.people.channel.ChannelFragment;
@@ -221,7 +222,9 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new AppContactFragment(), "Contact");
-        adapter.addFrag(new ChannelFragment(), "Group");
+        if(ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+            adapter.addFrag(new ChannelFragment(), "Group");
+        }
         viewPager.setAdapter(adapter);
     }
 
