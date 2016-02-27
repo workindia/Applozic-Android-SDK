@@ -244,10 +244,8 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        if(ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
-            adapter.addFrag(new AppContactFragment(), "Contact");
-            adapter.addFrag(new ChannelFragment(), "Group");
-        }
+        adapter.addFrag(new AppContactFragment(), "Contact");
+        adapter.addFrag(new ChannelFragment(), "Group");
         viewPager.setAdapter(adapter);
     }
 
