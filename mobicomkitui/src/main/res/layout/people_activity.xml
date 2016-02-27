@@ -20,6 +20,7 @@
         android:layout_below="@+id/my_toolbar"
         android:background="?attr/colorPrimary"
         android:elevation="6dp"
+        android:visibility="gone"
         app:tabMode="fixed"
         app:tabGravity="fill"
         android:minHeight="?attr/actionBarSize"
@@ -27,8 +28,14 @@
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/tab_layout"/>
+
+    <RelativeLayout
+        android:id="@+id/layout_child_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

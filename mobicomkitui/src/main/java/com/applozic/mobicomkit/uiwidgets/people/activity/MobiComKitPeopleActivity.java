@@ -8,8 +8,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -21,6 +23,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
@@ -69,13 +72,18 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle("Select");
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        setupViewPager(viewPager);
-
-        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
-
+        if(ApplozicSetting.getInstance(getBaseContext()).isStartNewGroupButtonVisible()){
+            actionBar.setTitle("Select");
+            viewPager = (ViewPager) findViewById(R.id.viewPager);
+            viewPager.setVisibility(View.VISIBLE);
+            setupViewPager(viewPager);
+            tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+            tabLayout.setVisibility(View.VISIBLE);
+            tabLayout.setupWithViewPager(viewPager);
+        }else {
+            actionBar.setTitle(getString(R.string.search_title));
+            addFragment(this,new AppContactFragment(),"AppContactFragment");
+        }
       /*  mContactsListFragment = (AppContactFragment)
                 getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
 
@@ -113,6 +121,21 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
         return super.onCreateOptionsMenu(menu);
     }
 
+    public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+        FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = supportFragmentManager
+                .beginTransaction();
+        fragmentTransaction.replace(R.id.layout_child_activity, fragmentToAdd,
+                fragmentTag);
+
+        if (supportFragmentManager.getBackStackEntryCount() > 1) {
+            supportFragmentManager.popBackStack();
+        }
+        fragmentTransaction.addToBackStack(fragmentTag);
+        fragmentTransaction.commitAllowingStateLoss();
+        supportFragmentManager.executePendingTransactions();
+    }
     /**
      * This interface callback lets the main contacts list fragment notify
      * this activity that a contact has been selected.
@@ -221,8 +244,8 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new AppContactFragment(), "Contact");
         if(ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+            adapter.addFrag(new AppContactFragment(), "Contact");
             adapter.addFrag(new ChannelFragment(), "Group");
         }
         viewPager.setAdapter(adapter);
