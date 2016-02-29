@@ -9,6 +9,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class Contact implements Serializable {
     private boolean connected;
     private Long lastSeenAtTime;
     private boolean checked = false;
+    private BigInteger unreadCount;
 
     public Contact() {
 
@@ -254,6 +256,14 @@ public class Contact implements Serializable {
 
     public void toggleChecked() {
         checked = !checked;
+    }
+
+    public BigInteger getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(BigInteger unreadCount) {
+        this.unreadCount = unreadCount;
     }
 
     public void processFullName(String fullName) {

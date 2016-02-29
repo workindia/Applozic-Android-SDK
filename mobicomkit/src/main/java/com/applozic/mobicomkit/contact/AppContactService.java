@@ -67,6 +67,7 @@ public class AppContactService implements BaseContactService {
             contact.processContactNumbers(context);
         } else {
             contact = new Contact(context, contactId);
+            add(contact);
         }
         return contact;
     }

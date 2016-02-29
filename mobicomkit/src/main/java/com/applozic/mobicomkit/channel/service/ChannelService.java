@@ -49,7 +49,7 @@ public class ChannelService {
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds);
                 BroadcastService.sendUpdateForName(context, channelFeed.getId(), BroadcastService.INTENT_ACTIONS.UPDATE_NAME.toString());
-                channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType());
+                channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(),channelFeed.getUnreadCount());
                 return channel;
             }
         }
@@ -60,7 +60,7 @@ public class ChannelService {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
                 Set<String> memberUserIds = channelFeed.getMembersName();
-                Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType());
+              Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(),channelFeed.getUnreadCount());
                 if (channelDatabaseService.isChannelPresent(channel.getKey())) {
                     channelDatabaseService.updateChannel(channel);
                 } else {
@@ -128,7 +128,7 @@ public class ChannelService {
             ChannelFeed[] channelFeeds = new ChannelFeed[1];
             channelFeeds[0] = channelFeed;
             channelService.processChannelFeedList(channelFeeds);
-            channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType());
+            channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(),channelFeed.getUnreadCount());
         }
         return channel;
     }

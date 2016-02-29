@@ -42,7 +42,7 @@ public class ApplozicIntentService extends IntentService {
                     messageClientService.updateReadStatusForSingleMessage(pairedMessageKeyString);
                 }
                 if (contact != null) {
-                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatus(contact.getContactIds());
+                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatusForContact(contact.getContactIds());
                 } else if (channel != null) {
                     read = new MessageDatabaseService(getApplicationContext()).updateReadStatusForChannel(String.valueOf(channel.getKey()));
                 }

@@ -15,6 +15,7 @@ public class Channel implements Serializable {
     private String name;
     private String adminKey;
     private Short type;
+    private int unreadCount;
     private int userCount;
     private Conversation conversationPxy;
     private List<Contact> contacts = new ArrayList<Contact>();
@@ -23,11 +24,12 @@ public class Channel implements Serializable {
 
     }
 
-    public Channel(Integer key, String name, String adminKey, Short type) {
+    public Channel(Integer key, String name, String adminKey, Short type,int unreadCount) {
         this.key = key;
         this.name = name;
         this.adminKey = adminKey;
         this.type = type;
+        this.unreadCount = unreadCount;
     }
 
     public Channel(Integer key) {
@@ -96,15 +98,12 @@ public class Channel implements Serializable {
         this.conversationPxy = conversationPxy;
     }
 
-    @Override
-    public String toString() {
-        return "Channel{" +
-                ", key=" + key +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", userCount=" + userCount +
-                ", contacts=" + contacts +
-                '}';
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(int unreadCount) {
+        this.unreadCount = unreadCount;
     }
 
     public enum GroupType {
@@ -124,6 +123,20 @@ public class Channel implements Serializable {
         public Short getValue() {
             return value.shortValue();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "key=" + key +
+                ", name='" + name + '\'' +
+                ", adminKey='" + adminKey + '\'' +
+                ", type=" + type +
+                ", unreadCount=" + unreadCount +
+                ", userCount=" + userCount +
+                ", conversationPxy=" + conversationPxy +
+                ", contacts=" + contacts +
+                '}';
     }
 
 }

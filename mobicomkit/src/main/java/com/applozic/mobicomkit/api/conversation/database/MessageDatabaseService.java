@@ -573,20 +573,20 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int getUnreadMessageCount(String contactNumbers) {
+    public int getUnreadMessageCountForContact(String userId) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND contactNumbers = " + "'" + contactNumbers + "'", null);
+            final Cursor cursor = db.rawQuery("SELECT unreadCount FROM contact WHERE userId = " + "'" + userId + "'", null);
             cursor.moveToFirst();
-            int unreadSms = 0;
+            int unreadMessageCount = 0;
             if (cursor.getCount() > 0) {
-                unreadSms = cursor.getInt(0);
+                unreadMessageCount = cursor.getInt(0);
             }
             cursor.close();
             dbHelper.close();
-            return unreadSms;
+            return unreadMessageCount;
         } catch (Exception ex) {
-            Log.w(TAG, "Exception while fetching unread message count for a contact.");
+            ex.printStackTrace();
         }
         return 0;
     }
@@ -594,17 +594,17 @@ public class MessageDatabaseService {
     public int getUnreadMessageCountForChannel(Integer channelKey) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            final Cursor cursor = db.rawQuery("SELECT COUNT(read) FROM sms WHERE read = 0 AND channelKey = " + "'" + String.valueOf(channelKey) + "'", null);
+            final Cursor cursor = db.rawQuery("SELECT unreadCount FROM channel WHERE channelKey = " + "'" + String.valueOf(channelKey) + "'", null);
             cursor.moveToFirst();
-            int unreadSms = 0;
+            int unreadMessage = 0;
             if (cursor.getCount() > 0) {
-                unreadSms = cursor.getInt(0);
+                unreadMessage = cursor.getInt(0);
             }
             cursor.close();
             dbHelper.close();
-            return unreadSms;
+            return unreadMessage;
         } catch (Exception ex) {
-            Log.w(TAG, "Exception while fetching unread message count for a contact.");
+            ex.printStackTrace();
         }
         return 0;
     }
@@ -665,10 +665,18 @@ public class MessageDatabaseService {
         return read;
     }
 
+    public int updateReadStatusForContact(String userId) {
+        ContentValues values = new ContentValues();
+        values.put("unreadCount", 0);
+        int read = dbHelper.getWritableDatabase().update("contact", values, "userId = " + "'" + userId + "'" , null);
+        dbHelper.close();
+        return read;
+    }
+
     public int updateReadStatusForChannel(String channelKey) {
         ContentValues values = new ContentValues();
-        values.put("read", 1);
-        int read = dbHelper.getWritableDatabase().update("sms", values, " channelKey = " + "'" + channelKey + "'" + " and read = 0", null);
+        values.put("unreadCount", 0);
+        int read = dbHelper.getWritableDatabase().update("channel", values, "channelKey = " + "'" + channelKey + "'", null);
         dbHelper.close();
         return read;
     }
@@ -737,4 +745,25 @@ public class MessageDatabaseService {
         dbHelper.close();
         Log.i(TAG, "Delete " + deletedRows + " messages.");
     }
+
+    public synchronized void updateContactUnreadCount(String userId) {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.execSQL("UPDATE contact SET unreadCount = unreadCount + 1 WHERE userId =" + "'" + userId + "'");
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updateChannelUnreadCount(Integer channelKey) {
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.execSQL("UPDATE channel SET unreadCount = unreadCount + 1 WHERE channelKey =" + "'" + channelKey + "'");
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
