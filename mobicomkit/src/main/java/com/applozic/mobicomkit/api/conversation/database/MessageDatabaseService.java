@@ -750,7 +750,6 @@ public class MessageDatabaseService {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.execSQL("UPDATE contact SET unreadCount = unreadCount + 1 WHERE userId =" + "'" + userId + "'");
-            db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -760,7 +759,6 @@ public class MessageDatabaseService {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.execSQL("UPDATE channel SET unreadCount = unreadCount + 1 WHERE channelKey =" + "'" + channelKey + "'");
-            db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
