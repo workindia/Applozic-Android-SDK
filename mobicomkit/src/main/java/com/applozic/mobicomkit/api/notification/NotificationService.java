@@ -103,7 +103,7 @@ public class NotificationService {
         }
         WearableNotificationWithVoice notificationWithVoice =
                 new WearableNotificationWithVoice(mBuilder, wearable_action_title,
-                        wearable_action_label, wearable_send_icon, message.getContactIds().hashCode());
+                        wearable_action_label, wearable_send_icon, message.getGroupId() != null?message.getGroupId().hashCode():message.getContactIds().hashCode());
         notificationWithVoice.setCurrentContext(context);
         notificationWithVoice.setPendingIntent(pendingIntent);
 
