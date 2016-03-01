@@ -35,7 +35,9 @@
 
     <RelativeLayout
         android:id="@+id/layout_child_activity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_below="@+id/my_toolbar"
+        android:layout_width="fill_parent"
+        android:layout_gravity="left|top"
+        android:layout_height="fill_parent"/>
 
 </RelativeLayout>
