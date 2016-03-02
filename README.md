@@ -66,8 +66,7 @@ To integrate chat into your android app, signup at [Applozic](https://www.apploz
 
 
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.23' `      
-`      
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.23' `
 
 
 Add the following in gradle android target:      
