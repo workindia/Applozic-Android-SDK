@@ -95,12 +95,6 @@ android {
 <meta-data android:name="com.applozic.application.key"
            android:value="YOUR_APPLOZIC_APPLICATION_KEY" /> <!-- Applozic Application Key -->
 
-<meta-data android:name="com.applozic.server.url"
-           android:value="https://apps.applozic.com" />  <!-- Applozic Application URL -->
-
- <meta-data android:name="com.applozic.mqtt.server.url"
-            android:value="tcp://apps.applozic.com" />  <!-- Applozic MQTT URL -->
-    
 <meta-data android:name="com.applozic.mobicomkit.notification.icon" 
            android:resource="YOUR_LAUNCHER_ICON" />  <!-- Launcher Icon -->
 
@@ -306,7 +300,7 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 
 User user = new User();          
 user.setUserId(userId); //userId it can be any unique user identifier
-user.setDisplayName(displayName); //displayName can be user name of the user
+user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
 user.setEmail(email); //optional                        
 new UserLoginTask(user, listener, this).execute((Void) null);                                       
 ```
