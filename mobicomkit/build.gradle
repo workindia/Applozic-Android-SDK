@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "3.21"
+        versionName "3.22"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -43,7 +43,7 @@ dependencies {
     compile('org.apache.httpcomponents:httpmime:4.3.5') {
         exclude module: 'org.apache.httpcomponents:httpclient'
     }
-    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.code.gson:gson:2.2.4'
     compile project(':mobicommons') //Note: use this for local development
     //compile 'com.applozic.mobiframework:mobicommons:2.0' //Note: use this for prod
@@ -64,7 +64,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '3.21'
+    libraryVersion = '3.22'
 
     developerId = 'devashish'
     developerName = 'Applozic'
