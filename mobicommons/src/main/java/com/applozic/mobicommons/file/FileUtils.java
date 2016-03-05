@@ -28,6 +28,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -37,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.applozic.mobicommons.R;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 
 import java.io.File;
@@ -551,6 +554,16 @@ public class FileUtils {
 
         return type;
     }
+
+    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight, boolean enabled,String mimeType) {
+
+        if(mimeType.startsWith("video")){
+            return ThumbnailUtils.createVideoThumbnail(filePath, 1);
+        }
+            return getPreview(filePath, reqWidth,reqHeight,enabled);
+    }
+
+
 
     public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight, boolean enabled) {
         File image = new File(filePath);

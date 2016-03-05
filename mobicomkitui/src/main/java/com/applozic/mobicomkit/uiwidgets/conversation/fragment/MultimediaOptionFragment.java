@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.AudioMessageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.file.FileUtils;
 
@@ -31,7 +32,9 @@ public class MultimediaOptionFragment extends DialogFragment {
     public static final int RESULT_OK = -1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
-
+    public static final int REQUEST_CODE_ATTACHE_AUDIO = 13;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final int REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY = 14;
     private Uri capturedImageUri;
     private int menuOptionsResourceId = R.array.multimediaOptions_sms;
 
@@ -83,6 +86,24 @@ public class MultimediaOptionFragment extends DialogFragment {
 
                     case 3:
                         new ConversationUIService(getActivity()).sendPriceMessage();
+                        break;
+                    case 4:
+                            intent = new Intent(getActivity(), AudioMessageActivity.class);
+                            getActivity().startActivityForResult(intent, REQUEST_CODE_ATTACHE_AUDIO);
+                        break;
+                    case 5 :
+
+                        // create new Intentwith with Standard Intent action that can be
+                        // sent to have the camera application capture an video and return it.
+                        intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                        String imageFileName = "VID_" + timeStamp + "_" + ".mp4";
+
+                        File fileUri = FileClientService.getFilePath(imageFileName, getActivity(), "video/mp4");
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileUri));
+                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+                        ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
+                        getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
                         break;
                     default:
                 }

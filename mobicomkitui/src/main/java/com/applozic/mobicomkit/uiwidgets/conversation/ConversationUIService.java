@@ -29,6 +29,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.AudioMessageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
@@ -43,6 +44,8 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import java.io.File;
 
 
 public class ConversationUIService {
@@ -152,6 +155,23 @@ public class ConversationUIService {
 
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
                 checkForStartNewConversation(intent);
+            }
+            if(requestCode == MultimediaOptionFragment.REQUEST_CODE_ATTACHE_AUDIO){
+
+                String  selectedFilePath = intent.getStringExtra(AudioMessageActivity.RECORDED_PATH);
+                if (selectedFilePath != null) {
+                    Uri uri = Uri.fromFile(new File(selectedFilePath));
+                    getConversationFragment().loadFile(uri);
+                }
+                getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+            }else if(requestCode == MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY && resultCode == Activity.RESULT_OK) {
+
+                Uri  selectedFilePath = ((ConversationActivity) fragmentActivity).getVideoFileUri();
+                if (selectedFilePath != null) {
+                    getConversationFragment().loadFile(selectedFilePath);
+                }
+                getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+
             }
         } catch (Exception e) {
             e.printStackTrace();

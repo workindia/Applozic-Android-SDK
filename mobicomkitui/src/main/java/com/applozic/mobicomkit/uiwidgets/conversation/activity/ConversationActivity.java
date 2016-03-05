@@ -88,6 +88,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private static int retry;
     private LinearLayout layout;
 
+    private Uri videoFileUri;
+
     public ConversationActivity() {
 
     }
@@ -524,5 +526,14 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
                 Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
+
+    public Uri getVideoFileUri() {
+        return videoFileUri;
+    }
+
+    public void setVideoFileUri(Uri videoFileUri) {
+        this.videoFileUri = videoFileUri;
+    }
+
 
 }
