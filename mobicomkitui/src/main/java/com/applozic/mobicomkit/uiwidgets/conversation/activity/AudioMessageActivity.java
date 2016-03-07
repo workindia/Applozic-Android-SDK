@@ -28,7 +28,7 @@ public class AudioMessageActivity extends AppCompatActivity{
     ImageButton  cancel, send;
     TextView txtcount,audioRecordingText;
     ImageButton record;
-    private MediaRecorder myAudioRecorder;
+    private MediaRecorder audioRecorder;
     private String outputFile = null;
     CountDownTimer t;
     private int cnt;
@@ -60,20 +60,11 @@ public class AudioMessageActivity extends AppCompatActivity{
         txtcount = (TextView)findViewById(R.id.txtcount);
         audioRecordingText = (TextView)findViewById(R.id.audio_recording_text);
 
-
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "AUD_" + timeStamp + "_" + ".m4a";
 
         outputFile = FileClientService.getFilePath(imageFileName, AudioMessageActivity.this, "audio/m4a").getAbsolutePath();
-
-        myAudioRecorder = new MediaRecorder();
-        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        myAudioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        myAudioRecorder.setAudioEncodingBitRate(256);
-        myAudioRecorder.setAudioChannels(1);
-        myAudioRecorder.setAudioSamplingRate(44100);
-        myAudioRecorder.setOutputFile(outputFile);
+        prepareMediaRecorder();
 
         record.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,14 +73,22 @@ public class AudioMessageActivity extends AppCompatActivity{
 
                     if(isRecordring){
                         AudioMessageActivity.this.stopRecording();
-
+                        cancel.setVisibility(View.VISIBLE);
+                        send.setVisibility(View.VISIBLE);
                     }else{
-                        audioRecordingText.setText("Recording..");
-                        myAudioRecorder.prepare();
-                        myAudioRecorder.start();
+                        cancel.setVisibility(View.GONE);
+                        send.setVisibility(View.GONE);
+                        if(audioRecorder ==null){
+                            prepareMediaRecorder();
+                        }
+                        audioRecordingText.setText("Recording");
+                        audioRecorder.prepare();
+                        audioRecorder.start();
                         isRecordring=true;
                         record.setImageResource(R.drawable.applozic_audio_mic_inverted);
+                        t.cancel();
                         t.start();
+                        cnt=0;
                         Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
 
                     }
@@ -142,13 +141,10 @@ public class AudioMessageActivity extends AppCompatActivity{
             public void onTick(long millisUntilFinished) {
 
                 cnt++;
-                String time = new Integer(cnt).toString();
-
                 long millis = cnt;
                 int seconds = (int) (millis / 60);
                 int minutes = seconds / 60;
                 seconds     = seconds % 60;
-
                 txtcount.setText(String.format("%d:%02d:%02d", minutes, seconds,millis));
 
             }
@@ -167,10 +163,10 @@ public class AudioMessageActivity extends AppCompatActivity{
 
     public void stopRecording() {
 
-        if(myAudioRecorder !=null){
-            myAudioRecorder.stop();
-            myAudioRecorder.release();
-            myAudioRecorder = null;
+        if(audioRecorder !=null){
+            audioRecorder.stop();
+            audioRecorder.release();
+            audioRecorder = null;
             isRecordring =false;
             record.setImageResource(R.drawable.applozic_audio_normal);
             audioRecordingText.setText("Tap To Record");
@@ -178,6 +174,20 @@ public class AudioMessageActivity extends AppCompatActivity{
             Toast.makeText(getApplicationContext(), "Audio recorded successfully", Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    public MediaRecorder prepareMediaRecorder(){
+
+        audioRecorder = new MediaRecorder();
+        audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        audioRecorder.setAudioEncodingBitRate(256);
+        audioRecorder.setAudioChannels(1);
+        audioRecorder.setAudioSamplingRate(44100);
+        audioRecorder.setOutputFile(outputFile);
+
+        return audioRecorder;
     }
 }
 
