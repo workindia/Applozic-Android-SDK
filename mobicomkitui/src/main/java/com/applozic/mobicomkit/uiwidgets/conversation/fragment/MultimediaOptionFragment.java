@@ -87,12 +87,9 @@ public class MultimediaOptionFragment extends DialogFragment {
                         break;
 
                     case 3:
-                        new ConversationUIService(getActivity()).sendPriceMessage();
-                        break;
-                    case 4:
                         ((ConversationActivity) getActivity()).showAudioRecordingDialog();
                         break;
-                    case 5:
+                    case 4:
 
                         // create new Intentwith with Standard Intent action that can be
                         // sent to have the camera application capture an video and return it.
@@ -105,6 +102,9 @@ public class MultimediaOptionFragment extends DialogFragment {
                         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
+                        break;
+                    case 5:
+                        new ConversationUIService(getActivity()).sendPriceMessage();
                         break;
                     default:
                 }
