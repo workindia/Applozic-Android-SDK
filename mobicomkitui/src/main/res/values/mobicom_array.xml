@@ -47,9 +47,9 @@
         <item>Current location</item>
         <item>Take photo</item>
         <item>Attach file</item>
-        <item>Attach price</item>
         <item>Audio Message</item>
         <item>Video Message</item>
+        <item>Attach price</item>
     </string-array>
 
 </resources>

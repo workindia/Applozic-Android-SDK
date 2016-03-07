@@ -15,9 +15,6 @@ import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
-import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.File;
@@ -85,14 +82,10 @@ public class MultimediaOptionFragment extends DialogFragment {
                         Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
                         getActivity().startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
                         break;
-
                     case 3:
-                        new ConversationUIService(getActivity()).sendPriceMessage();
-                        break;
-                    case 4:
                         ((ConversationActivity) getActivity()).showAudioRecordingDialog();
                         break;
-                    case 5:
+                    case 4:
 
                         // create new Intentwith with Standard Intent action that can be
                         // sent to have the camera application capture an video and return it.
@@ -105,6 +98,9 @@ public class MultimediaOptionFragment extends DialogFragment {
                         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
+                        break;
+                    case 5:
+                        new ConversationUIService(getActivity()).sendPriceMessage();
                         break;
                     default:
                 }
