@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * <p/>
  * Objects of this class are instantiated and managed by instances of PhotoTask, which
  * implements the methods of TaskRunnableDecodeMethods. PhotoTask objects call
- * {@link #AttachmentDownloader(TaskRunnableDownloadMethods) PhotoDownloadRunnable()} with
+ * {@link #AttachmentDownloader(AttachmentDownloader.TaskRunnableDownloadMethods) PhotoDownloadRunnable()} with
  * themselves as the argument. In effect, an PhotoTask object and a
  * PhotoDownloadRunnable object communicate through the fields of the PhotoTask.
  */

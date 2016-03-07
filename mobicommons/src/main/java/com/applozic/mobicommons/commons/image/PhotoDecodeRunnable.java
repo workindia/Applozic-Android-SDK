@@ -23,8 +23,8 @@ import android.util.Log;
 /**
  * This runnable decodes a byte array containing an image.
  * Objects of this class are instantiated and managed by instances of PhotoTask, which
- * implements the methods {@link TaskRunnableDecodeMethods}. PhotoTask objects call
- * {@link #PhotoDecodeRunnable(TaskRunnableDecodeMethods) PhotoDecodeRunnable()} with
+ * implements the methods {@link PhotoDecodeRunnable.TaskRunnableDecodeMethods}. PhotoTask objects call
+ * {@link #PhotoDecodeRunnable(PhotoDecodeRunnable.TaskRunnableDecodeMethods) PhotoDecodeRunnable()} with
  * themselves as the argument. In effect, an PhotoTask object and a
  * PhotoDecodeRunnable object communicate through the fields of the PhotoTask.
  */

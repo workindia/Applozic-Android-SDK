@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -45,6 +46,7 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
+import com.applozic.mobicomkit.uiwidgets.conversation.fragment.AudioMessageFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
@@ -87,6 +89,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Channel channel;
     private static int retry;
     private LinearLayout layout;
+
+    private Uri videoFileUri;
 
     public ConversationActivity() {
 
@@ -333,6 +337,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
             } else {
                 showSnackBar(R.string.phone_state_permission_not_granted);
             }
+        } else if (requestCode == PermissionsUtils.REQUEST_AUDIO_RECORD) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.record_audio_permission_granted);
+                showAudioRecordingDialog();
+            } else {
+                showSnackBar(R.string.record_audio_permission_not_granted);
+            }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
@@ -525,4 +536,28 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         snackbar.show();
     }
 
+    public Uri getVideoFileUri() {
+        return videoFileUri;
+    }
+
+    public void setVideoFileUri(Uri videoFileUri) {
+        this.videoFileUri = videoFileUri;
+    }
+
+    public void showAudioRecordingDialog() {
+        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
+            new ApplozicPermissions(this,layout).requestAudio();
+        } else {
+
+            FragmentManager supportFragmentManager = getSupportFragmentManager();
+            DialogFragment fragment = AudioMessageFragment.newInstance();
+
+            FragmentTransaction fragmentTransaction = supportFragmentManager
+                    .beginTransaction().add(fragment, "dialog");
+
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commitAllowingStateLoss();
+
+        }
+    }
 }

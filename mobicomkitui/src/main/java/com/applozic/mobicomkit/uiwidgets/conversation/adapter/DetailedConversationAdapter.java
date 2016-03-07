@@ -295,7 +295,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             if (message.isCall() || message.isDummyEmptyMessage()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-            } else if (message.getKeyString() == null && !message.isSentToServer() && message.isTypeOutbox()) {
+            } else if (!message.isSentToServer() && message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
             } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon), null);

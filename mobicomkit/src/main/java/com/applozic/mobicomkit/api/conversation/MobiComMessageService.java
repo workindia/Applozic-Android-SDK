@@ -111,6 +111,12 @@ public class MobiComMessageService {
 
         //Check if we are........container is already opened...don't send broadcast
         if (!(currentId.equals(BroadcastService.currentUserId ))) {
+            if(message.getTo() != null && message.getGroupId() == null){
+                messageDatabaseService.updateContactUnreadCount(message.getTo());
+            }
+            if(message.getGroupId() != null){
+                messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+            }
             MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
             BroadcastService.sendNotificationBroadcast(context, message);
         }

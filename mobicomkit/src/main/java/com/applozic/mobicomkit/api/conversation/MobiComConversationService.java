@@ -212,6 +212,9 @@ public class MobiComConversationService {
             contact.setConnected(userDetail.isConnected());
             contact.setFullName(userDetail.getDisplayName());
             contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+            if(userDetail.getUnreadCount() != null){
+                contact.setUnreadCount(userDetail.getUnreadCount());
+            }
             if (newContact != null) {
                 if (newContact.isConnected() != contact.isConnected()) {
                     BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());

@@ -13,10 +13,13 @@ public class PermissionsUtils {
     public static final int REQUEST_STORAGE = 0;
     public static final int REQUEST_LOCATION = 1;
     public static final int REQUEST_PHONE_STATE = 2;
+    public static final int REQUEST_AUDIO_RECORD = 3;
+
     public static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION};
     public static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE};
+    public static String [] PERMISSIONS_RECORD_AUDIO = {Manifest.permission.RECORD_AUDIO};
 
     public static boolean verifyPermissions(int[] grantResults) {
         if (grantResults.length < 1) {
@@ -38,6 +41,12 @@ public class PermissionsUtils {
                 Manifest.permission.ACCESS_COARSE_LOCATION));
     }
 
+    public static boolean shouldShowRequestForAudioPermission(Activity activity) {
+        return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                Manifest.permission.RECORD_AUDIO));
+    }
+
+
     public static boolean shouldShowRequestForStoragePermission(Activity activity) {
         return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -58,6 +67,11 @@ public class PermissionsUtils {
         return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED);
+    }
+
+    public static boolean checkSelfPermissionForAudioRecording(Activity activity) {
+        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED);
     }
 

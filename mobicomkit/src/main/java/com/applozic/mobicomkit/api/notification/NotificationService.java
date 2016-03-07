@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -40,6 +41,7 @@ public class NotificationService {
     private int wearable_action_title;
     private int wearable_action_label;
     private int wearable_send_icon;
+    private AppContactService appContactService;
 
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
@@ -48,14 +50,16 @@ public class NotificationService {
         this.wearable_action_label = wearable_action_label;
         this.wearable_action_title = wearable_action_title;
         this.wearable_send_icon = wearable_send_icon;
-
+        this.appContactService = new AppContactService(context);
 
     }
 
     public void notifyUser(Contact contact, Channel channel, Message message) {
         String title;
+        Contact displayNameContact = null;
         if (message.getGroupId() != null) {
             title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
+            displayNameContact  = appContactService.getContactById(message.getTo());
         } else {
             title = contact.getDisplayName();
         }
@@ -73,7 +77,7 @@ public class NotificationService {
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setWhen(System.currentTimeMillis())
                         .setContentTitle(title)
-                        .setContentText(channel != null ? message.getTo() + ": " + message.getMessage() : message.getMessage())
+                        .setContentText(channel != null ? displayNameContact.getDisplayName() + ": " + message.getMessage() : message.getMessage())
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
@@ -99,7 +103,7 @@ public class NotificationService {
         }
         WearableNotificationWithVoice notificationWithVoice =
                 new WearableNotificationWithVoice(mBuilder, wearable_action_title,
-                        wearable_action_label, wearable_send_icon, message.getContactIds().hashCode());
+                        wearable_action_label, wearable_send_icon, message.getGroupId() != null?message.getGroupId().hashCode():message.getContactIds().hashCode());
         notificationWithVoice.setCurrentContext(context);
         notificationWithVoice.setPendingIntent(pendingIntent);
 

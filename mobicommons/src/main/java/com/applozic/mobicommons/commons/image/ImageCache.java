@@ -28,8 +28,8 @@ public class ImageCache {
     }
 
     /**
-     * Find and return an existing ImageCache stored in a {@link RetainFragment}, if not found a new
-     * one is created using the supplied params and saved to a {@link RetainFragment}.
+     * Find and return an existing ImageCache stored in a {@link ImageCache.RetainFragment}, if not found a new
+     * one is created using the supplied params and saved to a {@link ImageCache.RetainFragment}.
      *
      * @param fragmentManager     The fragment manager to use when dealing with the retained fragment.
      * @param memCacheSizePercent The cache size as a percent of available app memory.

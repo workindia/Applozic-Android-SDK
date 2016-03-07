@@ -11,6 +11,7 @@ import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +56,10 @@ public class ContactDatabase {
         contact.setConnected(connected != 0 && connected.intValue() == 1);
         contact.setLastSeenAt(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_SEEN_AT_TIME)));
         contact.processContactNumbers(context);
+        int count =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+        if(count != 0){
+            contact.setUnreadCount(BigInteger.valueOf(count));
+        }
         return contact;
     }
 
@@ -166,6 +171,9 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.CONNECTED, contact.isConnected() ? 1 : 0);
         if (contact.getLastSeenAt() != 0) {
             contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
+        }
+        if (contact.getUnreadCount() != null) {
+            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
         }
         return contentValues;
     }

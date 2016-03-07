@@ -78,6 +78,9 @@ public class ChannelDatabaseService {
         if (channel.getUserCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.USER_COUNT, channel.getUserCount());
         }
+        if(channel.getUnreadCount() != 0 ) {
+            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT,channel.getUnreadCount());
+        }
         return contentValues;
     }
 
@@ -160,6 +163,10 @@ public class ChannelDatabaseService {
         channel.setName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME)));
         channel.setAdminKey(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.ADMIN_ID)));
         channel.setType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.TYPE)));
+        int count =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+        if(count >0){
+            channel.setUnreadCount(count);
+        }
         return channel;
     }
 

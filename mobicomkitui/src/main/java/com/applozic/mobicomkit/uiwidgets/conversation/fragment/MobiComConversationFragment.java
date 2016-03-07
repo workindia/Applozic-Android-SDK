@@ -152,7 +152,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -870,7 +869,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String mimeType = FileUtils.getMimeType(getActivity(), uri);
 
-        if (mimeType != null && mimeType.startsWith("image")) {
+        if ( mimeType != null &&  ( mimeType.startsWith("image") || mimeType.startsWith("video")) ) {
+
             attachedFile.setVisibility(View.GONE);
             int reqWidth = mediaContainer.getWidth();
             int reqHeight = mediaContainer.getHeight();
@@ -880,8 +880,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqHeight = displaymetrics.heightPixels;
                 reqWidth = displaymetrics.widthPixels;
             }
-            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight);
-            previewThumbnail = ImageUtils.getImageRotatedBitmap(previewThumbnail, filePath, previewThumbnail.getWidth(), previewThumbnail.getHeight());
+            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight,ApplozicSetting.getInstance(getActivity()).isImageCompressionEnabled(),mimeType);
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);

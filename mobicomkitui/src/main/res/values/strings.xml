@@ -22,6 +22,7 @@
     <string name="zero_friends_on_mobitexter">No contacts on mobitexter</string>
     <string name="zero_groups_on_phone">No groups, add groups in your mobile or gmail account</string>
     <string name="delete_thread_text">Deleting....</string>
+    <string name="search_title">Search</string>
 
 
     <!--
@@ -58,12 +59,15 @@
     <string name="read_sms_permission">Read sms permission are needed to access</string>
     <string name="location_permission">Location permission are needed to access</string>
     <string name="phone_state_permisssion">Phone state permission are needed to access</string>
+    <string name="record_audio">Audio recording permission needed</string>
+
 
     <string name="contact_permission_not_granted">Permissions were not granted for Contact</string>
     <string name="storage_permission_not_granted">Permissions were not granted for Storage</string>
     <string name="read_sms_permission_not_granted">Permissions were not granted for Read</string>
     <string name="location_permission_not_granted">Permissions were not granted for Location</string>
     <string name="phone_state_permission_not_granted">Permissions were not granted for Phone state</string>
+    <string name="record_audio_permission_not_granted">Permissions were not granted for Audio recording</string>
 
 
     <string name="contact_permission_granted">Contacts Permissions have been granted</string>
@@ -71,5 +75,7 @@
     <string name="read_sms_permission_granted">Read sms Permissions have been granted</string>
     <string name="location_permission_granted">Location Permissions has been granted</string>
     <string name="phone_state_permission_granted">Phone state Permissions has been granted</string>
+    <string name="record_audio_permission_granted">Audio Record permissions has been granted</string>
+
 
 </resources>

@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 8;
+    public static final int DB_VERSION = 9;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -100,6 +100,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_LAST_SEEN_AT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + LAST_SEEN_AT_TIME + " integer default 0";
     private static final String ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + CONVERSATION_ID + " integer default 0";
     private static final String ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + TOPIC_ID + " varchar(300) null";
+    private static final String ALTER_CONTACT_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
     private static final String ALTER_SMS_TABLE = "ALTER TABLE " + SMS + " RENAME TO " + SMS_BACKUP;
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -111,7 +113,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + EMAIL + " VARCHAR(100), "
             + APPLICATION_ID + " VARCHAR(2000) null, "
             + CONNECTED + " integer default 0,"
-            + LAST_SEEN_AT_TIME + " integer "
+            + LAST_SEEN_AT_TIME + " integer, "
+            + UNREAD_COUNT + " integer default 0 "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -120,6 +123,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + CHANNEL_DISPLAY_NAME + " varchar(200), "
             + ADMIN_ID + " varchar(100), "
             + TYPE + " integer default 0, "
+            + UNREAD_COUNT + " integer default 0, "
             + USER_COUNT + "integer "
             + " )";
 
@@ -219,6 +223,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, "contact", "applicationId")) {
                 database.execSQL(ALTER_CONTACT_TABLE_FOR_APPLICATION_ID_COLUMN);
             }
+            if (!DBUtils.existsColumnInTable(database, "contact", UNREAD_COUNT)) {
+                database.execSQL(ALTER_CONTACT_TABLE_UNREAD_COUNT_COLUMN);
+            }
             if (!DBUtils.existsColumnInTable(database, "contact", "connected")) {
                 database.execSQL(ALTER_CONTACT_TABLE_FOR_CONNECTED_COLUMN);
             }
@@ -233,6 +240,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, "sms", TOPIC_ID)) {
                 database.execSQL(ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN);
+            }
+            if(!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)){
+                database.execSQL(ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN);
             }
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);

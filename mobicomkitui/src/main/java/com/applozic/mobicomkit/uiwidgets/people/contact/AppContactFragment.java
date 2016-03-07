@@ -309,7 +309,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     /**
      * This is a subclass of CursorAdapter that supports binding Cursor columns to a view layout.
      * If those items are part of search results, the search string is marked by highlighting the
-     * query text. An {@link AlphabetIndexer} is used to allow quicker navigation up and down the
+     * query text. An {@link android.widget.AlphabetIndexer} is used to allow quicker navigation up and down the
      * ListView.
      */
     private class ContactsAdapter extends BaseAdapter {

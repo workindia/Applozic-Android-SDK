@@ -8,7 +8,7 @@
     <!-- view border color and width -->
     <stroke
         android:width="3dp"
-        android:color="@color/applozic_message_border_color" />
+        android:color="@color/applozic_theme_color_primary" />
 
     <!-- If you want to add some padding -->
     <padding

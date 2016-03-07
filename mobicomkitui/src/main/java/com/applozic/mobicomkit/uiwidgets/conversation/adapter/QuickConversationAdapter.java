@@ -214,7 +214,7 @@ public class QuickConversationAdapter extends BaseAdapter {
             }
             int messageUnReadCount = 0;
             if (message.getGroupId() == null && contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {
-                messageUnReadCount = messageDatabaseService.getUnreadMessageCount(contactReceiver.getContactIds());
+                messageUnReadCount = messageDatabaseService.getUnreadMessageCountForContact(contactReceiver.getContactIds());
 
             } else if (channel != null && channel.getKey() != null && channel.getKey() != 0) {
                 messageUnReadCount = messageDatabaseService.getUnreadMessageCountForChannel(channel.getKey());

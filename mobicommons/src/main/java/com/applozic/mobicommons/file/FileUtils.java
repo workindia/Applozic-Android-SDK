@@ -25,6 +25,11 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -34,8 +39,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.applozic.mobicommons.R;
+import com.applozic.mobicommons.commons.image.ImageUtils;
+
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
@@ -53,6 +64,13 @@ public class FileUtils {
     public static final String MIME_TYPE_VIDEO = "video/*";
     public static final String MIME_TYPE_APP = "application/*";
     public static final String HIDDEN_PREFIX = ".";
+    private static final float MAX_HEIGHT = 1332.0f;
+    private static final float MAX_WIDTH = 1776.0f;
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "FileUtils";
+    private static final boolean DEBUG = false; // Set to true to enable logging
     /**
      * File (not directories) filter.
      *
@@ -79,11 +97,6 @@ public class FileUtils {
             return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
-    /**
-     * TAG for log messages.
-     */
-    static final String TAG = "FileUtils";
-    private static final boolean DEBUG = false; // Set to true to enable logging
     /**
      * File and folder comparator. TODO Expose sorting option method
      *
@@ -294,7 +307,7 @@ public class FileUtils {
      * @param uri     The Uri to query.
      * @author paulburke
      * @see #isLocal(String)
-     * @see #getFile(Context, Uri)
+     * @see #getFile(android.content.Context, android.net.Uri)
      */
 
     public static String getPath(final Context context, final Uri uri) {
@@ -386,7 +399,7 @@ public class FileUtils {
      * @return file A local file that the Uri was pointing to, or null if the
      * Uri is unsupported or pointed to a remote resource.
      * @author paulburke
-     * @see #getPath(Context, Uri)
+     * @see #getPath(android.content.Context, android.net.Uri)
      */
     public static File getFile(Context context, Uri uri) {
         if (uri != null) {
@@ -542,20 +555,110 @@ public class FileUtils {
         return type;
     }
 
-    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight) {
+    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight, boolean enabled,String mimeType) {
 
-        File image = new File(filePath);
-
-        BitmapFactory.Options bounds = new BitmapFactory.Options();
-        bounds.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(image.getPath(), bounds);
-        if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
-            return null;
+        if(mimeType.startsWith("video")){
+            return ThumbnailUtils.createVideoThumbnail(filePath, 1);
         }
+            return getPreview(filePath, reqWidth,reqHeight,enabled);
+    }
 
-        bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
-        bounds.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(image.getPath(), bounds);
+
+
+    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight, boolean enabled) {
+        File image = new File(filePath);
+        if (enabled) {
+            Bitmap scaledBitmap = null;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap bmp = BitmapFactory.decodeFile(image.getPath(), options);
+
+            int actualHeight = options.outHeight;
+            int actualWidth = options.outWidth;
+            float imgRatio = actualWidth / actualHeight;
+            float maxRatio = MAX_WIDTH / MAX_HEIGHT;
+            if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
+                if (imgRatio < maxRatio) {
+                    imgRatio = MAX_HEIGHT / actualHeight;
+                    actualWidth = (int) (imgRatio * actualWidth);
+                    actualHeight = (int) MAX_HEIGHT;
+                } else if (imgRatio > maxRatio) {
+                    imgRatio = MAX_WIDTH / actualWidth;
+                    actualHeight = (int) (imgRatio * actualHeight);
+                    actualWidth = (int) MAX_WIDTH;
+                } else {
+                    actualHeight = (int) MAX_HEIGHT;
+                    actualWidth = (int) MAX_WIDTH;
+                }
+            }
+            options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);
+            options.inJustDecodeBounds = false;
+
+            options.inPurgeable = true;
+            options.inInputShareable = true;
+            options.inTempStorage = new byte[16 * 1024];
+
+            try {
+                bmp = BitmapFactory.decodeFile(image.getPath(), options);
+            } catch (OutOfMemoryError exception) {
+                exception.printStackTrace();
+
+            }
+            try {
+                scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+            }
+
+            float ratioX = actualWidth / (float) options.outWidth;
+            float ratioY = actualHeight / (float) options.outHeight;
+            float middleX = actualWidth / 2.0f;
+            float middleY = actualHeight / 2.0f;
+
+            Matrix scaleMatrix = new Matrix();
+            scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+            Canvas canvas = new Canvas(scaledBitmap);
+            canvas.setMatrix(scaleMatrix);
+            canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+            try {
+                scaledBitmap = ImageUtils.getImageRotatedBitmap(scaledBitmap, image.getPath(), scaledBitmap.getWidth(), scaledBitmap.getHeight());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(image.getAbsolutePath());
+                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (outputStream != null) {
+                        outputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return scaledBitmap;
+        } else {
+            Bitmap bitmap;
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(image.getPath(), bounds);
+            if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
+                return null;
+            }
+
+            bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
+            bounds.inJustDecodeBounds = false;
+            bitmap = BitmapFactory.decodeFile(image.getPath(), bounds);
+            return ImageUtils.getImageRotatedBitmap(bitmap, image.getPath(), bitmap.getWidth(), bitmap.getHeight());
+        }
     }
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

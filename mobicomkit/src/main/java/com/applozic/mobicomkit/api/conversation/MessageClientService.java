@@ -617,6 +617,9 @@ public class MessageClientService extends MobiComKitClientService {
                     contact.setFullName(userDetail.getDisplayName());
                     contact.setConnected(userDetail.isConnected());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                    if(userDetail.getUnreadCount() != null){
+                        contact.setUnreadCount(userDetail.getUnreadCount());
+                    }
                     baseContactService.upsert(contact);
                 }
                 BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(),contact.getContactIds());

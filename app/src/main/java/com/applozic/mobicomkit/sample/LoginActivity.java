@@ -475,7 +475,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
             Snackbar.make(layout, R.string.contact_permission,
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new OnClickListener() {
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ActivityCompat

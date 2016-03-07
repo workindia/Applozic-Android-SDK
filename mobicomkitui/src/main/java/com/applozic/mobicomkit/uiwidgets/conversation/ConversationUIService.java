@@ -44,6 +44,8 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.io.File;
+
 
 public class ConversationUIService {
 
@@ -152,6 +154,15 @@ public class ConversationUIService {
 
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
                 checkForStartNewConversation(intent);
+            }
+            if(requestCode == MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY && resultCode == Activity.RESULT_OK) {
+
+                Uri  selectedFilePath = ((ConversationActivity) fragmentActivity).getVideoFileUri();
+                if (selectedFilePath != null) {
+                    getConversationFragment().loadFile(selectedFilePath);
+                }
+                getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -299,7 +310,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) ||conversationFragment.getChannel() != null && message.getGroupId()!= null && message.getGroupId().equals(conversationFragment.getChannel().getKey())  ) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
@@ -413,6 +424,18 @@ public class ConversationUIService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void sendAudioMessage(String  selectedFilePath) {
+
+        Log.i("ConversationUIService:","Send audio message ...");
+
+        if (selectedFilePath != null) {
+            Uri uri = Uri.fromFile(new File(selectedFilePath));
+            getConversationFragment().loadFile(uri);
+        }
+        getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
 
     }
 
