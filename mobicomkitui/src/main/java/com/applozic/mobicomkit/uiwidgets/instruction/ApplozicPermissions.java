@@ -51,6 +51,14 @@ public class ApplozicPermissions {
         }
     }
 
+    public void requestAudio() {
+        if (PermissionsUtils.shouldShowRequestForLocationPermission(activity)) {
+            showSnackBar(R.string.record_audio, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_AUDIO_RECORD);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_RECORD_AUDIO, PermissionsUtils.REQUEST_AUDIO_RECORD);
+        }
+    }
+
     public void showSnackBar(int resId, final String[] permissions, final int requestCode) {
         Snackbar.make(snackBarLayout, resId,
                 Snackbar.LENGTH_INDEFINITE)

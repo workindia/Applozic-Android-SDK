@@ -11,6 +11,7 @@
     <string name="enter_message_hint">Write a Message...</string>
     <string name="send_text">SEND</string>
     <string name="cancel_text">CANCEL</string>
+    <string name="start_text">START</string>
     <string name="no_conversation">You have no conversations</string>
     <string name="info_broadcast_message">Messages will be broadcasted to each recipient individually</string>
     <string name="shareOptions">Share</string>
