@@ -181,6 +181,10 @@ public class MobiComConversationService {
                     if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                         setFilePathifExist(message);
                     }
+                    if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+                        FileClientService fileClientService = new FileClientService(context);
+                        fileClientService.loadContactsvCard(message);
+                    }
                     messageList.add(message);
                     messageDatabaseService.createMessage(message);
                 }

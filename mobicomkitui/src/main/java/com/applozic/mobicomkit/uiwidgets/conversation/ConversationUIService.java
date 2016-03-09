@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
@@ -16,10 +19,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -45,6 +50,10 @@ import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class ConversationUIService {
@@ -162,6 +171,16 @@ public class ConversationUIService {
                     getConversationFragment().loadFile(selectedFilePath);
                 }
                 getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+            }
+
+            if(requestCode ==  MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE && resultCode == Activity.RESULT_OK){
+
+                File vCradFile = vCard(intent);
+                if(vCradFile!=null){
+                    getConversationFragment().loadFile(Uri.fromFile(vCradFile));
+                }
+                getConversationFragment().sendMessage("", Message.ContentType.CONTACT_MSG.getValue());
+
 
             }
         } catch (Exception e) {
@@ -559,6 +578,43 @@ public class ConversationUIService {
         }
 
     }
+
+    /**
+     *
+     * @param data
+     * @return
+     */
+    public File vCard(Intent data){
+        Uri contactData = data.getData();
+
+        Cursor cursor = fragmentActivity.managedQuery(contactData, null, null, null, null);
+        cursor.moveToFirst();
+        String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
+        AssetFileDescriptor fd;
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "CONTACT_" + timeStamp + "_" + ".vcf";
+
+        File outputFile = FileClientService.getFilePath(imageFileName, fragmentActivity, "text/x-vcard");
+
+        try {
+            fd = fragmentActivity.getContentResolver().openAssetFileDescriptor(uri, "r");
+            FileInputStream fis = fd.createInputStream();
+            byte[] buf = new byte[(int) fd.getDeclaredLength()];
+            fis.read(buf);
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsoluteFile());
+            fileOutputStream.write(buf);
+            fileOutputStream.close();
+            return outputFile; //vCard from buffer
+
+        } catch (Exception e) {
+            Toast.makeText(fragmentActivity, "Failed to load Contact: " + name, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public void reconnectMQTT() {
         try {

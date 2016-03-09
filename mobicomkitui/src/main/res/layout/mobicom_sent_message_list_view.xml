@@ -38,6 +38,9 @@
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
 
+            <include
+                layout="@layout/mobicom_contact_share_layout" />
+
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"
                 android:layout_width="20dp"

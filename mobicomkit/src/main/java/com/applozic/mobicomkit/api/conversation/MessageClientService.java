@@ -291,12 +291,6 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void processMessage(Message message) throws Exception {
-        /*if (recentMessageSentToServer.contains(message)) {
-            return;
-        }
-*/
-        //recentMessageSentToServer.add(message);
-
 
         boolean isBroadcast = (message.getMessageId() == null);
 
@@ -411,7 +405,6 @@ public class MessageClientService extends MobiComKitClientService {
             recentMessageSentToServer.subList(0, 10).clear();
         }*/
     }
-
 
     public String syncMessages(SmsSyncRequest smsSyncRequest) throws Exception {
         String data = GsonUtils.getJsonFromObject(smsSyncRequest, SmsSyncRequest.class);

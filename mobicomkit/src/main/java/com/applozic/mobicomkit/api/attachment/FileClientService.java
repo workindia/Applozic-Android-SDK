@@ -10,6 +10,8 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
+import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -30,8 +32,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -151,6 +155,62 @@ public class FileClientService extends MobiComKitClientService {
 
         return null;
     }
+
+    /**
+     *
+     * @param message
+     */
+
+    public void loadContactsvCard(Message message) {
+        File file = null;
+        try {
+            InputStream inputStream = null;
+            FileMeta fileMeta = message.getFileMetas();
+            String contentType = fileMeta.getContentType();
+            HttpURLConnection connection;
+            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+            file = FileClientService.getFilePath(imageName, context, contentType);
+            if (!file.exists()) {
+                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    inputStream = connection.getInputStream();
+                } else {
+                    //TODO: Error Handling...
+                    Log.i(TAG, "Got Error response while uploading file : " + connection.getResponseCode());
+                    return;
+                }
+
+                OutputStream output = new FileOutputStream(file);
+                byte data[] = new byte[1024];
+                int count=0;
+                while ((count = inputStream.read(data)) != -1) {
+                    output.write(data, 0, count);
+                }
+                output.flush();
+                output.close();
+                inputStream.close();
+            }
+            //Todo: Fix this, so that attach package can be moved to mobicom mobicom.
+            new MessageDatabaseService(context).updateInternalFilePath(message.getKeyString(), file.getAbsolutePath());
+
+            ArrayList<String> arrayList = new ArrayList<String>();
+            arrayList.add(file.getAbsolutePath());
+            message.setFilePaths(arrayList);
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "File not found on server");
+        } catch (Exception ex) {
+            //If partial file got created delete it, we try to download it again
+            if (file != null && file.exists()) {
+                Log.i(TAG, " Exception occured while downloading :" + file.getAbsolutePath());
+                file.delete();
+            }
+            ex.printStackTrace();
+            Log.e(TAG, "Exception fetching file from server");
+        }
+    }
+
 
     public Bitmap loadMessageImage(Context context, String url) {
         try {

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
@@ -52,6 +54,7 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicomkit.contact.VCFContactData;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -209,8 +212,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
            }
 
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
-            TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
-            TextView status = (TextView) customView.findViewById(R.id.status);
+            //TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
+            //TextView status = (TextView) customView.findViewById(R.id.status);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
@@ -228,6 +231,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final LinearLayout attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);
             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
             final RelativeLayout mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
+            final RelativeLayout mainContactShareLayout = (RelativeLayout) customView.findViewById(R.id.contact_share_layout);
+
+
             final ProgressBar mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
             TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
@@ -513,7 +519,30 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                 }*/
             }
+            //Handling contact share
+            if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
 
+                mainAttachmentLayout.setVisibility(View.GONE);
+                mainContactShareLayout.setVisibility(View.VISIBLE);
+                MobiComVCFParser parser = new MobiComVCFParser();
+                try{
+                    VCFContactData data =  parser.parseCVFContactData(message.getFilePaths().get(0));
+                    ImageView shareContactImage = (ImageView)mainContactShareLayout.findViewById(R.id.contact_share_image);
+                    TextView shareContactName = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
+                    TextView shareContactNo = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
+
+                    shareContactImage.setImageBitmap(data.getProfilePic());
+                    shareContactName.setText(data.getName());
+                    shareContactNo.setText(data.getTelephoneNumber());
+
+                }catch (Exception e){
+                   Log.e("DetailedConvAdapter", "Exception in parsing", e);
+                }
+                return customView;
+            }else{
+                mainContactShareLayout.setVisibility(View.GONE);
+
+            }
         }
         return customView;
     }

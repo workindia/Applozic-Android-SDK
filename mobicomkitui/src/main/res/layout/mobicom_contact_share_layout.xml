@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/contact_share_layout"
+    android:background="@color/alphabet_r"
+    android:weightSum="3"
+    android:padding="10dp">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/contact_share_image"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:visibility="visible"
+        android:layout_weight="2.16"
+        android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+
+
+    <RelativeLayout
+        android:layout_width="243dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/contact_share_image"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="28dp"
+        android:id="@+id/relativeLayout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Contacts"
+            android:id="@+id/share_contact_heading"
+            android:layout_weight="2.16" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Adarsh Kumar"
+            android:id="@+id/contact_share_tv_name"
+            android:layout_below="@+id/share_contact_heading"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="9742689004"
+        android:id="@+id/contact_share_tv_no"
+        android:layout_below="@+id/contact_share_tv_name"
+        android:layout_marginTop="20dp" />
+
+
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add"
+        android:id="@+id/button"
+        android:layout_weight="1"
+        android:layout_below="@+id/relativeLayout"
+        android:layout_alignRight="@+id/relativeLayout"
+        android:layout_alignEnd="@+id/relativeLayout" />
+
+</RelativeLayout>

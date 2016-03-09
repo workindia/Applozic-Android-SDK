@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +35,7 @@ public class MultimediaOptionFragment extends DialogFragment {
     public static final int REQUEST_CODE_ATTACHE_AUDIO = 13;
     public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY = 14;
+    public static final int REQUEST_CODE_CONTACT_SHARE =15;
     private Uri capturedImageUri;
     private int menuOptionsResourceId = R.array.multimediaOptions_sms;
 
@@ -99,7 +101,15 @@ public class MultimediaOptionFragment extends DialogFragment {
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
                         break;
-                    case 5:
+
+                    case 5 :
+                        //Sharing contact.
+                        intent = new Intent( Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI );
+                        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                        getActivity().startActivityForResult(intent, REQUEST_CODE_CONTACT_SHARE);
+                        break;
+
+                    case 6:
                         new ConversationUIService(getActivity()).sendPriceMessage();
                         break;
                     default:
