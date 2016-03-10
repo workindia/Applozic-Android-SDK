@@ -26,6 +26,22 @@ public class MobiComVCFParser
 
     public VCFContactData vcfContactData;
 
+    /**
+     *  This method will validate basic initial data exported from contact.
+     * @param data
+     * @return
+     */
+    public static boolean validateData(String data){
+
+        return (data!=null && data.replaceAll("[\n\r]", "").startsWith(BEGIN_VCARD) && data.replaceAll("[\n\r]", "").endsWith(END_VCARD));
+    }
+
+    /**
+     *
+     * @param filePath path of the vcf stored.
+     * @return  returns VCFContactData- data prased from vcf file.
+     * @throws Exception
+     */
     public VCFContactData parseCVFContactData(String filePath) throws  Exception {
 
         File file = new File(filePath);
@@ -66,7 +82,12 @@ public class MobiComVCFParser
                 if (tokens.length >= 2) {
                     imageByteCode = new StringBuffer().append(tokens[1]);
                 }
-            }else {
+            }else if(sLine.startsWith("EMAIL")){
+                String[] tokens = sLine.split(":");
+                if (tokens.length >= 2) {
+                    vcfContactData.setEmail(tokens[1]);
+                }
+            } else {
                 if(imageByteCode!=null){
                     imageByteCode.append(sLine);
                 }
@@ -74,6 +95,7 @@ public class MobiComVCFParser
         }
         return null;
     }
+
     /**
      * @param encodedString
      * @return bitmap (from given string)
@@ -84,7 +106,7 @@ public class MobiComVCFParser
             Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
             return bitmap;
         }catch(Exception e){
-            Log.e("MobiComVParser", encodedString , e);
+            Log.e("MobiComVCFParser", encodedString , e);
             return null;
         }
     }

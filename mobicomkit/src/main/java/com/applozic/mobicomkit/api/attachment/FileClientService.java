@@ -44,10 +44,11 @@ import java.util.Date;
 public class FileClientService extends MobiComKitClientService {
 
     //Todo: Make the base folder configurable using either strings.xml or properties file
-    public static final String MOBI_TEXTER_IMAGES_FOLDER = "/image";
-    public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
-    public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
-    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
+    public static final String MOBI_COM_IMAGES_FOLDER = "/image";
+    public static final String MOBI_COM_VIDEOS_FOLDER = "/video";
+    public static final String MOBI_COM_CONTACT_FOLDER= "/contact";
+    public static final String MOBI_COM_OTHER_FILES_FOLDER = "/other";
+    public static final String MOBI_COM_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
@@ -67,15 +68,17 @@ public class FileClientService extends MobiComKitClientService {
         File filePath;
         File dir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_OTHER_FILES_FOLDER;
+            String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_OTHER_FILES_FOLDER;
 
             if (contentType.startsWith("image")) {
-                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_IMAGES_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_IMAGES_FOLDER;
             } else if (contentType.startsWith("video")) {
-                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_VIDEOS_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_VIDEOS_FOLDER;
+            } else if(contentType.equalsIgnoreCase("text/x-vCard")){
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_CONTACT_FOLDER;
             }
             if (isThumbnail) {
-                folder = folder + MOBI_TEXTER_THUMBNAIL_SUFIX;
+                folder = folder + MOBI_COM_THUMBNAIL_SUFIX;
             }
             dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
             if (!dir.exists()) {

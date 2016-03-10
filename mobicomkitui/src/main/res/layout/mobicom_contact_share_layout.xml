@@ -4,23 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/contact_share_layout"
-    android:background="@color/alphabet_r"
+    android:background="@android:color/transparent"
     android:weightSum="3"
     android:padding="10dp">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/contact_share_image"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:visibility="visible"
         android:layout_weight="2.16"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
-
-
 
     <RelativeLayout
         android:layout_width="243dp"
@@ -33,22 +31,23 @@
         android:id="@+id/relativeLayout"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Contacts"
-            android:id="@+id/share_contact_heading"
-            android:layout_weight="2.16" />
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+            <!--android:text="Contacts"-->
+            <!--android:id="@+id/share_contact_heading"-->
+            <!--android:layout_weight="2.16" />-->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Adarsh Kumar"
             android:id="@+id/contact_share_tv_name"
-            android:layout_below="@+id/share_contact_heading"
+            android:layout_weight="2.16"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:textColor="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -59,16 +58,34 @@
         android:layout_below="@+id/contact_share_tv_name"
         android:layout_marginTop="20dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text=""
+            android:id="@+id/contact_share_emailId"
+            android:layout_below="@+id/contact_share_tv_no"
+            android:layout_marginTop="10dp" />
 
     </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/relativeLayout"
+        android:id="@+id/divider"
+        android:background="@color/applozic_share_contact_divider" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add"
-        android:id="@+id/button"
+        android:background="@android:color/transparent"
+        android:text="Add Contacts"
+        android:id="@+id/contact_share_add_btn"
         android:layout_weight="1"
-        android:layout_below="@+id/relativeLayout"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/divider"
         android:layout_alignRight="@+id/relativeLayout"
         android:layout_alignEnd="@+id/relativeLayout" />
 

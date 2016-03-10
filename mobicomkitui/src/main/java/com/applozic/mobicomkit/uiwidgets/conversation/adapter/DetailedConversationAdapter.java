@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -521,23 +522,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             //Handling contact share
             if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
-
+                attachedFile.setVisibility(View.GONE);
                 mainAttachmentLayout.setVisibility(View.GONE);
-                mainContactShareLayout.setVisibility(View.VISIBLE);
-                MobiComVCFParser parser = new MobiComVCFParser();
-                try{
-                    VCFContactData data =  parser.parseCVFContactData(message.getFilePaths().get(0));
-                    ImageView shareContactImage = (ImageView)mainContactShareLayout.findViewById(R.id.contact_share_image);
-                    TextView shareContactName = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
-                    TextView shareContactNo = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
-
-                    shareContactImage.setImageBitmap(data.getProfilePic());
-                    shareContactName.setText(data.getName());
-                    shareContactNo.setText(data.getTelephoneNumber());
-
-                }catch (Exception e){
-                   Log.e("DetailedConvAdapter", "Exception in parsing", e);
-                }
+                setupContactShareView(message, mainContactShareLayout);
                 return customView;
             }else{
                 mainContactShareLayout.setVisibility(View.GONE);
@@ -545,6 +532,53 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
         }
         return customView;
+    }
+
+    private void setupContactShareView(final Message message,RelativeLayout mainContactShareLayout) {
+        mainContactShareLayout.setVisibility(View.VISIBLE);
+        MobiComVCFParser parser = new MobiComVCFParser();
+        try{
+
+            VCFContactData data =  parser.parseCVFContactData(message.getFilePaths().get(0));
+            ImageView shareContactImage = (ImageView)mainContactShareLayout.findViewById(R.id.contact_share_image);
+            TextView shareContactName = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
+            TextView shareContactNo = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
+            TextView shareEmailContact = (TextView)mainContactShareLayout.findViewById(R.id.contact_share_emailId);
+
+            Button addContactButton = (Button)mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
+            shareContactName.setText(data.getName());
+
+            if(data.getProfilePic()!=null){
+                shareContactImage.setImageBitmap(data.getProfilePic());
+            }
+            if(!TextUtils.isEmpty(data.getTelephoneNumber())){
+                shareContactNo.setText(data.getTelephoneNumber());
+            }else{
+                shareContactNo.setVisibility(View.GONE);
+            }
+            if(data.getEmail()!=null){
+                shareEmailContact.setText(data.getEmail());
+            }else{
+                shareEmailContact.setVisibility(View.GONE);
+            }
+
+            addContactButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(new File(message.getFilePaths().get(0))), "text/x-vcard");
+                    if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+
+        }catch (Exception e){
+           Log.e("DetailedConvAdapter", "Exception in parsing", e);
+        }
     }
 
     private void loadContactImage(Contact contact,Contact contactDisplayName ,Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
