@@ -29,6 +29,12 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<Uri> uris;
 
+    ImageButton deleteButton;
+    ImageView galleryImageView;
+    TextView fileSize;
+    ImageView attachmentImageView;
+    TextView fileName;
+
     public MobiComAttachmentGridViewAdapter(Context context, ArrayList<Uri> uris) {
         this.context = context;
         this.uris = uris;
@@ -37,7 +43,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         //Extra one item is added
-        return uris.size()+1;
+        return uris.size() + 1;
     }
 
     @Override
@@ -53,59 +59,78 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View view, ViewGroup viewGroup) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (view == null){
+        if (view == null) {
             view = inflater.inflate(R.layout.mobicom_attachment_gridview_item, viewGroup, false);//Inflate layout
         }
+        deleteButton = (ImageButton) view.findViewById(R.id.mobicom_attachment_delete_btn);
+        galleryImageView = (ImageView) view.findViewById(R.id.galleryImageView);
+        fileSize = (TextView) view.findViewById(R.id.mobicom_attachment_file_size);
+        attachmentImageView = (ImageView) view.findViewById(R.id.mobicom_attachment_image);
+        fileName = (TextView) view.findViewById(R.id.mobicom_attachment_file_name);
 
-        ImageButton deleteButton = (ImageButton) view.findViewById(R.id.mobicom_attachment_delete_btn);
-        final ImageView imageView = (ImageView) view.findViewById(R.id.galleryImageView);
-        final TextView fileName  = (TextView) view.findViewById(R.id.mobicom_attachment_file_name);
+        galleryImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        //Last element
-        if (position == getCount()-1) {
-
-            deleteButton.setVisibility(View.GONE);
-            imageView.setImageResource(R.drawable.mobicom_new_attachment);
-            fileName.setVisibility(View.VISIBLE);
-            fileName.setText("Tap to attach file");
-
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Intent getContentIntent = FileUtils.createGetContentIntent();
-                    getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                    Intent intentPick = Intent.createChooser(getContentIntent, context.getString(R.string.select_file));
-                    ((Activity) context).startActivityForResult(intentPick, 100);
+                if(position<getCount()-1){
+                    return;
                 }
-            });
+                Intent getContentIntent = FileUtils.createGetContentIntent();
+                getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                Intent intentPick = Intent.createChooser(getContentIntent, context.getString(R.string.select_file));
+                ((Activity) context).startActivityForResult(intentPick, 100);
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uris.remove(position);
+                notifyDataSetChanged();
+            }
+        });
+
+        if (position == getCount() - 1) {
+            setNewAttachmentView();
             return view;
-        }else{
+        } else {
             deleteButton.setVisibility(View.VISIBLE);
 
         }
 
-        Uri uri = (Uri)getItem(position);
-
-        Bitmap previewBitmap = getPreview(uri) ;
-        if(previewBitmap!=null){
-            imageView.setImageBitmap(previewBitmap);
-        }else{
-            imageView.setImageResource(R.drawable.mobicom_attachment_file);
-            fileName.setVisibility(View.VISIBLE);
-            fileName.setText(getFileName(uri));
+        Uri uri = (Uri) getItem(position);
+        Bitmap previewBitmap = getPreview(uri);
+        if (previewBitmap != null) {
+            setGalleryView(previewBitmap);
+        } else {
+            setAttachmentView(uri);
         }
-        fileName.setText(getFileName(uri));
+        fileSize.setText(getSize(uri));
 
-        deleteButton.
-                setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        uris.remove(position);
-                        notifyDataSetChanged();
-                    }
-                });
+
         return view;
+    }
+
+
+    private void setAttachmentView(Uri uri) {
+        attachmentImageView.setVisibility(View.VISIBLE);
+        fileName.setVisibility(View.VISIBLE);
+        fileName.setText(getFileName(uri));
+        galleryImageView.setImageBitmap(null);
+    }
+
+    private void setGalleryView(Bitmap previewBitmap) {
+        galleryImageView.setImageBitmap(previewBitmap);
+        fileName.setVisibility(View.GONE);
+        attachmentImageView.setVisibility(View.GONE);
+    }
+
+    private void setNewAttachmentView() {
+        deleteButton.setVisibility(View.GONE);
+        galleryImageView.setImageResource(R.drawable.applozic_ic_action_add);
+        fileName.setVisibility(View.GONE);
+        attachmentImageView.setVisibility(View.GONE);
+        fileSize.setText("New Attachment");
     }
 
 
@@ -147,6 +172,29 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
         }
 
         return fileName;
+    }
+
+    public String getSize(Uri uri) {
+
+        String sizeInMB =null;
+        Cursor returnCursor =
+                context.getContentResolver().query(uri, null, null, null, null);
+
+        if (returnCursor != null &&  returnCursor.moveToFirst()) {
+
+            int columnIndex =  returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            Long fileSize = returnCursor.getLong(columnIndex);
+            if( fileSize  < 1024 ) {
+                sizeInMB = (int)(fileSize / (1024 * 1024)) +" B";
+
+            }else if(fileSize < 1024 *1024){
+                sizeInMB = (int)(fileSize / (1024 )) +" KB";
+            }else {
+                sizeInMB = (int)(fileSize / (1024 * 1024)) +" MB";
+            }
+        }
+
+        return sizeInMB;
     }
 
 }
