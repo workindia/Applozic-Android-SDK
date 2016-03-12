@@ -85,13 +85,9 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
 
         }
 
-
         Uri uri = (Uri)getItem(position);
 
-        System.out.println(" imageView Autority ### ::" + uri.getAuthority() + "  getting file path :" + uri.getPath());
-        //If Context is MainActivity then hide checkbox
         Bitmap previewBitmap = getPreview(uri) ;
-
         if(previewBitmap!=null){
             imageView.setImageBitmap(previewBitmap);
         }else{
@@ -105,7 +101,6 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
                 setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        System.out.println("Delete button clicked...at position :: " +  position);
                         uris.remove(position);
                         notifyDataSetChanged();
                     }
