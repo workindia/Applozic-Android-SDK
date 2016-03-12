@@ -37,6 +37,7 @@ import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
@@ -54,14 +55,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
 public class ConversationUIService {
 
-    public static final int REQUEST_CODE_FULL_SCREEN_ACTION = 301;
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
-    public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String DISPLAY_NAME = "displayName";
@@ -189,6 +189,19 @@ public class ConversationUIService {
                     Toast.makeText(fragmentActivity, "Failed to load Contact: ", Toast.LENGTH_SHORT).show();
                     Log.e("Exception::", "Exception", e);
                 }
+            }
+            if(requestCode ==  MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT && resultCode == Activity.RESULT_OK){
+
+                ArrayList<Uri> attachmentList  =  intent.getParcelableArrayListExtra(MobiComAttachmentSelectorActivity.MULTISELECT_SELECTED_FILES);
+                String messageText = intent.getStringExtra(MobiComAttachmentSelectorActivity.MULTISELECT_MESSAGE);
+
+                //TODO: check performance, we might need to put in each posting in separate thread.
+
+                for(Uri  info : attachmentList ){
+                    getConversationFragment().loadFile(info);
+                    getConversationFragment().sendMessage(messageText, Message.ContentType.ATTACHMENT.getValue());
+               }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

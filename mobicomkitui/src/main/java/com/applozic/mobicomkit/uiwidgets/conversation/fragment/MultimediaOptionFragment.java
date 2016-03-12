@@ -16,7 +16,7 @@ import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -32,6 +32,7 @@ public class MultimediaOptionFragment extends DialogFragment {
     public static final int RESULT_OK = -1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
+    public static final int REQUEST_MULTI_ATTCAHMENT=16;
     public static final int REQUEST_CODE_ATTACHE_AUDIO = 13;
     public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY = 14;
@@ -79,10 +80,9 @@ public class MultimediaOptionFragment extends DialogFragment {
                         }
                         break;
                     case 2:
-                        Intent getContentIntent = FileUtils.createGetContentIntent();
-                        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-                        getActivity().startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+
+                        Intent intentPick = new Intent(getActivity(), MobiComAttachmentSelectorActivity.class);
+                        getActivity().startActivityForResult(intentPick, REQUEST_MULTI_ATTCAHMENT);
                         break;
                     case 3:
                         ((ConversationActivity) getActivity()).showAudioRecordingDialog();
