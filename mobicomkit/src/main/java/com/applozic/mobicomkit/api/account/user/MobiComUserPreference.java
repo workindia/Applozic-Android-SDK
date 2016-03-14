@@ -47,6 +47,9 @@ public class MobiComUserPreference {
     private static String channelSyncTime ="channelSyncTime";
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
 
+    private static String max_compressed_image_size = "max_compressed_image_size";
+
+
     public SharedPreferences sharedPreferences;
     private Context context;
     private String countryCode;
@@ -342,6 +345,16 @@ public class MobiComUserPreference {
 
     public void setChannelSyncTime(String syncChannelTime) {
         sharedPreferences.edit().putString(channelSyncTime, syncChannelTime).commit();
+    }
+
+    public void setCompressedImageSizeInMB(int maxSize) {
+
+        sharedPreferences.edit().putInt(max_compressed_image_size, maxSize).commit();
+    }
+
+    public int getCompressedImageSizeInMB() {
+       return  sharedPreferences.getInt(max_compressed_image_size,10);
+
     }
 
     @Override

@@ -109,7 +109,10 @@ public class MobiComMessageService {
         messageDatabaseService.createMessage(message);
         //download contacts in advance.
         FileClientService fileClientService =  new FileClientService(context);
-        fileClientService.loadContactsvCard(message);
+        if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+            fileClientService.loadContactsvCard(message);
+        }
+
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast

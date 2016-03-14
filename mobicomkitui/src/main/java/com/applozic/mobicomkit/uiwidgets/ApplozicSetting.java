@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 /**
  * Created by devashish on 8/21/2015.
@@ -173,6 +174,16 @@ public class ApplozicSetting {
 
     public boolean isImageCompressionEnabled() {
         return sharedPreferences.getBoolean(IMAGE_COMPRESSION, false);
+    }
+
+    public ApplozicSetting setCompressedImageSizeInMB(int size) {
+        MobiComUserPreference.getInstance(context).setCompressedImageSizeInMB(size);
+        return this;
+
+    }
+
+    public int getCompressedImageSizeInMB() {
+        return MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB();
     }
 
 

@@ -264,7 +264,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
                     //Start GCM registration....
-                    ApplozicSetting.getInstance(context).hideStartNewGroupButton();
+                    ApplozicSetting.getInstance(context).hideStartNewGroupButton().setCompressedImageSizeInMB(5);
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 
