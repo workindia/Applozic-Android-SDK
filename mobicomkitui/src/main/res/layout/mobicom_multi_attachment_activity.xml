@@ -88,7 +88,7 @@
             android:layout_gravity="center"
             android:background="@color/white" />
         <Button
-            android:id="@+id/mobicom_attachment_select_btn"
+            android:id="@+id/mobicom_attachment_send_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/send_text"

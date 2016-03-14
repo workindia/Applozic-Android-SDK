@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentGridViewAdapter;
@@ -26,7 +27,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
     public static final String MULTISELECT_MESSAGE = "multiselect.message";
     private String TAG = "MultiAttActivity";
     private static int REQUEST_CODE_ATTACH_PHOTO =10;
-    private  Button selectAttachment;
+    private  Button sendAttachment;
     private  Button cancelAttachment;
     private EditText messageEditText;
 
@@ -54,7 +55,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
      */
     private void initViews() {
 
-        selectAttachment = (Button) findViewById(R.id.mobicom_attachment_select_btn);
+        sendAttachment = (Button) findViewById(R.id.mobicom_attachment_send_btn);
         cancelAttachment=  (Button) findViewById(R.id.mobicom_attachment_cancel_btn);
         galleryImagesGridView = (GridView) findViewById(R.id.mobicom_attachment_grid_View);
         messageEditText = (EditText) findViewById(R.id.mobicom_attachment_edit_text);
@@ -70,9 +71,15 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
             }
         });
 
-        selectAttachment.setOnClickListener(new View.OnClickListener() {
+        sendAttachment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(attachmentFileList.isEmpty()){
+                    Toast.makeText(getApplicationContext(),R.string.mobicom_select_attachment_text, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Intent intent = new Intent();
                 intent.putParcelableArrayListExtra(MULTISELECT_SELECTED_FILES, attachmentFileList);
                 intent.putExtra(MULTISELECT_MESSAGE, messageEditText.getText().toString());
