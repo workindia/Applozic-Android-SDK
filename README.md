@@ -10,7 +10,7 @@ Signup at https://www.applozic.com to get the application key.
 
 <img  align="middle"  src="img/applozic.jpg"/>
 
-<img align="right" src="img/android.jpg" />
+<img align="right" src="img/android.png" />
 
 
 
