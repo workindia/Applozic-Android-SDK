@@ -76,6 +76,7 @@
             <include
                 layout="@layout/mobicom_contact_share_layout" />
 
+            <include layout="@layout/mobicom_chat_location_view" />
 
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"

@@ -10,6 +10,7 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -17,6 +18,7 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ import java.util.Date;
  */
 public class MultimediaOptionFragment extends DialogFragment {
     public static final int RESULT_OK = -1;
+    public static final int REQUEST_CODE_SEND_LOCATION = 10;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
     public static final int REQUEST_MULTI_ATTCAHMENT=16;
@@ -56,7 +59,9 @@ public class MultimediaOptionFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        ((ConversationActivity) getActivity()).processLocation();
+                        Intent toMapActivity = new Intent(getActivity(), MobicomLocationActivity.class);
+                        getActivity().startActivityForResult(toMapActivity, REQUEST_CODE_SEND_LOCATION);
+                        Log.i("test","Activity for result strarted");
                         break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

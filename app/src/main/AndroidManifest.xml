@@ -20,13 +20,19 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="com.applozic.mobikit.sample.permission.MAPS_RECEIVE" />
 
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <permission
+        android:name="com.applozic.mobicomkit.sample.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
     <permission
         android:name="com.applozic.mobicomkit.sample.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
     <application
         android:name="com.applozic.mobicomkit.uiwidgets.ApplozicApplication"
         android:allowBackup="true"
@@ -89,11 +95,11 @@
         </activity>
         <activity
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
-            android:launchMode="singleTop"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:launchMode="singleTop"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/ApplozicTheme">
+            android:theme="@style/ApplozicTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
@@ -144,6 +150,9 @@
         <meta-data
             android:name="share_text"
             android:value="@string/invite_message" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAv1wf5eMyErPaU3l8EnMUmOsoYJ2joC70" />
         <!--<activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -227,6 +236,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
         </activity>
+
+        <activity
+            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+            android:theme="@style/Applozic.People.Theme"
+            android:windowSoftInputMode="adjustResize"></activity>
 
 
     </application>
