@@ -76,6 +76,7 @@
     <string name="location_permission_granted">Location Permissions has been granted</string>
     <string name="phone_state_permission_granted">Phone state Permissions has been granted</string>
     <string name="record_audio_permission_granted">Audio Record permissions has been granted</string>
+    <string name="mobicom_max_attachment_warning">Max attachment limit reached</string>
 
 
 </resources>

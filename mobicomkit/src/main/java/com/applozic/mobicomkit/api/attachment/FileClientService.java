@@ -253,7 +253,7 @@ public class FileClientService extends MobiComKitClientService {
             ContentType contentType = ContentType.create(FileUtils.getMimeType(path));
             //Compress files which is grater than settings value.
             File file =   new File(path);
-            if( file.length() > maxFileSize && contentType.getMimeType().contains("image") ){
+            if( MobiComUserPreference.getInstance(context).isImageCompressionEnabled() && file.length() > maxFileSize && contentType.getMimeType().contains("image") ){
                 //Do a compression first...
                 fileToSend = FileUtils.compressImageFiles(path, path + ".tmp",maxFileSize);
             }else{

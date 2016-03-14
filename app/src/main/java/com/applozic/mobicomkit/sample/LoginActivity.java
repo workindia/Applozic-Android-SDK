@@ -262,9 +262,17 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     mAuthTask = null;
                     showProgress(false);
                     ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
+
+                    //Basic settings...
+
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
+
+                    ApplozicSetting.getInstance(context).hideStartNewGroupButton()
+                            .setCompressedImageSizeInMB(5)
+                            .enableImageCompression()
+                            .setMaxAttachmentAllowed(5);
+
                     //Start GCM registration....
-                    ApplozicSetting.getInstance(context).hideStartNewGroupButton().setCompressedImageSizeInMB(5);
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();
 

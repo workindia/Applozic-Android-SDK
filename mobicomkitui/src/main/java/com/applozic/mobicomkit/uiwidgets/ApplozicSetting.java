@@ -24,6 +24,7 @@ public class ApplozicSetting {
     private static final String SEND_BUTTON_BACKGROUND_COLOR ="SEND_BUTTON_BACKGROUND_COLOR";
     private static final String START_NEW_GROUP ="START_NEW_GROUP";
     private static final String IMAGE_COMPRESSION ="IMAGE_COMPRESSION";
+    private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
 
 
     public static ApplozicSetting applozicSetting;
@@ -163,17 +164,17 @@ public class ApplozicSetting {
 
 
     public ApplozicSetting enableImageCompression() {
-        sharedPreferences.edit().putBoolean(IMAGE_COMPRESSION, true).commit();
+        MobiComUserPreference.getInstance(context).setImageCompressionEnabled(true);
         return this;
     }
 
     public ApplozicSetting disableImageCompression() {
-        sharedPreferences.edit().putBoolean(IMAGE_COMPRESSION, false).commit();
+        MobiComUserPreference.getInstance(context).setImageCompressionEnabled(false);
         return this;
     }
 
     public boolean isImageCompressionEnabled() {
-        return sharedPreferences.getBoolean(IMAGE_COMPRESSION, false);
+        return MobiComUserPreference.getInstance(context).isImageCompressionEnabled();
     }
 
     public ApplozicSetting setCompressedImageSizeInMB(int size) {
@@ -186,6 +187,15 @@ public class ApplozicSetting {
         return MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB();
     }
 
+    public ApplozicSetting setMaxAttachmentAllowed(int maxAttachment) {
+        sharedPreferences.edit().putInt(MAX_ATTACHMENT_ALLOWED, maxAttachment).commit();
+        return this;
+    }
+
+    //Default value is 5.
+    public int getMaxAttachmentAllowed(){
+       return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
+    }
 
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();

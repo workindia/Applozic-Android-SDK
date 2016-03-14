@@ -708,8 +708,42 @@ public class FileUtils {
      */
     public static File compressImageFiles(String filePath, String newFileName,int maxFileSize){
 
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
 
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        int actualHeight = options.outHeight;
+        int actualWidth = options.outWidth;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = MAX_WIDTH / MAX_HEIGHT;
+        if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
+            if (imgRatio < maxRatio) {
+                imgRatio = MAX_HEIGHT / actualHeight;
+                actualWidth = (int) (imgRatio * actualWidth);
+                actualHeight = (int) MAX_HEIGHT;
+            } else if (imgRatio > maxRatio) {
+                imgRatio = MAX_WIDTH / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) MAX_WIDTH;
+            } else {
+                actualHeight = (int) MAX_HEIGHT;
+                actualWidth = (int) MAX_WIDTH;
+            }
+        }
+        options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);
+        options.inJustDecodeBounds = false;
+
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        try {
+            bitmap = BitmapFactory.decodeFile(filePath, options);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+
         int streamLength = maxFileSize;
         int compressQuality = 100;// Maximum 20 loops to retry to maintain quality.
         ByteArrayOutputStream bmpStream = new ByteArrayOutputStream();

@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -107,10 +108,13 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         super.onActivityResult(requestCode, resultCode, intent);
-        Uri selectedFileUri = (intent == null ? null : intent.getData());
-        Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
-        addUri(selectedFileUri);
-        imagesAdapter.notifyDataSetChanged();
+
+        if(resultCode == Activity.RESULT_OK ){
+            Uri selectedFileUri = (intent == null ? null : intent.getData());
+            Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
+            addUri(selectedFileUri);
+            imagesAdapter.notifyDataSetChanged();
+        }
 
     }
 }
