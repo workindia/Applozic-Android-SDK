@@ -7,6 +7,7 @@ import android.widget.LinearLayout;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 
 /**
@@ -31,7 +32,7 @@ public class ApplozicPermissions {
         if (PermissionsUtils.checkSelfPermissionForLocation(activity)) {
             requestLocationPermissions();
         } else {
-            ((ConversationActivity) activity).processingLocation();
+            ((MobicomLocationActivity) activity).processingLocation();
         }
     }
 
