@@ -70,7 +70,13 @@
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
-            <include layout="@layout/mobicom_attachment_preview_layout" />
+            <include
+                layout="@layout/mobicom_attachment_preview_layout" />
+
+            <include
+                layout="@layout/mobicom_contact_share_layout" />
+
+            <include layout="@layout/mobicom_chat_location_view" />
 
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"

@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -106,6 +107,11 @@ public class MobiComMessageService {
         }
 
         messageDatabaseService.createMessage(message);
+        //download contacts in advance.
+        FileClientService fileClientService =  new FileClientService(context);
+        if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+            fileClientService.loadContactsvCard(message);
+        }
 
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 

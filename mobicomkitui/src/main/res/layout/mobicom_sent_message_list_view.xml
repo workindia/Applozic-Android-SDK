@@ -2,23 +2,23 @@
     android:id="@+id/messageLayout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:background="@color/conversation_list_background"
     android:gravity="right"
     android:longClickable="true"
-    android:background="@color/conversation_list_background"
-    android:layout_marginTop="2dp"
-    android:padding="3dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="3dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/messageTextLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="59dp"
-        android:minHeight="55dp"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="59dp"
+        android:background="@drawable/applozic_sent_message"
         android:gravity="right|center_vertical"
-        android:orientation="vertical"
-        android:background="@drawable/applozic_sent_message">
+        android:minHeight="55dp"
+        android:orientation="vertical">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/messageTextInsideLayout"
@@ -38,6 +38,10 @@
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
 
+            <include layout="@layout/mobicom_contact_share_layout" />
+
+            <include layout="@layout/mobicom_chat_location_view" />
+
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"
                 android:layout_width="20dp"
@@ -48,10 +52,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="all"
-                android:textColorLink="@color/white"
                 android:padding="10dp"
                 android:text=""
                 android:textColor="@color/sent_message_text_color"
+                android:textColorLink="@color/white"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -71,10 +75,10 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/conversation_list_background"
-        android:layout_below="@+id/messageTextLayout"
         android:layout_alignParentRight="true"
+        android:layout_below="@+id/messageTextLayout"
+        android:background="@color/conversation_list_background"
+        android:orientation="horizontal"
         android:paddingBottom="6dp"
         android:paddingRight="4dp">
 

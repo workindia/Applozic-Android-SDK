@@ -35,6 +35,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.BuildConfig;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -42,6 +43,7 @@ import android.webkit.MimeTypeMap;
 import com.applozic.mobicommons.R;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -58,6 +60,7 @@ import java.util.Comparator;
  */
 @SuppressLint("NewApi")
 public class FileUtils {
+
     public static final String MIME_TYPE_AUDIO = "audio/*";
     public static final String MIME_TYPE_TEXT = "text/*";
     public static final String MIME_TYPE_IMAGE = "image/*";
@@ -66,6 +69,7 @@ public class FileUtils {
     public static final String HIDDEN_PREFIX = ".";
     private static final float MAX_HEIGHT = 1332.0f;
     private static final float MAX_WIDTH = 1776.0f;
+
     /**
      * TAG for log messages.
      */
@@ -693,5 +697,84 @@ public class FileUtils {
             fileType = fileName.substring(i + 1);
         }
         return fileType;
+    }
+
+    /**
+     *  This method will compressed Image to a pre-configured files.
+     * @param filePath
+     * @param newFileName
+     * @param maxFileSize
+     * @return
+     */
+    public static File compressImageFiles(String filePath, String newFileName,int maxFileSize){
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
+
+        int actualHeight = options.outHeight;
+        int actualWidth = options.outWidth;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = MAX_WIDTH / MAX_HEIGHT;
+        if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
+            if (imgRatio < maxRatio) {
+                imgRatio = MAX_HEIGHT / actualHeight;
+                actualWidth = (int) (imgRatio * actualWidth);
+                actualHeight = (int) MAX_HEIGHT;
+            } else if (imgRatio > maxRatio) {
+                imgRatio = MAX_WIDTH / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) MAX_WIDTH;
+            } else {
+                actualHeight = (int) MAX_HEIGHT;
+                actualWidth = (int) MAX_WIDTH;
+            }
+        }
+        options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);
+        options.inJustDecodeBounds = false;
+
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        try {
+            bitmap = BitmapFactory.decodeFile(filePath, options);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+
+        int streamLength = maxFileSize;
+        int compressQuality = 100;// Maximum 20 loops to retry to maintain quality.
+        ByteArrayOutputStream bmpStream = new ByteArrayOutputStream();
+        while (streamLength >=maxFileSize && compressQuality > 50) {
+
+            try {
+                bmpStream.flush();
+                bmpStream.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream);
+            byte[] bmpPicByteArray = bmpStream.toByteArray();
+            streamLength = bmpPicByteArray.length;
+            if(BuildConfig.DEBUG) {
+                Log.i("test upload", "Quality: " + compressQuality);
+                Log.i("test upload", "Size: " + streamLength);
+            }
+            compressQuality -= 3;
+
+        }
+
+        FileOutputStream fo;
+        try {
+            fo = new FileOutputStream(newFileName);
+            fo.write(bmpStream.toByteArray());
+            fo.flush();
+            fo.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    return new File(newFileName);
     }
 }

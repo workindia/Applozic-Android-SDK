@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
@@ -16,10 +19,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -28,13 +33,16 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
+import com.applozic.mobicommons.commons.core.utils.LocationInfo;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -45,13 +53,16 @@ import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 
 public class ConversationUIService {
 
-    public static final int REQUEST_CODE_FULL_SCREEN_ACTION = 301;
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
-    public static final int INSTRUCTION_DELAY = 5000;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String DISPLAY_NAME = "displayName";
@@ -155,15 +166,55 @@ public class ConversationUIService {
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
                 checkForStartNewConversation(intent);
             }
-            if(requestCode == MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            if (requestCode == MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY && resultCode == Activity.RESULT_OK) {
 
-                Uri  selectedFilePath = ((ConversationActivity) fragmentActivity).getVideoFileUri();
+                Uri selectedFilePath = ((ConversationActivity) fragmentActivity).getVideoFileUri();
                 if (selectedFilePath != null) {
                     getConversationFragment().loadFile(selectedFilePath);
                 }
-                getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+                getConversationFragment().sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
+            }
+
+            if (requestCode == MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE && resultCode == Activity.RESULT_OK) {
+
+                try {
+                    File vCradFile = vCard(intent);
+
+                    if (vCradFile != null) {
+                        getConversationFragment().loadFile(Uri.fromFile(vCradFile));
+                        getConversationFragment().sendMessage("", Message.ContentType.CONTACT_MSG.getValue());
+
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(fragmentActivity, "Failed to load Contact: ", Toast.LENGTH_SHORT).show();
+                    Log.e("Exception::", "Exception", e);
+                }
+            }
+            if (requestCode == MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT && resultCode == Activity.RESULT_OK) {
+
+                ArrayList<Uri> attachmentList = intent.getParcelableArrayListExtra(MobiComAttachmentSelectorActivity.MULTISELECT_SELECTED_FILES);
+                String messageText = intent.getStringExtra(MobiComAttachmentSelectorActivity.MULTISELECT_MESSAGE);
+
+                //TODO: check performance, we might need to put in each posting in separate thread.
+
+                for (Uri info : attachmentList) {
+                    getConversationFragment().loadFile(info);
+                    getConversationFragment().sendMessage(messageText, Message.ContentType.ATTACHMENT.getValue());
+                }
 
             }
+
+            if (requestCode == MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION && resultCode == Activity.RESULT_OK) {
+                Log.i("test", "posi");
+                Double latitude = intent.getDoubleExtra("latitude", 0);
+                Double longitude = intent.getDoubleExtra("longitude", 0);
+                //TODO: put your location(lat/lon ) in constructor.
+                LocationInfo info = new LocationInfo(latitude, longitude);
+                String locationInfo = GsonUtils.getJsonFromObject(info, LocationInfo.class);
+                sendLocation(locationInfo);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +236,7 @@ public class ConversationUIService {
         });
         String name = "";
         if (channel != null) {
-            name = ChannelUtils.getChannelTitleName(channel,MobiComUserPreference.getInstance(fragmentActivity).getUserId());
+            name = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(fragmentActivity).getUserId());
         } else {
             name = contact.getDisplayName();
         }
@@ -310,7 +361,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) ||conversationFragment.getChannel() != null && message.getGroupId()!= null && message.getGroupId().equals(conversationFragment.getChannel().getKey())  ) {
+        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null && message.getGroupId() != null && message.getGroupId().equals(conversationFragment.getChannel().getKey())) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
@@ -427,15 +478,15 @@ public class ConversationUIService {
 
     }
 
-    public void sendAudioMessage(String  selectedFilePath) {
+    public void sendAudioMessage(String selectedFilePath) {
 
-        Log.i("ConversationUIService:","Send audio message ...");
+        Log.i("ConversationUIService:", "Send audio message ...");
 
         if (selectedFilePath != null) {
             Uri uri = Uri.fromFile(new File(selectedFilePath));
             getConversationFragment().loadFile(uri);
         }
-        getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+        getConversationFragment().sendMessage("", Message.ContentType.AUDIO_MSG.getValue());
 
     }
 
@@ -472,7 +523,7 @@ public class ConversationUIService {
             channel = ChannelService.getInstance(fragmentActivity).getChannel(channelKey);
         }
 
-        if(channel != null && !TextUtils.isEmpty(channelName) && TextUtils.isEmpty(channel.getName())){
+        if (channel != null && !TextUtils.isEmpty(channelName) && TextUtils.isEmpty(channel.getName())) {
             channel.setName(channelName);
             ChannelService.getInstance(fragmentActivity).updateChannel(channel);
         }
@@ -560,6 +611,44 @@ public class ConversationUIService {
 
     }
 
+    /**
+     * @param data
+     * @return
+     */
+    public File vCard(Intent data) throws Exception {
+        Uri contactData = data.getData();
+
+        Cursor cursor = fragmentActivity.getContentResolver().query(contactData, null, null, null, null);
+        cursor.moveToFirst();
+        String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+
+        AssetFileDescriptor fd;
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "CONTACT_" + timeStamp + "_" + ".vcf";
+
+        File outputFile = FileClientService.getFilePath(imageFileName, fragmentActivity, "text/x-vcard");
+
+        fd = fragmentActivity.getContentResolver().openAssetFileDescriptor(uri, "r");
+
+        FileInputStream fis = fd.createInputStream();
+        byte[] buf = new byte[(int) fd.getDeclaredLength()];
+        fis.read(buf);
+        String cvFdata = new String(buf);
+        if (!MobiComVCFParser.validateData(cvFdata)) {
+            Log.i("vCard ::", cvFdata.toString());
+            throw new Exception("contact exported is not proper in proper format");
+        }
+        Log.i(" data:", new String(buf));
+        FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsoluteFile());
+        fileOutputStream.write(buf);
+        fileOutputStream.close();
+        return outputFile;
+    }
+
+
     public void reconnectMQTT() {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
@@ -574,6 +663,10 @@ public class ConversationUIService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendLocation(String position) {
+        getConversationFragment().sendMessage(position, Message.ContentType.LOCATION.getValue());
     }
 
 }

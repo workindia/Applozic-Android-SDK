@@ -6,19 +6,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
-import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
-import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -32,11 +32,14 @@ import java.util.Date;
  */
 public class MultimediaOptionFragment extends DialogFragment {
     public static final int RESULT_OK = -1;
+    public static final int REQUEST_CODE_SEND_LOCATION = 10;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
+    public static final int REQUEST_MULTI_ATTCAHMENT=16;
     public static final int REQUEST_CODE_ATTACHE_AUDIO = 13;
     public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY = 14;
+    public static final int REQUEST_CODE_CONTACT_SHARE =15;
     private Uri capturedImageUri;
     private int menuOptionsResourceId = R.array.multimediaOptions_sms;
 
@@ -56,7 +59,9 @@ public class MultimediaOptionFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        ((ConversationActivity) getActivity()).processLocation();
+                        Intent toMapActivity = new Intent(getActivity(), MobicomLocationActivity.class);
+                        getActivity().startActivityForResult(toMapActivity, REQUEST_CODE_SEND_LOCATION);
+                        Log.i("test","Activity for result strarted");
                         break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -80,12 +85,10 @@ public class MultimediaOptionFragment extends DialogFragment {
                         }
                         break;
                     case 2:
-                        Intent getContentIntent = FileUtils.createGetContentIntent();
-                        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-                        getActivity().startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
-                        break;
 
+                        Intent intentPick = new Intent(getActivity(), MobiComAttachmentSelectorActivity.class);
+                        getActivity().startActivityForResult(intentPick, REQUEST_MULTI_ATTCAHMENT);
+                        break;
                     case 3:
                         ((ConversationActivity) getActivity()).showAudioRecordingDialog();
                         break;
@@ -99,11 +102,19 @@ public class MultimediaOptionFragment extends DialogFragment {
 
                         File fileUri = FileClientService.getFilePath(imageFileName, getActivity(), "video/mp4");
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileUri));
-                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
                         break;
-                    case 5:
+
+                    case 5 :
+                        //Sharing contact.
+                        intent = new Intent( Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI );
+                        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                        getActivity().startActivityForResult(intent, REQUEST_CODE_CONTACT_SHARE);
+                        break;
+
+                    case 6:
                         new ConversationUIService(getActivity()).sendPriceMessage();
                         break;
                     default:

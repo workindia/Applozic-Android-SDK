@@ -27,7 +27,7 @@ public class ConversationFragment extends MobiComConversationFragment {
         this.messageIntentClass = MessageIntentService.class;
     }
 
-    public ConversationFragment(Contact contact,Channel channel) {
+    public ConversationFragment(Contact contact, Channel channel) {
         this.messageIntentClass = MessageIntentService.class;
         this.contact = contact;
         this.channel = channel;
@@ -41,7 +41,6 @@ public class ConversationFragment extends MobiComConversationFragment {
         } else {
             address = "";
         }
-        messageEditText.setText(address + "http://maps.google.com/?q=" + mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

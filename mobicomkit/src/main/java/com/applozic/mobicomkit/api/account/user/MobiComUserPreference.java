@@ -46,6 +46,10 @@ public class MobiComUserPreference {
     private static String lastSeenAtSyncTime ="lastSeenAtSyncTime";
     private static String channelSyncTime ="channelSyncTime";
     private static String device_time_offset_from_UTC = "device_time_offset_from_UTC";
+    private static String image_compression_enabled = "image_compression_enabled";
+
+    private static String max_compressed_image_size = "max_compressed_image_size";
+
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -344,6 +348,16 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putString(channelSyncTime, syncChannelTime).commit();
     }
 
+    public void setCompressedImageSizeInMB(int maxSize) {
+
+        sharedPreferences.edit().putInt(max_compressed_image_size, maxSize).commit();
+    }
+
+    public int getCompressedImageSizeInMB() {
+       return  sharedPreferences.getInt(max_compressed_image_size,10);
+
+    }
+
     @Override
     public String toString() {
         return "MobiComUserPreference{" +
@@ -362,5 +376,13 @@ public class MobiComUserPreference {
         //startActivity(intent);
 
 
+    }
+
+    public void setImageCompressionEnabled(boolean imageCompressionEnabled) {
+        sharedPreferences.edit().putBoolean(image_compression_enabled, imageCompressionEnabled).commit();
+    }
+
+    public boolean isImageCompressionEnabled() {
+        return sharedPreferences.getBoolean(image_compression_enabled, true);
     }
 }

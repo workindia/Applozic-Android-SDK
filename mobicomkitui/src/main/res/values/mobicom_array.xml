@@ -41,6 +41,7 @@
         <item>Attach file</item>
         <item>Audio Message</item>
         <item>Video Message</item>
+        <item>Share Contact</item>
     </string-array>
 
     <string-array name="multimediaOptions_with_price">
@@ -49,7 +50,9 @@
         <item>Attach file</item>
         <item>Audio Message</item>
         <item>Video Message</item>
+        <item>Share Contact</item>
         <item>Attach price</item>
+
     </string-array>
 
 </resources>

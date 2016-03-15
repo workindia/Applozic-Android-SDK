@@ -10,12 +10,14 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -34,6 +36,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
@@ -43,6 +46,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -52,6 +56,10 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicomkit.contact.VCFContactData;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -59,6 +67,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -184,39 +193,41 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             customView = inflater.inflate(R.layout.mobicom_sent_message_list_view, parent, false);
         }
         if (message != null) {
-             Contact receiverContact = null;
-             Contact contactDisplayName = null;
-           if(message.getGroupId() == null){
-               List<String> items = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
-               List<String> userIds = null;
-               if (!TextUtils.isEmpty(message.getContactIds())) {
-                   userIds = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
-               }
-               if (individual) {
-                   receiverContact = contact;
-                   contact.setContactNumber(items.get(0));
-                   if (userIds != null) {
-                       contact.setUserId(userIds.get(0));
-                   }
-                   contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(items.get(0), MobiComUserPreference.getInstance(context).getCountryCode()));
-               } else {
-                   receiverContact = contactService.getContactReceiver(items, userIds);
-               }
-           }else {
-               if(!TextUtils.isEmpty(message.getContactIds())){
-                   contactDisplayName = contactService.getContactById(message.getContactIds());
-               }
-           }
+            Contact receiverContact = null;
+            Contact contactDisplayName = null;
+            if (message.getGroupId() == null) {
+                List<String> items = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
+                List<String> userIds = null;
+                if (!TextUtils.isEmpty(message.getContactIds())) {
+                    userIds = Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
+                }
+                if (individual) {
+                    receiverContact = contact;
+                    contact.setContactNumber(items.get(0));
+                    if (userIds != null) {
+                        contact.setUserId(userIds.get(0));
+                    }
+                    contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(items.get(0), MobiComUserPreference.getInstance(context).getCountryCode()));
+                } else {
+                    receiverContact = contactService.getContactReceiver(items, userIds);
+                }
+            } else {
+                if (!TextUtils.isEmpty(message.getContactIds())) {
+                    contactDisplayName = contactService.getContactById(message.getContactIds());
+                }
+            }
 
             View messageTextLayout = customView.findViewById(R.id.messageTextLayout);
-            TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
-            TextView status = (TextView) customView.findViewById(R.id.status);
+            //TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
+            //TextView status = (TextView) customView.findViewById(R.id.status);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
             CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
+            ImageView mapImageView = (ImageView) customView.findViewById(R.id.static_mapview);
+            LinearLayout chatLocation = (LinearLayout) customView.findViewById(R.id.chat_location);
             TextView deliveryStatus = (TextView) customView.findViewById(R.id.status);
             TextView selfDestruct = (TextView) customView.findViewById(R.id.selfDestruct);
             final ImageView preview = (ImageView) customView.findViewById(R.id.preview);
@@ -228,13 +239,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final LinearLayout attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);
             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
             final RelativeLayout mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
+            final RelativeLayout mainContactShareLayout = (RelativeLayout) customView.findViewById(R.id.contact_share_layout);
+
+
             final ProgressBar mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
             TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
 
-            if(TextUtils.isEmpty(message.getMessage())){
-               messageTextView.setVisibility(View.GONE);
-             }
+            if (TextUtils.isEmpty(message.getMessage())) {
+                messageTextView.setVisibility(View.GONE);
+            }
             if (attachedFile != null) {
                 attachedFile.setText("");
                 attachedFile.setVisibility(View.GONE);
@@ -244,11 +258,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 attachmentIcon.setVisibility(View.GONE);
             }
 
-            if(channel  != null && nameTextView != null && contactDisplayName != null){
+            if (channel != null && nameTextView != null && contactDisplayName != null) {
                 nameTextView.setVisibility(View.VISIBLE);
                 String userId = contactDisplayName.getDisplayName();
                 char firstLetter = contactDisplayName.getDisplayName().charAt(0);
-                if(userId.length() >0) {
+                if (userId.length() > 0) {
                     nameTextView.setText(String.valueOf(userId));
                 }
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
@@ -310,11 +324,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }*/
 
             ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
-                if (message.isTypeOutbox()) {
-                    loadContactImage(senderContact,contactDisplayName,message, contactImage, alphabeticTextView);
-                } else {
-                    loadContactImage(receiverContact,contactDisplayName, message,contactImage, alphabeticTextView);
-                }
+            if (message.isTypeOutbox()) {
+                loadContactImage(senderContact, contactDisplayName, message, contactImage, alphabeticTextView);
+            } else {
+                loadContactImage(receiverContact, contactDisplayName, message, contactImage, alphabeticTextView);
+            }
             if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
@@ -474,6 +488,29 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentDownloadLayout.setVisibility(View.GONE);
                     } catch (Exception e) {
                     }
+                } else if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
+                    //                  attachedFile.setVisibility(View.GONE);
+                    //                preview.setVisibility(View.GONE);
+
+                    chatLocation.setLayoutParams(getImageLayoutParam(false));
+                    chatLocation.setVisibility(View.VISIBLE);
+
+                    loadImage.setImageFadeIn(false);
+                    loadImage.loadImage(LocationUtils.loadStaticMap(message.getMessage()), mapImageView);
+                    messageTextView.setVisibility(View.GONE);
+
+                    mapImageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=" +LocationUtils.getLocationFromMessage(message.getMessage()));
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                            getContext().startActivity(intent);
+
+                        }
+                    });
+
+
                 } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                     messageTextView.setText(ConversationUIService.FINAL_PRICE_TEXT + message.getMessage());
                 } else {
@@ -488,7 +525,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
 
                 if (messageTextLayout != null) {
-                    GradientDrawable bgShape = (GradientDrawable)messageTextLayout.getBackground();
+                    GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
                     bgShape.setColor(context.getResources().getColor(message.isTypeOutbox() ?
                             applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor()));
                 }
@@ -513,24 +550,80 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                 }*/
             }
+            //Handling contact share
+            if (message.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+                attachedFile.setVisibility(View.GONE);
+                mainAttachmentLayout.setVisibility(View.GONE);
+                setupContactShareView(message, mainContactShareLayout);
+                return customView;
+            } else {
+                mainContactShareLayout.setVisibility(View.GONE);
 
+            }
         }
         return customView;
     }
 
-    private void loadContactImage(Contact contact,Contact contactDisplayName ,Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
+    private void setupContactShareView(final Message message, RelativeLayout mainContactShareLayout) {
+        mainContactShareLayout.setVisibility(View.VISIBLE);
+        MobiComVCFParser parser = new MobiComVCFParser();
+        try {
+
+            VCFContactData data = parser.parseCVFContactData(message.getFilePaths().get(0));
+            ImageView shareContactImage = (ImageView) mainContactShareLayout.findViewById(R.id.contact_share_image);
+            TextView shareContactName = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
+            TextView shareContactNo = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
+            TextView shareEmailContact = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_emailId);
+
+            Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
+            shareContactName.setText(data.getName());
+
+            if (data.getProfilePic() != null) {
+                shareContactImage.setImageBitmap(data.getProfilePic());
+            }
+            if (!TextUtils.isEmpty(data.getTelephoneNumber())) {
+                shareContactNo.setText(data.getTelephoneNumber());
+            } else {
+                shareContactNo.setVisibility(View.GONE);
+            }
+            if (data.getEmail() != null) {
+                shareEmailContact.setText(data.getEmail());
+            } else {
+                shareEmailContact.setVisibility(View.GONE);
+            }
+
+            addContactButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(new File(message.getFilePaths().get(0))), "text/x-vcard");
+                    if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e("DetailedConvAdapter", "Exception in parsing", e);
+        }
+    }
+
+    private void loadContactImage(Contact contact, Contact contactDisplayName, Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
         ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
         if (!applozicSetting.isConversationContactImageVisible()) {
             return;
         }
 
         if (alphabeticTextView != null) {
-            String contactNumber ="";
+            String contactNumber = "";
             char firstLetter = 0;
-            if(contact != null){
-                contactNumber =  contact.getContactNumber().toUpperCase();
+            if (contact != null) {
+                contactNumber = contact.getContactNumber().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
-            }else if(channel != null && !TextUtils.isEmpty(contactDisplayName.getDisplayName())){
+            } else if (channel != null && !TextUtils.isEmpty(contactDisplayName.getDisplayName())) {
                 alphabeticTextView.setVisibility(View.VISIBLE);
                 contactImage.setVisibility(View.GONE);
                 firstLetter = contactDisplayName.getDisplayName().toUpperCase().charAt(0);

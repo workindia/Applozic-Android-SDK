@@ -6,6 +6,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -64,5 +67,32 @@ public class LocationUtils {
             return null;
         }
         return null;
+    }
+
+    public static String loadStaticMap(String message){
+
+        String location = getLocationFromMessage(message);
+
+        final String staticMapUrl = "http://maps.googleapis.com/maps/api/staticmap?center=" + location
+                + "&zoom=17&size=400x400&maptype=roadmap&format=png&visual_refresh=true&markers=" + location;
+
+        return  staticMapUrl;
+    }
+
+    public static String getLocationFromMessage(String message){
+        String latitude = "0";
+        String longitude = "0";
+
+        try {
+            JSONObject locationObject = new JSONObject(message);
+            latitude = locationObject.getString("lat");
+            longitude = locationObject.getString("lon");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String location = latitude + "," + longitude;
+
+        return location;
     }
 }

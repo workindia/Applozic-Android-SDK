@@ -10,6 +10,9 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -30,8 +33,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -40,10 +45,11 @@ import java.util.Date;
 public class FileClientService extends MobiComKitClientService {
 
     //Todo: Make the base folder configurable using either strings.xml or properties file
-    public static final String MOBI_TEXTER_IMAGES_FOLDER = "/image";
-    public static final String MOBI_TEXTER_VIDEOS_FOLDER = "/video";
-    public static final String MOBI_TEXTER_OTHER_FILES_FOLDER = "/other";
-    public static final String MOBI_TEXTER_THUMBNAIL_SUFIX = "/.Thumbnail";
+    public static final String MOBI_COM_IMAGES_FOLDER = "/image";
+    public static final String MOBI_COM_VIDEOS_FOLDER = "/video";
+    public static final String MOBI_COM_CONTACT_FOLDER= "/contact";
+    public static final String MOBI_COM_OTHER_FILES_FOLDER = "/other";
+    public static final String MOBI_COM_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
     private static final String TAG = "FileClientService";
@@ -63,15 +69,17 @@ public class FileClientService extends MobiComKitClientService {
         File filePath;
         File dir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_OTHER_FILES_FOLDER;
+            String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_OTHER_FILES_FOLDER;
 
             if (contentType.startsWith("image")) {
-                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_IMAGES_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_IMAGES_FOLDER;
             } else if (contentType.startsWith("video")) {
-                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_TEXTER_VIDEOS_FOLDER;
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_VIDEOS_FOLDER;
+            } else if(contentType.equalsIgnoreCase("text/x-vCard")){
+                folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_CONTACT_FOLDER;
             }
             if (isThumbnail) {
-                folder = folder + MOBI_TEXTER_THUMBNAIL_SUFIX;
+                folder = folder + MOBI_COM_THUMBNAIL_SUFIX;
             }
             dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
             if (!dir.exists()) {
@@ -152,6 +160,62 @@ public class FileClientService extends MobiComKitClientService {
         return null;
     }
 
+    /**
+     *
+     * @param message
+     */
+
+    public void loadContactsvCard(Message message) {
+        File file = null;
+        try {
+            InputStream inputStream = null;
+            FileMeta fileMeta = message.getFileMetas();
+            String contentType = fileMeta.getContentType();
+            HttpURLConnection connection;
+            String fileName = fileMeta.getName();
+            file = FileClientService.getFilePath(fileName, context, contentType);
+            if (!file.exists()) {
+                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    inputStream = connection.getInputStream();
+                } else {
+                    //TODO: Error Handling...
+                    Log.i(TAG, "Got Error response while uploading file : " + connection.getResponseCode());
+                    return;
+                }
+
+                OutputStream output = new FileOutputStream(file);
+                byte data[] = new byte[1024];
+                int count=0;
+                while ((count = inputStream.read(data)) != -1) {
+                    output.write(data, 0, count);
+                }
+                output.flush();
+                output.close();
+                inputStream.close();
+            }
+            //Todo: Fix this, so that attach package can be moved to mobicom mobicom.
+            new MessageDatabaseService(context).updateInternalFilePath(message.getKeyString(), file.getAbsolutePath());
+
+            ArrayList<String> arrayList = new ArrayList<String>();
+            arrayList.add(file.getAbsolutePath());
+            message.setFilePaths(arrayList);
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "File not found on server");
+        } catch (Exception ex) {
+            //If partial file got created delete it, we try to download it again
+            if (file != null && file.exists()) {
+                Log.i(TAG, " Exception occured while downloading :" + file.getAbsolutePath());
+                file.delete();
+            }
+            ex.printStackTrace();
+            Log.e(TAG, "Exception fetching file from server");
+        }
+    }
+
+
     public Bitmap loadMessageImage(Context context, String url) {
         try {
             Bitmap attachedImage = null;
@@ -181,20 +245,34 @@ public class FileClientService extends MobiComKitClientService {
         BasicScheme scheme = new BasicScheme();
         httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
         httpRequestUtils.addGlobalHeaders(httppost);
-
+        File fileToSend = null;
+        int maxFileSize = MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB()* 1024*1024 ;
         try {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             String fileName = path.substring(path.lastIndexOf("/") + 1);
-            FileBody fileBody = new FileBody(new File(path), ContentType.create(FileUtils.getMimeType(path)), fileName);
+            ContentType contentType = ContentType.create(FileUtils.getMimeType(path));
+            //Compress files which is grater than settings value.
+            File file =   new File(path);
+            if( MobiComUserPreference.getInstance(context).isImageCompressionEnabled() && file.length() > maxFileSize && contentType.getMimeType().contains("image") ){
+                //Do a compression first...
+                fileToSend = FileUtils.compressImageFiles(path, path + ".tmp",maxFileSize);
+            }else{
+                fileToSend =new File(path);
+            }
+            FileBody fileBody = new FileBody(fileToSend,contentType,fileName);
+
             builder.addPart("files[]", fileBody);
             HttpEntity entity = builder.build();
             httppost.setEntity(entity);
             HttpResponse response = httpclient.execute(httppost);
             Log.d(TAG, "Image uploaded: " + response.getStatusLine());
-
             return EntityUtils.toString(response.getEntity());
         } catch (Exception e) {
             Log.d(TAG, "Image not uploaded: Exception:" + e.toString());
+        }finally {
+            if(fileToSend!=null){
+                fileToSend.deleteOnExit();
+            }
         }
         return null;
     }
