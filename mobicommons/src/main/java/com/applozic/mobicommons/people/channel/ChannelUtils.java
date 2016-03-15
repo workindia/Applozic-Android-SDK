@@ -57,4 +57,11 @@ public class ChannelUtils {
         return "";
     }
 
+    public static boolean isAdminUserId(String userId,Channel channel){
+        if(channel != null &&  !TextUtils.isEmpty(channel.getAdminKey()) && !TextUtils.isEmpty(userId)){
+            return channel.getAdminKey().equals(userId);
+        }
+        return false;
+    }
+
 }

@@ -21,6 +21,11 @@ public class ChannelUserMapper implements Serializable {
         this.unreadCount = unreadCount;
     }
 
+    public ChannelUserMapper(Integer key, String userKey) {
+        this.key = key;
+        this.userKey = userKey;
+    }
+
     public Integer getKey() {
         return key;
     }

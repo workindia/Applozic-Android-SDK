@@ -298,6 +298,26 @@
             android:visibility="visible" />
     </LinearLayout>
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/user_not_able_to_chat_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:minHeight="50dp"
+        android:orientation="horizontal"
+        android:background="@color/conversation_list_background"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:textSize="18sp"
+            android:id="@+id/user_not_able_to_chat_textView"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="@string/user_not_in_this_group_text"
+            android:layout_height="match_parent" />
+   </LinearLayout>
+
     <FrameLayout
         android:id="@+id/emojicons_frame_layout"
         android:layout_width="match_parent"

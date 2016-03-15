@@ -5,7 +5,7 @@ package com.applozic.mobicomkit.feed;
  */
 public class ApiResponse {
 
-
+    private static final String SUCCESS = "success";
     private String status;
     private String generatedAt;
     private Object response;
@@ -32,6 +32,10 @@ public class ApiResponse {
 
     public void setResponse(Object response) {
         this.response = response;
+    }
+
+    public boolean isSuccess(){
+        return SUCCESS.equals(status);
     }
 
     @Override

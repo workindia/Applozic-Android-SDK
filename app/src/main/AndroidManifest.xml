@@ -105,6 +105,22 @@
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
         </activity>
         <activity
+            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelNameActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+            android:theme="@style/ApplozicTheme"></activity>
+        <activity
+            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+            android:theme="@style/ApplozicTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
+        </activity>
+        <activity
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
@@ -170,10 +186,6 @@
 
         <service
             android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
-            android:exported="false" />
-
-        <service
-            android:name="com.applozic.mobicomkit.api.conversation.ApplozicChannelIntentService"
             android:exported="false" />
 
         <receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">

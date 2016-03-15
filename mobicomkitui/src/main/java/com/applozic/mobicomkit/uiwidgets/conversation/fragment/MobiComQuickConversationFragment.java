@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -56,7 +56,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
-    protected TextView emptyTextView;
+    protected TextView emptyTextView,toolBarTitle,toolBarSubTitle;
     protected Button startNewButton;
     protected SwipeRefreshLayout swipeLayout;
     protected int listIndex;
@@ -69,6 +69,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
+    private Toolbar toolbar;
 
     public ConversationListView getListView() {
         return listView;
@@ -101,6 +102,11 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView = (ConversationListView) list.findViewById(R.id.messageList);
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
+        toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
+        LinearLayout toolBarLayout = (LinearLayout) toolbar.findViewById(R.id.toolBarLayout);
+        toolBarLayout.setClickable(false);
+        toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolBarSubTitle = (TextView) toolbar.findViewById(R.id.toolbar_subTitle);
 
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
 
@@ -370,8 +376,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setTitle(ApplozicApplication.TITLE);
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle("");
+        toolBarTitle.setText(ApplozicApplication.TITLE);
+        toolBarSubTitle.setText("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
         latestMessageForEachContact.clear();
