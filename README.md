@@ -66,7 +66,7 @@ To integrate chat into your android app, signup at [Applozic](https://www.apploz
 
 
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.23' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.26' `
 
 
 Add the following in gradle android target:      
@@ -144,6 +144,7 @@ Permissions:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
   ```
 
 
@@ -232,6 +233,18 @@ Paste the following in your androidmanifest.xml:
           android:name="android.support.PARENT_ACTIVITY"
           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
 </activity>
+
+<activity
+     android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
+     android:configChanges="keyboardHidden|orientation|screenSize"
+     android:launchMode="singleTop"
+     android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+     android:theme="@style/ApplozicTheme"
+     android:windowSoftInputMode="stateHidden|adjustResize">
+ <meta-data 
+           android:name="android.support.PARENT_ACTIVITY"
+           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
+  </activity>
 
                    
 <service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
