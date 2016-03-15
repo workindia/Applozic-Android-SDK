@@ -10,6 +10,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -171,8 +172,8 @@ public class FileClientService extends MobiComKitClientService {
             FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
             HttpURLConnection connection;
-            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
-            file = FileClientService.getFilePath(imageName, context, contentType);
+            String fileName = fileMeta.getName();
+            file = FileClientService.getFilePath(fileName, context, contentType);
             if (!file.exists()) {
                 connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -244,20 +245,34 @@ public class FileClientService extends MobiComKitClientService {
         BasicScheme scheme = new BasicScheme();
         httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
         httpRequestUtils.addGlobalHeaders(httppost);
-
+        File fileToSend = null;
+        int maxFileSize = MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB()* 1024*1024 ;
         try {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             String fileName = path.substring(path.lastIndexOf("/") + 1);
-            FileBody fileBody = new FileBody(new File(path), ContentType.create(FileUtils.getMimeType(path)), fileName);
+            ContentType contentType = ContentType.create(FileUtils.getMimeType(path));
+            //Compress files which is grater than settings value.
+            File file =   new File(path);
+            if( MobiComUserPreference.getInstance(context).isImageCompressionEnabled() && file.length() > maxFileSize && contentType.getMimeType().contains("image") ){
+                //Do a compression first...
+                fileToSend = FileUtils.compressImageFiles(path, path + ".tmp",maxFileSize);
+            }else{
+                fileToSend =new File(path);
+            }
+            FileBody fileBody = new FileBody(fileToSend,contentType,fileName);
+
             builder.addPart("files[]", fileBody);
             HttpEntity entity = builder.build();
             httppost.setEntity(entity);
             HttpResponse response = httpclient.execute(httppost);
             Log.d(TAG, "Image uploaded: " + response.getStatusLine());
-
             return EntityUtils.toString(response.getEntity());
         } catch (Exception e) {
             Log.d(TAG, "Image not uploaded: Exception:" + e.toString());
+        }finally {
+            if(fileToSend!=null){
+                fileToSend.deleteOnExit();
+            }
         }
         return null;
     }

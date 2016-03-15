@@ -75,19 +75,23 @@
             android:id="@+id/mobicom_attachment_cancel_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CANCLE"
+            android:text="@string/cancel_text"
             android:textColor="@color/white"
             android:background="@android:color/transparent"
             android:textSize="15sp"
             android:paddingLeft="10dp"
             android:visibility="visible"
             android:layout_gravity="left|center_vertical" />
-
+        <View
+            android:layout_width="1dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:background="@color/white" />
         <Button
-            android:id="@+id/mobicom_attachment_select_btn"
+            android:id="@+id/mobicom_attachment_send_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SEND"
+            android:text="@string/send_text"
             android:paddingRight="10dp"
             android:background="@android:color/transparent"
             android:textColor="@color/white"

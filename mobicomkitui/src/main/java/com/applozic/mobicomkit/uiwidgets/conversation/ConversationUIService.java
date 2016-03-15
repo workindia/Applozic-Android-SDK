@@ -172,7 +172,7 @@ public class ConversationUIService {
                 if (selectedFilePath != null) {
                     getConversationFragment().loadFile(selectedFilePath);
                 }
-                getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+                getConversationFragment().sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
             }
 
             if (requestCode == MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE && resultCode == Activity.RESULT_OK) {
@@ -486,7 +486,7 @@ public class ConversationUIService {
             Uri uri = Uri.fromFile(new File(selectedFilePath));
             getConversationFragment().loadFile(uri);
         }
-        getConversationFragment().sendMessage("", Message.ContentType.ATTACHMENT.getValue());
+        getConversationFragment().sendMessage("", Message.ContentType.AUDIO_MSG.getValue());
 
     }
 

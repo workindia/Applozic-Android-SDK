@@ -16,8 +16,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.file.FileUtils;
 
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 
 public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
 
+    public static final int REQUEST_CODE = 100;
     private Context context;
     private ArrayList<Uri> uris;
 
@@ -75,10 +78,16 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
                 if(position<getCount()-1){
                     return;
                 }
+
+                if( getCount()> ApplozicSetting.getInstance(context).getMaxAttachmentAllowed()){
+                    Toast.makeText(context,R.string.mobicom_max_attachment_warning,Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 Intent getContentIntent = FileUtils.createGetContentIntent();
                 getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                 Intent intentPick = Intent.createChooser(getContentIntent, context.getString(R.string.select_file));
-                ((Activity) context).startActivityForResult(intentPick, 100);
+                ((Activity) context).startActivityForResult(intentPick, REQUEST_CODE);
             }
         });
 

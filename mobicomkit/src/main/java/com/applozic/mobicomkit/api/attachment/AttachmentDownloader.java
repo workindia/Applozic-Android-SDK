@@ -154,9 +154,14 @@ class AttachmentDownloader implements Runnable {
             String contentType = fileMeta.getContentType();
             String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
-            //Todo get the file format from server and append
-            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
-            file = FileClientService.getFilePath(imageName, context, contentType);
+            String fileName=null;
+            if( message.getContentType()== Message.ContentType.AUDIO_MSG.getValue() ) {
+                fileName = fileMeta.getName();
+            }else{
+                fileName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+            }
+
+            file = FileClientService.getFilePath(fileName, context, contentType);
             if (!file.exists()) {
                 connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {

@@ -102,7 +102,7 @@ public class MultimediaOptionFragment extends DialogFragment {
 
                         File fileUri = FileClientService.getFilePath(imageFileName, getActivity(), "video/mp4");
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileUri));
-                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
                         break;

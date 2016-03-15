@@ -60,9 +60,9 @@ public class AudioMessageFragment extends DialogFragment {
         audioRecordingText = (TextView) v.findViewById(R.id.audio_recording_text);
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "AUD_" + timeStamp + "_" + ".m4a";
+        String audioFileName = "AUD_" + timeStamp + "_" + ".m4a";
 
-        outputFile = FileClientService.getFilePath(imageFileName, getContext(), "audio/m4a").getAbsolutePath();
+        outputFile = FileClientService.getFilePath(audioFileName, getContext(), "audio/m4a").getAbsolutePath();
         prepareMediaRecorder();
 
         record.setOnClickListener(new View.OnClickListener() {
