@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -89,6 +90,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Channel channel;
     private static int retry;
     private LinearLayout layout;
+    public static Activity conversationActivity;
 
     private Uri videoFileUri;
 
@@ -215,6 +217,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        conversationActivity = this;
         layout = (LinearLayout) findViewById(R.id.footerAd);
         if (Utils.hasMarshmallow()) {
             new  ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForStorage();

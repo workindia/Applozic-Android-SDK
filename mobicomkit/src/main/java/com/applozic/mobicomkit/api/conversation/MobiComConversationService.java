@@ -133,7 +133,7 @@ public class MobiComConversationService {
             JSONObject jsonObject = new JSONObject(data);
             String channelFeedResponse = "";
             String element = parser.parse(data).getAsJsonObject().get("message").toString();
-            // String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+             String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
             if (jsonObject.has("groupFeeds")) {
                 channelFeedResponse = parser.parse(data).getAsJsonObject().get("groupFeeds").toString();
                 ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
@@ -141,10 +141,10 @@ public class MobiComConversationService {
             }
 
             Message[] messages = gson.fromJson(element, Message[].class);
-           /* if (!TextUtils.isEmpty(userDetailsElement)) {
+            if (!TextUtils.isEmpty(userDetailsElement)) {
                 UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
                 processUserDetails(userDetails);
-            }*/
+            }
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
 
@@ -181,7 +181,7 @@ public class MobiComConversationService {
                     if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                         setFilePathifExist(message);
                     }
-                    if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+                    if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
                         FileClientService fileClientService = new FileClientService(context);
                         fileClientService.loadContactsvCard(message);
                     }
@@ -327,6 +327,23 @@ public class MobiComConversationService {
         thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
+    }
+
+    public void processUserDetails(UserDetail[] userDetails) {
+        if (userDetails != null && userDetails.length > 0) {
+            for (UserDetail userDetail : userDetails) {
+                Contact contact = new Contact();
+                contact.setUserId(userDetail.getUserId());
+                contact.setContactNumber(userDetail.getUserId());
+                contact.setConnected(userDetail.isConnected());
+                contact.setFullName(userDetail.getDisplayName());
+                contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                if (userDetail.getUnreadCount() != null) {
+                    contact.setUnreadCount(userDetail.getUnreadCount());
+                }
+                baseContactService.upsert(contact);
+            }
+        }
     }
 
 //    public void addFileMetaDetails(String responseString, Message message) {

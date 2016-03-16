@@ -47,13 +47,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ContactSelectionActivity extends ActionBarActivity {
     public static final String CHANNEL = "CHANNEL_NAME";
+    public static final String CHANNEL_OBJECT = "CHANNEL";
+    public static final String CHECK_BOX = "CHECK_BOX";
     ListView mainListView;
+    Channel channel;
     private String name;
     private ContactsAdapter mAdapter;
     private ImageLoader mImageLoader;
     private BaseContactService contactService;
     private List<Contact> contactList;
     private ActionBar mActionBar;
+    boolean disableCheckBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +66,15 @@ public class ContactSelectionActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         mActionBar = getSupportActionBar();
-        mActionBar.setTitle(R.string.channel_members_title);
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
+        if (getIntent().getExtras() != null) {
+            channel = (Channel) getIntent().getSerializableExtra(CHANNEL_OBJECT);
+            disableCheckBox = getIntent().getBooleanExtra(CHECK_BOX, false);
+            mActionBar.setTitle(R.string.channel_member_title);
+        } else {
+            mActionBar.setTitle(R.string.channel_members_title);
+        }
 
         mainListView = (ListView) findViewById(R.id.mainList);
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -72,6 +82,14 @@ public class ContactSelectionActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View item,
                                     int position, long id) {
                 Contact contact = contactList.get(position);
+                if (disableCheckBox) {
+                    Intent intent = new Intent();
+                    if (!TextUtils.isEmpty(contact.getUserId())) {
+                        intent.putExtra(ChannelInfoActivity.USERID, contact.getUserId());
+                    }
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
                 contact.toggleChecked();
                 ContactViewHolder viewHolder = (ContactViewHolder) item.getTag();
                 viewHolder.getCheckBox().setChecked(contact.isChecked());
@@ -131,6 +149,9 @@ public class ContactSelectionActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.group_create_menu, menu);
         menu.removeItem(R.id.Next);
+        if (disableCheckBox) {
+            menu.removeItem(R.id.Done);
+        }
         return true;
     }
 
@@ -168,6 +189,11 @@ public class ContactSelectionActivity extends ActionBarActivity {
 
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        this.finish();
+        return super.onSupportNavigateUp();
+    }
     @Override
     public void onPause() {
         super.onPause();
@@ -225,6 +251,9 @@ public class ContactSelectionActivity extends ActionBarActivity {
                 text1 = viewHolder.getTextView1();
                 text2 = viewHolder.getTextView2();
                 circleImageView = viewHolder.getCircleImageView();
+            }
+            if (disableCheckBox) {
+                checkBox.setVisibility(View.GONE);
             }
 
             if (contact.isDrawableResources()) {

@@ -23,6 +23,7 @@ public class BroadcastService {
 
     public static String currentUserId = null;
     public static boolean mobiTexterBroadcastReceiverActivated;
+    public static String currentInfoId = null;
 
     public static void selectMobiComKitAll() {
         currentUserId = MOBICOMKIT_ALL;
@@ -30,6 +31,9 @@ public class BroadcastService {
 
     public static boolean isQuick() {
         return currentUserId != null && currentUserId.equals(MOBICOMKIT_ALL);
+    }
+    public static boolean isChannelInfo() {
+        return currentInfoId != null;
     }
 
     public static boolean isIndividual() {
@@ -145,6 +149,14 @@ public class BroadcastService {
         sendBroadcast(context, intent);
     }
 
+    public static void sendUpdateForChannelSync(Context context,String action){
+        Log.i(TAG, "Sending  Broadcast for channelSync ......");
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -165,6 +177,7 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_NAME.toString());
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_READ.toString());
         intentFilter.addAction(INTENT_ACTIONS.MESSAGE_READ_FOR_CONTECT.toString());
+        intentFilter.addAction(INTENT_ACTIONS.CHANNEL_SYNC.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -173,7 +186,7 @@ public class BroadcastService {
         LOAD_MORE, FIRST_TIME_SYNC_COMPLETE, MESSAGE_SYNC_ACK_FROM_SERVER,
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, MESSAGE_DELIVERY_FOR_CONTACT, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
-        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,MESSAGE_READ,MESSAGE_READ_FOR_CONTECT,
+        UPDATE_LAST_SEEN_AT_TIME,UPDATE_TYPING_STATUS,MESSAGE_READ,MESSAGE_READ_FOR_CONTECT,CHANNEL_SYNC,
         CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED,UPDATE_NAME
     }
 

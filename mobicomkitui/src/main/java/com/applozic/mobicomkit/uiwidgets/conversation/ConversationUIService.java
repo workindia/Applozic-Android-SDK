@@ -35,6 +35,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
@@ -420,6 +421,10 @@ public class ConversationUIService {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 
+    }
+
+    public void updateChannelSync() {
+        ((ChannelInfoActivity)fragmentActivity).updateChannelList();
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {
