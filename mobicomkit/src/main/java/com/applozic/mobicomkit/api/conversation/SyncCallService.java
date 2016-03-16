@@ -39,7 +39,11 @@ public class SyncCallService {
 
 
     public synchronized void updateDeliveryStatus(String key) {
-        mobiComMessageService.updateDeliveryStatus(key);
+        mobiComMessageService.updateDeliveryStatus(key,false);
+    }
+
+    public synchronized void updateReadStatus(String key) {
+        mobiComMessageService.updateDeliveryStatus(key,true);
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople() {
@@ -62,8 +66,8 @@ public class SyncCallService {
         channelService.syncChannels();
     }
 
-    public synchronized void updateDeliveryStatusForContact(String contactId) {
-        mobiComMessageService.updateDeliveryStatusForContact(contactId);
+    public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
+        mobiComMessageService.updateDeliveryStatusForContact(contactId,markRead);
     }
 
     public synchronized void updateConnectedStatus(String contactId, Date date, boolean connected) {

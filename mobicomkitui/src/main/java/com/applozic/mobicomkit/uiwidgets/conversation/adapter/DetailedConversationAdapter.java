@@ -312,7 +312,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else if (!message.isSentToServer() && message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
             } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
-                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon), null);
+
+                Drawable statusIcon= null;
+
+                if(message.getStatus()==Message.Status.DELIVERED_AND_READ.getValue()){
+                    statusIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
+                }else{
+                    statusIcon = ( message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
+                            deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
+                }
+                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null,statusIcon , null);
             }
 
             if (message.isCall()) {

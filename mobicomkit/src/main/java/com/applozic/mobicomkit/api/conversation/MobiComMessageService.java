@@ -171,7 +171,7 @@ public class MobiComMessageService {
             return;
         }
         for (String messageKey: deliveredMessageKeys) {
-            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, null);
+            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, false);
             Message message = messageDatabaseService.getMessage(messageKey);
             if (message != null) {
                 BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
@@ -297,26 +297,36 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
-    public synchronized void updateDeliveryStatusForContact(String contactId) {
-        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId);
+    public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
+        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId,markRead);
         Log.i(TAG, "Updated delivery report of " + rows + " messages for contactId: " + contactId);
 
         if (rows > 0) {
-            BroadcastService.sendDeliveryReportForContactBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString(), contactId);
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_FOR_CONTECT.toString() :
+                    BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString();
+            BroadcastService.sendDeliveryReportForContactBroadcast(context, action, contactId);
         }
     }
 
-    public synchronized void updateDeliveryStatus(String key) {
+    public synchronized void updateDeliveryStatus(String key,boolean markRead) {
         //Todo: Check if this is possible? In case the delivery report reaches before the sms is reached, then wait for the sms.
         Log.i(TAG, "Got the delivery report for key: " + key);
         String keyParts[] = key.split((","));
         Message message = messageDatabaseService.getMessage(keyParts[0]);
         if (message != null && !message.getDelivered()) {
-            message.setDelivered(Boolean.TRUE);
+
+            if(markRead){
+                message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
+            }else{
+                message.setDelivered(Boolean.TRUE);
+                message.setStatus(Message.Status.DELIVERED.getValue());
+            }
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number
-            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null);
-            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
+            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null,markRead);
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ.toString() :
+                    BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString();
+            BroadcastService.sendMessageUpdateBroadcast(context, action, message);
             if (message.getTimeToLive() != null && message.getTimeToLive() != 0) {
                 Timer timer = new Timer();
                 timer.schedule(new DisappearingMessageTask(context, new MobiComConversationService(context), message), message.getTimeToLive() * 60 * 1000);

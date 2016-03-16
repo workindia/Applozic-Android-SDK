@@ -777,24 +777,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     abstract public void attachLocation(Location mCurrentLocation);
 
-    public void updateDeliveryStatusForAllMessages() {
+    public void updateDeliveryStatusForAllMessages(final boolean markRead) {
+
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Drawable  statusIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
+                    if(markRead){
+                        statusIcon =  getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
+                    }
                     for (int index = 0; index < messageList.size(); index++) {
                         Message message = messageList.get(index);
-                        if (message.getDelivered() || message.isTempDateType() || !message.isTypeOutbox()) {
+                        if ((message.getStatus()== Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || !message.isTypeOutbox()) {
                             continue;
                         }
                         message.setDelivered(true);
+                        if(markRead){
+                            message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
+                        }
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);
                         if (view != null) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             TextView status = (TextView) view.findViewById(R.id.status);
                             //status.setText("Delivered");
-                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null,statusIcon , null);
                         }
                     }
                 } catch (Exception ex) {
@@ -821,7 +829,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             /*TextView status = (TextView) view.findViewById(R.id.status);
                             status.setText("Delivered");*/
-                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered), null);
+                            Drawable  statusIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
+                            if(message.getStatus() == Message.Status.DELIVERED_AND_READ.getValue()) {
+                                statusIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
+                            }
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null,statusIcon ,null);
                         }
                     } else {
                         messageList.add(message);

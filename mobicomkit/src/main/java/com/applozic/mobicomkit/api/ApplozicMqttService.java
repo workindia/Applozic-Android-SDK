@@ -250,18 +250,24 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.syncChannel();
                             }
 
-                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
-                                    || "MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())
-                                    || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
+                            if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType())
+                                    || "MT_MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
                                 String keyString = splitKeyString[0];
                                 //String userId = splitKeyString[1];
                                 syncCallService.updateDeliveryStatus(keyString);
                             }
 
+                            if ( NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
+                                    || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
+                                String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
+                                String keyString = splitKeyString[0];
+                                syncCallService.updateReadStatus(keyString);
+                            }
+
                             if (NOTIFICATION_TYPE.CONVERSATION_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())) {
                                 String contactId = mqttMessageResponse.getMessage().toString();
-                                syncCallService.updateDeliveryStatusForContact(contactId);
+                                syncCallService.updateDeliveryStatusForContact(contactId,true);
                             }
 
                             if (NOTIFICATION_TYPE.USER_CONNECTED.getValue().equals(mqttMessageResponse.getType())) {

@@ -361,6 +361,8 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setScheduledAt(message.getScheduledAt());
         newMessage.setStoreOnDevice(message.isStoreOnDevice());
         newMessage.setDelivered(message.getDelivered());
+        newMessage.setStatus(message.getStatus());
+
         newMessage.setSendToDevice(message.isSendToDevice());
         newMessage.setContentType(message.getContentType());
         newMessage.setConversationId(message.getConversationId());
@@ -534,7 +536,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void updateMessageDeliveryReport(final Message message, final String contactNumber) throws Exception {
         message.setDelivered(Boolean.TRUE);
-        messageDatabaseService.updateMessageDeliveryReportForContact(message.getKeyString(), contactNumber);
+        messageDatabaseService.updateMessageDeliveryReportForContact(message.getKeyString(), contactNumber,false);
 
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
        Thread thread = new Thread(new Runnable() {

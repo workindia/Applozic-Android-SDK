@@ -51,6 +51,8 @@ public class Message extends JsonMarker {
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
 
+    private short status = Status.READ.getValue();
+
     public Message() {
 
     }
@@ -84,6 +86,7 @@ public class Message extends JsonMarker {
         this.setRead(message.isRead());
         this.setApplicationId(message.getApplicationId());
         this.setContentType(message.getContentType());
+        this.setStatus(message.getStatus());
         this.setConversationId(message.getConversationId());
         this.setTopicId(message.getTopicId());
     }
@@ -494,6 +497,15 @@ public class Message extends JsonMarker {
         this.canceled = canceled;
     }
 
+    public short getStatus() {
+        return status;
+    }
+
+    public void setStatus(short status) {
+        this.status = status;
+    }
+
+
     @Override
     public String toString() {
         return "Message{" +
@@ -524,6 +536,8 @@ public class Message extends JsonMarker {
                 ",conversationId=" + conversationId +
                 ",topicId=" + topicId +
                 ", groupId=" + groupId +
+                ", status=" + status +
+
                 '}';
     }
 
@@ -574,6 +588,21 @@ public class Message extends JsonMarker {
         private Short value;
 
         ContentType(Short value) {
+            this.value = value;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
+    public enum Status {
+
+        UNREAD(Short.valueOf("0")), READ(Short.valueOf("1")), PENDING(Short.valueOf("2")),
+        SENT(Short.valueOf("3")), DELIVERED(Short.valueOf("4")), DELIVERED_AND_READ(Short.valueOf("5"));
+        private Short value;
+
+        Status(Short value) {
             this.value = value;
         }
 

@@ -65,6 +65,9 @@ public class MessageDatabaseService {
         Long read = cursor.getLong(cursor.getColumnIndex("read"));
         message.setRead(read != null && read.intValue() == 1);
 
+        message.setStatus(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
+
+
         Long scheduledAt = cursor.getLong(cursor.getColumnIndex("scheduledAt"));
         message.setScheduledAt(scheduledAt == null || scheduledAt.intValue() == 0 ? null : scheduledAt);
         message.setMessage(cursor.getString(cursor.getColumnIndex("message")));
@@ -455,6 +458,7 @@ public class MessageDatabaseService {
             values.put("read", message.isRead() ? 1 : 0);
             values.put("applicationId", message.getApplicationId());
             values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE, message.getContentType());
+            values.put(MobiComDatabaseHelper.STATUS,message.getStatus());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
             if(message.getGroupId() != null) {
@@ -495,18 +499,32 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int updateMessageDeliveryReportForContact(String contactId) {
+    public int updateMessageDeliveryReportForContact(String contactId,boolean markRead) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        String whereClause="contactNumbers= '" +contactId + "' and ";
         values.put("delivered", "1");
-        int rows = database.update("sms", values, "contactNumbers='" + contactId + "' and delivered = 0 and type = 5", null);
+        if(markRead){
+            whereClause = whereClause + "status not in (5)";
+            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+        }else{
+            whereClause = whereClause + "status not in (4,5)";
+            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        }
+        whereClause = whereClause +  " and type=5 ";
+        int rows = database.update("sms", values, whereClause, null);
         dbHelper.close();
         return rows;
     }
 
-    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber) {
+    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber,boolean markRead) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        if(markRead){
+            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+        }else{
+            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        }
         values.put("delivered", "1");
         if (TextUtils.isEmpty(contactNumber)) {
             database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);

@@ -47,25 +47,6 @@ public class MobiComPushReceiver {
         notificationKeyList.add("APPLOZIC_14");// 13 for GROUP_LEFT
         notificationKeyList.add("APPLOZIC_15");// 13 for group_sync
 
-       /* notificationKeyList.add("MT_SYNC"); // 0
-        notificationKeyList.add("MT_MARK_ALL_MESSAGE_AS_READ"); //1
-         notificationKeyList.add("MT_DELIVERED"); //2
-        notificationKeyList.add("MT_SYNC_PENDING"); //3
-         notificationKeyList.add("MT_DELETE_MESSAGE"); //4
-        notificationKeyList.add("MT_DELETE_MULTIPLE_MESSAGE"); //5
-         notificationKeyList.add("MT_DELETE_MESSAGE_CONTACT");// 6
-        notificationKeyList.add("MTEXTER_USER");//7
-        notificationKeyList.add("MT_CONTACT_VERIFIED"); //8
-        notificationKeyList.add("MT_CONTACT_UPDATED"); //9
-        notificationKeyList.add("MT_DEVICE_CONTACT_SYNC");//10
-        notificationKeyList.add("MT_EMAIL_VERIFIED");//11
-        notificationKeyList.add("MT_DEVICE_CONTACT_MESSAGE");//12
-        notificationKeyList.add("MT_CANCEL_CALL");//13
-        notificationKeyList.add("MT_MESSAGE");//14
-        notificationKeyList.add("MT_USER_CONNECTED");//15
-        notificationKeyList.add("MT_USER_DISCONNECTED");//16
-        notificationKeyList.add("MT_MESSAGE_DELIVERED_READ"); //17 MESSAGE_DELIVERED_READ
-        notificationKeyList.add("MT_CONVERSATION_READ"); //18*/
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
@@ -139,9 +120,6 @@ public class MobiComPushReceiver {
             //  String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
             // String mtexterUser = bundle.getString(notificationKeyList.get(7));
             String payloadForDelivered = bundle.getString(notificationKeyList.get(3));
-            if (TextUtils.isEmpty(payloadForDelivered)) {
-                payloadForDelivered = bundle.getString(notificationKeyList.get(7));
-            }
             String userConnected = bundle.getString(notificationKeyList.get(11));
             String userDisconnected = bundle.getString(notificationKeyList.get(12));
             processMessage(context, bundle, message, deleteConversationForContact, deleteMessage, payloadForDelivered, userConnected, userDisconnected);
@@ -151,6 +129,8 @@ public class MobiComPushReceiver {
     public static void processMessage(final Context context, Bundle bundle, String message, String deleteConversationForContact, String deleteMessage, String payloadForDelivered, String userConnected, String userDisconnected) {
         SyncCallService syncCallService = SyncCallService.getInstance(context);
         try {
+
+            String playloadDeliveredAndRead =  bundle.getString(notificationKeyList.get(7));
             if (!TextUtils.isEmpty(payloadForDelivered)) {
                 MqttMessageResponse messageResponseForDelivered = (MqttMessageResponse) GsonUtils.getObjectFromJson(payloadForDelivered, MqttMessageResponse.class);
                 if (processPushNotificationId(messageResponseForDelivered.getId())) {
@@ -162,6 +142,19 @@ public class MobiComPushReceiver {
                // String userId = splitKeyString[1];
                 syncCallService.updateDeliveryStatus(keyString);
             }
+
+            if (!TextUtils.isEmpty(playloadDeliveredAndRead)) {
+                MqttMessageResponse messageResponseForDelivered = (MqttMessageResponse) GsonUtils.getObjectFromJson(playloadDeliveredAndRead, MqttMessageResponse.class);
+                if (processPushNotificationId(messageResponseForDelivered.getId())) {
+                    return;
+                }
+                addPushNotificationId(messageResponseForDelivered.getId());
+                String splitKeyString[] = (messageResponseForDelivered.getMessage()).toString().split(",");
+                String keyString = splitKeyString[0];
+                // String userId = splitKeyString[1];
+                syncCallService.updateReadStatus(keyString);
+            }
+
 
             if (!TextUtils.isEmpty(deleteConversationForContact)) {
                 MqttMessageResponse deleteConversationResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(deleteConversationForContact, MqttMessageResponse.class);
@@ -316,7 +309,7 @@ public class MobiComPushReceiver {
                         return;
                     }
                     addPushNotificationId(updateDeliveryStatusForContactResponse.getId());
-                    syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString());
+                    syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString(),true);
                 }
             }
 

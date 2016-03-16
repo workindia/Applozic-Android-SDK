@@ -347,12 +347,19 @@ public class ConversationUIService {
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
+        updateStartus(contactId,false);
+    }
+
+    public void updateReadStatusForContact(String contactId) {
+        updateStartus(contactId,true);
+    }
+    private void updateStartus(String contactId,boolean markRead) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
         if (!TextUtils.isEmpty(contactId) && conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateDeliveryStatusForAllMessages();
+            conversationFragment.updateDeliveryStatusForAllMessages(markRead);
         }
     }
 
