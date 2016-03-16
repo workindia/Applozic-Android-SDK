@@ -9,22 +9,11 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthenticationException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -152,26 +141,12 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String uploadBlobImage(String path) throws UnsupportedEncodingException, AuthenticationException {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(getUploadKey());
-
-        BasicScheme scheme = new BasicScheme();
-        httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
-        httpRequestUtils.addGlobalHeaders(httppost);
-
-        try {
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            String fileName = path.substring(path.lastIndexOf("/") + 1);
-            FileBody fileBody = new FileBody(new File(path), ContentType.create(FileUtils.getMimeType(path)), fileName);
-            builder.addPart("files[]", fileBody);
-            HttpEntity entity = builder.build();
-            httppost.setEntity(entity);
-            HttpResponse response = httpclient.execute(httppost);
-            Log.d(TAG, "Image uploaded: " + response.getStatusLine());
-
-            return EntityUtils.toString(response.getEntity());
-        } catch (Exception e) {
-            Log.d(TAG, "Image not uploaded: Exception:" + e.toString());
+        try{
+            MultipartUtility multipart = new MultipartUtility(getUploadKey(),"UTF-8",context);
+            multipart.addFilePart("files[]", new File(path));
+            return multipart.getResponse();
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return null;
     }

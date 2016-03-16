@@ -1,17 +1,16 @@
 package com.applozic.mobicomkit.api;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.util.TextUtils;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -25,7 +24,7 @@ public class MobiComKitClientService {
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
     public static final String FILE_URL = "/rest/ws/aws/file/";
-    protected String DEFAULT_URL = "https://apps.applozic.com";
+    protected String DEFAULT_URL = "https://mobi-com-alpha.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
 
 
@@ -51,12 +50,12 @@ public class MobiComKitClientService {
         return DEFAULT_URL;
     }
 
-    public UsernamePasswordCredentials getCredentials() {
+    public PasswordAuthentication getCredentials() {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isRegistered()) {
             return null;
         }
-        return new UsernamePasswordCredentials(userPreferences.getUserId(), userPreferences.getDeviceKeyString());
+        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
     }
 
     public HttpURLConnection openHttpConnection(String urlString) throws IOException {
@@ -73,7 +72,7 @@ public class MobiComKitClientService {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            String userCredentials = getCredentials().getUserName() + ":" + getCredentials().getPassword();
+            String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
             String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
             httpConn.setRequestProperty("Authorization", basicAuth);
             httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));
