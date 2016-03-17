@@ -50,6 +50,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.AudioMessageFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
@@ -89,7 +90,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Contact contact;
     private Channel channel;
     private static int retry;
-    private LinearLayout layout;
+    public LinearLayout layout;
     public static Activity conversationActivity;
 
     private Uri videoFileUri;
@@ -354,30 +355,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
 
     public void processingLocation() {
-        if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
-                .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.location_services_disabled_title)
-                    .setMessage(R.string.location_services_disabled_message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.location_service_settings, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            Toast.makeText(ConversationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
-        } else {
-            googleApiClient.disconnect();
-            googleApiClient.connect();
-        }
+
+        Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
+        startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
+        Log.i("test", "Activity for result strarted");
+
     }
 
     public void processLocation() {

@@ -574,7 +574,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if (message.hasAttachment() &&
+                if ((message.hasAttachment() || message.getContentType()== Message.ContentType.LOCATION.getValue())&&
                         menuItems[i].equals("Copy")) {
                     continue;
                 }
@@ -849,7 +849,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 try {
                     int index = messageList.indexOf(message);
                     if (index != -1) {
-                        if (messageList.get(index).getDelivered() || messageList.get(index).isTempDateType()) {
+                        if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue() || messageList.get(index).isTempDateType()) {
                             return;
                         }
                         messageList.get(index).setDelivered(true);
@@ -862,6 +862,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Drawable  statusIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
                             if(message.getStatus() == Message.Status.DELIVERED_AND_READ.getValue()) {
                                 statusIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
+                                messageList.get(index).setStatus(Message.Status.DELIVERED_AND_READ.getValue());
                             }
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null,statusIcon ,null);
                         }
