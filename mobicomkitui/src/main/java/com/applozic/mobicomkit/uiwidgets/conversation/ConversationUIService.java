@@ -328,11 +328,10 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteMessage(Message message, String keyString, String formattedContactNumber) {
-        if (PhoneNumberUtils.compare(formattedContactNumber, BroadcastService.currentUserId)) {
+    public void deleteMessage(String keyString, String formattedContactNumber) {
+        updateLastMessage(keyString, formattedContactNumber);
+        if (BroadcastService.isIndividual()) {
             getConversationFragment().deleteMessageFromDeviceList(keyString);
-        } else {
-            updateLastMessage(keyString, formattedContactNumber);
         }
     }
 
