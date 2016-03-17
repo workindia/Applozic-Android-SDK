@@ -302,7 +302,7 @@ public class MobiComMessageService {
         Log.i(TAG, "Updated delivery report of " + rows + " messages for contactId: " + contactId);
 
         if (rows > 0) {
-            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_FOR_CONTECT.toString() :
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString() :
                     BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString();
             BroadcastService.sendDeliveryReportForContactBroadcast(context, action, contactId);
         }
@@ -313,18 +313,18 @@ public class MobiComMessageService {
         Log.i(TAG, "Got the delivery report for key: " + key);
         String keyParts[] = key.split((","));
         Message message = messageDatabaseService.getMessage(keyParts[0]);
-        if (message != null && !message.getDelivered()) {
+        if (message != null && (message.getStatus()!= Message.Status.DELIVERED_AND_READ.getValue())) {
+            message.setDelivered(Boolean.TRUE);
 
             if(markRead){
                 message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
             }else{
-                message.setDelivered(Boolean.TRUE);
                 message.setStatus(Message.Status.DELIVERED.getValue());
             }
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number
-            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null,markRead);
-            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ.toString() :
+            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null, markRead);
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString() :
                     BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString();
             BroadcastService.sendMessageUpdateBroadcast(context, action, message);
             if (message.getTimeToLive() != null && message.getTimeToLive() != 0) {
