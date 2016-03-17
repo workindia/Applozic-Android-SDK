@@ -319,10 +319,10 @@ public class MobiComPushReceiver {
 
     }
 
-    private static void processDeleteSingleMessageRequest(Context context, String deletedSmsKeyString, String contactNumber) {
+    private static void processDeleteSingleMessageRequest(Context context, String messageKey, String contactNumber) {
         MobiComConversationService conversationService = new MobiComConversationService(context);
-        contactNumber = conversationService.deleteMessageFromDevice(deletedSmsKeyString, contactNumber);
-        BroadcastService.sendMessageDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString(), deletedSmsKeyString, contactNumber);
+        contactNumber = conversationService.deleteMessageFromDevice(messageKey, contactNumber);
+        BroadcastService.sendMessageDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString(), messageKey, contactNumber);
     }
 
     public static void processMessageAsync(final Context context, final Bundle bundle) {

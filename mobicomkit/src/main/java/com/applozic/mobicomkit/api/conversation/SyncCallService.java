@@ -78,4 +78,8 @@ public class SyncCallService {
         mobiComConversationService.deleteConversationFromDevice(userId);
     }
 
+    public synchronized void deleteMessage(String messageKey) {
+        mobiComConversationService.deleteMessageFromDevice(messageKey, null);
+    }
+
 }

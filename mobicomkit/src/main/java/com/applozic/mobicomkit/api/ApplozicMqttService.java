@@ -290,6 +290,12 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), 0, "success");
                             }
 
+                            if (NOTIFICATION_TYPE.MESSAGE_DELETED.getValue().equals(mqttMessageResponse.getType())) {
+                                String messageKey = mqttMessageResponse.getMessage().toString().split(",")[0];
+                                syncCallService.deleteMessage(messageKey);
+                                BroadcastService.sendMessageDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString(), messageKey, null);
+                            }
+
                             if (NOTIFICATION_TYPE.MESSAGE_SENT.getValue().equals(mqttMessageResponse.getType())) {
                                 GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), GcmMessageResponse.class);
                                 Message sentMessageSync = messageResponse.getMessage();
