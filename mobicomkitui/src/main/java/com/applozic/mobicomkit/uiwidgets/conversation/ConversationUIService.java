@@ -328,11 +328,10 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteMessage(Message message, String keyString, String formattedContactNumber) {
-        if (PhoneNumberUtils.compare(formattedContactNumber, BroadcastService.currentUserId)) {
+    public void deleteMessage(String keyString, String userId) {
+        updateLastMessage(keyString, userId);
+        if (BroadcastService.isIndividual()) {
             getConversationFragment().deleteMessageFromDeviceList(keyString);
-        } else {
-            updateLastMessage(keyString, formattedContactNumber);
         }
     }
 
@@ -659,7 +658,6 @@ public class ConversationUIService {
         fileOutputStream.close();
         return outputFile;
     }
-
 
     public void reconnectMQTT() {
         try {
