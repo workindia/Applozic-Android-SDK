@@ -659,7 +659,6 @@ public class ConversationUIService {
         return outputFile;
     }
 
-
     public void reconnectMQTT() {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
