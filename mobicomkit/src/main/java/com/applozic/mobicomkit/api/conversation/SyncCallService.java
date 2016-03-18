@@ -39,8 +39,7 @@ public class SyncCallService {
         }
         return syncCallService;
     }
-
-
+    
     public synchronized void updateDeliveryStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,false);
     }

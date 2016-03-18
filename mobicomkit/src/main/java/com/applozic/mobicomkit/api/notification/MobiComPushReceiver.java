@@ -249,8 +249,8 @@ public class MobiComPushReceiver {
                 }
                 addPushNotificationId(deleteSingleMessageResponse.getId());
                 String deleteMessageKeyAndUserId = deleteSingleMessageResponse.getMessage().toString();
-                String contactNumbers = deleteMessageKeyAndUserId.split(",").length > 1 ? deleteMessageKeyAndUserId.split(",")[1] : null;
-                processDeleteSingleMessageRequest(context, deleteMessageKeyAndUserId.split(",")[0], contactNumbers);
+                //String contactNumbers = deleteMessageKeyAndUserId.split(",").length > 1 ? deleteMessageKeyAndUserId.split(",")[1] : null;
+                syncCallService.deleteMessage(deleteMessageKeyAndUserId.split(",")[0]);
             }
 
             String messageSent = bundle.getString(notificationKeyList.get(1));
@@ -317,12 +317,6 @@ public class MobiComPushReceiver {
             e.printStackTrace();
         }
 
-    }
-
-    private static void processDeleteSingleMessageRequest(Context context, String messageKey, String contactNumber) {
-        MobiComConversationService conversationService = new MobiComConversationService(context);
-        contactNumber = conversationService.deleteMessageFromDevice(messageKey, contactNumber);
-        BroadcastService.sendMessageDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString(), messageKey, contactNumber);
     }
 
     public static void processMessageAsync(final Context context, final Bundle bundle) {
