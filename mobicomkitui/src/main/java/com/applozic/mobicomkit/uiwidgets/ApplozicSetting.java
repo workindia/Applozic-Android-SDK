@@ -25,6 +25,7 @@ public class ApplozicSetting {
     private static final String START_NEW_GROUP ="START_NEW_GROUP";
     private static final String IMAGE_COMPRESSION ="IMAGE_COMPRESSION";
     private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
+    private static final String LOCATION_SHARE_VIA_MAP = "LOCATION_SHARE_VIA_MAP";
 
 
     public static ApplozicSetting applozicSetting;
@@ -182,6 +183,31 @@ public class ApplozicSetting {
         return this;
 
     }
+
+    //==== LOCATION SHARING PREFERENCE =====================
+
+
+    public ApplozicSetting enableLocationSharingViaMap() {
+        setLocationSharingViaMap(true);
+        return this;
+    }
+
+    public ApplozicSetting disableLocationSharingViaMap() {
+        setLocationSharingViaMap(false);
+        return this;
+    }
+
+    public boolean isLocationSharingViaMap() {
+       return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
+    }
+
+    public ApplozicSetting setLocationSharingViaMap(boolean value) {
+        sharedPreferences.edit().putBoolean(LOCATION_SHARE_VIA_MAP, value).commit();
+        return this;
+    }
+
+
+    //===== END ========================================
 
     public int getCompressedImageSizeInMB() {
         return MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB();
