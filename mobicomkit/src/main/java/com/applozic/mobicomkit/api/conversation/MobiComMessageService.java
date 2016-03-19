@@ -294,7 +294,7 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
-    public void addInternalMessage(Message message) {
+    public void sendCustomMessage(Message message) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         message.setStoreOnDevice(Boolean.TRUE);
         message.setSendToDevice(Boolean.FALSE);
