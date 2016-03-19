@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -17,6 +18,9 @@ public class SyncCallService {
 
     private static final String TAG = "SyncCall";
 
+    public static boolean refreshView = false;
+
+    private Context context;
     private static SyncCallService syncCallService;
     private MobiComMessageService mobiComMessageService;
     private MobiComConversationService mobiComConversationService;
@@ -24,6 +28,7 @@ public class SyncCallService {
     private ChannelService channelService;
 
     private SyncCallService(Context context) {
+        this.context = context;
         this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
         this.mobiComConversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
@@ -36,8 +41,7 @@ public class SyncCallService {
         }
         return syncCallService;
     }
-
-
+    
     public synchronized void updateDeliveryStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,false);
     }
@@ -67,7 +71,7 @@ public class SyncCallService {
     }
 
     public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
-        mobiComMessageService.updateDeliveryStatusForContact(contactId,markRead);
+        mobiComMessageService.updateDeliveryStatusForContact(contactId, markRead);
     }
 
     public synchronized void updateConnectedStatus(String contactId, Date date, boolean connected) {
@@ -76,10 +80,12 @@ public class SyncCallService {
 
     public synchronized void deleteConversationThread(String userId) {
         mobiComConversationService.deleteConversationFromDevice(userId);
+        refreshView = true;
     }
 
     public synchronized void deleteMessage(String messageKey) {
         mobiComConversationService.deleteMessageFromDevice(messageKey, null);
+        refreshView = true;
     }
 
 }

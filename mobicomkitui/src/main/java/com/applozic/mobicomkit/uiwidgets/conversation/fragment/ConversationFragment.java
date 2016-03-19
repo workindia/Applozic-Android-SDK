@@ -43,6 +43,7 @@ public class ConversationFragment extends MobiComConversationFragment {
         } else {
             address = "";
         }
+        this.messageEditText.setText(address + "http://maps.google.com/?q=" + mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

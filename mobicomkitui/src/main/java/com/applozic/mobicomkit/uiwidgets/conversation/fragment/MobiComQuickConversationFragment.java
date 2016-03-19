@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,7 +93,6 @@ public class MobiComQuickConversationFragment extends Fragment {
         thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
         setHasOptionsMenu(true);
-
     }
 
     @Override
@@ -103,7 +103,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
-        LinearLayout toolBarLayout = (LinearLayout) toolbar.findViewById(R.id.toolBarLayout);
+        RelativeLayout toolBarLayout = (RelativeLayout) toolbar.findViewById(R.id.toolBarLayout);
         toolBarLayout.setClickable(false);
         toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
         toolBarSubTitle = (TextView) toolbar.findViewById(R.id.toolbar_subTitle);

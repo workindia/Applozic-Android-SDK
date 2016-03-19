@@ -32,7 +32,7 @@ public class ApplozicPermissions {
         if (PermissionsUtils.checkSelfPermissionForLocation(activity)) {
             requestLocationPermissions();
         } else {
-            ((MobicomLocationActivity) activity).processingLocation();
+            ((ConversationActivity) activity).processingLocation();
         }
     }
 

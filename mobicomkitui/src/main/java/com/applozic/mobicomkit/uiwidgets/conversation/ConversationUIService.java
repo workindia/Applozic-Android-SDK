@@ -347,13 +347,13 @@ public class ConversationUIService {
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
-        updateStartus(contactId,false);
+        updateStatus(contactId, false);
     }
 
     public void updateReadStatusForContact(String contactId) {
-        updateStartus(contactId,true);
+        updateStatus(contactId, true);
     }
-    private void updateStartus(String contactId,boolean markRead) {
+    private void updateStatus(String contactId, boolean markRead) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
@@ -659,12 +659,11 @@ public class ConversationUIService {
         return outputFile;
     }
 
-
     public void reconnectMQTT() {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
-                    Log.i(TAG, "Reconnecting to mqtt.");
+                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);

@@ -110,18 +110,6 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == PermissionsUtils.REQUEST_LOCATION) {
-            if (PermissionsUtils.verifyPermissions(grantResults)) {
-                showSnackBar(R.string.location_permission_granted);
-                processingLocation();
-            } else {
-                showSnackBar(R.string.location_permission_not_granted);
-            }
-
-        }
-    }
-
     public void processingLocation() {
         if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
                 .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -150,11 +138,11 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
     }
 
     public void processLocation() {
-        if (Utils.hasMarshmallow()) {
-            new ApplozicPermissions(MobicomLocationActivity.this, layout).checkRuntimePermissionForLocation();
-        } else {
+      //  if (Utils.hasMarshmallow()) {
+          //  new ApplozicPermissions(MobicomLocationActivity.this, layout).checkRuntimePermissionForLocation();
+       // } else {
             processingLocation();
-        }
+       // }
     }
 
     @Override

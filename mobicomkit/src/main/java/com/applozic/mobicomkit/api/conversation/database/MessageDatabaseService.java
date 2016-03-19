@@ -584,7 +584,7 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public void updateSmsReadFlag(long smsId, boolean read) {
+    public void updateMessageReadFlag(long smsId, boolean read) {
         ContentValues values = new ContentValues();
         values.put("read", read ? 1 : 0);
         dbHelper.getWritableDatabase().update("sms", values, "id=" + smsId, null);
