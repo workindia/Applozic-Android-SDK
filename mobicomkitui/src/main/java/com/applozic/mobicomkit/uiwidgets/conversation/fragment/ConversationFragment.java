@@ -13,6 +13,7 @@ import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -22,6 +23,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 public class ConversationFragment extends MobiComConversationFragment {
 
     private static final String TAG = "ConversationFragment";
+    private MultimediaOptionsGridView popupGrid;
 
     public ConversationFragment() {
         this.messageIntentClass = MessageIntentService.class;
@@ -60,6 +62,14 @@ public class ConversationFragment extends MobiComConversationFragment {
 
         adapter.setDropDownViewResource(R.layout.mobiframework_custom_spinner);
 
+        popupGrid = new MultimediaOptionsGridView(getActivity());
+
+        if (!(popupGrid.showPopup == null) && popupGrid.showPopup.isShowing()) {
+            individualMessageSendLayout.setVisibility(View.GONE);
+        } else {
+            individualMessageSendLayout.setVisibility(View.VISIBLE);
+        }
+
         attachButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,9 +79,10 @@ public class ConversationFragment extends MobiComConversationFragment {
                 }
 
                 if (ApplozicSetting.getInstance(getActivity()).isPriceOptionVisible()) {
-                    multimediaOptionFragment.show(getActivity().getSupportFragmentManager(), R.array.multimediaOptions_with_price);
+                    popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+
                 } else {
-                    multimediaOptionFragment.show(getActivity().getSupportFragmentManager(), R.array.multimediaOptions_mt);
+                    popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
                 }
 
             }
