@@ -14,10 +14,9 @@
         android:titleTextAppearance="@color/white"
        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
-       <LinearLayout
+       <RelativeLayout
            android:id="@+id/toolBarLayout"
            android:layout_width="match_parent"
-           android:layout_marginTop="4dp"
            android:layout_height="match_parent"
            android:orientation="vertical"
            android:focusableInTouchMode="true"
@@ -28,21 +27,27 @@
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:gravity="left"
+               android:paddingTop="13dp"
                android:singleLine="true"
+               android:layout_marginBottom="0dp"
                android:ellipsize="end"
-               style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+               android:textSize="18sp"
+               android:textStyle="bold"
+               android:textColor="#ffffff"
                android:layout_gravity="left"
                android:id="@+id/toolbar_title" />
            <TextView
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
+               android:textSize="14sp"
+               android:layout_below="@+id/toolbar_title"
+               android:layout_marginTop="0dp"
                android:singleLine="true"
+               android:gravity="left"
                android:visibility="gone"
                android:layout_gravity="left"
                android:id="@+id/toolbar_subTitle" />
-           </LinearLayout>
-
+           </RelativeLayout>
        </android.support.v7.widget.Toolbar>
 
      <RelativeLayout

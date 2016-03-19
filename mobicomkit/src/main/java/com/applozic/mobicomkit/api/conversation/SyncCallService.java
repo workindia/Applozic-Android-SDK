@@ -18,6 +18,8 @@ public class SyncCallService {
 
     private static final String TAG = "SyncCall";
 
+    public static boolean refreshView = false;
+
     private Context context;
     private static SyncCallService syncCallService;
     private MobiComMessageService mobiComMessageService;
@@ -78,12 +80,12 @@ public class SyncCallService {
 
     public synchronized void deleteConversationThread(String userId) {
         mobiComConversationService.deleteConversationFromDevice(userId);
-        MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+        refreshView = true;
     }
 
     public synchronized void deleteMessage(String messageKey) {
         mobiComConversationService.deleteMessageFromDevice(messageKey, null);
-        MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+        refreshView = true;
     }
 
 }

@@ -37,13 +37,13 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
+import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
-
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -54,12 +54,8 @@ import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.emoticon.EmoticonUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicomkit.contact.VCFContactData;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -186,7 +182,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 dateView.setText(simpleDateFormat.format(date));
             }
             return customView;
-
+        } else if (type == 3) {
+            customView = inflater.inflate(R.layout.applozic_custom_message_layout, parent, false);
+            TextView customContentTextView = (TextView) customView.findViewById(R.id.applozic_custom_message_layout_content);
+            customContentTextView.setText(message.getMessage());
+            customContentTextView.setVisibility(View.VISIBLE);
+            return customView;
         } else if (type == 0) {
             customView = inflater.inflate(R.layout.mobicom_received_message_list_view, parent, false);
         } else {
@@ -706,7 +707,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getViewTypeCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -717,6 +718,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
         if (message.isTempDateType()) {
             return 2;
+        }
+        if (message.isCustom()) {
+            return 3;
         }
         return message.isTypeOutbox() ? 1 : 0;
     }

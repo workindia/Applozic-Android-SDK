@@ -94,12 +94,10 @@ public class MobiComMessageService {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         Contact receiverContact = null;
         message.processContactIds(context);
-        String currentId = null;
-        if(message.getGroupId() != null){
-            currentId = String.valueOf(message.getGroupId());
-        }else {
-            receiverContact = baseContactService.getContactById(message.getTo());
-            currentId = message.getTo();
+
+        String currentId = message.getCurrentId();
+        if(message.getGroupId() == null){
+            receiverContact = baseContactService.getContactById(message.getContactIds());
         }
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
@@ -193,7 +191,6 @@ public class MobiComMessageService {
         }).start();
     }
 
-
     public void processContactFromMessages(List<Message> messages) {
         try {
 
@@ -283,15 +280,26 @@ public class MobiComMessageService {
         }
     }
 
-    public void addWelcomeMessage(String welcome_message) {
+    public void addWelcomeMessage(String content) {
         Message message = new Message();
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         message.setContactIds(new Support(context).getSupportNumber());
         message.setTo(new Support(context).getSupportNumber());
-        message.setMessage(welcome_message);
+        message.setMessage(content);
         message.setStoreOnDevice(Boolean.TRUE);
         message.setSendToDevice(Boolean.FALSE);
         message.setType(Message.MessageType.MT_INBOX.getValue());
+        message.setDeviceKeyString(userPreferences.getDeviceKeyString());
+        message.setSource(Message.Source.MT_MOBILE_APP.getValue());
+        conversationService.sendMessage(message, messageIntentServiceClass);
+    }
+
+    public void sendCustomMessage(Message message) {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        message.setStoreOnDevice(Boolean.TRUE);
+        message.setSendToDevice(Boolean.FALSE);
+        message.setType(Message.MessageType.MT_OUTBOX.getValue());
+        message.setContentType(Message.ContentType.CUSTOM.getValue());
         message.setDeviceKeyString(userPreferences.getDeviceKeyString());
         message.setSource(Message.Source.MT_MOBILE_APP.getValue());
         conversationService.sendMessage(message, messageIntentServiceClass);
