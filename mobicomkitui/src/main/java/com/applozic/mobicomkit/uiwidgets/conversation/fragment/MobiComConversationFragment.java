@@ -1480,13 +1480,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     Message firstDateMessage = new Message();
                     firstDateMessage.setTempDateType(Short.valueOf("100"));
                     firstDateMessage.setCreatedAtTime(nextMessageList.get(0).getCreatedAtTime());
-                    createAtMessage.add(firstDateMessage);
-                    messageList.remove(firstDateMessage);
+                    if (initial && !messageList.contains(firstDateMessage)) {
+                        createAtMessage.add(firstDateMessage);
+                    } else  {
+                        createAtMessage.add(firstDateMessage);
+                        messageList.remove(firstDateMessage);
+                    }
                     createAtMessage.add(nextMessageList.get(0));
                     for (int i = 1; i <= nextMessageList.size() - 1; i++) {
-                        long dayDiffrance = DateUtils.daysBetween(new Date(nextMessageList.get(i - 1).getCreatedAtTime()), new Date(nextMessageList.get(i).getCreatedAtTime()));
+                        long dayDifference = DateUtils.daysBetween(new Date(nextMessageList.get(i - 1).getCreatedAtTime()), new Date(nextMessageList.get(i).getCreatedAtTime()));
 
-                        if (dayDiffrance >= 1) {
+                        if (dayDifference >= 1) {
                             Message message = new Message();
                             message.setTempDateType(Short.valueOf("100"));
                             message.setCreatedAtTime(nextMessageList.get(i).getCreatedAtTime());
