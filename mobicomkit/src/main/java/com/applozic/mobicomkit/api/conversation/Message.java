@@ -550,7 +550,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isCustom() {
-        return type.equals(ContentType.CUSTOM.value);
+        return contentType == ContentType.CUSTOM.value;
     }
 
     public void setTempDateType(short tempDateType) {
