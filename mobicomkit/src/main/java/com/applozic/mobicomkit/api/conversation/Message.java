@@ -404,6 +404,10 @@ public class Message extends JsonMarker {
         this.topicId = topicId;
     }
 
+    public String getCurrentId() {
+        return getGroupId() != null ? String.valueOf(getGroupId()): getContactIds();
+    }
+
     public Integer getGroupId() {
         return groupId;
     }
@@ -545,6 +549,10 @@ public class Message extends JsonMarker {
         return type.equals(MessageType.DATE_TEMP.value);
     }
 
+    public boolean isCustom() {
+        return type.equals(MessageType.CUSTOM.value);
+    }
+
     public void setTempDateType(short tempDateType) {
         this.type = tempDateType;
     }
@@ -568,7 +576,7 @@ public class Message extends JsonMarker {
         INBOX(Short.valueOf("0")), OUTBOX(Short.valueOf("1")), DRAFT(Short.valueOf("2")),
         OUTBOX_SENT_FROM_DEVICE(Short.valueOf("3")), MT_INBOX(Short.valueOf("4")),
         MT_OUTBOX(Short.valueOf("5")), CALL_INCOMING(Short.valueOf("6")), CALL_OUTGOING(Short.valueOf("7")),
-        DATE_TEMP(Short.valueOf("100"));
+        DATE_TEMP(Short.valueOf("100")), CUSTOM(Short.valueOf("101"));
         private Short value;
 
         MessageType(Short c) {

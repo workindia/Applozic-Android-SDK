@@ -315,7 +315,6 @@ public class MessageClientService extends MobiComKitClientService {
 
         if (isBroadcast) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
-
         }
         if (message.isUploadRequired()) {
             for (String filePath : message.getFilePaths()) {

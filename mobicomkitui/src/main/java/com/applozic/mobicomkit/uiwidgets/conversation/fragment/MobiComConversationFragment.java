@@ -567,7 +567,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             Message message = messageList.get(positionInSmsList);
 
-            if (message.isTempDateType()) {
+            if (message.isTempDateType() || message.isCustom()) {
                 return;
             }
 
@@ -820,7 +820,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                     for (int index = 0; index < messageList.size(); index++) {
                         Message message = messageList.get(index);
-                        if ((message.getStatus()== Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || !message.isTypeOutbox()) {
+                        if ((message.getStatus()== Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || message.isCustom() || !message.isTypeOutbox()) {
                             continue;
                         }
                         message.setDelivered(true);
@@ -850,7 +850,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 try {
                     int index = messageList.indexOf(message);
                     if (index != -1) {
-                        if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue() || messageList.get(index).isTempDateType()) {
+                        if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue() || messageList.get(index).isTempDateType() || messageList.get(index).isCustom()) {
                             return;
                         }
                         messageList.get(index).setDelivered(true);
@@ -1296,7 +1296,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return true;
         }
         Message message = messageList.get(position);
-        if (message.isTempDateType()) {
+        if (message.isTempDateType() || message.isCustom()) {
             return true;
         }
 
@@ -1562,7 +1562,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (!messageList.isEmpty()) {
                 for (int i = messageList.size() - 1; i >= 0; i--) {
-                    if (!messageList.get(i).isRead() && !messageList.get(i).isTempDateType()) {
+                    if (!messageList.get(i).isRead() && !messageList.get(i).isTempDateType() && !messageList.get(i).isCustom()) {
                         messageList.get(i).setRead(Boolean.TRUE);
                         new MessageDatabaseService(getActivity()).updateMessageReadFlag(messageList.get(i).getMessageId(), true);
                     } else {
