@@ -67,6 +67,9 @@ public class MobiComMessageService {
         }  else if (message.getType().equals(Message.MessageType.MT_OUTBOX.getValue())) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             messageDatabaseService.createMessage(message);
+            if (!message.getCurrentId().equals(BroadcastService.currentUserId)) {
+                MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+            }
         }
         Log.i(TAG, "processing message: " + message);
         return message;
