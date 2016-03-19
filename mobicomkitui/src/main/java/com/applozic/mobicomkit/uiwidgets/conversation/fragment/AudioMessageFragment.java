@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -55,7 +56,6 @@ public class AudioMessageFragment extends DialogFragment {
         record = (ImageButton) v.findViewById(R.id.audio_mic_imageview);
         send = (Button) v.findViewById(R.id.audio_send);
         cancel = (Button) v.findViewById(R.id.audio_cancel);
-
         txtcount = (TextView) v.findViewById(R.id.txtcount);
         audioRecordingText = (TextView) v.findViewById(R.id.audio_recording_text);
 
@@ -124,6 +124,11 @@ public class AudioMessageFragment extends DialogFragment {
                 //IF recording is running stoped it ...
                 if (isRecordring) {
                     stopRecording();
+                }
+                //FILE CHECK ....
+                if(!(new File(outputFile).exists())){
+                    Toast.makeText(getContext(),R.string.audio_recording_send_text,Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 ConversationUIService conversationUIService = new ConversationUIService(getActivity());
                 conversationUIService.sendAudioMessage(outputFile);
