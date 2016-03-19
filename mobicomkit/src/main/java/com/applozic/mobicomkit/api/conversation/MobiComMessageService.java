@@ -298,7 +298,8 @@ public class MobiComMessageService {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         message.setStoreOnDevice(Boolean.TRUE);
         message.setSendToDevice(Boolean.FALSE);
-        message.setType(Message.MessageType.CUSTOM.getValue());
+        message.setType(Message.MessageType.MT_OUTBOX.getValue());
+        message.setContentType(Message.ContentType.CUSTOM.getValue());
         message.setDeviceKeyString(userPreferences.getDeviceKeyString());
         message.setSource(Message.Source.MT_MOBILE_APP.getValue());
         conversationService.sendMessage(message, messageIntentServiceClass);
