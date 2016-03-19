@@ -1481,9 +1481,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     Message firstDateMessage = new Message();
                     firstDateMessage.setTempDateType(Short.valueOf("100"));
                     firstDateMessage.setCreatedAtTime(nextMessageList.get(0).getCreatedAtTime());
-                    if (initial && !messageList.contains(firstDateMessage)) {
-                        createAtMessage.add(firstDateMessage);
-                    } else  {
+
+                    Message lastDateMessage = new Message();
+                    lastDateMessage.setTempDateType(Short.valueOf("100"));
+                    lastDateMessage.setCreatedAtTime(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime());
+
+                    if (initial && !messageList.contains(lastDateMessage)) {
+                        createAtMessage.add(lastDateMessage);
+                    } else if (!initial) {
                         createAtMessage.add(firstDateMessage);
                         messageList.remove(firstDateMessage);
                     }
@@ -1495,8 +1500,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Message message = new Message();
                             message.setTempDateType(Short.valueOf("100"));
                             message.setCreatedAtTime(nextMessageList.get(i).getCreatedAtTime());
-                            createAtMessage.add(message);
-                            messageList.remove(message);
+                            if (initial && !messageList.contains(message)) {
+                                createAtMessage.add(message);
+                            } else if (!initial) {
+                                createAtMessage.add(message);
+                                messageList.remove(message);
+                            }
                         }
                         createAtMessage.add(nextMessageList.get(i));
                     }
@@ -1543,7 +1552,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageList.get(0).equals(nextMessageList.get(nextMessageList.size() - 1))) {
                 nextMessageList.remove(nextMessageList.size() - 1);
             }
-
 
             for (Message message : nextMessageList) {
                 selfDestructMessage(message);
