@@ -150,7 +150,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private Integer channelKey;
     private StringBuffer stringBuffer;
     private Toolbar toolbar;
-    LinearLayout toolBarLayout,userNotAbleToChatLayout;
+    RelativeLayout toolBarLayout;
+    LinearLayout userNotAbleToChatLayout;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -173,7 +174,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
-        toolBarLayout = (LinearLayout) toolbar.findViewById(R.id.toolBarLayout);
+        toolBarLayout = (RelativeLayout) toolbar.findViewById(R.id.toolBarLayout);
         toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
         toolBarSubTitle = (TextView) toolbar.findViewById(R.id.toolbar_subTitle);
         toolBarLayout.setClickable(true);
