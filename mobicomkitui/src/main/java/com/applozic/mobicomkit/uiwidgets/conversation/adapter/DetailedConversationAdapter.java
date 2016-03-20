@@ -506,6 +506,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     chatLocation.setVisibility(View.VISIBLE);
 
                     loadImage.setImageFadeIn(false);
+                    //Default image while loading image.
+                    loadImage.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
                     loadImage.loadImage(LocationUtils.loadStaticMap(message.getMessage()), mapImageView);
                     messageTextView.setVisibility(View.GONE);
 

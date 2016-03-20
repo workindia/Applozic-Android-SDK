@@ -73,7 +73,7 @@
 
         <Button
             android:id="@+id/mobicom_attachment_cancel_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="165dp"
             android:layout_height="wrap_content"
             android:text="@string/cancel_text"
             android:textColor="@color/white"
@@ -89,7 +89,7 @@
             android:background="@color/white" />
         <Button
             android:id="@+id/mobicom_attachment_send_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="167dp"
             android:layout_height="wrap_content"
             android:text="@string/send_text"
             android:paddingRight="10dp"
@@ -97,7 +97,7 @@
             android:textColor="@color/white"
             android:textSize="15sp"
             android:visibility="visible"
-            android:gravity="center_vertical|left"
+            android:gravity="center"
             android:layout_gravity="right|center_vertical" />
 
     </FrameLayout>
