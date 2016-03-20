@@ -830,7 +830,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);
-                        if (view != null) {
+                        if (view != null && !message.isCustom()) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             TextView status = (TextView) view.findViewById(R.id.status);
                             //status.setText("Delivered");
@@ -857,7 +857,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         messageList.get(index).setDelivered(true);
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);
-                        if (view != null) {
+                        if (view != null && !messageList.get(index).isCustom()) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             /*TextView status = (TextView) view.findViewById(R.id.status);
                             status.setText("Delivered");*/
@@ -1125,7 +1125,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
                         }
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        if (messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && messageListItem.getScheduledAt() == null) {
+                        if (createdAtTime != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && messageListItem.getScheduledAt() == null) {
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
                         }
                     }
@@ -1481,9 +1481,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     Message firstDateMessage = new Message();
                     firstDateMessage.setTempDateType(Short.valueOf("100"));
                     firstDateMessage.setCreatedAtTime(nextMessageList.get(0).getCreatedAtTime());
-                    if (initial && !messageList.contains(firstDateMessage)) {
-                        createAtMessage.add(firstDateMessage);
-                    } else  {
+
+                    Message lastDateMessage = new Message();
+                    lastDateMessage.setTempDateType(Short.valueOf("100"));
+                    lastDateMessage.setCreatedAtTime(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime());
+
+                    if (initial && !messageList.contains(lastDateMessage)) {
+                        createAtMessage.add(lastDateMessage);
+                    } else if (!initial) {
                         createAtMessage.add(firstDateMessage);
                         messageList.remove(firstDateMessage);
                     }
@@ -1495,8 +1500,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Message message = new Message();
                             message.setTempDateType(Short.valueOf("100"));
                             message.setCreatedAtTime(nextMessageList.get(i).getCreatedAtTime());
-                            createAtMessage.add(message);
-                            messageList.remove(message);
+                            if (initial && !messageList.contains(message)) {
+                                createAtMessage.add(message);
+                            } else if (!initial) {
+                                createAtMessage.add(message);
+                                messageList.remove(message);
+                            }
                         }
                         createAtMessage.add(nextMessageList.get(i));
                     }
@@ -1543,7 +1552,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageList.get(0).equals(nextMessageList.get(nextMessageList.size() - 1))) {
                 nextMessageList.remove(nextMessageList.size() - 1);
             }
-
 
             for (Message message : nextMessageList) {
                 selfDestructMessage(message);

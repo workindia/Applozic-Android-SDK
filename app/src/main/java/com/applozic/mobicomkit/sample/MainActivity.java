@@ -110,6 +110,9 @@ public class MainActivity extends MobiComActivityForFragment
                 startActivity(intent);
         }*/
 
+        /*ApplozicSetting.getInstance(this).setColor(ApplozicSetting.CUSTOM_MESSAGE_BACKGROUND_COLOR, Color.parseColor("#FFB3E5FC"));
+        Message message = new Message("contact@applozic.com", "hey! here's a match <3");
+        new MobiComMessageService(this, MessageIntentService.class).sendCustomMessage(message);*/
     }
 
 
