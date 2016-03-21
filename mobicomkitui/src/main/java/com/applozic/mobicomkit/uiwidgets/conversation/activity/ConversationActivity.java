@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -68,7 +69,7 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback  {
+public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -221,7 +222,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         conversationActivity = this;
         layout = (LinearLayout) findViewById(R.id.footerAd);
         if (Utils.hasMarshmallow()) {
-            new  ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForStorage();
+            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
@@ -262,7 +263,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         onNewIntent(getIntent());
 
         new MobiComConversationService(this).processLastSeenAtStatus();
-        //ApplozicMqttService.getInstance(this).subscribe();
+        UserService.getInstance(this).processSyncUserBlock();
     }
 
     @Override
@@ -298,7 +299,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
-        if(!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+        if (!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()) {
             menu.removeItem(R.id.conversations);
         }
         return true;
@@ -356,13 +357,13 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     public void processingLocation() {
 
-        if(ApplozicSetting.getInstance(this).isLocationSharingViaMap()){
+        if (ApplozicSetting.getInstance(this).isLocationSharingViaMap()) {
 
             Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
             startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
             Log.i("test", "Activity for result strarted");
 
-        }else {
+        } else {
             //================= START GETTING LOCATION WITHOUT LOADING MAP AND SEND LOCATION AS TEXT===============
 
             if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
@@ -397,9 +398,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     }
 
     public void processLocation() {
-        if(Utils.hasMarshmallow()){
-            new ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForLocation();
-        }else {
+        if (Utils.hasMarshmallow()) {
+            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForLocation();
+        } else {
             processingLocation();
         }
     }
@@ -413,8 +414,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
-        }else if(id == R.id.conversations){
-            Intent intent =  new Intent(this,ChannelCreateActivity.class);
+        } else if (id == R.id.conversations) {
+            Intent intent = new Intent(this, ChannelCreateActivity.class);
             startActivity(intent);
         } else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);

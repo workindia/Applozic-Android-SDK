@@ -45,6 +45,8 @@
     <string name="title_activity_mobi_com">MobiComActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="user_block">Block</string>
+    <string name="user_un_block">Unblock</string>
 
     <string name="location_services_disabled_message">Sending location requires access to your location. Turn on location access.</string>
     <string name="location_services_disabled_title">Location services disabled</string>
@@ -137,6 +139,9 @@
     <string name="user_not_in_this_group_text">You can\'t send messages to this group because your no longer a participant</string>
     <string name="update_channel_title_name">Enter Group Name</string>
     <string name="new_channel_name_hint">Group name..</string>
+    <string name="user_block_info">Block [name]? Blocked user no longer be able to send you messages</string>
+    <string name="user_un_block_info">Unblock [name] to send a message</string>
+    <string name="please_wait_info">Please wait a moment...</string>
 
 
 </resources>

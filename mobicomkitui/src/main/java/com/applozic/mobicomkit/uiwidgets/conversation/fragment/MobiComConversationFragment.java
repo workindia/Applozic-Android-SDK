@@ -4,6 +4,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
@@ -67,6 +69,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
@@ -152,6 +155,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private Toolbar toolbar;
     RelativeLayout toolBarLayout;
     LinearLayout userNotAbleToChatLayout;
+    private Menu menu;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -307,8 +311,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                           @Override
                                           public void onClick(View view) {
                                               emoticonsFrameLayout.setVisibility(View.GONE);
+                                              if (contact != null && !contact.isBlocked() || channel != null) {
 
-                                              if (TextUtils.isEmpty(messageEditText.getText().toString()) && TextUtils.isEmpty(filePath)) {
+                                                  if (TextUtils.isEmpty(messageEditText.getText().toString()) && TextUtils.isEmpty(filePath)) {
                                                 /*final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
                                                           setPositiveButton(R.string.yes_alert, new DialogInterface.OnClickListener() {
                                                               @Override
@@ -330,15 +335,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                                   alertDialog.setTitle(getActivity().getString(R.string.alert_for_empty_message));
                                                   alertDialog.setCancelable(true);
                                                   alertDialog.create().show();*/
-                                              } else {
-                                                  sendMessage(messageEditText.getText().toString());
-                                                  messageEditText.setText("");
-                                                  scheduleOption.setText(R.string.ScheduleText);
-                                                  if (scheduledTimeHolder.getTimestamp() != null) {
-                                                      showScheduleMessageToast();
-                                                  }
-                                                  scheduledTimeHolder.resetScheduledTimeHolder();
+                                                  } else {
+                                                      sendMessage(messageEditText.getText().toString());
+                                                      messageEditText.setText("");
+                                                      scheduleOption.setText(R.string.ScheduleText);
+                                                      if (scheduledTimeHolder.getTimestamp() != null) {
+                                                          showScheduleMessageToast();
+                                                      }
+                                                      scheduledTimeHolder.resetScheduledTimeHolder();
 
+                                                  }
+                                              }
+                                              if(contact != null && contact.isBlocked()){
+                                                  userUnBlockDialog(contact.getUserId());
                                               }
                                           }
                                       }
@@ -598,6 +607,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        this.menu = menu;
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
 
@@ -606,8 +616,30 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             menu.findItem(R.id.dial).setVisible(false);
         }
+        if(channel != null){
+            menu.findItem(R.id.userBlock).setVisible(false);
+            menu.findItem(R.id.userUnBlock).setVisible(false);
+        }else {
+            if(contact.isBlocked()){
+                menu.findItem(R.id.userUnBlock).setVisible(true);
+            }else {
+                menu.findItem(R.id.userBlock).setVisible(true);
+            }
+        }
         menu.removeItem(R.id.start_new);
         menu.removeItem(R.id.conversations);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id =  item.getItemId();
+        if(id == R.id.userBlock){
+            userBlockDialog(contact.getUserId());
+        }
+        if(id == R.id.userUnBlock){
+            new UserBlockAsync(contact.getUserId(),getActivity(),false).execute();
+        }
+        return false;
     }
 
     public void loadConversation(final Contact contact, Channel channel) {
@@ -743,6 +775,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         if (contact != null) {
             contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
+        }
+        if(contact != null && contact.isBlocked() || contact != null && contact.isBlockedBy() ){
+            toolBarSubTitle.setVisibility(View.GONE);
+            return;
         }
 
         this.getActivity().runOnUiThread(new Runnable() {
@@ -1604,4 +1640,116 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             loadMore = !nextMessageList.isEmpty();
         }
     }
+
+    public class UserBlockAsync extends AsyncTask<Void, Integer, Long> {
+        private UserService userService;
+        private ProgressDialog progressDialog;
+        private Context context;
+        String userId;
+        boolean userBlock;
+        String userBlockResponse;
+        String userUnBlockResponse;
+
+
+        public UserBlockAsync(String userId, Context context,boolean userBlock) {
+            this.context = context;
+            this.userId = userId;
+            this.userBlock = userBlock;
+            this.userService = UserService.getInstance(context);
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(context, "",
+                    context.getString(R.string.please_wait_info), true);
+        }
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            if (userBlock && !TextUtils.isEmpty(userId)) {
+                userBlockResponse = userService.processUserBlock(userId);
+            }
+            if(!userBlock && !TextUtils.isEmpty(userId)){
+                userUnBlockResponse = userService.processUserUnBlockUser(userId);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+            if(!TextUtils.isEmpty(userBlockResponse) && ConversationUIService.SUCCESS.equals(userBlockResponse)){
+                toolBarSubTitle.setVisibility(View.GONE);
+                isTyping.setVisibility(View.GONE);
+                if(typingStarted){
+                    Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
+                    intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
+                    intent.putExtra(ApplozicMqttIntentService.STOP_TYPING, true);
+                    getActivity().startService(intent);
+                }
+                menu.findItem(R.id.userBlock).setVisible(false);
+                menu.findItem(R.id.userUnBlock).setVisible(true);
+
+            }
+            if(!TextUtils.isEmpty(userUnBlockResponse) && ConversationUIService.SUCCESS.equals(userUnBlockResponse)){
+                menu.findItem(R.id.userUnBlock).setVisible(false);
+                menu.findItem(R.id.userBlock).setVisible(true);
+            }
+            contact = new AppContactService(getActivity()).getContactById(userId);
+
+        }
+
+    }
+
+    public void userBlockDialog(final String userId) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new UserBlockAsync(userId, getActivity(),true).execute();
+
+                    }
+                });
+        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        String name = "";
+        if (contact != null) {
+            name = contact.getDisplayName();
+        }
+        alertDialog.setMessage(getString(R.string.user_block_info).replace("[name]", name));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
+    }
+
+    public void userUnBlockDialog(final String userId) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new UserBlockAsync(userId,getActivity(),false).execute();
+
+                    }
+                });
+        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        String name = "";
+        if (contact != null) {
+            name = contact.getDisplayName();
+        }
+        alertDialog.setMessage(getString(R.string.user_un_block_info).replace("[name]", name));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
+    }
+
 }

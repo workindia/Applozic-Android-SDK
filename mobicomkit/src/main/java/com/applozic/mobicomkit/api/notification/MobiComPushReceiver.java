@@ -28,6 +28,8 @@ public class MobiComPushReceiver {
     public static final List<String> notificationKeyList = new ArrayList<String>();
     private static final String TAG = "MobiComPushReceiver";
     private static Queue<String> notificationIdList = new LinkedList<String>();
+    public static final String BLOCKED_TO = "BLOCKED_TO";
+    public static final String UNBLOCKED_TO ="UNBLOCKED_TO";
 
     static {
 
@@ -45,7 +47,9 @@ public class MobiComPushReceiver {
         notificationKeyList.add("APPLOZIC_12");// 11 for USER_DISCONNECTED//done
         notificationKeyList.add("APPLOZIC_13");// 12 for GROUP_DELETED
         notificationKeyList.add("APPLOZIC_14");// 13 for GROUP_LEFT
-        notificationKeyList.add("APPLOZIC_15");// 13 for group_sync
+        notificationKeyList.add("APPLOZIC_15");// 14 for group_sync
+        notificationKeyList.add("APPLOZIC_16");//15 for blocked
+        notificationKeyList.add("APPLOZIC_17");//16 for blocked
 
     }
 
@@ -186,20 +190,6 @@ public class MobiComPushReceiver {
                 }
                 addPushNotificationId(userConnectedResponse.getId());
                 syncCallService.updateConnectedStatus(userConnectedResponse.getMessage().toString(), new Date(), true);
-            /*final String userId = userConnected;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
-                    if (userDetail != null) {
-                        for (UserDetail userDetails : userDetail) {
-                            if (userDetails != null && userDetails.isConnected()) {
-                                new ContactDatabase(context).updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
-                            }
-                        }
-                    }
-                }
-            }).start();*/
             }
 
             if (!TextUtils.isEmpty(userDisconnected)) {
@@ -215,22 +205,6 @@ public class MobiComPushReceiver {
                     lastSeenAt = new Date(Long.valueOf(parts[1]));
                 }
                 syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
-            /*final String userId = userDisconnected;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    UserDetail[] userDetail = messageClientService.getUserDetails(userId);
-                    if (userDetail != null) {
-                        for (UserDetail userDetails : userDetail) {
-                            if (userDetails != null && userDetails.getLastSeenAtTime() != null) {
-                                ContactDatabase contactDatabase = new ContactDatabase(context);
-                                contactDatabase.updateConnectedOrDisconnectedStatus(userId, userDetails.isConnected());
-                                contactDatabase.updateLastSeenTimeAt(userId, userDetails.getLastSeenAtTime());
-                            }
-                        }
-                    }
-                }
-            }).start();*/
             }
 
       /*  if (!TextUtils.isEmpty(multipleMessageDelete)) {
@@ -291,16 +265,6 @@ public class MobiComPushReceiver {
 
             }
 
-           /* if (notificationKeyList.get(1).equalsIgnoreCase(message)) {
-
-            } else if (messageObj != null && messageObj.getKeyString() != null && !TextUtils.isEmpty(messageObj.getKeyString())) {
-                Log.i(TAG, "MT sync for key: " + messageObj.getKeyString());
-                syncCallService.syncMessages(messageObj.getKeyString());
-            } else if (syncMessageResponse != null && notificationKeyList.get(0).equalsIgnoreCase(syncMessageResponse.getId())) {
-                syncCallService.syncMessages(null);
-            } else if (notificationKeyList.get(3).equalsIgnoreCase(message)) {
-                //  MessageStatUtil.sendMessageStatsToServer(context);
-            }*/
             String conversationReadResponse = bundle.getString(notificationKeyList.get(9));
             if (!TextUtils.isEmpty(conversationReadResponse)) {
                 MqttMessageResponse updateDeliveryStatusForContactResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(conversationReadResponse, MqttMessageResponse.class);
@@ -310,6 +274,48 @@ public class MobiComPushReceiver {
                     }
                     addPushNotificationId(updateDeliveryStatusForContactResponse.getId());
                     syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString(),true);
+                }
+            }
+
+            String userBlockedResponse = bundle.getString(notificationKeyList.get(15));
+            if(!TextUtils.isEmpty(userBlockedResponse)) {
+                MqttMessageResponse syncUserBlock = (MqttMessageResponse) GsonUtils.getObjectFromJson(userBlockedResponse, MqttMessageResponse.class);
+                if (processPushNotificationId(syncUserBlock.getId())) {
+                    return;
+                }
+                addPushNotificationId(syncUserBlock.getId());
+                 String[] splitKeyString = syncUserBlock.getMessage().toString().split(":");
+                 String type = splitKeyString[0];
+                 String userId;
+                if (splitKeyString.length >= 2) {
+                    userId = splitKeyString[1];
+                    if(BLOCKED_TO.equals(type)){
+                        syncCallService.updateUserBlocked(userId,true);
+                    }else {
+                        syncCallService.updateUserBlockedBy(userId, true);
+                    }
+                }
+            }
+
+
+            String userUnBlockedResponse = bundle.getString(notificationKeyList.get(16));
+            if(!TextUtils.isEmpty(userUnBlockedResponse)) {
+                MqttMessageResponse syncUserUnBlock = (MqttMessageResponse) GsonUtils.getObjectFromJson(userUnBlockedResponse, MqttMessageResponse.class);
+                if (processPushNotificationId(syncUserUnBlock.getId())) {
+                    return;
+                }
+                addPushNotificationId(syncUserUnBlock.getId());
+                String[] splitKeyString = syncUserUnBlock.getMessage().toString().split(":");
+                String type = splitKeyString[0];
+                String userId;
+
+                if (splitKeyString.length >= 2) {
+                    userId = splitKeyString[1];
+                    if(UNBLOCKED_TO.equals(type)){
+                        syncCallService.updateUserBlocked(userId,false);
+                    }else {
+                        syncCallService.updateUserBlockedBy(userId,false);
+                    }
                 }
             }
 

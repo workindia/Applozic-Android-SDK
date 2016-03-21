@@ -187,6 +187,8 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         menu.removeItem(R.id.dial);
         menu.removeItem(R.id.deleteConversation);
+        menu.removeItem(R.id.userBlock);
+        menu.removeItem(R.id.userUnBlock);
     }
 
     public void addMessage(final Message message) {

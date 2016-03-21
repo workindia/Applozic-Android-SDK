@@ -81,6 +81,7 @@ public class ConversationUIService {
     private static final String TAG = "ConversationUIService";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     public static final String GROUP = "group-";
+    public static final String SUCCESS = "success";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
 

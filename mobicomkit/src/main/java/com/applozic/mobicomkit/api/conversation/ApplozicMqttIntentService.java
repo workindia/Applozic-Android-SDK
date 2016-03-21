@@ -23,6 +23,7 @@ public class ApplozicMqttIntentService extends IntentService {
     public static final String CONNECTED_PUBLISH = "connectedPublish";
     public static final String CONTACT = "contact";
     public static final String TYPING = "typing";
+    public static final String STOP_TYPING = "STOP_TYPING";
 
     public ApplozicMqttIntentService() {
         super(TAG);
@@ -44,11 +45,17 @@ public class ApplozicMqttIntentService extends IntentService {
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(), "1");
         }
         Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
-        if (contact != null) {
+        if (contact != null && !contact.isBlocked() ){
             boolean typing = intent.getBooleanExtra(TYPING, false);
             if (typing) {
                 ApplozicMqttService.getInstance(getApplicationContext()).typingStarted(contact);
             } else {
+                ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact);
+            }
+        }
+        if (contact != null ){
+            boolean stop = intent.getBooleanExtra(STOP_TYPING, false);
+            if (stop) {
                 ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact);
             }
         }

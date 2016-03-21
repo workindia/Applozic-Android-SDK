@@ -88,4 +88,12 @@ public class SyncCallService {
         refreshView = true;
     }
 
+    public synchronized void updateUserBlocked(String userId, boolean userBlocked) {
+        contactService.updateUserBlocked(userId, userBlocked);
+    }
+
+    public synchronized void updateUserBlockedBy(String userId, boolean userBlockedBy) {
+        contactService.updateUserBlockedBy(userId, userBlockedBy);
+    }
+
 }

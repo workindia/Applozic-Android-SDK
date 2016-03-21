@@ -84,6 +84,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+        mobiComUserPreference.setUserBlockSyncTime("10000");
         new Thread(new Runnable() {
             @Override
             public void run() {

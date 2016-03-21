@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import org.apache.http.NameValuePair;
@@ -46,6 +47,9 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_INFO_URL = "/rest/ws/user/info?";
     public static final Short MOBICOMKIT_VERSION_CODE = 105;
     public static final String USER_DISPLAY_NAME_UPDATE = "/rest/ws/user/name?";
+    public static final String BLOCK_USER_URL = "/rest/ws/user/block";
+    public static final String BLOCK_USER_SYNC_URL = "/rest/ws/user/blocked/sync";
+    public static final String UNBLOCK_USER_SYNC_URL = "/rest/ws/user/unblock";
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -90,6 +94,17 @@ public class UserClientService extends MobiComKitClientService {
         return getBaseUrl() + USER_INFO_URL;
     }
 
+    public String getBlockUserUrl() {
+        return getBaseUrl() + BLOCK_USER_URL;
+    }
+
+    public String getBlockUserSyncUrl() {
+        return getBaseUrl() + BLOCK_USER_SYNC_URL;
+    }
+
+    public String getUnBlockUserSyncUrl() {
+        return getBaseUrl() + UNBLOCK_USER_SYNC_URL;
+    }
 
     public void logout() {
         logout(false);
@@ -234,6 +249,49 @@ public class UserClientService extends MobiComKitClientService {
         });
         thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
+    }
+
+    public ApiResponse userBlock(String userId) {
+        String response = "";
+        ApiResponse apiResponse = null;
+        try {
+            if (!TextUtils.isEmpty(userId)) {
+                response = httpRequestUtils.getResponse(getCredentials(), getBlockUserUrl() + "?userId=" + URLEncoder.encode(userId, "UTF-8"), "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,ApiResponse.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return apiResponse;
+    }
+
+    public ApiResponse userUnBlock(String userId) {
+        String response = "";
+        ApiResponse apiResponse = null;
+        try {
+            if (!TextUtils.isEmpty(userId)) {
+                response = httpRequestUtils.getResponse(getCredentials(), getUnBlockUserSyncUrl() + "?userId=" + URLEncoder.encode(userId, "UTF-8"), "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,ApiResponse.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return apiResponse;
+    }
+
+    public SyncBlockUserApiResponse getSyncUserBlockList(String lastSyncTime){
+        try {
+            String url = getBlockUserSyncUrl() + "?lastSyncTime=" + lastSyncTime;
+            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+
+            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
+                return null;
+            }
+            return (SyncBlockUserApiResponse) GsonUtils.getObjectFromJson(response, SyncBlockUserApiResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
