@@ -39,6 +39,7 @@ dependencies {
     // compile 'com.android.support:multidex:1.0.1'
 }
 
+/*
 
 ext {
     // Where you will see your artifact in Bintray's web interface
@@ -116,4 +117,4 @@ bintray {
             //}
         }
     }
-}
+}*/
