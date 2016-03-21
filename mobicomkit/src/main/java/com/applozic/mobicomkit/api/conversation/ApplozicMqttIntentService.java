@@ -45,7 +45,7 @@ public class ApplozicMqttIntentService extends IntentService {
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(), "1");
         }
         Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
-        if (contact != null && !contact.isBlocked() ){
+        if (contact != null && !contact.isBlocked() && !contact.isBlockedBy()){
             boolean typing = intent.getBooleanExtra(TYPING, false);
             if (typing) {
                 ApplozicMqttService.getInstance(getApplicationContext()).typingStarted(contact);

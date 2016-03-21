@@ -10,24 +10,12 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 
-import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthenticationException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -238,41 +226,13 @@ public class FileClientService extends MobiComKitClientService {
         return null;
     }
 
-    public String uploadBlobImage(String path) throws UnsupportedEncodingException, AuthenticationException {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(getUploadKey());
-
-        BasicScheme scheme = new BasicScheme();
-        httppost.addHeader(scheme.authenticate(getCredentials(), httppost));
-        httpRequestUtils.addGlobalHeaders(httppost);
-        File fileToSend = null;
-        int maxFileSize = MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB()* 1024*1024 ;
-        try {
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            String fileName = path.substring(path.lastIndexOf("/") + 1);
-            ContentType contentType = ContentType.create(FileUtils.getMimeType(path));
-            //Compress files which is grater than settings value.
-            File file =   new File(path);
-            if( MobiComUserPreference.getInstance(context).isImageCompressionEnabled() && file.length() > maxFileSize && contentType.getMimeType().contains("image") ){
-                //Do a compression first...
-                fileToSend = FileUtils.compressImageFiles(path, path + ".tmp",maxFileSize);
-            }else{
-                fileToSend =new File(path);
-            }
-            FileBody fileBody = new FileBody(fileToSend,contentType,fileName);
-
-            builder.addPart("files[]", fileBody);
-            HttpEntity entity = builder.build();
-            httppost.setEntity(entity);
-            HttpResponse response = httpclient.execute(httppost);
-            Log.d(TAG, "Image uploaded: " + response.getStatusLine());
-            return EntityUtils.toString(response.getEntity());
-        } catch (Exception e) {
-            Log.d(TAG, "Image not uploaded: Exception:" + e.toString());
-        }finally {
-            if(fileToSend!=null){
-                fileToSend.deleteOnExit();
-            }
+    public String uploadBlobImage(String path) throws UnsupportedEncodingException {
+        try{
+            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadKey(),"UTF-8",context);
+            multipart.addFilePart("files[]", new File(path));
+            return multipart.getResponse();
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return null;
     }

@@ -593,7 +593,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         menuItems[i].equals("Resend"))) {
                     continue;
                 }
-                if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.getDelivered())) {
+                if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.isSentToServer())) {
                     continue;
                 }
                 if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()))) {
@@ -619,7 +619,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if(channel != null){
             menu.findItem(R.id.userBlock).setVisible(false);
             menu.findItem(R.id.userUnBlock).setVisible(false);
-        }else {
+        }else if (contact != null){
             if(contact.isBlocked()){
                 menu.findItem(R.id.userUnBlock).setVisible(true);
             }else {
