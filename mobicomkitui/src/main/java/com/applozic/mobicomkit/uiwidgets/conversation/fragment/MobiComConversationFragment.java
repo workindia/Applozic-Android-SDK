@@ -1518,17 +1518,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     firstDateMessage.setTempDateType(Short.valueOf("100"));
                     firstDateMessage.setCreatedAtTime(nextMessageList.get(0).getCreatedAtTime());
 
-                    Message lastDateMessage = new Message();
-                    lastDateMessage.setTempDateType(Short.valueOf("100"));
-                    lastDateMessage.setCreatedAtTime(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime());
-
-                    if (initial && !messageList.contains(lastDateMessage)) {
-                        createAtMessage.add(lastDateMessage);
+                    if (initial && !messageList.contains(firstDateMessage)) {
+                        createAtMessage.add(firstDateMessage);
                     } else if (!initial) {
                         createAtMessage.add(firstDateMessage);
                         messageList.remove(firstDateMessage);
                     }
-                    createAtMessage.add(nextMessageList.get(0));
+                    if(!createAtMessage.contains(nextMessageList.get(0))){
+                        createAtMessage.add(nextMessageList.get(0));
+                    }
+
                     for (int i = 1; i <= nextMessageList.size() - 1; i++) {
                         long dayDifference = DateUtils.daysBetween(new Date(nextMessageList.get(i - 1).getCreatedAtTime()), new Date(nextMessageList.get(i).getCreatedAtTime()));
 
@@ -1543,7 +1542,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 messageList.remove(message);
                             }
                         }
-                        createAtMessage.add(nextMessageList.get(i));
+                        if(!createAtMessage.contains(nextMessageList.get(i))) {
+                            createAtMessage.add(nextMessageList.get(i));
+                        }
                     }
                 }
                 nextMessageList = createAtMessage;
