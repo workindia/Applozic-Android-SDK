@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.File;
@@ -30,6 +31,7 @@ public class MultimediaOptionFragment extends DialogFragment {
     public static final int RESULT_OK = -1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
+    public static final int REQUEST_MULTI_ATTCAHMENT = 16;
 
     private Uri capturedImageUri;
     private int menuOptionsResourceId = R.array.multimediaOptions_sms;
@@ -71,10 +73,8 @@ public class MultimediaOptionFragment extends DialogFragment {
                         }
                         break;
                     case 2:
-                        Intent getContentIntent = FileUtils.createGetContentIntent();
-                        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-                        getActivity().startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+                        Intent intentPick = new Intent(getActivity(), MobiComAttachmentSelectorActivity.class);
+                        getActivity().startActivityForResult(intentPick, REQUEST_MULTI_ATTCAHMENT);
                         break;
                     case 0:
                         ((ConversationActivity) getActivity()).processLocation();

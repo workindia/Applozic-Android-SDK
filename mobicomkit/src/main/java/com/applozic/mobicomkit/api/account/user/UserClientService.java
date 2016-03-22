@@ -11,17 +11,13 @@ import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -169,11 +165,11 @@ public class UserClientService extends MobiComKitClientService {
             @Override
             public void run() {
                 try {
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                 /*   List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
                     nameValuePairs.add(new BasicNameValuePair("key", key));
                     nameValuePairs.add(new BasicNameValuePair("value", value));
                     String response = httpRequestUtils.postData(getCredentials(), getSettingUpdateUrl(), "text/plain", "text/plain", null, nameValuePairs);
-                    Log.i(TAG, "Response from setting update : " + response);
+                    Log.i(TAG, "Response from setting update : " + response);*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

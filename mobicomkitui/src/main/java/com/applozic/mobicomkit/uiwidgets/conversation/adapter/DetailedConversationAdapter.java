@@ -230,6 +230,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if (attachmentIcon != null) {
                 attachmentIcon.setVisibility(View.GONE);
             }
+            if(TextUtils.isEmpty(message.getMessage())){
+                messageTextView.setVisibility(View.GONE);
+            }
 
             attachmentDownloadLayout.setVisibility(View.GONE);
             preview.setVisibility(message.hasAttachment() ? View.VISIBLE : View.GONE);

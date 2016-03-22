@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
-import org.apache.http.NameValuePair;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -52,11 +51,7 @@ public class HttpRequestUtils {
     }
 
 
-    public String postData(PasswordAuthentication credentials, String url, String contentType, String accept, String data) {
-        return postData(credentials, url, contentType, accept, data, null);
-    }
-
-    public String postData(PasswordAuthentication credentials, String urlString, String contentType, String accept, String data, List<NameValuePair> nameValuePairs) {
+    public String postData(PasswordAuthentication credentials, String urlString, String contentType, String accept, String data ) {
         Log.i(TAG, "Calling url: " + urlString);
         HttpURLConnection connection;
         URL url;
@@ -268,6 +263,5 @@ public class HttpRequestUtils {
         }
        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
     }
-
 
 }

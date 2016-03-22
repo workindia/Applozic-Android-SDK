@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
@@ -37,12 +38,15 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.group.Group;
 import com.applozic.mobicommons.people.group.GroupUtils;
 
+import java.util.ArrayList;
+
 
 public class ConversationUIService {
 
     public static final int REQUEST_CODE_FULL_SCREEN_ACTION = 301;
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
     public static final int INSTRUCTION_DELAY = 5000;
+    public static final int REQUEST_MULTI_ATTCAHMENT = 16;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String CONTACT = "contact";
@@ -134,8 +138,23 @@ public class ConversationUIService {
                     Bitmap photo = (Bitmap) (intent != null ? intent.getExtras().get("data") : null);
                     selectedFileUri = ImageUtils.getImageUri(fragmentActivity, photo);
                 }
-                getConversationFragment().loadFile(selectedFileUri);
+
+                getConversationFragment().sendMessage(Message.ContentType.ATTACHMENT.getValue(), FilePathFinder.getPath(fragmentActivity, selectedFileUri));
                 Log.i(TAG, "File uri: " + selectedFileUri);
+            }
+
+            if (requestCode == MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT && resultCode == Activity.RESULT_OK) {
+
+                ArrayList<Uri> attachmentList = intent.getParcelableArrayListExtra(MobiComAttachmentSelectorActivity.MULTISELECT_SELECTED_FILES);
+                String messageText = intent.getStringExtra(MobiComAttachmentSelectorActivity.MULTISELECT_MESSAGE);
+
+                //TODO: check performance, we might need to put in each posting in separate thread.
+
+                for (Uri info : attachmentList) {
+                    getConversationFragment().loadFile(info);
+                    getConversationFragment().sendMessage(messageText, Message.ContentType.ATTACHMENT.getValue());
+                }
+
             }
 
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {

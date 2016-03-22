@@ -909,10 +909,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (messageToForward.isAttachmentDownloaded()) {
             filePath = messageToForward.getFilePaths().get(0);
         }
-        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings());
+        sendMessage(messageToForward.getMessage(), messageToForward.getFileMetas(), messageToForward.getFileMetaKeyStrings(),Message.ContentType.DEFAULT.getValue());
     }
 
-    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings) {
+    public void sendMessage(String message, FileMeta fileMetas, String fileMetaKeyStrings, final short messageContentType) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 
@@ -932,7 +932,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageToSend.setTo(contact.getContactIds());
             messageToSend.setContactIds(contact.getContactIds());
         }
-
+        messageToSend.setContentType(messageContentType);
         messageToSend.setRead(Boolean.TRUE);
         messageToSend.setStoreOnDevice(Boolean.TRUE);
         if (messageToSend.getCreatedAtTime() == null) {
@@ -970,7 +970,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void sendMessage(String message) {
-        sendMessage(message, null, null);
+        sendMessage(message, null, null,Message.ContentType.DEFAULT.getValue());
+    }
+    public void sendMessage(short messageContentType,String filePath) {
+        this.filePath = filePath;
+        sendMessage("",messageContentType);
+    }
+
+    public void sendMessage(String message, short messageContentType) {
+        sendMessage(message, null, null, messageContentType);
     }
 
     public void updateMessageKeyString(final Message message) {

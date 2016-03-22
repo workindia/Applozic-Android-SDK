@@ -20,7 +20,7 @@ public class ApplozicSetting {
     private static final String CONVERSATION_CONTACT_IMAGE_VISIBILITY = "CONVERSATION_CONTACT_IMAGE_VISIBILITY";
     private static final String SENT_MESSAGE_BACKGROUND_COLOR = "SENT_MESSAGE_BACKGROUND_COLOR";
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
-
+    private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
 
     public static ApplozicSetting applozicSetting;
 
@@ -107,6 +107,16 @@ public class ApplozicSetting {
     public ApplozicSetting setNoConversationLabel(String label) {
         sharedPreferences.edit().putString(NO_CONVERSATION_LABEL, label).commit();
         return this;
+    }
+
+    public ApplozicSetting setMaxAttachmentAllowed(int maxAttachment) {
+        sharedPreferences.edit().putInt(MAX_ATTACHMENT_ALLOWED, maxAttachment).commit();
+        return this;
+    }
+
+    //Default value is 5.
+    public int getMaxAttachmentAllowed(){
+        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 10);
     }
 
     public boolean clearAll() {

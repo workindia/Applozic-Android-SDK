@@ -24,7 +24,7 @@ public class MobiComKitClientService {
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
     public static final String FILE_URL = "/rest/ws/aws/file/";
-    protected String DEFAULT_URL = "https://mobi-com-alpha.applozic.com";
+    protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
 
 
