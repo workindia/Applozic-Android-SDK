@@ -253,7 +253,7 @@
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/Applozic.People.Theme"
+            android:theme="@style/ApplozicTheme"
             android:windowSoftInputMode="adjustResize"></activity>
 
 
