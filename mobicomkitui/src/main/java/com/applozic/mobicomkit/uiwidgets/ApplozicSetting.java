@@ -127,7 +127,7 @@ public class ApplozicSetting {
 
     //Default file size is 10.
     public int getMaxAttachmentSizeAllowed(){
-        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 10);
+        return  sharedPreferences.getInt(MAX_ATTACHMENT_SIZE_ALLOWED, 10);
     }
 
     public boolean clearAll() {
