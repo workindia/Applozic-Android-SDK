@@ -113,8 +113,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
             setAttachmentView(uri);
         }
         fileSize.setText(getSize(uri));
-
-
+        
         return view;
     }
 

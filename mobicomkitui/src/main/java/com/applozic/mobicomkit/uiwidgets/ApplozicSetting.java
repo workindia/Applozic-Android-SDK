@@ -21,6 +21,7 @@ public class ApplozicSetting {
     private static final String SENT_MESSAGE_BACKGROUND_COLOR = "SENT_MESSAGE_BACKGROUND_COLOR";
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
     private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
+    private static final String MAX_ATTACHMENT_SIZE_ALLOWED= "MAX_ATTACHMENT_SIZE_ALLOWED";
 
     public static ApplozicSetting applozicSetting;
 
@@ -116,6 +117,16 @@ public class ApplozicSetting {
 
     //Default value is 5.
     public int getMaxAttachmentAllowed(){
+        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
+    }
+
+    public ApplozicSetting setMaxAttachmentSize(int maxAttachmentSize) {
+        sharedPreferences.edit().putInt(MAX_ATTACHMENT_SIZE_ALLOWED, maxAttachmentSize).commit();
+        return this;
+    }
+
+    //Default file size is 10.
+    public int getMaxAttachmentSizeAllowed(){
         return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 10);
     }
 
