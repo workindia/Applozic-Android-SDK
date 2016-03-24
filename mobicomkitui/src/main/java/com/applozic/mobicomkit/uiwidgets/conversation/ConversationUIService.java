@@ -344,9 +344,11 @@ public class ConversationUIService {
             getQuickConversationFragment().updateLastSeenStatus(contactId);
             return;
         }
-        ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateLastSeenStatus();
+        if(BroadcastService.isIndividual()){
+            ConversationFragment conversationFragment = getConversationFragment();
+            if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+                conversationFragment.updateLastSeenStatus();
+            }
         }
     }
 
