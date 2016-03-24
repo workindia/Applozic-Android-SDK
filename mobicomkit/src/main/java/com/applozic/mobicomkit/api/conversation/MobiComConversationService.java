@@ -203,7 +203,8 @@ public class MobiComConversationService {
                 return lhs.getCreatedAtTime().compareTo(rhs.getCreatedAtTime());
             }
         });
-        return messageList;
+
+        return messageDatabaseService.getMessages(startTime, endTime, contact, channel);
     }
 
     private void processUserDetails(SyncUserDetailsResponse userDetailsResponse) {

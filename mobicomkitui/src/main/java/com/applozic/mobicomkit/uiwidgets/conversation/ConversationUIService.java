@@ -263,15 +263,16 @@ public class ConversationUIService {
     }
 
     public void addMessage(Message message) {
-        if (!BroadcastService.isQuick()) {
-            return;
-        }
+         if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
+             if (!BroadcastService.isQuick()) {
+                 return;
+             }
 
-        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
-        if (fragment != null) {
-            fragment.addMessage(message);
-        }
-
+             MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
+             if (fragment != null) {
+                 fragment.addMessage(message);
+             }
+         }
     }
 
     public void updateLastMessage(String keyString, String userId) {
@@ -289,18 +290,20 @@ public class ConversationUIService {
     }
 
     public void syncMessages(Message message, String keyString) {
-        String userId = message.getContactIds();
-        if (BroadcastService.isIndividual()) {
-            ConversationFragment conversationFragment = getConversationFragment();
-            if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
-                    conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
-                conversationFragment.addMessage(message);
-            }
-        }
+         if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
+             String userId = message.getContactIds();
+             if (BroadcastService.isIndividual()) {
+                 ConversationFragment conversationFragment = getConversationFragment();
+                 if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
+                         conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
+                     conversationFragment.addMessage(message);
+                 }
+             }
 
-        if (message.getGroupId() == null) {
-            updateLastMessage(keyString, userId);
-        }
+             if (message.getGroupId() == null) {
+                 updateLastMessage(keyString, userId);
+             }
+         }
     }
 
     public void downloadConversations(boolean showInstruction) {

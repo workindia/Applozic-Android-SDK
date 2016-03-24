@@ -149,6 +149,8 @@ public class MessageDatabaseService {
             structuredNameWhere += "createdAt < ? AND ";
             structuredNameParamsList.add(String.valueOf(endTime));
         }
+        structuredNameWhere += "messageContentType != ? AND ";
+        structuredNameParamsList.add(String.valueOf(Message.ContentType.HIDDEN.getValue()));
         structuredNameWhere += "deleted = ? AND ";
         structuredNameParamsList.add("0");
 
@@ -704,7 +706,7 @@ public class MessageDatabaseService {
         if (createdAt != null && createdAt > 0) {
             createdAtClause = " and m1.createdAt < " + createdAt;
         }
-        createdAtClause += " and m1.deleted = 0";
+        createdAtClause += " and m1.deleted = 0 ";
 
         String messageTypeClause = "";
         String messageTypeJoinClause = "";
@@ -714,11 +716,13 @@ public class MessageDatabaseService {
             messageTypeJoinClause = " and m1.type = m2.type";
         }
 
+        String hiddenType = " and m1.messageContentType != "+Message.ContentType.HIDDEN.getValue() ;
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
                 "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
         final Cursor cursor = db.rawQuery("select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
+                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause +hiddenType+ messageTypeClause
                 + " order by m1.createdAt desc", null);
 
         /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +
