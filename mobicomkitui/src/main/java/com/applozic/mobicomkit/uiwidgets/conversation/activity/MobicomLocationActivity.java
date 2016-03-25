@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -42,7 +43,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
 
     SupportMapFragment mapFragment;
     LatLng position;
-    LinearLayout sendLocation;
+    RelativeLayout sendLocation;
     private LinearLayout layout;
     public Snackbar snackbar;
     Location mCurrentLocation;
@@ -62,7 +63,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        sendLocation = (LinearLayout) findViewById(R.id.sendLocation);
+        sendLocation = (RelativeLayout) findViewById(R.id.sendLocation);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         googleApiClient = new GoogleApiClient.Builder(this)

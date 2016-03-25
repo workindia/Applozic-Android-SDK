@@ -62,8 +62,7 @@ public class MultimediaOptionsGridView {
 
                 switch (position) {
                     case 0:
-                        Intent toMapActivity = new Intent(context, MobicomLocationActivity.class);
-                        context.startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
+                        ((ConversationActivity) context).processLocation();
                         break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
