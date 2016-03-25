@@ -236,10 +236,10 @@ public class ChannelDatabaseService {
         return present;
     }
 
-    public int removeChannelUser(Channel channel, ChannelUserMapper channelUserMapper) {
+    public int removeMemberFromChannel(Integer channelKey, String userId) {
         int deleteUser = 0;
         try {
-            deleteUser = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channel.getKey()), channelUserMapper.getUserKey()});
+            deleteUser = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channelKey), userId});
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -247,10 +247,10 @@ public class ChannelDatabaseService {
     }
 
 
-    public int leaveUserFromChannel(Channel channel) {
+    public int leaveMemberFromChannel(Integer channelKey,String userId) {
         int deletedRows = 0;
         try {
-            deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channel.getKey()), MobiComUserPreference.getInstance(context).getUserId()});
+            deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channelKey),userId });
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -137,13 +137,13 @@ public class ChannelClientService extends MobiComKitClientService {
         return channelFeed;
     }
 
-    public synchronized ApiResponse addMemberToChannel(Channel channel, String userId) {
+    public synchronized ApiResponse addMemberToChannel(Integer channelKey, String userId) {
         ApiResponse  apiResponse = null;
         try {
-            if (channel != null && channel.getKey() != null && !TextUtils.isEmpty(userId) ) {
+            if (channelKey != null && !TextUtils.isEmpty(userId) ) {
                 String url = getAddMemberToGroup() + "?" +
                         GROUP_ID
-                        + "=" + URLEncoder.encode(String.valueOf(channel.getKey()), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
@@ -154,13 +154,13 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-    public synchronized ApiResponse removeMemberFromChannel(Channel channel, ChannelUserMapper channelUserMapper) {
+    public synchronized ApiResponse removeMemberFromChannel(Integer channelKey , String userId) {
         ApiResponse apiResponse = null;
         try {
-            if (channel != null && channel.getKey() != null &&  channelUserMapper != null) {
+            if (channelKey != null &&  !TextUtils.isEmpty(userId) ) {
                 String url = getRemoveMemberUrl() + "?" +
                         GROUP_ID
-                        + "=" + URLEncoder.encode(String.valueOf(channel.getKey()), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(channelUserMapper.getUserKey(), "UTF-8");
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                  apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
@@ -186,13 +186,13 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-    public synchronized ApiResponse leaveFromChannel(Channel channel) {
+    public synchronized ApiResponse leaveMemberFromChannel(Integer channelKey) {
         ApiResponse  apiResponse = null;
         try {
-            if (channel != null && channel.getKey() != null ) {
+            if (channelKey != null) {
                 String url = getChannelLeftUrl() + "?" +
                         GROUP_ID
-                        + "=" + URLEncoder.encode(String.valueOf(channel.getKey()), "UTF-8");
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Channel leave member call response: " + apiResponse.getStatus());

@@ -142,47 +142,47 @@ public class ChannelService {
         return channel;
     }
 
-    public String removeChannelUser(Channel channel, ChannelUserMapper channelUserMapper) {
-        if (channel == null && channelUserMapper == null) {
+    public String removeMemberFromChannelProcess(Integer channelKey, String userId) {
+        if (channelKey == null && TextUtils.isEmpty(userId)) {
             return "";
         }
-        ApiResponse apiResponse = channelClientService.removeMemberFromChannel(channel, channelUserMapper);
+        ApiResponse apiResponse = channelClientService.removeMemberFromChannel(channelKey, userId);
         if (apiResponse.isSuccess()) {
-            channelDatabaseService.removeChannelUser(channel, channelUserMapper);
+            channelDatabaseService.removeMemberFromChannel(channelKey, userId);
         }
         return apiResponse.getStatus();
     }
 
-    public String addChannelUSer(Channel channel, String userId) {
-        if (channel == null && !TextUtils.isEmpty(userId)) {
+    public String addMemberToChannelProcess(Integer channelKey, String userId) {
+        if (channelKey == null && !TextUtils.isEmpty(userId)) {
             return "";
         }
-        ApiResponse apiResponse = channelClientService.addMemberToChannel(channel, userId);
+        ApiResponse apiResponse = channelClientService.addMemberToChannel(channelKey, userId);
         if (apiResponse == null) {
             return null;
         }
         if (apiResponse.isSuccess()) {
-            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
+            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelKey, userId);
             channelDatabaseService.addChannelUserMapper(channelUserMapper);
         }
         return apiResponse.getStatus();
     }
 
-    public String leaveFromChannelProcess(Channel channel) {
-        if (channel == null) {
+    public String leaveMemberFromChannelProcess(Integer channelKey,String userId) {
+        if (channelKey == null) {
             return "";
         }
-        ApiResponse apiResponse = channelClientService.leaveFromChannel(channel);
+        ApiResponse apiResponse = channelClientService.leaveMemberFromChannel(channelKey);
         if (apiResponse == null) {
             return null;
         }
         if (apiResponse.isSuccess()) {
-            channelDatabaseService.leaveUserFromChannel(channel);
+            channelDatabaseService.leaveMemberFromChannel(channelKey,userId);
         }
         return apiResponse.getStatus();
     }
 
-    public String updateNewChannelNameProcess(Context context, ChannelName channelName) {
+    public String updateNewChannelNameProcess(ChannelName channelName) {
         if (channelName == null) {
             return null;
         }

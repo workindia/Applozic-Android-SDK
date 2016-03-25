@@ -37,7 +37,6 @@
         android:layout_toRightOf="@id/contactImage"
         android:ellipsize="marquee"
         android:textSize="14sp"
-        android:text="lastSeenAt"
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="@dimen/listview_item_padding"
         android:singleLine="true"
