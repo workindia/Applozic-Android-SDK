@@ -743,13 +743,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
             if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
                 stringBuffer = new StringBuffer();
+                Contact contactDisplayName;
                 int i = 0;
                 for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
                     i++;
                     if(i>2)
                         break;
+                    contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
                     if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-                        stringBuffer.append(channelUserMapper.getUserKey()).append(",");
+                        stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
                     }
                 }
                 if (!TextUtils.isEmpty(stringBuffer)) {
@@ -790,7 +792,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         toolBarSubTitle.setText(getActivity().getString(R.string.user_online));
                     } else if (contact.getLastSeenAt() != 0) {
                         toolBarSubTitle.setVisibility(View.VISIBLE);
-                        toolBarSubTitle.setText(getActivity().getString(R.string.last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
+                        toolBarSubTitle.setText(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt()));
                     }
                 }
             }

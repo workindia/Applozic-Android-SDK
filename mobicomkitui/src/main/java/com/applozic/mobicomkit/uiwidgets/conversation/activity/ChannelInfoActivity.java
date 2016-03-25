@@ -82,6 +82,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_FOR_CONTACT = 1;
     public static final int REQUEST_CODE_FOR_CHANNEL_NEW_NAME = 2;
     boolean isUserPresent;
+    Contact contact;
     MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
 
 
@@ -119,8 +120,13 @@ public class ChannelInfoActivity extends AppCompatActivity {
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
             if (channel != null) {
                 String title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getApplicationContext()).getUserId());
-                mActionBar.setTitle(title);
-                createdBy.setText(getString(R.string.channel_created_by) +" "+ channel.getAdminKey());
+                contact = new AppContactService(this).getContactById(channel.getAdminKey());
+                 mActionBar.setTitle(title);
+                if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
+                    createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
+                }else {
+                    createdBy.setText(getString(R.string.channel_created_by) + " " + contact.getDisplayName());
+                }
                 if (!isUserPresent) {
                     channelExitRelativeLayout.setVisibility(View.GONE);
                     channelDeleteRelativeLayout.setVisibility(View.VISIBLE);
@@ -286,7 +292,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
 
     public void updateChannelList() {
-        Log.i("updating channel","now channelupdateing");
         if (contactsAdapter != null && channel != null) {
             channelUserMapperList.clear();
             channelUserMapperList = ChannelService.getInstance(this).getListOfUsersFromChannelUserMapper(channel.getKey());
@@ -330,15 +335,24 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
             }
-            holder.displayName.setText(contact.getDisplayName());
+            if(MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())){
+                holder.displayName.setText(getString(R.string.you_string));
+            }else {
+                holder.displayName.setText(contact.getDisplayName());
+            }
             if (ChannelUtils.isAdminUserId(contact.getUserId(), channel)) {
                 holder.adminTextView.setVisibility(View.VISIBLE);
             } else {
                 holder.adminTextView.setVisibility(View.GONE);
             }
             if (contact.getLastSeenAt() != 0) {
-                holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
-                holder.lastSeenAtTextView.setText(getString(R.string.last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt())));
+                if(!MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())){
+                    holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
+                    holder.lastSeenAtTextView.setText(getString(R.string.last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt())));
+                }else {
+                    holder.lastSeenAtTextView.setVisibility(View.GONE);
+                    holder.lastSeenAtTextView.setText("");
+                }
             } else {
                 holder.lastSeenAtTextView.setVisibility(View.GONE);
                 holder.lastSeenAtTextView.setText("");
@@ -413,7 +427,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             if (channel != null && channelUserMapper != null) {
-                responseForRemove = channelService.removeChannelUser(channel, channelUserMapper);
+                responseForRemove = channelService.removeMemberFromChannelProcess(channel.getKey(), channelUserMapper.getUserKey());
             }
 
             return null;
@@ -546,7 +560,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             if (channel != null && !TextUtils.isEmpty(userId)) {
-                responseForAdd = channelService.addChannelUSer(channel, userId);
+                responseForAdd = channelService.addMemberToChannelProcess(channel.getKey(), userId);
             }
             return null;
         }
@@ -651,10 +665,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             if (channelName != null) {
-                responseForUpdateChannelName = channelService.updateNewChannelNameProcess(context, channelName);
+                responseForUpdateChannelName = channelService.updateNewChannelNameProcess(channelName);
             }
             if (channel != null) {
-                responseForExit = channelService.leaveFromChannelProcess(channel);
+                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(),MobiComUserPreference.getInstance(context).getUserId());
             }
             return null;
         }

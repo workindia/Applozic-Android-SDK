@@ -41,10 +41,11 @@ public class ChannelNameActivity extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (oldChannelName.equals(channelName.getText().toString())) {
+                    ChannelNameActivity.this.finish();
+                }
                 if (TextUtils.isEmpty(channelName.getText().toString()) || channelName.getText().toString().trim().length() == 0) {
                     Toast.makeText(ChannelNameActivity.this, getString(R.string.channel_name_empty), Toast.LENGTH_SHORT).show();
-                }
-                if (oldChannelName.equals(channelName.getText().toString())) {
                     ChannelNameActivity.this.finish();
                 } else {
                     Intent intent = new Intent();
