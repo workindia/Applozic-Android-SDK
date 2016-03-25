@@ -110,7 +110,7 @@ public class MobiComMessageService {
         messageDatabaseService.createMessage(message);
         //download contacts in advance.
         FileClientService fileClientService =  new FileClientService(context);
-        if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+        if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
             fileClientService.loadContactsvCard(message);
         }
 
@@ -118,14 +118,16 @@ public class MobiComMessageService {
 
         //Check if we are........container is already opened...don't send broadcast
         if (!(currentId.equals(BroadcastService.currentUserId ))) {
-            if(message.getTo() != null && message.getGroupId() == null){
-                messageDatabaseService.updateContactUnreadCount(message.getTo());
+            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())){
+                if(message.getTo() != null && message.getGroupId() == null){
+                    messageDatabaseService.updateContactUnreadCount(message.getTo());
+                }
+                if(message.getGroupId() != null){
+                    messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                }
+                MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+                BroadcastService.sendNotificationBroadcast(context, message);
             }
-            if(message.getGroupId() != null){
-                messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
-            }
-            MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
-            BroadcastService.sendNotificationBroadcast(context, message);
         }
 
         Log.i(TAG, "Updating delivery status: " + message.getPairedMessageKeyString() + ", " + userPreferences.getUserId() + ", " + userPreferences.getContactNumber());
