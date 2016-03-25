@@ -75,9 +75,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
+    public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
     protected static final long UPDATE_INTERVAL = 500;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String SHARE_TEXT = "share_text";
     private static Uri capturedImageUri;
@@ -92,6 +94,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Channel channel;
     private static int retry;
     public LinearLayout layout;
+    String geoApiKey;
     public static Activity conversationActivity;
 
     private Uri videoFileUri;
@@ -220,6 +223,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         conversationActivity = this;
+        geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);
         if (Utils.hasMarshmallow()) {
             new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForStorage();
@@ -356,9 +360,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
 
     public void processingLocation() {
-
-        if (ApplozicSetting.getInstance(this).isLocationSharingViaMap()) {
-
+        if (ApplozicSetting.getInstance(this).isLocationSharingViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
             Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
             startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
             Log.i("test", "Activity for result strarted");
