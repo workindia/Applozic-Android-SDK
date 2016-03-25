@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicomkit.feed.ChannelName;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
@@ -78,8 +79,8 @@ public class ChannelDatabaseService {
         if (channel.getUserCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.USER_COUNT, channel.getUserCount());
         }
-        if(channel.getUnreadCount() != 0 ) {
-            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT,channel.getUnreadCount());
+        if (channel.getUnreadCount() != 0) {
+            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, channel.getUnreadCount());
         }
         return contentValues;
     }
@@ -163,8 +164,8 @@ public class ChannelDatabaseService {
         channel.setName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME)));
         channel.setAdminKey(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.ADMIN_ID)));
         channel.setType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.TYPE)));
-        int count =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
-        if(count >0){
+        int count = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+        if (count > 0) {
             channel.setUnreadCount(count);
         }
         return channel;
@@ -233,6 +234,57 @@ public class ChannelDatabaseService {
         }
         dbHelper.close();
         return present;
+    }
+
+    public int removeMemberFromChannel(Integer channelKey, String userId) {
+        int deleteUser = 0;
+        try {
+            deleteUser = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channelKey), userId});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return deleteUser;
+    }
+
+
+    public int leaveMemberFromChannel(Integer channelKey,String userId) {
+        int deletedRows = 0;
+        try {
+            deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channelKey),userId });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return deletedRows;
+    }
+    public int updateChannelName(ChannelName channelName) {
+        int rowUpdated = 0;
+        try {
+            ContentValues values = new ContentValues();
+            values.put("channelName", channelName.getNewName());
+            rowUpdated = dbHelper.getWritableDatabase().update("channel", values, "channelKey=" + channelName.getGroupId(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rowUpdated;
+    }
+    public int deleteChannel(Integer channelKey){
+        int deletedRows = 0;
+        try {
+            deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL, "channelKey=?", new String[]{String.valueOf(channelKey)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return deletedRows;
+    }
+
+    public int deleteChannelUserMappers(Integer channelKey){
+        int deletedRows = 0;
+        try {
+            deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=?", new String[]{String.valueOf(channelKey)});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return deletedRows;
     }
 
 }

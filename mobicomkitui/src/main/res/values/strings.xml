@@ -78,6 +78,7 @@
     <string name="record_audio_permission_granted">Audio Record permissions has been granted</string>
     <string name="mobicom_max_attachment_warning">Max attachment limit reached</string>
     <string name="mobicom_select_attachment_text">Select at least one attachment</string>
+    <string name="audio_recording_send_text">Tap on Start to record audio</string>
 
 
 </resources>

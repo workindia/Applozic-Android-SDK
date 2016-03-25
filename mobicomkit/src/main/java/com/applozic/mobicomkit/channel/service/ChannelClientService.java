@@ -11,8 +11,11 @@ import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
+import com.applozic.mobicomkit.feed.ChannelName;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
 import java.net.URLEncoder;
 
@@ -26,6 +29,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String ADD_MEMBER_TO_CHANNEL_URL = "/rest/ws/group/add/member";
     private static final String REMOVE_MEMBER_FROM_CHANNEL_URL = "/rest/ws/group/remove/member";
     private static final String CHANNEL_NAME_CHANGE_URL = "/rest/ws/group/change/name";
+    private static final String CHANNEL_LEFT_URL = "/rest/ws/group/left";
 
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
@@ -75,6 +79,10 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public String getUpdateNewChannelNameUrl() {
         return getBaseUrl() + CHANNEL_NAME_CHANGE_URL;
+    }
+
+    public String getChannelLeftUrl() {
+        return getBaseUrl() + CHANNEL_LEFT_URL;
     }
 
     public ChannelFeed getChannelInfo(Integer channelKey) {
@@ -129,49 +137,70 @@ public class ChannelClientService extends MobiComKitClientService {
         return channelFeed;
     }
 
-    public synchronized void addMemberToChannel(Integer channelKey, String userId) {
+    public synchronized ApiResponse addMemberToChannel(Integer channelKey, String userId) {
+        ApiResponse  apiResponse = null;
         try {
-            if (channelKey != null && !TextUtils.isEmpty(userId)) {
+            if (channelKey != null && !TextUtils.isEmpty(userId) ) {
                 String url = getAddMemberToGroup() + "?" +
                         GROUP_ID
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return apiResponse;
     }
 
-    public synchronized void removeMemberFromChannel(Integer channelKey, String userId) {
+    public synchronized ApiResponse removeMemberFromChannel(Integer channelKey , String userId) {
+        ApiResponse apiResponse = null;
         try {
-            if (channelKey != null && !TextUtils.isEmpty(userId)) {
+            if (channelKey != null &&  !TextUtils.isEmpty(userId) ) {
                 String url = getRemoveMemberUrl() + "?" +
                         GROUP_ID
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return apiResponse;
     }
 
-    public synchronized void updateChannelName(Integer channelKey, String newChannelName) {
+    public synchronized ApiResponse updateChannelName(ChannelName channelName) {
+        ApiResponse apiResponse = null;
         try {
-            if (channelKey != null && !TextUtils.isEmpty(newChannelName)) {
-                String url = getUpdateNewChannelNameUrl() + "?" +
-                        GROUP_ID
-                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + NEW_CHANNEL_NAME + "=" + URLEncoder.encode(newChannelName, "UTF-8");
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/x-www-form-urlencoded;charset=UTF-8", "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+            if (channelName != null && channelName.getGroupId() != null && !TextUtils.isEmpty(channelName.getNewName())) {
+                String channelNameUpdateJson = GsonUtils.getJsonFromObject(channelName,ChannelName.class);
+                String response = httpRequestUtils.postData(getCredentials(), getUpdateNewChannelNameUrl() , "application/json", "application/json", channelNameUpdateJson);
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Update Channel name response: " + apiResponse.getStatus());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return apiResponse;
+    }
+
+    public synchronized ApiResponse leaveMemberFromChannel(Integer channelKey) {
+        ApiResponse  apiResponse = null;
+        try {
+            if (channelKey != null) {
+                String url = getChannelLeftUrl() + "?" +
+                        GROUP_ID
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
+                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                Log.i(TAG, "Channel leave member call response: " + apiResponse.getStatus());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return apiResponse;
     }
 
 }

@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 9;
+    public static final int DB_VERSION = 11;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -45,6 +45,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String USER_COUNT = "userCount";
     public static final String STATUS = "status";
     public static final String ADMIN_ID = "adminId";
+    public static final String BLOCKED = "blocked";
+    public static final String BLOCKED_BY = "blockedBy";
     public static final String UNREAD_COUNT = "unreadCount";
     public static final String TOPIC_DETAIL = "topicDetail";
     public static final String CREATED = "created";
@@ -86,6 +88,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "conversationId integer default 0,"
             + "topicId varchar(300) null,"
             + "channelKey integer default 0,"
+            + STATUS + " varchar(200) default 0,"
             + "UNIQUE (keyString,contactNumbers,channelKey))";
     private static final String SMS_BACKUP = "sms_backup";
     public static final String INSERT_INTO_SMS_FROM_SMS_BACKUP_QUERY = "INSERT INTO sms (id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId)" +
@@ -102,6 +105,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + TOPIC_ID + " varchar(300) null";
     private static final String ALTER_CONTACT_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_BLOCKED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED+ " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_BLOCKED_BY_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED_BY+ " integer default 0";
     private static final String ALTER_SMS_TABLE = "ALTER TABLE " + SMS + " RENAME TO " + SMS_BACKUP;
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -114,7 +119,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + APPLICATION_ID + " VARCHAR(2000) null, "
             + CONNECTED + " integer default 0,"
             + LAST_SEEN_AT_TIME + " integer, "
-            + UNREAD_COUNT + " integer default 0 "
+            + UNREAD_COUNT + " integer default 0,"
+            + BLOCKED + " integer default 0, "
+            + BLOCKED_BY + " integer default 0 "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -231,6 +238,12 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, "contact", "lastSeenAt")) {
                 database.execSQL(ALTER_CONTACT_TABLE_FOR_LAST_SEEN_AT_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "contact", BLOCKED)) {
+                database.execSQL(ALTER_CONTACT_TABLE_BLOCKED_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "contact", BLOCKED_BY)) {
+                database.execSQL(ALTER_CONTACT_TABLE_BLOCKED_BY_COLUMN);
             }
             if (!DBUtils.existsColumnInTable(database, "sms", MESSAGE_CONTENT_TYPE)) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_CONTENT_TYPE_COLUMN);

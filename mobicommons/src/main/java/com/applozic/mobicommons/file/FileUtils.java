@@ -67,8 +67,7 @@ public class FileUtils {
     public static final String MIME_TYPE_VIDEO = "video/*";
     public static final String MIME_TYPE_APP = "application/*";
     public static final String HIDDEN_PREFIX = ".";
-    private static final float MAX_HEIGHT = 1332.0f;
-    private static final float MAX_WIDTH = 1776.0f;
+
 
     /**
      * TAG for log messages.
@@ -564,92 +563,13 @@ public class FileUtils {
         if(mimeType.startsWith("video")){
             return ThumbnailUtils.createVideoThumbnail(filePath, 1);
         }
-            return getPreview(filePath, reqWidth,reqHeight,enabled);
+            return getPreview(filePath, reqWidth,reqHeight);
     }
 
 
 
-    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight, boolean enabled) {
+    public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight) {
         File image = new File(filePath);
-        if (enabled) {
-            Bitmap scaledBitmap = null;
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            Bitmap bmp = BitmapFactory.decodeFile(image.getPath(), options);
-
-            int actualHeight = options.outHeight;
-            int actualWidth = options.outWidth;
-            float imgRatio = actualWidth / actualHeight;
-            float maxRatio = MAX_WIDTH / MAX_HEIGHT;
-            if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
-                if (imgRatio < maxRatio) {
-                    imgRatio = MAX_HEIGHT / actualHeight;
-                    actualWidth = (int) (imgRatio * actualWidth);
-                    actualHeight = (int) MAX_HEIGHT;
-                } else if (imgRatio > maxRatio) {
-                    imgRatio = MAX_WIDTH / actualWidth;
-                    actualHeight = (int) (imgRatio * actualHeight);
-                    actualWidth = (int) MAX_WIDTH;
-                } else {
-                    actualHeight = (int) MAX_HEIGHT;
-                    actualWidth = (int) MAX_WIDTH;
-                }
-            }
-            options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);
-            options.inJustDecodeBounds = false;
-
-            options.inPurgeable = true;
-            options.inInputShareable = true;
-            options.inTempStorage = new byte[16 * 1024];
-
-            try {
-                bmp = BitmapFactory.decodeFile(image.getPath(), options);
-            } catch (OutOfMemoryError exception) {
-                exception.printStackTrace();
-
-            }
-            try {
-                scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-            }
-
-            float ratioX = actualWidth / (float) options.outWidth;
-            float ratioY = actualHeight / (float) options.outHeight;
-            float middleX = actualWidth / 2.0f;
-            float middleY = actualHeight / 2.0f;
-
-            Matrix scaleMatrix = new Matrix();
-            scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
-
-            Canvas canvas = new Canvas(scaledBitmap);
-            canvas.setMatrix(scaleMatrix);
-            canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-
-            try {
-                scaledBitmap = ImageUtils.getImageRotatedBitmap(scaledBitmap, image.getPath(), scaledBitmap.getWidth(), scaledBitmap.getHeight());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            FileOutputStream outputStream = null;
-            try {
-                outputStream = new FileOutputStream(image.getAbsolutePath());
-                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (outputStream != null) {
-                        outputStream.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return scaledBitmap;
-        } else {
             Bitmap bitmap;
             BitmapFactory.Options bounds = new BitmapFactory.Options();
             bounds.inJustDecodeBounds = true;
@@ -657,13 +577,12 @@ public class FileUtils {
             if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
                 return null;
             }
-
             bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
             bounds.inJustDecodeBounds = false;
             bitmap = BitmapFactory.decodeFile(image.getPath(), bounds);
             return ImageUtils.getImageRotatedBitmap(bitmap, image.getPath(), bitmap.getWidth(), bitmap.getHeight());
-        }
     }
+
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
@@ -715,26 +634,27 @@ public class FileUtils {
         int actualHeight = options.outHeight;
         int actualWidth = options.outWidth;
         float imgRatio = actualWidth / actualHeight;
-        float maxRatio = MAX_WIDTH / MAX_HEIGHT;
-        if (actualHeight > MAX_HEIGHT || actualWidth > MAX_WIDTH) {
+        int maxHeight = (2 * actualHeight)/3;
+        int maxWidth =  (2* actualWidth)/3;
+
+        float maxRatio = maxWidth / maxHeight;
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
             if (imgRatio < maxRatio) {
-                imgRatio = MAX_HEIGHT / actualHeight;
+                imgRatio = maxHeight / actualHeight;
                 actualWidth = (int) (imgRatio * actualWidth);
-                actualHeight = (int) MAX_HEIGHT;
+                actualHeight = (int) maxHeight;
             } else if (imgRatio > maxRatio) {
-                imgRatio = MAX_WIDTH / actualWidth;
+                imgRatio = maxHeight / actualWidth;
                 actualHeight = (int) (imgRatio * actualHeight);
-                actualWidth = (int) MAX_WIDTH;
+                actualWidth = (int) maxWidth;
             } else {
-                actualHeight = (int) MAX_HEIGHT;
-                actualWidth = (int) MAX_WIDTH;
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
             }
         }
         options.inSampleSize = ImageUtils.calculateInSampleSize(options, actualWidth, actualHeight);
         options.inJustDecodeBounds = false;
 
-        options.inPurgeable = true;
-        options.inInputShareable = true;
         options.inTempStorage = new byte[16 * 1024];
 
         try {

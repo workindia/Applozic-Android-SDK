@@ -8,10 +8,10 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -61,14 +61,13 @@ public class MobiComKitClientService {
         return DEFAULT_MQTT_URL;
     }
 
-    public UsernamePasswordCredentials getCredentials() {
+    public PasswordAuthentication getCredentials() {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isRegistered()) {
             return null;
         }
-        return new UsernamePasswordCredentials(userPreferences.getUserId(), userPreferences.getDeviceKeyString());
+        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
     }
-
     public HttpURLConnection openHttpConnection(String urlString) throws IOException {
         HttpURLConnection httpConn;
 
@@ -83,7 +82,7 @@ public class MobiComKitClientService {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            String userCredentials = getCredentials().getUserName() + ":" + getCredentials().getPassword();
+            String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
             String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
             httpConn.setRequestProperty("Authorization", basicAuth);
             httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));

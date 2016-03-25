@@ -17,6 +17,7 @@ public class ApplozicSetting {
     private static final String START_NEW_BUTTON_DISPLAY = "SETTING_START_NEW_BUTTON_DISPLAY";
     private static final String NO_CONVERSATION_LABEL = "SETTING_NO_CONVERSATION_LABEL";
     private static final String CONVERSATION_CONTACT_IMAGE_VISIBILITY = "CONVERSATION_CONTACT_IMAGE_VISIBILITY";
+    public static final String CUSTOM_MESSAGE_BACKGROUND_COLOR = "CUSTOM_MESSAGE_BACKGROUND_COLOR";
     private static final String SENT_MESSAGE_BACKGROUND_COLOR = "SENT_MESSAGE_BACKGROUND_COLOR";
     private static final String RECEIVED_MESSAGE_BACKGROUND_COLOR = "RECEIVED_MESSAGE_BACKGROUND_COLOR";
     private static final String ONLINE_STATUS_MASTER_LIST = "ONLINE_STATUS_MASTER_LIST";
@@ -25,6 +26,8 @@ public class ApplozicSetting {
     private static final String START_NEW_GROUP ="START_NEW_GROUP";
     private static final String IMAGE_COMPRESSION ="IMAGE_COMPRESSION";
     private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
+    private static final String LOCATION_SHARE_VIA_MAP = "LOCATION_SHARE_VIA_MAP";
+    private static final String MAX_ATTACHMENT_SIZE_ALLOWED= "MAX_ATTACHMENT_SIZE_ALLOWED";
 
 
     public static ApplozicSetting applozicSetting;
@@ -40,6 +43,15 @@ public class ApplozicSetting {
         }
 
         return applozicSetting;
+    }
+
+    public ApplozicSetting setColor(String key, int color) {
+        sharedPreferences.edit().putInt(key, color).commit();
+        return this;
+    }
+
+    public int getColor(String key) {
+        return sharedPreferences.getInt(key, R.color.applozic_theme_color_primary);
     }
 
     public ApplozicSetting setSentMessageBackgroundColor(int color) {
@@ -183,6 +195,31 @@ public class ApplozicSetting {
 
     }
 
+    //==== LOCATION SHARING PREFERENCE =====================
+
+
+    public ApplozicSetting enableLocationSharingViaMap() {
+        setLocationSharingViaMap(true);
+        return this;
+    }
+
+    public ApplozicSetting disableLocationSharingViaMap() {
+        setLocationSharingViaMap(false);
+        return this;
+    }
+
+    public boolean isLocationSharingViaMap() {
+       return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
+    }
+
+    public ApplozicSetting setLocationSharingViaMap(boolean value) {
+        sharedPreferences.edit().putBoolean(LOCATION_SHARE_VIA_MAP, value).commit();
+        return this;
+    }
+
+
+    //===== END ========================================
+
     public int getCompressedImageSizeInMB() {
         return MobiComUserPreference.getInstance(context).getCompressedImageSizeInMB();
     }
@@ -195,6 +232,16 @@ public class ApplozicSetting {
     //Default value is 5.
     public int getMaxAttachmentAllowed(){
        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
+    }
+
+    public ApplozicSetting setMaxAttachmentSize(int maxAttachmentSize) {
+        sharedPreferences.edit().putInt(MAX_ATTACHMENT_SIZE_ALLOWED, maxAttachmentSize).commit();
+        return this;
+    }
+
+    //Default file size is 10.
+    public int getMaxAttachmentSizeAllowed(){
+        return  sharedPreferences.getInt(MAX_ATTACHMENT_SIZE_ALLOWED, 10);
     }
 
     public boolean clearAll() {

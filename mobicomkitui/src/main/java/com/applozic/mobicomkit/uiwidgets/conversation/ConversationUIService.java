@@ -35,6 +35,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
@@ -80,6 +81,7 @@ public class ConversationUIService {
     private static final String TAG = "ConversationUIService";
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     public static final String GROUP = "group-";
+    public static final String SUCCESS = "success";
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
 
@@ -261,15 +263,16 @@ public class ConversationUIService {
     }
 
     public void addMessage(Message message) {
-        if (!BroadcastService.isQuick()) {
-            return;
-        }
+         if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
+             if (!BroadcastService.isQuick()) {
+                 return;
+             }
 
-        MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
-        if (fragment != null) {
-            fragment.addMessage(message);
-        }
-
+             MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
+             if (fragment != null) {
+                 fragment.addMessage(message);
+             }
+         }
     }
 
     public void updateLastMessage(String keyString, String userId) {
@@ -287,18 +290,20 @@ public class ConversationUIService {
     }
 
     public void syncMessages(Message message, String keyString) {
-        String userId = message.getContactIds();
-        if (BroadcastService.isIndividual()) {
-            ConversationFragment conversationFragment = getConversationFragment();
-            if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
-                    conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
-                conversationFragment.addMessage(message);
-            }
-        }
+         if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
+             String userId = message.getContactIds();
+             if (BroadcastService.isIndividual()) {
+                 ConversationFragment conversationFragment = getConversationFragment();
+                 if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
+                         conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
+                     conversationFragment.addMessage(message);
+                 }
+             }
 
-        if (message.getGroupId() == null) {
-            updateLastMessage(keyString, userId);
-        }
+             if (message.getGroupId() == null) {
+                 updateLastMessage(keyString, userId);
+             }
+         }
     }
 
     public void downloadConversations(boolean showInstruction) {
@@ -327,11 +332,10 @@ public class ConversationUIService {
         }
     }
 
-    public void deleteMessage(Message message, String keyString, String formattedContactNumber) {
-        if (PhoneNumberUtils.compare(formattedContactNumber, BroadcastService.currentUserId)) {
+    public void deleteMessage(String keyString, String userId) {
+        updateLastMessage(keyString, userId);
+        if (BroadcastService.isIndividual()) {
             getConversationFragment().deleteMessageFromDeviceList(keyString);
-        } else {
-            updateLastMessage(keyString, formattedContactNumber);
         }
     }
 
@@ -340,19 +344,28 @@ public class ConversationUIService {
             getQuickConversationFragment().updateLastSeenStatus(contactId);
             return;
         }
-        ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateLastSeenStatus();
+        if(BroadcastService.isIndividual()){
+            ConversationFragment conversationFragment = getConversationFragment();
+            if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+                conversationFragment.updateLastSeenStatus();
+            }
         }
     }
 
     public void updateDeliveryStatusForContact(String contactId) {
+        updateStatus(contactId, false);
+    }
+
+    public void updateReadStatusForContact(String contactId) {
+        updateStatus(contactId, true);
+    }
+    private void updateStatus(String contactId, boolean markRead) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
         if (!TextUtils.isEmpty(contactId) && conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
-            conversationFragment.updateDeliveryStatusForAllMessages();
+            conversationFragment.updateDeliveryStatusForAllMessages(markRead);
         }
     }
 
@@ -413,6 +426,10 @@ public class ConversationUIService {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 
+    }
+
+    public void updateChannelSync() {
+        ((ChannelInfoActivity)fragmentActivity).updateChannelList();
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {
@@ -648,12 +665,11 @@ public class ConversationUIService {
         return outputFile;
     }
 
-
     public void reconnectMQTT() {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
-                    Log.i(TAG, "Reconnecting to mqtt.");
+                     Log.i(TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);

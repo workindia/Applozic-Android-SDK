@@ -44,8 +44,6 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "Received broadcast, action: " + action + ", message: " + message);
 
         if (message != null && !message.isSentToMany()) {
-            /*Todo: update the quick conversation fragment on resume, commented because now it is not a sliding pane activity and
-            quickconversationfragment is not activity.*/
             conversationUIService.addMessage(message);
         } else if (message != null && message.isSentToMany() && BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(intent.getAction())) {
             for (String toField : message.getTo().split(",")) {
@@ -79,11 +77,14 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.syncMessages(message, keyString);
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_MESSAGE.toString().equals(intent.getAction())) {
             userId = intent.getStringExtra("contactNumbers");
-            conversationUIService.deleteMessage(message, keyString, userId);
-        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action)) {
+            conversationUIService.deleteMessage(keyString, userId);
+        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action) ||
+                BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString().equals(action)) {
             conversationUIService.updateDeliveryStatus(message, userId);
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString().equals(action)) {
             conversationUIService.updateDeliveryStatusForContact(intent.getStringExtra("contactId"));
+        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString().equals(action)) {
+            conversationUIService.updateReadStatusForContact(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString().equals(action)) {
             String contactNumber = intent.getStringExtra("contactNumber");
             Integer channelKey = intent.getIntExtra("channelKey", 0);
@@ -107,6 +108,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateLastSeenStatus(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
             conversationUIService.reconnectMQTT();
+        } else if(BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)){
+            conversationUIService.updateChannelSync();
         }
     }
 }

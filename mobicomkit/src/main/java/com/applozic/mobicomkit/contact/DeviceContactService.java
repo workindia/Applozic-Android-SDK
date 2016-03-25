@@ -88,4 +88,14 @@ public class DeviceContactService implements BaseContactService {
     public void updateConnectedStatus(String contactId, Date date, boolean connected) {
 
     }
+
+    @Override
+    public void updateUserBlocked(String userId, boolean userBlocked) {
+
+    }
+
+    @Override
+    public void updateUserBlockedBy(String userId, boolean userBlockedBy) {
+
+    }
 }

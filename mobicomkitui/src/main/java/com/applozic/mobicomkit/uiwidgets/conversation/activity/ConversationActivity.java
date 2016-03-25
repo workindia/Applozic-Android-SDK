@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -49,6 +51,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.AudioMessageFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
@@ -66,15 +69,17 @@ import com.google.android.gms.location.LocationServices;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,ActivityCompat.OnRequestPermissionsResultCallback  {
+public class ConversationActivity extends ActionBarActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
-    protected static final long UPDATE_INTERVAL = 5;
+    public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
+    protected static final long UPDATE_INTERVAL = 500;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String SHARE_TEXT = "share_text";
     private static Uri capturedImageUri;
@@ -88,7 +93,9 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Contact contact;
     private Channel channel;
     private static int retry;
-    private LinearLayout layout;
+    public LinearLayout layout;
+    String geoApiKey;
+    public static Activity conversationActivity;
 
     private Uri videoFileUri;
 
@@ -215,9 +222,11 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        conversationActivity = this;
+        geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);
         if (Utils.hasMarshmallow()) {
-            new  ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForStorage();
+            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
@@ -258,7 +267,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         onNewIntent(getIntent());
 
         new MobiComConversationService(this).processLastSeenAtStatus();
-        //ApplozicMqttService.getInstance(this).subscribe();
+        UserService.getInstance(this).processSyncUserBlock();
     }
 
     @Override
@@ -294,7 +303,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (!ApplozicClient.getInstance(this).isHandleDial()) {
             menu.findItem(R.id.dial).setVisible(false);
         }
-        if(!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()){
+        if (!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()) {
             menu.removeItem(R.id.conversations);
         }
         return true;
@@ -351,36 +360,49 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
 
     public void processingLocation() {
-        if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
-                .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.location_services_disabled_title)
-                    .setMessage(R.string.location_services_disabled_message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.location_service_settings, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                            Toast.makeText(ConversationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
+        if (ApplozicSetting.getInstance(this).isLocationSharingViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
+            Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
+            startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
+            Log.i("test", "Activity for result strarted");
+
         } else {
-            googleApiClient.disconnect();
-            googleApiClient.connect();
+            //================= START GETTING LOCATION WITHOUT LOADING MAP AND SEND LOCATION AS TEXT===============
+
+            if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.location_services_disabled_title)
+                        .setMessage(R.string.location_services_disabled_message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.location_service_settings, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                                Toast.makeText(ConversationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            } else {
+                googleApiClient.disconnect();
+                googleApiClient.connect();
+            }
+
+            //=================  END ===============
+
         }
+
     }
 
     public void processLocation() {
-        if(Utils.hasMarshmallow()){
-            new ApplozicPermissions(ConversationActivity.this,layout).checkRuntimePermissionForLocation();
-        }else {
+        if (Utils.hasMarshmallow()) {
+            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForLocation();
+        } else {
             processingLocation();
         }
     }
@@ -394,8 +416,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
             new ConversationUIService(this).startContactActivityForResult();
-        }else if(id == R.id.conversations){
-            Intent intent =  new Intent(this,ChannelCreateActivity.class);
+        } else if (id == R.id.conversations) {
+            Intent intent = new Intent(this, ChannelCreateActivity.class);
             startActivity(intent);
         } else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);

@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "3.26"
+        versionName "3.27"
     }
     buildTypes {
         release {
@@ -33,10 +33,11 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
     compile project(':mobicomkit')
     //Note: use this for local development
     //compile 'com.applozic.communication.message:mobicomkit:2.0' //Todo: use this for prod
-    // compile 'com.android.support:multidex:1.0.1'
+   // compile 'com.android.support:multidex:1.0.1'
 }
 
 /*
@@ -55,7 +56,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '3.26'
+    libraryVersion = '3.27'
 
     developerId = 'devashish'
     developerName = 'Applozic'

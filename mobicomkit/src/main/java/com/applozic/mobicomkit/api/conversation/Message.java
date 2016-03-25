@@ -51,6 +51,8 @@ public class Message extends JsonMarker {
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
 
+    private short status = Status.READ.getValue();
+
     public Message() {
 
     }
@@ -84,6 +86,7 @@ public class Message extends JsonMarker {
         this.setRead(message.isRead());
         this.setApplicationId(message.getApplicationId());
         this.setContentType(message.getContentType());
+        this.setStatus(message.getStatus());
         this.setConversationId(message.getConversationId());
         this.setTopicId(message.getTopicId());
     }
@@ -401,6 +404,10 @@ public class Message extends JsonMarker {
         this.topicId = topicId;
     }
 
+    public String getCurrentId() {
+        return getGroupId() != null ? String.valueOf(getGroupId()): getContactIds();
+    }
+
     public Integer getGroupId() {
         return groupId;
     }
@@ -494,6 +501,15 @@ public class Message extends JsonMarker {
         this.canceled = canceled;
     }
 
+    public short getStatus() {
+        return status;
+    }
+
+    public void setStatus(short status) {
+        this.status = status;
+    }
+
+
     @Override
     public String toString() {
         return "Message{" +
@@ -524,11 +540,17 @@ public class Message extends JsonMarker {
                 ",conversationId=" + conversationId +
                 ",topicId=" + topicId +
                 ", groupId=" + groupId +
+                ", status=" + status +
+
                 '}';
     }
 
     public boolean isTempDateType() {
         return type.equals(MessageType.DATE_TEMP.value);
+    }
+
+    public boolean isCustom() {
+        return contentType == ContentType.CUSTOM.value;
     }
 
     public void setTempDateType(short tempDateType) {
@@ -570,10 +592,25 @@ public class Message extends JsonMarker {
 
         DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
         TEXT_HTML(Short.valueOf("3")), PRICE(Short.valueOf("4")), TEXT_URL(Short.valueOf("5")),CONTACT_MSG(Short.valueOf("7")),AUDIO_MSG(Short.valueOf("8"))
-        ,VIDEO_MSG(Short.valueOf("9"));
+        ,VIDEO_MSG(Short.valueOf("9")), CUSTOM(Short.valueOf("101")),HIDDEN(Short.valueOf("11"));
         private Short value;
 
         ContentType(Short value) {
+            this.value = value;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
+    public enum Status {
+
+        UNREAD(Short.valueOf("0")), READ(Short.valueOf("1")), PENDING(Short.valueOf("2")),
+        SENT(Short.valueOf("3")), DELIVERED(Short.valueOf("4")), DELIVERED_AND_READ(Short.valueOf("5"));
+        private Short value;
+
+        Status(Short value) {
             this.value = value;
         }
 

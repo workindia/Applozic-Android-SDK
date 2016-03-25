@@ -65,6 +65,9 @@ public class MessageDatabaseService {
         Long read = cursor.getLong(cursor.getColumnIndex("read"));
         message.setRead(read != null && read.intValue() == 1);
 
+        message.setStatus(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
+
+
         Long scheduledAt = cursor.getLong(cursor.getColumnIndex("scheduledAt"));
         message.setScheduledAt(scheduledAt == null || scheduledAt.intValue() == 0 ? null : scheduledAt);
         message.setMessage(cursor.getString(cursor.getColumnIndex("message")));
@@ -146,6 +149,8 @@ public class MessageDatabaseService {
             structuredNameWhere += "createdAt < ? AND ";
             structuredNameParamsList.add(String.valueOf(endTime));
         }
+        structuredNameWhere += "messageContentType != ? AND ";
+        structuredNameParamsList.add(String.valueOf(Message.ContentType.HIDDEN.getValue()));
         structuredNameWhere += "deleted = ? AND ";
         structuredNameParamsList.add("0");
 
@@ -455,6 +460,7 @@ public class MessageDatabaseService {
             values.put("read", message.isRead() ? 1 : 0);
             values.put("applicationId", message.getApplicationId());
             values.put(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE, message.getContentType());
+            values.put(MobiComDatabaseHelper.STATUS,message.getStatus());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
             if(message.getGroupId() != null) {
@@ -495,18 +501,32 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public int updateMessageDeliveryReportForContact(String contactId) {
+    public int updateMessageDeliveryReportForContact(String contactId,boolean markRead) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        String whereClause="contactNumbers= '" +contactId + "' and ";
         values.put("delivered", "1");
-        int rows = database.update("sms", values, "contactNumbers='" + contactId + "' and delivered = 0 and type = 5", null);
+        if(markRead){
+            whereClause = whereClause + "status not in (5)";
+            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+        }else{
+            whereClause = whereClause + "status not in (4,5)";
+            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        }
+        whereClause = whereClause +  " and type=5 ";
+        int rows = database.update("sms", values, whereClause, null);
         dbHelper.close();
         return rows;
     }
 
-    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber) {
+    public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber,boolean markRead) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
+        if(markRead){
+            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+        }else{
+            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        }
         values.put("delivered", "1");
         if (TextUtils.isEmpty(contactNumber)) {
             database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);
@@ -566,7 +586,7 @@ public class MessageDatabaseService {
         dbHelper.close();
     }
 
-    public void updateSmsReadFlag(long smsId, boolean read) {
+    public void updateMessageReadFlag(long smsId, boolean read) {
         ContentValues values = new ContentValues();
         values.put("read", read ? 1 : 0);
         dbHelper.getWritableDatabase().update("sms", values, "id=" + smsId, null);
@@ -686,7 +706,7 @@ public class MessageDatabaseService {
         if (createdAt != null && createdAt > 0) {
             createdAtClause = " and m1.createdAt < " + createdAt;
         }
-        createdAtClause += " and m1.deleted = 0";
+        createdAtClause += " and m1.deleted = 0 ";
 
         String messageTypeClause = "";
         String messageTypeJoinClause = "";
@@ -696,11 +716,13 @@ public class MessageDatabaseService {
             messageTypeJoinClause = " and m1.type = m2.type";
         }
 
+        String hiddenType = " and m1.messageContentType != "+Message.ContentType.HIDDEN.getValue() ;
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
                 "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
         final Cursor cursor = db.rawQuery("select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted " + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause + messageTypeClause
+                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause +hiddenType+ messageTypeClause
                 + " order by m1.createdAt desc", null);
 
         /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +

@@ -59,9 +59,7 @@ public class MultimediaOptionFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        Intent toMapActivity = new Intent(getActivity(), MobicomLocationActivity.class);
-                        getActivity().startActivityForResult(toMapActivity, REQUEST_CODE_SEND_LOCATION);
-                        Log.i("test","Activity for result strarted");
+                        ((ConversationActivity)getActivity()).processLocation();
                         break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

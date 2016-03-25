@@ -67,6 +67,9 @@ public class MobiComMessageService {
         }  else if (message.getType().equals(Message.MessageType.MT_OUTBOX.getValue())) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             messageDatabaseService.createMessage(message);
+            if (!message.getCurrentId().equals(BroadcastService.currentUserId)) {
+                MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+            }
         }
         Log.i(TAG, "processing message: " + message);
         return message;
@@ -94,12 +97,10 @@ public class MobiComMessageService {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         Contact receiverContact = null;
         message.processContactIds(context);
-        String currentId = null;
-        if(message.getGroupId() != null){
-            currentId = String.valueOf(message.getGroupId());
-        }else {
-            receiverContact = baseContactService.getContactById(message.getTo());
-            currentId = message.getTo();
+
+        String currentId = message.getCurrentId();
+        if(message.getGroupId() == null){
+            receiverContact = baseContactService.getContactById(message.getContactIds());
         }
 
         if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
@@ -109,7 +110,7 @@ public class MobiComMessageService {
         messageDatabaseService.createMessage(message);
         //download contacts in advance.
         FileClientService fileClientService =  new FileClientService(context);
-        if(message.getContentType()==Message.ContentType.CONTACT_MSG.getValue()){
+        if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
             fileClientService.loadContactsvCard(message);
         }
 
@@ -117,14 +118,16 @@ public class MobiComMessageService {
 
         //Check if we are........container is already opened...don't send broadcast
         if (!(currentId.equals(BroadcastService.currentUserId ))) {
-            if(message.getTo() != null && message.getGroupId() == null){
-                messageDatabaseService.updateContactUnreadCount(message.getTo());
+            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())){
+                if(message.getTo() != null && message.getGroupId() == null){
+                    messageDatabaseService.updateContactUnreadCount(message.getTo());
+                }
+                if(message.getGroupId() != null){
+                    messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                }
+                MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+                BroadcastService.sendNotificationBroadcast(context, message);
             }
-            if(message.getGroupId() != null){
-                messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
-            }
-            MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
-            BroadcastService.sendNotificationBroadcast(context, message);
         }
 
         Log.i(TAG, "Updating delivery status: " + message.getPairedMessageKeyString() + ", " + userPreferences.getUserId() + ", " + userPreferences.getContactNumber());
@@ -171,7 +174,7 @@ public class MobiComMessageService {
             return;
         }
         for (String messageKey: deliveredMessageKeys) {
-            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, null);
+            messageDatabaseService.updateMessageDeliveryReportForContact(messageKey, false);
             Message message = messageDatabaseService.getMessage(messageKey);
             if (message != null) {
                 BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
@@ -192,7 +195,6 @@ public class MobiComMessageService {
             }
         }).start();
     }
-
 
     public void processContactFromMessages(List<Message> messages) {
         try {
@@ -283,12 +285,12 @@ public class MobiComMessageService {
         }
     }
 
-    public void addWelcomeMessage(String welcome_message) {
+    public void addWelcomeMessage(String content) {
         Message message = new Message();
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         message.setContactIds(new Support(context).getSupportNumber());
         message.setTo(new Support(context).getSupportNumber());
-        message.setMessage(welcome_message);
+        message.setMessage(content);
         message.setStoreOnDevice(Boolean.TRUE);
         message.setSendToDevice(Boolean.FALSE);
         message.setType(Message.MessageType.MT_INBOX.getValue());
@@ -297,26 +299,47 @@ public class MobiComMessageService {
         conversationService.sendMessage(message, messageIntentServiceClass);
     }
 
-    public synchronized void updateDeliveryStatusForContact(String contactId) {
-        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId);
+    public void sendCustomMessage(Message message) {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        message.setStoreOnDevice(Boolean.TRUE);
+        message.setSendToDevice(Boolean.FALSE);
+        message.setType(Message.MessageType.MT_OUTBOX.getValue());
+        message.setContentType(Message.ContentType.CUSTOM.getValue());
+        message.setDeviceKeyString(userPreferences.getDeviceKeyString());
+        message.setSource(Message.Source.MT_MOBILE_APP.getValue());
+        conversationService.sendMessage(message, messageIntentServiceClass);
+    }
+
+    public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
+        int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId,markRead);
         Log.i(TAG, "Updated delivery report of " + rows + " messages for contactId: " + contactId);
 
         if (rows > 0) {
-            BroadcastService.sendDeliveryReportForContactBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString(), contactId);
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString() :
+                    BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString();
+            BroadcastService.sendDeliveryReportForContactBroadcast(context, action, contactId);
         }
     }
 
-    public synchronized void updateDeliveryStatus(String key) {
+    public synchronized void updateDeliveryStatus(String key,boolean markRead) {
         //Todo: Check if this is possible? In case the delivery report reaches before the sms is reached, then wait for the sms.
         Log.i(TAG, "Got the delivery report for key: " + key);
         String keyParts[] = key.split((","));
         Message message = messageDatabaseService.getMessage(keyParts[0]);
-        if (message != null && !message.getDelivered()) {
+        if (message != null && (message.getStatus()!= Message.Status.DELIVERED_AND_READ.getValue())) {
             message.setDelivered(Boolean.TRUE);
+
+            if(markRead){
+                message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
+            }else{
+                message.setStatus(Message.Status.DELIVERED.getValue());
+            }
             //Todo: Server need to send the contactNumber of the receiver in case of group messaging and update
             //delivery report only for that number
-            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null);
-            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
+            messageDatabaseService.updateMessageDeliveryReportForContact(keyParts[0], null, markRead);
+            String action = markRead ? BroadcastService.INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString() :
+                    BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString();
+            BroadcastService.sendMessageUpdateBroadcast(context, action, message);
             if (message.getTimeToLive() != null && message.getTimeToLive() != 0) {
                 Timer timer = new Timer();
                 timer.schedule(new DisappearingMessageTask(context, new MobiComConversationService(context), message), message.getTimeToLive() * 60 * 1000);

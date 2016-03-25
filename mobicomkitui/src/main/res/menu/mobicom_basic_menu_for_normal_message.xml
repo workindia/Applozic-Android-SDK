@@ -52,5 +52,18 @@
         android:visible="false"
         mobitexter:showAsAction="collapseActionView" />
 
+    <item
+        android:id="@+id/userBlock"
+        android:showAsAction="collapseActionView"
+        android:title="@string/user_block"
+        android:visible="false"
+        mobitexter:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/userUnBlock"
+        android:showAsAction="collapseActionView"
+        android:title="@string/user_un_block"
+        android:visible="false"
+        mobitexter:showAsAction="collapseActionView" />
+
 
 </menu>

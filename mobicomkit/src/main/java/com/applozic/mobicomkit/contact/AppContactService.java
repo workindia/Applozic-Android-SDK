@@ -159,4 +159,21 @@ public class AppContactService implements BaseContactService {
                 BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);
             }
     }
+
+    @Override
+    public void updateUserBlocked(String userId,boolean userBlocked) {
+        if(!TextUtils.isEmpty(userId)){
+            contactDatabase.updateUserBlockStatus(userId,userBlocked);
+            BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId);
+        }
+    }
+
+    @Override
+    public void updateUserBlockedBy(String userId, boolean userBlockedBy) {
+        if(!TextUtils.isEmpty(userId)){
+            contactDatabase.updateUserBlockByStatus(userId, userBlockedBy);
+            BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId);
+        }
+    }
+
 }

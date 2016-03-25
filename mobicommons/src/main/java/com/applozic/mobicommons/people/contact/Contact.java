@@ -52,6 +52,8 @@ public class Contact implements Serializable {
     private Long lastSeenAtTime;
     private boolean checked = false;
     private BigInteger unreadCount;
+    private boolean blocked;
+    private boolean blockedBy;
 
     public Contact() {
 
@@ -365,4 +367,19 @@ public class Contact implements Serializable {
         this.lastSeenAtTime = lastSeenAt;
     }
 
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    public boolean isBlockedBy() {
+        return blockedBy;
+    }
+
+    public void setBlockedBy(boolean blockedBy) {
+        this.blockedBy = blockedBy;
+    }
 }

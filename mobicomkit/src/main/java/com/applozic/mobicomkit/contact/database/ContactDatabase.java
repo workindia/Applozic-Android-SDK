@@ -60,6 +60,10 @@ public class ContactDatabase {
         if(count != 0){
             contact.setUnreadCount(BigInteger.valueOf(count));
         }
+        Boolean userBlocked = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED)) == 1);
+        contact.setBlocked(userBlocked);
+        Boolean userBlockedBy = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED_BY)) == 1);
+        contact.setBlockedBy(userBlockedBy);
         return contact;
     }
 
@@ -139,6 +143,30 @@ public class ContactDatabase {
         }
     }
 
+    public void updateUserBlockStatus(String userId,boolean userBlocked){
+        try{
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MobiComDatabaseHelper.BLOCKED, userBlocked ? 1 : 0);
+            int row =  dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
+    public void updateUserBlockByStatus(String userId,boolean userBlockedBy){
+        try{
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MobiComDatabaseHelper.BLOCKED_BY, userBlockedBy ? 1 : 0);
+            int row =  dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+    }
+
     public void addContact(Contact contact) {
         if (TextUtils.isEmpty(contact.getContactNumber())) {
             contact.setContactNumber(contact.getUserId());
@@ -174,6 +202,13 @@ public class ContactDatabase {
         }
         if (contact.getUnreadCount() != null) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
+        }
+
+        if(contact.isBlocked()){
+            contentValues.put(MobiComDatabaseHelper.BLOCKED, contact.isBlocked());
+        }
+        if(contact.isBlockedBy()){
+            contentValues.put(MobiComDatabaseHelper.BLOCKED_BY, contact.isBlockedBy());
         }
         return contentValues;
     }

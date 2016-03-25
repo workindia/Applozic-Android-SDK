@@ -36,4 +36,8 @@ public interface BaseContactService {
     boolean isContactExists(String contactId);
 
     void updateConnectedStatus(String contactId, Date date, boolean connected);
+
+    void updateUserBlocked(String userId,boolean userBlocked);
+
+    void updateUserBlockedBy(String userId,boolean userBlockedBy);
 }

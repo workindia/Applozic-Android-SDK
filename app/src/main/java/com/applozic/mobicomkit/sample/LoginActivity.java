@@ -267,7 +267,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
 
-                    ApplozicSetting.getInstance(context).hideStartNewGroupButton()
+                    ApplozicSetting.getInstance(context).showStartNewGroupButton()
                             .setCompressedImageSizeInMB(5)
                             .enableImageCompression()
                             .setMaxAttachmentAllowed(5);

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="?android:attr/listPreferredItemHeight">
+
+    <TextView
+        android:id="@+id/alphabeticImage"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_gravity="center"
+        android:background="@drawable/mobiframework_circular_text_view"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/contactImage"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="5dp"
+        android:layout_gravity="center"
+        android:layout_toRightOf="@id/alphabeticImage"
+        android:src="@drawable/applozic_ic_contact_picture_180_holo_light" />
+
+    <TextView
+        android:id="@+id/lastSeenAtTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/displayName"
+        android:layout_toRightOf="@id/contactImage"
+        android:ellipsize="marquee"
+        android:textSize="14sp"
+        android:paddingLeft="@dimen/listview_item_padding"
+        android:paddingRight="@dimen/listview_item_padding"
+        android:singleLine="true"
+        android:textColor="@color/message_text_color" />
+
+    <!-- Use standard android.R class text1 id instead of app specific id. This is just useful for
+         consistency. This view also sets layout_alignWithParentIfMissing=true which lets the view
+         align with the parent view if the text2 view is not part of the view hierarchy (which is
+         its initial state). -->
+    <TextView
+        android:id="@+id/displayName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="6dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@id/contactImage"
+        android:ellipsize="marquee"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/listview_item_padding"
+        android:paddingRight="@dimen/listview_item_padding"
+        android:singleLine="true"
+        android:textSize="15sp"
+        android:textColor="@color/message_text_color" />
+
+    <TextView
+        android:id="@+id/adminTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginRight="10dp"
+        android:singleLine="true"
+        android:text="@string/admin_text"
+        android:background="@drawable/admin_text"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:padding="2dp"
+        android:textColor="@color/applozic_theme_color_primary"
+        android:layout_alignTop="@+id/displayName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>
