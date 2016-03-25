@@ -94,6 +94,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private Channel channel;
     private static int retry;
     public LinearLayout layout;
+    String geoApiKey;
     public static Activity conversationActivity;
 
     private Uri videoFileUri;
@@ -222,6 +223,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         conversationActivity = this;
+        geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);
         if (Utils.hasMarshmallow()) {
             new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForStorage();
@@ -358,7 +360,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
 
     public void processingLocation() {
-        String geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         if (ApplozicSetting.getInstance(this).isLocationSharingViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
             Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
             startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
