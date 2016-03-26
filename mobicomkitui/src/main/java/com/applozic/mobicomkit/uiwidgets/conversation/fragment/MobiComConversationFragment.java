@@ -778,7 +778,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (contact != null) {
             contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
         }
-        if(contact != null && contact.isBlocked() || contact != null && contact.isBlockedBy() ){
+
+        if (contact == null) {
+            return;
+        }
+
+        if(contact.isBlocked() || contact.isBlockedBy() ){
             toolBarSubTitle.setVisibility(View.GONE);
             return;
         }
