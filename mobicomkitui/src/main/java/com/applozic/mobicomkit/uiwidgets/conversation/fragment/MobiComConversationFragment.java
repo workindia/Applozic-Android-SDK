@@ -1617,17 +1617,29 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 messageList.addAll(0, nextMessageList);
                 listView.setSelection(nextMessageList.size());
             }
-
+            boolean markConversationAsRead = false;
             if (!messageList.isEmpty()) {
                 for (int i = messageList.size() - 1; i >= 0; i--) {
-                    if (!messageList.get(i).isRead() && !messageList.get(i).isTempDateType() && !messageList.get(i).isCustom()) {
-                        messageList.get(i).setRead(Boolean.TRUE);
-                        new MessageDatabaseService(getActivity()).updateMessageReadFlag(messageList.get(i).getMessageId(), true);
+                    Message message = messageList.get(i);
+                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
+                        message.setRead(Boolean.TRUE);
+                        new MessageDatabaseService(getActivity()).updateMessageReadFlag(message.getMessageId(), true);
+                        if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())
+                                && !Message.Status.DELIVERED_AND_READ.getValue().equals(message.getStatus())) {
+                            markConversationAsRead= true;
+                        }
                     } else {
                         break;
                     }
                 }
             }
+
+            if(markConversationAsRead){
+                Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
+                intent.putExtra(ApplozicIntentService.CONTACT,this.contact);
+                getActivity().startService(intent);
+            }
+
             if (conversationAdapter != null) {
                 conversationAdapter.notifyDataSetChanged();
             }
