@@ -894,10 +894,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 try {
                     int index = messageList.indexOf(message);
                     if (index != -1) {
-                        if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue() || messageList.get(index).isTempDateType() || messageList.get(index).isCustom()) {
+                        if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue()
+                                || messageList.get(index).isTempDateType()
+                                || messageList.get(index).isCustom()) {
                             return;
                         }
                         messageList.get(index).setDelivered(true);
+                        messageList.get(index).setStatus(message.getStatus());
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);
                         if (view != null && !messageList.get(index).isCustom()) {
