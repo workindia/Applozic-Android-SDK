@@ -74,16 +74,21 @@ public class ConversationFragment extends MobiComConversationFragment {
         attachButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (attachmentLayout.getVisibility() == View.VISIBLE) {
-                    Toast.makeText(getActivity(), R.string.select_file_count_limit, Toast.LENGTH_LONG).show();
-                    return;
+                if (contact != null && !contact.isBlocked() || channel != null) {
+                    if (attachmentLayout.getVisibility() == View.VISIBLE) {
+                        Toast.makeText(getActivity(), R.string.select_file_count_limit, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (ApplozicSetting.getInstance(getActivity()).isPriceOptionVisible()) {
+                        popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+
+                    } else {
+                        popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+                    }
                 }
-
-                if (ApplozicSetting.getInstance(getActivity()).isPriceOptionVisible()) {
-                    popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
-
-                } else {
-                    popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+                if (contact != null && contact.isBlocked()) {
+                    userUnBlockDialog(contact.getUserId());
                 }
 
             }
