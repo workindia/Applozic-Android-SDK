@@ -709,7 +709,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (channel != null) {
             NotificationManager notificationManager =
                     (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(channel.getKey().hashCode());
+            notificationManager.cancel(String.valueOf(channel.getKey()).hashCode());
         }
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel);
         downloadConversation.execute();
