@@ -44,10 +44,13 @@ public class SyncCallService {
     
     public synchronized void updateDeliveryStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,false);
+        refreshView= true;
     }
 
     public synchronized void updateReadStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,true);
+        refreshView= true;
+
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople() {
