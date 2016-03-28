@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
-import android.telephony.PhoneNumberUtils;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,7 +20,6 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
-import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -33,12 +28,12 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.contact.MobiComVCFParser;
+import com.applozic.mobicomkit.contact.ContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
@@ -54,11 +49,7 @@ import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 
 public class ConversationUIService {
@@ -180,12 +171,11 @@ public class ConversationUIService {
             if (requestCode == MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE && resultCode == Activity.RESULT_OK) {
 
                 try {
-                    File vCradFile = vCard(intent);
+                    File vCradFile = new ContactService(fragmentActivity).vCard(intent.getData());
 
                     if (vCradFile != null) {
                         getConversationFragment().loadFile(Uri.fromFile(vCradFile));
                         getConversationFragment().sendMessage("", Message.ContentType.CONTACT_MSG.getValue());
-
                     }
 
                 } catch (Exception e) {
@@ -626,43 +616,6 @@ public class ConversationUIService {
             }
         }
 
-    }
-
-    /**
-     * @param data
-     * @return
-     */
-    public File vCard(Intent data) throws Exception {
-        Uri contactData = data.getData();
-
-        Cursor cursor = fragmentActivity.getContentResolver().query(contactData, null, null, null, null);
-        cursor.moveToFirst();
-        String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
-        Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
-        String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-
-        AssetFileDescriptor fd;
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "CONTACT_" + timeStamp + "_" + ".vcf";
-
-        File outputFile = FileClientService.getFilePath(imageFileName, fragmentActivity, "text/x-vcard");
-
-        fd = fragmentActivity.getContentResolver().openAssetFileDescriptor(uri, "r");
-
-        FileInputStream fis = fd.createInputStream();
-        byte[] buf = new byte[(int) fd.getDeclaredLength()];
-        fis.read(buf);
-        String cvFdata = new String(buf);
-        if (!MobiComVCFParser.validateData(cvFdata)) {
-            Log.i("vCard ::", cvFdata.toString());
-            throw new Exception("contact exported is not proper in proper format");
-        }
-        Log.i(" data:", new String(buf));
-        FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsoluteFile());
-        fileOutputStream.write(buf);
-        fileOutputStream.close();
-        return outputFile;
     }
 
     public void reconnectMQTT() {
