@@ -452,11 +452,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                         if (view != null) {
                             TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
                             Contact contact = baseContactService.getContactById(userId);
-                            if(contact == null || contact.isBlocked() || contact.isBlockedBy() ) {
-                                onlineTextView.setVisibility(View.GONE);
-                            } else {
-                                onlineTextView.setVisibility(contact.isConnected() ? View.VISIBLE : View.GONE);
-                            }
+                            onlineTextView.setVisibility(contact != null && contact.isOnline() ? View.VISIBLE : View.GONE);
                         }
                     }
                 } catch (Exception ex) {
