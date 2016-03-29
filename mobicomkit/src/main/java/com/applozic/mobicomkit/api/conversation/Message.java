@@ -557,6 +557,10 @@ public class Message extends JsonMarker {
         this.type = tempDateType;
     }
 
+    public boolean isDeliveredAndRead() {
+        return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
+    }
+
     public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));
