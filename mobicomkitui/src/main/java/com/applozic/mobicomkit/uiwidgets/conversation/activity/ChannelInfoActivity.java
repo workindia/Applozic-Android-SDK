@@ -17,9 +17,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -439,6 +439,11 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
+            if(!Utils.isInternetAvailable(context)){
+                Toast toast=  Toast.makeText(context, getString(R.string.you_dont_have_any_network_access_info), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
             if (SUCCESS.equals(responseForRemove) && contactsAdapter != null) {
                 if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
                     channelUserMapperList.remove(channelUserMapper);
@@ -571,6 +576,11 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
+            if(!Utils.isInternetAvailable(context)){
+                Toast toast=  Toast.makeText(context, getString(R.string.you_dont_have_any_network_access_info), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
             if (!TextUtils.isEmpty(responseForAdd) && SUCCESS.equals(responseForAdd)) {
                 ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
                 channelUserMapperList.add(channelUserMapper);
@@ -678,6 +688,16 @@ public class ChannelInfoActivity extends AppCompatActivity {
             super.onPostExecute(aLong);
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
+            }
+            if(channel != null && !Utils.isInternetAvailable(context)){
+                Toast toast=  Toast.makeText(context, getString(R.string.failed_to_leave_group), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+            if(channelName != null && !Utils.isInternetAvailable(context)){
+                Toast toast=  Toast.makeText(context, getString(R.string.internet_connection_for_group_name_info), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
             if (!TextUtils.isEmpty(responseForExit) && SUCCESS.equals(responseForExit)) {
                 ChannelInfoActivity.this.finish();

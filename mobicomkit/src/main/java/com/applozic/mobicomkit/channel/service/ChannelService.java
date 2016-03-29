@@ -147,6 +147,9 @@ public class ChannelService {
             return "";
         }
         ApiResponse apiResponse = channelClientService.removeMemberFromChannel(channelKey, userId);
+        if(apiResponse == null){
+            return null;
+        }
         if (apiResponse.isSuccess()) {
             channelDatabaseService.removeMemberFromChannel(channelKey, userId);
         }
