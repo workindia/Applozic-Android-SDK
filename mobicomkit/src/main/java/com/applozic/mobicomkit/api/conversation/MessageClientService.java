@@ -256,7 +256,7 @@ public class MessageClientService extends MobiComKitClientService {
     public void sendPendingMessageToServer(Message message, boolean broadcast) {
 
 
-        if(message.getContentType() == Message.ContentType.CONTACT_MSG.getValue()){
+        if(message.isContactMessage()){
             try {
                 this.processMessage(message);
             }catch ( Exception e){
@@ -337,7 +337,7 @@ public class MessageClientService extends MobiComKitClientService {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
                     if (fileMetaResponse == null) {
-                        if( !Message.ContentType.CONTACT_MSG.getValue().equals(message.getContentType())){
+                        if( !message.isContactMessage() ){
                             messageDatabaseService.updateCanceledFlag(messageId, 1);
                         }
                         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
@@ -352,7 +352,7 @@ public class MessageClientService extends MobiComKitClientService {
                 } catch (Exception ex) {
                     Log.e(TAG, "Error uploading file to server: " + filePath);
                   /*  recentMessageSentToServer.remove(message);*/
-                    if( !Message.ContentType.CONTACT_MSG.getValue().equals(message.getContentType())){
+                    if( !message.isContactMessage() ){
                         messageDatabaseService.updateCanceledFlag(messageId, 1);
                     }
 

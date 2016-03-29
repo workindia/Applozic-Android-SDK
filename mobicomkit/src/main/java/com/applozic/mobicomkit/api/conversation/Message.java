@@ -561,6 +561,10 @@ public class Message extends JsonMarker {
         return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
     }
 
+    public boolean isContactMessage(){
+        return ContentType.CONTACT_MSG.getValue().equals( getContentType());
+    }
+
     public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));
@@ -622,4 +626,5 @@ public class Message extends JsonMarker {
             return value;
         }
     }
+
 }
