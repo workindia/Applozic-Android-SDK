@@ -810,6 +810,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return getChannel() != null && getChannel().getKey().equals(channelKey);
     }
 
+    public boolean getCurrentChannelKey(Integer channelKey){
+       return channel != null && channel.getKey().equals(channelKey);
+    }
+
     public Channel getChannel() {
         return channel;
     }

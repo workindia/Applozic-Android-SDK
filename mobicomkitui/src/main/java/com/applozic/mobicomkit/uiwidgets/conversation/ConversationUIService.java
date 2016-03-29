@@ -281,11 +281,13 @@ public class ConversationUIService {
 
     public void syncMessages(Message message, String keyString) {
          if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
-             String userId = message.getContactIds();
+             String userId = null;
+             if(message.getGroupId() == null){
+                 userId = message.getContactIds();
+             }
              if (BroadcastService.isIndividual()) {
                  ConversationFragment conversationFragment = getConversationFragment();
-                 if (!TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId()) ||
-                         conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
+                 if (message.getGroupId() != null && conversationFragment.getCurrentChannelKey(message.getGroupId()) || !TextUtils.isEmpty(userId) && userId.equals(conversationFragment.getCurrentUserId())) {
                      conversationFragment.addMessage(message);
                  }
              }
@@ -317,7 +319,7 @@ public class ConversationUIService {
         String userId = message.getContactIds();
         ConversationFragment conversationFragment = getConversationFragment();
         if (!TextUtils.isEmpty(userId) && conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getUserId()) ||
-                conversationFragment.isBroadcastedToChannel(message.getGroupId())) {
+                conversationFragment.getCurrentChannelKey(message.getGroupId())) {
             conversationFragment.updateMessageKeyString(message);
         }
     }
