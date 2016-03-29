@@ -27,6 +27,7 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1707,6 +1708,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
+
+            if(!Utils.isInternetAvailable(context)) {
+                Toast toast=  Toast.makeText(context, getString(R.string.you_need_network_access_for_block_or_unblock), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
             if(!TextUtils.isEmpty(userBlockResponse) && ConversationUIService.SUCCESS.equals(userBlockResponse)){
                 toolBarSubTitle.setVisibility(View.GONE);
                 isTyping.setVisibility(View.GONE);

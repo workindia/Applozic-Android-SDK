@@ -2,7 +2,8 @@
 <resources>
 
     <string name="internet_connection_not_available">No internet connection</string>
-
+    <string name="you_need_network_access_for_delete">You need to have network access for deleting Conversation </string>
+     <string name="you_need_network_access_for_block_or_unblock">You need to have network access for block/unblock a user</string>
     <string name="menu_search">Search</string>
     <string name="menu_add_contact">Create a new contact</string>
     <string name="menu_edit_contact">Edit Contact</string>
