@@ -117,17 +117,17 @@ public class ChannelService {
     }
 
     public synchronized void syncChannels() {
-        final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
-        SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(userpref.getChannelSyncTime());
-        if (syncChannelFeed.isSuccess()) {
-            if (BroadcastService.isChannelInfo()) {
-                processChannelList(syncChannelFeed.getResponse());
-                BroadcastService.sendUpdateForChannelSync(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
-            } else {
-                ChannelService.getInstance(context).processChannelList(syncChannelFeed.getResponse());
-            }
-        }
-        userpref.setChannelSyncTime(syncChannelFeed.getUpdatedAt());
+                final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
+                SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(userpref.getChannelSyncTime());
+                if (syncChannelFeed.isSuccess()) {
+                    if (BroadcastService.isChannelInfo()) {
+                        processChannelList(syncChannelFeed.getResponse());
+                        BroadcastService.sendUpdateForChannelSync(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
+                    } else {
+                        ChannelService.getInstance(context).processChannelList(syncChannelFeed.getResponse());
+                    }
+                }
+                userpref.setChannelSyncTime(syncChannelFeed.getGeneratedAt());
     }
 
     public synchronized Channel createChannel(final ChannelCreate channelCreate) {

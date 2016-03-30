@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
@@ -158,6 +159,9 @@ public class MobiComMessageService {
             for (final Message message : messageList) {
                 String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
 
+               if(Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
+                   ChannelService.getInstance(context).syncChannels();
+               }
                 for (String tofield : toList) {
                     processMessage(message, tofield);
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());

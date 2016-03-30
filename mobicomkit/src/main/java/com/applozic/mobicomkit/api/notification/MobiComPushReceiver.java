@@ -251,18 +251,6 @@ public class MobiComPushReceiver {
                 } else {
                     syncCallService.syncMessages(null);
                 }
-
-            }
-
-            String channelSync = bundle.getString(notificationKeyList.get(14));
-            if (!TextUtils.isEmpty(channelSync)) {
-                MqttMessageResponse syncChannelResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(channelSync, MqttMessageResponse.class);
-                if (processPushNotificationId(syncChannelResponse.getId())) {
-                    return;
-                }
-                addPushNotificationId(syncChannelResponse.getId());
-                syncCallService.syncChannel();
-
             }
 
             String conversationReadResponse = bundle.getString(notificationKeyList.get(9));
