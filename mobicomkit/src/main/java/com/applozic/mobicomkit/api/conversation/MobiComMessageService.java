@@ -161,6 +161,7 @@ public class MobiComMessageService {
 
                if(Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
                    ChannelService.getInstance(context).syncChannels();
+                   ChannelService.isUpdateTitle = true;
                }
                 for (String tofield : toList) {
                     processMessage(message, tofield);

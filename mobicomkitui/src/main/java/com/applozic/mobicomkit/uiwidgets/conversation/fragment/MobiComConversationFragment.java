@@ -741,32 +741,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         }
         if (channel != null) {
-            List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
-            if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
-                stringBuffer = new StringBuffer();
-                Contact contactDisplayName;
-                int i = 0;
-                for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
-                    i++;
-                    if(i>2)
-                        break;
-                    contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
-                    if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-                        stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
-                    }
-                }
-                if (!TextUtils.isEmpty(stringBuffer)) {
-                    if(channelUserMapperList.size()<=2) {
-                        int lastIndex = stringBuffer.lastIndexOf(",");
-                        String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
-                        toolBarSubTitle.setVisibility(View.VISIBLE);
-                        toolBarSubTitle.setText(userIds);
-                    } else {
-                        toolBarSubTitle.setVisibility(View.VISIBLE);
-                        toolBarSubTitle.setText(stringBuffer.toString()+"+"+(channelUserMapperList.size()-2)+" more");
-                    }
-                }
-            }
+            updateChannelTitle();
         }
 
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
@@ -804,6 +779,35 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
         });
+    }
+
+   public void updateChannelTitle(){
+        List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
+        if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
+            stringBuffer = new StringBuffer();
+            Contact contactDisplayName;
+            int i = 0;
+            for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
+                i++;
+                if(i>2)
+                    break;
+                contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
+                if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
+                    stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
+                }
+            }
+            if (!TextUtils.isEmpty(stringBuffer)) {
+                if(channelUserMapperList.size()<=2) {
+                    int lastIndex = stringBuffer.lastIndexOf(",");
+                    String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
+                    toolBarSubTitle.setVisibility(View.VISIBLE);
+                    toolBarSubTitle.setText(userIds);
+                } else {
+                    toolBarSubTitle.setVisibility(View.VISIBLE);
+                    toolBarSubTitle.setText(stringBuffer.toString()+"+"+(channelUserMapperList.size()-2)+" more");
+                }
+            }
+        }
     }
 
     public boolean isBroadcastedToChannel(Integer channelKey) {
@@ -1425,6 +1429,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (!present) {
                 individualMessageSendLayout.setVisibility(View.GONE);
                 userNotAbleToChatLayout.setVisibility(View.VISIBLE);
+            }
+            if(ChannelService.isUpdateTitle){
+                updateChannelTitle();
+                ChannelService.isUpdateTitle = false;
             }
         }
 
