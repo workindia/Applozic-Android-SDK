@@ -186,9 +186,17 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        boolean isUserAlreadyPresent;
         if (data != null) {
             if (requestCode == REQUEST_CODE_FOR_CONTACT && resultCode == Activity.RESULT_OK) {
-                addChannelUser(data.getExtras().getString(USERID), channel);
+                isUserAlreadyPresent =  ChannelService.getInstance(this).isUserAlreadyPresentInChannel(channel.getKey(),data.getExtras().getString(USERID));
+                if(!isUserAlreadyPresent){
+                    addChannelUser(data.getExtras().getString(USERID), channel);
+                }else {
+                    Toast toast=  Toast.makeText(this, getString(R.string.user_is_already_exists), Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
             }
             if (requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_NAME && resultCode == Activity.RESULT_OK) {
                 ChannelName channelName = new ChannelName(data.getExtras().getString(ChannelNameActivity.CHANNEL_NAME), channel.getKey());

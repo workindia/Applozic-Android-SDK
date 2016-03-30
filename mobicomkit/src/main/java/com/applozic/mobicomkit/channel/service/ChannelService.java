@@ -27,6 +27,7 @@ public class ChannelService {
     public Context context;
     private ChannelDatabaseService channelDatabaseService;
     private ChannelClientService channelClientService;
+    public static boolean isUpdateTitle = false;
 
     private ChannelService(Context context) {
         this.context = context;
@@ -180,7 +181,7 @@ public class ChannelService {
             return null;
         }
         if (apiResponse.isSuccess()) {
-            channelDatabaseService.leaveMemberFromChannel(channelKey,userId);
+            channelDatabaseService.leaveMemberFromChannel(channelKey, userId);
         }
         return apiResponse.getStatus();
     }
@@ -223,6 +224,10 @@ public class ChannelService {
 
     public synchronized boolean processIsUserPresentInChannel(Integer channelKey) {
         return channelDatabaseService.isChannelUserPresent(channelKey, MobiComUserPreference.getInstance(context).getUserId());
+    }
+
+    public synchronized boolean isUserAlreadyPresentInChannel(Integer channelKey,String userId){
+        return channelDatabaseService.isChannelUserPresent(channelKey,userId);
     }
 
     public synchronized boolean processChannelDeleteConversation(Integer channelKey, Context context) {
