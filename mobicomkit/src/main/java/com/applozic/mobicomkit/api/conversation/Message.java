@@ -553,6 +553,10 @@ public class Message extends JsonMarker {
         return contentType == ContentType.CUSTOM.value;
     }
 
+    public boolean isChannelCustomMessage(){
+        return contentType == ContentType.CHANNEL_CUSTOM_MESSAGE.getValue();
+    }
+
     public void setTempDateType(short tempDateType) {
         this.type = tempDateType;
     }
@@ -600,7 +604,7 @@ public class Message extends JsonMarker {
 
         DEFAULT(Short.valueOf("0")), ATTACHMENT(Short.valueOf("1")), LOCATION(Short.valueOf("2")),
         TEXT_HTML(Short.valueOf("3")), PRICE(Short.valueOf("4")), TEXT_URL(Short.valueOf("5")),CONTACT_MSG(Short.valueOf("7")),AUDIO_MSG(Short.valueOf("8"))
-        ,VIDEO_MSG(Short.valueOf("9")), CUSTOM(Short.valueOf("101")),HIDDEN(Short.valueOf("11"));
+        ,VIDEO_MSG(Short.valueOf("9")),CHANNEL_CUSTOM_MESSAGE(Short.valueOf("10")), CUSTOM(Short.valueOf("101")),HIDDEN(Short.valueOf("11"));
         private Short value;
 
         ContentType(Short value) {

@@ -246,10 +246,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.syncMessages(null);
                             }
 
-                            if (NOTIFICATION_TYPE.GROUP_SYNC.getValue().equals(mqttMessageResponse.getType())) {
-                                syncCallService.syncChannel();
-                            }
-
                             if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType())
                                     || "MT_MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())) {
                                 String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");

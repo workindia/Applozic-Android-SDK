@@ -27,6 +27,7 @@ public class ChannelService {
     public Context context;
     private ChannelDatabaseService channelDatabaseService;
     private ChannelClientService channelClientService;
+    public static boolean isUpdateTitle = false;
 
     private ChannelService(Context context) {
         this.context = context;
@@ -117,17 +118,17 @@ public class ChannelService {
     }
 
     public synchronized void syncChannels() {
-        final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
-        SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(userpref.getChannelSyncTime());
-        if (syncChannelFeed.isSuccess()) {
-            if (BroadcastService.isChannelInfo()) {
-                processChannelList(syncChannelFeed.getResponse());
-                BroadcastService.sendUpdateForChannelSync(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
-            } else {
-                ChannelService.getInstance(context).processChannelList(syncChannelFeed.getResponse());
-            }
-        }
-        userpref.setChannelSyncTime(syncChannelFeed.getUpdatedAt());
+                final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
+                SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(userpref.getChannelSyncTime());
+                if (syncChannelFeed.isSuccess()) {
+                    if (BroadcastService.isChannelInfo()) {
+                        processChannelList(syncChannelFeed.getResponse());
+                        BroadcastService.sendUpdateForChannelSync(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
+                    } else {
+                        ChannelService.getInstance(context).processChannelList(syncChannelFeed.getResponse());
+                    }
+                }
+                userpref.setChannelSyncTime(syncChannelFeed.getGeneratedAt());
     }
 
     public synchronized Channel createChannel(final ChannelCreate channelCreate) {
@@ -180,7 +181,7 @@ public class ChannelService {
             return null;
         }
         if (apiResponse.isSuccess()) {
-            channelDatabaseService.leaveMemberFromChannel(channelKey,userId);
+            channelDatabaseService.leaveMemberFromChannel(channelKey, userId);
         }
         return apiResponse.getStatus();
     }
@@ -223,6 +224,10 @@ public class ChannelService {
 
     public synchronized boolean processIsUserPresentInChannel(Integer channelKey) {
         return channelDatabaseService.isChannelUserPresent(channelKey, MobiComUserPreference.getInstance(context).getUserId());
+    }
+
+    public synchronized boolean isUserAlreadyPresentInChannel(Integer channelKey,String userId){
+        return channelDatabaseService.isChannelUserPresent(channelKey,userId);
     }
 
     public synchronized boolean processChannelDeleteConversation(Integer channelKey, Context context) {

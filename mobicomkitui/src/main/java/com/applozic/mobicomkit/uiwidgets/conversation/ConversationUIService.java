@@ -373,7 +373,16 @@ public class ConversationUIService {
 
     public void deleteConversation(Contact contact, Integer channelKey, String response) {
         if (BroadcastService.isIndividual()) {
-            getConversationFragment().clearList();
+            if("success".equals(response)){
+                getConversationFragment().clearList();
+            }else {
+                if (!Utils.isInternetAvailable(fragmentActivity)){
+                    Toast.makeText(fragmentActivity,fragmentActivity.getString(R.string.you_need_network_access_for_delete),Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
+                }
+            }
+
         }
         if (BroadcastService.isQuick()) {
             getQuickConversationFragment().removeConversation(contact, channelKey, response);
