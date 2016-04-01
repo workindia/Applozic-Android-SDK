@@ -29,6 +29,7 @@
     <string name="zero_groups_on_phone">No groups, add groups in your mobile or gmail account</string>
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
+    <string name ="applozic_user_already_in_a_group">Already added to the group</string>
 
 
     <!--

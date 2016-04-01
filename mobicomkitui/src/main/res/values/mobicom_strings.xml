@@ -133,12 +133,12 @@
     <string name="remove_member">Remove</string>
     <string name="add_member">Add</string>
     <string name="channel_exit">Exit</string>
-    <string name="leave_channel">Are you sure you want to from this group?</string>
+    <string name="leave_channel">Are you sure you want to exit from this group?</string>
     <string name="channel_name_empty">Group name can not be empty</string>
-    <string name="channel_add_alert">Unable to add participant in group  because your not a participant</string>
-    <string name="channel_edit_alert">Unable to change the group name because your not a participant</string>
+    <string name="channel_add_alert">Unable to add participant in group because you are not a participant</string>
+    <string name="channel_edit_alert">Unable to change the group name because you are not a participant</string>
     <string name="admin_text">Group admin</string>
-    <string name="user_not_in_this_group_text">You can\'t send messages to this group because your no longer a participant</string>
+    <string name="user_not_in_this_group_text">You are no longer a participant of this group</string>
     <string name="update_channel_title_name">Enter Group Name</string>
     <string name="new_channel_name_hint">Group name..</string>
     <string name="user_block_info">Block [name]? Blocked user no longer be able to send you messages</string>

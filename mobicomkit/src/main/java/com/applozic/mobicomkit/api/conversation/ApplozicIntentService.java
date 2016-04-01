@@ -9,6 +9,8 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.math.BigInteger;
+
 /**
  * Created by sunil on 26/12/15.
  */
@@ -35,18 +37,24 @@ public class ApplozicIntentService extends IntentService {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int read = 0;
+                BigInteger unreadCount = null;
                 final MessageClientService messageClientService = new MessageClientService(getApplicationContext());
 
                 if (!TextUtils.isEmpty(pairedMessageKeyString)) {
                     messageClientService.updateReadStatusForSingleMessage(pairedMessageKeyString);
                 }
                 if (contact != null) {
-                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatusForContact(contact.getContactIds());
+                    unreadCount = contact.getUnreadCount();
+                    new MessageDatabaseService(getApplicationContext()).updateReadStatusForContact(contact.getContactIds());
                 } else if (channel != null) {
-                    read = new MessageDatabaseService(getApplicationContext()).updateReadStatusForChannel(String.valueOf(channel.getKey()));
+                    if (channel.getUnreadCount() != 0) {
+                        unreadCount = BigInteger.valueOf(channel.getUnreadCount());
+                    } else {
+                        unreadCount = null;
+                    }
+                    new MessageDatabaseService(getApplicationContext()).updateReadStatusForChannel(String.valueOf(channel.getKey()));
                 }
-                if (read > 0) {
+                if (unreadCount != null) {
                     messageClientService.updateReadStatus(contact, channel);
                 }
             }

@@ -430,7 +430,9 @@ public class ConversationUIService {
     }
 
     public void updateChannelSync() {
-        ((ChannelInfoActivity)fragmentActivity).updateChannelList();
+        if(BroadcastService.isChannelInfo()){
+            ((ChannelInfoActivity)fragmentActivity).updateChannelList();
+        }
     }
 
     public void startContactActivityForResult(Intent intent, Message message, String messageContent) {

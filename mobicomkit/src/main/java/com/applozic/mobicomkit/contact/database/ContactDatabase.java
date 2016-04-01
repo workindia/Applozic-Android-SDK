@@ -8,7 +8,6 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
-
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.math.BigInteger;
@@ -83,6 +82,16 @@ public class ContactDatabase {
             } while (cursor.moveToNext());
         }
         return smsList;
+    }
+
+    public List<Contact> getAllContactListExcludingLoggedInUser() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String structuredNameWhere = MobiComDatabaseHelper.CONTACT_NO + " != ?";
+        Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{MobiComUserPreference.getInstance(context).getUserId()}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
+        List<Contact> contactList = getContactList(cursor);
+        cursor.close();
+        dbHelper.close();
+        return contactList;
     }
 
     public List<Contact> getAllContact() {

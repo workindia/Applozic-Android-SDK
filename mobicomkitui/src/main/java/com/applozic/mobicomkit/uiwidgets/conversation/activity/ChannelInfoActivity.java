@@ -83,6 +83,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_FOR_CHANNEL_NEW_NAME = 2;
     boolean isUserPresent;
     Contact contact;
+    BaseContactService baseContactService;
     MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
 
 
@@ -92,7 +93,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         setContentView(R.layout.channel_info_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        baseContactService = new AppContactService(this);
         channelImage = (ImageView) findViewById(R.id.channelImage);
         createdBy = (TextView) findViewById(R.id.created_by);
         exitChannelButton = (Button) findViewById(R.id.exit_channel);
@@ -251,7 +252,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(positionInList);
         if (ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
-            if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)) {
+            isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
+            if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent ) {
                 menu.add(Menu.NONE, Menu.NONE, 0, "Remove");
             }
         }
@@ -478,8 +480,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         });
         String name = "";
         String channelName = "";
+        Contact contact;
         if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-            name = channelUserMapper.getUserKey();
+            contact = baseContactService.getContactById(channelUserMapper.getUserKey());
+            name = contact.getDisplayName();
             channelName = channel.getName();
         }
 
@@ -614,8 +618,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         });
         String name = "";
         String channelName = "";
+        Contact contact ;
         if (channel != null) {
-            name = userId;
+            contact = baseContactService.getContactById(userId);
+            name = contact.getDisplayName();
             channelName = channel.getName();
         }
         alertDialog.setMessage(getString(R.string.dialog_add_group_user).replace(getString(R.string.user_name_info), name).replace(getString(R.string.group_name_info), channelName));
