@@ -51,6 +51,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
@@ -390,9 +391,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 if(channel != null){
-                    Intent channelInfo = new  Intent(getActivity(), ChannelInfoActivity.class);
+                    Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY,channel.getKey());
                     startActivity(channelInfo);
+                } else {
+                    String activityClass = Utils.getMetaDataValue(getActivity(), MobiComKitConstants.APPLICATION_ACTIVITY_TO_OPEN_ON_CHAT_TOOLBAR_TAP);
+                    if (!TextUtils.isEmpty(activityClass)) {
+                        try {
+                            Intent intent = new Intent(getActivity(), Class.forName(activityClass));
+                            intent.putExtra(ConversationUIService.USER_ID, contact.getContactIds());
+                            startActivity(intent);
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
             }
         });

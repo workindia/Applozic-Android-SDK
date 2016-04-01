@@ -170,6 +170,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAv1wf5eMyErPaU3l8EnMUmOsoYJ2joC70" />
+        <meta-data
+            android:name="com.applozic.mobicomkit.uiwidgets.toolbar.tap.activity"
+            android:value="com.applozic.mobicomkit.sample.MainActivity" />
         <!--<activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
