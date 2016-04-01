@@ -29,6 +29,7 @@
     <string name="zero_groups_on_app">Groups not found</string>
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
+    <string name ="applozic_user_already_in_a_group">Already added to the group</string>
 
 
     <!--

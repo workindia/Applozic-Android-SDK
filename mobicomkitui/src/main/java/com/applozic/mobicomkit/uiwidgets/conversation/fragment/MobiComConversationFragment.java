@@ -1668,7 +1668,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
 
-            if(markConversationAsRead){
+            if(markConversationAsRead && getActivity() != null){
                 Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
                 intent.putExtra(ApplozicIntentService.CONTACT,this.contact);
                 getActivity().startService(intent);

@@ -58,6 +58,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
     private List<Contact> contactList;
     private ActionBar mActionBar;
     boolean disableCheckBox;
+    boolean isUserPresnt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,20 +76,20 @@ public class ContactSelectionActivity extends ActionBarActivity {
         } else {
             mActionBar.setTitle(R.string.channel_members_title);
         }
-
         mainListView = (ListView) findViewById(R.id.mainList);
         mainListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View item,
                                     int position, long id) {
                 Contact contact = contactList.get(position);
-                if (disableCheckBox) {
-                    Intent intent = new Intent();
-                    if (!TextUtils.isEmpty(contact.getUserId())) {
+                if (disableCheckBox ) {
+                    isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(),contact.getContactIds());
+                    if(!isUserPresnt){
+                        Intent intent = new Intent();
                         intent.putExtra(ChannelInfoActivity.USERID, contact.getUserId());
+                        setResult(RESULT_OK, intent);
+                        finish();
                     }
-                    setResult(RESULT_OK, intent);
-                    finish();
                 }
                 contact.toggleChecked();
                 ContactViewHolder viewHolder = (ContactViewHolder) item.getTag();
@@ -106,7 +107,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
         mImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
 
         contactService = new AppContactService(this);
-        contactList = contactService.getAll();
+        contactList = contactService.getAllContactListExcludingLoggedInUser();
         mAdapter = new ContactsAdapter(this);
         mainListView.setAdapter(mAdapter);
         mainListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -238,7 +239,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
                 convertView =
                         mInflater.inflate(R.layout.contact_select_list_item, parent, false);
 
-                text1 = (TextView) convertView.findViewById(R.id.userId);
+                text1 = (TextView) convertView.findViewById(R.id.applozic_group_member_info);
                 text2 = (TextView) convertView.findViewById(R.id.displayName);
                 checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
                 checkBox.setVisibility(View.VISIBLE);
@@ -253,7 +254,18 @@ public class ContactSelectionActivity extends ActionBarActivity {
                 circleImageView = viewHolder.getCircleImageView();
             }
             if (disableCheckBox) {
+                isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(),contact.getContactIds());
+                if(isUserPresnt){
+                    text1.setVisibility(View.VISIBLE);
+                    text1.setTextColor(getResources().getColor(R.color.applozic_lite_black_color));
+                    text2.setTextColor(getResources().getColor(R.color.applozic_lite_black_color));
+                }else {
+                    text1.setVisibility(View.GONE);
+                    text2.setTextColor(getResources().getColor(R.color.black));
+                }
                 checkBox.setVisibility(View.GONE);
+            }else {
+                text2.setTextColor(getResources().getColor(R.color.black));
             }
 
             if (contact.isDrawableResources()) {
@@ -266,7 +278,6 @@ public class ContactSelectionActivity extends ActionBarActivity {
             checkBox.setTag(contact);
             checkBox.setChecked(contact.isChecked());
             checkBox.setOnCheckedChangeListener(myCheckChangList);
-            text1.setText(contact.getUserId());
             text2.setText(contact.getDisplayName());
             return convertView;
         }

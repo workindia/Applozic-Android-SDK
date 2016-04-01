@@ -20,7 +20,7 @@
          consistency. This is secondary text and not always visible so by default is has its
          visibility set to gone -->
     <TextView
-        android:id="@+id/userId"
+        android:id="@+id/applozic_group_member_info"
         android:layout_width="match_parent"
         android:layout_height="26dp"
         android:layout_alignParentBottom="true"
@@ -30,10 +30,10 @@
         android:fontFamily="sans-serif"
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="@dimen/listview_item_padding"
+        android:visibility="gone"
         android:singleLine="true"
-        android:text="@string/search_match_other"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/message_text_color" />
+        android:text="@string/applozic_user_already_in_a_group"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <!-- Use standard android.R class text1 id instead of app specific id. This is just useful for
          consistency. This view also sets layout_alignWithParentIfMissing=true which lets the view
@@ -53,8 +53,7 @@
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="@dimen/listview_item_padding"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/message_text_color" />
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <CheckBox
         android:id="@+id/checkBox"
