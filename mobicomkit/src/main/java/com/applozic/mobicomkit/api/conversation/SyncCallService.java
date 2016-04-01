@@ -69,10 +69,6 @@ public class SyncCallService {
         }
     }
 
-    public synchronized void syncChannel() {
-        channelService.syncChannels();
-    }
-
     public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
         mobiComMessageService.updateDeliveryStatusForContact(contactId, markRead);
     }

@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "3.27"
+        versionName "3.28"
     }
     buildTypes {
         release {
@@ -40,6 +40,7 @@ dependencies {
    // compile 'com.android.support:multidex:1.0.1'
 }
 
+/*
 
 ext {
     // Where you will see your artifact in Bintray's web interface
@@ -55,7 +56,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '3.27'
+    libraryVersion = '3.28'
 
     developerId = 'devashish'
     developerName = 'Applozic'
@@ -117,4 +118,4 @@ bintray {
             //}
         }
     }
-}
+}*/

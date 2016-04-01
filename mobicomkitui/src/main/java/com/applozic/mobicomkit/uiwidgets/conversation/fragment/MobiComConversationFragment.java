@@ -51,6 +51,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
@@ -390,9 +391,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 if(channel != null){
-                    Intent channelInfo = new  Intent(getActivity(), ChannelInfoActivity.class);
+                    Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY,channel.getKey());
                     startActivity(channelInfo);
+                } else {
+                    String activityClass = Utils.getMetaDataValue(getActivity(), MobiComKitConstants.APPLICATION_ACTIVITY_TO_OPEN_ON_CHAT_TOOLBAR_TAP);
+                    if (!TextUtils.isEmpty(activityClass)) {
+                        try {
+                            Intent intent = new Intent(getActivity(), Class.forName(activityClass));
+                            intent.putExtra(ConversationUIService.USER_ID, contact.getContactIds());
+                            startActivity(intent);
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
             }
         });
@@ -578,7 +590,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             Message message = messageList.get(positionInSmsList);
 
-            if (message.isTempDateType() || message.isCustom()) {
+            if (message.isTempDateType() || message.isCustom() ||message.isChannelCustomMessage()) {
                 return;
             }
 
@@ -741,32 +753,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         }
         if (channel != null) {
-            List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
-            if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
-                stringBuffer = new StringBuffer();
-                Contact contactDisplayName;
-                int i = 0;
-                for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
-                    i++;
-                    if(i>2)
-                        break;
-                    contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
-                    if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-                        stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
-                    }
-                }
-                if (!TextUtils.isEmpty(stringBuffer)) {
-                    if(channelUserMapperList.size()<=2) {
-                        int lastIndex = stringBuffer.lastIndexOf(",");
-                        String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
-                        toolBarSubTitle.setVisibility(View.VISIBLE);
-                        toolBarSubTitle.setText(userIds);
-                    } else {
-                        toolBarSubTitle.setVisibility(View.VISIBLE);
-                        toolBarSubTitle.setText(stringBuffer.toString()+"+"+(channelUserMapperList.size()-2)+" more");
-                    }
-                }
-            }
+            updateChannelTitle();
         }
 
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
@@ -806,8 +793,41 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
+   public void updateChannelTitle(){
+        List<ChannelUserMapper> channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
+        if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
+            stringBuffer = new StringBuffer();
+            Contact contactDisplayName;
+            int i = 0;
+            for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
+                i++;
+                if(i>2)
+                    break;
+                contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
+                if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
+                    stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
+                }
+            }
+            if (!TextUtils.isEmpty(stringBuffer)) {
+                if(channelUserMapperList.size()<=2) {
+                    int lastIndex = stringBuffer.lastIndexOf(",");
+                    String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
+                    toolBarSubTitle.setVisibility(View.VISIBLE);
+                    toolBarSubTitle.setText(userIds);
+                } else {
+                    toolBarSubTitle.setVisibility(View.VISIBLE);
+                    toolBarSubTitle.setText(stringBuffer.toString()+"+"+(channelUserMapperList.size()-2)+" more");
+                }
+            }
+        }
+    }
+
     public boolean isBroadcastedToChannel(Integer channelKey) {
         return getChannel() != null && getChannel().getKey().equals(channelKey);
+    }
+
+    public boolean getCurrentChannelKey(Integer channelKey){
+       return channel != null && channel.getKey().equals(channelKey);
     }
 
     public Channel getChannel() {
@@ -865,7 +885,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                     for (int index = 0; index < messageList.size(); index++) {
                         Message message = messageList.get(index);
-                        if ((message.getStatus()== Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || message.isCustom() || !message.isTypeOutbox()) {
+                        if ((message.getStatus()== Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || message.isCustom() || !message.isTypeOutbox() ||message.isChannelCustomMessage()) {
                             continue;
                         }
                         message.setDelivered(true);
@@ -874,7 +894,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                         View view = listView.getChildAt(index -
                                 listView.getFirstVisiblePosition() + 1);
-                        if (view != null && !message.isCustom()) {
+                        if (view != null && !message.isCustom() && !message.isChannelCustomMessage()) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             TextView status = (TextView) view.findViewById(R.id.status);
                             //status.setText("Delivered");
@@ -897,7 +917,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (index != -1) {
                         if (messageList.get(index).getStatus()==Message.Status.DELIVERED_AND_READ.getValue()
                                 || messageList.get(index).isTempDateType()
-                                || messageList.get(index).isCustom()) {
+                                || messageList.get(index).isCustom()
+                                ||messageList.get(index).isChannelCustomMessage()) {
                             return;
                         }
                         messageList.get(index).setDelivered(true);
@@ -1173,7 +1194,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             mediaUploadProgressBarIndividualMessage.setVisibility(View.GONE);
                         }
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        if (createdAtTime != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && messageListItem.getScheduledAt() == null) {
+                        if (createdAtTime != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && !messageListItem.isChannelCustomMessage() && messageListItem.getScheduledAt() == null) {
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
                         }
                     }
@@ -1421,6 +1442,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 individualMessageSendLayout.setVisibility(View.GONE);
                 userNotAbleToChatLayout.setVisibility(View.VISIBLE);
             }
+            if(ChannelService.isUpdateTitle){
+                updateChannelTitle();
+                ChannelService.isUpdateTitle = false;
+            }
         }
 
     }
@@ -1602,6 +1627,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 nextMessageList.remove(nextMessageList.size() - 1);
             }
 
+            if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
+                    messageList.get(0).getCreatedAtTime().equals(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime())) {
+                nextMessageList.remove(nextMessageList.size() - 1);
+            }
+
             for (Message message : nextMessageList) {
                 selfDestructMessage(message);
             }
@@ -1625,7 +1655,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (!messageList.isEmpty()) {
                 for (int i = messageList.size() - 1; i >= 0; i--) {
                     Message message = messageList.get(i);
-                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
+                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom() &&!message.isChannelCustomMessage()) {
                         message.setRead(Boolean.TRUE);
                         new MessageDatabaseService(getActivity()).updateMessageReadFlag(message.getMessageId(), true);
                         if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())
