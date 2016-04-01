@@ -81,6 +81,8 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
+    private static final String CAPTURED_VIDEO_URI = "capturedVideoUri";
+
     private static final String SHARE_TEXT = "share_text";
     private static Uri capturedImageUri;
     private static String inviteMessage;
@@ -193,10 +195,14 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        if (capturedImageUri != null) {
+        savedInstanceState.putSerializable(CONTACT, contact);
+        savedInstanceState.putSerializable(CHANNEL, channel);
+
+        if (capturedImageUri != null ) {
             savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
-            savedInstanceState.putSerializable(CONTACT, contact);
-            savedInstanceState.putSerializable(CHANNEL, channel);
+        }
+        if(videoFileUri!=null){
+            savedInstanceState.putString(CAPTURED_VIDEO_URI, videoFileUri.toString());
         }
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -231,8 +237,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
-        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString(CAPTURED_IMAGE_URI))) {
-            capturedImageUri = Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI));
+        if (savedInstanceState != null) {
+            capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI)!=null ?
+                    Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)): null;
+            videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI)!=null ?
+                    Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)): null;
+
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
             channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
             if (channel != null) {
