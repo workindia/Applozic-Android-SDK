@@ -123,7 +123,7 @@ public class MobiComMessageService {
                 if(message.getTo() != null && message.getGroupId() == null){
                     messageDatabaseService.updateContactUnreadCount(message.getTo());
                 }
-                if(message.getGroupId() != null){
+                if(message.getGroupId() != null && message.getContentType() != Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue()){
                     messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
                 }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
