@@ -200,7 +200,7 @@ public class ContactDatabase {
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getDisplayName());
+        contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
@@ -231,6 +231,24 @@ public class ContactDatabase {
             contentValues.put(MobiComDatabaseHelper.BLOCKED_BY, contact.isBlockedBy());
         }
         return contentValues;
+    }
+
+    /**
+     * This method will return full name of contact to be updated.
+     * This is require to avoid updating fullname back to userId in case fullname is not set while updating contact.
+     * @param contact
+     * @return
+     */
+    private String getFullNameForUpdate(Contact contact) {
+
+        String fullName = contact.getDisplayName();
+        if(TextUtils.isEmpty( contact.getFullName()) ){
+            Contact contactFromDB = getContactById(contact.getUserId());
+            if(contactFromDB!=null){
+                fullName = contactFromDB.getFullName();
+            }
+        }
+        return fullName;
     }
 
     public void addAllContact(List<Contact> contactList) {
