@@ -7,15 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
-import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.R;
-
+import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -24,6 +25,8 @@ public class ConversationFragment extends MobiComConversationFragment {
 
     private static final String TAG = "ConversationFragment";
     private MultimediaOptionsGridView popupGrid;
+    public GridView multimediaPopupGrid;
+    ConversationActivity conversationActivity;
 
     public ConversationFragment() {
         this.messageIntentClass = MessageIntentService.class;
@@ -58,35 +61,40 @@ public class ConversationFragment extends MobiComConversationFragment {
 
         messageEditText.setHint(R.string.enter_mt_message_hint);
 
+        multimediaPopupGrid = (GridView) view.findViewById(R.id.mobicom_multimedia_options1);
+        multimediaPopupGrid.setVisibility(View.GONE);
+        conversationActivity = (ConversationActivity) getActivity();
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.secret_message_timer_array, R.layout.mobiframework_custom_spinner);
 
         adapter.setDropDownViewResource(R.layout.mobiframework_custom_spinner);
 
-        popupGrid = new MultimediaOptionsGridView(getActivity());
-
-        if (!(popupGrid.showPopup == null) && popupGrid.showPopup.isShowing()) {
-            individualMessageSendLayout.setVisibility(View.GONE);
-        } else {
-            individualMessageSendLayout.setVisibility(View.VISIBLE);
-        }
-
         attachButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                MobicomMultimediaPopupAdapter adap = new MobicomMultimediaPopupAdapter(getActivity(), getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+                multimediaPopupGrid.setAdapter(adap);
+
+                if (multimediaPopupGrid.getVisibility() == View.GONE) {
+                    multimediaPopupGrid.setVisibility(View.VISIBLE);
+                    conversationActivity.isMultimediaOptionGridOpen = true;
+                } else {
+                    multimediaPopupGrid.setVisibility(View.GONE);
+                    conversationActivity.isMultimediaOptionGridOpen = false;
+                }
+
+                MultimediaOptionsGridView itemClickHandler = new MultimediaOptionsGridView(getActivity(), multimediaPopupGrid);
+                itemClickHandler.setMultimediaClickListener();
+
                 if (contact != null && !contact.isBlocked() || channel != null) {
                     if (attachmentLayout.getVisibility() == View.VISIBLE) {
                         Toast.makeText(getActivity(), R.string.select_file_count_limit, Toast.LENGTH_LONG).show();
                         return;
                     }
-
-                    if (ApplozicSetting.getInstance(getActivity()).isPriceOptionVisible()) {
-                        popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
-
-                    } else {
-                        popupGrid.showPopup(attachButton, getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
-                    }
                 }
+
+
                 if (contact != null && contact.isBlocked()) {
                     userUnBlockDialog(contact.getUserId());
                 }
@@ -107,4 +115,10 @@ public class ConversationFragment extends MobiComConversationFragment {
         super.updateTitle();
     }
 
+    public void hideMultimediaOptionGrid() {
+        if (multimediaPopupGrid.getVisibility() == View.VISIBLE) {
+            multimediaPopupGrid.setVisibility(View.GONE);
+            conversationActivity.isMultimediaOptionGridOpen = false;
+        }
+    }
 }
