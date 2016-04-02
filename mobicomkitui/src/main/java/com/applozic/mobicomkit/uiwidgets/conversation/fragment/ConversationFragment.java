@@ -1,13 +1,15 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -15,7 +17,6 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -25,8 +26,7 @@ public class ConversationFragment extends MobiComConversationFragment {
 
     private static final String TAG = "ConversationFragment";
     private MultimediaOptionsGridView popupGrid;
-    public GridView multimediaPopupGrid;
-    ConversationActivity conversationActivity;
+    InputMethodManager inputMethodManager;
 
     public ConversationFragment() {
         this.messageIntentClass = MessageIntentService.class;
@@ -61,13 +61,21 @@ public class ConversationFragment extends MobiComConversationFragment {
 
         messageEditText.setHint(R.string.enter_mt_message_hint);
 
-        multimediaPopupGrid = (GridView) view.findViewById(R.id.mobicom_multimedia_options1);
         multimediaPopupGrid.setVisibility(View.GONE);
-        conversationActivity = (ConversationActivity) getActivity();
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.secret_message_timer_array, R.layout.mobiframework_custom_spinner);
 
         adapter.setDropDownViewResource(R.layout.mobiframework_custom_spinner);
+
+        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+        messageEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                multimediaPopupGrid.setVisibility(View.GONE);
+            }
+        });
+
 
         attachButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,13 +83,9 @@ public class ConversationFragment extends MobiComConversationFragment {
 
                 MobicomMultimediaPopupAdapter adap = new MobicomMultimediaPopupAdapter(getActivity(), getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
                 multimediaPopupGrid.setAdapter(adap);
-
-                if (multimediaPopupGrid.getVisibility() == View.GONE) {
-                    multimediaPopupGrid.setVisibility(View.VISIBLE);
-                    conversationActivity.isMultimediaOptionGridOpen = true;
-                } else {
-                    multimediaPopupGrid.setVisibility(View.GONE);
-                    conversationActivity.isMultimediaOptionGridOpen = false;
+                multimediaPopupGrid.setVisibility(View.VISIBLE);
+                if (inputMethodManager.isActive()) {
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
 
                 MultimediaOptionsGridView itemClickHandler = new MultimediaOptionsGridView(getActivity(), multimediaPopupGrid);
@@ -94,11 +98,9 @@ public class ConversationFragment extends MobiComConversationFragment {
                     }
                 }
 
-
                 if (contact != null && contact.isBlocked()) {
                     userUnBlockDialog(contact.getUserId());
                 }
-
             }
         });
 
@@ -118,7 +120,6 @@ public class ConversationFragment extends MobiComConversationFragment {
     public void hideMultimediaOptionGrid() {
         if (multimediaPopupGrid.getVisibility() == View.VISIBLE) {
             multimediaPopupGrid.setVisibility(View.GONE);
-            conversationActivity.isMultimediaOptionGridOpen = false;
         }
     }
 }

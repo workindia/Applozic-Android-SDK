@@ -98,7 +98,6 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public LinearLayout layout;
     String geoApiKey;
     public static Activity conversationActivity;
-    public boolean isMultimediaOptionGridOpen = false;
 
     private Uri videoFileUri;
 
@@ -137,6 +136,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public int getRetryCount() {
         return retry;
     }
+
     public void dismissErrorMessage() {
         if (snackbar != null) {
             snackbar.dismiss();
@@ -199,10 +199,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         savedInstanceState.putSerializable(CONTACT, contact);
         savedInstanceState.putSerializable(CHANNEL, channel);
 
-        if (capturedImageUri != null ) {
+        if (capturedImageUri != null) {
             savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
         }
-        if(videoFileUri!=null){
+        if (videoFileUri != null) {
             savedInstanceState.putString(CAPTURED_VIDEO_URI, videoFileUri.toString());
         }
         super.onSaveInstanceState(savedInstanceState);
@@ -239,10 +239,10 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
         if (savedInstanceState != null) {
-            capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI)!=null ?
-                    Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)): null;
-            videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI)!=null ?
-                    Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)): null;
+            capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI) != null ?
+                    Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)) : null;
+            videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI) != null ?
+                    Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)) : null;
 
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
             channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
@@ -472,13 +472,12 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         if (takeOrder)
             this.finish();
 
-        if (isMultimediaOptionGridOpen) {
-            ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
-            if (conversationFragment != null && conversationFragment.isVisible()) {
-                conversationFragment.hideMultimediaOptionGrid();
-            }
-        } else
+        ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
+        if (conversationFragment != null && conversationFragment.isVisible() && (conversationFragment.multimediaPopupGrid.getVisibility() == View.VISIBLE)) {
+            conversationFragment.hideMultimediaOptionGrid();
+        } else {
             super.onBackPressed();
+        }
 
     }
 
@@ -570,7 +569,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         ConversationActivity.capturedImageUri = capturedImageUri;
     }
 
-    public void showSnackBar(int resId){
+    public void showSnackBar(int resId) {
         snackbar = Snackbar.make(layout, resId,
                 Snackbar.LENGTH_SHORT);
         snackbar.show();
@@ -586,7 +585,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
 
     public void showAudioRecordingDialog() {
         if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
-            new ApplozicPermissions(this,layout).requestAudio();
+            new ApplozicPermissions(this, layout).requestAudio();
         } else {
 
             FragmentManager supportFragmentManager = getSupportFragmentManager();
