@@ -63,6 +63,8 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String PRODUCT_TOPIC_ID_URL = "/rest/ws/conversation/topicId";
     public static final String ARGUMRNT_SAPERATOR = "&";
     public static final String UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL = "/rest/ws/message/read";
+    public static final String MESSAGE_INFO_URL = "/rest/ws/message/info";
+
     private static final String TAG = "MessageClientService";
     /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
      public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
@@ -137,6 +139,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getProductTopicIdUrl() {
         return getBaseUrl() + PRODUCT_TOPIC_ID_URL;
+    }
+
+    public String getMessageInfoUrl(){
+         return getBaseUrl() + MESSAGE_INFO_URL;
     }
 
     public String getSingleMessageReadUrl() {
@@ -249,6 +255,16 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void sendPendingMessageToServer(Message message, boolean broadcast) {
 
+
+        if(message.isContactMessage()){
+            try {
+                this.processMessage(message);
+            }catch ( Exception e){
+                Log.e(TAG, "Exception while sending contact message.",e);
+            }
+            return;
+        }
+
         if (message.hasAttachment()) {
             return;
         }
@@ -321,7 +337,9 @@ public class MessageClientService extends MobiComKitClientService {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
                     if (fileMetaResponse == null) {
-                        messageDatabaseService.updateCanceledFlag(messageId, 1);
+                        if( !message.isContactMessage() ){
+                            messageDatabaseService.updateCanceledFlag(messageId, 1);
+                        }
                         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                         return;
                     }
@@ -334,7 +352,10 @@ public class MessageClientService extends MobiComKitClientService {
                 } catch (Exception ex) {
                     Log.e(TAG, "Error uploading file to server: " + filePath);
                   /*  recentMessageSentToServer.remove(message);*/
-                    messageDatabaseService.updateCanceledFlag(messageId, 1);
+                    if( !message.isContactMessage() ){
+                        messageDatabaseService.updateCanceledFlag(messageId, 1);
+                    }
+
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                     return;
                 }
@@ -668,6 +689,19 @@ public class MessageClientService extends MobiComKitClientService {
         return null;
     }
 
+
+    public List<MessageInfo> getMessageInfoList(String messageKey){
+
+        String url = getMessageInfoUrl() + "?key=" + messageKey;
+        String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+
+        if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
+            return null;
+        }
+        MessageInfoResponse messageInfoResponse =
+                (MessageInfoResponse) GsonUtils.getObjectFromJson(response, MessageInfoResponse.class);
+       return messageInfoResponse.getMessageInfoList();
+    }
 
     public void processWebHook(final Message message) {
        /* new Thread(new Runnable() {

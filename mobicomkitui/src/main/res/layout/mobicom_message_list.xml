@@ -300,7 +300,7 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/user_not_able_to_chat_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:minHeight="50dp"
@@ -324,6 +324,25 @@
         android:layout_height="200dp"
         android:layout_gravity="bottom"
         android:visibility="gone" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F0F0F0"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="1dp">
+
+        <GridView
+            android:id="@+id/mobicom_multimedia_options1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:horizontalSpacing="1dp"
+            android:numColumns="3"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="1dp"></GridView>
+
+    </LinearLayout>
 
 
 </LinearLayout>

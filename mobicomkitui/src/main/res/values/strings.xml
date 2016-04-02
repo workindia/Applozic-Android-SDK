@@ -2,13 +2,19 @@
 <resources>
 
     <string name="internet_connection_not_available">No internet connection</string>
-
+    <string name="you_need_network_access_for_delete">You need to have network access for deleting Conversation </string>
+    <string name="you_need_network_access_for_block_or_unblock">You need to have network access for block/unblock a user</string>
+    <string name="internet_connection_for_group_name_info">Your phone needs an Internet connection to change the group name</string>
+    <string name="you_dont_have_any_network_access_info">You don\'t have any network access now</string>
+    <string name="failed_to_leave_group">Failed to leave group</string>
+    <string name="user_is_already_exists">User already exists in group</string>
+    <string name="delete_conversation_failed">Delete failed</string>
     <string name="menu_search">Search</string>
     <string name="menu_add_contact">Create a new contact</string>
     <string name="menu_edit_contact">Edit Contact</string>
     <string name="no_contacts">No Contacts Found</string>
     <string name="no_contact_selected">No Contact Selected</string>
-    <string name="search_hint">Email, userId, number</string>
+    <string name="search_hint">Search...</string>
     <string name="activity_contacts_list">MobiTexter</string>
     <string name="activity_contacts_title">Select contact</string>
     <string name="activity_contact_detail">Contact Detail</string>
@@ -19,10 +25,11 @@
     <string name="mobiframework_title_group">Group</string>
     <string name="zero_friends_on_phone">No matching contact found on phone contacts but you can still send message by entering the email, userId or phone number</string>
     <string name="contact_sync_in_progress">Contact sync is in progress, might take few mins</string>
-    <string name="zero_friends_on_mobitexter">No contacts on mobitexter</string>
-    <string name="zero_groups_on_phone">No groups, add groups in your mobile or gmail account</string>
+    <string name="zero_friends_on_app">Contacts not found</string>
+    <string name="zero_groups_on_app">Groups not found</string>
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
+    <string name ="applozic_user_already_in_a_group">Already added to the group</string>
 
 
     <!--

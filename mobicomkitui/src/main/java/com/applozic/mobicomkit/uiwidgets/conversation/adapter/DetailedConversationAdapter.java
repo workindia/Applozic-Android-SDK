@@ -188,6 +188,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             customContentTextView.setText(message.getMessage());
             customContentTextView.setVisibility(View.VISIBLE);
             return customView;
+        }else if(type == 4){
+            customView = inflater.inflate(R.layout.applozic_channel_custom_message_layout, parent, false);
+            TextView channelMessageTextview = (TextView) customView.findViewById(R.id.channel_message);
+            channelMessageTextview.setText(message.getMessage());
+            return customView;
         } else if (type == 0) {
             customView = inflater.inflate(R.layout.mobicom_received_message_list_view, parent, false);
         } else {
@@ -313,10 +318,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             } else if (!message.isSentToServer() && message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
             } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
-
-                Drawable statusIcon= null;
-
-                if(message.getStatus()==Message.Status.DELIVERED_AND_READ.getValue()){
+                Drawable statusIcon;
+                if(message.isDeliveredAndRead()){
                     statusIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
                 }else{
                     statusIcon = ( message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
@@ -709,7 +712,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getViewTypeCount() {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -723,6 +726,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
         if (message.isCustom()) {
             return 3;
+        }
+        if(message.isChannelCustomMessage()){
+            return 4;
         }
         return message.isTypeOutbox() ? 1 : 0;
     }

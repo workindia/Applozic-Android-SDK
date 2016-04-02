@@ -56,6 +56,7 @@
     <color name="error_background_color">#ff0000</color>
     <color name="applozic_share_contact_background">#fff5f5ff</color>
     <color name="applozic_share_contact_divider">#FFB6B6B6</color>
+    <color name="applozic_lite_black_color">#b2b2b2</color>
 
 
 </resources>

@@ -41,6 +41,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -347,8 +348,11 @@ public class MobiComQuickConversationFragment extends Fragment {
                 }
             });
         } else {
-
-            Toast.makeText(getActivity(), "delete failed ", Toast.LENGTH_SHORT).show();
+            if (!Utils.isInternetAvailable(getActivity())) {
+                Toast.makeText(getActivity(), getString(R.string.you_need_network_access_for_delete), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(), getString(R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
+            }
         }
 
     }
@@ -452,7 +456,7 @@ public class MobiComQuickConversationFragment extends Fragment {
                         if (view != null) {
                             TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
                             Contact contact = baseContactService.getContactById(userId);
-                            onlineTextView.setVisibility((contact != null && contact.isConnected()) ? View.VISIBLE : View.GONE);
+                            onlineTextView.setVisibility(contact != null && contact.isOnline() ? View.VISIBLE : View.GONE);
                         }
                     }
                 } catch (Exception ex) {

@@ -757,6 +757,7 @@ public class MessageDatabaseService {
     public void deleteConversation(String contactNumber) {
         Log.i(TAG, "Deleting conversation for contactNumber: " + contactNumber);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=?", new String[]{contactNumber});
+        updateContactUnreadCountToZero(contactNumber);
         dbHelper.close();
         Log.i(TAG, "Delete " + deletedRows + " messages.");
     }
@@ -764,6 +765,7 @@ public class MessageDatabaseService {
     public void deleteChannelConversation(Integer channelKey) {
         Log.i(TAG, "Deleting  Conversation for channel: " + channelKey);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "channelKey=?", new String[]{String.valueOf(channelKey)});
+        updateChannelUnreadCountToZero(channelKey);
         dbHelper.close();
         Log.i(TAG, "Delete " + deletedRows + " messages.");
     }
@@ -781,6 +783,24 @@ public class MessageDatabaseService {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.execSQL("UPDATE channel SET unreadCount = unreadCount + 1 WHERE channelKey =" + "'" + channelKey + "'");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updateChannelUnreadCountToZero(Integer channelKey){
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.execSQL("UPDATE channel SET unreadCount = 0 WHERE channelKey =" + "'" + channelKey + "'");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updateContactUnreadCountToZero(String userId){
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.execSQL("UPDATE contact SET unreadCount = 0 WHERE userId =" + "'" + userId + "'");
         } catch (Exception e) {
             e.printStackTrace();
         }

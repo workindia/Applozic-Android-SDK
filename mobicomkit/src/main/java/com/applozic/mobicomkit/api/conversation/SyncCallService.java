@@ -4,10 +4,11 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.Date;
 import java.util.List;
@@ -44,10 +45,13 @@ public class SyncCallService {
     
     public synchronized void updateDeliveryStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,false);
+        refreshView= true;
     }
 
     public synchronized void updateReadStatus(String key) {
         mobiComMessageService.updateDeliveryStatus(key,true);
+        refreshView= true;
+
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople() {
@@ -64,10 +68,6 @@ public class SyncCallService {
         } else {
             mobiComMessageService.syncMessages();
         }
-    }
-
-    public synchronized void syncChannel() {
-        channelService.syncChannels();
     }
 
     public synchronized void updateDeliveryStatusForContact(String contactId,boolean markRead) {
@@ -94,6 +94,10 @@ public class SyncCallService {
 
     public synchronized void updateUserBlockedBy(String userId, boolean userBlockedBy) {
         contactService.updateUserBlockedBy(userId, userBlockedBy);
+    }
+
+    public synchronized  void updateUnreadCount(final Contact contact ,final Channel channel){
+        mobiComConversationService.updateUnreadCount(contact,channel);
     }
 
 }

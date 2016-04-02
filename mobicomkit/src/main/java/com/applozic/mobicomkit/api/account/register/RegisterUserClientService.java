@@ -16,6 +16,8 @@ import com.applozic.mobicomkit.exception.InvalidApplicationException;
 import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.google.gson.Gson;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.net.ConnectException;
 import java.net.UnknownHostException;
@@ -116,7 +118,17 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setRegistrationId(pushNotificationId);
         user.setDisplayName(displayName);
 
-        user.setCountryCode(mobiComUserPreference.getCountryCode());
+        //user.setCountryCode(mobiComUserPreference.getCountryCode());
+
+        if (!TextUtils.isEmpty(phoneNumber)) {
+            try {
+                user.setCountryCode(PhoneNumberUtil.getInstance().getRegionCodeForNumber(PhoneNumberUtil.getInstance().parse(phoneNumber, "")));
+                mobiComUserPreference.setCountryCode(user.getCountryCode());
+            } catch (NumberParseException e) {
+                e.printStackTrace();
+            }
+        }
+
         user.setContactNumber(ContactNumberUtils.getPhoneNumber(phoneNumber, mobiComUserPreference.getCountryCode()));
 
         final RegistrationResponse registrationResponse = createAccount(user);

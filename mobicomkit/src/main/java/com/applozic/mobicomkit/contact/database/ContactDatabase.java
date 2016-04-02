@@ -4,11 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
-
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.math.BigInteger;
@@ -33,21 +34,27 @@ public class ContactDatabase {
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
 
-    /**
-     * Form a single contact from cursor
-     *
-     * @param cursor
-     * @return
-     */
+
     public Contact getContact(Cursor cursor) {
+      return getContact(cursor,null);
+    }
+
+        /**
+         * Form a single contact from cursor
+         *
+         * @param cursor
+         * @return
+         */
+    public Contact getContact(Cursor cursor,String primaryKeyAliash) {
+
         Contact contact = new Contact();
         contact.setFullName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.FULL_NAME)));
-        contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash==null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
         if (TextUtils.isEmpty(contactNumber)) {
-            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(primaryKeyAliash==null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
         } else {
             contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
         }
@@ -83,6 +90,16 @@ public class ContactDatabase {
             } while (cursor.moveToNext());
         }
         return smsList;
+    }
+
+    public List<Contact> getAllContactListExcludingLoggedInUser() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String structuredNameWhere = MobiComDatabaseHelper.CONTACT_NO + " != ?";
+        Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{MobiComUserPreference.getInstance(context).getUserId()}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
+        List<Contact> contactList = getContactList(cursor);
+        cursor.close();
+        dbHelper.close();
+        return contactList;
     }
 
     public List<Contact> getAllContact() {
@@ -178,9 +195,8 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-        if(!TextUtils.isEmpty(contact.getFullName())){
-            contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
-        }
+
+        contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
@@ -200,7 +216,7 @@ public class ContactDatabase {
         if (contact.getLastSeenAt() != 0) {
             contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
         }
-        if (contact.getUnreadCount() != null) {
+        if (contact.getUnreadCount() != null && !contact.getUnreadCount().toString().equals("0")) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
         }
 
@@ -211,6 +227,24 @@ public class ContactDatabase {
             contentValues.put(MobiComDatabaseHelper.BLOCKED_BY, contact.isBlockedBy());
         }
         return contentValues;
+    }
+
+    /**
+     * This method will return full name of contact to be updated.
+     * This is require to avoid updating fullname back to userId in case fullname is not set while updating contact.
+     * @param contact
+     * @return
+     */
+    private String getFullNameForUpdate(Contact contact) {
+
+        String fullName = contact.getDisplayName();
+        if(TextUtils.isEmpty( contact.getFullName()) ){
+            Contact contactFromDB = getContactById(contact.getUserId());
+            if(contactFromDB!=null){
+                fullName = contactFromDB.getFullName();
+            }
+        }
+        return fullName;
     }
 
     public void addAllContact(List<Contact> contactList) {
@@ -233,6 +267,32 @@ public class ContactDatabase {
         for (Contact contact : contacts) {
             deleteContact(contact);
         }
+    }
+
+    public Loader<Cursor> getSearchCursorLoader( final String searchString ){
+
+        return new CursorLoader( context, null, null , null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc" )
+        {
+            @Override
+            public Cursor loadInBackground()
+            {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+                String query=  "select userId as _id, fullName, contactNO, " +
+                        "displayName,contactImageURL,contactImageLocalURI,email," +
+                        "applicationId,connected,lastSeenAt,unreadCount,blocked," +
+                        "blockedBy from " + CONTACT;
+
+                if(!TextUtils.isEmpty(searchString)){
+                    query =  query +  " where fullName like '%" + searchString +"%'";
+                }
+                query = query + " order by fullName,userId asc";
+                Cursor cursor = db.rawQuery(query,null);
+
+                return cursor;
+
+            }
+        };
     }
 
 }

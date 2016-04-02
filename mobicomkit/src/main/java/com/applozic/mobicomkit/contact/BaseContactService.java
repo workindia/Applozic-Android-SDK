@@ -29,6 +29,8 @@ public interface BaseContactService {
 
     void upsert(Contact contact);
 
+    List<Contact> getAllContactListExcludingLoggedInUser();
+
     Bitmap downloadContactImage(Context context, Contact contact);
 
     Contact getContactReceiver(List<String> items, List<String> userIds);

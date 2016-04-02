@@ -382,4 +382,8 @@ public class Contact implements Serializable {
     public void setBlockedBy(boolean blockedBy) {
         this.blockedBy = blockedBy;
     }
+
+    public boolean isOnline() {
+        return !isBlocked() && !isBlockedBy() && isConnected();
+    }
 }

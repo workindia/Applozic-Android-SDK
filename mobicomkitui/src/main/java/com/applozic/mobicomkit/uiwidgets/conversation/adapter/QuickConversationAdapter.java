@@ -164,7 +164,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
             if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
-                onlineTextView.setVisibility((contactReceiver != null && contactReceiver.isConnected()) ? View.VISIBLE : View.GONE);
+                onlineTextView.setVisibility(contactReceiver != null && contactReceiver.isOnline() ? View.VISIBLE : View.GONE);
             }
 
             customView.setOnClickListener(new View.OnClickListener() {
@@ -256,4 +256,3 @@ public class QuickConversationAdapter extends BaseAdapter {
     }
 
 }
-

@@ -9,7 +9,11 @@ public class MobiComKitConstants {
     public static final String CONTACT_ID = "contactId";
 
     public static final String ACTIVITY_TO_OPEN = "ACTIVITY_TO_OPEN";
-
+    public static final String LOCATION = "Location";
+    public static final String AUDIO = "Audio";
+    public static final String VIDEO = "Video";
+    public static final String ATTACHMENT = "Attachment";
     public static String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
+    public static String APPLICATION_ACTIVITY_TO_OPEN_ON_CHAT_TOOLBAR_TAP = "com.applozic.mobicomkit.uiwidgets.toolbar.tap.activity";
 
 }

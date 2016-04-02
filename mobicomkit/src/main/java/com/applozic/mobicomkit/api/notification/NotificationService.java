@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -56,17 +57,27 @@ public class NotificationService {
 
     public void notifyUser(Contact contact, Channel channel, Message message) {
         String title;
-        String notificationText=message.getMessage();
+        String notificationText ;
         Contact displayNameContact = null;
         if (message.getGroupId() != null) {
             title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
-            displayNameContact  = appContactService.getContactById(message.getTo());
+            displayNameContact = appContactService.getContactById(message.getTo());
         } else {
             title = contact.getDisplayName();
         }
-        if (message.getContentType() == Message.ContentType.LOCATION.getValue()){
-            notificationText = "Location";
-        }
+
+         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
+            notificationText = MobiComKitConstants.LOCATION;
+        } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
+            notificationText = MobiComKitConstants.AUDIO;
+        } else if (message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()){
+            notificationText = MobiComKitConstants.VIDEO;
+        } else if(message.hasAttachment() && TextUtils.isEmpty(message.getMessage())){
+            notificationText = MobiComKitConstants.ATTACHMENT;
+        }else {
+             notificationText = message.getMessage();
+         }
+
         Intent intent = new Intent();
         intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         intent.setAction(NotificationBroadcastReceiver.LAUNCH_APP);
@@ -107,7 +118,7 @@ public class NotificationService {
         }
         WearableNotificationWithVoice notificationWithVoice =
                 new WearableNotificationWithVoice(mBuilder, wearable_action_title,
-                        wearable_action_label, wearable_send_icon, message.getGroupId() != null ? message.getGroupId().hashCode() : message.getContactIds().hashCode());
+                        wearable_action_label, wearable_send_icon, message.getGroupId() != null ? String.valueOf(message.getGroupId()).hashCode() : message.getContactIds().hashCode());
         notificationWithVoice.setCurrentContext(context);
         notificationWithVoice.setPendingIntent(pendingIntent);
 
