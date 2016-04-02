@@ -33,6 +33,7 @@ import com.applozic.mobicomkit.uiwidgets.people.channel.ChannelFragment;
 import com.applozic.mobicomkit.uiwidgets.people.contact.AppContactFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
+import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.contact.ContactUtils;
 
@@ -53,8 +54,9 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     private static final String USER_ID = "userId";
     protected SearchView searchView;
     protected String searchTerm;
-    AppContactFragment mContactsListFragment;
+    private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
+
     ViewPager viewPager;
     TabLayout tabLayout;
     ActionBar actionBar;
@@ -237,10 +239,19 @@ public class MobiComKitPeopleActivity extends ActionBarActivity implements OnCon
     @Override
     public boolean onQueryTextChange(String query) {
         this.searchTerm = query;
-      /*  mContactsListFragment.onQueryTextChange(query);*/
-        return false;
+        if(getSearchListFragment()!=null){
+            getSearchListFragment().onQueryTextChange(query);
+        }
+        return true;
     }
 
+    public SearchListFragment getSearchListFragment() {
+        return searchListFragment;
+    }
+
+    public void setSearchListFragment(SearchListFragment searchListFragment) {
+        this.searchListFragment = searchListFragment;
+    }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());

@@ -36,6 +36,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
@@ -61,7 +62,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
     // Defines a tag for identifying log entries
-    private static final String TAG = "MobiComKitContactsListFragment";
+    private static final String TAG = "AppContactFragment";
     private static final String SHARE_TEXT ="share_text";
     // Bundle key for saving previously selected search result item
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
@@ -102,7 +103,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         contactService = new AppContactService(getActivity().getApplicationContext());
-       // contactList = contactService.getAll();
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(),SHARE_TEXT);
         if (savedInstanceState != null) {
@@ -139,7 +139,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        ((MobiComKitPeopleActivity)getActivity()).setSearchListFragment(this);
         shareButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -198,6 +198,12 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ((MobiComKitPeopleActivity)getActivity()).setSearchListFragment(null);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -217,7 +223,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onPause() {
         super.onPause();
-
         // In the case onPause() is called during a fling the image loader is
         // un-paused to let any remaining background work complete.
         mImageLoader.setPauseWork(false);
@@ -311,7 +316,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         ContactDatabase contactDatabase = new ContactDatabase(getContext());
-        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader();
+        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm);
         return loader;
     }
 
@@ -421,7 +426,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             Contact contact = new ContactDatabase(context).getContact(cursor,"_id");
             ///////////////////
 
-            System.out.println("contact displayname :: "+ contact.getDisplayName() + "and holder is " + holder.text1);
             holder.text1.setText(contact.getDisplayName() == null ? contact.getUserId() : contact.getDisplayName());
             holder.text2.setText(contact.getUserId());
             if (contact.isDrawableResources()) {

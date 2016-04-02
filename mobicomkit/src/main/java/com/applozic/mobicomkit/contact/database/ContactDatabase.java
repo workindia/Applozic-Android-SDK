@@ -199,9 +199,8 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-        if(!TextUtils.isEmpty(contact.getFullName())){
-            contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
-        }
+
+        contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getDisplayName());
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
@@ -256,7 +255,7 @@ public class ContactDatabase {
         }
     }
 
-    public Loader<Cursor> getSearchCursorLoader( ){
+    public Loader<Cursor> getSearchCursorLoader( final String searchString ){
 
         return new CursorLoader( context, null, null , null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc" )
         {
@@ -268,7 +267,12 @@ public class ContactDatabase {
                 String query=  "select userId as _id, fullName, contactNO, " +
                         "displayName,contactImageURL,contactImageLocalURI,email," +
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                        "blockedBy from " + CONTACT + " order by " +  MobiComDatabaseHelper.FULL_NAME + " asc";
+                        "blockedBy from " + CONTACT;
+
+                if(!TextUtils.isEmpty(searchString)){
+                    query =  query +  " where fullName like '%" + searchString +"%'";
+                }
+                query = query + " order by fullName,userId asc";
                 Cursor cursor = db.rawQuery(query,null);
 
                 return cursor;
