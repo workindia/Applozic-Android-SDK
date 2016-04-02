@@ -209,7 +209,7 @@ public class ContactDatabase {
         if (contact.getLastSeenAt() != 0) {
             contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
         }
-        if (contact.getUnreadCount() != null) {
+        if (contact.getUnreadCount() != null && !contact.getUnreadCount().toString().equals("0")) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
         }
 
