@@ -49,16 +49,12 @@ public class ContactDatabase {
 
         Contact contact = new Contact();
         contact.setFullName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.FULL_NAME)));
-        if(primaryKeyAliash==null){
-            contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
-        }else{
-            contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash)));
-        }
+        contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash==null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
         if (TextUtils.isEmpty(contactNumber)) {
-            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(primaryKeyAliash==null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
         } else {
             contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
         }
