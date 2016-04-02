@@ -33,6 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/invite"
+            android:visibility="gone"
             android:fontFamily="sans-serif-light"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 

@@ -71,6 +71,7 @@ public class ChannelFragment extends ListFragment implements
         // Inflate the list fragment layout
         View view = inflater.inflate(R.layout.contact_list_fragment, container, false);
         shareButton = (Button) view.findViewById(R.id.actionButton);
+        shareButton.setVisibility(View.GONE);
         resultTextView = (TextView) view.findViewById(R.id.result);
         resultTextView.setText("No Groups");
         return view;

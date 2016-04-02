@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -32,16 +34,26 @@ public class ContactDatabase {
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
 
-    /**
-     * Form a single contact from cursor
-     *
-     * @param cursor
-     * @return
-     */
+
     public Contact getContact(Cursor cursor) {
+      return getContact(cursor,null);
+    }
+
+        /**
+         * Form a single contact from cursor
+         *
+         * @param cursor
+         * @return
+         */
+    public Contact getContact(Cursor cursor,String primaryKeyAliash) {
+
         Contact contact = new Contact();
         contact.setFullName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.FULL_NAME)));
-        contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        if(primaryKeyAliash==null){
+            contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        }else{
+            contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash)));
+        }
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
@@ -187,9 +199,8 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-        if(!TextUtils.isEmpty(contact.getFullName())){
-            contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getFullName());
-        }
+
+        contentValues.put(MobiComDatabaseHelper.FULL_NAME, contact.getDisplayName());
         contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
@@ -209,7 +220,7 @@ public class ContactDatabase {
         if (contact.getLastSeenAt() != 0) {
             contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
         }
-        if (contact.getUnreadCount() != null) {
+        if (contact.getUnreadCount() != null && !contact.getUnreadCount().toString().equals("0")) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
         }
 
@@ -242,6 +253,32 @@ public class ContactDatabase {
         for (Contact contact : contacts) {
             deleteContact(contact);
         }
+    }
+
+    public Loader<Cursor> getSearchCursorLoader( final String searchString ){
+
+        return new CursorLoader( context, null, null , null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc" )
+        {
+            @Override
+            public Cursor loadInBackground()
+            {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+                String query=  "select userId as _id, fullName, contactNO, " +
+                        "displayName,contactImageURL,contactImageLocalURI,email," +
+                        "applicationId,connected,lastSeenAt,unreadCount,blocked," +
+                        "blockedBy from " + CONTACT;
+
+                if(!TextUtils.isEmpty(searchString)){
+                    query =  query +  " where fullName like '%" + searchString +"%'";
+                }
+                query = query + " order by fullName,userId asc";
+                Cursor cursor = db.rawQuery(query,null);
+
+                return cursor;
+
+            }
+        };
     }
 
 }

@@ -28,6 +28,7 @@ public class ApplozicSetting {
     private static final String MAX_ATTACHMENT_ALLOWED= "MAX_ATTACHMENT_ALLOWED";
     private static final String LOCATION_SHARE_VIA_MAP = "LOCATION_SHARE_VIA_MAP";
     private static final String MAX_ATTACHMENT_SIZE_ALLOWED= "MAX_ATTACHMENT_SIZE_ALLOWED";
+    private static final String INVITE_FRIENDS_IN_PEOPLE_ACTIVITY = "INVITE_FRIENDS_IN_PEOPLE_ACTIVITY";
 
 
     public static ApplozicSetting applozicSetting;
@@ -172,6 +173,20 @@ public class ApplozicSetting {
 
     public boolean isStartNewGroupButtonVisible() {
         return sharedPreferences.getBoolean(START_NEW_GROUP, false);
+    }
+
+    public ApplozicSetting showInviteFriendsButton() {
+        sharedPreferences.edit().putBoolean(INVITE_FRIENDS_IN_PEOPLE_ACTIVITY, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideInviteFriendsButton() {
+        sharedPreferences.edit().putBoolean(INVITE_FRIENDS_IN_PEOPLE_ACTIVITY, false).commit();
+        return this;
+    }
+
+    public boolean isInviteFriendsButtonVisible() {
+        return sharedPreferences.getBoolean(INVITE_FRIENDS_IN_PEOPLE_ACTIVITY, false);
     }
 
 

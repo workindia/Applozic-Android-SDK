@@ -33,6 +33,7 @@ import com.google.gson.JsonParser;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -291,11 +292,16 @@ public class MobiComConversationService {
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), 0, "success");
     }
 
-    public void deleteSync(final Contact contact, final Channel channel) {
+    public void deleteSync(final Contact contact, final Channel channel,boolean isUserPresentInChannel) {
         String response = "";
-        response = messageClientService.syncDeleteConversationThreadFromServer(contact, channel);
+        if(contact != null || channel != null && isUserPresentInChannel){
+            response = messageClientService.syncDeleteConversationThreadFromServer(contact, channel);
+        }
 
-        if ("success".equals(response)) {
+        if ("success".equals(response) || channel != null && !isUserPresentInChannel) {
+            if(channel != null && !isUserPresentInChannel){
+                response = "success";
+            }
             if (contact != null) {
                 messageDatabaseService.deleteConversation(contact.getContactIds());
             } else {
@@ -345,6 +351,31 @@ public class MobiComConversationService {
                 baseContactService.upsert(contact);
             }
         }
+    }
+
+    public void updateUnreadCount(final Contact contact,final Channel channel){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                BigInteger unreadCount = null;
+                if (contact != null) {
+                    Contact newContact =  baseContactService.getContactById(contact.getContactIds());
+                    unreadCount = newContact.getUnreadCount();
+                    messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
+                } else if (channel != null) {
+                    Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(channel.getKey());
+                    if (newChannel.getUnreadCount() != 0) {
+                        unreadCount = BigInteger.valueOf(newChannel.getUnreadCount());
+                    } else {
+                        unreadCount = null;
+                    }
+                    messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
+                }
+                if (unreadCount != null) {
+                    messageClientService.updateReadStatus(contact, channel);
+                }
+            }
+        }).start();
     }
 
 //    public void addFileMetaDetails(String responseString, Message message) {
