@@ -6,10 +6,15 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
@@ -23,10 +28,12 @@ import android.widget.AlphabetIndexer;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.QuickContactBadge;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -49,18 +56,16 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 @SuppressLint("ValidFragment")
 public class AppContactFragment extends ListFragment implements SearchListFragment,
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
     // Defines a tag for identifying log entries
     private static final String TAG = "MobiComKitContactsListFragment";
     private static final String SHARE_TEXT ="share_text";
-    private static String inviteMessage;
-
     // Bundle key for saving previously selected search result item
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "net.mobitexter.mobiframework.contact.ui.SELECTED_ITEM";
-    public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
-
+    private static String inviteMessage;
     private ContactsAdapter mAdapter; // The main query adapter
     private ImageLoader mImageLoader; // Handles loading the contact image in a background thread
     private String mSearchTerm; // Stores the current search query term
@@ -96,13 +101,11 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         contactService = new AppContactService(getActivity().getApplicationContext());
-        contactList = contactService.getAll();
+       // contactList = contactService.getAll();
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(),SHARE_TEXT);
         if (savedInstanceState != null) {
-            // If we're restoring state after this fragment was recreated then
-            // retrieve previous search term and previously selected search
-            // result.
+
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mPreviouslySelectedSearchItem =
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
@@ -135,15 +138,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // Set up ListView, assign adapter and set some listeners. The adapter was previously
-        // created in onCreate().
-//        if (syncStatus) {
-//            resultTextView.setText(this.getResources().getString(R.string.contact_sync_in_progress));
-//
-//        } else {
-//            resultTextView.setText(this.getResources().getString(R.string.zero_friends_on_mobitexter));
-//
-//        }
         shareButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -197,7 +191,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         // the action bar search view (see onQueryTextChange() in onCreateOptionsMenu()).
         if (mPreviouslySelectedSearchItem == 0) {
             // Initialize the loader, and create a loader identified by ContactsQuery.QUERY_ID
-            // getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, this);
+             getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, this);
         }
     }
 
@@ -229,7 +223,13 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        mOnContactSelectedListener.onCustomContactSelected(contactList.get(position));
+
+        final Cursor cursor = mAdapter.getCursor();
+
+        // Moves to the Cursor row corresponding to the ListView item that was clicked
+        cursor.moveToPosition(position);
+        Contact contact = new ContactDatabase(getContext()).getContact(cursor,"_id");
+        mOnContactSelectedListener.onCustomContactSelected(contact);
     }
 
     /**
@@ -273,10 +273,10 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
         // Updates current filter to new filter
         mSearchTerm = newFilter;
-        //mAdapter.indexOfSearchQuery();
+        mAdapter.indexOfSearchQuery(newFilter);
 
-//        getLoaderManager().restartLoader(
-//                ContactsQuery.QUERY_ID, null, MobiTexterContactsListFragment.this);
+        getLoaderManager().restartLoader(
+                AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);
 
         return true;
     }
@@ -305,6 +305,41 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         return (int) typedValue.getDimension(metrics);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        ContactDatabase contactDatabase = new ContactDatabase(getContext());
+        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader();
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // This swaps the new cursor into the adapter.
+        if (loader.getId() == ContactsQuery.QUERY_ID) {
+            mAdapter.swapCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        if (loader.getId() == ContactsQuery.QUERY_ID) {
+            // When the loader is being reset, clear the cursor from the adapter. This allows the
+            // cursor resources to be freed.
+            mAdapter.swapCursor(null);
+        }
+    }
+    /**
+     * This interface defines constants for the Cursor and CursorLoader, based on constants defined
+     * in the {@link android.provider.ContactsContract.Contacts} class.
+     */
+    public interface ContactsQuery {
+        // An identifier for the loader
+        int QUERY_ID = 1;
+
+    }
+
 
     /**
      * This is a subclass of CursorAdapter that supports binding Cursor columns to a view layout.
@@ -312,17 +347,18 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
      * query text. An {@link android.widget.AlphabetIndexer} is used to allow quicker navigation up and down the
      * ListView.
      */
-    private class ContactsAdapter extends BaseAdapter {
+    private class ContactsAdapter extends CursorAdapter implements SectionIndexer {
+        Context context;
         private LayoutInflater mInflater; // Stores the layout inflater
         private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
         private TextAppearanceSpan highlightTextSpan; // Stores the highlight text appearance style
-        Context context;
         /**
          * Instantiates a new Contacts Adapter.
          *
          * @param context A context that has access to the app's layout.
          */
         public ContactsAdapter(Context context) {
+            super(context, null, 0);
             this.context = context;
             // Stores inflater for use later
             mInflater = LayoutInflater.from(context);
@@ -335,7 +371,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             // Instantiates a new AlphabetIndexer bound to the column used to sort contact names.
             // The cursor is left null, because it has not yet been retrieved.
-            //mAlphabetIndexer = new AlphabetIndexer(null, ContactsQuery.SORT_KEY, alphabet);
+            mAlphabetIndexer = new AlphabetIndexer(null,5 , alphabet);
 
             // Defines a span for highlighting the part of a display name that matches the search
             // string
@@ -360,32 +396,88 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             return -1;
         }
 
-        /**
-         * Overrides newView() to inflate the list item views.
-         */
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // Inflates the list item layout.
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemLayout =
                     mInflater.inflate(R.layout.contact_list_item, parent, false);
 
-            Contact contact = contactList.get(position);
-            TextView text1 = (TextView) itemLayout.findViewById(R.id.text1);
-            TextView text2 = (TextView) itemLayout.findViewById(R.id.text2);
-            CircleImageView icon = (CircleImageView) itemLayout.findViewById(R.id.contactImage);
-            text1.setText(contact.getDisplayName());
-            text2.setText(contact.getUserId());
-            if (contact.isDrawableResources()) {
-                int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
-                icon.setImageResource(drawableResourceId);
-            } else {
-                mImageLoader.loadImage(contact, icon);
-            }
-
-            // Returns the item layout view
+            final ViewHolder holder = new ViewHolder();
+            holder.text1 = (TextView) itemLayout.findViewById(R.id.text1);
+            holder.text2 = (TextView) itemLayout.findViewById(R.id.text2);
+            holder.icon = (CircleImageView) itemLayout.findViewById(R.id.contactImage);
+            itemLayout.setTag(holder);
             return itemLayout;
         }
 
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+
+            // Gets handles to individual view resources
+            final ViewHolder holder = (ViewHolder) view.getTag();
+
+            //////////////////////////
+            Contact contact = new ContactDatabase(context).getContact(cursor,"_id");
+            ///////////////////
+
+            System.out.println("contact displayname :: "+ contact.getDisplayName() + "and holder is " + holder.text1);
+            holder.text1.setText(contact.getDisplayName() == null ? contact.getUserId() : contact.getDisplayName());
+            holder.text2.setText(contact.getUserId());
+            if (contact.isDrawableResources()) {
+                int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
+                holder.icon.setImageResource(drawableResourceId);
+            } else {
+                mImageLoader.loadImage(contact, holder.icon);
+            }
+            // Returns the item layout view
+
+
+            ///////////////////////
+            final int startIndex = indexOfSearchQuery(contact.getDisplayName());
+
+            if (startIndex == -1) {
+                // If the user didn't do a search, or the search string didn't match a display
+                // name, show the display name without highlighting
+                holder.text1.setText(contact.getDisplayName());
+
+                if (TextUtils.isEmpty(mSearchTerm)) {
+                    // If the search search is empty, hide the second line of text
+                    holder.text2.setVisibility(View.GONE);
+                } else {
+                    // Shows a second line of text that indicates the search string matched
+                    // something other than the display name
+                    holder.text2.setVisibility(View.VISIBLE);
+                }
+            } else {
+                // If the search string matched the display name, applies a SpannableString to
+                // highlight the search string with the displayed display name
+
+                // Wraps the display name in the SpannableString
+                final SpannableString highlightedName = new SpannableString(contact.getDisplayName());
+
+                // Sets the span to start at the starting point of the match and end at "length"
+                // characters beyond the starting point
+                highlightedName.setSpan(highlightTextSpan, startIndex,
+                        startIndex + mSearchTerm.length(), 0);
+
+                // Binds the SpannableString to the display name View object
+                holder.text1.setText(highlightedName);
+
+                // Since the search string matched the name, this hides the secondary message
+                holder.text2.setVisibility(View.GONE);
+            }
+
+        }
+
+        /**
+         * Overrides swapCursor to move the new Cursor into the AlphabetIndex as well as the
+         * CursorAdapter.
+         */
+        @Override
+        public Cursor swapCursor(Cursor newCursor) {
+            // Update the AlphabetIndexer with new cursor as well
+            mAlphabetIndexer.setCursor(newCursor);
+            return super.swapCursor(newCursor);
+        }
 
         /**
          * An override of getCount that simplifies accessing the Cursor. If the Cursor is null,
@@ -393,17 +485,40 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
          */
         @Override
         public int getCount() {
-            return contactList.size();
+            if (getCursor() == null) {
+                return 0;
+            }
+            return super.getCount();
         }
 
+        /**
+         * Defines the SectionIndexer.getSections() interface.
+         */
         @Override
-        public Object getItem(int position) {
-            return contactList.get(position);
+        public Object[] getSections() {
+            return mAlphabetIndexer.getSections();
         }
 
+        /**
+         * Defines the SectionIndexer.getPositionForSection() interface.
+         */
         @Override
-        public long getItemId(int position) {
-            return 0;
+        public int getPositionForSection(int i) {
+            if (getCursor() == null) {
+                return 0;
+            }
+            return mAlphabetIndexer.getPositionForSection(i);
+        }
+
+        /**
+         * Defines the SectionIndexer.getSectionForPosition() interface.
+         */
+        @Override
+        public int getSectionForPosition(int i) {
+            if (getCursor() == null) {
+                return 0;
+            }
+            return mAlphabetIndexer.getSectionForPosition(i);
         }
 
         /**
@@ -414,7 +529,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         private class ViewHolder {
             TextView text1;
             TextView text2;
-            QuickContactBadge icon;
+            CircleImageView icon;
         }
     }
 

@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -33,16 +35,26 @@ public class ContactDatabase {
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
 
-    /**
-     * Form a single contact from cursor
-     *
-     * @param cursor
-     * @return
-     */
+
     public Contact getContact(Cursor cursor) {
+      return getContact(cursor,null);
+    }
+
+        /**
+         * Form a single contact from cursor
+         *
+         * @param cursor
+         * @return
+         */
+    public Contact getContact(Cursor cursor,String primaryKeyAliash) {
+
         Contact contact = new Contact();
         contact.setFullName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.FULL_NAME)));
-        contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        if(primaryKeyAliash==null){
+            contact.setUserId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        }else{
+            contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash)));
+        }
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
         String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
@@ -233,6 +245,27 @@ public class ContactDatabase {
         for (Contact contact : contacts) {
             deleteContact(contact);
         }
+    }
+
+    public Loader<Cursor> getSearchCursorLoader( ){
+
+        return new CursorLoader( context, null, null , null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc" )
+        {
+            @Override
+            public Cursor loadInBackground()
+            {
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+                String query=  "select userId as _id, fullName, contactNO, " +
+                        "displayName,contactImageURL,contactImageLocalURI,email," +
+                        "applicationId,connected,lastSeenAt,unreadCount,blocked," +
+                        "blockedBy from " + CONTACT + " order by " +  MobiComDatabaseHelper.FULL_NAME + " asc";
+                Cursor cursor = db.rawQuery(query,null);
+
+                return cursor;
+
+            }
+        };
     }
 
 }
