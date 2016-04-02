@@ -87,6 +87,10 @@ public class AppContactService implements BaseContactService {
 
     }
 
+    @Override
+    public List<Contact> getAllContactListExcludingLoggedInUser() {
+        return contactDatabase.getAllContactListExcludingLoggedInUser();
+    }
 
     @Override
     public Bitmap downloadContactImage(Context context, Contact contact) {

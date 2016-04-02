@@ -25,10 +25,11 @@
     <string name="mobiframework_title_group">Group</string>
     <string name="zero_friends_on_phone">No matching contact found on phone contacts but you can still send message by entering the email, userId or phone number</string>
     <string name="contact_sync_in_progress">Contact sync is in progress, might take few mins</string>
-    <string name="zero_friends_on_mobitexter">No contacts on mobitexter</string>
-    <string name="zero_groups_on_phone">No groups, add groups in your mobile or gmail account</string>
+    <string name="zero_friends_on_app">Contacts not found</string>
+    <string name="zero_groups_on_app">Groups not found</string>
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
+    <string name ="applozic_user_already_in_a_group">Already added to the group</string>
 
 
     <!--

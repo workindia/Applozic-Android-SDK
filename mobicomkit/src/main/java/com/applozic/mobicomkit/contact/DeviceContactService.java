@@ -65,6 +65,11 @@ public class DeviceContactService implements BaseContactService {
     }
 
     @Override
+    public List<Contact> getAllContactListExcludingLoggedInUser() {
+        return null;
+    }
+
+    @Override
     public Bitmap downloadContactImage(Context context, Contact contact) {
         return null;
     }
