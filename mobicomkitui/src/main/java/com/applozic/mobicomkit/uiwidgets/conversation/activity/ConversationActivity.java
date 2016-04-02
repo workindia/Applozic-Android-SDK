@@ -98,6 +98,7 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
     public LinearLayout layout;
     String geoApiKey;
     public static Activity conversationActivity;
+    public boolean isMultimediaOptionGridOpen = false;
 
     private Uri videoFileUri;
 
@@ -470,8 +471,15 @@ public class ConversationActivity extends ActionBarActivity implements MessageCo
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
         if (takeOrder)
             this.finish();
-        else
+
+        if (isMultimediaOptionGridOpen) {
+            ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
+            if (conversationFragment != null && conversationFragment.isVisible()) {
+                conversationFragment.hideMultimediaOptionGrid();
+            }
+        } else
             super.onBackPressed();
+
     }
 
     @Override
