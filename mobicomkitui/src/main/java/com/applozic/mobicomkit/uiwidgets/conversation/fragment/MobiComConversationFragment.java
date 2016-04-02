@@ -158,6 +158,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     RelativeLayout toolBarLayout;
     LinearLayout userNotAbleToChatLayout;
     private Menu menu;
+    protected SyncCallService syncCallService;
 
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
@@ -165,6 +166,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        syncCallService = SyncCallService.getInstance(getActivity());
         setHasOptionsMenu(true);
     }
 
@@ -664,15 +666,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
         typingStarted = false;
         stringBuffer = null;
-
-        Intent readStatusIntent = new Intent(getActivity(), ApplozicIntentService.class);
-        if(channel != null){
-            readStatusIntent.putExtra(ApplozicIntentService.CHANNEL,channel);
-        }else {
-            readStatusIntent.putExtra(ApplozicIntentService.CONTACT, contact);
-        }
-
-        getActivity().startService(readStatusIntent);
 
         /*
         filePath = null;*/
@@ -1667,11 +1660,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 }
             }
-
-            if(markConversationAsRead && getActivity() != null){
-                Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
-                intent.putExtra(ApplozicIntentService.CONTACT,this.contact);
-                getActivity().startService(intent);
+            if(markConversationAsRead){
+                syncCallService.updateUnreadCount(contact,channel);
             }
 
             if (conversationAdapter != null) {
