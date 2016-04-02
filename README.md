@@ -66,7 +66,7 @@ To integrate android chat library into your android app, signup at [Applozic](ht
 
 
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.28' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.29' `
 
 
 Add the following in gradle android target:      
@@ -456,10 +456,7 @@ startActivity(intent);
 -keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; }                                    
  ``` 
    
-   
-   
-   
-Trying out the demo app:
+**Trying out the demo app:**
 
 Open project in Android Studio to run the sample app in your device. Send messages between multiple devices. 
 
@@ -471,5 +468,18 @@ ApplozicClient.getInstance(this).setHandleDisplayName(false);
 By default, the display name feature is enabled.
 
 For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
+
+##Changelog
+
+**Version 3.29**
+
+User Block
+
+Grid layout for attachment options
+
+Contact Search
+
+Group Change notification
+
 
 Applozic is the best android chat sdk for instant messaging, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
