@@ -1648,7 +1648,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (!messageList.isEmpty()) {
                 for (int i = messageList.size() - 1; i >= 0; i--) {
                     Message message = messageList.get(i);
-                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom() &&!message.isChannelCustomMessage()) {
+                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
                         message.setRead(Boolean.TRUE);
                         new MessageDatabaseService(getActivity()).updateMessageReadFlag(message.getMessageId(), true);
                         if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())
