@@ -482,4 +482,9 @@ Contact Search
 Group Change notification
 
 
+
+##Help
+
+We provide support over at [StackOverflow] (http://stackoverflow.com/questions/tagged/applozic) when you tag using applozic, ask us anything.
+
 Applozic is the best android chat sdk for instant messaging, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
