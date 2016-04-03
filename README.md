@@ -4,7 +4,7 @@ Applozic-Android-SDK
 
 ### Overview         
 
-Open source Chat and Messaging SDK that lets you add real time chat and messaging in your mobile (android, iOS) applications and website.
+Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
 
 Signup at https://www.applozic.com/signup.html to get the application key.
 
