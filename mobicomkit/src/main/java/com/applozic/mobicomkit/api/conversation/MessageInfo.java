@@ -47,6 +47,10 @@ public class MessageInfo extends JsonMarker{
         this.status = status;
     }
 
+    public boolean isRead(){
+        return readAtTime!=null;
+    }
+
 
     @Override
     public String toString() {

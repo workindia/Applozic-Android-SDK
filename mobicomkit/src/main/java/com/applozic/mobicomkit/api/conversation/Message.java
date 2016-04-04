@@ -569,6 +569,10 @@ public class Message extends JsonMarker {
         return ContentType.CONTACT_MSG.getValue().equals( getContentType());
     }
 
+    public boolean isGroupMessage() {
+        return ( this.groupId != null );
+    }
+
     public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));

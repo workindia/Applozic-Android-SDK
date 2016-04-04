@@ -690,7 +690,7 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
 
-    public List<MessageInfo> getMessageInfoList(String messageKey){
+    public MessageInfoResponse getMessageInfoList(String messageKey){
 
         String url = getMessageInfoUrl() + "?key=" + messageKey;
         String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
@@ -700,7 +700,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
         MessageInfoResponse messageInfoResponse =
                 (MessageInfoResponse) GsonUtils.getObjectFromJson(response, MessageInfoResponse.class);
-       return messageInfoResponse.getMessageInfoList();
+       return messageInfoResponse;
     }
 
     public void processWebHook(final Message message) {

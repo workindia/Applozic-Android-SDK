@@ -174,6 +174,12 @@ public class MobiComMessageService {
         }
     }
 
+    public MessageInfoResponse getMessageInfoResponse(String messageKey){
+        MessageInfoResponse messageInfoResponse =  messageClientService.getMessageInfoList(messageKey);
+        return messageInfoResponse;
+
+    }
+
     private void updateDeliveredStatus(List<String> deliveredMessageKeys) {
         if (deliveredMessageKeys == null) {
             return;
