@@ -119,13 +119,13 @@ public class MobiComMessageService {
 
         //Check if we are........container is already opened...don't send broadcast
         if (!(currentId.equals(BroadcastService.currentUserId ))) {
-            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())){
-                if(message.getTo() != null && message.getGroupId() == null){
-                    messageDatabaseService.updateContactUnreadCount(message.getTo());
-                }
-                if(message.getGroupId() != null && message.getContentType() != Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue()){
-                    messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
-                }
+            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType()) && !message.isDeliveredAndRead()){
+                    if(message.getTo() != null && message.getGroupId() == null){
+                        messageDatabaseService.updateContactUnreadCount(message.getTo());
+                    }
+                    if(message.getGroupId() != null && message.getContentType() != Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue()){
+                        messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                    }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
                 BroadcastService.sendNotificationBroadcast(context, message);
             }

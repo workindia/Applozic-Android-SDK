@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -230,7 +231,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             // Inflates the list item layout.
-            CheckBox checkBox;
+            AppCompatCheckBox checkBox;
             TextView text2;
             TextView text1;
             Contact contact = getContact(position);
@@ -241,7 +242,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
 
                 text1 = (TextView) convertView.findViewById(R.id.applozic_group_member_info);
                 text2 = (TextView) convertView.findViewById(R.id.displayName);
-                checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
+                checkBox = (AppCompatCheckBox) convertView.findViewById(R.id.checkbox);
                 checkBox.setVisibility(View.VISIBLE);
                 circleImageView = (CircleImageView) convertView.findViewById(R.id.contactImage);
                 convertView.setTag(new ContactViewHolder(text1, text2, checkBox, circleImageView));
@@ -329,7 +330,7 @@ public class ContactSelectionActivity extends ActionBarActivity {
     }
 
     private class ContactViewHolder {
-        private CheckBox checkBox;
+        private AppCompatCheckBox checkBox;
         private TextView textView1;
         private CircleImageView circleImageView;
         private TextView textView2;
@@ -338,18 +339,18 @@ public class ContactSelectionActivity extends ActionBarActivity {
         public ContactViewHolder() {
         }
 
-        public ContactViewHolder(TextView textView1, TextView textView2, CheckBox checkBox, CircleImageView circleImageView) {
+        public ContactViewHolder(TextView textView1, TextView textView2, AppCompatCheckBox checkBox, CircleImageView circleImageView) {
             this.checkBox = checkBox;
             this.textView1 = textView1;
             this.textView2 = textView2;
             this.circleImageView = circleImageView;
         }
 
-        public CheckBox getCheckBox() {
+        public AppCompatCheckBox getCheckBox() {
             return checkBox;
         }
 
-        public void setCheckBox(CheckBox checkBox) {
+        public void setCheckBox(AppCompatCheckBox checkBox) {
             this.checkBox = checkBox;
         }
 
