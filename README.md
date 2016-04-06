@@ -39,9 +39,11 @@ Features:
  
  Typing indicator
  
- Message sent, delivery report
+ Message sent, Read Recipients and Delivery report
  
  Offline messaging
+ 
+ User block / unblock
  
  Multi Device sync
  
