@@ -832,6 +832,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return channel;
     }
 
+   public boolean isMsgForConversation(Message message){
+       return (message.getGroupId() != null && channel != null && message.getGroupId().equals(channel.getKey())) ||
+               (!TextUtils.isEmpty(message.getContactIds()) && contact != null && message.getContactIds().equals(contact.getContactIds()));
+   }
+
     protected void setChannel(Channel channel) {
         this.channel = channel;
     }

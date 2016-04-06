@@ -119,7 +119,7 @@ public class MobiComMessageService {
 
         //Check if we are........container is already opened...don't send broadcast
         if (!(currentId.equals(BroadcastService.currentUserId ))) {
-            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType()) && !message.isDeliveredAndRead()){
+            if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())  && !message.isReadStatus()){
                     if(message.getTo() != null && message.getGroupId() == null){
                         messageDatabaseService.updateContactUnreadCount(message.getTo());
                     }

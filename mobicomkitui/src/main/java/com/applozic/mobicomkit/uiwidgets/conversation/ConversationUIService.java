@@ -366,7 +366,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if ( conversationFragment.getChannel() != null && message.getGroupId() != null && message.getGroupId().equals(conversationFragment.getChannel().getKey()) || conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) ) {
+        if (conversationFragment.isMsgForConversation(message)) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
