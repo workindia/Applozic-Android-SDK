@@ -68,7 +68,7 @@ To integrate android chat library into your android app, signup at [Applozic](ht
 
 
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.29' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.30' `
 
 
 Add the following in gradle android target:      
@@ -473,6 +473,15 @@ For more details, visit: https://www.applozic.com/developers.html#android-sdk-ge
 
 ##Changelog
 
+
+**Version 3.30**
+
+ Contact search bug fix
+ 
+ Group name sync changes
+ 
+ Read Count bug fix 
+ 
 **Version 3.29**
 
 User Block
