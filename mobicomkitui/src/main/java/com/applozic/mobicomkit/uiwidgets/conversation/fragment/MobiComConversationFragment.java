@@ -1427,16 +1427,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
                 loadnewMessageOnResume(contact, channel);
             }
-            if(SyncCallService.blockedBy){
-                isTyping.setVisibility(View.GONE);
-                toolBarSubTitle.setVisibility(View.GONE);
-                SyncCallService.blockedBy = false;
-            }
 
-            if(SyncCallService.unBlockedBy){
-                updateLastSeenStatus();
-                SyncCallService.unBlockedBy = false;
-            }
             MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
         }
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

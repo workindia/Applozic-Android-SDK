@@ -280,7 +280,6 @@ public class MobiComPushReceiver {
                     if(BLOCKED_TO.equals(type)){
                         syncCallService.updateUserBlocked(userId,true);
                     }else {
-                        SyncCallService.blockedBy = true;
                         syncCallService.updateUserBlockedBy(userId, true);
                     }
                 }
@@ -303,7 +302,6 @@ public class MobiComPushReceiver {
                     if(UNBLOCKED_TO.equals(type)){
                         syncCallService.updateUserBlocked(userId,false);
                     }else {
-                        SyncCallService.unBlockedBy = true;
                         syncCallService.updateUserBlockedBy(userId,false);
                     }
                 }

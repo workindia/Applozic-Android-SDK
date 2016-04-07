@@ -307,7 +307,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     if(MobiComPushReceiver.BLOCKED_TO.equals(type)){
                                         syncCallService.updateUserBlocked(userId,true);
                                     }else {
-                                        SyncCallService.blockedBy = true;
                                         syncCallService.updateUserBlockedBy(userId, true);
                                     }
                                 }
@@ -322,7 +321,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     if(MobiComPushReceiver.UNBLOCKED_TO.equals(type)){
                                         syncCallService.updateUserBlocked(userId,false);
                                     }else {
-                                        SyncCallService.unBlockedBy = true;
                                         syncCallService.updateUserBlockedBy(userId,false);
                                     }
                                 }
