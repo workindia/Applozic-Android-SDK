@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight">
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Use standard android.R class icon id instead of app specific id. This is just useful for
          consistency. Use scaleType=centerCrop to give a nice full cropped image in the assigned
@@ -55,13 +56,14 @@
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <CheckBox
-        android:id="@+id/checkBox"
+    <android.support.v7.widget.AppCompatCheckBox
         android:layout_width="wrap_content"
+        android:id="@+id/checkbox"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/displayName"
         android:layout_alignRight="@+id/displayName"
         android:layout_centerVertical="true"
-        android:padding="10dp" />
+        android:padding="10dp"
+        app:buttonTint="#b2b2b2" />
 
 </RelativeLayout>

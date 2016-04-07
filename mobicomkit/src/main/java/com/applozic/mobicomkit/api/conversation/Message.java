@@ -565,8 +565,17 @@ public class Message extends JsonMarker {
         return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
     }
 
+    public boolean isReadStatus() {
+        return Status.READ.getValue()== getStatus();
+    }
+
+
     public boolean isContactMessage(){
         return ContentType.CONTACT_MSG.getValue().equals( getContentType());
+    }
+
+    public boolean isGroupMessage() {
+        return ( this.groupId != null );
     }
 
     public enum Source {

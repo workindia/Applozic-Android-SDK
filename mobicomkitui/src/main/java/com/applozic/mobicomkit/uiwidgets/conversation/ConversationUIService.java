@@ -366,7 +366,7 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        if (conversationFragment.getContact() != null && formattedContactNumber.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null && message.getGroupId() != null && message.getGroupId().equals(conversationFragment.getChannel().getKey())) {
+        if (conversationFragment.isMsgForConversation(message)) {
             conversationFragment.updateDeliveryStatus(message);
         }
     }
@@ -432,6 +432,9 @@ public class ConversationUIService {
     public void updateChannelSync() {
         if(BroadcastService.isChannelInfo()){
             ((ChannelInfoActivity)fragmentActivity).updateChannelList();
+        }
+        if(BroadcastService.isIndividual()){
+            getConversationFragment().updateChannelTitleAndSubTitle();
         }
     }
 

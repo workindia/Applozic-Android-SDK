@@ -193,7 +193,7 @@ public class MobiComPushReceiver {
             }
 
             if (!TextUtils.isEmpty(userDisconnected)) {
-                MqttMessageResponse userDisconnectedResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(userConnected, MqttMessageResponse.class);
+                MqttMessageResponse userDisconnectedResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(userDisconnected, MqttMessageResponse.class);
                 if (processPushNotificationId(userDisconnectedResponse.getId())) {
                     return;
                 }

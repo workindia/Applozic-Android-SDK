@@ -378,7 +378,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             // Instantiates a new AlphabetIndexer bound to the column used to sort contact names.
             // The cursor is left null, because it has not yet been retrieved.
-            mAlphabetIndexer = new AlphabetIndexer(null,5 , alphabet);
+            mAlphabetIndexer = new AlphabetIndexer(null,1 , alphabet);
 
             // Defines a span for highlighting the part of a display name that matches the search
             // string
