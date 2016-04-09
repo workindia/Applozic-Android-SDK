@@ -28,6 +28,7 @@
       <!--  <item>Forward</item> -->
         <item>Resend</item>
         <item>Delete</item>
+        <!--<item>Info</item>-->
     </string-array>
 
     <!--Multimedia options -->
