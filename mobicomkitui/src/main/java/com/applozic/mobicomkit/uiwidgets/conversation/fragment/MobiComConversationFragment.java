@@ -90,9 +90,11 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
+import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -605,6 +607,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             String[] menuItems = getResources().getStringArray(R.array.menu);
 
             for (int i = 0; i < menuItems.length; i++) {
+
+                if(!message.isGroupMessage() && menuItems[i].equals("info")){
+                    continue;
+                }
 
                 if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue()) &&
                         menuItems[i].equals("Copy")) {
@@ -1393,6 +1399,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 String messageKeyString = message.getKeyString();
                 new DeleteConversationAsyncTask(conversationService, message, contact).execute();
                 deleteMessageFromDeviceList(messageKeyString);
+                break;
+            case 3:
+                ConversationUIService conversationUIService  =  new ConversationUIService(getActivity());
+                String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
+                conversationUIService.startMessageInfoFragment(messageJson);
                 break;
         }
         return true;
