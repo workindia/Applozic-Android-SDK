@@ -1320,7 +1320,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             toolBarTitle.setText(title);
         }
 
-        updateLastSeenStatus();
     }
 
     public void loadConversation(Channel channel) {
@@ -1427,6 +1426,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
+            }
+
+            if(contact != null){
+                contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
+                if(contact.isBlocked() || contact.isBlockedBy()){
+                    isTyping.setVisibility(View.GONE);
+                    toolBarSubTitle.setVisibility(View.GONE);
+                }
+
+                if(!contact.isBlocked() && !contact.isBlockedBy()){
+                    updateLastSeenStatus();
+                }
             }
 
             if (SyncCallService.refreshView) {
@@ -1683,18 +1694,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
                         message.setRead(Boolean.TRUE);
                         new MessageDatabaseService(getActivity()).updateMessageReadFlag(message.getMessageId(), true);
-                        if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())
-                                && !Message.Status.DELIVERED_AND_READ.getValue().equals(message.getStatus())) {
-                            markConversationAsRead = true;
-                        }
                     } else {
                         break;
                     }
                 }
             }
-            if (markConversationAsRead) {
-                syncCallService.updateUnreadCount(contact, channel);
-            }
+            syncCallService.updateUnreadCount(contact, channel);
 
             if (conversationAdapter != null) {
                 conversationAdapter.notifyDataSetChanged();
