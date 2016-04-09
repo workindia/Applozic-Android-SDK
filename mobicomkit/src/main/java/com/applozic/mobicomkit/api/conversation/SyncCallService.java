@@ -20,7 +20,6 @@ public class SyncCallService {
     private static final String TAG = "SyncCall";
 
     public static boolean refreshView = false;
-
     private Context context;
     private static SyncCallService syncCallService;
     private MobiComMessageService mobiComMessageService;
