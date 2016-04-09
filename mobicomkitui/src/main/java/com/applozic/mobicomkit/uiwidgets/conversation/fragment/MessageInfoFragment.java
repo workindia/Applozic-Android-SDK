@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
@@ -72,7 +73,10 @@ public class MessageInfoFragment extends Fragment  {
         message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
 
         AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.applozic_message_info_attachmentview);
-        attachmentView.setVisibility(View.GONE);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.applozic_message_info_progress_bar);
+        attachmentView.setProressBar(progressBar);
+        attachmentView.setVisibility(message.hasAttachment() ? View.VISIBLE : View.GONE);
+
         TextView textView = (TextView) view.findViewById(R.id.applozic_message_info_message_text);
         readListView = (ListView)view.findViewById(R.id.applozic_message_info_read_list);
         deliveredListView =  (ListView)view.findViewById(R.id.applozic_message_info_delivered_list_view);
@@ -173,7 +177,9 @@ public class MessageInfoFragment extends Fragment  {
             }
 
             holder.displayName.setText(contact.getDisplayName());
-            long timeStamp = messageInfo.isRead() ? messageInfo.getReadAtTime() : messageInfo.getDeliveredAtTime();
+
+            long timeStamp = messageInfo.isRead() ? messageInfo.getReadAtTime() :
+                    ( messageInfo.getDeliveredAtTime()==null ? 0 : messageInfo.getDeliveredAtTime());
             if (timeStamp !=0 ) {
 
                 holder.lastSeenAtTextView.setVisibility(View.VISIBLE);

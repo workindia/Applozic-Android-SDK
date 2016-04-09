@@ -608,7 +608,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if(!message.isGroupMessage() && menuItems[i].equals("info")){
+                if(!message.isGroupMessage() && !message.isTypeOutbox() && menuItems[i].equals("info")){
                     continue;
                 }
 
