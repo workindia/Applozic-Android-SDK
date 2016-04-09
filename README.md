@@ -64,9 +64,9 @@ Features:
 
 To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=android&utm_medium=github) to get the application key.
 
+Documentation: [Applozic Developers](https://www.applozic.com/developers.html#android-sdk-getting-started)
+
 **Step 1: Add the following in your build.gradle dependency**:      
-
-
 
 `compile 'com.applozic.communication.uiwidget:mobicomkitui:3.30' `
 
