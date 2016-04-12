@@ -687,15 +687,15 @@ public class MessageDatabaseService {
 
     public int updateReadStatusForContact(String userId) {
         ContentValues values = new ContentValues();
-        values.put("unreadCount", 0);
-        int read = dbHelper.getWritableDatabase().update("contact", values, "userId = " + "'" + userId + "'" , null);
+        values.put(MobiComDatabaseHelper.UNREAD_COUNT, 0);
+        int read = dbHelper.getWritableDatabase().update("contact", values, "userId = '" + userId + "'", null);
         dbHelper.close();
         return read;
     }
 
     public int updateReadStatusForChannel(String channelKey) {
         ContentValues values = new ContentValues();
-        values.put("unreadCount", 0);
+        values.put(MobiComDatabaseHelper.UNREAD_COUNT, 0);
         int read = dbHelper.getWritableDatabase().update("channel", values, "channelKey = " + "'" + channelKey + "'", null);
         dbHelper.close();
         return read;

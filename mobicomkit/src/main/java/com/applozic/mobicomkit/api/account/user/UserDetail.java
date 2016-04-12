@@ -13,7 +13,7 @@ public class UserDetail extends JsonMarker {
     private boolean connected;
     private String displayName;
     private Long lastSeenAtTime;
-    private BigInteger unreadCount;
+    private Integer unreadCount;
 
 
     public String getUserId() {
@@ -40,11 +40,11 @@ public class UserDetail extends JsonMarker {
         this.lastSeenAtTime = lastSeenAtTime;
     }
 
-    public BigInteger getUnreadCount() {
+    public Integer getUnreadCount() {
         return unreadCount;
     }
 
-    public void setUnreadCount(BigInteger unreadCount) {
+    public void setUnreadCount(Integer unreadCount) {
         this.unreadCount = unreadCount;
     }
 

@@ -345,9 +345,6 @@ public class MobiComConversationService {
                 contact.setConnected(userDetail.isConnected());
                 contact.setFullName(userDetail.getDisplayName());
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
-                if (userDetail.getUnreadCount() != null) {
-                    contact.setUnreadCount(userDetail.getUnreadCount());
-                }
                 baseContactService.upsert(contact);
             }
         }
@@ -357,7 +354,7 @@ public class MobiComConversationService {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                BigInteger unreadCount = null;
+                Integer unreadCount = null;
                 if (contact != null) {
                     Contact newContact =  baseContactService.getContactById(contact.getContactIds());
                     unreadCount = newContact.getUnreadCount();
@@ -365,13 +362,11 @@ public class MobiComConversationService {
                 } else if (channel != null) {
                     Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(channel.getKey());
                     if (newChannel.getUnreadCount() != 0) {
-                        unreadCount = BigInteger.valueOf(newChannel.getUnreadCount());
-                    } else {
-                        unreadCount = null;
+                        unreadCount = newChannel.getUnreadCount();
                     }
                     messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
                 }
-                if (unreadCount != null) {
+                if (unreadCount != null && unreadCount != 0) {
                     messageClientService.updateReadStatus(contact, channel);
                 }
             }
