@@ -777,6 +777,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (contact.isBlocked() || contact.isBlockedBy()) {
             toolBarSubTitle.setVisibility(View.GONE);
+            isTyping.setVisibility(View.GONE);
             return;
         }
 
@@ -1433,9 +1434,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if(contact.isBlocked() || contact.isBlockedBy()){
                     isTyping.setVisibility(View.GONE);
                     toolBarSubTitle.setVisibility(View.GONE);
-                }
-
-                if(!contact.isBlocked() && !contact.isBlockedBy()){
+                }else{
                     updateLastSeenStatus();
                 }
             }
