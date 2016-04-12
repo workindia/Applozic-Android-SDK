@@ -361,9 +361,7 @@ public class MobiComConversationService {
                     messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
                 } else if (channel != null) {
                     Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(channel.getKey());
-                    if (newChannel.getUnreadCount() != 0) {
-                        unreadCount = newChannel.getUnreadCount();
-                    }
+                    unreadCount = newChannel.getUnreadCount();
                     messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
                 }
                 if (unreadCount != null && unreadCount != 0) {
