@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
@@ -35,6 +36,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MessageInfoFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
@@ -56,6 +58,8 @@ public class ConversationUIService {
 
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
+    public static final String MESSGAE_INFO_FRAGMENT = "messageInfoFagment";
+
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
@@ -512,6 +516,20 @@ public class ConversationUIService {
         getConversationFragment().sendMessage("", Message.ContentType.AUDIO_MSG.getValue());
 
     }
+
+
+    public void startMessageInfoFragment(String  messageJson){
+
+        MessageInfoFragment messageInfoFragment = (MessageInfoFragment) UIService.getFragmentByTag(fragmentActivity, MESSGAE_INFO_FRAGMENT);
+            if (messageInfoFragment == null) {
+                messageInfoFragment = new MessageInfoFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(MessageInfoFragment.MESSAGE_ARGUMENT_KEY,messageJson);
+                messageInfoFragment.setArguments(bundle);
+                ConversationActivity.addFragment(fragmentActivity, messageInfoFragment, MESSGAE_INFO_FRAGMENT);
+            }
+    }
+
 
     public void checkForStartNewConversation(Intent intent) {
         Contact contact = null;

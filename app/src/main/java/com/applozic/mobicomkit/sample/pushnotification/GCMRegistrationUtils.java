@@ -2,17 +2,20 @@ package com.applozic.mobicomkit.sample.pushnotification;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
 
@@ -21,12 +24,12 @@ public class GCMRegistrationUtils extends Handler {
     private static final String TAG = "GCMRegistrationUtils";
     private static final String GCM_SENDER_ID = "195932243324";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private final Activity mActivity;
+    private  Context context;
     private PushNotificationTask pushNotificationTask = null;
 
-    public GCMRegistrationUtils(Activity activity) {
+    public GCMRegistrationUtils(Context context) {
         super();
-        mActivity = activity;
+       this.context = context;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class GCMRegistrationUtils extends Handler {
                 }
             };
 
-            pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);
+            pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, context);
             pushNotificationTask.execute((Void) null);
 
         } else {
@@ -58,7 +61,7 @@ public class GCMRegistrationUtils extends Handler {
         // Check device for Play Services APK. If check succeeds, proceed with
         // GCM registration.
         if (checkPlayServices()) {
-            String regid = MobiComUserPreference.getInstance(mActivity).getDeviceRegistrationId();
+            String regid = MobiComUserPreference.getInstance(context).getDeviceRegistrationId();
             if (TextUtils.isEmpty(regid)) {
                 registerInBackground(this);
             }
@@ -72,21 +75,15 @@ public class GCMRegistrationUtils extends Handler {
      * Check the device to make sure it has the Google Play Services APK. If it doesn't, display a dialog that allows users
      * to download the APK from the Google Play Store or enable it in the device's system settings.
      */
-
     private boolean checkPlayServices() {
-        Dialog dialog = null;
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(mActivity);
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, mActivity,
-                        PLAY_SERVICES_RESOLUTION_REQUEST);
-                dialog.show();
-            } else {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                Toast.makeText(context,"Please download the Google play store apk",Toast.LENGTH_SHORT).show();
+            }else {
                 Log.e(TAG, "This device is not supported for Google Play Services");
-                mActivity.finish();
             }
-            if (dialog != null)
-                dialog.dismiss();
             return false;
         }
         return true;
@@ -106,12 +103,13 @@ public class GCMRegistrationUtils extends Handler {
             public void run() {
                 Log.i(TAG, "Registering In Background Thread");
                 try {
-                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(mActivity);
-                    String regid = gcm.register(GCM_SENDER_ID);
+                    InstanceID instanceID = InstanceID.getInstance(context);
+                    String token = instanceID.getToken(GCM_SENDER_ID,
+                            GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
 
                     Message msg = new Message();
                     msg.what = 1; // success
-                    msg.obj = regid;
+                    msg.obj = token;
                     handler.sendMessage(msg);
                 } catch (IOException ex) {
                     // Retry three times....

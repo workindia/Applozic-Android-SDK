@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -30,7 +30,7 @@ import java.io.File;
 /**
  * Created by devashish on 22/9/14.
  */
-public class FullScreenImageActivity extends ActionBarActivity {
+public class FullScreenImageActivity extends AppCompatActivity {
 
     private Message message;
 

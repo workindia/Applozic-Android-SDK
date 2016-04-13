@@ -31,7 +31,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
-    public static final Short MOBICOMKIT_VERSION_CODE = 105;
+    public static final Short MOBICOMKIT_VERSION_CODE = 106;
 
 
     private HttpRequestUtils httpRequestUtils;

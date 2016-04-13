@@ -51,7 +51,7 @@ public class Contact implements Serializable {
     private boolean connected;
     private Long lastSeenAtTime;
     private boolean checked = false;
-    private BigInteger unreadCount;
+    private Integer unreadCount;
     private boolean blocked;
     private boolean blockedBy;
 
@@ -260,11 +260,11 @@ public class Contact implements Serializable {
         checked = !checked;
     }
 
-    public BigInteger getUnreadCount() {
+    public Integer getUnreadCount() {
         return unreadCount;
     }
 
-    public void setUnreadCount(BigInteger unreadCount) {
+    public void setUnreadCount(Integer unreadCount) {
         this.unreadCount = unreadCount;
     }
 

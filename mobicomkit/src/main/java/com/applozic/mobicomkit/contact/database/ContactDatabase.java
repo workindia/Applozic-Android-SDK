@@ -63,10 +63,7 @@ public class ContactDatabase {
         contact.setConnected(connected != 0 && connected.intValue() == 1);
         contact.setLastSeenAt(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_SEEN_AT_TIME)));
         contact.processContactNumbers(context);
-        int count =  cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
-        if(count != 0){
-            contact.setUnreadCount(BigInteger.valueOf(count));
-        }
+        contact.setUnreadCount(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT)));
         Boolean userBlocked = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED)) == 1);
         contact.setBlocked(userBlocked);
         Boolean userBlockedBy = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED_BY)) == 1);
@@ -216,8 +213,8 @@ public class ContactDatabase {
         if (contact.getLastSeenAt() != 0) {
             contentValues.put(MobiComDatabaseHelper.LAST_SEEN_AT_TIME, contact.getLastSeenAt());
         }
-        if (contact.getUnreadCount() != null && !contact.getUnreadCount().toString().equals("0")) {
-            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, String.valueOf(contact.getUnreadCount()));
+        if (contact.getUnreadCount() != null) {
+            contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, contact.getUnreadCount());
         }
 
         if(contact.isBlocked()){

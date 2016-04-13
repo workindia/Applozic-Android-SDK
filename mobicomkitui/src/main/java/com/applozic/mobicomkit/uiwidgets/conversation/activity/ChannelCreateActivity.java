@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -22,7 +22,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 
-public class ChannelCreateActivity extends ActionBarActivity {
+public class ChannelCreateActivity extends AppCompatActivity {
 
     private EditText channelName;
     private CircleImageView circleImageView;
