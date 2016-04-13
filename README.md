@@ -68,7 +68,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/developers.html#an
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.30' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.31' `
 
 
 Add the following in gradle android target:      
@@ -395,7 +395,7 @@ pushNotificationTask.execute((Void) null);
 
 
 **Step 5: Handling push notification**:
-Add the following in your GcmBroadcastReceiver's onReceive method.     
+Add the following in your GcmListenerService onMessageReceived method.     
 
 
 
@@ -403,11 +403,10 @@ Add the following in your GcmBroadcastReceiver's onReceive method.
 
        
 ```
-if(MobiComPushReceiver.isMobiComPushNotification(intent))       
-{            
-MobiComPushReceiver.processMessageAsync(context, intent);               
-return;          
-}                     
+if(MobiComPushReceiver.isMobiComPushNotification(data)) {            
+        MobiComPushReceiver.processMessageAsync(this, data);               
+        return;          
+}                                          
 ```
 
 
@@ -473,6 +472,9 @@ For more details, visit: https://www.applozic.com/developers.html#android-sdk-ge
 
 ##Changelog
 
+**Version 3.31**
+
+Bug fixes and improvements
 
 **Version 3.30**
 
