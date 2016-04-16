@@ -345,6 +345,7 @@ public class MobiComConversationService {
                 contact.setConnected(userDetail.isConnected());
                 contact.setFullName(userDetail.getDisplayName());
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                contact.setUnreadCount(userDetail.getUnreadCount());
                 baseContactService.upsert(contact);
             }
         }

@@ -112,7 +112,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
         }
 
-        mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight()) {
+        mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight( )) {
             @Override
             protected Bitmap processBitmap(Object data) {
                 return contactService.downloadContactImage(getActivity(), (Contact) data);
@@ -122,6 +122,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         mImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         // Add a cache to the image loader
         mImageLoader.addImageCache(getActivity().getSupportFragmentManager(), 0.1f);
+        mImageLoader.setImageFadeIn(false);
+
     }
 
     @Override

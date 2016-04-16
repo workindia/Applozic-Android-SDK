@@ -232,6 +232,7 @@ public class MobiComMessageService {
                     Contact contact = new Contact();
                     contact.setUserId(keyValue.getKey());
                     contact.setFullName(keyValue.getValue());
+                    contact.setUnreadCount(0);
                     baseContactService.upsert(contact);
                 }
 
