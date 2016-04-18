@@ -566,7 +566,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }*/
             }
             //Handling contact share
-            if (message.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+            if (message.isContactMessage()) {
                 attachedFile.setVisibility(View.GONE);
                 mainAttachmentLayout.setVisibility(View.GONE);
                 setupContactShareView(message, mainContactShareLayout);

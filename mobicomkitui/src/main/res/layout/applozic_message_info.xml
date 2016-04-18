@@ -12,12 +12,42 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!--FrameLayout for message text -->
         <RelativeLayout
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_marginLeft="70dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/applozic_sent_message"
+            android:clickable="false">
+
+        <!--FrameLayout for message text -->
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="end"
+            android:background="@drawable/applozic_sent_message"
+            layout="@layout/mobicom_contact_share_layout" />
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/applozic_sent_message"
+            layout="@layout/mobicom_chat_location_view" />
+        </RelativeLayout>
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:id="@+id/applozic_message_info_default_layout"
             android:layout_marginLeft="70dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
@@ -31,7 +61,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:src="@drawable/applozic_ic_action_camera"
-                android:visibility="gone" />
+                android:visibility="visible" />
 
             <ProgressBar
                 android:id="@+id/applozic_message_info_progress_bar"
@@ -39,18 +69,50 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:visibility="gone" />
-
+            <ImageView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/applozic_message_info_attachment_icon"
+                android:visibility="visible"
+                android:src="@drawable/applozic_ic_action_attachment"
+                />
             <TextView
-                android:id="@+id/applozic_message_info_message_text"
+                android:id="@+id/applozic_message_info_attachment_filename"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/applozic_message_info_attachmentview"
+                android:layout_toRightOf="@+id/applozic_message_info_attachment_icon"
                 android:layout_gravity="bottom"
                 android:padding="10dp"
                 android:text="Message Text"
                 android:textColor="@color/applozic_send_message_layout_background_color"
                 android:textSize="18sp" />
+            <TextView
+                android:id="@+id/messageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:padding="10dp"
+                android:layout_below="@+id/applozic_message_info_attachmentview"
+                android:text="Message Text"
+                android:textColor="@color/applozic_send_message_layout_background_color"
+                android:textSize="18sp" />
         </RelativeLayout>
+
+        <TextView
+                android:id="@+id/applozic_message_info_message_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:padding="10dp"
+                android:layout_marginLeft="70dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/applozic_sent_message"
+                android:text="Message Text"
+                android:textColor="@color/applozic_send_message_layout_background_color"
+                android:textSize="18sp" />
 
         <!-- List View for read -->
         <RelativeLayout

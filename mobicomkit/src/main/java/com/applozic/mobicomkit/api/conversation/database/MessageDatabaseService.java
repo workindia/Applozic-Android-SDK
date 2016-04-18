@@ -100,7 +100,7 @@ public class MessageDatabaseService {
             message.setGroupId(channelKey);
         }
 
-        if (cursor.getString(cursor.getColumnIndex("metaFileKeyString")) == null) {
+        if (cursor.getString(cursor.getColumnIndex("blobKeyString"))==null) {
             //file is not present...  Don't set anything ...
         } else {
             FileMeta fileMeta = new FileMeta();

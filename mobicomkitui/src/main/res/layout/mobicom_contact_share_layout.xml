@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Adarsh Kumar"
+            android:text=""
             android:id="@+id/contact_share_tv_name"
             android:layout_weight="2.16"
             android:layout_alignParentLeft="true"
@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="9742689004"
+        android:text=""
         android:id="@+id/contact_share_tv_no"
         android:layout_below="@+id/contact_share_tv_name"
         android:layout_marginTop="20dp" />
