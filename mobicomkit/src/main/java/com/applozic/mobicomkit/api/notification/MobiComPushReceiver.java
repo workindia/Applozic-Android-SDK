@@ -124,8 +124,8 @@ public class MobiComPushReceiver {
             //  String multipleMessageDelete = bundle.getString(notificationKeyList.get(5));
             // String mtexterUser = bundle.getString(notificationKeyList.get(7));
             String payloadForDelivered = bundle.getString(notificationKeyList.get(3));
-            String userConnected = bundle.getString(notificationKeyList.get(11));
-            String userDisconnected = bundle.getString(notificationKeyList.get(12));
+            String userConnected = bundle.getString(notificationKeyList.get(10));
+            String userDisconnected = bundle.getString(notificationKeyList.get(11));
             processMessage(context, bundle, message, deleteConversationForContact, deleteMessage, payloadForDelivered, userConnected, userDisconnected);
         }
     }
