@@ -53,6 +53,10 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setApplicationId(getApplicationKey(context));
         user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
+        if(getAppModuleName(context)!=null){
+            user.setAppModuleName(getAppModuleName(context));
+        }
+
         Log.i(TAG, "Net status" + Utils.isInternetAvailable(context));
 
         if (!Utils.isInternetAvailable(context)) {
