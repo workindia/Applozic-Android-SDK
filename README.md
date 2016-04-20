@@ -68,7 +68,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/developers.html#an
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.31' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.33' `
 
 
 Add the following in gradle android target:      
@@ -471,6 +471,7 @@ By default, the display name feature is enabled.
 For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
 
 ##Changelog
+
 
 **Version 3.31**
 
