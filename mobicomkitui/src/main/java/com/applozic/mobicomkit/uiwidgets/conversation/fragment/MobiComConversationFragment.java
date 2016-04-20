@@ -1477,12 +1477,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void updateChannelTitleAndSubTitle(){
+        if(channel != null){
             Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
             if (newChannel != null && !channel.getName().equals(newChannel.getName())) {
                 title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
                 toolBarTitle.setText(title);
             }
             updateChannelSubTitle();
+        }
     }
 
     public void selfDestructMessage(Message message) {
