@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
@@ -49,6 +50,7 @@ public class MobiComMessageService {
     protected MessageClientService messageClientService;
     protected Class messageIntentServiceClass;
     protected BaseContactService baseContactService;
+    protected UserService userService;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
         this.context = context;
@@ -58,6 +60,7 @@ public class MobiComMessageService {
         this.messageIntentServiceClass = messageIntentServiceClass;
         //Todo: this can be changed to DeviceContactService for device contacts usage.
         this.baseContactService = new AppContactService(context);
+        this.userService = UserService.getInstance(context);
     }
 
     public Message processMessage(final Message messageToProcess, String tofield) {
@@ -143,7 +146,7 @@ public class MobiComMessageService {
 
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
             Log.i(TAG, "Got sync response " + syncMessageFeed.getMessages().size() + " messages.");
-            processContactFromMessages(syncMessageFeed.getMessages());
+            processUserDetailFromMessages(syncMessageFeed.getMessages());
         }
         // if regIdInvalid in syncrequest, tht means device reg with c2dm is no
         // more valid, do it again and make the sync request again
@@ -232,6 +235,7 @@ public class MobiComMessageService {
                     Contact contact = new Contact();
                     contact.setUserId(keyValue.getKey());
                     contact.setFullName(keyValue.getValue());
+                    contact.setUnreadCount(0);
                     baseContactService.upsert(contact);
                 }
 
@@ -242,6 +246,27 @@ public class MobiComMessageService {
             }
         } catch (Exception ex) {
 
+        }
+    }
+
+    public void processUserDetailFromMessages(List<Message> messages) {
+        try {
+            if(!ApplozicClient.getInstance(context).isHandleDisplayName()){
+                return;
+            }
+            Set<String> userIds = new HashSet<String>();
+            for (Message msg : messages) {
+                if (!baseContactService.isContactPresent(msg.getContactIds())) {
+                    userIds.add(msg.getContactIds());
+                }
+            }
+
+            if (userIds.isEmpty()) {
+                return;
+            }
+            userService.processUserDetails(userIds);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

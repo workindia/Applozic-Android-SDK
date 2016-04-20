@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.feed;
 
 import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 
@@ -18,6 +19,7 @@ public class ChannelFeed extends JsonMarker {
     private int userCount;
     private short type;
     private Set<String> membersName;
+    private Set<UserDetail> users;
     private Conversation conversationPxy;
 
 
@@ -95,6 +97,13 @@ public class ChannelFeed extends JsonMarker {
         this.conversationPxy = conversationPxy;
     }
 
+    public Set<UserDetail> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<UserDetail> users) {
+        this.users = users;
+    }
 
     @Override
     public String toString() {
@@ -106,6 +115,7 @@ public class ChannelFeed extends JsonMarker {
                 ", userCount=" + userCount +
                 ", type=" + type +
                 ", membersName=" + membersName +
+                ", users=" + users +
                 ", conversationPxy=" + conversationPxy +
                 '}';
     }

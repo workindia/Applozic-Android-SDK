@@ -46,6 +46,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String BLOCK_USER_URL = "/rest/ws/user/block";
     public static final String BLOCK_USER_SYNC_URL = "/rest/ws/user/blocked/sync";
     public static final String UNBLOCK_USER_SYNC_URL = "/rest/ws/user/unblock";
+    public static final String USER_DETAILS_URL = "/rest/ws/user/detail?";
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -100,6 +101,9 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getUnBlockUserSyncUrl() {
         return getBaseUrl() + UNBLOCK_USER_SYNC_URL;
+    }
+    public String getUserDetailsListUrl() {
+        return getBaseUrl() + USER_DETAILS_URL;
     }
 
     public void logout() {
@@ -288,6 +292,28 @@ public class UserClientService extends MobiComKitClientService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public String getUserDetails(Set<String> userIds) {
+        try {
+            if (userIds != null && userIds.size() > 0) {
+                String response = "";
+                String userIdParam = "";
+                for (String userId : userIds) {
+                    userIdParam += "&userIds" + "=" + URLEncoder.encode(userId, "UTF-8");
+                }
+                response = httpRequestUtils.getResponse(getCredentials(), getUserDetailsListUrl() + userIdParam, "application/json", "application/json");
+                Log.i(TAG, "User details response is :" + response);
+                if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+                    return null;
+                }
+                return response;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

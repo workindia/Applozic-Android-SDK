@@ -105,6 +105,7 @@ public class ContactSelectionActivity extends AppCompatActivity {
         };
         mImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         mImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
+        mImageLoader.setImageFadeIn(false);
 
         contactService = new AppContactService(this);
         contactList = contactService.getAllContactListExcludingLoggedInUser();

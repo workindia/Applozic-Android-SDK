@@ -13,6 +13,7 @@ public class UserDetail extends JsonMarker {
     private boolean connected;
     private String displayName;
     private Long lastSeenAtTime;
+    private String imageLink;
     private Integer unreadCount;
 
 
@@ -56,13 +57,22 @@ public class UserDetail extends JsonMarker {
         this.displayName = displayName;
     }
 
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
     @Override
     public String toString() {
         return "UserDetail{" +
                 "userId='" + userId + '\'' +
                 ", connected=" + connected +
-                ", displayName=" + displayName +
+                ", displayName='" + displayName + '\'' +
                 ", lastSeenAtTime=" + lastSeenAtTime +
+                ", imageLink='" + imageLink + '\'' +
                 ", unreadCount=" + unreadCount +
                 '}';
     }

@@ -49,6 +49,7 @@ public class MobiComUserPreference {
     private static String image_compression_enabled = "image_compression_enabled";
     private static  String userBlockSyncTime = "user_block_Sync_Time";
     private static String max_compressed_image_size = "max_compressed_image_size";
+    private static String image_link = "image_link";
 
 
     public SharedPreferences sharedPreferences;
@@ -364,6 +365,14 @@ public class MobiComUserPreference {
 
     public void setUserBlockSyncTime(String lastUserBlockSyncTime) {
         sharedPreferences.edit().putString(userBlockSyncTime, lastUserBlockSyncTime).commit();
+    }
+
+    public String getImageLink() {
+        return sharedPreferences.getString(image_link, null);
+    }
+
+    public void setImageLink(String imageUrl) {
+        sharedPreferences.edit().putString(image_link, imageUrl).apply();
     }
 
     @Override

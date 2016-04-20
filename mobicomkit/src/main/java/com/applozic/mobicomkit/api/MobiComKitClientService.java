@@ -24,7 +24,11 @@ public class MobiComKitClientService {
     public static final String BASE_URL_METADATA = "com.applozic.server.url";
     public static final String MQTT_BASE_URL_METADATA = "com.applozic.mqtt.server.url";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
+    public static String APP_MOUDLE_NAME_KEY_HEADER = "App-Module-Name";
+
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
+    public static String APP_MODULE_NAME_META_DATA_KEY= "com.applozic.module.key";
+
     public static final String FILE_URL = "/rest/ws/aws/file/";
     protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
@@ -86,6 +90,11 @@ public class MobiComKitClientService {
             String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
             httpConn.setRequestProperty("Authorization", basicAuth);
             httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));
+
+            if( getAppModuleName(context)!=null ){
+                httpConn.setRequestProperty(APP_MOUDLE_NAME_KEY_HEADER, getApplicationKey(context));
+            }
+
             httpConn.setRequestProperty(HttpRequestUtils.USERID_HEADER, HttpRequestUtils.USERID_HEADER_VALUE);
             httpConn.connect();
             //Shifting this Code to individual class..this is needed so that caller can decide ..what should be done with the error
@@ -106,6 +115,13 @@ public class MobiComKitClientService {
         return Utils.getMetaDataValue(context, APPLICATION_KEY_HEADER_VALUE_METADATA);
 
     }
+
+    public static String getAppModuleName(Context context) {
+
+        return Utils.getMetaDataValue(context, APP_MODULE_NAME_META_DATA_KEY);
+
+    }
+
 
     public String getFileUrl() {
         return FILE_BASE_URL + FILE_URL;

@@ -574,6 +574,10 @@ public class Message extends JsonMarker {
         return ContentType.CONTACT_MSG.getValue().equals( getContentType());
     }
 
+    public boolean isLocationMessage(){
+        return ContentType.LOCATION.getValue().equals( getContentType());
+
+    }
     public boolean isGroupMessage() {
         return ( this.groupId != null );
     }

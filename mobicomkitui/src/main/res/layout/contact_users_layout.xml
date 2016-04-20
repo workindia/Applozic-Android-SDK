@@ -25,6 +25,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="5dp"
         android:layout_gravity="center"
+        android:visibility="visible"
         android:layout_toRightOf="@id/alphabeticImage"
         android:src="@drawable/applozic_ic_contact_picture_180_holo_light" />
 

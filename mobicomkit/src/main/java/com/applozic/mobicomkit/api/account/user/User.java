@@ -20,8 +20,11 @@ public class User extends JsonMarker {
     private Short appVersionCode;
     private String roleName = "USER";
     private Short deviceType;
+    private String imageLink;
     private Short authenticationTypeId = AuthenticationType.CLIENT.getValue();
     private String displayName;
+
+    private String appModuleName;
 
     public String getUserId() {
         return userId;
@@ -141,6 +144,22 @@ public class User extends JsonMarker {
 
     public void setAuthenticationTypeId(Short authenticationTypeId) {
         this.authenticationTypeId = authenticationTypeId;
+    }
+
+    public String getAppModuleName() {
+        return appModuleName;
+    }
+
+    public void setAppModuleName(String appModuleName) {
+        this.appModuleName = appModuleName;
+    }
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
     }
 
     public enum AuthenticationType {

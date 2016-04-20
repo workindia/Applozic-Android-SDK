@@ -138,7 +138,7 @@ public class MobiComConversationService {
             if (jsonObject.has("groupFeeds")) {
                 channelFeedResponse = parser.parse(data).getAsJsonObject().get("groupFeeds").toString();
                 ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
-                ChannelService.getInstance(context).processChannelFeedList(channelFeeds);
+                ChannelService.getInstance(context).processChannelFeedList(channelFeeds,false);
             }
 
             Message[] messages = gson.fromJson(element, Message[].class);
@@ -220,6 +220,9 @@ public class MobiComConversationService {
             contact.setLastSeenAt(userDetail.getLastSeenAtTime());
             if(userDetail.getUnreadCount() != null){
                 contact.setUnreadCount(userDetail.getUnreadCount());
+            }
+            if(!TextUtils.isEmpty(userDetail.getImageLink())){
+                contact.setImageURL(userDetail.getImageLink());
             }
             if (newContact != null) {
                 if (newContact.isConnected() != contact.isConnected()) {
@@ -345,6 +348,8 @@ public class MobiComConversationService {
                 contact.setConnected(userDetail.isConnected());
                 contact.setFullName(userDetail.getDisplayName());
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                contact.setUnreadCount(userDetail.getUnreadCount());
+                contact.setImageURL(userDetail.getImageLink());
                 baseContactService.upsert(contact);
             }
         }
