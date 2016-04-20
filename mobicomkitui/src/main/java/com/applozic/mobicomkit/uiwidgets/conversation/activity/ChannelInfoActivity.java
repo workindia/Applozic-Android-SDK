@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -36,7 +37,6 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.channel.service.ChannelClientService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -143,10 +143,27 @@ public class ChannelInfoActivity extends AppCompatActivity {
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         contactImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
+        contactImageLoader.setImageFadeIn(false);
         channelUserMapperList = ChannelService.getInstance(this).getListOfUsersFromChannelUserMapper(channel.getKey());
 
         contactsAdapter = new ContactsAdapter(this);
         mainListView.setAdapter(contactsAdapter);
+
+        mainListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                // Pause image loader to ensure smoother scrolling when flinging
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                    contactImageLoader.setPauseWork(true);
+                } else {
+                    contactImageLoader.setPauseWork(false);
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+            }
+        });
         exitChannelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -173,6 +190,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
         BroadcastService.currentInfoId = null;
+        contactImageLoader.setPauseWork(false);
 
     }
 
@@ -358,7 +376,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (contact.getLastSeenAt() != 0) {
                 if(!MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())){
                     holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
-                    holder.lastSeenAtTextView.setText(getString(R.string.last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt())));
+                    holder.lastSeenAtTextView.setText(getString(R.string.subtitle_last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt())));
                 }else {
                     holder.lastSeenAtTextView.setVisibility(View.GONE);
                     holder.lastSeenAtTextView.setText("");
@@ -380,12 +398,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 GradientDrawable bgShape = (GradientDrawable) holder.alphabeticImage.getBackground();
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
-
-            if (contact.isDrawableResources()) {
-                int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
-                holder.circleImageView.setImageResource(drawableResourceId);
-            } else {
-                contactImageLoader.loadImage(contact, holder.circleImageView, holder.alphabeticImage);
+            if(contact != null){
+                if (contact.isDrawableResources()) {
+                    int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
+                    holder.circleImageView.setImageResource(drawableResourceId);
+                    holder.alphabeticImage.setVisibility(View.GONE);
+                } else {
+                    contactImageLoader.loadImage(contact, holder.circleImageView, holder.alphabeticImage);
+                }
             }
 
             return convertView;

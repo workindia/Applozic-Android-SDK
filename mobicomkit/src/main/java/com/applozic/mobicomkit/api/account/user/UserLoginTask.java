@@ -29,6 +29,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private final String mPassword;
     private final String mPhoneNumber;
     private final String mDisplayName;
+    private  String mImageLink;
     private final Context context;
     private Exception mException;
     private RegistrationResponse registrationResponse;
@@ -40,6 +41,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         mPassword = user.getPassword();
         mPhoneNumber = user.getContactNumber();
         mDisplayName = user.getDisplayName();
+        mImageLink = user.getImageLink();
         this.taskListener = listener;
         this.context = context;
     }
@@ -48,7 +50,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... params) {
         try {
             new UserClientService(context).logout();
-            registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName, "");
+            registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName,mImageLink, "");
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;

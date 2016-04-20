@@ -180,4 +180,9 @@ public class AppContactService implements BaseContactService {
         }
     }
 
+    @Override
+    public boolean isContactPresent(String userId) {
+        return contactDatabase.isContactPresent(userId);
+    }
+
 }

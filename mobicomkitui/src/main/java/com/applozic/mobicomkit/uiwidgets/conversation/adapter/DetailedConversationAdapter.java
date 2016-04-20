@@ -638,10 +638,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if (contact != null) {
                 contactNumber = contact.getContactNumber().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
-            } else if (channel != null && !TextUtils.isEmpty(contactDisplayName.getDisplayName())) {
-                alphabeticTextView.setVisibility(View.VISIBLE);
-                contactImage.setVisibility(View.GONE);
+            } else if (channel != null && contactDisplayName != null) {
                 firstLetter = contactDisplayName.getDisplayName().toUpperCase().charAt(0);
+                contactNumber = contactDisplayName.getContactNumber().toUpperCase();
             }
 
             if (firstLetter != '+') {
@@ -664,6 +663,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             alphabeticTextView.setVisibility(View.GONE);
         } else if (contact != null && contactImage != null) {
             contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
+        }
+
+        if (contactDisplayName != null && contactDisplayName.isDrawableResources() && contactImage != null) {
+            int drawableResourceId = context.getResources().getIdentifier(contactDisplayName.getrDrawableName(), "drawable", context.getPackageName());
+            contactImage.setImageResource(drawableResourceId);
+            contactImage.setVisibility(View.VISIBLE);
+            alphabeticTextView.setVisibility(View.GONE);
+        } else if (contactDisplayName != null && contactImage != null) {
+            contactImageLoader.loadImage(contactDisplayName, contactImage, alphabeticTextView);
         }
 
     }
