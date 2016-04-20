@@ -398,11 +398,12 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 GradientDrawable bgShape = (GradientDrawable) holder.alphabeticImage.getBackground();
                 bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
+            holder.alphabeticImage.setVisibility(View.GONE);
+            holder.circleImageView.setVisibility(View.VISIBLE);
             if(contact != null){
                 if (contact.isDrawableResources()) {
                     int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
                     holder.circleImageView.setImageResource(drawableResourceId);
-                    holder.alphabeticImage.setVisibility(View.GONE);
                 } else {
                     contactImageLoader.loadImage(contact, holder.circleImageView, holder.alphabeticImage);
                 }
