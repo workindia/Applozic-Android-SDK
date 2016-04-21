@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -540,9 +541,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
 
                 if (messageTextLayout != null) {
+                    int resId = message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor();
                     GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
-                    bgShape.setColor(context.getResources().getColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor()));
+                    bgShape.setColor(ContextCompat.getColor(context, resId));
+                    bgShape.setStroke(3,ContextCompat.getColor(context, resId));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
@@ -592,6 +595,20 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             shareContactName.setText(data.getName());
+
+            if(message.isTypeOutbox()){
+                int resId = ApplozicSetting.getInstance(context).getSentContactMessageTextColor();
+                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
+            }else {
+                int resId = ApplozicSetting.getInstance(context).getReceivedContactMessageTextColor();
+                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
+            }
 
             if (data.getProfilePic() != null) {
                 shareContactImage.setImageBitmap(data.getProfilePic());
