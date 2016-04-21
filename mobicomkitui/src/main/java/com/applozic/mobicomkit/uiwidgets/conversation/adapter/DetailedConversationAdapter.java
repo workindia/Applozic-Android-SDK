@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -540,9 +541,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
 
                 if (messageTextLayout != null) {
+                    int resId = message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor();
                     GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
-                    bgShape.setColor(context.getResources().getColor(message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor()));
+                    bgShape.setColor(ContextCompat.getColor(context, resId));
+                    bgShape.setStroke(3,ContextCompat.getColor(context, resId));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));

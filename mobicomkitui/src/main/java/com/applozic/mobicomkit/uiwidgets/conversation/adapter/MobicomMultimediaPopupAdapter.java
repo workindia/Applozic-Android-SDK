@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 /**
@@ -45,6 +46,7 @@ public class MobicomMultimediaPopupAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.mobicom_individual_multimedia_option_item, null);
 
         TextView icon = (TextView) convertView.findViewById(R.id.mobicom_multimedia_icon);
+        icon.setTextColor(ApplozicSetting.getInstance(context).getAttachmentIconsBackgroundColor());
         Typeface iconTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf");
         icon.setTypeface(iconTypeface);
         TextView text = (TextView) convertView.findViewById(R.id.mobicom_multimedia_text);

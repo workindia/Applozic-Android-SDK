@@ -29,7 +29,7 @@ public class ApplozicSetting {
     private static final String LOCATION_SHARE_VIA_MAP = "LOCATION_SHARE_VIA_MAP";
     private static final String MAX_ATTACHMENT_SIZE_ALLOWED= "MAX_ATTACHMENT_SIZE_ALLOWED";
     private static final String INVITE_FRIENDS_IN_PEOPLE_ACTIVITY = "INVITE_FRIENDS_IN_PEOPLE_ACTIVITY";
-
+    private static final String ATTACHMENT_ICONS_BACKGROUND_COLOR = "ATTACHMENT_ICONS_BACKGROUND_COLOR";
 
     public static ApplozicSetting applozicSetting;
 
@@ -71,6 +71,15 @@ public class ApplozicSetting {
 
     public int getReceivedMessageBackgroundColor() {
         return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, R.color.white);
+    }
+
+    public ApplozicSetting setAttachmentIconsBackgroundColor(int color) {
+        sharedPreferences.edit().putInt(ATTACHMENT_ICONS_BACKGROUND_COLOR, color).commit();
+        return this;
+    }
+
+    public int getAttachmentIconsBackgroundColor() {
+        return sharedPreferences.getInt(ATTACHMENT_ICONS_BACKGROUND_COLOR,R.color.applozic_theme_color_primary);
     }
 
     public ApplozicSetting showOnlineStatusInMasterList() {
