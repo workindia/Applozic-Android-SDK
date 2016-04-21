@@ -1,5 +1,5 @@
 # Applozic-Android-SDK
-Applozic-Android-SDK
+Android Chat SDK
 
 
 ### Overview         
