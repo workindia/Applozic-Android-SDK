@@ -30,6 +30,8 @@ public class ApplozicSetting {
     private static final String MAX_ATTACHMENT_SIZE_ALLOWED= "MAX_ATTACHMENT_SIZE_ALLOWED";
     private static final String INVITE_FRIENDS_IN_PEOPLE_ACTIVITY = "INVITE_FRIENDS_IN_PEOPLE_ACTIVITY";
     private static final String ATTACHMENT_ICONS_BACKGROUND_COLOR = "ATTACHMENT_ICONS_BACKGROUND_COLOR";
+    private static final String SENT_CONTACT_MESSAGE_TEXT_COLOR = "SENT_CONTACT_MESSAGE_TEXT_COLOR";
+    private static final String RECEIVED_CONTACT_MESSAGE_TEXT_COLOR = "RECEIVED_CONTACT_MESSAGE_TEXT_COLOR";
 
     public static ApplozicSetting applozicSetting;
 
@@ -80,6 +82,24 @@ public class ApplozicSetting {
 
     public int getAttachmentIconsBackgroundColor() {
         return sharedPreferences.getInt(ATTACHMENT_ICONS_BACKGROUND_COLOR,R.color.applozic_theme_color_primary);
+    }
+
+    public ApplozicSetting setSentContactMessageTextColor(int color) {
+        sharedPreferences.edit().putInt(SENT_CONTACT_MESSAGE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getSentContactMessageTextColor() {
+        return sharedPreferences.getInt(SENT_CONTACT_MESSAGE_TEXT_COLOR,R.color.white);
+    }
+
+    public ApplozicSetting setReceivedContactMessageTextColor(int color) {
+        sharedPreferences.edit().putInt(RECEIVED_CONTACT_MESSAGE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getReceivedContactMessageTextColor() {
+        return sharedPreferences.getInt(RECEIVED_CONTACT_MESSAGE_TEXT_COLOR,R.color.black);
     }
 
     public ApplozicSetting showOnlineStatusInMasterList() {

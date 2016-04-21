@@ -596,6 +596,20 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             shareContactName.setText(data.getName());
 
+            if(message.isTypeOutbox()){
+                int resId = ApplozicSetting.getInstance(context).getSentContactMessageTextColor();
+                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
+            }else {
+                int resId = ApplozicSetting.getInstance(context).getReceivedContactMessageTextColor();
+                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
+            }
+
             if (data.getProfilePic() != null) {
                 shareContactImage.setImageBitmap(data.getProfilePic());
             }

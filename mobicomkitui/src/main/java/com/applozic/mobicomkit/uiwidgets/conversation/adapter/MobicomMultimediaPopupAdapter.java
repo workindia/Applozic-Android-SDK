@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +45,11 @@ public class MobicomMultimediaPopupAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         convertView = inflater.inflate(R.layout.mobicom_individual_multimedia_option_item, null);
-
         TextView icon = (TextView) convertView.findViewById(R.id.mobicom_multimedia_icon);
-        icon.setTextColor(ApplozicSetting.getInstance(context).getAttachmentIconsBackgroundColor());
         Typeface iconTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf");
         icon.setTypeface(iconTypeface);
         TextView text = (TextView) convertView.findViewById(R.id.mobicom_multimedia_text);
-
+        icon.setTextColor(ContextCompat.getColor(context,ApplozicSetting.getInstance(context).getAttachmentIconsBackgroundColor()));
         icon.setText(multimediaIcons[position]);
         text.setText(multimediaText[position]);
         return convertView;
