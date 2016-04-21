@@ -42,4 +42,6 @@ public interface BaseContactService {
     void updateUserBlocked(String userId,boolean userBlocked);
 
     void updateUserBlockedBy(String userId,boolean userBlockedBy);
+
+    boolean isContactPresent(String userId);
 }

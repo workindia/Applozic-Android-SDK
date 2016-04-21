@@ -103,4 +103,10 @@ public class DeviceContactService implements BaseContactService {
     public void updateUserBlockedBy(String userId, boolean userBlockedBy) {
 
     }
+
+    @Override
+    public boolean isContactPresent(String userId) {
+        return false;
+    }
+
 }

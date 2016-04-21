@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -9,9 +10,11 @@ import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by sunil on 17/3/16.
@@ -97,6 +100,39 @@ public class UserService {
             return apiResponse.getStatus();
         }
         return null;
+    }
+
+    public synchronized void processUserDetail(Set<UserDetail> userDetails) {
+        if (userDetails != null && userDetails.size()> 0) {
+            for (UserDetail userDetail : userDetails) {
+                processUser(userDetail);
+            }
+        }
+    }
+
+    public synchronized void processUserDetails(Set<String> userIds){
+        String response = userClientService.getUserDetails(userIds);
+        if(!TextUtils.isEmpty(response)){
+            UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
+            for (UserDetail userDetail : userDetails) {
+                processUser(userDetail);
+            }
+        }
+    }
+
+
+    public synchronized  void processUser(UserDetail userDetail){
+        Contact contact = new Contact();
+        contact.setUserId(userDetail.getUserId());
+        contact.setContactNumber(userDetail.getUserId());
+        contact.setConnected(userDetail.isConnected());
+        contact.setFullName(userDetail.getDisplayName());
+        contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+        contact.setUnreadCount(0);
+        if(!TextUtils.isEmpty(userDetail.getImageLink())){
+            contact.setImageURL(userDetail.getImageLink());
+        }
+        baseContactService.upsert(contact);
     }
 
 }
