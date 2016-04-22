@@ -466,7 +466,6 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult(final Message message,final String messageContent) {
-        //Todo: Change this to driver list fragment or activity
         if(ApplozicSetting.getInstance(fragmentActivity).getTotalOnlineUser()>0){
            new DownloadNNumberOfUserAsync(ApplozicSetting.getInstance(fragmentActivity).getTotalOnlineUser(),message,messageContent).execute((Void[]) null);
         }else {
