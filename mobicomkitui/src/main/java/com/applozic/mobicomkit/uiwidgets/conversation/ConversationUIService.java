@@ -2,16 +2,19 @@ package com.applozic.mobicomkit.uiwidgets.conversation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -21,6 +24,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -30,6 +34,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.ContactService;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -442,12 +447,15 @@ public class ConversationUIService {
         }
     }
 
-    public void startContactActivityForResult(Intent intent, Message message, String messageContent) {
+    public void startContactActivityForResult(Intent intent, Message message, String messageContent,String[] userIdArray) {
         if (message != null) {
             intent.putExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE, GsonUtils.getJsonFromObject(message, message.getClass()));
         }
         if (messageContent != null) {
             intent.putExtra(MobiComKitPeopleActivity.SHARED_TEXT, messageContent);
+        }
+        if(userIdArray != null){
+            intent.putExtra(MobiComKitPeopleActivity.USER_ID_ARRAY, userIdArray);
         }
 
         fragmentActivity.startActivityForResult(intent, REQUEST_CODE_CONTACT_GROUP_SELECTION);
@@ -457,12 +465,14 @@ public class ConversationUIService {
         startContactActivityForResult(null, null);
     }
 
-    public void startContactActivityForResult(Message message, String messageContent) {
-
+    public void startContactActivityForResult(final Message message,final String messageContent) {
         //Todo: Change this to driver list fragment or activity
-        Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
-
-        startContactActivityForResult(intent, message, messageContent);
+        if(ApplozicSetting.getInstance(fragmentActivity).getTotalOnlineUser()>0){
+           new DownloadNNumberOfUserAsync(ApplozicSetting.getInstance(fragmentActivity).getTotalOnlineUser(),message,messageContent).execute((Void[]) null);
+        }else {
+            Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
+            startContactActivityForResult(intent, message, messageContent,null);
+        }
     }
 
     public void sendPriceMessage() {
@@ -670,6 +680,56 @@ public class ConversationUIService {
 
     public void sendLocation(String position) {
         getConversationFragment().sendMessage(position, Message.ContentType.LOCATION.getValue());
+    }
+
+    public class DownloadNNumberOfUserAsync extends AsyncTask<Void, Integer, Long> {
+
+        private Message message;
+        private UserService userService;
+        private ProgressDialog progressDialog;
+        private String messageContent;
+        private int nNumberOfUsers;
+        private String[] userIdArray;
+
+        public DownloadNNumberOfUserAsync(int nNumberOfUsers, Message message, String messageContent) {
+            this.message = message;
+            this.messageContent = messageContent;
+            this.nNumberOfUsers = nNumberOfUsers;
+            this.userService = UserService.getInstance(fragmentActivity);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(fragmentActivity, "",
+                    fragmentActivity.getString(R.string.applozic_contacts_loading_info), true);
+        }
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            userIdArray = userService.getOnlineUsers(nNumberOfUsers);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+
+                if (!Utils.isInternetAvailable(fragmentActivity)) {
+                    Toast toast = Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.applozic_contacts_loading_error), Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+                if (userIdArray != null  && userIdArray.length>0) {
+                    Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
+                    startContactActivityForResult(intent, message, messageContent,userIdArray);
+                }
+            }
+
+        }
     }
 
 }

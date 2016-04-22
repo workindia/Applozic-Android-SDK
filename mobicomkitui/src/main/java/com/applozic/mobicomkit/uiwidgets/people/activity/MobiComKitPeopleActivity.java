@@ -52,6 +52,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     private static final String GROUP_ID = "groupId";
     private static final String GROUP_NAME = "groupName";
     private static final String USER_ID = "userId";
+    public static final String USER_ID_ARRAY = "userIdArray";
     protected SearchView searchView;
     protected String searchTerm;
     private SearchListFragment searchListFragment;
@@ -60,6 +61,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     ViewPager viewPager;
     TabLayout tabLayout;
     ActionBar actionBar;
+    String[] userIdArray;
 
 
     @Override
@@ -74,8 +76,11 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
+       if (getIntent().getExtras() != null) {
+           userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
+       }
         if(ApplozicSetting.getInstance(getBaseContext()).isStartNewGroupButtonVisible()){
-            actionBar.setTitle("Select");
+            actionBar.setTitle(getString(R.string.search_title));
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             viewPager.setVisibility(View.VISIBLE);
             setupViewPager(viewPager);
@@ -84,7 +89,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             tabLayout.setupWithViewPager(viewPager);
         }else {
             actionBar.setTitle(getString(R.string.search_title));
-            addFragment(this,new AppContactFragment(),"AppContactFragment");
+            addFragment(this,new AppContactFragment(userIdArray),"AppContactFragment");
         }
       /*  mContactsListFragment = (AppContactFragment)
                 getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
@@ -255,7 +260,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new AppContactFragment(), "Contact");
+        adapter.addFrag(new AppContactFragment(userIdArray), "Contact");
         adapter.addFrag(new ChannelFragment(), "Group");
         viewPager.setAdapter(adapter);
     }

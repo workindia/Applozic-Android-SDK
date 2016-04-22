@@ -13,7 +13,9 @@ import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -133,6 +135,31 @@ public class UserService {
             contact.setImageURL(userDetail.getImageLink());
         }
         baseContactService.upsert(contact);
+    }
+
+    public synchronized String[] getOnlineUsers(int numberOfUser) {
+        try {
+            Map<String, String> userMapList = userClientService.getOnlineUserList(numberOfUser);
+            if (userMapList != null && userMapList.size() > 0) {
+                String[] userIdArray = new String[userMapList.size()];
+                Set<String> userIds = new HashSet<String>();
+                int i = 0 ;
+                for (Map.Entry<String, String> keyValue : userMapList.entrySet()) {
+                    Contact contact = new Contact();
+                    contact.setUserId(keyValue.getKey());
+                    contact.setConnected(keyValue.getValue().contains("true"));
+                    userIdArray[i] = keyValue.getKey();
+                    userIds.add(keyValue.getKey());
+                    baseContactService.upsert(contact);
+                    i++;
+                }
+                processUserDetails(userIds);
+                return userIdArray;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

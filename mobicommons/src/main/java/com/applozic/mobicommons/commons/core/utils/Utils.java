@@ -265,4 +265,17 @@ public class Utils {
         }
 
     }
+
+    public static String makePlaceHolders(int len) {
+        if (len < 1) {
+            return null;
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append("?");
+            for (int i = 1; i < len; i++) {
+                sb.append(",?");
+            }
+            return sb.toString();
+        }
+    }
 }

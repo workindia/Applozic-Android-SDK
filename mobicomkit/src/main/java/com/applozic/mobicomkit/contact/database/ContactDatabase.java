@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -278,25 +279,37 @@ public class ContactDatabase {
         }
     }
 
-    public Loader<Cursor> getSearchCursorLoader( final String searchString ){
+    public Loader<Cursor> getSearchCursorLoader(final String searchString, final int totalNumber,final String[] userIdArray) {
 
-        return new CursorLoader( context, null, null , null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc" )
-        {
+        return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
             @Override
-            public Cursor loadInBackground()
-            {
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
+            public Cursor loadInBackground() {
 
-                String query=  "select userId as _id, fullName, contactNO, " +
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                Cursor cursor;
+
+                String query = "select userId as _id, fullName, contactNO, " +
                         "displayName,contactImageURL,contactImageLocalURI,email," +
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
                         "blockedBy from " + CONTACT;
 
-                if(!TextUtils.isEmpty(searchString)){
-                    query =  query +  " where fullName like '%" + searchString +"%'";
+                if (totalNumber > 0) {
+                    String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
+                    if (!TextUtils.isEmpty(searchString)) {
+                        query = query + " where fullName like '%" + searchString + "%' and  userId  IN (" + placeHolderString + ")";
+                    } else {
+                        query = query + " where userId IN (" + placeHolderString + ")";
+                    }
+                    query = query + " order by connected desc,lastSeenAt desc limit " + totalNumber;
+
+                    cursor = db.rawQuery(query, userIdArray);
+                } else {
+                    if (!TextUtils.isEmpty(searchString)) {
+                        query = query + " where fullName like '%" + searchString + "%'";
+                    }
+                    query = query + " order by fullName,userId asc ";
+                    cursor = db.rawQuery(query, null);
                 }
-                query = query + " order by fullName,userId asc";
-                Cursor cursor = db.rawQuery(query,null);
 
                 return cursor;
 

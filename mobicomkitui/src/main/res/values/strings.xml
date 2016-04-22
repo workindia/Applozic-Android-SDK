@@ -30,6 +30,8 @@
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
     <string name ="applozic_user_already_in_a_group">Already added to the group</string>
+    <string name ="applozic_contacts_loading_info">Loading please wait...</string>
+    <string name ="applozic_contacts_loading_error">You need to have network access for loading contacts</string>
 
 
     <!--

@@ -32,6 +32,7 @@ public class ApplozicSetting {
     private static final String ATTACHMENT_ICONS_BACKGROUND_COLOR = "ATTACHMENT_ICONS_BACKGROUND_COLOR";
     private static final String SENT_CONTACT_MESSAGE_TEXT_COLOR = "SENT_CONTACT_MESSAGE_TEXT_COLOR";
     private static final String RECEIVED_CONTACT_MESSAGE_TEXT_COLOR = "RECEIVED_CONTACT_MESSAGE_TEXT_COLOR";
+    private static final String TOTAL_ONLINE_USERS = "TOTAL_ONLINE_USERS";
 
 
     public static ApplozicSetting applozicSetting;
@@ -287,6 +288,15 @@ public class ApplozicSetting {
     //Default file size is 10.
     public int getMaxAttachmentSizeAllowed(){
         return  sharedPreferences.getInt(MAX_ATTACHMENT_SIZE_ALLOWED, 10);
+    }
+
+    public int getTotalOnlineUser(){
+        return  sharedPreferences.getInt(TOTAL_ONLINE_USERS, 0);
+    }
+
+    public ApplozicSetting setTotalOnlineUserToFetch(int totalNumber) {
+        sharedPreferences.edit().putInt(TOTAL_ONLINE_USERS, totalNumber).apply();
+        return this;
     }
 
     public boolean clearAll() {
