@@ -325,7 +325,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               if (contact != null && !contact.isBlocked() || channel != null) {
 
-                                                  if (TextUtils.isEmpty(messageEditText.getText().toString()) && TextUtils.isEmpty(filePath)) {
+                                                  if (TextUtils.isEmpty(messageEditText.getText().toString().trim()) && TextUtils.isEmpty(filePath)) {
                                                 /*final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
                                                           setPositiveButton(R.string.yes_alert, new DialogInterface.OnClickListener() {
                                                               @Override
@@ -348,7 +348,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                                   alertDialog.setCancelable(true);
                                                   alertDialog.create().show();*/
                                                   } else {
-                                                      sendMessage(messageEditText.getText().toString());
+                                                      sendMessage(messageEditText.getText().toString().trim());
                                                       messageEditText.setText("");
                                                       scheduleOption.setText(R.string.ScheduleText);
                                                       if (scheduledTimeHolder.getTimestamp() != null) {
@@ -608,7 +608,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if(!message.isGroupMessage() && !message.isTypeOutbox() && menuItems[i].equals("info")){
+                if (!message.isGroupMessage() && !message.isTypeOutbox() && menuItems[i].equals("info")) {
                     continue;
                 }
 
@@ -839,10 +839,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return channel;
     }
 
-   public boolean isMsgForConversation(Message message){
-       return (message.getGroupId() != null && channel != null && message.getGroupId().equals(channel.getKey())) ||
-               (!TextUtils.isEmpty(message.getContactIds()) && contact != null && message.getContactIds().equals(contact.getContactIds()));
-   }
+    public boolean isMsgForConversation(Message message) {
+        return (message.getGroupId() != null && channel != null && message.getGroupId().equals(channel.getKey())) ||
+                (!TextUtils.isEmpty(message.getContactIds()) && contact != null && message.getContactIds().equals(contact.getContactIds()));
+    }
 
     protected void setChannel(Channel channel) {
         this.channel = channel;
@@ -1406,7 +1406,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 deleteMessageFromDeviceList(messageKeyString);
                 break;
             case 3:
-                ConversationUIService conversationUIService  =  new ConversationUIService(getActivity());
+                ConversationUIService conversationUIService = new ConversationUIService(getActivity());
                 String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
                 conversationUIService.startMessageInfoFragment(messageJson);
                 break;
@@ -1429,12 +1429,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            if(contact != null){
+            if (contact != null) {
                 contact = new AppContactService(getActivity()).getContactById(contact.getContactIds());
-                if(contact.isBlocked() || contact.isBlockedBy()){
+                if (contact.isBlocked() || contact.isBlockedBy()) {
                     isTyping.setVisibility(View.GONE);
                     toolBarSubTitle.setVisibility(View.GONE);
-                }else{
+                } else {
                     updateLastSeenStatus();
                 }
             }
@@ -1476,8 +1476,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
-    public void updateChannelTitleAndSubTitle(){
-        if(channel != null){
+    public void updateChannelTitleAndSubTitle() {
+        if (channel != null) {
             Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
             if (newChannel != null && !channel.getName().equals(newChannel.getName())) {
                 title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
