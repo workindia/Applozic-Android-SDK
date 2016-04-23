@@ -39,6 +39,8 @@ public class HttpRequestUtils {
 
     public static String DEVICE_KEY_HEADER = "Device-Key";
 
+    public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
+
     public HttpRequestUtils(Context context) {
         this.context = context;
     }
@@ -239,6 +241,11 @@ public class HttpRequestUtils {
             connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
             connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
             connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+
+            if(MobiComKitClientService.getAppModuleName(context)!=null){
+                connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER,MobiComKitClientService.getAppModuleName(context));
+            }
+
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
             if (userPreferences.isRegistered()) {
                 String userCredentials = getCredentials().getUserName() + ":" +String.valueOf(getCredentials().getPassword());
@@ -258,5 +265,6 @@ public class HttpRequestUtils {
         }
         return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
     }
+
 
 }
