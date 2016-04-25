@@ -49,6 +49,7 @@ import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
+import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
@@ -105,6 +106,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private long deviceTimeOffset = 0;
     private Class<?> messageIntentClass;
     private MobiComConversationService conversationService;
+    private ImageCache imageCache;
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
         this(context, textViewResourceId, messageList, null, channel, messageIntentClass, emojiconHandler);
@@ -126,6 +128,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
+        this.imageCache= ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
@@ -543,9 +546,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 if (messageTextLayout != null) {
                     int resId = message.isTypeOutbox() ?
                             applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor();
+                    int borderResId = message.isTypeOutbox() ?
+                            applozicSetting.getSentMessageBorderColor() : applozicSetting.getReceivedMessageBorderColor();
                     GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
                     bgShape.setColor(ContextCompat.getColor(context, resId));
-                    bgShape.setStroke(3,ContextCompat.getColor(context, resId));
+                    bgShape.setStroke(3,ContextCompat.getColor(context, borderResId));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
@@ -611,7 +616,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
 
             if (data.getProfilePic() != null) {
-                shareContactImage.setImageBitmap(data.getProfilePic());
+                if(imageCache.getBitmapFromMemCache(message.getKeyString()) != null){
+                    shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
+                }else {
+                    imageCache.addBitmapToCache(message.getKeyString(),data.getProfilePic());
+                    shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
+                }
             }
             if (!TextUtils.isEmpty(data.getTelephoneNumber())) {
                 shareContactNo.setText(data.getTelephoneNumber());

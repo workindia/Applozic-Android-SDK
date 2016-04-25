@@ -33,6 +33,8 @@ public class ApplozicSetting {
     private static final String SENT_CONTACT_MESSAGE_TEXT_COLOR = "SENT_CONTACT_MESSAGE_TEXT_COLOR";
     private static final String RECEIVED_CONTACT_MESSAGE_TEXT_COLOR = "RECEIVED_CONTACT_MESSAGE_TEXT_COLOR";
     private static final String TOTAL_ONLINE_USERS = "TOTAL_ONLINE_USERS";
+    private static final String SENT_MESSAGE_BORDER_COLOR = "SENT_MESSAGE_BORDER_COLOR";
+    private static final String RECEIVED_MESSAGE_BORDER_COLOR = "RECEIVED_MESSAGE_BORDER_COLOR";
 
 
     public static ApplozicSetting applozicSetting;
@@ -75,6 +77,24 @@ public class ApplozicSetting {
 
     public int getReceivedMessageBackgroundColor() {
         return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, R.color.white);
+    }
+
+    public ApplozicSetting setSentMessageBorderColor(int color) {
+        sharedPreferences.edit().putInt(SENT_MESSAGE_BORDER_COLOR, color).commit();
+        return this;
+    }
+
+    public ApplozicSetting setReceivedMessageBorderColor(int color) {
+        sharedPreferences.edit().putInt(RECEIVED_MESSAGE_BORDER_COLOR, color).commit();
+        return this;
+    }
+
+    public int getSentMessageBorderColor() {
+        return sharedPreferences.getInt(SENT_MESSAGE_BORDER_COLOR, R.color.applozic_theme_color_primary);
+    }
+
+    public int getReceivedMessageBorderColor() {
+        return sharedPreferences.getInt(RECEIVED_MESSAGE_BORDER_COLOR, R.color.white);
     }
 
     public ApplozicSetting setAttachmentIconsBackgroundColor(int color) {
