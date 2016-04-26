@@ -107,6 +107,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private Class<?> messageIntentClass;
     private MobiComConversationService conversationService;
     private ImageCache imageCache;
+    ApplozicSetting applozicSetting;
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
         this(context, textViewResourceId, messageList, null, channel, messageIntentClass, emojiconHandler);
@@ -130,6 +131,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         this.contactService = new AppContactService(context);
         this.imageCache= ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
+        applozicSetting = ApplozicSetting.getInstance(context);
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -340,7 +342,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 deliveryStatus.setText("via Carrier");
             }*/
 
-            ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
             if (message.isTypeOutbox()) {
                 loadContactImage(senderContact, contactDisplayName, message, contactImage, alphabeticTextView);
             } else {
@@ -495,6 +496,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             String mimeType = "";
             if (messageTextView != null) {
+                messageTextView.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
+                        applozicSetting.getSentMessageTextColor() : applozicSetting.getReceivedMessageTextColor()));
+
                 if (message.getContentType() == Message.ContentType.TEXT_URL.getValue()) {
                     try {
                         attachedFile.setVisibility(View.GONE);
@@ -602,13 +606,13 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             shareContactName.setText(data.getName());
 
             if(message.isTypeOutbox()){
-                int resId = ApplozicSetting.getInstance(context).getSentContactMessageTextColor();
+                int resId = applozicSetting.getSentContactMessageTextColor();
                 shareContactName.setTextColor(ContextCompat.getColor(context,resId));
                 shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
                 shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
                 addContactButton.setTextColor(ContextCompat.getColor(context,resId));
             }else {
-                int resId = ApplozicSetting.getInstance(context).getReceivedContactMessageTextColor();
+                int resId = applozicSetting.getReceivedContactMessageTextColor();
                 shareContactName.setTextColor(ContextCompat.getColor(context,resId));
                 shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
                 shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
@@ -654,7 +658,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void loadContactImage(Contact contact, Contact contactDisplayName, Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
-        ApplozicSetting applozicSetting = ApplozicSetting.getInstance(context);
         if (!applozicSetting.isConversationContactImageVisible()) {
             return;
         }
@@ -711,6 +714,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         } else if (message.getFileMetas() != null) {
             fileName = message.getFileMetas().getName();
         }
+        attachedFile.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
+                applozicSetting.getSentMessageTextColor() : applozicSetting.getReceivedMessageTextColor()));
         attachedFile.setText(fileName);
         attachedFile.setVisibility(View.VISIBLE);
         attachedFile.setOnClickListener(new View.OnClickListener() {
