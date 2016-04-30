@@ -56,12 +56,14 @@
         android:id="@+id/userBlock"
         android:showAsAction="collapseActionView"
         android:title="@string/user_block"
+        android:orderInCategory="6"
         android:visible="false"
         mobitexter:showAsAction="collapseActionView" />
     <item
         android:id="@+id/userUnBlock"
         android:showAsAction="collapseActionView"
         android:title="@string/user_un_block"
+        android:orderInCategory="6"
         android:visible="false"
         mobitexter:showAsAction="collapseActionView" />
 

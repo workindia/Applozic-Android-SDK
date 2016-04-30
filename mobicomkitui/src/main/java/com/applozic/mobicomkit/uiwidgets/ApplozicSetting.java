@@ -37,6 +37,8 @@ public class ApplozicSetting {
     private static final String TOTAL_ONLINE_USERS = "TOTAL_ONLINE_USERS";
     private static final String SENT_MESSAGE_BORDER_COLOR = "SENT_MESSAGE_BORDER_COLOR";
     private static final String RECEIVED_MESSAGE_BORDER_COLOR = "RECEIVED_MESSAGE_BORDER_COLOR";
+    private static final String CHAT_BACKGROUND_COLOR_OR_DRAWABLE= "CHAT_BACKGROUND_COLOR_OR_DRAWABLE";
+    private static final String MESSAGE_EDITTEXT_TEXT_COLOR= "MESSAGE_EDITTEXT_TEXT_COLOR";
 
 
     public static ApplozicSetting applozicSetting;
@@ -106,6 +108,24 @@ public class ApplozicSetting {
 
     public int getAttachmentIconsBackgroundColor() {
         return sharedPreferences.getInt(ATTACHMENT_ICONS_BACKGROUND_COLOR,R.color.applozic_theme_color_primary);
+    }
+
+    public ApplozicSetting setChatBackgroundColorOrDrawableResource(int colorOrDrawable) {
+        sharedPreferences.edit().putInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).apply();
+        return this;
+    }
+
+    public int getChatBackgroundColorOrDrawableResource() {
+        return sharedPreferences.getInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE,R.color.conversation_list_background);
+    }
+
+    public ApplozicSetting setMessageEditTextTextColor(int textColor) {
+        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_TEXT_COLOR, textColor).apply();
+        return this;
+    }
+
+    public int getMessageEditTextTextColor() {
+        return sharedPreferences.getInt(MESSAGE_EDITTEXT_TEXT_COLOR,R.color.black);
     }
 
     public ApplozicSetting setSentContactMessageTextColor(int color) {

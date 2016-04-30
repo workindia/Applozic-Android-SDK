@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -20,7 +21,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +59,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
     protected ConversationListView listView = null;
     protected ImageButton fabButton;
-    protected TextView emptyTextView,toolBarTitle,toolBarSubTitle;
+    protected TextView emptyTextView;
     protected Button startNewButton;
     protected SwipeRefreshLayout swipeLayout;
     protected int listIndex;
@@ -103,12 +104,9 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView = (ConversationListView) list.findViewById(R.id.messageList);
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
+        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
-        RelativeLayout toolBarLayout = (RelativeLayout) toolbar.findViewById(R.id.toolBarLayout);
-        toolBarLayout.setClickable(false);
-        toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        toolBarSubTitle = (TextView) toolbar.findViewById(R.id.toolbar_subTitle);
-
+        toolbar.setClickable(false);
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
 
         LinearLayout individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
@@ -127,7 +125,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
 
         swipeLayout = (SwipeRefreshLayout) list.findViewById(R.id.swipe_container);
-        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+        swipeLayout.setColorSchemeColors(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
@@ -382,8 +380,8 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        toolBarTitle.setText(ApplozicApplication.TITLE);
-        toolBarSubTitle.setText("");
+        toolbar.setTitle(ApplozicApplication.TITLE);
+        toolbar.setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
         latestMessageForEachContact.clear();

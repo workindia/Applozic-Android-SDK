@@ -3,7 +3,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="2dp"
-    android:background="@color/conversation_list_background"
     android:gravity="right"
     android:longClickable="true"
     android:orientation="horizontal"
@@ -78,7 +77,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/messageTextLayout"
-        android:background="@color/conversation_list_background"
         android:orientation="horizontal"
         android:paddingBottom="6dp"
         android:paddingRight="4dp">
