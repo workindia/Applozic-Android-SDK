@@ -68,7 +68,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/developers.html#an
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.34' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.35' `
 
 
 Add the following in gradle android target:      
