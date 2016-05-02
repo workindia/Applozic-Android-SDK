@@ -2,6 +2,7 @@ package com.applozic.mobicommons.commons.core.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 
@@ -78,4 +79,11 @@ public class PermissionsUtils {
         ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 
+    public static boolean isAudioRecordingPermissionGranted(Context context) {
+
+
+        String permission = "android.permission.RECORD_AUDIO";
+        int res = context.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
 }

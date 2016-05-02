@@ -1,11 +1,14 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
@@ -131,6 +134,8 @@ public class MobiComMessageService {
                     }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
                 BroadcastService.sendNotificationBroadcast(context, message);
+                Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
         }
 

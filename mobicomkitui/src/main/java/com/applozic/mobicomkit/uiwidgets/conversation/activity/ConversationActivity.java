@@ -586,7 +586,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     public void showAudioRecordingDialog() {
         if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
             new ApplozicPermissions(this, layout).requestAudio();
-        } else {
+        } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)){
 
             FragmentManager supportFragmentManager = getSupportFragmentManager();
             DialogFragment fragment = AudioMessageFragment.newInstance();
@@ -596,6 +596,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commitAllowingStateLoss();
+
+        }else{
+            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+                showSnackBar(R.string.applozic_audio_permission_missing);
+            }else{
+                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                        Snackbar.LENGTH_SHORT);
+                snackbar.show();
+            }
 
         }
     }

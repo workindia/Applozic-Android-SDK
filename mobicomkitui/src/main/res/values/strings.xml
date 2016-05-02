@@ -88,7 +88,7 @@
     <string name="mobicom_max_attachment_warning">Max attachment limit reached</string>
     <string name="mobicom_select_attachment_text">Select at least one attachment</string>
     <string name="audio_recording_send_text">Tap on Start to record audio</string>
-
+    <string name="applozic_audio_permission_missing">Unable to launch audio recorder.</string>
     <string name="applozic_message_info">Message Info</string>
 
 </resources>

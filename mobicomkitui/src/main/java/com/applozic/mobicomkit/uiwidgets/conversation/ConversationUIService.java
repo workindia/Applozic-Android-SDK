@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
@@ -57,6 +58,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 
 public class ConversationUIService {
@@ -171,6 +173,13 @@ public class ConversationUIService {
             if (requestCode == MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY && resultCode == Activity.RESULT_OK) {
 
                 Uri selectedFilePath = ((ConversationActivity) fragmentActivity).getVideoFileUri();
+
+                String file = Pattern.compile("//").split(selectedFilePath.toString())[1];
+
+                if (!(new File(file).exists())) {
+                    getLastModifiedFile(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/Camera/").renameTo(new File(file));
+                }
+
                 if (selectedFilePath != null) {
                     getConversationFragment().loadFile(selectedFilePath);
                 }
@@ -188,7 +197,7 @@ public class ConversationUIService {
                     }
 
                 } catch (Exception e) {
-                    Toast.makeText(fragmentActivity, "Failed to load Contact: ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(fragmentActivity, "Failed to load Contact", Toast.LENGTH_SHORT).show();
                     Log.e("Exception::", "Exception", e);
                 }
             }
@@ -731,4 +740,21 @@ public class ConversationUIService {
         }
     }
 
+    public File getLastModifiedFile(String directory) {
+        File dir = new File(directory);
+        File[] allFiles = dir.listFiles();
+
+        if (allFiles == null || allFiles.length == 0) {
+            return null;
+        }
+
+        File lastModifiedFile = allFiles[0];
+
+        for (int i = 1; i < allFiles.length; i++) {
+            if (lastModifiedFile.lastModified() < allFiles[i].lastModified()) {
+                lastModifiedFile = allFiles[i];
+            }
+        }
+        return lastModifiedFile;
+    }
 }

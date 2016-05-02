@@ -104,7 +104,6 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView = (ConversationListView) list.findViewById(R.id.messageList);
         listView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
         listView.setScrollToBottomOnSizeChange(Boolean.FALSE);
-        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
@@ -375,6 +374,9 @@ public class MobiComQuickConversationFragment extends Fragment {
         super.onPause();
         listIndex = listView.getFirstVisiblePosition();
         BroadcastService.currentUserId = null;
+        if(conversationAdapter != null){
+            conversationAdapter.contactImageLoader.setPauseWork(false);
+        }
     }
 
     @Override
@@ -413,7 +415,14 @@ public class MobiComQuickConversationFragment extends Fragment {
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
+            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                if (conversationAdapter != null) {
+                    if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                        conversationAdapter.contactImageLoader.setPauseWork(true);
+                    } else {
+                        conversationAdapter.contactImageLoader.setPauseWork(false);
+                    }
+                }
 
             }
 

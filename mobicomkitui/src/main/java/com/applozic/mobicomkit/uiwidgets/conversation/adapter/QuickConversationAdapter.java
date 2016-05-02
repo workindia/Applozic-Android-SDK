@@ -59,7 +59,7 @@ public class QuickConversationAdapter extends BaseAdapter {
         messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
     }
 
-    private ImageLoader contactImageLoader;
+    public ImageLoader contactImageLoader;
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private List<Message> messageList;
@@ -129,7 +129,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 smReceivers.setText(contactInfo);
             }
             if (message.getGroupId() == null) {
-                contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);
+                contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
             } else {
                 contactImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
             }

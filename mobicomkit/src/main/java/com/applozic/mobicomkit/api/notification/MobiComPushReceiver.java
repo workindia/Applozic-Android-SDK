@@ -201,7 +201,7 @@ public class MobiComPushReceiver {
                 String[] parts = userDisconnectedResponse.getMessage().toString().split(",");
                 String userId = parts[0];
                 Date lastSeenAt = new Date();
-                if (parts.length >= 2) {
+                if (parts.length >= 2 && !parts[1].equals("null")) {
                     lastSeenAt = new Date(Long.valueOf(parts[1]));
                 }
                 syncCallService.updateConnectedStatus(userId, lastSeenAt, false);

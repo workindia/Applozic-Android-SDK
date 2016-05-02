@@ -87,7 +87,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
     }
 
-    private ImageLoader contactImageLoader, loadImage;
+    public ImageLoader contactImageLoader, loadImage;
     private Context context;
     private Contact contact;
     private Channel channel;
@@ -239,7 +239,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             ImageView mapImageView = (ImageView) customView.findViewById(R.id.static_mapview);
-            LinearLayout chatLocation = (LinearLayout) customView.findViewById(R.id.chat_location);
+            RelativeLayout chatLocation = (RelativeLayout) customView.findViewById(R.id.chat_location);
             TextView deliveryStatus = (TextView) customView.findViewById(R.id.status);
             TextView selfDestruct = (TextView) customView.findViewById(R.id.selfDestruct);
             final ImageView preview = (ImageView) customView.findViewById(R.id.preview);
@@ -593,6 +593,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     private void setupContactShareView(final Message message, RelativeLayout mainContactShareLayout) {
         mainContactShareLayout.setVisibility(View.VISIBLE);
+        mainContactShareLayout.setLayoutParams(getImageLayoutParam(false));
         MobiComVCFParser parser = new MobiComVCFParser();
         try {
 

@@ -47,6 +47,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -219,7 +220,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         sendButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.conversation_send);
         GradientDrawable bgShape = (GradientDrawable) sendButton.getBackground();
-        bgShape.setColor(getActivity().getResources().getColor(ApplozicSetting.getInstance(getActivity()).getSendButtonBackgroundColor()));
+        bgShape.setColor(getActivity().getResources().getColor(applozicSetting.getSendButtonBackgroundColor()));
 
         attachButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.attach_button);
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
@@ -380,13 +381,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener()
-
-                                     {
-
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
                                          @Override
-                                         public void onScrollStateChanged(AbsListView absListView, int i) {
-
+                                         public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                                             if (conversationAdapter != null) {
+                                                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                                                     conversationAdapter.contactImageLoader.setPauseWork(true);
+                                                 } else {
+                                                     conversationAdapter.contactImageLoader.setPauseWork(false);
+                                                 }
+                                             }
                                          }
 
                                          @Override
@@ -712,7 +716,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             conversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
         }
-
+        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         listView.setAdapter(conversationAdapter);
         registerForContextMenu(listView);
 
@@ -1254,6 +1258,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void updateUserTypingStatus(final String typingUserId, final String isTypingStatus) {
+        if(contact.isBlocked() || contact.isBlockedBy()){
+            return;
+        }
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1307,6 +1314,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
             intent.putExtra(ApplozicMqttIntentService.TYPING, false);
             getActivity().startService(intent);
+        }
+        if(conversationAdapter != null){
+            conversationAdapter.contactImageLoader.setPauseWork(false);
         }
     }
 
@@ -1643,7 +1653,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     swipeLayout.setRefreshing(true);
                 }
             });
-            if (this.contact != null && !PhoneNumberUtils.compare(this.contact.getFormattedContactNumber(), this.contact.getFormattedContactNumber()) || nextMessageList.isEmpty()) {
+            if (nextMessageList.isEmpty()) {
                 swipeLayout.setEnabled(false);
                 swipeLayout.post(new Runnable() {
                     @Override
@@ -1676,7 +1686,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (initial) {
                 messageList.addAll(nextMessageList);
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
+                if (!messageList.isEmpty()) {
+                    listView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.setSelection(messageList.size() - 1);
+                        }
+                    });
+                }
             } else if (!nextMessageList.isEmpty()) {
+                listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
                 messageList.addAll(0, nextMessageList);
                 listView.setSelection(nextMessageList.size());
             }

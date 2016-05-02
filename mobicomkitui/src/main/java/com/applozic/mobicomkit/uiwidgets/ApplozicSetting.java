@@ -39,6 +39,7 @@ public class ApplozicSetting {
     private static final String RECEIVED_MESSAGE_BORDER_COLOR = "RECEIVED_MESSAGE_BORDER_COLOR";
     private static final String CHAT_BACKGROUND_COLOR_OR_DRAWABLE= "CHAT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String MESSAGE_EDITTEXT_TEXT_COLOR= "MESSAGE_EDITTEXT_TEXT_COLOR";
+    private static final String AUDIO_PERMISSON_NOT_FOUND_MSG= "AUDIO_PERMISSON_NOT_FOUND_MSG";
 
 
     public static ApplozicSetting applozicSetting;
@@ -356,6 +357,15 @@ public class ApplozicSetting {
 
     public ApplozicSetting setTotalOnlineUserToFetch(int totalNumber) {
         sharedPreferences.edit().putInt(TOTAL_ONLINE_USERS, totalNumber).apply();
+        return this;
+    }
+
+    public String getTextForAudioPermissionNotFound() {
+        return sharedPreferences.getString(AUDIO_PERMISSON_NOT_FOUND_MSG, null);
+    }
+
+    public ApplozicSetting setTextForAudioPermissionNotFound(String messageText) {
+        sharedPreferences.edit().putString(AUDIO_PERMISSON_NOT_FOUND_MSG, messageText).commit();
         return this;
     }
 

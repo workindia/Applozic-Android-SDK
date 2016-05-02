@@ -114,6 +114,7 @@
         android:layout_below="@+id/messageTextLayout"
         android:layout_marginLeft="44dp"
         android:orientation="horizontal"
+        android:paddingBottom="6dp"
         android:gravity="bottom"
         android:paddingLeft="15dp"
         android:layout_marginTop="2dp">
