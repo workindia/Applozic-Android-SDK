@@ -41,6 +41,7 @@ public class HttpRequestUtils {
 
     public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
 
+
     public HttpRequestUtils(Context context) {
         this.context = context;
     }
@@ -265,6 +266,5 @@ public class HttpRequestUtils {
         }
         return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
     }
-
 
 }

@@ -158,10 +158,9 @@ public class MessageInfoFragment extends Fragment  {
             locationImageLoader.setImageFadeIn(false);
             locationImageLoader.addImageCache(((FragmentActivity) getContext()).getSupportFragmentManager(), 0.1f);
         }
-
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
-        TextView toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        toolBarTitle.setText(getString(R.string.applozic_message_info));
+        toolbar.setClickable(false);
+        toolbar.setTitle(getString(R.string.applozic_message_info));
     }
 
 

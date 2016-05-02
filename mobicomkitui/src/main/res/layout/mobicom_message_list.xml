@@ -25,7 +25,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
                 android:layout_weight="1"
-                android:background="@color/conversation_list_background"
                 android:cacheColorHint="#00000000"
                 android:focusable="true"
                 android:focusableInTouchMode="true" />
@@ -114,7 +113,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
         android:baselineAligned="false"
         android:clickable="false"
         android:longClickable="false"
@@ -184,7 +182,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/conversation_list_background"
         android:orientation="horizontal"
         android:visibility="gone">
 
@@ -195,7 +192,6 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_gravity="left"
-            android:background="@color/conversation_list_background"
             android:gravity="center"
             android:padding="20dp"
             android:text=""
@@ -211,7 +207,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:background="@color/conversation_list_background"
         android:visibility="gone">
 
         <LinearLayout
@@ -305,7 +300,6 @@
         android:layout_gravity="bottom"
         android:minHeight="50dp"
         android:orientation="horizontal"
-        android:background="@color/conversation_list_background"
         android:visibility="gone">
 
         <TextView

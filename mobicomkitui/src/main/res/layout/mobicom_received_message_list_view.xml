@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     android:gravity="left"
     android:longClickable="true"
-    android:background="@color/conversation_list_background"
     android:layout_marginTop="2dp"
     android:padding="3dp"
     android:orientation="horizontal">
@@ -112,10 +111,10 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/conversation_list_background"
         android:layout_below="@+id/messageTextLayout"
         android:layout_marginLeft="44dp"
         android:orientation="horizontal"
+        android:paddingBottom="6dp"
         android:gravity="bottom"
         android:paddingLeft="15dp"
         android:layout_marginTop="2dp">

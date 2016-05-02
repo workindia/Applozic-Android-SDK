@@ -87,6 +87,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     private List<Contact> contactList;
     private boolean syncStatus = true;
+    private String[] userIdArray;
 
     /**
      * Fragments require an empty constructor.
@@ -95,8 +96,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     }
 
-    public AppContactFragment(List<Contact> contacts) {
-        this.contactList = contacts;
+    public AppContactFragment(String[] userIdArray) {
+        this.userIdArray = userIdArray;
     }
 
     @Override
@@ -111,7 +112,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             mPreviouslySelectedSearchItem =
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
         }
-
         mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight( )) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -318,7 +318,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         ContactDatabase contactDatabase = new ContactDatabase(getContext());
-        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm);
+        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm,ApplozicSetting.getInstance(getActivity()).getTotalOnlineUser(),userIdArray);
         return loader;
     }
 

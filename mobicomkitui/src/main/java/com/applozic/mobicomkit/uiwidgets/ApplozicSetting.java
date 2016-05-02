@@ -32,6 +32,15 @@ public class ApplozicSetting {
     private static final String ATTACHMENT_ICONS_BACKGROUND_COLOR = "ATTACHMENT_ICONS_BACKGROUND_COLOR";
     private static final String SENT_CONTACT_MESSAGE_TEXT_COLOR = "SENT_CONTACT_MESSAGE_TEXT_COLOR";
     private static final String RECEIVED_CONTACT_MESSAGE_TEXT_COLOR = "RECEIVED_CONTACT_MESSAGE_TEXT_COLOR";
+    private static final String SENT_MESSAGE_TEXT_COLOR = "SENT_MESSAGE_TEXT_COLOR";
+    private static final String RECEIVED_MESSAGE_TEXT_COLOR = "RECEIVED_MESSAGE_TEXT_COLOR";
+    private static final String TOTAL_ONLINE_USERS = "TOTAL_ONLINE_USERS";
+    private static final String SENT_MESSAGE_BORDER_COLOR = "SENT_MESSAGE_BORDER_COLOR";
+    private static final String RECEIVED_MESSAGE_BORDER_COLOR = "RECEIVED_MESSAGE_BORDER_COLOR";
+    private static final String CHAT_BACKGROUND_COLOR_OR_DRAWABLE= "CHAT_BACKGROUND_COLOR_OR_DRAWABLE";
+    private static final String MESSAGE_EDITTEXT_TEXT_COLOR= "MESSAGE_EDITTEXT_TEXT_COLOR";
+    private static final String AUDIO_PERMISSON_NOT_FOUND_MSG= "AUDIO_PERMISSON_NOT_FOUND_MSG";
+
 
     public static ApplozicSetting applozicSetting;
 
@@ -75,6 +84,24 @@ public class ApplozicSetting {
         return sharedPreferences.getInt(RECEIVED_MESSAGE_BACKGROUND_COLOR, R.color.white);
     }
 
+    public ApplozicSetting setSentMessageBorderColor(int color) {
+        sharedPreferences.edit().putInt(SENT_MESSAGE_BORDER_COLOR, color).commit();
+        return this;
+    }
+
+    public ApplozicSetting setReceivedMessageBorderColor(int color) {
+        sharedPreferences.edit().putInt(RECEIVED_MESSAGE_BORDER_COLOR, color).commit();
+        return this;
+    }
+
+    public int getSentMessageBorderColor() {
+        return sharedPreferences.getInt(SENT_MESSAGE_BORDER_COLOR, R.color.applozic_theme_color_primary);
+    }
+
+    public int getReceivedMessageBorderColor() {
+        return sharedPreferences.getInt(RECEIVED_MESSAGE_BORDER_COLOR, R.color.white);
+    }
+
     public ApplozicSetting setAttachmentIconsBackgroundColor(int color) {
         sharedPreferences.edit().putInt(ATTACHMENT_ICONS_BACKGROUND_COLOR, color).commit();
         return this;
@@ -82,6 +109,24 @@ public class ApplozicSetting {
 
     public int getAttachmentIconsBackgroundColor() {
         return sharedPreferences.getInt(ATTACHMENT_ICONS_BACKGROUND_COLOR,R.color.applozic_theme_color_primary);
+    }
+
+    public ApplozicSetting setChatBackgroundColorOrDrawableResource(int colorOrDrawable) {
+        sharedPreferences.edit().putInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).apply();
+        return this;
+    }
+
+    public int getChatBackgroundColorOrDrawableResource() {
+        return sharedPreferences.getInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE,R.color.conversation_list_background);
+    }
+
+    public ApplozicSetting setMessageEditTextTextColor(int textColor) {
+        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_TEXT_COLOR, textColor).apply();
+        return this;
+    }
+
+    public int getMessageEditTextTextColor() {
+        return sharedPreferences.getInt(MESSAGE_EDITTEXT_TEXT_COLOR,R.color.black);
     }
 
     public ApplozicSetting setSentContactMessageTextColor(int color) {
@@ -100,6 +145,24 @@ public class ApplozicSetting {
 
     public int getReceivedContactMessageTextColor() {
         return sharedPreferences.getInt(RECEIVED_CONTACT_MESSAGE_TEXT_COLOR,R.color.black);
+    }
+
+    public ApplozicSetting setSentMessageTextColor(int color) {
+        sharedPreferences.edit().putInt(SENT_MESSAGE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getSentMessageTextColor() {
+        return sharedPreferences.getInt(SENT_MESSAGE_TEXT_COLOR,R.color.white);
+    }
+
+    public ApplozicSetting setReceivedMessageTextColor(int color) {
+        sharedPreferences.edit().putInt(RECEIVED_MESSAGE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getReceivedMessageTextColor() {
+        return sharedPreferences.getInt(RECEIVED_MESSAGE_TEXT_COLOR,R.color.black);
     }
 
     public ApplozicSetting showOnlineStatusInMasterList() {
@@ -201,7 +264,7 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewGroupButtonVisible() {
-        return sharedPreferences.getBoolean(START_NEW_GROUP, false);
+        return sharedPreferences.getBoolean(START_NEW_GROUP, true);
     }
 
     public ApplozicSetting showInviteFriendsButton() {
@@ -286,6 +349,24 @@ public class ApplozicSetting {
     //Default file size is 10.
     public int getMaxAttachmentSizeAllowed(){
         return  sharedPreferences.getInt(MAX_ATTACHMENT_SIZE_ALLOWED, 10);
+    }
+
+    public int getTotalOnlineUser(){
+        return  sharedPreferences.getInt(TOTAL_ONLINE_USERS, 0);
+    }
+
+    public ApplozicSetting setTotalOnlineUserToFetch(int totalNumber) {
+        sharedPreferences.edit().putInt(TOTAL_ONLINE_USERS, totalNumber).apply();
+        return this;
+    }
+
+    public String getTextForAudioPermissionNotFound() {
+        return sharedPreferences.getString(AUDIO_PERMISSON_NOT_FOUND_MSG, null);
+    }
+
+    public ApplozicSetting setTextForAudioPermissionNotFound(String messageText) {
+        sharedPreferences.edit().putString(AUDIO_PERMISSON_NOT_FOUND_MSG, messageText).commit();
+        return this;
     }
 
     public boolean clearAll() {

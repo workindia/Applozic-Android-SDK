@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
@@ -47,6 +48,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String BLOCK_USER_SYNC_URL = "/rest/ws/user/blocked/sync";
     public static final String UNBLOCK_USER_SYNC_URL = "/rest/ws/user/unblock";
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail?";
+    public static final String ONLINE_USER_LIST_URL = "/rest/ws/user/ol/list";
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -104,6 +106,10 @@ public class UserClientService extends MobiComKitClientService {
     }
     public String getUserDetailsListUrl() {
         return getBaseUrl() + USER_DETAILS_URL;
+    }
+
+    public String getOnlineUserListUrl() {
+        return getBaseUrl() + ONLINE_USER_LIST_URL;
     }
 
     public void logout() {
@@ -314,6 +320,27 @@ public class UserClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Map<String, String> getOnlineUserList(int numberOfUser) {
+        Map<String, String> info = new HashMap<String, String>();
+        try {
+            String response = httpRequestUtils.getResponse(getCredentials(), getOnlineUserListUrl() + "?startIndex=0&pageSize=" + numberOfUser, "application/json", "application/json");
+            if (response != null && !MobiComKitConstants.ERROR.equals(response)) {
+                JSONObject jsonObject = new JSONObject(response);
+                Iterator iterator = jsonObject.keys();
+                while (iterator.hasNext()) {
+                    String key = (String) iterator.next();
+                    String value = jsonObject.getString(key);
+                    info.put(key, value);
+                }
+                return info;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return info;
     }
 
 }
