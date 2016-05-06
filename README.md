@@ -12,6 +12,7 @@ Signup at https://www.applozic.com/signup.html to get the application key.
 
 <img align="right" src="img/android.png" />
 
+Applozic One to One and Group Chat SDK
 
 
 Features:
