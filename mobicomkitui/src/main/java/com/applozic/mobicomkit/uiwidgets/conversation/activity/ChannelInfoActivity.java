@@ -41,6 +41,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ChannelName;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -115,6 +116,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
         registerForContextMenu(mainListView);
 
+        if(ApplozicSetting.getInstance(this).isHideGroupExitMemberButton()){
+            channelExitRelativeLayout.setVisibility(View.GONE);
+        }
         if (getIntent().getExtras() != null) {
             channelKey = getIntent().getIntExtra(CHANNEL_KEY, 0);
             channel = ChannelService.getInstance(this).getChannelByChannelKey(channelKey);
@@ -255,8 +259,12 @@ public class ChannelInfoActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.channel_menu_option, menu);
-        if (!ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
+        ApplozicSetting setting = ApplozicSetting.getInstance(this);
+        if (setting.isHideGroupAddMemberButton() || !ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
             menu.removeItem(R.id.add_member_to_channel);
+        }
+        if(setting.isHideGroupNameEditButton()){
+            menu.removeItem(R.id.edit_channel_name);
         }
         return true;
     }
@@ -271,7 +279,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(positionInList);
         if (ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
-            if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent ) {
+            boolean isHideRemove = ApplozicSetting.getInstance(this).isHideGroupRemoveMemberOption();
+            if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent && !isHideRemove ) {
                 menu.add(Menu.NONE, Menu.NONE, 0, "Remove");
             }
         }
@@ -387,7 +396,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
 
             if (contact != null && !TextUtils.isEmpty(contact.getDisplayName())) {
-                contactNumber = contact.getContactNumber().toUpperCase();
+                contactNumber = contact.getDisplayName().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
                 if (firstLetter != '+') {
                     holder.alphabeticImage.setText(String.valueOf(firstLetter));

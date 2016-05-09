@@ -50,6 +50,7 @@ public class MobiComUserPreference {
     private static  String userBlockSyncTime = "user_block_Sync_Time";
     private static String max_compressed_image_size = "max_compressed_image_size";
     private static String image_link = "image_link";
+    private static String registered_users_last_fetch_time = "registered_users_last_fetch_time";
 
 
     public SharedPreferences sharedPreferences;
@@ -262,7 +263,7 @@ public class MobiComUserPreference {
     }
 
     public void setContactNumber(String contactNumber) {
-        contactNumber = ContactNumberUtils.getPhoneNumber(contactNumber, getCountryCode());
+       // contactNumber = ContactNumberUtils.getPhoneNumber(contactNumber, getCountryCode());
         sharedPreferences.edit().putString(phone_number_key, contactNumber).commit();
     }
 
@@ -365,6 +366,14 @@ public class MobiComUserPreference {
 
     public void setUserBlockSyncTime(String lastUserBlockSyncTime) {
         sharedPreferences.edit().putString(userBlockSyncTime, lastUserBlockSyncTime).commit();
+    }
+
+    public long getRegisteredUsersLastFetchTime() {
+        return sharedPreferences.getLong(registered_users_last_fetch_time, 0l);
+    }
+
+    public void setRegisteredUsersLastFetchTime(long lastFetchTime) {
+        sharedPreferences.edit().putLong(registered_users_last_fetch_time, lastFetchTime).commit();
     }
 
     public String getImageLink() {

@@ -49,6 +49,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String UNBLOCK_USER_SYNC_URL = "/rest/ws/user/unblock";
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail?";
     public static final String ONLINE_USER_LIST_URL = "/rest/ws/user/ol/list";
+    public static final String REGISTERED_USER_LIST_URL = "/rest/ws/user/filter";
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -110,6 +111,10 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getOnlineUserListUrl() {
         return getBaseUrl() + ONLINE_USER_LIST_URL;
+    }
+
+    public String getRegisteredUserListUrl() {
+        return getBaseUrl() + REGISTERED_USER_LIST_URL;
     }
 
     public void logout() {
@@ -341,6 +346,20 @@ public class UserClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return info;
+    }
+
+    public String getRegisteredUsers(Long startTime, int pageSize) {
+        String response = null;
+        try {
+            String url = "?pageSize=" + pageSize;
+            if (startTime > 0) {
+                url = url + "&startTime=" + startTime;
+            }
+            response = httpRequestUtils.getResponse(getCredentials(), getRegisteredUserListUrl() + url, "application/json", "application/json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
 }

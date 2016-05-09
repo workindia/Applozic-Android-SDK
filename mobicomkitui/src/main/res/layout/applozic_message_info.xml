@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:padding="0dp"
             android:layout_marginLeft="70dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
@@ -27,19 +28,13 @@
         <include
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:layout_marginTop="10dp"
             android:layout_gravity="end"
-            android:background="@drawable/applozic_sent_message"
             layout="@layout/mobicom_contact_share_layout" />
 
         <include
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
             android:layout_gravity="end"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/applozic_sent_message"
             layout="@layout/mobicom_chat_location_view" />
         </RelativeLayout>
         <RelativeLayout
@@ -53,14 +48,16 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/applozic_sent_message"
             android:clickable="false">
-
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/applozic_file_info_inner_layout">
             <com.applozic.mobicomkit.api.attachment.AttachmentView
                 android:id="@+id/applozic_message_info_attachmentview"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/applozic_ic_action_camera"
                 android:visibility="visible" />
 
             <ProgressBar
@@ -78,6 +75,7 @@
                 android:visibility="visible"
                 android:src="@drawable/applozic_ic_action_attachment"
                 />
+
             <TextView
                 android:id="@+id/applozic_message_info_attachment_filename"
                 android:layout_width="wrap_content"
@@ -88,13 +86,14 @@
                 android:text="Message Text"
                 android:textColor="@color/applozic_send_message_layout_background_color"
                 android:textSize="18sp" />
+            </RelativeLayout>
             <TextView
                 android:id="@+id/messageText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"
                 android:padding="10dp"
-                android:layout_below="@+id/applozic_message_info_attachmentview"
+                android:layout_below="@+id/applozic_file_info_inner_layout"
                 android:text="Message Text"
                 android:textColor="@color/applozic_send_message_layout_background_color"
                 android:textSize="18sp" />

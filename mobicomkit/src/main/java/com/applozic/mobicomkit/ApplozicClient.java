@@ -12,6 +12,7 @@ public class ApplozicClient {
 
     private static final String HANDLE_DISPLAY_NAME = "CLIENT_HANDLE_DISPLAY_NAME";
     private static final String HANDLE_DIAL = "CLIENT_HANDLE_DIAL";
+    private static final String CHAT_LIST_HIDE_ON_NOTIFICATION = "CHAT_LIST_HIDE_ON_NOTIFICATION";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -45,6 +46,16 @@ public class ApplozicClient {
     public ApplozicClient setHandleDial(boolean enable) {
         sharedPreferences.edit().putBoolean(HANDLE_DIAL, enable).commit();
         return this;
+    }
+
+    public ApplozicClient hideChatListOnNotification() {
+        sharedPreferences.edit().putBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, true).apply();
+        return this;
+    }
+
+
+    public boolean isChatListOnNotificationIsHidden() {
+        return sharedPreferences.getBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, false);
     }
 
 }

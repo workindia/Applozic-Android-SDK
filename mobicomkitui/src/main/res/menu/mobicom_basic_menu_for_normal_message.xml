@@ -63,8 +63,8 @@
         android:id="@+id/userUnBlock"
         android:showAsAction="collapseActionView"
         android:title="@string/user_un_block"
-        android:orderInCategory="6"
         android:visible="false"
+        android:orderInCategory="6"
         mobitexter:showAsAction="collapseActionView" />
 
 

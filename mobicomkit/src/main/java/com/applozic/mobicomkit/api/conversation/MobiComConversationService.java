@@ -159,7 +159,7 @@ public class MobiComConversationService {
                 }
             }
 
-            new MobiComMessageService(context, MessageIntentService.class).processContactFromMessages(Arrays.asList(messages));
+            new MobiComMessageService(context, MessageIntentService.class).processUserDetailFromMessages(Arrays.asList(messages));
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
                     //TODO: remove this check..right now in some cases it is coming as null.
@@ -213,7 +213,7 @@ public class MobiComConversationService {
             Contact newContact = baseContactService.getContactById(userDetail.getUserId());
             Contact contact = new Contact();
             contact.setUserId(userDetail.getUserId());
-            contact.setContactNumber(userDetail.getUserId());
+            contact.setContactNumber(userDetail.getPhoneNumber());
             //contact.setApplicationId(); Todo: set the application id
             contact.setConnected(userDetail.isConnected());
             contact.setFullName(userDetail.getDisplayName());
@@ -344,7 +344,7 @@ public class MobiComConversationService {
             for (UserDetail userDetail : userDetails) {
                 Contact contact = new Contact();
                 contact.setUserId(userDetail.getUserId());
-                contact.setContactNumber(userDetail.getUserId());
+                contact.setContactNumber(userDetail.getPhoneNumber());
                 contact.setConnected(userDetail.isConnected());
                 contact.setFullName(userDetail.getDisplayName());
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());

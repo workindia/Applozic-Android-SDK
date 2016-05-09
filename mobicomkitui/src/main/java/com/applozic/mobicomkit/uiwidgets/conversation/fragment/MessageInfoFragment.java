@@ -14,6 +14,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,7 +26,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
@@ -65,6 +69,12 @@ public class MessageInfoFragment extends Fragment  {
     public MessageInfoFragment() {
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,9 +97,9 @@ public class MessageInfoFragment extends Fragment  {
         readListView = (ListView)view.findViewById(R.id.applozic_message_info_read_list);
         deliveredListView =  (ListView)view.findViewById(R.id.applozic_message_info_delivered_list_view);
         ImageView locationImageView  = (ImageView)view.findViewById(R.id.static_mapview);
-        final RelativeLayout mainContactShareLayout = (RelativeLayout) view.findViewById(R.id.contact_share_layout);
+        final LinearLayout mainContactShareLayout = (LinearLayout) view.findViewById(R.id.contact_share_layout);
 
-        LinearLayout chatLocation = (LinearLayout) view.findViewById(R.id.chat_location);
+        RelativeLayout chatLocation = (RelativeLayout) view.findViewById(R.id.chat_location);
 
         if( message.hasAttachment() && !message.isContactMessage() && !message.isLocationMessage()){
             textView.setVisibility(View.GONE);
@@ -134,7 +144,6 @@ public class MessageInfoFragment extends Fragment  {
 
 
     private void init() {
-
         if(contactImageLoader==null){
             contactImageLoader = new ImageLoader(getContext(), getListPreferredItemHeight()) {
                 @Override
@@ -158,11 +167,23 @@ public class MessageInfoFragment extends Fragment  {
             locationImageLoader.setImageFadeIn(false);
             locationImageLoader.addImageCache(((FragmentActivity) getContext()).getSupportFragmentManager(), 0.1f);
         }
+
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
         toolbar.setTitle(getString(R.string.applozic_message_info));
+        toolbar.setSubtitle("");
+
     }
 
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.findItem(R.id.dial).setVisible(false);
+        menu.removeItem(R.id.start_new);
+        menu.removeItem(R.id.conversations);
+        menu.removeItem(R.id.deleteConversation);
+        menu.removeItem(R.id.refresh);
+
+    }
 
     public class MessageInfoAsyncTask extends AsyncTask<Void, Integer, Long> {
 
@@ -190,6 +211,14 @@ public class MessageInfoFragment extends Fragment  {
         protected void onPostExecute(Long aLong) {
             super.onPostExecute(aLong);
             //Populating view....
+
+            if(!MessageInfoFragment.this.isVisible()){
+                return;
+            }
+            if(messageInfoResponse==null){
+                Toast.makeText(getContext(), getString(R.string.applozic_message_info_no_network),Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (messageInfoResponse.getReadByUserList()!=null){
                 ContactsAdapter readAdapter = new ContactsAdapter(messageInfoResponse.getReadByUserList());
                 readListView.setAdapter(readAdapter);
@@ -264,7 +293,7 @@ public class MessageInfoFragment extends Fragment  {
             }
 
             if (contact != null && !TextUtils.isEmpty(contact.getDisplayName())) {
-                contactNumber = contact.getContactNumber().toUpperCase();
+                contactNumber = contact.getDisplayName().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
                 if (firstLetter != '+') {
                     holder.alphabeticImage.setText(String.valueOf(firstLetter));
@@ -403,7 +432,7 @@ public class MessageInfoFragment extends Fragment  {
      * @param message
      * @param mainContactShareLayout
      */
-    private void setupContactShareView(final Message message, RelativeLayout mainContactShareLayout) {
+    private void setupContactShareView(final Message message, LinearLayout mainContactShareLayout) {
         mainContactShareLayout.setVisibility(View.VISIBLE);
         MobiComVCFParser parser = new MobiComVCFParser();
         try {
@@ -413,7 +442,7 @@ public class MessageInfoFragment extends Fragment  {
             TextView shareContactName = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
             TextView shareContactNo = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
             TextView shareEmailContact = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_emailId);
-
+            (mainContactShareLayout.findViewById(R.id.divider)).setVisibility(View.GONE);
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             addContactButton.setVisibility(View.GONE);
             shareContactName.setText(data.getName());

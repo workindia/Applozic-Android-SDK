@@ -36,7 +36,7 @@ public class ApplozicPermissions {
         }
     }
 
-    private void requestStoragePermissions() {
+    public void requestStoragePermissions() {
         if (PermissionsUtils.shouldShowRequestForStoragePermission(activity)) {
             showSnackBar(R.string.storage_permission, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
         } else {
@@ -57,6 +57,30 @@ public class ApplozicPermissions {
             showSnackBar(R.string.record_audio, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_AUDIO_RECORD);
         } else {
             PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_RECORD_AUDIO, PermissionsUtils.REQUEST_AUDIO_RECORD);
+        }
+    }
+
+    public void requestCallPermission() {
+        if (PermissionsUtils.shouldShowRequestForCallPermission(activity)) {
+            showSnackBar(R.string.phone_call_permission, PermissionsUtils.PERMISSION_CALL, PermissionsUtils.REQUEST_CALL_PHONE);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CALL, PermissionsUtils.REQUEST_CALL_PHONE);
+        }
+    }
+
+    public void requestCameraPermission() {
+        if (PermissionsUtils.shouldShowRequestForCameraPermission(activity)) {
+            showSnackBar(R.string.phone_camera_permission, PermissionsUtils.PERMISSION_CAMERA, PermissionsUtils.REQUEST_CAMERA);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CAMERA, PermissionsUtils.REQUEST_CAMERA);
+        }
+    }
+
+    public void requestContactPermission() {
+        if (PermissionsUtils.shouldShowRequestForContactPermission(activity)) {
+            showSnackBar(R.string.contact_permission, PermissionsUtils.PERMISSION_CONTACT, PermissionsUtils.REQUEST_CONTACT);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CONTACT, PermissionsUtils.REQUEST_CONTACT);
         }
     }
 

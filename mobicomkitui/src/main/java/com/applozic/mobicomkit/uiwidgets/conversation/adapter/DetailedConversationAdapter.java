@@ -251,7 +251,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final LinearLayout attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);
             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
             final RelativeLayout mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
-            final RelativeLayout mainContactShareLayout = (RelativeLayout) customView.findViewById(R.id.contact_share_layout);
+            final LinearLayout mainContactShareLayout = (LinearLayout) customView.findViewById(R.id.contact_share_layout);
 
 
             final ProgressBar mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
@@ -591,7 +591,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         return customView;
     }
 
-    private void setupContactShareView(final Message message, RelativeLayout mainContactShareLayout) {
+    private void setupContactShareView(final Message message, LinearLayout mainContactShareLayout) {
         mainContactShareLayout.setVisibility(View.VISIBLE);
         mainContactShareLayout.setLayoutParams(getImageLayoutParam(false));
         MobiComVCFParser parser = new MobiComVCFParser();
@@ -667,11 +667,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             String contactNumber = "";
             char firstLetter = 0;
             if (contact != null) {
-                contactNumber = contact.getContactNumber().toUpperCase();
+                contactNumber = contact.getDisplayName().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
             } else if (channel != null && contactDisplayName != null) {
                 firstLetter = contactDisplayName.getDisplayName().toUpperCase().charAt(0);
-                contactNumber = contactDisplayName.getContactNumber().toUpperCase();
+                contactNumber = contactDisplayName.getDisplayName().toUpperCase();
             }
 
             if (firstLetter != '+') {
@@ -693,7 +693,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             contactImage.setVisibility(View.VISIBLE);
             alphabeticTextView.setVisibility(View.GONE);
         } else if (contact != null && contactImage != null) {
-            contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
+            if(TextUtils.isEmpty(contact.getImageURL())){
+                contactImage.setVisibility(View.GONE);
+                alphabeticTextView.setVisibility(View.VISIBLE);
+            }else {
+                contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
+            }
         }
 
         if (contactDisplayName != null && contactDisplayName.isDrawableResources() && contactImage != null) {
@@ -702,7 +707,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             contactImage.setVisibility(View.VISIBLE);
             alphabeticTextView.setVisibility(View.GONE);
         } else if (contactDisplayName != null && contactImage != null) {
-            contactImageLoader.loadImage(contactDisplayName, contactImage, alphabeticTextView);
+            if(TextUtils.isEmpty(contactDisplayName.getImageURL())){
+                contactImage.setVisibility(View.GONE);
+                alphabeticTextView.setVisibility(View.VISIBLE);
+            }else {
+                contactImageLoader.loadImage(contactDisplayName, contactImage, alphabeticTextView);
+            }
         }
 
     }

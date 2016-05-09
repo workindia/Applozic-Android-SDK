@@ -57,7 +57,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     protected String searchTerm;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-
+    ApplozicSetting applozicSetting;
     ViewPager viewPager;
     TabLayout tabLayout;
     ActionBar actionBar;
@@ -68,6 +68,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.people_activity);
+        applozicSetting = ApplozicSetting.getInstance(getBaseContext());
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -79,7 +80,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
        if (getIntent().getExtras() != null) {
            userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
        }
-        if(ApplozicSetting.getInstance(getBaseContext()).isStartNewGroupButtonVisible()){
+        if(applozicSetting.isStartNewGroupButtonVisible()){
             actionBar.setTitle(getString(R.string.search_title));
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             viewPager.setVisibility(View.VISIBLE);
@@ -236,8 +237,10 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        this.searchTerm = query;
-        startNewConversation(query);
+        if(applozicSetting.isCreateAnyContact()){
+            this.searchTerm = query;
+            startNewConversation(query);
+        }
         return false;
     }
 

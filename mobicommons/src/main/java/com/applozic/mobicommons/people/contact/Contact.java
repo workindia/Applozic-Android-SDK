@@ -82,7 +82,6 @@ public class Contact implements Serializable {
 
     public Contact(Context context, String userId) {
         this.userId = userId;
-        this.setContactNumber(userId);
         this.processContactNumbers(context);
     }
 

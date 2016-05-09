@@ -12,12 +12,13 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:titleTextAppearance="@color/white"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+       android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
        </android.support.v7.widget.Toolbar>
 
      <RelativeLayout
         android:id="@+id/layout_child_activity"
+         android:background="@color/conversation_list_all_background"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="left|top" />

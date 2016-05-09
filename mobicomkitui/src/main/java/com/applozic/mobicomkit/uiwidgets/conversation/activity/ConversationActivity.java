@@ -12,6 +12,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -31,18 +33,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -64,6 +70,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -95,9 +105,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private Contact contact;
     private Channel channel;
     private static int retry;
+    public static Activity conversationActivity;
     public LinearLayout layout;
     String geoApiKey;
-    public static Activity conversationActivity;
+    int resourceId;
+    RelativeLayout childFragmentLayout;
+    boolean isTakePhoto;
+    boolean isAttachment;
+    private BaseContactService baseContactService;
+    private ApplozicPermissions applozicPermission;
 
     private Uri videoFileUri;
 
@@ -152,7 +168,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         fragmentTransaction.replace(R.id.layout_child_activity, fragmentToAdd,
                 fragmentTag);
 
-        if (supportFragmentManager.getBackStackEntryCount() > 1) {
+        if (supportFragmentManager.getBackStackEntryCount() > 1
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag)){
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
@@ -226,14 +243,22 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        resourceId = ApplozicSetting.getInstance(this).getChatBackgroundColorOrDrawableResource();
+        baseContactService =  new AppContactService(this);
+        if(resourceId != 0){
+            getWindow().setBackgroundDrawableResource(resourceId);
+        }
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         conversationActivity = this;
         geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);
+        applozicPermission = new ApplozicPermissions(this, layout);
+        childFragmentLayout = (RelativeLayout) findViewById(R.id.layout_child_activity);
+
         if (Utils.hasMarshmallow()) {
-            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForStorage();
+            applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
@@ -339,6 +364,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
             if (PermissionsUtils.verifyPermissions(grantResults)) {
                 showSnackBar(R.string.storage_permission_granted);
+                if(isAttachment){
+                    isAttachment = false;
+                    processAttachment();
+                }
             } else {
                 showSnackBar(R.string.storage_permission_not_granted);
             }
@@ -357,12 +386,38 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.phone_state_permission_not_granted);
             }
+        }
+        else if (requestCode == PermissionsUtils.REQUEST_CALL_PHONE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.phone_call_permission_granted);
+                processCall(contact);
+            } else {
+                showSnackBar(R.string.phone_call_permission_not_granted);
+            }
         } else if (requestCode == PermissionsUtils.REQUEST_AUDIO_RECORD) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(R.string.record_audio_permission_granted);
                 showAudioRecordingDialog();
             } else {
                 showSnackBar(R.string.record_audio_permission_not_granted);
+            }
+        } else if (requestCode == PermissionsUtils.REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.phone_camera_permission_granted);
+                if (isTakePhoto) {
+                    processCameraAction();
+                } else {
+                    processVideoRecording();
+                }
+            } else {
+                showSnackBar(R.string.phone_camera_permission_not_granted);
+            }
+        } else if (requestCode == PermissionsUtils.REQUEST_CONTACT) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.contact_permission_granted);
+                processContact();
+            } else {
+                showSnackBar(R.string.contact_permission_not_granted);
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -469,13 +524,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void onBackPressed() {
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
-        if (takeOrder)
-            this.finish();
-
         ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
         if (conversationFragment != null && conversationFragment.isVisible() && (conversationFragment.multimediaPopupGrid.getVisibility() == View.VISIBLE)) {
             conversationFragment.hideMultimediaOptionGrid();
-        } else {
+            return;
+        }
+        if (takeOrder){
+            this.finish();
+        }else {
             super.onBackPressed();
         }
 
@@ -548,6 +604,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     }
 
+    public void setChildFragmentLayoutBG(){
+
+        childFragmentLayout.setBackgroundResource(R.color.conversation_list_all_background);
+    }
+    public void setChildFragmentLayoutBGToTransparent(){
+
+        childFragmentLayout.setBackgroundResource(android.R.color.transparent);
+    }
+
     void showErrorDialog(int code) {
         GooglePlayServicesUtil.getErrorDialog(code, this,
                 CONNECTION_FAILURE_RESOLUTION_REQUEST).show();
@@ -583,29 +648,147 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.videoFileUri = videoFileUri;
     }
 
+    public void isTakePhoto(boolean takePhoto) {
+        this.isTakePhoto = takePhoto;
+    }
+
+    public void isAttachment(boolean attachment) {
+        this.isAttachment = attachment;
+    }
+
+
     public void showAudioRecordingDialog() {
-        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
-            new ApplozicPermissions(this, layout).requestAudio();
-        } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)){
 
-            FragmentManager supportFragmentManager = getSupportFragmentManager();
-            DialogFragment fragment = AudioMessageFragment.newInstance();
+            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
+                new ApplozicPermissions(this, layout).requestAudio();
+            } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
 
-            FragmentTransaction fragmentTransaction = supportFragmentManager
-                    .beginTransaction().add(fragment, "dialog");
+                FragmentManager supportFragmentManager = getSupportFragmentManager();
+                DialogFragment fragment = AudioMessageFragment.newInstance();
 
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commitAllowingStateLoss();
+                FragmentTransaction fragmentTransaction = supportFragmentManager
+                        .beginTransaction().add(fragment, "dialog");
 
-        }else{
-            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
-                showSnackBar(R.string.applozic_audio_permission_missing);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commitAllowingStateLoss();
+
             }else{
-                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
-                        Snackbar.LENGTH_SHORT);
-                snackbar.show();
+
+                if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+                    showSnackBar(R.string.applozic_audio_permission_missing);
+                }else{
+                    snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                            Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
+
+            }
+    }
+
+
+    public void processCall(Contact contactObj){
+        this.contact = baseContactService.getContactById(contactObj.getContactIds());
+        try {
+            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
+                applozicPermission.requestCallPermission();
+            } else {
+                if(!TextUtils.isEmpty(contact.getContactNumber())){
+                    String uri = "tel:" + contact.getContactNumber().trim();
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    intent.setData(Uri.parse(uri));
+                    startActivity(intent);
+                }
             }
 
+        } catch (Exception e) {
+            Log.i("ConversationActivity","Call permission is not added in androidManifest");
         }
     }
+
+
+    public void processCameraAction() {
+        try {
+            if (PermissionsUtils.isCameraPermissionGranted(this)) {
+                imageCapture();
+            } else {
+                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCameraPermission(this)) {
+                    applozicPermission.requestCameraPermission();
+                } else {
+                    imageCapture();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void processVideoRecording() {
+        try{
+            if(PermissionsUtils.isCameraPermissionGranted(this)){
+                showVideoCapture();
+            }else {
+                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCameraPermission(this)) {
+                    applozicPermission.requestCameraPermission();
+                } else {
+                    showVideoCapture();
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void processContact(){
+        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForContactPermission(this)){
+            applozicPermission.requestContactPermission();
+        }else {
+            Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            contactIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+            startActivityForResult(contactIntent, MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE);
+        }
+    }
+
+
+    public void imageCapture() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (cameraIntent.resolveActivity(getApplicationContext().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile;
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_" + ".jpeg";
+
+            photoFile = FileClientService.getFilePath(imageFileName, this, "image/jpeg");
+
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                capturedImageUri = Uri.fromFile(photoFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, capturedImageUri);
+                startActivityForResult(cameraIntent, MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO);
+            }
+        }
+    }
+
+    public void processAttachment(){
+        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)){
+            applozicPermission.requestStoragePermissions();
+        }else {
+            Intent intentPick = new Intent(this, MobiComAttachmentSelectorActivity.class);
+            startActivityForResult(intentPick, MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT);
+        }
+    }
+
+    public void showVideoCapture() {
+        Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "VID_" + timeStamp + "_" + ".mp4";
+
+        File fileUri = FileClientService.getFilePath(imageFileName, this, "video/mp4");
+        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileUri));
+        videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+        videoFileUri = Uri.fromFile(fileUri);
+        startActivityForResult(videoIntent, MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
+    }
+
 }

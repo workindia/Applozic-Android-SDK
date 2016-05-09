@@ -138,30 +138,35 @@ public class QuickConversationAdapter extends BaseAdapter {
             if (channel != null && message.getGroupId() != null) {
                 smReceivers.setText(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId()));
             } else if (contactReceiver != null) {
-                contactNumber = contactReceiver.getContactNumber().toUpperCase();
+                contactNumber = contactReceiver.getDisplayName().toUpperCase();
                 firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
 
+                if (contactReceiver != null) {
+                    if (firstLetter != '+') {
+                        alphabeticTextView.setText(String.valueOf(firstLetter));
+                    } else if (contactNumber.length() >= 2) {
+                        alphabeticTextView.setText(String.valueOf(contactNumber.charAt(1)));
+                    }
+                    Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
+                /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
+                alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
+                    GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
+                    bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+                }
                 if (contactReceiver.isDrawableResources()) {
                     int drawableResourceId = context.getResources().getIdentifier(contactReceiver.getrDrawableName(), "drawable", context.getPackageName());
                     contactImage.setImageResource(drawableResourceId);
                 } else {
-                    contactImageLoader.loadImage(contactReceiver, contactImage, alphabeticTextView);
+                    if(TextUtils.isEmpty(contactReceiver.getImageURL())){
+                        alphabeticTextView.setVisibility(View.VISIBLE);
+                        contactImage.setVisibility(View.GONE);
+                    }else {
+                        contactImageLoader.loadImage(contactReceiver, contactImage, alphabeticTextView);
+                    }
                 }
             }
             if (channel != null) {
                 contactImage.setImageResource(R.drawable.applozic_group_icon);
-            }
-            if (contactReceiver != null && message.getGroupId() == null) {
-                if (firstLetter != '+') {
-                    alphabeticTextView.setText(String.valueOf(firstLetter));
-                } else if (contactNumber.length() >= 2) {
-                    alphabeticTextView.setText(String.valueOf(contactNumber.charAt(1)));
-                }
-                Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
-                /*alphabeticTextView.setTextColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetTextColorMap.get(colorKey)));
-                alphabeticTextView.setBackgroundResource(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey));*/
-                GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
-                bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
             if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
                 onlineTextView.setVisibility(contactReceiver != null && contactReceiver.isOnline() ? View.VISIBLE : View.GONE);
@@ -200,9 +205,9 @@ public class QuickConversationAdapter extends BaseAdapter {
                 messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
             }
 
-            if (contactReceiver != null && new Support(context).isSupportNumber(contactReceiver.getContactNumber()) && (!message.isTypeOutbox())) {
+          /*  if (contactReceiver != null && new Support(context).isSupportNumber(contactReceiver.getContactNumber()) && (!message.isTypeOutbox())) {
                 contactImage.setImageResource(R.drawable.mobicom_ic_launcher);
-            }
+            }*/
             if (sentOrReceived != null) {
                 if (message.isCall()) {
                     sentOrReceived.setImageResource(R.drawable.applozic_ic_action_call_holo_light);

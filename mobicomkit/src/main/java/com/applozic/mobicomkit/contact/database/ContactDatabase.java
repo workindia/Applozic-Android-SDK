@@ -52,12 +52,7 @@ public class ContactDatabase {
         contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash == null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
         contact.setLocalImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI)));
         contact.setImageURL(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_IMAGE_URL)));
-        String contactNumber = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO));
-        if (TextUtils.isEmpty(contactNumber)) {
-            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(primaryKeyAliash == null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
-        } else {
-            contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
-        }
+        contact.setContactNumber(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_NO)));
         contact.setApplicationId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.APPLICATION_ID)));
         Long connected = cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.CONNECTED));
         contact.setConnected(connected != 0 && connected.intValue() == 1);
@@ -91,7 +86,7 @@ public class ContactDatabase {
 
     public List<Contact> getAllContactListExcludingLoggedInUser() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String structuredNameWhere = MobiComDatabaseHelper.CONTACT_NO + " != ?";
+        String structuredNameWhere = MobiComDatabaseHelper.USERID + " != ?";
         Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{MobiComUserPreference.getInstance(context).getUserId()}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
         List<Contact> contactList = getContactList(cursor);
         cursor.close();
@@ -182,9 +177,6 @@ public class ContactDatabase {
     }
 
     public void addContact(Contact contact) {
-        if (TextUtils.isEmpty(contact.getContactNumber())) {
-            contact.setContactNumber(contact.getUserId());
-        }
         ContentValues contentValues = prepareContactValues(contact);
         dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
         dbHelper.close();
@@ -194,7 +186,9 @@ public class ContactDatabase {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
-        contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
+        if(!TextUtils.isEmpty(contact.getContactNumber())){
+            contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
+        }
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
         }

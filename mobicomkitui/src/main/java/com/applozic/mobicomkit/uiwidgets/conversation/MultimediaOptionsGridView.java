@@ -44,54 +44,24 @@ public class MultimediaOptionsGridView {
                         ((ConversationActivity) context).processLocation();
                         break;
                     case 1:
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        // Ensure that there's a camera activity to handle the intent
-                        if (intent.resolveActivity(context.getApplicationContext().getPackageManager()) != null) {
-                            // Create the File where the photo should go
-                            File photoFile;
+                        ((ConversationActivity) context).isTakePhoto(true);
+                        ((ConversationActivity) context).processCameraAction();
 
-                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                            String imageFileName = "JPEG_" + timeStamp + "_" + ".jpeg";
-
-                            photoFile = FileClientService.getFilePath(imageFileName, context, "image/jpeg");
-
-                            // Continue only if the File was successfully created
-                            if (photoFile != null) {
-                                capturedImageUri = Uri.fromFile(photoFile);
-                                ConversationActivity.setCapturedImageUri(capturedImageUri);
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, capturedImageUri);
-                                context.startActivityForResult(intent, MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO);
-                            }
-                        }
                         break;
                     case 2:
-
-                        Intent intentPick = new Intent(context, MobiComAttachmentSelectorActivity.class);
-                        context.startActivityForResult(intentPick, MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT);
+                        ((ConversationActivity) context).isAttachment(true);
+                        ((ConversationActivity) context).processAttachment();
                         break;
                     case 3:
                         ((ConversationActivity) context).showAudioRecordingDialog();
                         break;
                     case 4:
-
-                        // create new Intentwith with Standard Intent action that can be
-                        // sent to have the camera application capture an video and return it.
-                        intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                        String imageFileName = "VID_" + timeStamp + "_" + ".mp4";
-
-                        File fileUri = FileClientService.getFilePath(imageFileName, context, "video/mp4");
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fileUri));
-                        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-                        ((ConversationActivity) context).setVideoFileUri(Uri.fromFile(fileUri));
-                        context.startActivityForResult(intent, MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
+                        ((ConversationActivity) context).isTakePhoto(false);
+                        ((ConversationActivity) context).processVideoRecording();
                         break;
-
                     case 5:
                         //Sharing contact.
-                        intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                        context.startActivityForResult(intent, MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE);
+                        ((ConversationActivity) context).processContact();
                         break;
 
                     case 6:

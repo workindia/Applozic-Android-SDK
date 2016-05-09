@@ -40,6 +40,14 @@ public class ApplozicSetting {
     private static final String CHAT_BACKGROUND_COLOR_OR_DRAWABLE= "CHAT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String MESSAGE_EDITTEXT_TEXT_COLOR= "MESSAGE_EDITTEXT_TEXT_COLOR";
     private static final String AUDIO_PERMISSON_NOT_FOUND_MSG= "AUDIO_PERMISSON_NOT_FOUND_MSG";
+    private static final String REGISTERED_USER_CONTACT_LIST = "REGISTERED_USER_CONTACT_LIST";
+    private static final String REGISTERED_USER_CONTACT_LIST_CALL = "REGISTERED_USER_CONTACT_LIST_CALL";
+    private static final String CREATE_ANY_CONTACT = "CREATE_ANY_CONTACT";
+
+    private static final String HIDE_GROUP_ADD_MEMBERS_BUTTON = "HIDE_GROUP_ADD_MEMBERS_BUTTON";
+    private static final String HIDE_GROUP_NAME_UPDATE_BUTTON= "HIDE_GROUP_NAME_UPDATE_BUTTON";
+    private static final String HIDE_GROUP_EXIT_BUTTON= "HIDE_GROUP_EXIT_BUTTON";
+    private static final String HIDE_GROUP_REMOVE_MEMBER_OPTION= "HIDE_GROUP_REMOVE_MEMBER_OPTION";
 
 
     public static ApplozicSetting applozicSetting;
@@ -368,6 +376,72 @@ public class ApplozicSetting {
         sharedPreferences.edit().putString(AUDIO_PERMISSON_NOT_FOUND_MSG, messageText).commit();
         return this;
     }
+
+    public boolean isHideGroupAddMemberButton() {
+        return sharedPreferences.getBoolean(HIDE_GROUP_ADD_MEMBERS_BUTTON, false);
+    }
+
+    public ApplozicSetting setHideGroupAddButton(boolean hideGroupAddButton) {
+        sharedPreferences.edit().putBoolean(HIDE_GROUP_ADD_MEMBERS_BUTTON, hideGroupAddButton).commit();
+        return this;
+    }
+
+
+    public boolean isHideGroupExitMemberButton() {
+        return sharedPreferences.getBoolean(HIDE_GROUP_EXIT_BUTTON, false);
+    }
+
+    public ApplozicSetting setHideGroupExitButton(boolean hideGroupExitButton) {
+        sharedPreferences.edit().putBoolean(HIDE_GROUP_EXIT_BUTTON, hideGroupExitButton).commit();
+        return this;
+    }
+
+
+    public boolean isHideGroupNameEditButton() {
+        return sharedPreferences.getBoolean(HIDE_GROUP_NAME_UPDATE_BUTTON, false);
+    }
+
+    public ApplozicSetting setHideGroupNameEditButton(boolean hideGroupExitButton) {
+        sharedPreferences.edit().putBoolean(HIDE_GROUP_NAME_UPDATE_BUTTON, hideGroupExitButton).commit();
+        return this;
+    }
+
+    public boolean isHideGroupRemoveMemberOption() {
+        return sharedPreferences.getBoolean(HIDE_GROUP_REMOVE_MEMBER_OPTION, false);
+    }
+
+    public ApplozicSetting setHideGroupRemoveMemberOption(boolean hideRemoveMemberOption) {
+        sharedPreferences.edit().putBoolean(HIDE_GROUP_REMOVE_MEMBER_OPTION, hideRemoveMemberOption).commit();
+        return this;
+    }
+
+    public int getTotalRegisteredUsers(){
+        return  sharedPreferences.getInt(REGISTERED_USER_CONTACT_LIST, 100);
+    }
+
+    public ApplozicSetting setTotalRegisteredUsersToFetch(int totalNumber) {
+        sharedPreferences.edit().putInt(REGISTERED_USER_CONTACT_LIST, totalNumber).apply();
+        return this;
+    }
+
+    public ApplozicSetting disableRegisteredUsersContactCall(){
+        sharedPreferences.edit().putBoolean(REGISTERED_USER_CONTACT_LIST_CALL,false).apply();
+        return this;
+    }
+
+    public boolean isRegisteredUsersContactCall() {
+        return sharedPreferences.getBoolean(REGISTERED_USER_CONTACT_LIST_CALL, true);
+    }
+
+    public ApplozicSetting disableCreateAnyContact(){
+        sharedPreferences.edit().putBoolean(CREATE_ANY_CONTACT,false).apply();
+        return this;
+    }
+
+    public boolean isCreateAnyContact() {
+        return sharedPreferences.getBoolean(CREATE_ANY_CONTACT, true);
+    }
+
 
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();

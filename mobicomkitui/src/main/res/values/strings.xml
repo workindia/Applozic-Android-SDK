@@ -63,32 +63,39 @@
     <!-- The deafult tile size -->
     <dimen name="letter_tile_size">64dp</dimen>
 
-    <string name="contact_permission">Contacts permission are needed to access</string>
+    <string name="contact_permission">Contact permission are needed to access</string>
     <string name="storage_permission">Storage permission are needed to access</string>
     <string name="read_sms_permission">Read sms permission are needed to access</string>
     <string name="location_permission">Location permission are needed to access</string>
     <string name="phone_state_permisssion">Phone state permission are needed to access</string>
+    <string name="phone_call_permission">Phone call permission are needed to access</string>
+    <string name="phone_camera_permission">Camera permission are needed to access</string>
     <string name="record_audio">Audio recording permission needed</string>
 
 
-    <string name="contact_permission_not_granted">Permissions were not granted for Contact</string>
+    <string name="contact_permission_not_granted">Permission were not granted for Contact</string>
     <string name="storage_permission_not_granted">Permissions were not granted for Storage</string>
     <string name="read_sms_permission_not_granted">Permissions were not granted for Read</string>
     <string name="location_permission_not_granted">Permissions were not granted for Location</string>
     <string name="phone_state_permission_not_granted">Permissions were not granted for Phone state</string>
+    <string name="phone_call_permission_not_granted">Permission were not granted for Phone call</string>
+    <string name="phone_camera_permission_not_granted">Permission were not granted for Camera</string>
     <string name="record_audio_permission_not_granted">Permissions were not granted for Audio recording</string>
 
 
-    <string name="contact_permission_granted">Contacts Permissions have been granted</string>
+    <string name="contact_permission_granted">Contacts Permission have been granted</string>
     <string name="storage_permission_granted">Storage Permissions have been granted</string>
     <string name="read_sms_permission_granted">Read sms Permissions have been granted</string>
     <string name="location_permission_granted">Location Permissions has been granted</string>
     <string name="phone_state_permission_granted">Phone state Permissions has been granted</string>
+    <string name="phone_call_permission_granted">Phone call Permission has been granted</string>
+    <string name="phone_camera_permission_granted">Camera permission has been granted</string>
     <string name="record_audio_permission_granted">Audio Record permissions has been granted</string>
     <string name="mobicom_max_attachment_warning">Max attachment limit reached</string>
     <string name="mobicom_select_attachment_text">Select at least one attachment</string>
     <string name="audio_recording_send_text">Tap on Start to record audio</string>
     <string name="applozic_audio_permission_missing">Unable to launch audio recorder.</string>
     <string name="applozic_message_info">Message Info</string>
+    <string name="applozic_message_info_no_network">Not able to fetch message info.</string>
 
 </resources>

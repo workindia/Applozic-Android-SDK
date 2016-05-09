@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.api.notification;
 
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -7,15 +8,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -26,6 +28,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,7 +46,8 @@ public class NotificationService {
     private int wearable_action_label;
     private int wearable_send_icon;
     private AppContactService appContactService;
-
+    private ApplozicClient applozicClient;
+    private String activityToOpen;
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
         this.context = context;
@@ -51,13 +55,14 @@ public class NotificationService {
         this.wearable_action_label = wearable_action_label;
         this.wearable_action_title = wearable_action_title;
         this.wearable_send_icon = wearable_send_icon;
+        this.applozicClient =  ApplozicClient.getInstance(context);
         this.appContactService = new AppContactService(context);
-
+        activityToOpen = Utils.getMetaDataValue(context,"activity.open.on.notification");
     }
 
     public void notifyUser(Contact contact, Channel channel, Message message) {
         String title;
-        String notificationText ;
+        String notificationText;
         Contact displayNameContact = null;
         if (message.getGroupId() != null) {
             title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
@@ -78,12 +83,32 @@ public class NotificationService {
              notificationText = message.getMessage();
          }
 
-        Intent intent = new Intent();
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        intent.setAction(NotificationBroadcastReceiver.LAUNCH_APP);
-        intent.setClass(context, NotificationBroadcastReceiver.class);
+        Class activity = null;
+        try {
+            activity = Class.forName(activityToOpen);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         Integer smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) (System.currentTimeMillis() & 0xfffffff), intent, 0);
+        Intent intent = new Intent(context, activity);
+        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if(applozicClient.isChatListOnNotificationIsHidden()) {
+            intent.putExtra("takeOrder",true);
+        }
+        intent.putExtra("sms_body", "text");
+        intent.setType("vnd.android-dir/mms-sms");
+        PendingIntent pendingIntent;
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        if (!isRunning(context)) {
+            stackBuilder.addParentStack(activity);
+            stackBuilder.addNextIntent(intent);
+            pendingIntent = stackBuilder.getPendingIntent((int) (System.currentTimeMillis() & 0xfffffff), PendingIntent.FLAG_UPDATE_CURRENT);
+        }else {
+            pendingIntent = PendingIntent.getActivity(context, (int) (System.currentTimeMillis() & 0xfffffff),
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(smallIconResourceId)
@@ -128,5 +153,17 @@ public class NotificationService {
             e.printStackTrace();
         }
     }
+
+    public boolean isRunning(Context ctx) {
+        try {
+            ActivityManager activityManager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+            return tasks != null && tasks.size() > 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 }

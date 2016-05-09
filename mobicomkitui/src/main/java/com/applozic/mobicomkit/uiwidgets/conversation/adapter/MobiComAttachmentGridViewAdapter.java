@@ -106,16 +106,19 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
             deleteButton.setVisibility(View.VISIBLE);
 
         }
+         try{
+             Uri uri = (Uri) getItem(position);
+             Bitmap previewBitmap = getPreview(uri);
+             if (previewBitmap != null) {
+                 setGalleryView(previewBitmap);
+             } else {
+                 setAttachmentView(uri);
+             }
+             fileSize.setText(getSize(uri));
 
-        Uri uri = (Uri) getItem(position);
-        Bitmap previewBitmap = getPreview(uri);
-        if (previewBitmap != null) {
-            setGalleryView(previewBitmap);
-        } else {
-            setAttachmentView(uri);
-        }
-        fileSize.setText(getSize(uri));
-
+         }catch (Exception e){
+             e.printStackTrace();
+         }
 
         return view;
     }

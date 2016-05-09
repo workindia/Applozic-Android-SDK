@@ -2,11 +2,12 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
@@ -126,7 +127,7 @@ public class UserService {
     public synchronized  void processUser(UserDetail userDetail){
         Contact contact = new Contact();
         contact.setUserId(userDetail.getUserId());
-        contact.setContactNumber(userDetail.getUserId());
+        contact.setContactNumber(userDetail.getPhoneNumber());
         contact.setConnected(userDetail.isConnected());
         contact.setFullName(userDetail.getDisplayName());
         contact.setLastSeenAt(userDetail.getLastSeenAtTime());
@@ -160,6 +161,20 @@ public class UserService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public synchronized RegisteredUsersApiResponse getRegisteredUsersList(Long startTime, int pageSize) {
+        String response = userClientService.getRegisteredUsers(startTime, pageSize);
+        RegisteredUsersApiResponse apiResponse = null;
+        if (!TextUtils.isEmpty(response) && !MobiComKitConstants.ERROR.equals(response)) {
+            apiResponse = (RegisteredUsersApiResponse) GsonUtils.getObjectFromJson(response, RegisteredUsersApiResponse.class);
+            if (apiResponse != null) {
+                processUserDetail(apiResponse.getUsers());
+                userPreference.setRegisteredUsersLastFetchTime(apiResponse.getLastFetchTime());
+            }
+            return apiResponse;
+        }
+        return apiResponse;
     }
 
 }
