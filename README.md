@@ -69,7 +69,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/developers.html#an
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.37' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.38' `
 
 
 Add the following in gradle android target:      
@@ -115,9 +115,12 @@ android {
 <!-- For testing purpose use AIzaSyAYB1vPc4cpn_FJv68eS_ZGe1UasBNwxLI
 To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->
            
-<meta-data android:name="com.package.name" 
-           android:value="${applicationId}" /> 
-           
+ <meta-data android:name="activity.open.on.notification"
+            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" /> <!-- NOTE : Do NOT change this value -->    
+            
+ <meta-data android:name="com.package.name" 
+           android:value="${applicationId}" /> <!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->
+         
 ```
    **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
 
@@ -154,6 +157,8 @@ Permissions:
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.CALL_PHONE" />
+<uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
   ```
 
@@ -291,15 +296,6 @@ Paste the following in your androidmanifest.xml:
              
 <service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
          android:exported="false" />
-
-<receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">
-         <intent-filter>
-                 <action android:name="applozic.LAUNCH_APP" />
-         </intent-filter>
-<meta-data
-          android:name="activity.open.on.notification"
-          android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-</receiver>
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
