@@ -96,6 +96,9 @@ public class NotificationService {
         if(applozicClient.isChatListOnNotificationIsHidden()) {
             intent.putExtra("takeOrder",true);
         }
+        if(applozicClient.isContextBasedChat()){
+            intent.putExtra("contextBasedChat",true);
+        }
         intent.putExtra("sms_body", "text");
         intent.setType("vnd.android-dir/mms-sms");
         PendingIntent pendingIntent;

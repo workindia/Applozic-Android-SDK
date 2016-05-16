@@ -115,9 +115,11 @@ public class AppContactService implements BaseContactService {
                 HttpURLConnection connection = new MobiComKitClientService(context).openHttpConnection(contactImageURL);
                 if (connection.getResponseCode() == 200) {
                     attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
-                    imageLocalPath = new FileClientService(context).saveImageToInternalStorage(attachedImage, contact.getUserId(), context, "image");
-                    contact.setLocalImageUrl(imageLocalPath);
-                    updateContact(contact);
+                    if(attachedImage != null){
+                        imageLocalPath = new FileClientService(context).saveImageToInternalStorage(attachedImage, contact.getUserId(), context, "image");
+                        contact.setLocalImageUrl(imageLocalPath);
+                        updateContact(contact);
+                    }
                 } else {
                     Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
                 }

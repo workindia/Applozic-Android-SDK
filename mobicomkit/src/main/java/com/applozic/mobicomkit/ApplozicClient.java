@@ -13,6 +13,7 @@ public class ApplozicClient {
     private static final String HANDLE_DISPLAY_NAME = "CLIENT_HANDLE_DISPLAY_NAME";
     private static final String HANDLE_DIAL = "CLIENT_HANDLE_DIAL";
     private static final String CHAT_LIST_HIDE_ON_NOTIFICATION = "CHAT_LIST_HIDE_ON_NOTIFICATION";
+    private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -58,4 +59,12 @@ public class ApplozicClient {
         return sharedPreferences.getBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, false);
     }
 
+    public ApplozicClient setContextBasedChat(boolean enable){
+        sharedPreferences.edit().putBoolean(CONTEXT_BASED_CHAT,enable).apply();
+        return this;
+    }
+
+    public boolean isContextBasedChat() {
+        return sharedPreferences.getBoolean(CONTEXT_BASED_CHAT, false);
+    }
 }

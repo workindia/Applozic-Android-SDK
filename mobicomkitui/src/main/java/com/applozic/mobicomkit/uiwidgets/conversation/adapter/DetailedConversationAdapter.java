@@ -498,6 +498,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             if (messageTextView != null) {
                 messageTextView.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
                         applozicSetting.getSentMessageTextColor() : applozicSetting.getReceivedMessageTextColor()));
+                messageTextView.setLinkTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
+                        applozicSetting.getSentMessageLinkTextColor() : applozicSetting.getReceivedMessageLinkTextColor()));
 
                 if (message.getContentType() == Message.ContentType.TEXT_URL.getValue()) {
                     try {

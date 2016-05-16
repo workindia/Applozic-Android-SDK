@@ -69,23 +69,23 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+        // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         InstructionUtil.enabled = true;
-     //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-     //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
+        //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         InstructionUtil.enabled = false;
-      // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
+        // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -154,13 +154,13 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     public abstract void startContactActivityForResult(Message message, String messageContent);
 
     @Override
-    public void onQuickConversationFragmentItemClick(View view, Contact contact,Channel channel) {
+    public void onQuickConversationFragmentItemClick(View view, Contact contact,Channel channel,Integer conversationId) {
         TextView textView = (TextView) view.findViewById(R.id.unreadSmsCount);
         textView.setVisibility(View.GONE);
-        openConversationFragment(contact);
+        //openConversationFragment(contact);
     }
 
-    public void openConversationFragment(Contact contact) {
+   /* public void openConversationFragment(Contact contact) {
         InstructionUtil.hideInstruction(this, R.string.info_message_sync);
         InstructionUtil.hideInstruction(this, R.string.instruction_open_conversation_thread);
         conversationFragment.loadConversation(contact);
@@ -168,7 +168,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
 
     public void openConversationFragment(Channel channel) {
         conversationFragment.loadConversation(channel);
-    }
+    }*/
 
     public void loadLatestInConversationFragment() {
         if (conversationFragment.getContact() != null || conversationFragment.getChannel() != null) {
@@ -177,7 +177,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         String latestContact = quickConversationFragment.getLatestContact();
         if (latestContact != null) {
             Contact contact = baseContactService.getContactById(latestContact);
-            conversationFragment.loadConversation(contact);
+            //conversationFragment.loadConversation(contact);
         }
     }
 
@@ -281,11 +281,11 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         }
 
         if (contact != null) {
-            openConversationFragment(contact);
+            //openConversationFragment(contact);
         }
 
         if (channel != null) {
-            openConversationFragment(channel);
+            //openConversationFragment(channel);
         }
 
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);
@@ -309,7 +309,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         Contact contact = spinnerNavItem.getContact();
         contact.setContactNumber(spinnerNavItem.getContactNumber());
         contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(spinnerNavItem.getContactNumber(), MobiComUserPreference.getInstance(this).getCountryCode()));
-        conversationFragment.loadConversation(contact);
+        conversationFragment.loadConversation(contact,null);
         return false;
     }
 
@@ -320,7 +320,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
             conversationFragment.emoticonsFrameLayout.setVisibility(View.GONE);
             return;
         }
-       super.onBackPressed();
+        super.onBackPressed();
         this.finish();
     }
 }

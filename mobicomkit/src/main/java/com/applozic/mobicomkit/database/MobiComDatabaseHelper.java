@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 12;
+    public static final int DB_VERSION = 13;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -53,6 +53,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String SENDER_USER_NAME = "senderUserName";
     public static final String CHANNEL = "channel";
     public static final String CHANNEL_USER_X = "channel_User_X";
+    public static final String KEY = "key";
+    public static final String CONVERSATION = "conversation";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -144,13 +146,11 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_CONVERSATION_TABLE = " CREATE TABLE conversation ( " +
             _ID + " integer primary key autoincrement, "
+            + KEY + " integer , "
             + TOPIC_ID + " varchar(100) , "
-            + TOPIC_DETAIL + " varchar(100) , "
-            + USERID + " varchar(100), "
-            + CREATED + " integer, "
-            + SENDER_USER_NAME + " varchar(100), "
-            + CHANNEL_KEY + " integer, "
-            + "UNIQUE (" + CHANNEL_KEY + ", " + USERID + "))";
+            + USERID + " varchar(100) ,"
+            + CHANNEL_KEY + " integer ,"
+            + TOPIC_DETAIL + " varchar(2500))";
 
     private static final String CREATE_INDEX_SMS_TYPE = "CREATE INDEX IF NOT EXISTS INDEX_SMS_TYPE ON sms (type)";
     private static final String TAG = "MobiComDatabaseHelper";
@@ -191,6 +191,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         if (!DBUtils.isTableExists(database, CHANNEL)) {
             database.execSQL(CREATE_CHANNEL_TABLE);
         }
+        if (!DBUtils.isTableExists(database, CONVERSATION)) {
+            database.execSQL(CREATE_CONVERSATION_TABLE);
+        }
         if (!DBUtils.isTableExists(database, CHANNEL_USER_X)) {
             database.execSQL(CREATE_CHANNEL_USER_X_TABLE);
         }
@@ -220,6 +223,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.isTableExists(database, CHANNEL_USER_X)) {
                 database.execSQL(CREATE_CHANNEL_USER_X_TABLE);
+            }
+            if (!DBUtils.isTableExists(database, CONVERSATION)) {
+                database.execSQL(CREATE_CONVERSATION_TABLE);
             }
             if (!DBUtils.existsColumnInTable(database, "sms", "deleted")) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_DELETE_COLUMN);
@@ -297,6 +303,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + CHANNEL);
 
         db.execSQL("delete from " + CHANNEL_USER_X);
+
+        db.execSQL("delete from " + CONVERSATION);
 
         // db.close();
 

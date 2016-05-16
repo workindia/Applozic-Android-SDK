@@ -38,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
@@ -45,6 +46,7 @@ import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -99,7 +101,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         populateAutoComplete();
 
         mPhoneNumberView = (EditText) findViewById(R.id.phoneNumber);
-        mPhoneNumberView.setVisibility(View.GONE);
         mUserIdView = (EditText) findViewById(R.id.userId);
         mPasswordView = (EditText) findViewById(R.id.password);
         mDisplayName = (EditText) findViewById(R.id.displayName);
@@ -271,6 +272,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                             .setCompressedImageSizeInMB(5)
                             .enableImageCompression()
                             .setMaxAttachmentAllowed(5);
+                    ApplozicClient.getInstance(context).setContextBasedChat(true);
 
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
@@ -282,6 +284,9 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Intent mainActvity = new Intent(context, MainActivity.class);
                     startActivity(mainActvity);
                     Intent intent = new Intent(context, ConversationActivity.class);
+                    if(ApplozicClient.getInstance(context).isContextBasedChat()){
+                        intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                    }
                     startActivity(intent);
                     finish();
                 }
@@ -483,7 +488,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
             Snackbar.make(layout, R.string.contact_permission,
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                    .setAction(android.R.string.ok, new OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ActivityCompat

@@ -124,7 +124,16 @@ public class MobiComMessageService {
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-        if (!(currentId.equals(BroadcastService.currentUserId ))) {
+        boolean isContainerOpened = false;
+        if(message.getConversationId() != null && BroadcastService.isContextBasedChatEnabled()){
+            if(BroadcastService.currentConversationId == null){
+                BroadcastService.currentConversationId = message.getConversationId();
+            }
+            isContainerOpened = (currentId.equals(BroadcastService.currentUserId) && message.getConversationId().equals(BroadcastService.currentConversationId));
+        }else {
+            isContainerOpened = currentId.equals(BroadcastService.currentUserId);
+        }
+        if (!isContainerOpened) {
             if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())  && !message.isReadStatus()){
                     if(message.getTo() != null && message.getGroupId() == null){
                         messageDatabaseService.updateContactUnreadCount(message.getTo());

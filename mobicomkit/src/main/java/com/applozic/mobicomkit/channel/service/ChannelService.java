@@ -2,11 +2,11 @@ package com.applozic.mobicomkit.channel.service;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.ChannelCreate;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -36,6 +36,7 @@ public class ChannelService {
     private ChannelClientService channelClientService;
     private BaseContactService baseContactService;
     private UserService userService;
+    private ConversationService conversationService;
 
     private ChannelService(Context context) {
         this.context = context;
@@ -43,6 +44,7 @@ public class ChannelService {
         channelDatabaseService = ChannelDatabaseService.getInstance(context);
         userService = UserService.getInstance(context);
         baseContactService = new AppContactService(context);
+        conversationService = ConversationService.getInstance(context);
     }
 
     public synchronized static ChannelService getInstance(Context context) {
@@ -80,6 +82,10 @@ public class ChannelService {
                     channelDatabaseService.updateChannel(channel);
                 } else {
                     channelDatabaseService.addChannel(channel);
+                }
+                if(channelFeed.getConversationPxy() != null){
+                    channelFeed.getConversationPxy().setGroupId(channelFeed.getId());
+                    conversationService.addConversation(channelFeed.getConversationPxy());
                 }
                 if (memberUserIds != null && memberUserIds.size() > 0) {
                     for (String userId : memberUserIds) {

@@ -32,11 +32,11 @@ public class ConversationFragment extends MobiComConversationFragment {
         this.messageIntentClass = MessageIntentService.class;
     }
 
-    public ConversationFragment(Contact contact, Channel channel) {
+    public ConversationFragment(Contact contact, Channel channel,Integer conversationId) {
         this.messageIntentClass = MessageIntentService.class;
         this.contact = contact;
         this.channel = channel;
-
+        this.currentConversationId = conversationId;
     }
 
     public void attachLocation(Location mCurrentLocation) {

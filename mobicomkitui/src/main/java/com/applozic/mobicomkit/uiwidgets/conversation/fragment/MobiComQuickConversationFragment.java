@@ -183,10 +183,17 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        menu.removeItem(R.id.dial);
-        menu.removeItem(R.id.deleteConversation);
-        menu.removeItem(R.id.userBlock);
-        menu.removeItem(R.id.userUnBlock);
+        if (!ApplozicSetting.getInstance(getActivity()).isStartNewButtonVisible()) {
+            menu.removeItem(R.id.start_new);
+        }else {
+            menu.findItem(R.id.start_new).setVisible(true);
+        }
+        if (!ApplozicSetting.getInstance(getActivity()).isStartNewGroupButtonVisible()) {
+            menu.removeItem(R.id.conversations);
+        }else {
+            menu.findItem(R.id.conversations).setVisible(true);
+        }
+        menu.findItem(R.id.refresh).setVisible(true);
     }
 
     public void addMessage(final Message message) {

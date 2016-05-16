@@ -9,6 +9,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -48,6 +49,9 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
                     public void run() {
                         Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
                         Contact contact = null;
+                        if(message.getConversationId() != null){
+                            ConversationService.getInstance(context).getConversation(message.getConversationId());
+                        }
                         if (message.getGroupId() == null) {
                             contact = new AppContactService(context).getContactById(message.getContactIds());
                         }

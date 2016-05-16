@@ -13,6 +13,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -126,7 +127,7 @@ public class MessageDatabaseService {
         return smsList;
     }
 
-    public List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel) {
+    public List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel,Integer conversationId) {
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
 
@@ -148,6 +149,10 @@ public class MessageDatabaseService {
         if (endTime != null) {
             structuredNameWhere += "createdAt < ? AND ";
             structuredNameParamsList.add(String.valueOf(endTime));
+        }
+        if( BroadcastService.isContextBasedChatEnabled() && conversationId != null && conversationId != 0 ){
+            structuredNameWhere += "conversationId = ? AND ";
+            structuredNameParamsList.add(String.valueOf(conversationId));
         }
         structuredNameWhere += "messageContentType != ? AND ";
         structuredNameParamsList.add(String.valueOf(Message.ContentType.HIDDEN.getValue()));

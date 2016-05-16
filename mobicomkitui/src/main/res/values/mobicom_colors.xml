@@ -58,6 +58,7 @@
     <color name="applozic_share_contact_background">#fff5f5ff</color>
     <color name="applozic_share_contact_divider">#FFB6B6B6</color>
     <color name="applozic_lite_black_color">#b2b2b2</color>
+    <color name="applozic_green_color">#5fba7d</color>
 
 
 </resources>

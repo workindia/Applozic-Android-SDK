@@ -22,7 +22,9 @@ public class BroadcastService {
     private static final String MOBICOMKIT_ALL = "MOBICOMKIT_ALL";
 
     public static String currentUserId = null;
+    public static Integer currentConversationId = null;
     public static boolean mobiTexterBroadcastReceiverActivated;
+    private static boolean contextBasedChatEnabled = false;
     public static String currentInfoId = null;
 
     public static void selectMobiComKitAll() {
@@ -38,6 +40,14 @@ public class BroadcastService {
 
     public static boolean isIndividual() {
         return currentUserId != null && !isQuick();
+    }
+
+    public static synchronized boolean isContextBasedChatEnabled() {
+        return contextBasedChatEnabled;
+    }
+
+    public static synchronized boolean setContextBasedChat(boolean contextBasedChat) {
+        return contextBasedChatEnabled = contextBasedChat;
     }
 
     public static void sendFirstTimeSyncCompletedBroadcast(Context context) {

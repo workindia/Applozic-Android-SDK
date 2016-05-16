@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.people.ChannelCreate;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -175,6 +176,9 @@ public class ContactSelectionActivity extends AppCompatActivity {
                             Channel channel = ChannelService.getInstance(ContactSelectionActivity.this).createChannel(channelCreate);
                             if (channel != null) {
                                 Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+                                if(ApplozicClient.getInstance(ContactSelectionActivity.this).isContextBasedChat()){
+                                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                                }
                                 intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
                                 intent.putExtra(ConversationUIService.GROUP_NAME, channel.getName());
                                 startActivity(intent);

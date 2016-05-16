@@ -85,6 +85,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
+    public static final String CONVERSATION_ID = "conversationId";
     public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
     protected static final long UPDATE_INTERVAL = 500;
     protected static final long FASTEST_INTERVAL = 1;
@@ -114,7 +115,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     boolean isAttachment;
     private BaseContactService baseContactService;
     private ApplozicPermissions applozicPermission;
-
+    private ApplozicSetting applozicSetting;
+    Integer currentConversationId;
     private Uri videoFileUri;
 
     public ConversationActivity() {
@@ -215,6 +217,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putSerializable(CONTACT, contact);
         savedInstanceState.putSerializable(CHANNEL, channel);
+        savedInstanceState.putSerializable(CONVERSATION_ID, currentConversationId);
 
         if (capturedImageUri != null) {
             savedInstanceState.putString(CAPTURED_IMAGE_URI, capturedImageUri.toString());
@@ -245,6 +248,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         super.onCreate(savedInstanceState);
         resourceId = ApplozicSetting.getInstance(this).getChatBackgroundColorOrDrawableResource();
         baseContactService =  new AppContactService(this);
+        applozicSetting = ApplozicSetting.getInstance(this);
         if(resourceId != 0){
             getWindow().setBackgroundDrawableResource(resourceId);
         }
@@ -271,10 +275,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             contact = (Contact) savedInstanceState.getSerializable(CONTACT);
             channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
+            currentConversationId = savedInstanceState.getInt(CONVERSATION_ID);
             if (channel != null) {
-                conversation = new ConversationFragment(null, channel);
+                conversation = new ConversationFragment(null, channel,currentConversationId);
             } else {
-                conversation = new ConversationFragment(contact, null);
+                conversation = new ConversationFragment(contact, null,currentConversationId);
             }
             addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         } else {
@@ -317,6 +322,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         try {
+            if(getIntent().getExtras() != null){
+                BroadcastService.setContextBasedChat(getIntent().getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
+            }
             new ConversationUIService(this).checkForStartNewConversation(intent);
         } catch (Exception e) {
             e.printStackTrace();
@@ -333,15 +341,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         showActionBar();
         //return false;
         getMenuInflater().inflate(R.menu.mobicom_basic_menu_for_normal_message, menu);
-        if (!ApplozicSetting.getInstance(this).isStartNewButtonVisible()) {
-            menu.removeItem(R.id.start_new);
-        }
-        if (!ApplozicClient.getInstance(this).isHandleDial()) {
-            menu.findItem(R.id.dial).setVisible(false);
-        }
-        if (!ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()) {
-            menu.removeItem(R.id.conversations);
-        }
         return true;
     }
 
@@ -494,20 +493,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     .setType("text/plain").putExtra(Intent.EXTRA_TEXT, inviteMessage);
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
-        } else if (id == R.id.deleteConversation) {
-            if (conversation != null) {
-                conversation.deleteConversationThread();
-            }
         }
         return false;
     }
 
     @Override
-    public void onQuickConversationFragmentItemClick(View view, Contact contact, Channel channel) {
-        conversation = new ConversationFragment(contact, channel);
+    public void onQuickConversationFragmentItemClick(View view, Contact contact, Channel channel,Integer conversationId) {
+        conversation = new ConversationFragment(contact, channel,conversationId);
         addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         this.channel = channel;
         this.contact = contact;
+        this.currentConversationId = conversationId;
     }
 
     @Override
@@ -626,6 +622,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         return channel;
     }
 
+    public Integer getConversationId() {
+        return currentConversationId;
+    }
+
     public static Uri getCapturedImageUri() {
         return capturedImageUri;
     }
@@ -659,30 +659,30 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     public void showAudioRecordingDialog() {
 
-            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
-                new ApplozicPermissions(this, layout).requestAudio();
-            } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
+        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
+            new ApplozicPermissions(this, layout).requestAudio();
+        } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
 
-                FragmentManager supportFragmentManager = getSupportFragmentManager();
-                DialogFragment fragment = AudioMessageFragment.newInstance();
+            FragmentManager supportFragmentManager = getSupportFragmentManager();
+            DialogFragment fragment = AudioMessageFragment.newInstance();
 
-                FragmentTransaction fragmentTransaction = supportFragmentManager
-                        .beginTransaction().add(fragment, "dialog");
+            FragmentTransaction fragmentTransaction = supportFragmentManager
+                    .beginTransaction().add(fragment, "dialog");
 
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commitAllowingStateLoss();
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commitAllowingStateLoss();
 
+        }else{
+
+            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+                showSnackBar(R.string.applozic_audio_permission_missing);
             }else{
-
-                if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
-                    showSnackBar(R.string.applozic_audio_permission_missing);
-                }else{
-                    snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
-                            Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
-
+                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                        Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
+
+        }
     }
 
 
@@ -693,10 +693,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 applozicPermission.requestCallPermission();
             } else {
                 if(!TextUtils.isEmpty(contact.getContactNumber())){
+                    Intent callIntent;
                     String uri = "tel:" + contact.getContactNumber().trim();
-                    Intent intent = new Intent(Intent.ACTION_CALL);
-                    intent.setData(Uri.parse(uri));
-                    startActivity(intent);
+                    if(applozicSetting.isActionDialWithoutCallingEnabled()){
+                        callIntent = new Intent(Intent.ACTION_DIAL);
+                    }else {
+                        callIntent = new Intent(Intent.ACTION_CALL);
+                    }
+                    callIntent.setData(Uri.parse(uri));
+                    startActivity(callIntent);
                 }
             }
 
@@ -790,5 +795,4 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         videoFileUri = Uri.fromFile(fileUri);
         startActivityForResult(videoIntent, MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
     }
-
 }

@@ -22,6 +22,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 
 
@@ -253,6 +255,9 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (item.getItemId() == R.id.action_example) {
             Intent intent = new Intent(getActivity(), ConversationActivity.class);
+            if(ApplozicClient.getInstance(getActivity()).isContextBasedChat()){
+                intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+            }
             startActivity(intent);
             return true;
         }

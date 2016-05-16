@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -44,6 +45,7 @@ import com.applozic.mobicomkit.feed.ChannelName;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -183,6 +185,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     ConversationActivity.conversationActivity.finish();
                 }
                 Intent intent = new Intent(ChannelInfoActivity.this, ConversationActivity.class);
+                if(ApplozicClient.getInstance(ChannelInfoActivity.this).isContextBasedChat()){
+                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                }
                 startActivity(intent);
                 finish();
             }

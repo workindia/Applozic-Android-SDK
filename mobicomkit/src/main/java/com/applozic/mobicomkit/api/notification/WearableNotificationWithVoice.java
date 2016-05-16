@@ -81,7 +81,7 @@ public class WearableNotificationWithVoice {
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
         // Create the reply action and add the remote input
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(actionIconResId,
+        Action action = new Action.Builder(actionIconResId,
                 mContext.getString(actionTitleId), pendingIntent).addRemoteInput(remoteInput).build();
         return action;
     }

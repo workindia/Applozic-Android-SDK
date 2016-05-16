@@ -2,6 +2,8 @@ package com.applozic.mobicommons.people.channel;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -9,15 +11,24 @@ import java.util.List;
  */
 public class Conversation implements Serializable {
 
+    public static final String USER_ID_KEY = "userId";
+    public static final String FALL_BACK_TEMPLATE_KEY = "fallBackTemplate";
+
     private Integer id;
     private String topicId;
     private String topicDetail;
     private String userId;
     private List<String> supportIds;
     private boolean created;
+    private boolean closed;
     private String senderUserName;
     private String applicationKey;
     private Integer groupId;
+    private ArrayList fallBackTemplatesList;
+
+    public Conversation() {
+
+    }
 
     public Integer getGroupId() {
         return groupId;
@@ -92,14 +103,42 @@ public class Conversation implements Serializable {
         this.topicDetail = topicDetail;
     }
 
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    public void setSenderSmsFormat(String userId, String format){
+        setSmsFormat(userId,format);
+    }
+
+    public void setReceiverSmsFormat(String userId, String format){
+        setSmsFormat(userId,format);
+    }
+
+    public void setSmsFormat(String userId, String smsFormat) {
+
+        if(this.fallBackTemplatesList ==null) {
+            this.fallBackTemplatesList = new ArrayList();
+        }
+        HashMap<String, String> map =  new HashMap<String,String>();
+        map.put(USER_ID_KEY, userId);
+        map.put(FALL_BACK_TEMPLATE_KEY, smsFormat );
+        fallBackTemplatesList.add(map);
+    }
     @Override
     public String toString() {
         return "Conversation{" +
                 "id=" + id +
                 ", topicId='" + topicId + '\'' +
+                ", topicDetail='" + topicDetail + '\'' +
                 ", userId='" + userId + '\'' +
                 ", supportIds=" + supportIds +
                 ", created=" + created +
+                ", closed=" + closed +
                 ", senderUserName='" + senderUserName + '\'' +
                 ", applicationKey='" + applicationKey + '\'' +
                 ", groupId=" + groupId +

@@ -529,7 +529,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     }
 
-    public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime) throws UnsupportedEncodingException {
+    public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime,Integer conversationId) throws UnsupportedEncodingException {
         String contactNumber = (contact != null ? contact.getFormattedContactNumber() : "");
         String params = "";
         if (contact != null || channel != null) {
@@ -542,6 +542,14 @@ public class MessageClientService extends MobiComKitClientService {
         params += (endTime != null && endTime.intValue() != 0) ? "endTime=" + endTime + "&" : "";
         params += (channel != null && channel.getKey() != null) ? "groupId=" + channel.getKey() + "&" : "";
 
+        if(BroadcastService.isContextBasedChatEnabled()){
+            if(conversationId != null && conversationId != 0){
+                params += "conversationId="+conversationId+"&";
+            }
+            if(endTime != null && endTime.intValue() == 0 || endTime == null){
+                params += "conversationReq=true";
+            }
+        }
         return httpRequestUtils.getResponse(getCredentials(), getMessageListUrl() + "?" + params
                 , "application/json", "application/json");
     }
@@ -592,7 +600,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String[] getConnectedUsers() {
         try {
-            String response = getMessages(null, null, null, null);
+            String response = getMessages(null, null, null, null,null);
             if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access") || !response.contains("{")) {
                 return null;
             }

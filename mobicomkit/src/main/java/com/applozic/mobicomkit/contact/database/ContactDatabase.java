@@ -300,6 +300,8 @@ public class ContactDatabase {
                 } else {
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " where fullName like '%" + searchString + "%'";
+                    }else {
+                        query = query + " where userId != '"+ userPreferences.getUserId()+"'";
                     }
                     query = query + " order by fullName,userId asc ";
                     cursor = db.rawQuery(query, null);

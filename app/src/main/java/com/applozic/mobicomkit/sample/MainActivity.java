@@ -18,17 +18,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.people.ChannelCreate;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
-import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
@@ -122,6 +125,9 @@ public class MainActivity extends MobiComActivityForFragment
 
         if (position == 1) {
             Intent intent = new Intent(this, ConversationActivity.class);
+            if(ApplozicClient.getInstance(MainActivity.this).isContextBasedChat()){
+                intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+            }
             startActivity(intent);
             return;
         }/*
@@ -183,15 +189,49 @@ public class MainActivity extends MobiComActivityForFragment
                 .commit();
     }
 
+//    public void takeOrder(View v) {
+//        Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
+//        takeOrderIntent.putExtra(TAKE_ORDER, true);
+//        takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+//        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
+//        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_TOPIC_ID, "Ebco Strip Light Connection Cord 4");
+//        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_IMAGE_URL, "https://www.applozic.com/resources/sidebox/images/applozic.png");
+//        // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
+//        startActivity(takeOrderIntent);
+//    }
+
     public void takeOrder(View v) {
+        Conversation conversation = buildConversation();
+
         Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
         takeOrderIntent.putExtra(TAKE_ORDER, true);
-        takeOrderIntent.putExtra(ConversationUIService.USER_ID, Utils.getMetaDataValue(this, TAKE_ORDER_USERID_METADATA));
+        takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+        takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
         takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
-        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_TOPIC_ID, "Ebco Strip Light Connection Cord 4");
-        takeOrderIntent.putExtra(ConversationUIService.PRODUCT_IMAGE_URL, "https://www.applozic.com/resources/sidebox/images/applozic.png");
+        String jsonString = GsonUtils.getJsonFromObject(conversation, Conversation.class);
+        takeOrderIntent.putExtra(ConversationUIService.TOPICDETAIL,jsonString);
+
         // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
         startActivity(takeOrderIntent);
+    }
+
+    private Conversation buildConversation() {
+
+        Conversation conversation = new Conversation();
+        conversation.setUserId("usertest2");
+        conversation.setTopicId("Topic#Id#Test");
+        TopicDetail topic = new TopicDetail();
+        topic.setTitle("TestTopic2");
+        topic.setSubtitle("Topic1");
+        topic.setLink("https://www.applozic.com/resources/sidebox/images/applozic.png");
+        topic.setKey1("Qty");
+        topic.setValue1("1000");
+        topic.setKey2("Price");
+        topic.setValue2("20 Rs");
+        conversation.setSenderSmsFormat(MobiComUserPreference.getInstance(this).getUserId(), "SENDER SMS  FORMAT");
+        conversation.setReceiverSmsFormat("usertest2", "RECEIVER SMS FORMAT");
+        conversation.setTopicDetail(topic.getJson());
+        return conversation;
     }
 
     public void groupChat(View v) {

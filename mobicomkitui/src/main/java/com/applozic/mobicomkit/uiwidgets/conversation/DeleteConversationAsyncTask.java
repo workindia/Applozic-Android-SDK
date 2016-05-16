@@ -25,6 +25,7 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     private Context context;
     private Channel channel;
     private boolean isUserPresentInChannel;
+    Integer conversationId;
 
 
     public DeleteConversationAsyncTask(MobiComConversationService conversationService, Message message, Contact contact) {
@@ -33,12 +34,13 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
         this.conversationService = conversationService;
     }
 
-    public DeleteConversationAsyncTask( MobiComConversationService conversationService,Contact contact,Channel channel,Context context){
+    public DeleteConversationAsyncTask( MobiComConversationService conversationService,Contact contact,Channel channel,Integer conversationId,Context context){
         this.contact = contact;
         this.context= context;
         this.channel = channel;
         this.conversationService = conversationService;
         this.isThreaddelete = true;
+        this.conversationId = conversationId;
 
     }
 
@@ -57,7 +59,7 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
             if(channel != null){
                 isUserPresentInChannel = ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey());
             }
-            conversationService.deleteSync(contact,channel,isUserPresentInChannel);
+            conversationService.deleteSync(contact,channel,isUserPresentInChannel,conversationId);
         }else{
             conversationService.deleteMessage(message, contact);
         }

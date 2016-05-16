@@ -176,7 +176,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View view) {
                     InstructionUtil.hideInstruction(context, R.string.instruction_open_conversation_thread);
-                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver, channel);
+                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver, channel,message.getConversationId());
                 }
             });
 
