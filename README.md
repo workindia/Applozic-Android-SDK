@@ -69,7 +69,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/developers.html#an
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.38' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:3.39' `
 
 
 Add the following in gradle android target:      
@@ -350,27 +350,59 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
+
 **Step 4: Updating GCM registration id:**
 
-In case, if you don't have the existing GCM related code, then copy the files from https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/java/com/applozic/mobicomkit/sample/pushnotification
-to your project and add the following lines in the "onSuccess" method mentioned in Step 3.
+**Don't have GCM setup?**
 
-To Enable Android Push Notification using Google Cloud Messaging (GCM) visit the below link 
-https://blog.applozic.com/enable-push-notification-in-your-android-app-ae591de461e7#.q086bfbgv
+In case, if you don't have the existing GCM related code, then copy the push notification related files from Applozic sample app to your project
 
-After Registering project at https://console.developers.google.com
-Replace the value of GCM_SENDER_ID in GCMRegistrationUtils.java with your own project gcm sender id.
-SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).            
+``` 
+https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/java/com/applozic/mobicomkit/sample/pushnotification 
 
+``` 
+And add this in your androidmanifest.xml file
 
+``` 
+<receiver android:name="com.google.android.gms.gcm.GcmReceiver"
+          android:exported="true"
+          android:permission="com.google.android.c2dm.permission.SEND">
+          <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="<APP_PKG_NAME>" />
+          </intent-filter>
+</receiver>
+        
+<service android:name="<CLASS_PACKAGE>.ApplozicGcmListenerService">
+         <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+         </intent-filter>
+</service>
+        
+<service android:name="<CLASS_PACKAGE>.GcmInstanceIDListenerService"
+         android:exported="false">
+         <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+         </intent-filter>
+</service>
 
+  ``` 
+Setup GCM in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
  GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);          
  gcmRegistrationUtils.setUpGcmNotification();                      
 ```
 
-If you already have a GCM code in your app, then copy the following code at the place where you are getting the GCM registration id.       
+To Enable Android Push Notification using Google Cloud Messaging (GCM) visit the below link http://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
+
+After Registering project at https://console.developers.google.com Replace the value of GCM_SENDER_ID in GCMRegistrationUtils.java with your own project gcm sender id.
+SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).            
+
+
+**GCM is already enabled in my app**
+
+If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
 ```
 PushNotificationTask pushNotificationTask = null         
@@ -384,11 +416,14 @@ public void onSuccess(RegistrationResponse registrationResponse)
 @Override          
 public void onFailure(RegistrationResponse registrationResponse, Exception exception)      
 {             
-} };                    
+} 
+
+};                    
 
 pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
 pushNotificationTask.execute((Void) null);                          
 ```
+
 
 
 **Step 5: Handling push notification**:
