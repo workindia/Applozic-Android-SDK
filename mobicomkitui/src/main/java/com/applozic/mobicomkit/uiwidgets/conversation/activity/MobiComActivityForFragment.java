@@ -69,23 +69,23 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+       // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         InstructionUtil.enabled = true;
-        //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-        //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+     //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
+     //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         InstructionUtil.enabled = false;
-        // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-        // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+      // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
+       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -320,7 +320,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
             conversationFragment.emoticonsFrameLayout.setVisibility(View.GONE);
             return;
         }
-        super.onBackPressed();
+       super.onBackPressed();
         this.finish();
     }
 }

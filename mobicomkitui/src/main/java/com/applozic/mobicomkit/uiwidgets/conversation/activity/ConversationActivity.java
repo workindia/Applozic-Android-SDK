@@ -37,7 +37,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -46,6 +45,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -63,6 +63,7 @@ import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -87,6 +88,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     public static final String CHANNEL = "channel";
     public static final String CONVERSATION_ID = "conversationId";
     public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
+    public static final String ACTIVITY_TO_OPEN_ONCLICK_OF_CALL_BUTTON_META_DATA = "activity.open.on.call.button.click";
     protected static final long UPDATE_INTERVAL = 500;
     protected static final long FASTEST_INTERVAL = 1;
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -109,6 +111,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     public static Activity conversationActivity;
     public LinearLayout layout;
     String geoApiKey;
+    String activityToOpenOnClickOfCallButton;
     int resourceId;
     RelativeLayout childFragmentLayout;
     boolean isTakePhoto;
@@ -257,6 +260,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         setSupportActionBar(myToolbar);
         conversationActivity = this;
         geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
+        activityToOpenOnClickOfCallButton = Utils.getMetaDataValue(this, ACTIVITY_TO_OPEN_ONCLICK_OF_CALL_BUTTON_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);
         applozicPermission = new ApplozicPermissions(this, layout);
         childFragmentLayout = (RelativeLayout) findViewById(R.id.layout_child_activity);
@@ -323,7 +327,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         try {
             if(getIntent().getExtras() != null){
-                BroadcastService.setContextBasedChat(getIntent().getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
+               BroadcastService.setContextBasedChat(getIntent().getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
             }
             new ConversationUIService(this).checkForStartNewConversation(intent);
         } catch (Exception e) {
@@ -389,7 +393,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         else if (requestCode == PermissionsUtils.REQUEST_CALL_PHONE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(R.string.phone_call_permission_granted);
-                processCall(contact);
+                processCall(contact,currentConversationId);
             } else {
                 showSnackBar(R.string.phone_call_permission_not_granted);
             }
@@ -659,54 +663,65 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     public void showAudioRecordingDialog() {
 
-        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
-            new ApplozicPermissions(this, layout).requestAudio();
-        } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
+            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
+                new ApplozicPermissions(this, layout).requestAudio();
+            } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
 
-            FragmentManager supportFragmentManager = getSupportFragmentManager();
-            DialogFragment fragment = AudioMessageFragment.newInstance();
+                FragmentManager supportFragmentManager = getSupportFragmentManager();
+                DialogFragment fragment = AudioMessageFragment.newInstance();
 
-            FragmentTransaction fragmentTransaction = supportFragmentManager
-                    .beginTransaction().add(fragment, "dialog");
+                FragmentTransaction fragmentTransaction = supportFragmentManager
+                        .beginTransaction().add(fragment, "dialog");
 
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commitAllowingStateLoss();
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commitAllowingStateLoss();
 
-        }else{
-
-            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
-                showSnackBar(R.string.applozic_audio_permission_missing);
             }else{
-                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
-                        Snackbar.LENGTH_SHORT);
-                snackbar.show();
-            }
 
-        }
+                if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+                    showSnackBar(R.string.applozic_audio_permission_missing);
+                }else{
+                    snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                            Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
+
+            }
     }
 
 
-    public void processCall(Contact contactObj){
+    public void processCall(Contact contactObj, Integer conversationId) {
         this.contact = baseContactService.getContactById(contactObj.getContactIds());
+        this.currentConversationId = conversationId;
         try {
             if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
                 applozicPermission.requestCallPermission();
             } else {
-                if(!TextUtils.isEmpty(contact.getContactNumber())){
-                    Intent callIntent;
-                    String uri = "tel:" + contact.getContactNumber().trim();
-                    if(applozicSetting.isActionDialWithoutCallingEnabled()){
-                        callIntent = new Intent(Intent.ACTION_DIAL);
-                    }else {
-                        callIntent = new Intent(Intent.ACTION_CALL);
+                if (activityToOpenOnClickOfCallButton != null) {
+                    Intent callIntent = new Intent(this, Class.forName(activityToOpenOnClickOfCallButton));
+                    if (currentConversationId != null) {
+                        Conversation conversation = ConversationService.getInstance(this).getConversationByConversationId(currentConversationId);
+                        callIntent.putExtra(ConversationUIService.TOPIC_ID, conversation.getTopicId());
                     }
-                    callIntent.setData(Uri.parse(uri));
+                    callIntent.putExtra(ConversationUIService.CONTACT, contact);
                     startActivity(callIntent);
+                } else {
+                    if (!TextUtils.isEmpty(contact.getContactNumber())) {
+                        Intent callIntent;
+                        String uri = "tel:" + contact.getContactNumber().trim();
+                        if (applozicSetting.isActionDialWithoutCallingEnabled()) {
+                            callIntent = new Intent(Intent.ACTION_DIAL);
+                        } else {
+                            callIntent = new Intent(Intent.ACTION_CALL);
+                        }
+                        callIntent.setData(Uri.parse(uri));
+                        startActivity(callIntent);
+                    }
                 }
             }
 
         } catch (Exception e) {
-            Log.i("ConversationActivity","Call permission is not added in androidManifest");
+            Log.i("ConversationActivity", "Call permission is not added in androidManifest");
         }
     }
 

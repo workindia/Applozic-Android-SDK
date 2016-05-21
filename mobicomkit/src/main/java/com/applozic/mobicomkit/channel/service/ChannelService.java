@@ -36,7 +36,6 @@ public class ChannelService {
     private ChannelClientService channelClientService;
     private BaseContactService baseContactService;
     private UserService userService;
-    private ConversationService conversationService;
 
     private ChannelService(Context context) {
         this.context = context;
@@ -44,7 +43,6 @@ public class ChannelService {
         channelDatabaseService = ChannelDatabaseService.getInstance(context);
         userService = UserService.getInstance(context);
         baseContactService = new AppContactService(context);
-        conversationService = ConversationService.getInstance(context);
     }
 
     public synchronized static ChannelService getInstance(Context context) {
@@ -85,7 +83,7 @@ public class ChannelService {
                 }
                 if(channelFeed.getConversationPxy() != null){
                     channelFeed.getConversationPxy().setGroupId(channelFeed.getId());
-                    conversationService.addConversation(channelFeed.getConversationPxy());
+                    ConversationService.getInstance(context).addConversation(channelFeed.getConversationPxy());
                 }
                 if (memberUserIds != null && memberUserIds.size() > 0) {
                     for (String userId : memberUserIds) {

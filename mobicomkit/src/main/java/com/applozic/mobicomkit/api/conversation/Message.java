@@ -562,7 +562,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isDeliveredAndRead() {
-        return Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
+        return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
     }
 
     public boolean isReadStatus() {

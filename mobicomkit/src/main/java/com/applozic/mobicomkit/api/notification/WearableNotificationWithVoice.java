@@ -4,12 +4,16 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
+import android.view.View;
+
+import com.applozic.mobicomkit.ApplozicClient;
 
 /**
  * @author adarsh
@@ -67,6 +71,25 @@ public class WearableNotificationWithVoice {
         }
         Action action = buildWearableAction();
         Notification notification = notificationBuilder.extend(new WearableExtender().addAction(action)).build();
+
+        if(ApplozicClient.getInstance(mContext).isNotificationSmallIconHidden() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN ){
+            int smallIconViewId = mContext.getResources().getIdentifier("right_icon", "id", android.R.class.getPackage().getName());
+            if (smallIconViewId != 0) {
+
+                if (notification.contentIntent != null) {
+                    notification.contentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+                }
+                if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){
+                    if (notification.headsUpContentView != null) {
+                        notification.headsUpContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+                    }
+                    if (notification.bigContentView != null) {
+                        notification.bigContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+                    }
+                }
+
+            }
+        }
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
         notificationManager.notify(notificationId, notification);
     }
@@ -81,7 +104,7 @@ public class WearableNotificationWithVoice {
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
         // Create the reply action and add the remote input
-        Action action = new Action.Builder(actionIconResId,
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(actionIconResId,
                 mContext.getString(actionTitleId), pendingIntent).addRemoteInput(remoteInput).build();
         return action;
     }

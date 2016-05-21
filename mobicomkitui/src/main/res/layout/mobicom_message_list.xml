@@ -232,55 +232,55 @@
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp">
 
-            <ImageButton
-                android:id="@+id/emoticons_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:background="@android:color/transparent"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:scaleType="center"
-                android:src="@drawable/mobicom_emoticons_icon" />
+        <ImageButton
+            android:id="@+id/emoticons_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:scaleType="center"
+            android:src="@drawable/mobicom_emoticons_icon" />
 
-            <ImageButton
-                android:id="@+id/attach_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:background="@android:color/transparent"
-                android:paddingLeft="10dp"
-                android:paddingRight="20dp"
-                android:layout_gravity="bottom"
-                android:src="@drawable/applozic_ic_action_attachment"
-                android:visibility="visible" />
+        <ImageButton
+            android:id="@+id/attach_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:paddingLeft="10dp"
+            android:paddingRight="20dp"
+            android:layout_gravity="bottom"
+            android:src="@drawable/applozic_ic_action_attachment"
+            android:visibility="visible" />
 
-            <!--
-                    <EditText
-                        android:id="@+id/conversation_message"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="8"
-                        android:hint="@string/enter_message_hint"
-                        android:maxLines="6"
-                        android:minLines="2"
-                        android:textColor="@color/black"
-                        android:textSize="16sp" />
-            -->
-            <EditText
-                android:id="@+id/conversation_message"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                android:layout_weight="8"
-                android:background="@android:color/transparent"
-                android:hint="@string/enter_message_hint"
-                android:textColorHint="@color/edittext_hint_color"
-                android:cursorVisible="true"
-                android:maxLines="6"
-                android:minLines="2"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
+<!--
+        <EditText
+            android:id="@+id/conversation_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:hint="@string/enter_message_hint"
+            android:maxLines="6"
+            android:minLines="2"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+-->
+        <EditText
+            android:id="@+id/conversation_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_weight="8"
+            android:background="@android:color/transparent"
+            android:hint="@string/enter_message_hint"
+            android:textColorHint="@color/edittext_hint_color"
+            android:cursorVisible="true"
+            android:maxLines="6"
+            android:minLines="2"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
         </LinearLayout>
 
 
@@ -322,7 +322,7 @@
             android:layout_gravity="center"
             android:text="@string/user_not_in_this_group_text"
             android:layout_height="match_parent" />
-    </LinearLayout>
+   </LinearLayout>
 
     <FrameLayout
         android:id="@+id/emojicons_frame_layout"

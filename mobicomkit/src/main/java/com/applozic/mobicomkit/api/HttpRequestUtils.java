@@ -6,6 +6,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -41,6 +42,8 @@ public class HttpRequestUtils {
 
     public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
 
+    public static String ACCESS_TOKEN = "Access-Token";
+
 
     public HttpRequestUtils(Context context) {
         this.context = context;
@@ -50,7 +53,7 @@ public class HttpRequestUtils {
         Log.i(TAG, message);
     }
 
-    public String postData(PasswordAuthentication credentials, String urlString, String contentType, String accept, String data) {
+    public String postData(PasswordAuthentication credentials, String urlString, String contentType, String accept, String data) throws Exception {
         Log.i(TAG, "Calling url: " + urlString);
         HttpURLConnection connection;
         URL url;
@@ -143,7 +146,7 @@ public class HttpRequestUtils {
             InputStream inputStream = connection.getInputStream();
             br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         }else {
-            Log.i(TAG,"Response code postJson is :"+connection.getResponseCode());
+            Log.i(TAG,"Response code for post json is :"+connection.getResponseCode());
         }
         StringBuilder sb = new StringBuilder();
         try {
@@ -242,6 +245,10 @@ public class HttpRequestUtils {
             connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
             connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
             connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+            Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
+            if(User.AuthenticationType.APPLOZIC.getValue() == authenticationType ){
+                connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
+            }
 
             if(MobiComKitClientService.getAppModuleName(context)!=null){
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER,MobiComKitClientService.getAppModuleName(context));

@@ -14,6 +14,7 @@ public class ApplozicClient {
     private static final String HANDLE_DIAL = "CLIENT_HANDLE_DIAL";
     private static final String CHAT_LIST_HIDE_ON_NOTIFICATION = "CHAT_LIST_HIDE_ON_NOTIFICATION";
     private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
+    private static final String NOTIFICATION_SMALL_ICON= "NOTIFICATION_SMALL_ICON";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -66,5 +67,14 @@ public class ApplozicClient {
 
     public boolean isContextBasedChat() {
         return sharedPreferences.getBoolean(CONTEXT_BASED_CHAT, false);
+    }
+
+    public ApplozicClient hideNotificationSmallIcon() {
+        sharedPreferences.edit().putBoolean(NOTIFICATION_SMALL_ICON, true).apply();
+        return this;
+    }
+
+    public boolean isNotificationSmallIconHidden() {
+      return  sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
     }
 }

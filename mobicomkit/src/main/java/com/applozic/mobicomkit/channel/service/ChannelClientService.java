@@ -92,7 +92,7 @@ public class ChannelClientService extends MobiComKitClientService {
             ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(response, ChannelFeedApiResponse.class);
             Log.i(TAG, "Channel info response  is :" + response);
 
-            if (channelFeedApiResponse.isSuccess()) {
+            if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 ChannelFeed channelFeed = channelFeedApiResponse.getResponse();
                 return channelFeed;
             }
@@ -126,7 +126,7 @@ public class ChannelClientService extends MobiComKitClientService {
             Log.i(TAG, "Create channel Response :" + createChannelResponse);
             ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
 
-            if (channelFeedApiResponse.isSuccess()) {
+            if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 channelFeed = channelFeedApiResponse.getResponse();
             }
 
@@ -146,7 +146,10 @@ public class ChannelClientService extends MobiComKitClientService {
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
+                if(apiResponse != null){
+                    Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,7 +166,9 @@ public class ChannelClientService extends MobiComKitClientService {
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8") + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                  apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
+                if(apiResponse != null){
+                    Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,7 +183,9 @@ public class ChannelClientService extends MobiComKitClientService {
                 String channelNameUpdateJson = GsonUtils.getJsonFromObject(channelName,ChannelName.class);
                 String response = httpRequestUtils.postData(getCredentials(), getUpdateNewChannelNameUrl() , "application/json", "application/json", channelNameUpdateJson);
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                Log.i(TAG, "Update Channel name response: " + apiResponse.getStatus());
+                if(apiResponse != null){
+                    Log.i(TAG, "Update Channel name response: " + apiResponse.getStatus());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,7 +202,9 @@ public class ChannelClientService extends MobiComKitClientService {
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
                 String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                Log.i(TAG, "Channel leave member call response: " + apiResponse.getStatus());
+                if(apiResponse != null){
+                    Log.i(TAG, "Channel leave member call response: " + apiResponse.getStatus());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

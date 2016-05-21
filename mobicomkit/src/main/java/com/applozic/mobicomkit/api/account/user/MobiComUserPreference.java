@@ -51,6 +51,9 @@ public class MobiComUserPreference {
     private static String max_compressed_image_size = "max_compressed_image_size";
     private static String image_link = "image_link";
     private static String registered_users_last_fetch_time = "registered_users_last_fetch_time";
+    private static String password = "password";
+    private static String authenticationType = "authenticationType";
+    private static String mqtt_broker_url = "mqtt_broker_url";
 
 
     public SharedPreferences sharedPreferences;
@@ -322,6 +325,14 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putString(base_url, url).commit();
     }
 
+    public String getMqttBrokerUrl() {
+        return sharedPreferences.getString(mqtt_broker_url, null);
+    }
+
+    public void setMqttBrokerUrl(String url) {
+        sharedPreferences.edit().putString(mqtt_broker_url, url).commit();
+    }
+
     public String getDisplayName() {
         return sharedPreferences.getString(display_name, null);
     }
@@ -382,6 +393,22 @@ public class MobiComUserPreference {
 
     public void setImageLink(String imageUrl) {
         sharedPreferences.edit().putString(image_link, imageUrl).apply();
+    }
+
+    public String getPassword() {
+        return sharedPreferences.getString(password, null);
+    }
+
+    public void setPassword(String val) {
+        sharedPreferences.edit().putString(password, val).apply();
+    }
+
+    public String getAuthenticationType() {
+        return sharedPreferences.getString(authenticationType, "0");
+    }
+
+    public void setAuthenticationType(String val) {
+        sharedPreferences.edit().putString(authenticationType, val).apply();
     }
 
     @Override

@@ -143,6 +143,9 @@
     <string name="user_block_info">Block [name]? Blocked user no longer be able to send you messages</string>
     <string name="user_un_block_info">Unblock [name] to send a message</string>
     <string name="please_wait_info">Please wait a moment...</string>
+    <string name="applozic_userId_error_info_in_logs">UserId can not be null or empty and Channel key should not be null</string>
+    <string name="applozic_channel_error_info_in_logs">Please check group name is Null or Empty or it has at least one member to be added in group</string>
+
 
 
 </resources>

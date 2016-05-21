@@ -387,11 +387,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder.adminTextView.setVisibility(View.GONE);
             }
-            if (contact.getLastSeenAt() != 0) {
-                if(!MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())){
+            if (!MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())) {
+                if (contact.isConnected()) {
+                    holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
+                    holder.lastSeenAtTextView.setText(getString(R.string.user_online));
+                } else if (contact.getLastSeenAt() != 0) {
                     holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
                     holder.lastSeenAtTextView.setText(getString(R.string.subtitle_last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(contact.getLastSeenAt())));
-                }else {
+                } else {
                     holder.lastSeenAtTextView.setVisibility(View.GONE);
                     holder.lastSeenAtTextView.setText("");
                 }

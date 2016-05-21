@@ -1,9 +1,10 @@
 package com.applozic.mobicomkit.api.conversation.service;
 
 import android.content.Context;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.conversation.database.ConversationDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
@@ -74,8 +75,20 @@ public class ConversationService {
         }
     }
 
-    public synchronized ChannelFeed createConversation(Conversation conversation) {
-        return conversationClientService.createConversation(conversation);
+    public synchronized Integer createConversation(Conversation conversation) {
+        ChannelFeed channelFeed = conversationClientService.createConversation(conversation);
+        if(channelFeed != null){
+            if (conversation.getSupportIds() != null) {
+                ChannelFeed[] channelFeeds = new ChannelFeed[1];
+                channelFeeds[0] = channelFeed;
+                ChannelService.getInstance(context).processChannelFeedList(channelFeeds, false);;
+            }
+            if(channelFeed.getConversationPxy()!= null){
+                addConversation(channelFeed.getConversationPxy());
+                return channelFeed.getConversationPxy().getId();
+            }
+        }
+        return null;
     }
 
     public synchronized void getConversation(Integer conversationId) {
@@ -90,6 +103,13 @@ public class ConversationService {
 
     public synchronized void deleteConversation(String userId) {
         conversationDatabaseService.deleteConversation(userId);
+    }
+
+    public synchronized Integer isConversationExist(String userId,String topicId){
+        if(TextUtils.isEmpty(userId) ||  TextUtils.isEmpty(topicId)){
+            return null;
+        }
+        return  conversationDatabaseService.isConversationExit(userId,topicId);
     }
 
 }

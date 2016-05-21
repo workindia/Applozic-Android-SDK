@@ -13,6 +13,7 @@ import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
 
+import com.applozic.mobicomkit.exception.UnAuthoriseException;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.google.gson.Gson;
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -27,12 +28,10 @@ import java.util.TimeZone;
  */
 public class RegisterUserClientService extends MobiComKitClientService {
 
-    private static final String TAG = "RegisterUserClient";
-    private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
     public static final Short MOBICOMKIT_VERSION_CODE = 106;
-
-
+    private static final String TAG = "RegisterUserClient";
+    private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     private HttpRequestUtils httpRequestUtils;
 
     public RegisterUserClientService(Context context) {
@@ -44,7 +43,21 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return getBaseUrl() + CREATE_ACCOUNT_URL;
     }
 
-    private RegistrationResponse createAccount(User user) throws Exception {
+
+//    final RegistrationResponse registrationResponse = createAccount(user);
+//    Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+//    intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH,true);
+//    context.startService(intent);
+//    return registrationResponse;
+
+
+    public RegistrationResponse createAccount(User user) throws Exception {
+
+
+        user.setDeviceType(Short.valueOf("1"));
+        user.setPrefContactAPI(Short.valueOf("2"));
+        user.setTimezone(TimeZone.getDefault().getID());
+
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
@@ -52,7 +65,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setApplicationId(getApplicationKey(context));
         user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
-        if(getAppModuleName(context)!=null){
+        if (getAppModuleName(context) != null) {
             user.setAppModuleName(getAppModuleName(context));
         }
 
@@ -69,20 +82,28 @@ public class RegisterUserClientService extends MobiComKitClientService {
         Log.i(TAG, "Registration response is: " + response);
 
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
-            throw new UnknownHostException("Error 404");
+            throw new Exception("503 Service Unavailable");
 //            return null;
         }
         if (response.contains(INVALID_APP_ID)) {
             throw new InvalidApplicationException("Invalid Application Id");
         }
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-        Log.i("Registration response ", "is " + registrationResponse);
 
+        if (registrationResponse.isPasswordInvalid()) {
+            throw new UnAuthoriseException("Invalid uername/password");
+
+        }
+        Log.i("Registration response ", "is " + registrationResponse);
+       if(registrationResponse.getNotificationResponse() != null){
+           Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
+       }
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
         mobiComUserPreference.setEmailVerified(user.isEmailVerified());
         mobiComUserPreference.setDisplayName(user.getDisplayName());
+        mobiComUserPreference.setMqttBrokerUrl(registrationResponse.getBrokerUrl());
         mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKey());
         mobiComUserPreference.setEmailIdValue(user.getEmail());
         mobiComUserPreference.setImageLink(user.getImageLink());
@@ -91,34 +112,37 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setUserBlockSyncTime("10000");
+        mobiComUserPreference.setPassword(user.getPassword());
+        mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 SyncCallService.getInstance(context).getLatestMessagesGroupByPeople();
             }
         }).start();
+        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
+        context.startService(intent);
         return registrationResponse;
     }
 
 
-    public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName,String imageLink, String pushNotificationId) throws Exception {
+    public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName, String imageLink, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
         String url = mobiComUserPreference.getUrl();
         mobiComUserPreference.clearAll();
         mobiComUserPreference.setUrl(url);
 
-        return updateAccount(email, userId, phoneNumber, displayName,imageLink, pushNotificationId);
+        return updateAccount(email, userId, phoneNumber, displayName, imageLink, pushNotificationId);
     }
 
-    private RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String imageLink,String pushNotificationId) throws Exception {
+    private RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String imageLink, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         User user = new User();
         user.setUserId(userId);
         user.setEmail(email);
-        user.setDeviceType(Short.valueOf("1"));
-        user.setPrefContactAPI(Short.valueOf("2"));
-        user.setTimezone(TimeZone.getDefault().getID());
         user.setImageLink(imageLink);
         user.setRegistrationId(pushNotificationId);
         user.setDisplayName(displayName);
@@ -138,7 +162,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         final RegistrationResponse registrationResponse = createAccount(user);
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH,true);
+        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
         context.startService(intent);
         return registrationResponse;
     }
@@ -148,12 +172,31 @@ public class RegisterUserClientService extends MobiComKitClientService {
         //Note: In case if gcm registration is done before login then only updating in pref
 
         RegistrationResponse registrationResponse = null;
+        User user = getUserDetail();
+
         if (!TextUtils.isEmpty(pushNotificationId)) {
             pref.setDeviceRegistrationId(pushNotificationId);
         }
+        user.setRegistrationId(pushNotificationId);
         if (pref.isRegistered()) {
-            registrationResponse = updateAccount(pref.getEmailIdValue(), pref.getUserId(), pref.getContactNumber(), pref.getDisplayName(),pref.getImageLink(), pushNotificationId);
+            registrationResponse = createAccount(user);
         }
         return registrationResponse;
+    }
+
+
+    private User getUserDetail() {
+
+        MobiComUserPreference pref = MobiComUserPreference.getInstance(context);
+
+        User user = new User();
+        user.setEmail(pref.getEmailIdValue());
+        user.setUserId(pref.getUserId());
+        user.setContactNumber(pref.getContactNumber());
+        user.setDisplayName(pref.getDisplayName());
+        user.setImageLink(pref.getImageLink());
+        user.setPassword(pref.getPassword());
+        user.setAuthenticationTypeId(Short.valueOf(pref.getAuthenticationType()));
+        return user;
     }
 }

@@ -1,5 +1,7 @@
 package com.applozic.mobicomkit.api.account.register;
 
+import android.text.TextUtils;
+
 import com.applozic.mobicomkit.api.JsonMarker;
 
 /**
@@ -13,6 +15,8 @@ public class RegistrationResponse extends JsonMarker {
     private String contactNumber;
     private Long lastSyncTime;
     private Long currentTimeStamp;
+    private String notificationResponse;
+    private String brokerUrl;
 
     public String getMessage() {
         return message;
@@ -61,6 +65,27 @@ public class RegistrationResponse extends JsonMarker {
     public void setCurrentTimeStamp(Long currentTimeStamp) {
         this.currentTimeStamp = currentTimeStamp;
     }
+
+    public String getNotificationResponse() {
+        return notificationResponse;
+    }
+
+    public void setNotificationResponse(String notificationResponse) {
+        this.notificationResponse = notificationResponse;
+    }
+
+    public String getBrokerUrl() {
+        return brokerUrl;
+    }
+
+    public void setBrokerUrl(String brokerUrl) {
+        this.brokerUrl = brokerUrl;
+    }
+
+    public boolean isPasswordInvalid(){
+        return (! TextUtils.isEmpty(message) && ( "PASSWORD_INVALID".equals(message) || "PASSWORD_REQUIRED".equals(message) ));
+    }
+
 
     @Override
     public String toString() {

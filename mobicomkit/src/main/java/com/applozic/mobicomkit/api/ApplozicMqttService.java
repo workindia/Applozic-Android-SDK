@@ -34,7 +34,6 @@ import static com.applozic.mobicomkit.api.MobiComKitConstants.APPLICATION_KEY_ME
 public class ApplozicMqttService extends MobiComKitClientService implements MqttCallback {
 
     private static final String STATUS = "status";
-    private static final String MQTT_PORT = "1883";
     private static final String TAG = "ApplozicMqttService";
     private static final String TYPINGTOPIC = "typing-";
     private static ApplozicMqttService applozicMqttService;
@@ -85,7 +84,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return client;
             }
             if (client == null) {
-                client = new MqttClient(getMqttBaseUrl() + ":" + MQTT_PORT, userId + "-" + new Date().getTime(), memoryPersistence);
+                client = new MqttClient(getMqttBaseUrl(), userId + "-" + new Date().getTime(), memoryPersistence);
             }
 
             if (!client.isConnected()) {

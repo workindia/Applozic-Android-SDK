@@ -388,7 +388,7 @@ public class ApplozicSetting {
     }
 
     public boolean isLocationSharingViaMap() {
-        return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
+       return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
     }
 
     public ApplozicSetting setLocationSharingViaMap(boolean value) {
@@ -410,7 +410,7 @@ public class ApplozicSetting {
 
     //Default value is 5.
     public int getMaxAttachmentAllowed(){
-        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
+       return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
     }
 
     public ApplozicSetting setMaxAttachmentSize(int maxAttachmentSize) {
@@ -488,13 +488,13 @@ public class ApplozicSetting {
         return this;
     }
 
-    public ApplozicSetting disableRegisteredUsersContactCall(){
-        sharedPreferences.edit().putBoolean(REGISTERED_USER_CONTACT_LIST_CALL,false).apply();
+    public ApplozicSetting enableRegisteredUsersContactCall(){
+        sharedPreferences.edit().putBoolean(REGISTERED_USER_CONTACT_LIST_CALL,true).apply();
         return this;
     }
 
     public boolean isRegisteredUsersContactCall() {
-        return sharedPreferences.getBoolean(REGISTERED_USER_CONTACT_LIST_CALL, true);
+        return sharedPreferences.getBoolean(REGISTERED_USER_CONTACT_LIST_CALL, false);
     }
 
     public ApplozicSetting enableCreateAnyContact(){

@@ -715,7 +715,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             new UserBlockAsync(contact.getUserId(), getActivity(), false).execute();
         }
         if (id == R.id.dial) {
-            ((ConversationActivity)getActivity()).processCall(contact);
+            ((ConversationActivity)getActivity()).processCall(contact,currentConversationId);
         }
         if (id == R.id.deleteConversation) {
             deleteConversationThread();
@@ -864,7 +864,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     break;
                 contactDisplayName = new AppContactService(getActivity()).getContactById(channelUserMapper.getUserKey());
                 if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-                    stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
+                    if(MobiComUserPreference.getInstance(getActivity()).getUserId().equals(channelUserMapper.getUserKey())){
+                        stringBuffer.append(getString(R.string.you_string)).append(",");
+                    }else {
+                        stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
+                    }
                 }
             }
             if (!TextUtils.isEmpty(stringBuffer)) {
@@ -1587,6 +1591,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private Contact contact;
         private Channel channel;
         private Integer conversationId;
+        private List<Conversation> conversationList;
         private List<Message> nextMessageList = new ArrayList<Message>();
 
         public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel,Integer conversationId) {
@@ -1773,22 +1778,26 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             syncCallService.updateUnreadCount(contact, channel);
 
-            if (conversations != null && !onSelected) {
-                onSelected = true;
-                applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversations);
-                contextSpinner.setAdapter(applozicContextSpinnerAdapter);
-                contextFrameLayout.setVisibility(View.VISIBLE);
-                int i = 0;
-                for(Conversation c:conversations){
-                    i++;
-                    if(c.getId().equals(conversationId)) {
-                        break;
-                    }
-                }
-                contextSpinner.setSelection(i-1, false);
-                contextSpinner.setOnItemSelectedListener(adapterView);
+            if(conversations != null && conversations.size()>0 ){
+                conversationList = conversations;
             }
-
+            if (conversationList != null  && conversationList.size()>0 && !onSelected) {
+                onSelected = true;
+                applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
+                if (applozicContextSpinnerAdapter != null) {
+                    contextSpinner.setAdapter(applozicContextSpinnerAdapter);
+                    contextFrameLayout.setVisibility(View.VISIBLE);
+                    int i = 0;
+                    for (Conversation c : conversationList) {
+                        i++;
+                        if (c.getId().equals(conversationId)) {
+                            break;
+                        }
+                    }
+                    contextSpinner.setSelection(i - 1, false);
+                    contextSpinner.setOnItemSelectedListener(adapterView);
+                }
+            }
             if (conversationAdapter != null) {
                 conversationAdapter.notifyDataSetChanged();
             }

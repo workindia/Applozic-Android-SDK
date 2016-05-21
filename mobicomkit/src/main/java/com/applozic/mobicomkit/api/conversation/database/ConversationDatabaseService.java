@@ -174,4 +174,27 @@ public class ConversationDatabaseService {
         Log.i(TAG, "Delete no of conversation:" + deletedRows);
     }
 
+    public Integer isConversationExit(String userId,String topicId){
+        Conversation conversation = null;
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+
+        String conversationParameters = "";
+        List<String> structuredNameParamsList = new ArrayList<>();
+
+        conversationParameters += "userId = ? ";
+        structuredNameParamsList.add(userId);
+
+        conversationParameters += " and topicId = ? ";
+        structuredNameParamsList.add(topicId);
+
+        Cursor cursor = database.query(MobiComDatabaseHelper.CONVERSATION, null, conversationParameters, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, null);
+
+        if (cursor.moveToFirst()) {
+            conversation = getConversation(cursor);
+            cursor.close();
+            return conversation.getId();
+        }
+        return null;
+    }
+
 }

@@ -22,7 +22,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 
     }
-
+    private  User user;
     private final TaskListener taskListener;
     private final String mUserId;
     private final String mEmail;
@@ -44,13 +44,15 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         mImageLink = user.getImageLink();
         this.taskListener = listener;
         this.context = context;
+        this.user=user;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
             new UserClientService(context).logout();
-            registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName,mImageLink, "");
+            //registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName,mImageLink, "");
+            registrationResponse  = new RegisterUserClientService(context).createAccount(user);
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;

@@ -29,7 +29,6 @@ public class ConversationClientService extends MobiComKitClientService {
     private ConversationClientService(Context context) {
         super(context);
         this.context = context;
-        conversationDatabaseService = ConversationDatabaseService.getInstance(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
 
     }

@@ -11,10 +11,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -34,6 +33,9 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
         private Context context;
 
         public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations) {
+            if(context == null){
+                return;
+            }
             mInflater = LayoutInflater.from(context);
             this.conversationList = conversations;
             this.fileClientService = new FileClientService(context);
@@ -121,11 +123,17 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
+            if(context == null){
+                return 0;
+            }
             return conversationList.size();
         }
 
         @Override
         public Object getItem(int position) {
+            if(context == null){
+                return null;
+            }
             return conversationList.get(position);
         }
 
