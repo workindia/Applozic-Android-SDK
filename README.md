@@ -47,6 +47,7 @@ android {
     }               
 ```
 
+
 **Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
           
 ```
