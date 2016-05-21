@@ -15,48 +15,6 @@ Signup at https://www.applozic.com/signup.html to get the application key.
 Applozic One to One and Group Chat SDK
 
 
-Features:
-
-
- One to one and Group Chat
- 
- Image capture
- 
- Photo sharing
- 
- File attachment
- 
- Location sharing
- 
- Push notifications
- 
- In-App notifications
- 
- Online presence
- 
- Last seen at 
- 
- Unread message count
- 
- Typing indicator
- 
- Message sent, Read Recipients and Delivery report
- 
- Offline messaging
- 
- User block / unblock
- 
- Multi Device sync
- 
- Application to user messaging
- 
- Customized chat bubble
- 
- UI Customization Toolkit
- 
- Cross Platform Support (iOS, Android & Web)
-
-
 
 ### Getting Started       
 
@@ -501,6 +459,49 @@ ApplozicClient.getInstance(this).setHandleDisplayName(false);
 By default, the display name feature is enabled.
 
 For more details, visit: https://www.applozic.com/developers.html#android-sdk-getting-started
+
+
+
+####Features:
+
+
+ One to one and Group Chat
+ 
+ Image capture
+ 
+ Photo sharing
+ 
+ File attachment
+ 
+ Location sharing
+ 
+ Push notifications
+ 
+ In-App notifications
+ 
+ Online presence
+ 
+ Last seen at 
+ 
+ Unread message count
+ 
+ Typing indicator
+ 
+ Message sent, Read Recipients and Delivery report
+ 
+ Offline messaging
+ 
+ User block / unblock
+ 
+ Multi Device sync
+ 
+ Application to user messaging
+ 
+ Customized chat bubble
+ 
+ UI Customization Toolkit
+ 
+ Cross Platform Support (iOS, Android & Web)
 
 
 ###Sample code to build messenger and chat app
