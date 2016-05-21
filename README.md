@@ -8,9 +8,9 @@ Open source Android Chat SDK / Messaging SDK that lets you add real time chat an
 
 Signup at https://www.applozic.com/signup.html to get the application key.
 
-<img  align="middle"  src="img/applozic.jpg"/>
+<img  align="middle"  src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/applozic.jpg"/>
 
-<img align="right" src="img/android.png" />
+<img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
 
 Applozic One to One and Group Chat SDK
 
