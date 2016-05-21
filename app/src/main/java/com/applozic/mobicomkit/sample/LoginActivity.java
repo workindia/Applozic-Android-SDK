@@ -228,7 +228,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             cancel = true;
         }
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if ((TextUtils.isEmpty(mPasswordView.getText().toString())||mPasswordView.getText().toString().trim().length() == 0) && !isPasswordValid(mPasswordView.getText().toString())) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -272,7 +272,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                             .setCompressedImageSizeInMB(5)
                             .enableImageCompression()
                             .setMaxAttachmentAllowed(5);
-                    ApplozicClient.getInstance(context).setContextBasedChat(true);
+                    ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
 
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
@@ -284,7 +284,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Intent mainActvity = new Intent(context, MainActivity.class);
                     startActivity(mainActvity);
                     Intent intent = new Intent(context, ConversationActivity.class);
-                    if(ApplozicClient.getInstance(context).isContextBasedChat()){
+                    if(ApplozicClient.getInstance(LoginActivity.this).isContextBasedChat()){
                         intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
                     }
                     startActivity(intent);
@@ -394,7 +394,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 5;
     }
 
     @Override
@@ -488,7 +488,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
             Snackbar.make(layout, R.string.contact_permission,
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new OnClickListener() {
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ActivityCompat

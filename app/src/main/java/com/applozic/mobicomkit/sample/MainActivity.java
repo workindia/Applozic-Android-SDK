@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,25 +23,22 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.people.ChannelCreate;
-import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.uiwidgets.async.ApplzoicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
-import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends MobiComActivityForFragment
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
 
     public static final String TAKE_ORDER = "takeOrder";
+    public static final String TAG = "MainActivity";
     public static final String TAKE_ORDER_USERID_METADATA = "com.applozic.take.order.userId";
     private static final String CONVERSATION_FRAGMENT = "ConversationFragment";
 
@@ -125,7 +123,7 @@ public class MainActivity extends MobiComActivityForFragment
 
         if (position == 1) {
             Intent intent = new Intent(this, ConversationActivity.class);
-            if(ApplozicClient.getInstance(MainActivity.this).isContextBasedChat()){
+            if(ApplozicClient.getInstance(this).isContextBasedChat()){
                 intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
             }
             startActivity(intent);
@@ -147,29 +145,6 @@ public class MainActivity extends MobiComActivityForFragment
                     .replace(R.id.container, EcommerceFragment.newInstance("", ""))
                     .commit();
             return;
-        }
-
-       if (position == 3) {
-
-            String groupname = "Applozic Team";
-            List<String> groupMemberList = new ArrayList<String>();
-
-            groupMemberList.add("adarsh");
-            groupMemberList.add("devashish");
-            groupMemberList.add("applozic");
-            groupMemberList.add("anshul")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ;
-            groupMemberList.add("nitin");
-            groupMemberList.add("ranjeet");
-            groupMemberList.add("divjyot");
-            groupMemberList.add("pravin");
-            groupMemberList.add("abhishek");
-            groupMemberList.add("shanki");
-            groupMemberList.add("sunil");
-
-            ChannelCreate channelCreate = new ChannelCreate(groupname,groupMemberList);
-            ChannelService.getInstance(this).createChannel(channelCreate);
-
-
         }
 
         if (position == 2) {
@@ -202,17 +177,30 @@ public class MainActivity extends MobiComActivityForFragment
 
     public void takeOrder(View v) {
         Conversation conversation = buildConversation();
+        ApplzoicConversationCreateTask applzoicConversationCreateTask;
 
-        Intent takeOrderIntent = new Intent(this, ConversationActivity.class);
-        takeOrderIntent.putExtra(TAKE_ORDER, true);
-        takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
-        takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
-        takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
-        String jsonString = GsonUtils.getJsonFromObject(conversation, Conversation.class);
-        takeOrderIntent.putExtra(ConversationUIService.TOPICDETAIL,jsonString);
+        ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
+            @Override
+            public void onSuccess(Integer conversationId, Context context) {
+                Log.i(TAG,"ConversationID is:"+conversationId);
+                Intent takeOrderIntent = new Intent(context, ConversationActivity.class);
+                takeOrderIntent.putExtra(TAKE_ORDER, true);
+                takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
+                takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
+                startActivity(takeOrderIntent);
 
-        // takeOrderIntent.putExtra(ConversationUIService.APPLICATION_ID,"applozic-sample-app");
-        startActivity(takeOrderIntent);
+            }
+
+            @Override
+            public void onFailure(Exception e, Context context) {
+
+            }
+        };
+        applzoicConversationCreateTask =  new ApplzoicConversationCreateTask(MainActivity.this,conversationCreateListener,conversation);
+        applzoicConversationCreateTask.execute((Void)null);
+
     }
 
     private Conversation buildConversation() {
