@@ -4,11 +4,12 @@ Android Chat SDK
 
 ### Overview         
 
+<img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
+
+
 Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
 
 Signup at https://www.applozic.com/signup.html to get the application key.
-
-<img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
 
 Applozic One to One and Group Chat SDK
 
