@@ -49,7 +49,10 @@ android {
 
 
 **Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
-          
+        
+**Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application> ```
+
+**Note**:Add Permissions outisde the application Tag ``` <application>  ```
 ```
 
 <meta-data android:name="com.applozic.application.key"
@@ -290,6 +293,7 @@ public void onSuccess(RegistrationResponse registrationResponse, Context context
 {           
    // After successful registration with Applozic server the callback will come here 
     ApplozicSetting.getInstance(context).showStartNewButton();//To show contact list.
+    ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
 }                       
 
 @Override             
