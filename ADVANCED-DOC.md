@@ -1,4 +1,3 @@
-### Messages             
 Refer to the below documentation for a deeper integration if you wish to perform chat operation directly from your app's interface without using the Applozic UI toolkit:
 
 
