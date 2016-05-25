@@ -273,6 +273,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                             .enableImageCompression()
                             .setMaxAttachmentAllowed(5);
                     ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
+                    ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
 
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
