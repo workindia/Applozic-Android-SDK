@@ -694,29 +694,37 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.contact = baseContactService.getContactById(contactObj.getContactIds());
         this.currentConversationId = conversationId;
         try {
-            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
-                applozicPermission.requestCallPermission();
-            } else {
-                if (activityToOpenOnClickOfCallButton != null) {
-                    Intent callIntent = new Intent(this, Class.forName(activityToOpenOnClickOfCallButton));
-                    if (currentConversationId != null) {
-                        Conversation conversation = ConversationService.getInstance(this).getConversationByConversationId(currentConversationId);
-                        callIntent.putExtra(ConversationUIService.TOPIC_ID, conversation.getTopicId());
-                    }
-                    callIntent.putExtra(ConversationUIService.CONTACT, contact);
+            if (activityToOpenOnClickOfCallButton != null) {
+                Intent callIntent = new Intent(this, Class.forName(activityToOpenOnClickOfCallButton));
+                if (currentConversationId != null) {
+                    Conversation conversation = ConversationService.getInstance(this).getConversationByConversationId(currentConversationId);
+                    callIntent.putExtra(ConversationUIService.TOPIC_ID, conversation.getTopicId());
+                }
+                callIntent.putExtra(ConversationUIService.CONTACT, contact);
+                startActivity(callIntent);
+            } else if (applozicSetting.isActionDialWithoutCallingEnabled()){
+                if(!TextUtils.isEmpty(contact.getContactNumber())) {
+                    Intent callIntent;
+                    String uri = "tel:" + contact.getContactNumber().trim();
+                    callIntent = new Intent(Intent.ACTION_DIAL);
+                    callIntent.setData(Uri.parse(uri));
                     startActivity(callIntent);
-                } else {
+                }
+            }else {
+                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
+                    applozicPermission.requestCallPermission();
+                } else if(PermissionsUtils.isCallPermissionGranted(this)){
                     if (!TextUtils.isEmpty(contact.getContactNumber())) {
                         Intent callIntent;
                         String uri = "tel:" + contact.getContactNumber().trim();
-                        if (applozicSetting.isActionDialWithoutCallingEnabled()) {
-                            callIntent = new Intent(Intent.ACTION_DIAL);
-                        } else {
-                            callIntent = new Intent(Intent.ACTION_CALL);
-                        }
+                        callIntent = new Intent(Intent.ACTION_CALL);
                         callIntent.setData(Uri.parse(uri));
                         startActivity(callIntent);
                     }
+                } else {
+                    snackbar = Snackbar.make(layout,R.string.phone_call_permission_not_granted ,
+                            Snackbar.LENGTH_SHORT);
+                    snackbar.show();
                 }
             }
 

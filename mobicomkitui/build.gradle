@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "3.39"
+        versionName "4.2"
     }
     buildTypes {
         release {
@@ -58,7 +58,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '3.39'
+    libraryVersion = '4.2'
 
     developerId = 'devashish'
     developerName = 'Applozic'

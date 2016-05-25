@@ -122,4 +122,9 @@ public class PermissionsUtils {
         int res = context.checkCallingOrSelfPermission(Manifest.permission.CAMERA);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
+
+    public static boolean isCallPermissionGranted(Context context) {
+        int res = context.checkCallingOrSelfPermission(Manifest.permission.CALL_PHONE);
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
 }
