@@ -140,6 +140,25 @@ For Group Exit Button Hide
   ```
  ApplozicSetting.getInstance(context).setHideGroupRemoveMemberOption(true);
   ```
+  
+  To customize the theme, copy paste the following in your theme's  res file:
+   ```
+  <style name="ApplozicTheme" parent="Theme.AppCompat.Light.NoActionBar">
+  
+   <!--To change the toolbar color change the colorPrimary  -->
+    <item name="colorPrimary">@color/applozic_theme_color_primary</item>
+    
+    <!-- To change the status bar  color change the color of  colorPrimaryDark-->
+    <item name="colorPrimaryDark">@color/applozic_theme_color_primary_dark</item>
+    
+    <!-- colorAccent is used as the default value for colorControlActivated which is used to tint widgets -->
+    <item name="colorAccent">@color/applozic_theme_color_primary</item>
+    
+    <item name="windowActionModeOverlay">true</item>
+  </style>
+   ```
+  
+   Change the name of the style  name="ApplozicTheme"  to some new name and in your app androidmanifest.xml file find for ApplozicTheme and replace with your new theme style.
  
 For complete control over UI, you can also download open source chat UI toolkit and change it as per your designs :
 ```
