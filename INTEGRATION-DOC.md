@@ -280,7 +280,8 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 User user = new User();          
 user.setUserId(userId); //userId it can be any unique user identifier
 user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
-user.setEmail(email); //optional                        
+user.setEmail(email); //optional   
+user.setImageLink("");//optional,pass your image link
 new UserLoginTask(user, listener, this).execute((Void) null);                                       
 ```
 
