@@ -1,4 +1,4 @@
-**Step 1: Add the following in your build.gradle dependency**:      
+####Step 1: Add the following in your build.gradle dependency:      
 
 `compile 'com.applozic.communication.uiwidget:mobicomkitui:4.2' `
 
@@ -23,7 +23,7 @@ android {
 ```
 
 
-**Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
+####Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml:
        
 **Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
 
@@ -255,7 +255,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-**Step 3: Register user account**:     
+####Step 3: Register user account:     
 
 
 
@@ -288,7 +288,7 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-**Step 4: Updating GCM registration id:**
+####Step 4: Updating GCM Registration Id:
 
 **Don't have GCM setup?**
 
@@ -363,7 +363,7 @@ pushNotificationTask.execute((Void) null);
 
 
 
-**Step 5: Handling push notification**:
+####Step 5: Handling push notification:
 Add the following in your GcmListenerService onMessageReceived method.     
 
 
@@ -379,7 +379,7 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 ```
 
 
-**Step 6: For starting the messaging activity**:        
+####Step 6: For starting the messaging activity:        
 
       
 ```
@@ -398,7 +398,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-**Step 7: On logout, call the following**:       
+####Step 7: On logout, call the following:       
 
 
 
