@@ -1,4 +1,4 @@
-**Add UI customization setting inside UserLoginTask "onSuccess" method**
+####Add UI customization setting inside UserLoginTask "onSuccess" method
 
 Sent Message Chat Bubble Color
 
