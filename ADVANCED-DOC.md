@@ -88,7 +88,7 @@ ApplozicSetting.getInstance(this).setColor(ApplozicSetting.CUSTOM_MESSAGE_BACKGR
 
 Note:This methods are for creating local conatcts and only stored locally.
 
-***Creating Contact list***         
+####Creating Contact list        
 
 
 You can create the contact list in two easy steps by using AppContactService.java api. 
@@ -129,7 +129,7 @@ Save the contact using AppContactService.java add() method.
 
 
 
-**AppContactService.Java at a glance**
+####AppContactService.Java at a glance
 
 
 
