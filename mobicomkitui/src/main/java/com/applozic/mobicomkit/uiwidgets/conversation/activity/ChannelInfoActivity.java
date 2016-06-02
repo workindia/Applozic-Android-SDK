@@ -180,16 +180,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         deleteChannelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChannelService.getInstance(ChannelInfoActivity.this).processChannelDeleteConversation(channel.getKey(), ChannelInfoActivity.this);
-                if(ConversationActivity.conversationActivity != null){
-                    ConversationActivity.conversationActivity.finish();
-                }
-                Intent intent = new Intent(ChannelInfoActivity.this, ConversationActivity.class);
-                if(ApplozicClient.getInstance(ChannelInfoActivity.this).isContextBasedChat()){
-                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
-                }
-                startActivity(intent);
-                finish();
+            deleteChannel(channel);
             }
         });
     }
@@ -594,6 +585,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         private Context context;
         private Channel channel;
         String responseForAdd;
+        String responseForDeleteGroup;
         String userId;
 
 
@@ -602,20 +594,33 @@ public class ChannelInfoActivity extends AppCompatActivity {
             this.context = context;
             this.userId = userId;
             this.channelService = ChannelService.getInstance(context);
+        }
 
+        public ChannelMemberAdd(Channel channel, Context context) {
+            this.channel = channel;
+            this.context = context;
+            this.channelService = ChannelService.getInstance(context);
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = ProgressDialog.show(context, "",
-                    context.getString(R.string.adding_channel_user), true);
+            if(!TextUtils.isEmpty(userId)){
+                progressDialog = ProgressDialog.show(context, "",
+                        context.getString(R.string.adding_channel_user), true);
+            }else {
+                progressDialog = ProgressDialog.show(context, "",
+                        context.getString(R.string.deleting_channel_user), true);
+            }
         }
 
         @Override
         protected Long doInBackground(Void... params) {
             if (channel != null && !TextUtils.isEmpty(userId)) {
                 responseForAdd = channelService.addMemberToChannelProcess(channel.getKey(), userId);
+            }
+            if(channel != null && TextUtils.isEmpty(userId)){
+                responseForDeleteGroup = channelService.processChannelDeleteConversation(channel, context);
             }
             return null;
         }
@@ -636,8 +641,17 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 channelUserMapperList.add(channelUserMapper);
                 contactsAdapter.notifyDataSetChanged();
             }
-        }
 
+            if (!TextUtils.isEmpty(responseForDeleteGroup) && SUCCESS.equals(responseForDeleteGroup)) {
+                Intent intent = new Intent(ChannelInfoActivity.this, ConversationActivity.class);
+                if(ApplozicClient.getInstance(ChannelInfoActivity.this).isContextBasedChat()){
+                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                }
+                startActivity(intent);
+                finish();
+            }
+
+        }
     }
 
     public void addChannelUser(final String userId, final Channel channel) {
@@ -686,6 +700,23 @@ public class ChannelInfoActivity extends AppCompatActivity {
         alertDialog.create().show();
     }
 
+    public void deleteChannel(final Channel channel) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).
+                setPositiveButton(R.string.channel_deleting, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
+                    }
+                });
+        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        alertDialog.setMessage(getString(R.string.delete_channel_messages_and_channel_info).replace(getString(R.string.group_name_info),channel.getName()));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
+    }
 
     public class ChannelAsync extends AsyncTask<Void, Integer, Long> {
         private ChannelService channelService;
@@ -730,7 +761,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 responseForUpdateChannelName = channelService.updateNewChannelNameProcess(channelName);
             }
             if (channel != null) {
-                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(),MobiComUserPreference.getInstance(context).getUserId());
+                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(), MobiComUserPreference.getInstance(context).getUserId());
             }
             return null;
         }

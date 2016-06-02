@@ -1,9 +1,11 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicommons.json.JsonMarker;
+
 /**
  * Created by sunil on 23/12/15.
  */
-public class ApiResponse {
+public class ApiResponse extends JsonMarker {
 
     private static final String SUCCESS = "success";
     private String status;

@@ -1,11 +1,12 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
 
 /**
  * Created by sunil on 17/3/16.
  */
-public class SyncBlockUserApiResponse {
+public class SyncBlockUserApiResponse extends JsonMarker {
 
     private String status;
     private String generatedAt;

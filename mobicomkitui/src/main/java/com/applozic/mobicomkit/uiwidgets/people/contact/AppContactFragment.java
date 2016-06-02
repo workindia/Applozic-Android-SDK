@@ -318,7 +318,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         ContactDatabase contactDatabase = new ContactDatabase(getContext());
-        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm,ApplozicSetting.getInstance(getActivity()).getTotalOnlineUser(),userIdArray);
+        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm,userIdArray);
         return loader;
     }
 

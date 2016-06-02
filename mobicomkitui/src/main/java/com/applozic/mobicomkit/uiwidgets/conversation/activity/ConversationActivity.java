@@ -108,7 +108,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private Contact contact;
     private Channel channel;
     private static int retry;
-    public static Activity conversationActivity;
     public LinearLayout layout;
     String geoApiKey;
     String activityToOpenOnClickOfCallButton;
@@ -258,7 +257,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        conversationActivity = this;
         geoApiKey = Utils.getMetaDataValue(this, GOOGLE_API_KEY_META_DATA);
         activityToOpenOnClickOfCallButton = Utils.getMetaDataValue(this, ACTIVITY_TO_OPEN_ONCLICK_OF_CALL_BUTTON_META_DATA);
         layout = (LinearLayout) findViewById(R.id.footerAd);

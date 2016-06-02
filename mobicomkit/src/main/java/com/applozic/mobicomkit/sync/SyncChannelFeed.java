@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.sync;
 
+import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * Created by sunil on 28/1/16.
  */
-public class SyncChannelFeed {
+public class SyncChannelFeed extends JsonMarker {
 
 
     private static final String SUCCESS = "success";

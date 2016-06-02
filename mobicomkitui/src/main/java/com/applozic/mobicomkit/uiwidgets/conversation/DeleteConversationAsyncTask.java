@@ -24,7 +24,6 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     private ProgressDialog progressDialog;
     private Context context;
     private Channel channel;
-    private boolean isUserPresentInChannel;
     private Integer conversationId;
 
 
@@ -56,10 +55,7 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     @Override
     protected Long doInBackground(Void... params) {
         if(isThreaddelete){
-            if(channel != null){
-                isUserPresentInChannel = ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey());
-            }
-            conversationService.deleteSync(contact,channel,isUserPresentInChannel,conversationId);
+            conversationService.deleteSync(contact,channel,conversationId);
         }else{
             conversationService.deleteMessage(message, contact);
         }

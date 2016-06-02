@@ -273,7 +273,7 @@ public class ContactDatabase {
         }
     }
 
-    public Loader<Cursor> getSearchCursorLoader(final String searchString, final int totalNumber,final String[] userIdArray) {
+    public Loader<Cursor> getSearchCursorLoader(final String searchString,final String[] userIdArray) {
 
         return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
             @Override
@@ -287,14 +287,14 @@ public class ContactDatabase {
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
                         "blockedBy from " + CONTACT;
 
-                if (totalNumber > 0) {
+                if (userIdArray !=  null && userIdArray.length>0) {
                     String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " where fullName like '%" + searchString + "%' and  userId  IN (" + placeHolderString + ")";
                     } else {
                         query = query + " where userId IN (" + placeHolderString + ")";
                     }
-                    query = query + " order by connected desc,lastSeenAt desc limit " + totalNumber;
+                    query = query + " order by connected desc,lastSeenAt desc ";
 
                     cursor = db.rawQuery(query, userIdArray);
                 } else {

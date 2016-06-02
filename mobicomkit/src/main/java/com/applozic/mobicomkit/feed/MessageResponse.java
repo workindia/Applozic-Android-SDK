@@ -1,6 +1,6 @@
 package com.applozic.mobicomkit.feed;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 
 /**
  * Created by sunil on 22/10/15.

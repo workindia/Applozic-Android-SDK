@@ -2,7 +2,7 @@ package com.applozic.mobicomkit.api.account.register;
 
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 
 /**
  * @author devashish

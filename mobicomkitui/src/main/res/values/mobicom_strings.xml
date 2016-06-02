@@ -119,6 +119,7 @@
     <string name="user_online">Online</string>
     <string name="removing_channel_user">Removing....</string>
     <string name="adding_channel_user">Adding....</string>
+    <string name="deleting_channel_user">Deleting...</string>
     <string name="channel_member_exit">Exiting....</string>
     <string name="channel_update">Updating group name....</string>
     <string name="dialog_remove_group_user">Remove [name] from [group]?</string>
@@ -132,7 +133,9 @@
     <string name="remove_member">Remove</string>
     <string name="add_member">Add</string>
     <string name="channel_exit">Exit</string>
+    <string name="channel_deleting">Delete</string>
     <string name="leave_channel">Are you sure you want to exit from this group?</string>
+    <string name="delete_channel_messages_and_channel_info">Are you sure you want to delete [group] group?</string>
     <string name="channel_name_empty">Group name can not be empty</string>
     <string name="channel_add_alert">Unable to add participant in group because you are not a participant</string>
     <string name="channel_edit_alert">Unable to change the group name because you are not a participant</string>

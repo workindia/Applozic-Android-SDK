@@ -1,9 +1,11 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicommons.json.JsonMarker;
+
 /**
  * Created by sunil on 12/1/16.
  */
-public class ChannelFeedApiResponse {
+public class ChannelFeedApiResponse extends JsonMarker {
 
     private static final String SUCCESS = "success";
     private String status;

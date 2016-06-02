@@ -1,6 +1,6 @@
 package com.applozic.mobicomkit.api.account.user;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 
 /**
  * Created by devashish on 22/12/14.

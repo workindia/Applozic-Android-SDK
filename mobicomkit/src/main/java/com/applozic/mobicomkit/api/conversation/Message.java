@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
@@ -562,7 +562,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isDeliveredAndRead() {
-        return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
+        return Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
     }
 
     public boolean isReadStatus() {

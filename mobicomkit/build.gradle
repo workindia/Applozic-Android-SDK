@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "4.2"
+        versionName "4.3"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -61,7 +61,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '4.2'
+    libraryVersion = '4.3'
 
     developerId = 'devashish'
     developerName = 'Applozic'

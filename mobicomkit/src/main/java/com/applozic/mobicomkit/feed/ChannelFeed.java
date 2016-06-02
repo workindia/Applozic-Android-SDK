@@ -1,6 +1,6 @@
 package com.applozic.mobicomkit.feed;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;

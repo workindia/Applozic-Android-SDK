@@ -1,17 +1,14 @@
 package com.applozic.mobicomkit.feed;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.applozic.mobicommons.json.GsonUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.applozic.mobicommons.json.JsonParcelableMarker;
 
 /**
  * Created by sunil on 19/2/16.
  */
-public class TopicDetail  implements Parcelable {
+public class TopicDetail  extends JsonParcelableMarker {
 
 
 

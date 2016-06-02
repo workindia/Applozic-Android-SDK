@@ -1497,6 +1497,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onResume() {
         super.onResume();
+        if ((channel == null || (ChannelService.getInstance(getActivity()).getChannelInfoFromLocalDb(channel.getKey()) == null)) && contact == null) {
+            getActivity().onBackPressed();
+            return;
+        }
+
         ((ConversationActivity)getActivity()).setChildFragmentLayoutBGToTransparent();
         if (contact != null || channel != null) {
             BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());

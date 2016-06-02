@@ -1,6 +1,6 @@
 package com.applozic.mobicomkit.sync;
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 
 import java.util.List;

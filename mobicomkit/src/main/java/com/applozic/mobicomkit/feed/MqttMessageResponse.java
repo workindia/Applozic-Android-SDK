@@ -1,10 +1,12 @@
 package com.applozic.mobicomkit.feed;
 
 
+import com.applozic.mobicommons.json.JsonMarker;
+
 /**
  * Created by sunil on 28/11/15.
  */
-public class MqttMessageResponse {
+public class MqttMessageResponse extends JsonMarker {
 
     private String id;
     private String type;

@@ -1,8 +1,6 @@
 package com.applozic.mobicomkit.api.account.user;
 
-import com.applozic.mobicomkit.api.JsonMarker;
-
-import java.math.BigInteger;
+import com.applozic.mobicommons.json.JsonMarker;
 
 /**
  * Created by sunil on 24/11/15.

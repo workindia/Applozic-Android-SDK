@@ -1,7 +1,8 @@
 package com.applozic.mobicommons.people.channel;
 
 
-import java.io.Serializable;
+import com.applozic.mobicommons.json.JsonMarker;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Created by sunil on 5/1/16.
  */
-public class Conversation implements Serializable {
+public class Conversation extends JsonMarker {
 
     public static final String USER_ID_KEY = "userId";
     public static final String FALL_BACK_TEMPLATE_KEY = "fallBackTemplate";

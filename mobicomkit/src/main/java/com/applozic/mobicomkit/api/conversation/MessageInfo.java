@@ -4,7 +4,7 @@ package com.applozic.mobicomkit.api.conversation;
  * Created by devashish on 28/03/16.
  */
 
-import com.applozic.mobicomkit.api.JsonMarker;
+import com.applozic.mobicommons.json.JsonMarker;
 
 
 public class MessageInfo extends JsonMarker{

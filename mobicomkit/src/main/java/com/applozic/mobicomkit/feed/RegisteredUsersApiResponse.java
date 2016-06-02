@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.feed;
 
 import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicommons.json.JsonMarker;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -8,7 +9,7 @@ import java.util.Set;
 /**
  * Created by sunil on 28/4/16.
  */
-public class RegisteredUsersApiResponse implements Serializable {
+public class RegisteredUsersApiResponse extends JsonMarker {
 
     private Set<UserDetail> users ;
     private long lastFetchTime;

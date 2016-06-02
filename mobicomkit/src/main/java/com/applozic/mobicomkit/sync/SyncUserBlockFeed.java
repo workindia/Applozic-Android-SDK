@@ -1,12 +1,12 @@
 package com.applozic.mobicomkit.sync;
 
 
-import java.io.Serializable;
+import com.applozic.mobicommons.json.JsonMarker;
 
 /**
  * Created by sunil on 3/3/16.
  */
-public class SyncUserBlockFeed implements Serializable{
+public class SyncUserBlockFeed extends JsonMarker{
 
     private String blockedTo;
     private String blockedBy;

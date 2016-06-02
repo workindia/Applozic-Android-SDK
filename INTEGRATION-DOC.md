@@ -1,6 +1,6 @@
 ####Step 1: Add the following in your build.gradle dependency  
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.2' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.3' `
 
 
 Add the following in gradle android target:      
@@ -413,10 +413,13 @@ startActivity(intent);
  
 ```
  #keep json classes                
- -keepclassmembernames class * extends com.applozic.mobicomkit.api.JsonMarker         
- {            
- !static !transient <fields>;                  
- }              
+ -keepclassmembernames class * extends com.applozic.mobicommons.json.JsonMarker {
+ 	!static !transient <fields>;
+ }
+
+ -keepclassmembernames class * extends com.applozic.mobicommons.json.JsonParcelableMarker {
+ 	!static !transient <fields>;
+ }
  #GSON Config          
 -keepattributes Signature          
 -keep class sun.misc.Unsafe { *; }           

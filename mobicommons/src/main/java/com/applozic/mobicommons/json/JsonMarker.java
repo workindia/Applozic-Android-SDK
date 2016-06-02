@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.api;
+package com.applozic.mobicommons.json;
 
 import java.io.Serializable;
 

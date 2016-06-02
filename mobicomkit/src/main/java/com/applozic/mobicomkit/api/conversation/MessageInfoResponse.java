@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
-import com.applozic.mobicomkit.api.JsonMarker;
-import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.json.JsonMarker;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;

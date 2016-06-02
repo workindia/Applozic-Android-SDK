@@ -298,16 +298,13 @@ public class MobiComConversationService {
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), contact.getContactIds(), 0, "success");
     }
 
-    public void deleteSync(final Contact contact, final Channel channel,boolean isUserPresentInChannel,Integer conversationId) {
+    public String deleteSync(final Contact contact, final Channel channel,Integer conversationId) {
         String response = "";
-        if(contact != null || channel != null && isUserPresentInChannel){
+        if(contact != null || channel != null){
             response = messageClientService.syncDeleteConversationThreadFromServer(contact, channel);
         }
 
-        if ("success".equals(response) || channel != null && !isUserPresentInChannel) {
-            if(channel != null && !isUserPresentInChannel){
-                response = "success";
-            }
+        if (!TextUtils.isEmpty(response) && "success".equals(response)){
             if (contact != null) {
                 messageDatabaseService.deleteConversation(contact.getContactIds());
                 if(conversationId != null && conversationId != 0){
@@ -320,6 +317,7 @@ public class MobiComConversationService {
         }
         BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),
                 contact != null ? contact.getContactIds() : null, channel != null ? channel.getKey() : null, response);
+        return response;
     }
 
     public String deleteMessageFromDevice(String keyString, String contactNumber) {

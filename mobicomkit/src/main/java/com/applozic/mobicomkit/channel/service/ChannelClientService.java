@@ -30,6 +30,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String REMOVE_MEMBER_FROM_CHANNEL_URL = "/rest/ws/group/remove/member";
     private static final String CHANNEL_NAME_CHANGE_URL = "/rest/ws/group/change/name";
     private static final String CHANNEL_LEFT_URL = "/rest/ws/group/left";
+    private static final String CHANNEL_DELETE_URL = "/rest/ws/group/delete";
 
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
@@ -85,6 +86,10 @@ public class ChannelClientService extends MobiComKitClientService {
         return getBaseUrl() + CHANNEL_LEFT_URL;
     }
 
+    public String getChannelDeleteUrl() {
+        return getBaseUrl() + CHANNEL_DELETE_URL;
+    }
+
     public ChannelFeed getChannelInfo(Integer channelKey) {
         String response = "";
         try {
@@ -116,7 +121,6 @@ public class ChannelClientService extends MobiComKitClientService {
             return null;
         }
     }
-
 
     public ChannelFeed createChannel(ChannelCreate channelCreate) {
         ChannelFeed channelFeed = null;
@@ -194,7 +198,7 @@ public class ChannelClientService extends MobiComKitClientService {
     }
 
     public synchronized ApiResponse leaveMemberFromChannel(Integer channelKey) {
-        ApiResponse  apiResponse = null;
+        ApiResponse apiResponse = null;
         try {
             if (channelKey != null) {
                 String url = getChannelLeftUrl() + "?" +
@@ -210,6 +214,25 @@ public class ChannelClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return apiResponse;
+    }
+
+    public synchronized ApiResponse deleteChannel(Integer channelKey) {
+        try {
+            if (channelKey != null) {
+                String url = getChannelDeleteUrl() + "?" +
+                        GROUP_ID
+                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
+                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                if(apiResponse != null){
+                    Log.i(TAG, "Channel delete call response: " + apiResponse.getStatus());
+                }
+                return apiResponse;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

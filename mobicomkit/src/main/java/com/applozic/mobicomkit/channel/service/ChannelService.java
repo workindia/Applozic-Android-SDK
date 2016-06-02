@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
-import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.ChannelCreate;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -50,6 +50,10 @@ public class ChannelService {
             channelService = new ChannelService(context);
         }
         return channelService;
+    }
+
+    public Channel getChannelInfoFromLocalDb(Integer key) {
+        return channelDatabaseService.getChannelByChannelKey(key);
     }
 
     public Channel getChannelInfo(Integer key) {
@@ -252,11 +256,14 @@ public class ChannelService {
         return channelDatabaseService.isChannelUserPresent(channelKey, userId);
     }
 
-    public synchronized boolean processChannelDeleteConversation(Integer channelKey, Context context) {
-        channelDatabaseService.deleteChannel(channelKey);
-        channelDatabaseService.deleteChannelUserMappers(channelKey);
-        new MessageDatabaseService(context).deleteChannelConversation(channelKey);
-        return true;
+    public synchronized String processChannelDeleteConversation(Channel channel, Context context) {
+           String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
+         if(!TextUtils.isEmpty(response) && "success".equals(response)){
+            channelDatabaseService.deleteChannelUserMappers(channel.getKey());
+            channelDatabaseService.deleteChannel(channel.getKey());
+        }
+        return response;
+
     }
 
 }
