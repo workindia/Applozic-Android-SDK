@@ -234,7 +234,8 @@ Code
  ApplozicChannelAddMemberTask.ChannelAddMemberListener channelAddMemberListener =  new ApplozicChannelAddMemberTask.ChannelAddMemberListener() {
             @Override
             public void onSuccess(String response, Context context) {
-                Log.i("ApplozicChannelMember","Add Response:"+response);
+               //Response will be "success" if user is is added successfully
+                Log.i("ApplozicChannelMember","Add Response:" + response);
 
             }
 
@@ -244,19 +245,17 @@ Code
             }
         };
 
-        ApplozicChannelAddMemberTask applozicChannelAddMemberTask =  new ApplozicChannelAddMemberTask(context,channelKey,userId,channelAddMemberListener);//pass channel key and userId whom u want to add to channel
+        ApplozicChannelAddMemberTask applozicChannelAddMemberTask =  new ApplozicChannelAddMemberTask(context,channelKey,userId,channelAddMemberListener);//pass channel key and userId whom you want to add to channel
         applozicChannelAddMemberTask.execute((Void)null);
 
  ```
    
-  __Parameters:__
+   
+| Parameter | Description  |
+| --------- | ------------ |
+| channelKey | Unique identifier of the group/channel |
+| userId | Unique identifier of the user |
 
-  __channelkey__: Is a unique Integer type to which group/channel u want to add a member to it
-  
-  __userId__:Unique userId of string type to whom u want to add to group/channel
-  
-   __Return response__: If user added successfully in group/channel it returns success else error 
- 
  
 ####3) Remove Member from Group
  
