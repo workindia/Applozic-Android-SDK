@@ -128,6 +128,7 @@ public class FileClientService extends MobiComKitClientService {
 
                 } else {
                     Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
+                    return null;
                 }
             }
             // Calculate inSampleSize

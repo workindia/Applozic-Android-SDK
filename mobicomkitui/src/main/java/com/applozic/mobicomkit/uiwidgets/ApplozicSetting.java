@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
+import java.util.Map;
+
 /**
  * Created by devashish on 8/21/2015.
  */
@@ -56,6 +58,8 @@ public class ApplozicSetting {
     private static final String EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String TYPING_TEXT_COLOR= "TYPING_TEXT_COLOR";
 
+    private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
+
 
     public static ApplozicSetting applozicSetting;
 
@@ -70,6 +74,32 @@ public class ApplozicSetting {
         }
 
         return applozicSetting;
+    }
+
+    public enum RequestCode {
+
+        MESSAGE_TAP(Integer.valueOf("1905")), PROFILE_VIEW(Integer.valueOf("1903")), USER_BLOCK(Integer.valueOf("1904"));
+        private Integer value;
+
+        RequestCode(Integer c) {
+            value = c;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
+
+
+    public ApplozicSetting setActivityCallbacks(Map<RequestCode, String> activityCallbacks) {
+        for (Map.Entry<RequestCode, String> entry : activityCallbacks.entrySet()) {
+            sharedPreferences.edit().putString(ACTIVITY_CALLBACK + entry.getKey().getValue(), entry.getValue()).commit();
+        }
+        return this;
+    }
+
+    public String getActivityCallback(RequestCode requestCode) {
+        return sharedPreferences.getString(ACTIVITY_CALLBACK + requestCode.getValue(), null);
     }
 
     public ApplozicSetting setColor(String key, int color) {

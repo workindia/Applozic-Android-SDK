@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 13;
+    public static final int DB_VERSION = 15;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -37,6 +37,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CONNECTED = "connected";
     public static final String LAST_SEEN_AT_TIME = "lastSeenAt";
     public static final String MESSAGE_CONTENT_TYPE = "messageContentType";
+    public static final String MESSAGE_METADATA = "metadata";
     public static final String CONVERSATION_ID = "conversationId";
     public static final String TOPIC_ID = "topicId";
     public static final String CHANNEL_DISPLAY_NAME = "channelName";
@@ -77,6 +78,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "timeToLive integer, "
             + "fileMetaKeyStrings varchar(2000), "
             + "filePaths varchar(2000), "
+            + "metadata varchar(2000), "
             + "thumbnailUrl varchar(2000), "
             + "size integer, "
             + "name varchar(2000), "
@@ -101,6 +103,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_APPLICATION_ID_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN applicationId varchar(2000) null";
     private static final String ALTER_SMS_TABLE_FOR__APPLICATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + APPLICATION_ID + " varchar(2000) null";
     private static final String ALTER_SMS_TABLE_FOR_CONTENT_TYPE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + MESSAGE_CONTENT_TYPE + " integer default 0";
+    private static final String ALTER_SMS_TABLE_FOR_METADATA_TYPE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + MESSAGE_METADATA + " varchar(2000) null";
     private static final String ALTER_CONTACT_TABLE_FOR_CONNECTED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + CONNECTED + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_LAST_SEEN_AT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + LAST_SEEN_AT_TIME + " integer default 0";
     private static final String ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + CONVERSATION_ID + " integer default 0";
@@ -153,6 +156,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + TOPIC_DETAIL + " varchar(2500))";
 
     private static final String CREATE_INDEX_SMS_TYPE = "CREATE INDEX IF NOT EXISTS INDEX_SMS_TYPE ON sms (type)";
+    private static final String CREATE_INDEX_ON_CREATED_AT =  "CREATE INDEX IF NOT EXISTS message_createdAt ON sms (createdAt)";
+
     private static final String TAG = "MobiComDatabaseHelper";
     private static MobiComDatabaseHelper sInstance;
     private Context context;
@@ -198,6 +203,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             database.execSQL(CREATE_CHANNEL_USER_X_TABLE);
         }
         //ALL indexes should go here after creating tables.
+        database.execSQL(CREATE_INDEX_ON_CREATED_AT);
         database.execSQL(CREATE_INDEX_SMS_TYPE);
 
     }
@@ -254,6 +260,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, "sms", MESSAGE_CONTENT_TYPE)) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_CONTENT_TYPE_COLUMN);
             }
+            if (!DBUtils.existsColumnInTable(database, "sms", MESSAGE_METADATA)) {
+                database.execSQL(ALTER_SMS_TABLE_FOR_METADATA_TYPE_COLUMN);
+            }
             if (!DBUtils.existsColumnInTable(database, "sms", CONVERSATION_ID)) {
                 database.execSQL(ALTER_MESSAGE_TABLE_FOR_CONVERSATION_ID_COLUMN);
             }
@@ -263,6 +272,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if(!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)){
                 database.execSQL(ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN);
             }
+            database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);
             database.execSQL(CREATE_SMS_TABLE);

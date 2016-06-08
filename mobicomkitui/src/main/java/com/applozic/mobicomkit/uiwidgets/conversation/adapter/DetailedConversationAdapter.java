@@ -258,6 +258,24 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
             TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
 
+
+            final String messageTapActivityClassName = ApplozicSetting.getInstance(context).getActivityCallback(ApplozicSetting.RequestCode.MESSAGE_TAP);
+
+            if (!TextUtils.isEmpty(messageTapActivityClassName) && message.getMetadata() != null && !message.getMetadata().isEmpty()) {
+                customView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            Intent intent = new Intent(context, Class.forName(messageTapActivityClassName));
+                            intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+                            context.startActivity(intent);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
             if (TextUtils.isEmpty(message.getMessage())) {
                 messageTextView.setVisibility(View.GONE);
             }

@@ -275,6 +275,11 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
                     ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
 
+                    //Set activity callbacks
+                    /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
+                    activityCallbacks.put(ApplozicSetting.RequestCode.MESSAGE_TAP, MainActivity.class.getName());
+                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);*/
+
                     //Start GCM registration....
                     GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
                     gcmRegistrationUtils.setUpGcmNotification();

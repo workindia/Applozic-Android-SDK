@@ -16,12 +16,14 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -84,6 +86,10 @@ public class MessageDatabaseService {
         String filePaths = cursor.getString(cursor.getColumnIndex("filePaths"));
         if (!TextUtils.isEmpty(filePaths)) {
             message.setFilePaths(Arrays.asList(filePaths.split(",")));
+        }
+        String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_METADATA));
+        if (!TextUtils.isEmpty(metadata)) {
+            message.setMetadata(((Map<String, String>)GsonUtils.getObjectFromJson(metadata, Map.class)));
         }
         message.setApplicationId(cursor.getString(cursor.getColumnIndex("applicationId")));
         message.setContentType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_CONTENT_TYPE)));
@@ -476,6 +482,9 @@ public class MessageDatabaseService {
             }
             if (message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 values.put("filePaths", TextUtils.join(",", message.getFilePaths()));
+            }
+            if (message.getMetadata() != null && !message.getMetadata().isEmpty()) {
+                values.put(MobiComDatabaseHelper.MESSAGE_METADATA, GsonUtils.getJsonFromObject(message.getMetadata(), Map.class));
             }
             //TODO:Right now we are supporting single image attachment...making entry in same table
             if (message.getFileMetas() != null) {

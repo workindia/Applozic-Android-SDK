@@ -113,6 +113,12 @@ public class UserService {
         }
     }
 
+    public synchronized void processUserDetails(String userId) {
+        Set<String> userIds = new HashSet<String>();
+        userIds.add(userId);
+        processUserDetails(userIds);
+    }
+
     public synchronized void processUserDetails(Set<String> userIds){
         String response = userClientService.getUserDetails(userIds);
         if(!TextUtils.isEmpty(response)){

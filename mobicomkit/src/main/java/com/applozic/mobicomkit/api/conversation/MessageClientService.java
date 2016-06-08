@@ -382,6 +382,7 @@ public class MessageClientService extends MobiComKitClientService {
         newMessage.setStoreOnDevice(message.isStoreOnDevice());
         newMessage.setDelivered(message.getDelivered());
         newMessage.setStatus(message.getStatus());
+        newMessage.setMetadata(message.getMetadata());
 
         newMessage.setSendToDevice(message.isSendToDevice());
         newMessage.setContentType(message.getContentType());

@@ -235,8 +235,7 @@ public class ChannelService {
                     for (String userId : memberUserIds) {
                         ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
                         channelDatabaseService.addChannelUserMapper(channelUserMapper);
-                        Contact contact = baseContactService.getContactById(userId);
-                        if(TextUtils.isEmpty(contact.getFullName()) || TextUtils.isEmpty(contact.getImageURL())){
+                        if(!baseContactService.isContactExists(userId)){
                             userIds.add(userId);
                         }
                     }

@@ -11,7 +11,9 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Message extends JsonMarker {
 
@@ -50,6 +52,7 @@ public class Message extends JsonMarker {
     private String topicId;
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
+    private Map<String, String> metadata = new HashMap<>();
 
     private short status = Status.READ.getValue();
 
@@ -89,6 +92,7 @@ public class Message extends JsonMarker {
         this.setStatus(message.getStatus());
         this.setConversationId(message.getConversationId());
         this.setTopicId(message.getTopicId());
+        this.setMetadata(message.getMetadata());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -509,39 +513,44 @@ public class Message extends JsonMarker {
         this.status = status;
     }
 
-
     @Override
     public String toString() {
         return "Message{" +
                 "createdAtTime=" + createdAtTime +
-                ", id=" + messageId +
                 ", to='" + to + '\'' +
                 ", message='" + message + '\'' +
                 ", key='" + key + '\'' +
                 ", deviceKey='" + deviceKey + '\'' +
                 ", userKey='" + userKey + '\'' +
+                ", emailIds='" + emailIds + '\'' +
+                ", shared=" + shared +
                 ", sent=" + sent +
                 ", delivered=" + delivered +
                 ", type=" + type +
                 ", storeOnDevice=" + storeOnDevice +
                 ", contactIds='" + contactIds + '\'' +
+                ", groupId=" + groupId +
                 ", sendToDevice=" + sendToDevice +
                 ", scheduledAt=" + scheduledAt +
                 ", source=" + source +
                 ", timeToLive=" + timeToLive +
-                ", pairedMessageKey=" + pairedMessageKey +
                 ", sentToServer=" + sentToServer +
-                ", fileMetaKey=" + getFileMetaKeyStrings() +
+                ", fileMetaKey='" + fileMetaKey + '\'' +
                 ", filePaths=" + filePaths +
-                ", fileMetas=" + fileMeta +
-                ", shared=" + shared +
-                ",applicationId=" + applicationId +
-                ",contentType=" + contentType +
-                ",conversationId=" + conversationId +
-                ",topicId=" + topicId +
-                ", groupId=" + groupId +
+                ", pairedMessageKey='" + pairedMessageKey + '\'' +
+                ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
+                ", canceled=" + canceled +
+                ", fileMeta=" + fileMeta +
+                ", messageId=" + messageId +
+                ", read=" + read +
+                ", attDownloadInProgress=" + attDownloadInProgress +
+                ", applicationId='" + applicationId + '\'' +
+                ", conversationId=" + conversationId +
+                ", topicId='" + topicId + '\'' +
+                ", connected=" + connected +
+                ", contentType=" + contentType +
+                ", metadata=" + metadata +
                 ", status=" + status +
-
                 '}';
     }
 
@@ -576,8 +585,16 @@ public class Message extends JsonMarker {
 
     public boolean isLocationMessage(){
         return ContentType.LOCATION.getValue().equals( getContentType());
-
     }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
     public boolean isGroupMessage() {
         return ( this.groupId != null );
     }

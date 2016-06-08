@@ -11,6 +11,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -91,7 +92,7 @@ public class MobiComConversationService {
         return getMessages(startTime, endTime, new Contact(userId), null,null);
     }
 
-    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel,Integer conversationId) {
+    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId) {
         List<Message> messageList = new ArrayList<Message>();
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel,conversationId);
 
@@ -161,7 +162,12 @@ public class MobiComConversationService {
                 }
             }
 
-            new MobiComMessageService(context, MessageIntentService.class).processUserDetailFromMessages(Arrays.asList(messages));
+            if (contact != null) {
+                UserService.getInstance(context).processUserDetails(contact.getContactIds());
+            } else {
+                new MobiComMessageService(context, MessageIntentService.class).processUserDetailFromMessages(Arrays.asList(messages));
+            }
+
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
                     //TODO: remove this check..right now in some cases it is coming as null.

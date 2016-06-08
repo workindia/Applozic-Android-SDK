@@ -134,7 +134,6 @@ public class AppContactService implements BaseContactService {
             ex.printStackTrace();
             Log.e(TAG, "File not found on server: " + ex.getMessage());
         } catch (Exception ex) {
-            ex.printStackTrace();
             Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
         }
 
