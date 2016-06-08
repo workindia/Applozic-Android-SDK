@@ -1,7 +1,7 @@
 ####Step 1: Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.3' `
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.4' `
 ```
 
 
