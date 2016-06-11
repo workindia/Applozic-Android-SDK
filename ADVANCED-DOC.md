@@ -86,7 +86,7 @@ ApplozicSetting.getInstance(this).setColor(ApplozicSetting.CUSTOM_MESSAGE_BACKGR
 
 ###  Contacts           
 
-Note:This methods are for creating local conatcts and only stored locally.
+The below methods are for creating contacts to be stored locally on the user's device.
 
 ####Creating Contact list        
 
