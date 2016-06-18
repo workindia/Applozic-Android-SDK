@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -12,11 +13,16 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.contact.Contact;
 
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -240,5 +246,81 @@ public class FileClientService extends MobiComKitClientService {
 
     public String getUploadKey() {
         return httpRequestUtils.getResponse(getCredentials(), getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
+    }
+
+    public Bitmap downloadBitmap(Contact contact, Channel channel) {
+        try {
+            if (contact != null && TextUtils.isEmpty(contact.getImageURL())) {
+                return null;
+            }
+
+            if (channel != null && TextUtils.isEmpty(channel.getImageUrl())) {
+                return null;
+            }
+
+            Bitmap attachedImage = null;
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            String imageLocalPath = contact != null ? contact.getLocalImageUrl() : channel.getLocalImageUri();
+            if (imageLocalPath != null) {
+                try {
+                    attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
+                    // Calculate inSampleSize
+                    options.inSampleSize = ImageUtils.calculateInSampleSize(options, 100, 50);
+                    // Decode bitmap with inSampleSize set
+                    options.inJustDecodeBounds = false;
+                    attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
+                    return attachedImage;
+                } catch (Exception ex) {
+                    Log.e(TAG, "Image not found on local storage: " + ex.getMessage());
+                }
+            }
+            if (attachedImage == null) {
+                HttpURLConnection connection = null;
+                if (contact != null) {
+                    connection = new MobiComKitClientService(context).openHttpConnection(contact.getImageURL());
+                } else {
+                    connection = new MobiComKitClientService(context).openHttpConnection(channel.getImageUrl());
+                }
+                if (connection != null && connection.getResponseCode() == 200) {
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream());
+                    BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
+                    optionsBitmap.inJustDecodeBounds = true;
+                    bufferedInputStream.mark(connection.getContentLength());
+                    BitmapFactory.decodeStream(bufferedInputStream, null, optionsBitmap);
+                    bufferedInputStream.reset();
+
+                    optionsBitmap.inJustDecodeBounds = false;
+                    optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
+                    attachedImage = BitmapFactory.decodeStream(bufferedInputStream, null, optionsBitmap);
+                    bufferedInputStream.close();
+                    connection.disconnect();
+                    if (attachedImage != null) {
+                        String name = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
+                        imageLocalPath = new FileClientService(context).saveImageToInternalStorage(attachedImage, name, context, "image");
+                        if (contact != null) {
+                            contact.setLocalImageUrl(imageLocalPath);
+                            new AppContactService(context).updateLocalImageUri(contact);
+                        } else {
+                            ChannelService.getInstance(context).updateChannelLocalImageURI(channel.getKey(), imageLocalPath);
+                        }
+                    }
+                } else {
+                    Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
+                    return null;
+                }
+            }
+            return attachedImage;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "Image not found on server: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
+        } catch (Throwable t) {
+
+        }
+        return null;
+
     }
 }

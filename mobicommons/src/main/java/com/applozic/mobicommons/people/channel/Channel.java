@@ -1,6 +1,7 @@
 package com.applozic.mobicommons.people.channel;
 
 import com.applozic.mobicommons.people.contact.Contact;
+import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,11 +13,15 @@ import java.util.List;
 public class Channel implements Serializable {
 
     private Integer key;
+    private String clientGroupId;
     private String name;
     private String adminKey;
     private Short type;
     private int unreadCount;
     private int userCount;
+    private String imageUrl;
+    @Expose
+    private String localImageUri;
     private Conversation conversationPxy;
     private List<Contact> contacts = new ArrayList<Contact>();
 
@@ -24,11 +29,12 @@ public class Channel implements Serializable {
 
     }
 
-    public Channel(Integer key, String name, String adminKey, Short type,int unreadCount) {
+    public Channel(Integer key, String name, String adminKey, Short type,int unreadCount,String imageUrl) {
         this.key = key;
         this.name = name;
         this.adminKey = adminKey;
         this.type = type;
+        this.imageUrl = imageUrl;
         this.unreadCount = unreadCount;
     }
 
@@ -106,6 +112,30 @@ public class Channel implements Serializable {
         this.unreadCount = unreadCount;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getLocalImageUri() {
+        return localImageUri;
+    }
+
+    public void setLocalImageUri(String localImageUri) {
+        this.localImageUri = localImageUri;
+    }
+
+    public String getClientGroupId() {
+        return clientGroupId;
+    }
+
+    public void setClientGroupId(String clientGroupId) {
+        this.clientGroupId = clientGroupId;
+    }
+
     public enum GroupType {
 
         VIRTUAL(0),
@@ -134,9 +164,10 @@ public class Channel implements Serializable {
                 ", type=" + type +
                 ", unreadCount=" + unreadCount +
                 ", userCount=" + userCount +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", localImageUri='" + localImageUri + '\'' +
                 ", conversationPxy=" + conversationPxy +
                 ", contacts=" + contacts +
                 '}';
     }
-
 }

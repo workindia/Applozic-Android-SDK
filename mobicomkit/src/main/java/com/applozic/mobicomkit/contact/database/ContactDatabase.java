@@ -126,6 +126,12 @@ public class ContactDatabase {
         dbHelper.close();
     }
 
+    public void updateLocalImageUri(Contact contact){
+        ContentValues contentValues =  new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI,contact.getLocalImageUrl());
+        int updatedRow =  dbHelper.getWritableDatabase().update(CONTACT,contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
+    }
+
     public void updateConnectedOrDisconnectedStatus(String userId, Date date, boolean connected) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
@@ -150,6 +156,20 @@ public class ContactDatabase {
         } finally {
             dbHelper.close();
         }
+    }
+
+    public Cursor loadContacts() {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor;
+
+        String query = "select userId as _id, fullName, contactNO, " +
+                "displayName,contactImageURL,contactImageLocalURI,email," +
+                "applicationId,connected,lastSeenAt,unreadCount,blocked," +
+                "blockedBy from " + CONTACT;
+
+        cursor = db.rawQuery(query, null);
+
+        return cursor;
     }
 
     public void updateUserBlockStatus(String userId, boolean userBlocked) {
@@ -186,7 +206,7 @@ public class ContactDatabase {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
-        if(!TextUtils.isEmpty(contact.getContactNumber())){
+        if (!TextUtils.isEmpty(contact.getContactNumber())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         }
         if (!TextUtils.isEmpty(contact.getImageURL())) {
@@ -223,6 +243,7 @@ public class ContactDatabase {
     /**
      * This method will return full name of contact to be updated.
      * This is require to avoid updating fullname back to userId in case fullname is not set while updating contact.
+     *
      * @param contact
      * @return
      */
@@ -273,7 +294,41 @@ public class ContactDatabase {
         }
     }
 
-    public Loader<Cursor> getSearchCursorLoader(final String searchString,final String[] userIdArray) {
+    public int getChatUnreadCount(){
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT (userId)) FROM contact WHERE unreadCount > 0 ", null);
+            cursor.moveToFirst();
+            int chatCount = 0;
+            if (cursor.getCount() > 0) {
+                chatCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return chatCount;
+        } catch (Exception ex) {
+        }
+        return 0;
+    }
+
+    public int getGroupUnreadCount(){
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            final Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT (channelKey)) FROM channel WHERE unreadCount > 0 ", null);
+            cursor.moveToFirst();
+            int groupCount = 0;
+            if (cursor.getCount() > 0) {
+                groupCount = cursor.getInt(0);
+            }
+            cursor.close();
+            dbHelper.close();
+            return groupCount;
+        } catch (Exception ex) {
+        }
+        return 0;
+    }
+
+    public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray) {
 
         return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
             @Override
@@ -287,7 +342,7 @@ public class ContactDatabase {
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
                         "blockedBy from " + CONTACT;
 
-                if (userIdArray !=  null && userIdArray.length>0) {
+                if (userIdArray != null && userIdArray.length > 0) {
                     String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " where fullName like '%" + searchString + "%' and  userId  IN (" + placeHolderString + ")";
@@ -300,8 +355,8 @@ public class ContactDatabase {
                 } else {
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " where fullName like '%" + searchString + "%'";
-                    }else {
-                        query = query + " where userId != '"+ userPreferences.getUserId()+"'";
+                    } else {
+                        query = query + " where userId != '" + userPreferences.getUserId() + "'";
                     }
                     query = query + " order by fullName,userId asc ";
                     cursor = db.rawQuery(query, null);

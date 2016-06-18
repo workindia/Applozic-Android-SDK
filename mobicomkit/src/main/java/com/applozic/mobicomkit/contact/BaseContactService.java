@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.contact;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.Date;
@@ -33,15 +34,23 @@ public interface BaseContactService {
 
     Bitmap downloadContactImage(Context context, Contact contact);
 
+    Bitmap downloadGroupImage(Context context, Channel channel);
+
     Contact getContactReceiver(List<String> items, List<String> userIds);
 
     boolean isContactExists(String contactId);
 
     void updateConnectedStatus(String contactId, Date date, boolean connected);
 
-    void updateUserBlocked(String userId,boolean userBlocked);
+    void updateUserBlocked(String userId, boolean userBlocked);
 
-    void updateUserBlockedBy(String userId,boolean userBlockedBy);
+    void updateUserBlockedBy(String userId, boolean userBlockedBy);
 
     boolean isContactPresent(String userId);
+
+    int getChatConversationCount();
+
+    int getGroupConversationCount();
+
+    void updateLocalImageUri(Contact contact);
 }

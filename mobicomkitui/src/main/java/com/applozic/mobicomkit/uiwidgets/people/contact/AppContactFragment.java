@@ -2,12 +2,14 @@ package com.applozic.mobicomkit.uiwidgets.people.contact;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
@@ -19,21 +21,25 @@ import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AlphabetIndexer;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.QuickContactBadge;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserService;
+import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
@@ -58,12 +64,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 @SuppressLint("ValidFragment")
 public class AppContactFragment extends ListFragment implements SearchListFragment,
-        AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Cursor> {
+        AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
     // Defines a tag for identifying log entries
     private static final String TAG = "AppContactFragment";
-    private static final String SHARE_TEXT ="share_text";
+    private static final String SHARE_TEXT = "share_text";
     // Bundle key for saving previously selected search result item
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "net.mobitexter.mobiframework.contact.ui.SELECTED_ITEM";
@@ -88,6 +94,14 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private List<Contact> contactList;
     private boolean syncStatus = true;
     private String[] userIdArray;
+    private MobiComUserPreference userPreference;
+    private boolean isScrolling = false;
+    private int visibleThreshold = 0;
+    private int currentPage = 0;
+    private int previousTotalItemCount = 0;
+    private boolean loading = true;
+    private int startingPageIndex = 0;
+    private ApplozicSetting applozicSetting;
 
     /**
      * Fragments require an empty constructor.
@@ -105,14 +119,16 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         super.onCreate(savedInstanceState);
         contactService = new AppContactService(getActivity().getApplicationContext());
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
-        inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(),SHARE_TEXT);
+        applozicSetting = ApplozicSetting.getInstance(getContext());
+        userPreference = MobiComUserPreference.getInstance(getContext());
+        inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null) {
 
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mPreviouslySelectedSearchItem =
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
         }
-        mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight( )) {
+        mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
                 return contactService.downloadContactImage(getActivity(), (Contact) data);
@@ -141,7 +157,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MobiComKitPeopleActivity)getActivity()).setSearchListFragment(this);
+        ((MobiComKitPeopleActivity) getActivity()).setSearchListFragment(this);
         shareButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -186,7 +202,33 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
+                if (applozicSetting.isRegisteredUsersContactCall() && Utils.isInternetAvailable(getContext())) {
+
+                    if (totalItemsCount < previousTotalItemCount) {
+                        currentPage = startingPageIndex;
+                        previousTotalItemCount = totalItemsCount;
+                        if (totalItemsCount == 0) {
+                            loading = true;
+                        }
+                    }
+
+                    if (loading && (totalItemsCount > previousTotalItemCount)) {
+                        loading = false;
+                        previousTotalItemCount = totalItemsCount;
+                        currentPage++;
+                    }
+
+                    if (!loading && (totalItemsCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                        if (!MobiComKitPeopleActivity.isSearching) {
+                            loading = true;
+                            new DownloadNNumberOfUserAsync(applozicSetting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true).execute((Void[]) null);
+                        }
+                    }
+               /* if ((getListView().getLastVisiblePosition() >= totalItemsCount - 5) && (!MobiComKitPeopleActivity.isSearching)) {
+                    new DownloadNNumberOfUserAsync(ApplozicSetting.getInstance(getActivity()).getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true).execute((Void[]) null);
+                }*/
+                }
             }
         });
 
@@ -195,14 +237,14 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         // the action bar search view (see onQueryTextChange() in onCreateOptionsMenu()).
         if (mPreviouslySelectedSearchItem == 0) {
             // Initialize the loader, and create a loader identified by ContactsQuery.QUERY_ID
-             getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, this);
+            getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, this);
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ((MobiComKitPeopleActivity)getActivity()).setSearchListFragment(null);
+        ((MobiComKitPeopleActivity) getActivity()).setSearchListFragment(null);
     }
 
     @Override
@@ -237,7 +279,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
         // Moves to the Cursor row corresponding to the ListView item that was clicked
         cursor.moveToPosition(position);
-        Contact contact = new ContactDatabase(getContext()).getContact(cursor,"_id");
+        Contact contact = new ContactDatabase(getContext()).getContact(cursor, "_id");
         mOnContactSelectedListener.onCustomContactSelected(contact);
     }
 
@@ -318,7 +360,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         ContactDatabase contactDatabase = new ContactDatabase(getContext());
-        Loader<Cursor> loader =  contactDatabase.getSearchCursorLoader(mSearchTerm,userIdArray);
+        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray);
         return loader;
     }
 
@@ -339,6 +381,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             mAdapter.swapCursor(null);
         }
     }
+
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
      * in the {@link android.provider.ContactsContract.Contacts} class.
@@ -361,6 +404,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         private LayoutInflater mInflater; // Stores the layout inflater
         private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
         private TextAppearanceSpan highlightTextSpan; // Stores the highlight text appearance style
+
         /**
          * Instantiates a new Contacts Adapter.
          *
@@ -380,7 +424,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             // Instantiates a new AlphabetIndexer bound to the column used to sort contact names.
             // The cursor is left null, because it has not yet been retrieved.
-            mAlphabetIndexer = new AlphabetIndexer(null,1 , alphabet);
+            mAlphabetIndexer = new AlphabetIndexer(null, 1, alphabet);
 
             // Defines a span for highlighting the part of a display name that matches the search
             // string
@@ -425,7 +469,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             final ViewHolder holder = (ViewHolder) view.getTag();
 
             //////////////////////////
-            Contact contact = new ContactDatabase(context).getContact(cursor,"_id");
+            Contact contact = new ContactDatabase(context).getContact(cursor, "_id");
             ///////////////////
 
             holder.text1.setText(contact.getDisplayName() == null ? contact.getUserId() : contact.getDisplayName());
@@ -541,5 +585,71 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
     }
 
+    public class DownloadNNumberOfUserAsync extends AsyncTask<Void, Integer, Long> {
 
+        private Message message;
+        private UserService userService;
+        private ProgressDialog progressDialog;
+        private String messageContent;
+        private int nNumberOfUsers;
+        private String[] userIdArray;
+        private long timeToFetch;
+        boolean callForRegistered;
+        private RegisteredUsersApiResponse registeredUsersApiResponse;
+        private Context context = getContext();
+
+        public DownloadNNumberOfUserAsync(int nNumberOfUsers, Message message, String messageContent) {
+            this.message = message;
+            this.messageContent = messageContent;
+            this.nNumberOfUsers = nNumberOfUsers;
+            this.userService = UserService.getInstance(context);
+        }
+
+        public DownloadNNumberOfUserAsync(int numberOfUsersToFetch, long timeToFetch, Message message, String messageContent, boolean callForRegistered) {
+            this.callForRegistered = callForRegistered;
+            this.message = message;
+            this.messageContent = messageContent;
+            this.nNumberOfUsers = numberOfUsersToFetch;
+            this.timeToFetch = timeToFetch;
+            this.userService = UserService.getInstance(context);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(context, "",
+                    context.getString(R.string.applozic_contacts_loading_info), true);
+        }
+
+        @Override
+        protected Long doInBackground(Void... params) {
+            if (callForRegistered) {
+                registeredUsersApiResponse = userService.getRegisteredUsersList(timeToFetch, nNumberOfUsers);
+            } else {
+                userIdArray = userService.getOnlineUsers(nNumberOfUsers);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+
+            if (!Utils.isInternetAvailable(context)) {
+                Toast toast = Toast.makeText(context, context.getString(R.string.applozic_contacts_loading_error), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
+            if (registeredUsersApiResponse != null) {
+                mAdapter.changeCursor(new ContactDatabase(context).loadContacts());
+                mAdapter.notifyDataSetChanged();
+            }
+
+        }
+    }
 }
+

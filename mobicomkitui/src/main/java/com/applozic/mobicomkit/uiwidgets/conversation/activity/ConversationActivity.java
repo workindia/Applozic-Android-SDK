@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +36,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -45,6 +45,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -311,6 +312,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         new MobiComConversationService(this).processLastSeenAtStatus();
         UserService.getInstance(this).processSyncUserBlock();
+
+        if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
+            snackbar = Snackbar.make(layout, ApplozicClient.getInstance(this).isAccountClosed() ?
+                            R.string.applozic_account_closed : R.string.applozic_free_version_not_allowed_on_release_build,
+                    Snackbar.LENGTH_INDEFINITE);
+            snackbar.show();
+            SyncCallService.getInstance(this).checkAccountStatus();
+        }
     }
 
     @Override
@@ -324,8 +333,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         try {
-            if(getIntent().getExtras() != null){
-               BroadcastService.setContextBasedChat(getIntent().getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
+            if(intent.getExtras() != null){
+                BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
             }
             new ConversationUIService(this).checkForStartNewConversation(intent);
         } catch (Exception e) {
@@ -661,30 +670,30 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     public void showAudioRecordingDialog() {
 
-            if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
-                new ApplozicPermissions(this, layout).requestAudio();
-            } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
+        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForAudioRecording(this)) {
+            new ApplozicPermissions(this, layout).requestAudio();
+        } else if(PermissionsUtils.isAudioRecordingPermissionGranted(this)) {
 
-                FragmentManager supportFragmentManager = getSupportFragmentManager();
-                DialogFragment fragment = AudioMessageFragment.newInstance();
+            FragmentManager supportFragmentManager = getSupportFragmentManager();
+            DialogFragment fragment = AudioMessageFragment.newInstance();
 
-                FragmentTransaction fragmentTransaction = supportFragmentManager
-                        .beginTransaction().add(fragment, "dialog");
+            FragmentTransaction fragmentTransaction = supportFragmentManager
+                    .beginTransaction().add(fragment, "dialog");
 
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commitAllowingStateLoss();
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commitAllowingStateLoss();
 
+        }else{
+
+            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+                showSnackBar(R.string.applozic_audio_permission_missing);
             }else{
-
-                if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
-                    showSnackBar(R.string.applozic_audio_permission_missing);
-                }else{
-                    snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
-                            Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
-
+                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                        Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
+
+        }
     }
 
 

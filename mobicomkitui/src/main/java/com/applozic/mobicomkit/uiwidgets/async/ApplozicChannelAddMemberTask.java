@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
@@ -33,7 +34,9 @@ public class ApplozicChannelAddMemberTask extends AsyncTask<Void, Void, Boolean>
         try {
             if (!TextUtils.isEmpty(userId) && userId.trim().length() != 0 && channelKey != null) {
                 addResponse = channelService.addMemberToChannelProcess(channelKey, userId.trim());
-                return true;
+                if (!TextUtils.isEmpty(addResponse)) {
+                    return MobiComKitConstants.SUCCESS.equals(addResponse);
+                }
             } else {
                 throw new Exception(context.getString(R.string.applozic_userId_error_info_in_logs));
             }
@@ -42,22 +45,23 @@ public class ApplozicChannelAddMemberTask extends AsyncTask<Void, Void, Boolean>
             exception = e;
             return false;
         }
+        return false;
     }
 
     @Override
     protected void onPostExecute(Boolean resultBoolean) {
         super.onPostExecute(resultBoolean);
 
-        if (resultBoolean && !TextUtils.isEmpty(addResponse) && channelAddMemberListener != null) {
+        if (resultBoolean  && channelAddMemberListener != null) {
             channelAddMemberListener.onSuccess(addResponse, context);
         } else if (!resultBoolean && exception != null && channelAddMemberListener != null) {
-            channelAddMemberListener.onFailure(addResponse,exception, context);
+            channelAddMemberListener.onFailure(addResponse, exception, context);
         }
     }
 
-   public interface ChannelAddMemberListener {
+    public interface ChannelAddMemberListener {
         void onSuccess(String response, Context context);
 
-        void onFailure(String response,Exception e, Context context);
+        void onFailure(String response, Exception e, Context context);
     }
 }

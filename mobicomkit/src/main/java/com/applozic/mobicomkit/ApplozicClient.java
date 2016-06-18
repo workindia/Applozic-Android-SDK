@@ -2,8 +2,11 @@ package com.applozic.mobicomkit;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 /**
  * Created by devashish on 8/21/2015.
@@ -15,6 +18,7 @@ public class ApplozicClient {
     private static final String CHAT_LIST_HIDE_ON_NOTIFICATION = "CHAT_LIST_HIDE_ON_NOTIFICATION";
     private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
     private static final String NOTIFICATION_SMALL_ICON= "NOTIFICATION_SMALL_ICON";
+    private static final String APP_NAME = "APP_NAME";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -55,7 +59,6 @@ public class ApplozicClient {
         return this;
     }
 
-
     public boolean isChatListOnNotificationIsHidden() {
         return sharedPreferences.getBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, false);
     }
@@ -75,6 +78,26 @@ public class ApplozicClient {
     }
 
     public boolean isNotificationSmallIconHidden() {
-      return  sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
+      return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
+    }
+
+    public boolean isNotAllowed() {
+        MobiComUserPreference pref = MobiComUserPreference.getInstance(context);
+        boolean isDebuggable =  ( 0 != ( context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
+        return !isDebuggable && (pref.getPricingPackage() == RegistrationResponse.PricingType.CLOSED.getValue()
+                ||  pref.getPricingPackage() == RegistrationResponse.PricingType.BETA.getValue());
+    }
+
+    public boolean isAccountClosed() {
+        return MobiComUserPreference.getInstance(context).getPricingPackage() == RegistrationResponse.PricingType.CLOSED.getValue();
+    }
+
+    public String getAppName() {
+        return sharedPreferences.getString(APP_NAME, "Applozic");
+    }
+
+    public ApplozicClient setAppName(String notficationAppName) {
+        sharedPreferences.edit().putString(APP_NAME, notficationAppName).commit();
+        return this;
     }
 }

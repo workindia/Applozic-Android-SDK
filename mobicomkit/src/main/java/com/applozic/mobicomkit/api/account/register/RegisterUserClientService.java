@@ -12,15 +12,13 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
-
 import com.applozic.mobicomkit.exception.UnAuthoriseException;
+import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.google.gson.Gson;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.net.ConnectException;
-import java.net.UnknownHostException;
 import java.util.TimeZone;
 
 /**
@@ -29,6 +27,8 @@ import java.util.TimeZone;
 public class RegisterUserClientService extends MobiComKitClientService {
 
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
+    public static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
+    public static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
     public static final Short MOBICOMKIT_VERSION_CODE = 106;
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
@@ -43,6 +43,14 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return getBaseUrl() + CREATE_ACCOUNT_URL;
     }
 
+    public String getPricingPackageUrl() {
+        return getBaseUrl() + CHECK_PRICING_PACKAGE;
+    }
+
+    public String getUpdateAccountUrl() {
+        return getBaseUrl() + UPDATE_ACCOUNT_URL;
+    }
+
 
 //    final RegistrationResponse registrationResponse = createAccount(user);
 //    Intent intent = new Intent(context, ApplozicMqttIntentService.class);
@@ -52,7 +60,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
 
     public RegistrationResponse createAccount(User user) throws Exception {
-
 
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
@@ -179,11 +186,50 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
         user.setRegistrationId(pushNotificationId);
         if (pref.isRegistered()) {
-            registrationResponse = createAccount(user);
+            registrationResponse = updateRegisteredAccount(user);
         }
         return registrationResponse;
     }
 
+
+    public RegistrationResponse updateRegisteredAccount(User user) throws Exception {
+        RegistrationResponse registrationResponse = null;
+
+        user.setDeviceType(Short.valueOf("1"));
+        user.setPrefContactAPI(Short.valueOf("2"));
+        user.setTimezone(TimeZone.getDefault().getID());
+
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+
+        Gson gson = new Gson();
+        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
+        user.setApplicationId(getApplicationKey(context));
+        user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
+
+        Log.i(TAG, "Registration update json " + gson.toJson(user));
+        String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(user));
+
+        if (TextUtils.isEmpty(response) || response.contains("<html")) {
+            throw null;
+        }
+        if (response.contains(INVALID_APP_ID)) {
+            throw new InvalidApplicationException("Invalid Application Id");
+        }
+
+        registrationResponse  = gson.fromJson(response, RegistrationResponse.class);
+
+        if (registrationResponse.isPasswordInvalid()) {
+            throw new UnAuthoriseException("Invalid uername/password");
+        }
+
+        Log.i(TAG, "Registration update response: " + registrationResponse);
+        if(registrationResponse.getNotificationResponse() != null){
+            Log.e(TAG,"Notification response: "+registrationResponse.getNotificationResponse());
+        }
+
+        return registrationResponse;
+
+    }
 
     private User getUserDetail() {
 
@@ -195,8 +241,21 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setContactNumber(pref.getContactNumber());
         user.setDisplayName(pref.getDisplayName());
         user.setImageLink(pref.getImageLink());
-        user.setPassword(pref.getPassword());
-        user.setAuthenticationTypeId(Short.valueOf(pref.getAuthenticationType()));
         return user;
     }
+
+    public void syncAccountStatus() {
+        try {
+            String response = httpRequestUtils.getResponse(getCredentials(), getPricingPackageUrl(), "application/json", "application/json");
+            Log.i(TAG, "Pricing package response: " + response);
+            ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+            if (apiResponse.getResponse() != null) {
+                int pricingPackage = Integer.parseInt(apiResponse.getResponse().toString());
+                MobiComUserPreference.getInstance(context).setPricingPackage(pricingPackage);
+            }
+        } catch (Exception e) {
+            Log.i(TAG, "Account status sync call failed");
+        }
+    }
+
 }

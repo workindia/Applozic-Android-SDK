@@ -4,12 +4,10 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +87,7 @@ public class Contact implements Serializable {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
         if (TextUtils.isEmpty(getFormattedContactNumber())) {
-            setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(getContactNumber(), countryCode));
+            //setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(getContactNumber(), countryCode));
         }
     }
 

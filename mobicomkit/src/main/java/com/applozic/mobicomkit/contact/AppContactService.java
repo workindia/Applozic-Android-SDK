@@ -2,20 +2,14 @@ package com.applozic.mobicomkit.contact;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
-
-import com.applozic.mobicommons.commons.image.ImageUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.List;
 
@@ -94,50 +88,13 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public Bitmap downloadContactImage(Context context, Contact contact) {
-        try {
-            if (TextUtils.isEmpty(contact.getImageURL()) && TextUtils.isEmpty(contact.getLocalImageUrl())) {
-                return null;
-            }
-            Bitmap attachedImage = null;
-            String contactImageURL = contact.getImageURL();
-            String contentType = "image";
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            String imageLocalPath = contact.getLocalImageUrl();
-            if (imageLocalPath != null) {
-                try {
-                    attachedImage = BitmapFactory.decodeFile(imageLocalPath);
-                } catch (Exception ex) {
-                    Log.e(TAG, "File not found on local storage: " + ex.getMessage());
-                }
-            }
-            if (attachedImage == null) {
-                HttpURLConnection connection = new MobiComKitClientService(context).openHttpConnection(contactImageURL);
-                if (connection.getResponseCode() == 200) {
-                    attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
-                    if(attachedImage != null){
-                        imageLocalPath = new FileClientService(context).saveImageToInternalStorage(attachedImage, contact.getUserId(), context, "image");
-                        contact.setLocalImageUrl(imageLocalPath);
-                        updateContact(contact);
-                    }
-                } else {
-                    Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
-                }
-            }
-            // Calculate inSampleSize
-            options.inSampleSize = ImageUtils.calculateInSampleSize(options, 100, 50);
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
-            attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
-            return attachedImage;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            Log.e(TAG, "File not found on server: " + ex.getMessage());
-        } catch (Exception ex) {
-            Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
-        }
+       return new FileClientService(context).downloadBitmap(contact,null);
 
-        return null;
+    }
+
+    @Override
+    public Bitmap downloadGroupImage(Context context, Channel channel) {
+        return new FileClientService(context).downloadBitmap(null,channel);
     }
 
 
@@ -184,6 +141,21 @@ public class AppContactService implements BaseContactService {
     @Override
     public boolean isContactPresent(String userId) {
         return contactDatabase.isContactPresent(userId);
+    }
+
+    @Override
+    public int getChatConversationCount() {
+        return contactDatabase.getChatUnreadCount();
+    }
+
+    @Override
+    public int getGroupConversationCount() {
+        return contactDatabase.getGroupUnreadCount();
+    }
+
+    @Override
+    public void updateLocalImageUri(Contact contact) {
+        contactDatabase.updateLocalImageUri(contact);
     }
 
 }

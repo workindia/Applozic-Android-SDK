@@ -111,6 +111,8 @@
     <string name="skip">Skip</string>
     <string name ="you_string">You</string>
 
+    <string name="applozic_account_closed">Please contact Applozic to activate chat in your app</string>
+    <string name="applozic_free_version_not_allowed_on_release_build">Please contact Applozic to activate chat in your app</string>
     <string name="quick_conversation_loading">loading conversation..</string>
     <string name="alert_for_empty_message">Do you want to send a message without text?</string>
     <string name ="yes_alert">Yes</string>
@@ -148,7 +150,7 @@
     <string name="please_wait_info">Please wait a moment...</string>
     <string name="applozic_userId_error_info_in_logs">UserId can not be null or empty and Channel key should not be null</string>
     <string name="applozic_channel_error_info_in_logs">Please check group name is Null or Empty or it has at least one member to be added in group</string>
-
+    <string name="applozic_add_user_to_multiple_channel_error_info_in_logs">UserId can not be null or empty and Channel key list should not be null</string>
 
 
 </resources>

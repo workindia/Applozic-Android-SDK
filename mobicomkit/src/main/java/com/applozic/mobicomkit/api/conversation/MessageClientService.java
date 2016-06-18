@@ -401,6 +401,10 @@ public class MessageClientService extends MobiComKitClientService {
 
         try {
             String response = new MessageClientService(context).sendMessage(newMessage);
+            if(message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage() ){
+                messageDatabaseService.updateCanceledFlag(messageId, 1);
+                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
+            }
             MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
             keyString = messageResponse.getMessageKey();
             if (!TextUtils.isEmpty(keyString)) {

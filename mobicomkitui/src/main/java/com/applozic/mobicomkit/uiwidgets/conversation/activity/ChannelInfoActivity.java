@@ -41,7 +41,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.feed.ChannelName;
+import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
@@ -66,7 +66,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     private static final String TAG = "ChannelInfoActivity";
     private ActionBar mActionBar;
-    private ImageLoader contactImageLoader;
+    private ImageLoader contactImageLoader,channelImageLoader;
     public static final String CHANNEL_KEY = "CHANNEL_KEY";
     private BaseContactService contactService;
     private List<ChannelUserMapper> channelUserMapperList;
@@ -128,7 +128,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (channel != null) {
                 String title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getApplicationContext()).getUserId());
                 contact = new AppContactService(this).getContactById(channel.getAdminKey());
-                 mActionBar.setTitle(title);
+                mActionBar.setTitle(title);
                 if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
                     createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
                 }else {
@@ -150,6 +150,21 @@ public class ChannelInfoActivity extends AppCompatActivity {
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         contactImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
+        channelImageLoader = new ImageLoader(this, getListPreferredItemHeight()) {
+            @Override
+            protected Bitmap processBitmap(Object data) {
+                return contactService.downloadGroupImage(ChannelInfoActivity.this, (Channel) data);
+            }
+        };
+
+        channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
+        channelImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
+        channelImageLoader.setImageFadeIn(false);
+
+        if(channelImage != null){
+            channelImageLoader.loadImage(channel,channelImage);
+        }
+
         channelUserMapperList = ChannelService.getInstance(this).getListOfUsersFromChannelUserMapper(channel.getKey());
 
         contactsAdapter = new ContactsAdapter(this);
@@ -180,7 +195,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         deleteChannelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            deleteChannel(channel);
+                deleteChannel(channel);
             }
         });
     }
@@ -218,8 +233,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 }
             }
             if (requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_NAME && resultCode == Activity.RESULT_OK) {
-                ChannelName channelName = new ChannelName(data.getExtras().getString(ChannelNameActivity.CHANNEL_NAME), channel.getKey());
-                new ChannelAsync(channelName, ChannelInfoActivity.this).execute();
+                GroupInfoUpdate groupInfoUpdate = new GroupInfoUpdate(data.getExtras().getString(ChannelNameActivity.CHANNEL_NAME), channel.getKey());
+                new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this).execute();
             }
         }
     }
@@ -332,7 +347,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             String oldChannelName = channel.getName();
             channel = ChannelService.getInstance(this).getChannelByChannelKey(channel.getKey());
             if(!oldChannelName.equals(channel.getName())){
-              mActionBar.setTitle(channel.getName());
+                mActionBar.setTitle(channel.getName());
                 collapsingToolbarLayout.setTitle(channel.getName());
             }
         }
@@ -648,6 +663,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
                 }
                 startActivity(intent);
+                MobiComUserPreference.getInstance(ChannelInfoActivity.this).setDeleteChannel(true);
                 finish();
             }
 
@@ -723,9 +739,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
         private ProgressDialog progressDialog;
         private Context context;
         private Channel channel;
-        ChannelName channelName;
+        GroupInfoUpdate groupInfoUpdate;
         String responseForExit;
-        String responseForUpdateChannelName;
+        String responseForChannelUpdate;
 
         public ChannelAsync(Channel channel, Context context) {
             this.channel = channel;
@@ -734,8 +750,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
         }
 
-        public ChannelAsync(ChannelName channelName, Context context) {
-            this.channelName = channelName;
+        public ChannelAsync(GroupInfoUpdate groupInfoUpdate, Context context) {
+            this.groupInfoUpdate = groupInfoUpdate;
             this.context = context;
             this.channelService = ChannelService.getInstance(context);
 
@@ -744,7 +760,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (channelName != null) {
+            if (groupInfoUpdate != null) {
                 progressDialog = ProgressDialog.show(context, "",
                         context.getString(R.string.channel_update), true);
             }
@@ -757,11 +773,11 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
         @Override
         protected Long doInBackground(Void... params) {
-            if (channelName != null) {
-                responseForUpdateChannelName = channelService.updateNewChannelNameProcess(channelName);
+            if (groupInfoUpdate != null) {
+                responseForChannelUpdate = channelService.updateChannel(groupInfoUpdate);
             }
             if (channel != null) {
-                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(), MobiComUserPreference.getInstance(context).getUserId());
+                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(),MobiComUserPreference.getInstance(context).getUserId());
             }
             return null;
         }
@@ -777,7 +793,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
-            if(channelName != null && !Utils.isInternetAvailable(context)){
+            if(groupInfoUpdate != null && !Utils.isInternetAvailable(context)){
                 Toast toast=  Toast.makeText(context, getString(R.string.internet_connection_for_group_name_info), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
@@ -785,9 +801,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(responseForExit) && SUCCESS.equals(responseForExit)) {
                 ChannelInfoActivity.this.finish();
             }
-            if (!TextUtils.isEmpty(responseForUpdateChannelName) && SUCCESS.equals(responseForUpdateChannelName)) {
-                mActionBar.setTitle(channelName.getNewName());
-                collapsingToolbarLayout.setTitle(channelName.getNewName());
+            if (!TextUtils.isEmpty(responseForChannelUpdate) && SUCCESS.equals(responseForChannelUpdate)) {
+                mActionBar.setTitle(groupInfoUpdate.getNewName());
+                collapsingToolbarLayout.setTitle(groupInfoUpdate.getNewName());
             }
         }
     }

@@ -4,10 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
-import com.applozic.mobicomkit.feed.ChannelName;
+import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
@@ -74,8 +75,15 @@ public class ChannelDatabaseService {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME, channel.getName());
         contentValues.put(MobiComDatabaseHelper.CHANNEL_KEY, channel.getKey());
+        contentValues.put(MobiComDatabaseHelper.CLIENT_GROUP_ID, channel.getClientGroupId());
         contentValues.put(MobiComDatabaseHelper.TYPE, channel.getType());
         contentValues.put(MobiComDatabaseHelper.ADMIN_ID, channel.getAdminKey());
+        if (!TextUtils.isEmpty(channel.getImageUrl())) {
+            contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
+        }
+        if (!TextUtils.isEmpty(channel.getLocalImageUri())) {
+            contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI, channel.getLocalImageUri());
+        }
         if (channel.getUserCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.USER_COUNT, channel.getUserCount());
         }
@@ -113,6 +121,27 @@ public class ChannelDatabaseService {
             }
         }
         return contentValues;
+    }
+
+    public Channel getChannelByClientGroupId(String clientGroupId) {
+        Channel channel = null;
+        try {
+            String structuredNameWhere = MobiComDatabaseHelper.CLIENT_GROUP_ID + " =?";
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(clientGroupId)}, null, null, null);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    channel = getChannel(cursor);
+                }
+                cursor.close();
+            }
+            dbHelper.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return channel;
     }
 
     public Channel getChannelByChannelKey(final Integer channelKey) {
@@ -161,9 +190,12 @@ public class ChannelDatabaseService {
     public Channel getChannel(Cursor cursor) {
         Channel channel = new Channel();
         channel.setKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_KEY)));
+        channel.setClientGroupId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CLIENT_GROUP_ID)));
         channel.setName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME)));
         channel.setAdminKey(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.ADMIN_ID)));
         channel.setType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.TYPE)));
+        channel.setImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_IMAGE_URL)));
+        channel.setLocalImageUri(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI)));
         int count = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
         if (count > 0) {
             channel.setUnreadCount(count);
@@ -222,6 +254,13 @@ public class ChannelDatabaseService {
         return present;
     }
 
+    public void updateChannelLocalImageURI(Integer channelKey ,String channelLocalURI){
+        ContentValues contentValues =  new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI,channelLocalURI);
+        int updatedRow =  dbHelper.getWritableDatabase().update(CHANNEL,contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(channelKey)});
+
+    }
+
     public boolean isChannelUserPresent(Integer channelKey, String userId) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         Cursor cursor = database.rawQuery(
@@ -235,6 +274,10 @@ public class ChannelDatabaseService {
         dbHelper.close();
         return present;
     }
+    public int removeMemberFromChannel(String clientGroupId, String userId) {
+        Channel channel = getChannelByClientGroupId(clientGroupId);
+        return removeMemberFromChannel(channel.getKey(), userId);
+    }
 
     public int removeMemberFromChannel(Integer channelKey, String userId) {
         int deleteUser = 0;
@@ -246,8 +289,12 @@ public class ChannelDatabaseService {
         return deleteUser;
     }
 
+    public int leaveMemberFromChannel(String clientGroupId, String userId) {
+        Channel channel = getChannelByClientGroupId(clientGroupId);
+        return leaveMemberFromChannel(channel.getKey(), userId);
+    }
 
-    public int leaveMemberFromChannel(Integer channelKey,String userId) {
+    public int leaveMemberFromChannel(Integer channelKey, String userId) {
         int deletedRows = 0;
         try {
             deletedRows = dbHelper.getWritableDatabase().delete(MobiComDatabaseHelper.CHANNEL_USER_X, "channelKey=? AND userId= ?", new String[]{String.valueOf(channelKey),userId });
@@ -256,12 +303,21 @@ public class ChannelDatabaseService {
         }
         return deletedRows;
     }
-    public int updateChannelName(ChannelName channelName) {
+
+    public int updateChannel(GroupInfoUpdate groupInfoUpdate) {
         int rowUpdated = 0;
         try {
             ContentValues values = new ContentValues();
-            values.put("channelName", channelName.getNewName());
-            rowUpdated = dbHelper.getWritableDatabase().update("channel", values, "channelKey=" + channelName.getGroupId(), null);
+            if(groupInfoUpdate != null){
+                if(groupInfoUpdate.getNewName() != null){
+                    values.put("channelName", groupInfoUpdate.getNewName());
+                }
+                if(groupInfoUpdate.getImageUrl() != null){
+                    values.put("channelImageURL", groupInfoUpdate.getImageUrl());
+                    values.put("channelImageLocalURI","");
+                }
+            }
+            rowUpdated = dbHelper.getWritableDatabase().update("channel", values, "channelKey=" + groupInfoUpdate.getGroupId(), null);
         } catch (Exception e) {
             e.printStackTrace();
         }

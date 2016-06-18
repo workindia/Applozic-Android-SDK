@@ -27,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.people.ChannelCreate;
+import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -172,8 +172,8 @@ public class ContactSelectionActivity extends AppCompatActivity {
                         List<String> channelMemberNames = null;
                         if (!TextUtils.isEmpty(name) && mAdapter.getResult().size() > 0) {
                             channelMemberNames = mAdapter.getResult();
-                            ChannelCreate channelCreate = new ChannelCreate(name, channelMemberNames);
-                            Channel channel = ChannelService.getInstance(ContactSelectionActivity.this).createChannel(channelCreate);
+                            ChannelInfo channelInfo = new ChannelInfo(name, channelMemberNames);
+                            Channel channel = ChannelService.getInstance(ContactSelectionActivity.this).createChannel(channelInfo);
                             if (channel != null) {
                                 Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
                                 if(ApplozicClient.getInstance(ContactSelectionActivity.this).isContextBasedChat()){

@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "4.4"
+        versionName "4.5"
     }
     buildTypes {
         release {
@@ -28,7 +28,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
+    //compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
     //compile 'com.google.android.gms:play-services:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:9.0.2'
     compile 'com.google.android.gms:play-services-maps:9.0.2'
@@ -39,7 +39,7 @@ dependencies {
     compile project(':mobicomkit')
     //Note: use this for local development
     //compile 'com.applozic.communication.message:mobicomkit:2.0' //Todo: use this for prod
-   // compile 'com.android.support:multidex:1.0.1'
+    // compile 'com.android.support:multidex:1.0.1'
 }
 
 
@@ -58,7 +58,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '4.4'
+    libraryVersion = '4.5'
 
     developerId = 'devashish'
     developerName = 'Applozic'
@@ -120,4 +120,5 @@ bintray {
             //}
         }
     }
-}*/
+}
+*/

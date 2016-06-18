@@ -7,18 +7,17 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.people.ChannelCreate;
+import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
-import com.applozic.mobicomkit.feed.ChannelName;
+import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
-import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.HashSet;
 import java.util.List;
@@ -67,19 +66,25 @@ public class ChannelService {
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);
-                BroadcastService.sendUpdateForName(context, channelFeed.getId(), BroadcastService.INTENT_ACTIONS.UPDATE_NAME.toString());
-                channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount());
+                channel = getChannel(channelFeed);
                 return channel;
             }
         }
         return channel;
     }
 
+    public void createMultipleChannels(List<ChannelInfo> channelInfo){
+        List<ChannelFeed>  channelFeeds = channelClientService.createMultipleChannels(channelInfo);
+        if (channelFeeds != null) {
+            processChannelList(channelFeeds);
+        }
+    }
+
     public void processChannelFeedList(ChannelFeed[] channelFeeds, boolean isUserDetails) {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
                 Set<String> memberUserIds = channelFeed.getMembersName();
-                Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount());
+                Channel channel = getChannel(channelFeed);
                 if (channelDatabaseService.isChannelPresent(channel.getKey())) {
                     channelDatabaseService.updateChannel(channel);
                 } else {
@@ -149,15 +154,21 @@ public class ChannelService {
 
     }
 
-    public synchronized Channel createChannel(final ChannelCreate channelCreate) {
+    public synchronized Channel createChannel(final ChannelInfo channelInfo) {
         Channel channel = null;
-        ChannelFeed channelFeed = channelClientService.createChannel(channelCreate);
+        ChannelFeed channelFeed = channelClientService.createChannel(channelInfo);
         if (channelFeed != null) {
             ChannelFeed[] channelFeeds = new ChannelFeed[1];
             channelFeeds[0] = channelFeed;
             processChannelFeedList(channelFeeds, true);
-            channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount());
+            channel = getChannel(channelFeed);
         }
+        return channel;
+    }
+
+    public Channel getChannel(ChannelFeed channelFeed) {
+        Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount(),channelFeed.getImageUrl());
+        channel.setClientGroupId(channelFeed.getClientGroupId());
         return channel;
     }
 
@@ -175,8 +186,23 @@ public class ChannelService {
         return apiResponse.getStatus();
     }
 
+
+    public String removeMemberFromChannelProcess(String clientGroupId, String userId) {
+        if (clientGroupId == null && TextUtils.isEmpty(userId)) {
+            return "";
+        }
+        ApiResponse apiResponse = channelClientService.removeMemberFromChannel(clientGroupId, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            channelDatabaseService.removeMemberFromChannel(clientGroupId, userId);
+        }
+        return apiResponse.getStatus();
+    }
+
     public String addMemberToChannelProcess(Integer channelKey, String userId) {
-        if (channelKey == null && !TextUtils.isEmpty(userId)) {
+        if (channelKey == null && TextUtils.isEmpty(userId)) {
             return "";
         }
         ApiResponse apiResponse = channelClientService.addMemberToChannel(channelKey, userId);
@@ -186,6 +212,58 @@ public class ChannelService {
         if (apiResponse.isSuccess()) {
             ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelKey, userId);
             channelDatabaseService.addChannelUserMapper(channelUserMapper);
+        }
+        return apiResponse.getStatus();
+    }
+
+    public String addMemberToChannelProcess(String  clientGroupId, String userId) {
+        if (TextUtils.isEmpty(clientGroupId) && TextUtils.isEmpty(userId)) {
+            return "";
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToChannel(clientGroupId, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            Channel channel = channelDatabaseService.getChannelByClientGroupId(clientGroupId);
+            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
+            channelDatabaseService.addChannelUserMapper(channelUserMapper);
+        }
+        return apiResponse.getStatus();
+    }
+
+    public String addMemberToMultipleChannelsProcess(Set<String> clientGroupIds, String userId) {
+        if (clientGroupIds == null &&  TextUtils.isEmpty(userId)) {
+            return "";
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToMultipleChannelsByClientGroupIds(clientGroupIds, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        return apiResponse.getStatus();
+    }
+
+    public String addMemberToMultipleChannelsProcessByChannelKeys(Set<Integer> channelKeys, String userId) {
+        if (channelKeys == null &&  TextUtils.isEmpty(userId)) {
+            return "";
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToMultipleChannelsByChannelKey(channelKeys, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        return apiResponse.getStatus();
+    }
+
+    public String leaveMemberFromChannelProcess(String clientGroupId, String userId) {
+        if (TextUtils.isEmpty(clientGroupId)) {
+            return "";
+        }
+        ApiResponse apiResponse = channelClientService.leaveMemberFromChannel(clientGroupId);
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            channelDatabaseService.leaveMemberFromChannel(clientGroupId, userId);
         }
         return apiResponse.getStatus();
     }
@@ -204,16 +282,16 @@ public class ChannelService {
         return apiResponse.getStatus();
     }
 
-    public String updateNewChannelNameProcess(ChannelName channelName) {
-        if (channelName == null) {
+    public String updateChannel(GroupInfoUpdate groupInfoUpdate) {
+        if (groupInfoUpdate == null) {
             return null;
         }
-        ApiResponse apiResponse = channelClientService.updateChannelName(channelName);
+        ApiResponse apiResponse = channelClientService.updateChannel(groupInfoUpdate);
         if (apiResponse == null) {
             return null;
         }
         if (apiResponse.isSuccess()) {
-            channelDatabaseService.updateChannelName(channelName);
+            channelDatabaseService.updateChannel(groupInfoUpdate);
         }
         return apiResponse.getStatus();
     }
@@ -224,7 +302,7 @@ public class ChannelService {
             for (ChannelFeed channelFeed : channelFeedList) {
                 Set<String> memberUserIds = channelFeed.getMembersName();
                 Set<String> userIds = new HashSet<>();
-                Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount());
+                Channel channel = getChannel(channelFeed);
                 if (channelDatabaseService.isChannelPresent(channel.getKey())) {
                     channelDatabaseService.updateChannel(channel);
                     channelDatabaseService.deleteChannelUserMappers(channel.getKey());
@@ -235,7 +313,7 @@ public class ChannelService {
                     for (String userId : memberUserIds) {
                         ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
                         channelDatabaseService.addChannelUserMapper(channelUserMapper);
-                        if(!baseContactService.isContactExists(userId)){
+                        if (!baseContactService.isContactExists(userId)){
                             userIds.add(userId);
                         }
                     }
@@ -255,14 +333,28 @@ public class ChannelService {
         return channelDatabaseService.isChannelUserPresent(channelKey, userId);
     }
 
+    public synchronized boolean processIsUserPresentInChannel(String clientGroupId) {
+        Channel channel = channelDatabaseService.getChannelByClientGroupId(clientGroupId);
+        return channelDatabaseService.isChannelUserPresent(channel.getKey(), MobiComUserPreference.getInstance(context).getUserId());
+    }
+
+    public synchronized boolean isUserAlreadyPresentInChannel(String  clientGroupId, String userId) {
+        Channel channel = channelDatabaseService.getChannelByClientGroupId(clientGroupId);
+        return channelDatabaseService.isChannelUserPresent(channel.getKey(), userId);
+    }
+
     public synchronized String processChannelDeleteConversation(Channel channel, Context context) {
-           String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
-         if(!TextUtils.isEmpty(response) && "success".equals(response)){
+        String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
+        if(!TextUtils.isEmpty(response) && "success".equals(response)){
             channelDatabaseService.deleteChannelUserMappers(channel.getKey());
             channelDatabaseService.deleteChannel(channel.getKey());
         }
         return response;
 
+    }
+
+    public void updateChannelLocalImageURI(Integer channelKey,String localImageURI){
+        channelDatabaseService.updateChannelLocalImageURI(channelKey,localImageURI);
     }
 
 }

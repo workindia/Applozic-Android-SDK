@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.contact;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.people.contact.ContactUtils;
 
@@ -75,6 +76,11 @@ public class DeviceContactService implements BaseContactService {
     }
 
     @Override
+    public Bitmap downloadGroupImage(Context context, Channel channel) {
+        return null;
+    }
+
+    @Override
     public Contact getContactReceiver(List<String> items, List<String> userIds) {
         if (items != null && !items.isEmpty()) {
             return ContactUtils.getContact(context, items.get(0));
@@ -107,6 +113,21 @@ public class DeviceContactService implements BaseContactService {
     @Override
     public boolean isContactPresent(String userId) {
         return false;
+    }
+
+    @Override
+    public int getChatConversationCount() {
+        return 0;
+    }
+
+    @Override
+    public int getGroupConversationCount() {
+        return 0;
+    }
+
+    @Override
+    public void updateLocalImageUri(Contact contact) {
+
     }
 
 }

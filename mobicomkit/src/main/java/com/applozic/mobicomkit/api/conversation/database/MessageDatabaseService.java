@@ -184,6 +184,18 @@ public class MessageDatabaseService {
         return messageList;
     }
 
+    public List<Message> getUnreadMessages(){
+        String structuredNameWhere = "";
+        List<String> structuredNameParamsList = new ArrayList<String>();
+        structuredNameWhere += "messageContentType not in (10,11) AND ";
+        structuredNameWhere += "status in (0,3) AND ";
+        structuredNameWhere += "type = ? ";
+        structuredNameParamsList.add(String.valueOf(Message.MessageType.MT_INBOX.getValue()));
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt desc limit 10");
+        return  MessageDatabaseService.getMessageList(cursor);
+    }
+
     public List<Message> getPendingMessages() {
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
@@ -603,6 +615,7 @@ public class MessageDatabaseService {
     public void updateMessageReadFlag(long smsId, boolean read) {
         ContentValues values = new ContentValues();
         values.put("read", read ? 1 : 0);
+        values.put("status",1);
         dbHelper.getWritableDatabase().update("sms", values, "id=" + smsId, null);
         dbHelper.close();
     }
@@ -695,6 +708,15 @@ public class MessageDatabaseService {
         ContentValues values = new ContentValues();
         values.put("read", 1);
         int read = dbHelper.getWritableDatabase().update("sms", values, " contactNumbers = " + "'" + contactNumbers + "'" + " and read = 0", null);
+        dbHelper.close();
+        return read;
+    }
+
+    public int updateReadStatusForKeyString(String keyString) {
+        ContentValues values = new ContentValues();
+        values.put("read", 1);
+        values.put("status", 1);
+        int read = dbHelper.getWritableDatabase().update("sms", values, " keyString = '" + keyString + "'", null);
         dbHelper.close();
         return read;
     }
@@ -818,6 +840,40 @@ public class MessageDatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int getTotalUnreadCount() {
+        Cursor channelCursor = null;
+        Cursor contactCursor = null;
+        int totalCount = 0;
+        try {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            contactCursor = db.rawQuery("SELECT * FROM contact WHERE unreadCount > 0 ", null);
+            channelCursor = db.rawQuery("SELECT * FROM channel WHERE unreadCount > 0 ", null);
+
+            if (contactCursor.moveToFirst()) {
+                do {
+                    totalCount = totalCount + contactCursor.getInt(contactCursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+                } while (contactCursor.moveToNext());
+            }
+
+            if (channelCursor.moveToFirst()) {
+                do {
+                    totalCount = totalCount + channelCursor.getInt(channelCursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+                } while (channelCursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+                if (channelCursor != null) {
+                    channelCursor.close();
+                }
+                if (contactCursor != null) {
+                    contactCursor.close();
+                }
+        }
+        return totalCount;
     }
 
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -99,4 +100,12 @@ public class SyncCallService {
         mobiComConversationService.updateUnreadCount(contact,channel);
     }
 
+    public void checkAccountStatus() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                new RegisterUserClientService(context).syncAccountStatus();
+            }
+        }).start();
+    }
 }

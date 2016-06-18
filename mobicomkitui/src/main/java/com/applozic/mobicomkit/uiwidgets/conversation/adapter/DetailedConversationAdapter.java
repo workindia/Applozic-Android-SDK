@@ -45,7 +45,6 @@ import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
@@ -74,6 +73,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by adarsh on 4/7/15.
  */
 public class DetailedConversationAdapter extends ArrayAdapter<Message> {
+
+    private static final String TAG = "DetailedConversation";
+
     private static final int FILE_THRESOLD_SIZE = 400;
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
 
@@ -219,7 +221,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     if (userIds != null) {
                         contact.setUserId(userIds.get(0));
                     }
-                    contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(items.get(0), MobiComUserPreference.getInstance(context).getCountryCode()));
+                    //contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(items.get(0), MobiComUserPreference.getInstance(context).getCountryCode()));
                 } else {
                     receiverContact = contactService.getContactReceiver(items, userIds);
                 }
@@ -275,6 +277,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                 });
             }
+
 
             if (TextUtils.isEmpty(message.getMessage())) {
                 messageTextView.setVisibility(View.GONE);

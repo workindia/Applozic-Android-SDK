@@ -2,15 +2,10 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
-
-
-import java.util.Date;
+import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 
 
 public class MobiComUserPreference {
@@ -54,7 +49,9 @@ public class MobiComUserPreference {
     private static String password = "password";
     private static String authenticationType = "authenticationType";
     private static String mqtt_broker_url = "mqtt_broker_url";
-
+    private static String contact_list_server_call = "contact_list_server_call";
+    private static String pricing_package = "pricing_package";
+    private static String delete_channel = "delete_channel";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -333,6 +330,14 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putString(mqtt_broker_url, url).commit();
     }
 
+    public void setPricingPackage(int pricingPackage) {
+        sharedPreferences.edit().putInt(pricing_package, pricingPackage).commit();
+    }
+
+    public int getPricingPackage() {
+        return sharedPreferences.getInt(pricing_package, RegistrationResponse.PricingType.STARTER.getValue());
+    }
+
     public String getDisplayName() {
         return sharedPreferences.getString(display_name, null);
     }
@@ -411,6 +416,14 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putString(authenticationType, val).apply();
     }
 
+    public void setDeleteChannel(boolean channelDelete) {
+        sharedPreferences.edit().putBoolean(delete_channel, channelDelete).commit();
+    }
+
+    public boolean isChannelDeleted() {
+        return sharedPreferences.getBoolean(delete_channel,false);
+    }
+
     @Override
     public String toString() {
         return "MobiComUserPreference{" +
@@ -437,5 +450,13 @@ public class MobiComUserPreference {
 
     public boolean isImageCompressionEnabled() {
         return sharedPreferences.getBoolean(image_compression_enabled, true);
+    }
+
+    public boolean getWasContactListServerCallAlreadyDone() {
+        return sharedPreferences.getBoolean(contact_list_server_call, false);
+    }
+
+    public void setWasContactListServerCallAlreadyDone(Boolean serverCallAlreadyDone) {
+        sharedPreferences.edit().putBoolean(contact_list_server_call, serverCallAlreadyDone).commit();
     }
 }

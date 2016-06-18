@@ -28,7 +28,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionF
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 
-import com.applozic.mobicommons.commons.core.utils.ContactNumberUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FilePathFinder;
@@ -69,23 +68,23 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
+        // mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         InstructionUtil.enabled = true;
-     //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
-     //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        //   mobiTexterBroadcastReceiverActivated = Boolean.TRUE;
+        //   LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         InstructionUtil.enabled = false;
-      // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
-       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        // mobiTexterBroadcastReceiverActivated = Boolean.FALSE;
+        // LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
     }
 
     @Override
@@ -308,7 +307,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         SpinnerNavItem spinnerNavItem = navSpinner.get(i);
         Contact contact = spinnerNavItem.getContact();
         contact.setContactNumber(spinnerNavItem.getContactNumber());
-        contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(spinnerNavItem.getContactNumber(), MobiComUserPreference.getInstance(this).getCountryCode()));
+        //contact.setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(spinnerNavItem.getContactNumber(), MobiComUserPreference.getInstance(this).getCountryCode()));
         conversationFragment.loadConversation(contact,null);
         return false;
     }
@@ -320,7 +319,7 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
             conversationFragment.emoticonsFrameLayout.setVisibility(View.GONE);
             return;
         }
-       super.onBackPressed();
+        super.onBackPressed();
         this.finish();
     }
 }

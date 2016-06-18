@@ -13,10 +13,12 @@ import java.util.Set;
 public class ChannelFeed extends JsonMarker {
 
     private Integer id;
+    private String clientGroupId;
     private String name;
     private String adminName;
     private int unreadCount;
     private int userCount;
+    private String imageUrl;
     private short type;
     private Set<String> membersName;
     private Set<UserDetail> users;
@@ -39,6 +41,14 @@ public class ChannelFeed extends JsonMarker {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getClientGroupId() {
+        return clientGroupId;
+    }
+
+    public void setClientGroupId(String clientGroupId) {
+        this.clientGroupId = clientGroupId;
     }
 
     public String getName() {
@@ -105,6 +115,14 @@ public class ChannelFeed extends JsonMarker {
         this.users = users;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
@@ -113,6 +131,7 @@ public class ChannelFeed extends JsonMarker {
                 ", adminName='" + adminName + '\'' +
                 ", unreadCount=" + unreadCount +
                 ", userCount=" + userCount +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", type=" + type +
                 ", membersName=" + membersName +
                 ", users=" + users +

@@ -59,16 +59,16 @@ public class UserService {
                             List<SyncUserBlockFeed> blockedByUserList = syncUserBlockListFeed.getBlockedByUserList();
                             if (blockedToUserList != null && blockedToUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockedFeed : blockedToUserList) {
-                                    if(syncUserBlockedFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockedFeed.getBlockedTo())){
+                                    if (syncUserBlockedFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockedFeed.getBlockedTo())) {
                                         contact.setBlocked(syncUserBlockedFeed.getUserBlocked());
                                         contact.setUserId(syncUserBlockedFeed.getBlockedTo());
                                         baseContactService.upsert(contact);
                                     }
                                 }
                             }
-                            if(blockedByUserList != null && blockedByUserList.size()>0){
+                            if (blockedByUserList != null && blockedByUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockByFeed : blockedByUserList) {
-                                    if(syncUserBlockByFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockByFeed.getBlockedBy())){
+                                    if (syncUserBlockByFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockByFeed.getBlockedBy())) {
                                         contact.setBlockedBy(syncUserBlockByFeed.getUserBlocked());
                                         contact.setUserId(syncUserBlockByFeed.getBlockedBy());
                                         baseContactService.upsert(contact);
@@ -106,7 +106,7 @@ public class UserService {
     }
 
     public synchronized void processUserDetail(Set<UserDetail> userDetails) {
-        if (userDetails != null && userDetails.size()> 0) {
+        if (userDetails != null && userDetails.size() > 0) {
             for (UserDetail userDetail : userDetails) {
                 processUser(userDetail);
             }
@@ -119,9 +119,9 @@ public class UserService {
         processUserDetails(userIds);
     }
 
-    public synchronized void processUserDetails(Set<String> userIds){
+    public synchronized void processUserDetails(Set<String> userIds) {
         String response = userClientService.getUserDetails(userIds);
-        if(!TextUtils.isEmpty(response)){
+        if (!TextUtils.isEmpty(response)) {
             UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
             for (UserDetail userDetail : userDetails) {
                 processUser(userDetail);
@@ -130,7 +130,7 @@ public class UserService {
     }
 
 
-    public synchronized  void processUser(UserDetail userDetail){
+    public synchronized void processUser(UserDetail userDetail) {
         Contact contact = new Contact();
         contact.setUserId(userDetail.getUserId());
         contact.setContactNumber(userDetail.getPhoneNumber());
@@ -138,7 +138,7 @@ public class UserService {
         contact.setFullName(userDetail.getDisplayName());
         contact.setLastSeenAt(userDetail.getLastSeenAtTime());
         contact.setUnreadCount(0);
-        if(!TextUtils.isEmpty(userDetail.getImageLink())){
+        if (!TextUtils.isEmpty(userDetail.getImageLink())) {
             contact.setImageURL(userDetail.getImageLink());
         }
         baseContactService.upsert(contact);
@@ -150,7 +150,7 @@ public class UserService {
             if (userMapList != null && userMapList.size() > 0) {
                 String[] userIdArray = new String[userMapList.size()];
                 Set<String> userIds = new HashSet<String>();
-                int i = 0 ;
+                int i = 0;
                 for (Map.Entry<String, String> keyValue : userMapList.entrySet()) {
                     Contact contact = new Contact();
                     contact.setUserId(keyValue.getKey());
@@ -180,7 +180,7 @@ public class UserService {
             }
             return apiResponse;
         }
-        return apiResponse;
+        return null;
     }
 
 }

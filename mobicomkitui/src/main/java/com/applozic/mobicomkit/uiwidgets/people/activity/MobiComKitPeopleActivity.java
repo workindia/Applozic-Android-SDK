@@ -62,6 +62,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     TabLayout tabLayout;
     ActionBar actionBar;
     String[] userIdArray;
+    public static boolean isSearching = false;
 
 
     @Override
@@ -77,10 +78,10 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-       if (getIntent().getExtras() != null) {
-           userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
-       }
-        if(applozicSetting.isStartNewGroupButtonVisible()){
+        if (getIntent().getExtras() != null) {
+            userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
+        }
+        if (applozicSetting.isStartNewGroupButtonVisible()) {
             actionBar.setTitle(getString(R.string.search_title));
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             viewPager.setVisibility(View.VISIBLE);
@@ -88,9 +89,9 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             tabLayout = (TabLayout) findViewById(R.id.tab_layout);
             tabLayout.setVisibility(View.VISIBLE);
             tabLayout.setupWithViewPager(viewPager);
-        }else {
+        } else {
             actionBar.setTitle(getString(R.string.search_title));
-            addFragment(this,new AppContactFragment(userIdArray),"AppContactFragment");
+            addFragment(this, new AppContactFragment(userIdArray), "AppContactFragment");
         }
       /*  mContactsListFragment = (AppContactFragment)
                 getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
@@ -120,7 +121,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         MenuItem searchItem = menu.findItem(R.id.menu_search);
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setQueryHint(getResources().getString(R.string.search_hint));
-        if(Utils.hasICS()){
+        if (Utils.hasICS()) {
             searchItem.collapseActionView();
         }
         searchView.setOnQueryTextListener(this);
@@ -144,6 +145,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
     }
+
     /**
      * This interface callback lets the main contacts list fragment notify
      * this activity that a contact has been selected.
@@ -237,9 +239,10 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if(applozicSetting.isCreateAnyContact()){
+        if (applozicSetting.isCreateAnyContact()) {
             this.searchTerm = query;
             startNewConversation(query);
+            isSearching = false;
         }
         return false;
     }
@@ -247,8 +250,13 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     @Override
     public boolean onQueryTextChange(String query) {
         this.searchTerm = query;
-        if(getSearchListFragment()!=null){
+        if (getSearchListFragment() != null) {
             getSearchListFragment().onQueryTextChange(query);
+            isSearching = true;
+
+            if (query.isEmpty()) {
+                isSearching = false;
+            }
         }
         return true;
     }

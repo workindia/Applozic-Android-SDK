@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
 
@@ -13,12 +14,21 @@ import com.applozic.mobicomkit.uiwidgets.R;
 public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
 
     Context context;
+    String clientGroupId;
     Integer channelKey;
     String userId;
     ChannelLeaveMemberListener channelLeaveMemberListener;
     ChannelService channelService;
     Exception exception;
     String leaveResponse;
+
+    public String getClientGroupId() {
+        return clientGroupId;
+    }
+
+    public void setClientGroupId(String clientGroupId) {
+        this.clientGroupId = clientGroupId;
+    }
 
     public ApplozicChannelLeaveMember(Context context, Integer channelKey, String userId, ChannelLeaveMemberListener channelLeaveMemberListener) {
         this.channelKey = channelKey;
@@ -31,9 +41,15 @@ public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            if (!TextUtils.isEmpty(userId) && userId.trim().length() != 0 && channelKey != null) {
-                leaveResponse = channelService.leaveMemberFromChannelProcess(channelKey, userId.trim());
-                return true;
+            if (!TextUtils.isEmpty(userId) && userId.trim().length() != 0) {
+                if (channelKey != null && channelKey != 0) {
+                    leaveResponse = channelService.leaveMemberFromChannelProcess(channelKey, userId.trim());
+                } else if (!TextUtils.isEmpty(clientGroupId)) {
+                    leaveResponse = channelService.leaveMemberFromChannelProcess(clientGroupId, userId.trim());
+                }
+                if (!TextUtils.isEmpty(leaveResponse)) {
+                    return MobiComKitConstants.SUCCESS.equals(leaveResponse);
+                }
             } else {
                 throw new Exception(context.getString(R.string.applozic_userId_error_info_in_logs));
             }
@@ -42,22 +58,23 @@ public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
             exception = e;
             return false;
         }
+        return false;
     }
 
     @Override
     protected void onPostExecute(Boolean resultBoolean) {
         super.onPostExecute(resultBoolean);
 
-        if (resultBoolean && !TextUtils.isEmpty(leaveResponse) && channelLeaveMemberListener != null) {
+        if (resultBoolean && channelLeaveMemberListener != null) {
             channelLeaveMemberListener.onSuccess(leaveResponse, context);
         } else if (!resultBoolean && exception != null && channelLeaveMemberListener != null) {
-            channelLeaveMemberListener.onFailure(leaveResponse,exception, context);
+            channelLeaveMemberListener.onFailure(leaveResponse, exception, context);
         }
     }
 
-   public interface ChannelLeaveMemberListener {
+    public interface ChannelLeaveMemberListener {
         void onSuccess(String response, Context context);
 
-        void onFailure(String response,Exception e, Context context);
+        void onFailure(String response, Exception e, Context context);
     }
 }

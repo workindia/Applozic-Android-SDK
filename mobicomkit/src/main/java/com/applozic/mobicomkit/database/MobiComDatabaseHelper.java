@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 15;
+    public static final int DB_VERSION = 16;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -31,6 +31,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String DISPLAY_NAME = "displayName";
     public static final String CONTACT_IMAGE_LOCAL_URI = "contactImageLocalURI";
     public static final String CONTACT_IMAGE_URL = "contactImageURL";
+    public static final String CHANNEL_IMAGE_URL = "channelImageURL";
+    public static final String CHANNEL_IMAGE_LOCAL_URI= "channelImageLocalURI";
     public static final String USERID = "userId";
     public static final String EMAIL = "email";
     public static final String APPLICATION_ID = "applicationId";
@@ -43,6 +45,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CHANNEL_DISPLAY_NAME = "channelName";
     public static final String TYPE = "type";
     public static final String CHANNEL_KEY = "channelKey";
+    public static final String CLIENT_GROUP_ID = "clientGroupId";
     public static final String USER_COUNT = "userCount";
     public static final String STATUS = "status";
     public static final String ADMIN_ID = "adminId";
@@ -112,6 +115,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_BLOCKED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED+ " integer default 0";
     private static final String ALTER_CONTACT_TABLE_BLOCKED_BY_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED_BY+ " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_FOR_IMAGE_URL_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_IMAGE_URL + " varchar(300) null";
+    private static final String ALTER_CHANNEL_TABLE_FOR_IMAGE_LOCAL_URI_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_IMAGE_LOCAL_URI + " varchar(300) null";
+    private static final String ALTER_CHANNEL_TABLE_FOR_CLIENT_GROUP_ID = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CLIENT_GROUP_ID + " varchar(200) null";
     private static final String ALTER_SMS_TABLE = "ALTER TABLE " + SMS + " RENAME TO " + SMS_BACKUP;
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -132,11 +138,14 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
             _ID + " integer primary key autoincrement, "
             + CHANNEL_KEY + " integer , "
+            + CLIENT_GROUP_ID + " varchar(200), "
             + CHANNEL_DISPLAY_NAME + " varchar(200), "
             + ADMIN_ID + " varchar(100), "
             + TYPE + " integer default 0, "
             + UNREAD_COUNT + " integer default 0, "
-            + USER_COUNT + "integer "
+            + USER_COUNT + "integer, "
+            + CHANNEL_IMAGE_URL + " VARCHAR(300), "
+            + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300)"
             + " )";
 
     private static final String CREATE_CHANNEL_USER_X_TABLE = " CREATE TABLE channel_User_X ( " +
@@ -157,7 +166,6 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_INDEX_SMS_TYPE = "CREATE INDEX IF NOT EXISTS INDEX_SMS_TYPE ON sms (type)";
     private static final String CREATE_INDEX_ON_CREATED_AT =  "CREATE INDEX IF NOT EXISTS message_createdAt ON sms (createdAt)";
-
     private static final String TAG = "MobiComDatabaseHelper";
     private static MobiComDatabaseHelper sInstance;
     private Context context;
@@ -268,6 +276,15 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, "sms", TOPIC_ID)) {
                 database.execSQL(ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "channel", CHANNEL_IMAGE_URL)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_IMAGE_URL_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "channel", CHANNEL_IMAGE_LOCAL_URI)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_IMAGE_LOCAL_URI_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "channel", CLIENT_GROUP_ID)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_CLIENT_GROUP_ID);
             }
             if(!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)){
                 database.execSQL(ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN);

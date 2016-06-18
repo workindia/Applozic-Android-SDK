@@ -4,30 +4,37 @@
     android:orientation="vertical"
     android:layout_height="?android:attr/listPreferredItemHeight">
 
-    <TextView
-        android:id="@+id/alphabeticImage"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
-        android:layout_gravity="center"
-        android:background="@drawable/mobiframework_circular_text_view"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:textColor="#ffffff"
-        android:textSize="20sp"
-        android:visibility="gone" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:id="@+id/profile_image_relative_layout"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="6dp"
+        android:layout_height="wrap_content">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/contactImage"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginLeft="5dp"
-        android:layout_gravity="center"
-        android:visibility="visible"
-        android:layout_toRightOf="@id/alphabeticImage"
-        android:src="@drawable/applozic_ic_contact_picture_180_holo_light" />
+        <TextView
+            android:id="@+id/alphabeticImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/mobiframework_circular_text_view"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text=""
+            android:textColor="#ffffff"
+            android:textSize="20dp"
+            android:visibility="gone" />
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/contactImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_toRightOf="@+id/alphabeticImage"
+            android:src="@drawable/applozic_ic_contact_picture_holo_light"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/lastSeenAtTextView"
@@ -35,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/displayName"
-        android:layout_toRightOf="@id/contactImage"
+        android:layout_toRightOf="@id/profile_image_relative_layout"
         android:ellipsize="marquee"
         android:textSize="14sp"
         android:paddingLeft="@dimen/listview_item_padding"
@@ -55,7 +62,7 @@
         android:layout_marginTop="6dp"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_toRightOf="@id/contactImage"
+        android:layout_toRightOf="@id/profile_image_relative_layout"
         android:ellipsize="marquee"
         android:textStyle="bold"
         android:fontFamily="sans-serif-light"

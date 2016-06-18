@@ -59,7 +59,7 @@ public class QuickConversationAdapter extends BaseAdapter {
         messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
     }
 
-    public ImageLoader contactImageLoader;
+    public ImageLoader contactImageLoader,channelImageLoader;
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private List<Message> messageList;
@@ -81,6 +81,14 @@ public class QuickConversationAdapter extends BaseAdapter {
         };
         contactImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
+        channelImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
+            @Override
+            protected Bitmap processBitmap(Object data) {
+                return contactService.downloadGroupImage((Activity) context, (Channel) data);
+            }
+        };
+        channelImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+        channelImageLoader.setImageFadeIn(false);
     }
 
 
@@ -131,12 +139,17 @@ public class QuickConversationAdapter extends BaseAdapter {
             if (message.getGroupId() == null) {
                 contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
             } else {
-                contactImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
+                channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
             }
             String contactNumber = "";
             char firstLetter = 0;
             if (channel != null && message.getGroupId() != null) {
                 smReceivers.setText(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId()));
+                if (!TextUtils.isEmpty(channel.getImageUrl())) {
+                    channelImageLoader.loadImage(channel, contactImage);
+                }else {
+                    contactImage.setImageResource(R.drawable.applozic_group_icon);
+                }
             } else if (contactReceiver != null) {
                 contactNumber = contactReceiver.getDisplayName().toUpperCase();
                 firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
@@ -164,9 +177,6 @@ public class QuickConversationAdapter extends BaseAdapter {
                         contactImageLoader.loadImage(contactReceiver, contactImage, alphabeticTextView);
                     }
                 }
-            }
-            if (channel != null) {
-                contactImage.setImageResource(R.drawable.applozic_group_icon);
             }
             if (ApplozicSetting.getInstance(context).isOnlineStatusInMasterListVisible()) {
                 onlineTextView.setVisibility(contactReceiver != null && contactReceiver.isOnline() ? View.VISIBLE : View.GONE);

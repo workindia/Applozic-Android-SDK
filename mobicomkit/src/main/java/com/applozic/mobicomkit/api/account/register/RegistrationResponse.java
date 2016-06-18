@@ -17,6 +17,22 @@ public class RegistrationResponse extends JsonMarker {
     private Long currentTimeStamp;
     private String notificationResponse;
     private String brokerUrl;
+    private Short pricingPackage = PricingType.STARTER.getValue();
+
+    public static enum PricingType {
+
+        CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
+                Short.valueOf("4"));
+        private final Short value;
+
+        private PricingType(Short c) {
+            value = c;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    };
 
     public String getMessage() {
         return message;
@@ -86,6 +102,13 @@ public class RegistrationResponse extends JsonMarker {
         return (! TextUtils.isEmpty(message) && ( "PASSWORD_INVALID".equals(message) || "PASSWORD_REQUIRED".equals(message) ));
     }
 
+    public Short getPricingPackage() {
+        return pricingPackage;
+    }
+
+    public void setPricingPackage(Short pricingPackage) {
+        this.pricingPackage = pricingPackage;
+    }
 
     @Override
     public String toString() {

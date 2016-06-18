@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -277,5 +278,28 @@ public class Utils {
             }
             return sb.toString();
         }
+    }
+
+    public static CharSequence getStyleString(String name){
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(name);
+        return builder;
+    }
+
+    public static CharSequence getStyledStringForContact(String displayName,String message){
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(displayName).append(": ").append(message);
+        return builder;
+    }
+    public static CharSequence getStyledStringForChannel(String name,String channelName,String message){
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(name).append(" @ ").append(channelName).append(": ").append(message);
+        return builder;
+    }
+
+    public static CharSequence getStyleStringForMessage(String message){
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(message);
+        return builder;
     }
 }

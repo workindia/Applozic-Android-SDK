@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "4.4"
+        versionName "4.5"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -45,8 +45,8 @@ dependencies {
     //compile 'com.applozic.mobiframework:mobicommons:2.0' //Note: use this for prod
 }
 
-/*
 
+/*
 ext {
     // Where you will see your artifact in Bintray's web interface
     // The "bintrayName" should match the name of the Bintray repro.
@@ -61,7 +61,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '4.4'
+    libraryVersion = '4.5'
 
     developerId = 'devashish'
     developerName = 'Applozic'
@@ -71,5 +71,5 @@ ext {
 
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
-*/
 
+*/
