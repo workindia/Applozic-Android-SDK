@@ -1,7 +1,7 @@
 ####Step 1: Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.4'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.5'
 ```
 
 
@@ -302,7 +302,7 @@ Here is a blog post on how to get GCM Server Key: https://www.applozic.com/blog/
 If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
 ```
-PushNotificationTask pushNotificationTask = null         
+PushNotificationTask pushNotificationTask = null;         
 PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener()   
 {                  
 
