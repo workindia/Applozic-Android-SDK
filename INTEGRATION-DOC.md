@@ -289,10 +289,11 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-####Step 4: Updating GCM Registration Id:
+####Step 4: Updating GCM Registration Id
 
-Go to Applozic Dashboard, Edit Application. 
-Under Module section, update the GCM Server Key.
+***Go to Applozic Dashboard, Edit Application. 
+Under Module section, update the GCM Server Key.***
+
 Here is a blog post on how to get GCM Server Key: https://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
 
 ###Don't have GCM setup?
