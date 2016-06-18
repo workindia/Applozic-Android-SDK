@@ -289,14 +289,40 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-####Step 4: Updating GCM Registration Id
+####Step 4: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application. 
 Under Module section, update the GCM Server Key.***
 
 Here is a blog post on how to get GCM Server Key: https://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
 
-###Don't have GCM setup?
+
+#####GCM is already enabled in my app
+
+If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
+     
+```
+PushNotificationTask pushNotificationTask = null         
+PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener()   
+{                  
+
+@Override           
+public void onSuccess(RegistrationResponse registrationResponse)             
+{            
+}            
+@Override          
+public void onFailure(RegistrationResponse registrationResponse, Exception exception)      
+{             
+} 
+
+};                    
+
+pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
+pushNotificationTask.execute((Void) null);                          
+```
+
+
+#####Don't have GCM code?
 
 In case, if you don't have the existing GCM related code, then copy the push notification related files from Applozic sample app to your project
 
@@ -340,40 +366,12 @@ Setup GCM in UserLoginTask "onSuccess" (refer Step 3).
 To Enable Android Push Notification using Google Cloud Messaging (GCM) visit the below link http://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
 
 After Registering project at https://console.developers.google.com Replace the value of GCM_SENDER_ID in GCMRegistrationUtils.java with your own project gcm sender id.
-SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).            
-
-
-###GCM is already enabled in my app
-
-If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
-     
-```
-PushNotificationTask pushNotificationTask = null         
-PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener()   
-{                  
-
-@Override           
-public void onSuccess(RegistrationResponse registrationResponse)             
-{            
-}            
-@Override          
-public void onFailure(RegistrationResponse registrationResponse, Exception exception)      
-{             
-} 
-
-};                    
-
-pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
-pushNotificationTask.execute((Void) null);                          
-```
+SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).        
 
 
 
 ####Step 5: Handling push notification
 Add the following in your GcmListenerService onMessageReceived method.     
-
-
-
 
 
        
