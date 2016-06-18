@@ -7,7 +7,7 @@ compile 'com.applozic.communication.uiwidget:mobicomkitui:4.4'
 
 Add the following in gradle android target:      
 
-us
+
 ```
 android {
 
@@ -291,7 +291,11 @@ If it is a new user, new user account will get created else existing user will b
 
 ####Step 4: Updating GCM Registration Id:
 
-**Don't have GCM setup?**
+Go to Applozic Dashboard, Edit Application. 
+Under Module section, update the GCM Server Key.
+Here is a blog post on how to get GCM Server Key: https://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
+
+###Don't have GCM setup?
 
 In case, if you don't have the existing GCM related code, then copy the push notification related files from Applozic sample app to your project
 
@@ -338,7 +342,7 @@ After Registering project at https://console.developers.google.com Replace the v
 SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).            
 
 
-**GCM is already enabled in my app**
+###GCM is already enabled in my app
 
 If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
