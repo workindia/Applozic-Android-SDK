@@ -216,8 +216,9 @@ Code
                 groupMemberList.add("member2");
                 groupMemberList.add("member3");
                 groupMemberList.add("member4");
+                String groupImageLink = ""; //Group image link
                 
-ApplozicChannelCreateTask applozicChannelCreateTask = new ApplozicChannelCreateTask(context, channelCreateListener, groupName, groupMemberList);
+ApplozicChannelCreateTask applozicChannelCreateTask = new ApplozicChannelCreateTask(context, channelCreateListener, groupName, groupMemberList,groupImageLink);
 applozicChannelCreateTask.execute((Void) null);
 
  ```
