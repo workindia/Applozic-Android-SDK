@@ -25,7 +25,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/docs/android-chat-
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.4' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.5' `
 
 
 Add the following in gradle android target:      
@@ -368,7 +368,7 @@ SenderId is a unique numerical value created when you configure your API project
 If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
 ```
-PushNotificationTask pushNotificationTask = null         
+PushNotificationTask pushNotificationTask = null;         
 PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener()   
 {                  
 
