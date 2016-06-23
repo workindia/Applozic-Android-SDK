@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -26,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +49,7 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_COM_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
+    private static final int MARK = 128*1024;
     private static final String TAG = "FileClientService";
     private HttpRequestUtils httpRequestUtils;
     private static final String MAIN_FOLDER_META_DATA = "main_folder_name";
@@ -283,17 +287,16 @@ public class FileClientService extends MobiComKitClientService {
                     connection = new MobiComKitClientService(context).openHttpConnection(channel.getImageUrl());
                 }
                 if (connection != null && connection.getResponseCode() == 200) {
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream());
+                    MarkStream inputStream =  new MarkStream(connection.getInputStream());
                     BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
                     optionsBitmap.inJustDecodeBounds = true;
-                    bufferedInputStream.mark(connection.getContentLength());
-                    BitmapFactory.decodeStream(bufferedInputStream, null, optionsBitmap);
-                    bufferedInputStream.reset();
-
+                    long mark = inputStream.setPos(MARK);
+                    BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                    inputStream.resetPos(mark);
                     optionsBitmap.inJustDecodeBounds = false;
                     optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
-                    attachedImage = BitmapFactory.decodeStream(bufferedInputStream, null, optionsBitmap);
-                    bufferedInputStream.close();
+                    attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                    inputStream.close();
                     connection.disconnect();
                     if (attachedImage != null) {
                         String name = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
@@ -321,6 +324,43 @@ public class FileClientService extends MobiComKitClientService {
 
         }
         return null;
+
+    }
+    public Bitmap createAndSaveVideoThumbnail(String filePath) {
+        String[] parts = filePath.split("/");
+        String videoThumbnailPath = "";
+        String thumbnailDir = "";
+
+        String videoFileName = parts[parts.length - 1].split("[.]")[0];
+        for (int i = 0; i < parts.length - 1; i++) {
+            thumbnailDir += (parts[i] + "/");
+        }
+        thumbnailDir = thumbnailDir + "Thumbnails/";
+        File dir = new File(thumbnailDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        Log.i("abc", thumbnailDir);
+        videoThumbnailPath = thumbnailDir + videoFileName + ".jpeg";
+        Bitmap videoThumbnail = null;
+
+        if (new File(videoThumbnailPath).exists()) {
+            videoThumbnail = BitmapFactory.decodeFile(videoThumbnailPath);
+        } else {
+            OutputStream fOut = null;
+            File file = new File(thumbnailDir, videoFileName + ".jpeg");
+            try {
+                file.createNewFile();
+                fOut = new FileOutputStream(file);
+                videoThumbnail = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
+                videoThumbnail.compress(Bitmap.CompressFormat.JPEG, 50, fOut);
+                fOut.flush();
+                fOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return videoThumbnail;
 
     }
 }

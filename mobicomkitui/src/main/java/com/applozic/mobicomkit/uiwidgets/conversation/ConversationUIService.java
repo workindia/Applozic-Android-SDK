@@ -490,8 +490,6 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult(final Message message, final String messageContent) {
-        applozicSetting.setTotalRegisteredUsersToFetch(10);
-        applozicSetting.enableRegisteredUsersContactCall();
         if (applozicSetting.getTotalOnlineUser() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
             new DownloadNNumberOfUserAsync(applozicSetting.getTotalOnlineUser(), message, messageContent).execute((Void[]) null);
         } else if (applozicSetting.getTotalRegisteredUsers() > 0 && applozicSetting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {

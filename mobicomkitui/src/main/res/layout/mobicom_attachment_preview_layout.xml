@@ -3,8 +3,8 @@
     android:id="@+id/attachment_preview_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="2dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="2dp">
 
     <com.applozic.mobicomkit.api.attachment.AttachmentView
         android:id="@+id/main_attachment_view"
@@ -24,6 +24,17 @@
         android:minWidth="100dp"
         android:scaleType="centerCrop"
         android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/video_icon"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:background="#50000000"
+        android:gravity="center"
+        android:padding="40dp"
+        android:src="@drawable/applozic_video_play_icon"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/attachment_download_layout"

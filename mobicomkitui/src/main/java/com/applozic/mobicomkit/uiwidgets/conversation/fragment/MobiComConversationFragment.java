@@ -18,7 +18,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -60,6 +59,7 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
@@ -71,7 +71,6 @@ import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessageTask;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -726,7 +725,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return false;
     }
 
-    public void loadConversation(final Contact contact,final Channel channel,final Integer conversationId) {
+    public void loadConversation(final Contact contact, final Channel channel, final Integer conversationId) {
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
@@ -738,7 +737,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         /*
         filePath = null;*/
-        if (TextUtils.isEmpty(filePath)) {
+       if (TextUtils.isEmpty(filePath)) {
             attachmentLayout.setVisibility(View.GONE);
         }
 
@@ -1182,7 +1181,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (messageToSend.getCreatedAtTime() == null) {
             messageToSend.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
         }
-        messageToSend.setConversationId(currentConversationId);
+        if(currentConversationId != null && currentConversationId != 0){
+            messageToSend.setConversationId(currentConversationId);
+        }
         messageToSend.setSendToDevice(Boolean.FALSE);
         messageToSend.setType(sendType.getSelectedItemId() == 1 ? Message.MessageType.MT_OUTBOX.getValue() : Message.MessageType.OUTBOX.getValue());
         messageToSend.setTimeToLive(getTimeToLive());
@@ -1309,12 +1310,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
                             final AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.main_attachment_view);
                             final ImageView preview = (ImageView) view.findViewById(R.id.preview);
+                            final ImageView videoIcon = (ImageView) view.findViewById(R.id.video_icon);
                             if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
                                 attachmentView.setVisibility(View.VISIBLE);
                                 preview.setVisibility(View.GONE);
                                 attachmentView.setMessage(smListItem);
                                 attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                            } else if (message.getFileMetas() != null && !message.getFileMetas().getContentType().contains("image")) {
+                            }else if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("video")) {
+                                FileClientService fileClientService = new FileClientService(getContext());
+                                attachedFile.setVisibility(View.GONE);
+                                preview.setVisibility(View.VISIBLE);
+                                videoIcon.setVisibility(View.VISIBLE);
+                                preview.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
+                            } else if (message.getFileMetas() != null && !message.getFileMetas().getContentType().contains("image") && !message.getFileMetas().getContentType().contains("video")) {
                                 attachmentView.setMessage(smListItem);
                                 attachmentDownloadProgressLayout.setVisibility(View.GONE);
                                 attachmentView.setVisibility(View.GONE);
@@ -1415,11 +1423,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
-    public void loadConversation(Channel channel,Integer conversationId) {
+    public void loadConversation(Channel channel, Integer conversationId) {
         loadConversation(null, channel,conversationId);
     }
 
-    public void loadConversation(Contact contact,Integer conversationId) {
+    public void loadConversation(Contact contact, Integer conversationId) {
         loadConversation(contact, null,conversationId);
     }
 
@@ -1593,7 +1601,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void loadnewMessageOnResume(Contact contact, Channel channel,Integer conversationId) {
+    public void loadnewMessageOnResume(Contact contact, Channel channel, Integer conversationId) {
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel,conversationId);
         downloadConversation.execute();
     }
@@ -1611,7 +1619,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private List<Conversation> conversationList;
         private List<Message> nextMessageList = new ArrayList<Message>();
 
-        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel,Integer conversationId) {
+        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel, Integer conversationId) {
             this.view = view;
             this.initial = initial;
             this.firstVisibleItem = firstVisibleItem;

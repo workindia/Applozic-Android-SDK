@@ -345,7 +345,7 @@ public class ContactDatabase {
                 if (userIdArray != null && userIdArray.length > 0) {
                     String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
                     if (!TextUtils.isEmpty(searchString)) {
-                        query = query + " where fullName like '%" + searchString + "%' and  userId  IN (" + placeHolderString + ")";
+                        query = query + " where fullName like '%" + searchString.replaceAll("'","''") + "%' and  userId  IN (" + placeHolderString + ")";
                     } else {
                         query = query + " where userId IN (" + placeHolderString + ")";
                     }
@@ -354,7 +354,7 @@ public class ContactDatabase {
                     cursor = db.rawQuery(query, userIdArray);
                 } else {
                     if (!TextUtils.isEmpty(searchString)) {
-                        query = query + " where fullName like '%" + searchString + "%'";
+                        query = query + " where fullName like '%" + searchString.replaceAll("'","''") + "%'";
                     } else {
                         query = query + " where userId != '" + userPreferences.getUserId() + "'";
                     }

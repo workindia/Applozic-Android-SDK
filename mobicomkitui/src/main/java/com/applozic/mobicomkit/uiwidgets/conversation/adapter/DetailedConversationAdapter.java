@@ -131,7 +131,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
-        this.imageCache= ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+        this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
         applozicSetting = ApplozicSetting.getInstance(context);
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
@@ -196,7 +196,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             customContentTextView.setText(message.getMessage());
             customContentTextView.setVisibility(View.VISIBLE);
             return customView;
-        }else if(type == 4){
+        } else if (type == 4) {
             customView = inflater.inflate(R.layout.applozic_channel_custom_message_layout, parent, false);
             TextView channelMessageTextview = (TextView) customView.findViewById(R.id.channel_message);
             channelMessageTextview.setText(message.getMessage());
@@ -254,7 +254,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
             final RelativeLayout mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
             final LinearLayout mainContactShareLayout = (LinearLayout) customView.findViewById(R.id.contact_share_layout);
-
+            final ImageView videoIcon = (ImageView) customView.findViewById(R.id.video_icon);
 
             final ProgressBar mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
@@ -346,13 +346,13 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
             } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
                 Drawable statusIcon;
-                if(message.isDeliveredAndRead()){
+                if (message.isDeliveredAndRead()) {
                     statusIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
-                }else{
-                    statusIcon = ( message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
+                } else {
+                    statusIcon = (message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
                             deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
                 }
-                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null,statusIcon , null);
+                createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
             }
 
             if (message.isCall()) {
@@ -370,7 +370,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
-                if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("image")) {
+                if (message.getFileMetas() != null && (message.getFileMetas().getContentType().contains("image") || message.getFileMetas().getContentType().contains("video"))) {
                     attachedFile.setVisibility(View.GONE);
                 }
                 if (message.isAttachmentDownloaded()) {
@@ -386,6 +386,17 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                             attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
                             attachmentView.setVisibility(View.VISIBLE);
                             attachedFile.setVisibility(View.GONE);
+                        } else if (mimeType != null && mimeType.startsWith("video")) {
+                            preview.setVisibility(View.VISIBLE);
+                            videoIcon.setVisibility(View.VISIBLE);
+                            attachmentDownloadLayout.setVisibility(View.GONE);
+                            attachedFile.setVisibility(View.GONE);
+                            if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
+                                preview.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
+                            } else {
+                                imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(filePath));
+                                preview.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(filePath));
+                            }
                         } else {
                             showAttachmentIconAndText(attachedFile, message, mimeType);
                         }
@@ -406,7 +417,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     showPreview(message, preview, attachmentDownloadLayout);
                     FileMeta fileMeta = message.getFileMetas();
                     final String mimeType = FileUtils.getMimeType(fileMeta.getName());
-                    if (!fileMeta.getContentType().contains("image")) {
+                    if (!fileMeta.getContentType().contains("image") && !fileMeta.getContentType().contains("video")) {
                         showAttachmentIconAndText(attachedFile, message, mimeType);
                     }
                     downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
@@ -424,7 +435,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentDownloadProgressLayout.setVisibility(View.GONE);
                         downloadSizeTextView.setText(fileMeta.getSizeInReadableFormat());
                         final String mimeType = FileUtils.getMimeType(fileMeta.getName());
-                        if (!fileMeta.getContentType().contains("image")) {
+                        if (!fileMeta.getContentType().contains("image") && !fileMeta.getContentType().contains("video")) {
                             showAttachmentIconAndText(attachedFile, message, mimeType);
                         }
 
@@ -549,7 +560,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         @Override
                         public void onClick(View v) {
 
-                            String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=" +LocationUtils.getLocationFromMessage(message.getMessage()));
+                            String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=" + LocationUtils.getLocationFromMessage(message.getMessage()));
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                             getContext().startActivity(intent);
 
@@ -559,6 +570,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
                 } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                     messageTextView.setText(ConversationUIService.FINAL_PRICE_TEXT + message.getMessage());
+                } else if ((message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) && !message.isAttachmentDownloaded()) {
+                    preview.setVisibility(View.VISIBLE);
+                    preview.setImageResource(R.drawable.applozic_video_default_thumbnail);
                 } else {
                     messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
                     if (mimeType != null && attachmentIcon != null) {
@@ -577,7 +591,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                             applozicSetting.getSentMessageBorderColor() : applozicSetting.getReceivedMessageBorderColor();
                     GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
                     bgShape.setColor(ContextCompat.getColor(context, resId));
-                    bgShape.setStroke(3,ContextCompat.getColor(context, borderResId));
+                    bgShape.setStroke(3, ContextCompat.getColor(context, borderResId));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
@@ -629,25 +643,25 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             shareContactName.setText(data.getName());
 
-            if(message.isTypeOutbox()){
+            if (message.isTypeOutbox()) {
                 int resId = applozicSetting.getSentContactMessageTextColor();
-                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
-                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
-                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
-                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
-            }else {
+                shareContactName.setTextColor(ContextCompat.getColor(context, resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context, resId));
+            } else {
                 int resId = applozicSetting.getReceivedContactMessageTextColor();
-                shareContactName.setTextColor(ContextCompat.getColor(context,resId));
-                shareContactNo.setTextColor(ContextCompat.getColor(context,resId));
-                shareEmailContact.setTextColor(ContextCompat.getColor(context,resId));
-                addContactButton.setTextColor(ContextCompat.getColor(context,resId));
+                shareContactName.setTextColor(ContextCompat.getColor(context, resId));
+                shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
+                shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
+                addContactButton.setTextColor(ContextCompat.getColor(context, resId));
             }
 
             if (data.getProfilePic() != null) {
-                if(imageCache.getBitmapFromMemCache(message.getKeyString()) != null){
+                if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
                     shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
-                }else {
-                    imageCache.addBitmapToCache(message.getKeyString(),data.getProfilePic());
+                } else {
+                    imageCache.addBitmapToCache(message.getKeyString(), data.getProfilePic());
                     shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
                 }
             }
@@ -716,10 +730,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             contactImage.setVisibility(View.VISIBLE);
             alphabeticTextView.setVisibility(View.GONE);
         } else if (contact != null && contactImage != null) {
-            if(TextUtils.isEmpty(contact.getImageURL())){
+            if (TextUtils.isEmpty(contact.getImageURL())) {
                 contactImage.setVisibility(View.GONE);
                 alphabeticTextView.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
             }
         }
@@ -730,10 +744,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             contactImage.setVisibility(View.VISIBLE);
             alphabeticTextView.setVisibility(View.GONE);
         } else if (contactDisplayName != null && contactImage != null) {
-            if(TextUtils.isEmpty(contactDisplayName.getImageURL())){
+            if (TextUtils.isEmpty(contactDisplayName.getImageURL())) {
                 contactImage.setVisibility(View.GONE);
                 alphabeticTextView.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 contactImageLoader.loadImage(contactDisplayName, contactImage, alphabeticTextView);
             }
         }
@@ -779,9 +793,26 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void showFullView(Message smListItem) {
-        Intent intent = new Intent(context, FullScreenImageActivity.class);
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(smListItem, Message.class));
-        ((MobiComKitActivityInterface) context).startActivityForResult(intent, MobiComKitActivityInterface.REQUEST_CODE_FULL_SCREEN_ACTION);
+        final String mimeType = FileUtils.getMimeType(smListItem.getFilePaths().get(0));
+        if(mimeType != null){
+            if (mimeType.startsWith("image")) {
+                Intent intent = new Intent(context, FullScreenImageActivity.class);
+                intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(smListItem, Message.class));
+                ((MobiComKitActivityInterface) context).startActivityForResult(intent, MobiComKitActivityInterface.REQUEST_CODE_FULL_SCREEN_ACTION);
+            }
+            if (mimeType.startsWith("video")) {
+                if (smListItem.isAttachmentDownloaded()) {
+                    Intent intentVideo = new Intent();
+                    intentVideo.setAction(Intent.ACTION_VIEW);
+                    intentVideo.setDataAndType(Uri.fromFile(new File(smListItem.getFilePaths().get(0))), "video/*");
+                    if (intentVideo.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intentVideo);
+                    } else {
+                        Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -801,7 +832,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         if (message.isCustom()) {
             return 3;
         }
-        if(message.isChannelCustomMessage()){
+        if (message.isChannelCustomMessage()) {
             return 4;
         }
         return message.isTypeOutbox() ? 1 : 0;
