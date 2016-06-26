@@ -373,5 +373,5 @@ Code
              android:value="PUT_ACTIVITY_CLASS_HERE" />
  ```
 
-  This activity will receive the “userId” of the selected chat in intent.
+  This activity will receive the userId of the selected chat in intent.
   
