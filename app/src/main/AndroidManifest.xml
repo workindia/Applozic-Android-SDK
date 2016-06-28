@@ -288,6 +288,9 @@
             android:windowSoftInputMode="adjustResize"></activity>
 
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9b43bb084d2988834ffc7cc5c9de46ad80356861" />
     </application>
 
 </manifest>
