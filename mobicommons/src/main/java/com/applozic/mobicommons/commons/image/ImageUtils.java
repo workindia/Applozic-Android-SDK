@@ -23,12 +23,10 @@ import java.util.ArrayList;
 public class ImageUtils {
 
     private static Context context;
-    private ArrayList<Uri> uris;
     private static final String TAG = "ImageUtils";
 
     public  ImageUtils(Context context, ArrayList<Uri> uris) {
         this.context = context;
-        this.uris = uris;
     }
 
     public static void addImageToGallery(final String filePath, final Context context) {
@@ -82,7 +80,7 @@ public class ImageUtils {
      * @param uri
      * @return
      */
-    public static Bitmap getPreview(Uri uri) {
+    public static Bitmap getPreview(Context context, Uri uri) {
         String filePath  = FileUtils.getPath(context, uri);
 
         BitmapFactory.Options bounds = new BitmapFactory.Options();
