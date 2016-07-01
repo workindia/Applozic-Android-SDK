@@ -15,7 +15,6 @@ import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Created by devashish on 21/12/14.
@@ -23,9 +22,10 @@ import java.util.ArrayList;
 public class ImageUtils {
 
     private static Context context;
+
     private static final String TAG = "ImageUtils";
 
-    public  ImageUtils(Context context, ArrayList<Uri> uris) {
+    public ImageUtils(Context context) {
         this.context = context;
     }
 

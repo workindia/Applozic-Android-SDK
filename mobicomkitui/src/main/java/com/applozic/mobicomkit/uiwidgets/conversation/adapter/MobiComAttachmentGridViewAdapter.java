@@ -106,7 +106,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
         }
          try{
              Uri uri = (Uri) getItem(position);
-             Bitmap previewBitmap = ImageUtils.getPreview(uri);
+             Bitmap previewBitmap = ImageUtils.getPreview(context,uri);
              if (previewBitmap != null) {
                  setGalleryView(previewBitmap);
              } else {
