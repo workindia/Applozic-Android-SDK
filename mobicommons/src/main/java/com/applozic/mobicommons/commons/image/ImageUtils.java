@@ -11,15 +11,25 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
+import com.applozic.mobicommons.file.FileUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Created by devashish on 21/12/14.
  */
 public class ImageUtils {
 
+    private static Context context;
+    private ArrayList<Uri> uris;
     private static final String TAG = "ImageUtils";
+
+    public  ImageUtils(Context context, ArrayList<Uri> uris) {
+        this.context = context;
+        this.uris = uris;
+    }
 
     public static void addImageToGallery(final String filePath, final Context context) {
         ContentValues values = new ContentValues();
@@ -66,6 +76,29 @@ public class ImageUtils {
         String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
+
+    /**
+     *
+     * @param uri
+     * @return
+     */
+    public static Bitmap getPreview(Uri uri) {
+        String filePath  = FileUtils.getPath(context, uri);
+
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, bounds);
+        if ((bounds.outWidth == -1) || (bounds.outHeight == -1))
+            return null;
+
+        int originalSize = (bounds.outHeight > bounds.outWidth) ? bounds.outHeight
+                : bounds.outWidth;
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inSampleSize = originalSize / 200;
+        return BitmapFactory.decodeFile(filePath, opts);
+    }
+
 
     public static Bitmap getImageRotatedBitmap(Bitmap bitmap, String filePath, int reqWidth, int reqHeight) {
         int rotate = 0;
