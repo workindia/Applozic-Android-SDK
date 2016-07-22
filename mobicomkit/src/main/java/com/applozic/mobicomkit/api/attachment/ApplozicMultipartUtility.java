@@ -26,7 +26,7 @@ public class ApplozicMultipartUtility {
     public ApplozicMultipartUtility(String requestURL, String charset, Context context)
             throws IOException {
 
-        boundary = "===" + System.currentTimeMillis() + "===";
+        boundary = "--" + System.currentTimeMillis() + "--";
 
         URL url = new URL(requestURL);
         httpConn = (HttpURLConnection) url.openConnection();

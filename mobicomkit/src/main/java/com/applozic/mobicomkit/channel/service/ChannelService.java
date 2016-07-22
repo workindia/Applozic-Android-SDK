@@ -344,8 +344,8 @@ public class ChannelService {
     }
 
     public synchronized String processChannelDeleteConversation(Channel channel, Context context) {
-        String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
-        if(!TextUtils.isEmpty(response) && "success".equals(response)){
+           String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
+         if(!TextUtils.isEmpty(response) && "success".equals(response)){
             channelDatabaseService.deleteChannelUserMappers(channel.getKey());
             channelDatabaseService.deleteChannel(channel.getKey());
         }

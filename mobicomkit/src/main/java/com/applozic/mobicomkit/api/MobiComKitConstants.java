@@ -18,5 +18,6 @@ public class MobiComKitConstants {
     public static final String ATTACHMENT = "Attachment";
     public static String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     public static String APPLICATION_ACTIVITY_TO_OPEN_ON_CHAT_TOOLBAR_TAP = "com.applozic.mobicomkit.uiwidgets.toolbar.tap.activity";
+    public static String APPLICATION_LOGIN_ACTIVITY = "com.applozic.mobicomkit.sample.LoginActivity";
 
 }

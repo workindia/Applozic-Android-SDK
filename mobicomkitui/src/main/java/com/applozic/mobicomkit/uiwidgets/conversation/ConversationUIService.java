@@ -69,6 +69,7 @@ public class ConversationUIService {
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String MESSGAE_INFO_FRAGMENT = "messageInfoFagment";
+    public static final String USER_PROFILE_FRAMENT = "userProfilefragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String DISPLAY_NAME = "displayName";
     public static final String USER_ID = "userId";
@@ -450,13 +451,13 @@ public class ConversationUIService {
         getQuickConversationFragment().updateUserName(channelKey);
     }
 
-    public void updateTypingStatus(String userId, String isTypingStatus) {
+    public void updateTypingStatus(String userId,String isTypingStatus) {
         if (!BroadcastService.isIndividual()) {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
         Log.i(TAG, "Received typing status for: " + userId);
-        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds())) {
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null){
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 

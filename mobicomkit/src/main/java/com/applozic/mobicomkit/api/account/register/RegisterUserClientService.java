@@ -11,11 +11,13 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
 import com.applozic.mobicomkit.exception.UnAuthoriseException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.Gson;
 
 import java.net.ConnectException;
@@ -102,9 +104,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         }
         Log.i("Registration response ", "is " + registrationResponse);
-       if(registrationResponse.getNotificationResponse() != null){
-           Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
-       }
+        if(registrationResponse.getNotificationResponse() != null){
+            Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
+        }
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
@@ -121,6 +123,15 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setUserBlockSyncTime("10000");
         mobiComUserPreference.setPassword(user.getPassword());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
+
+        Contact contact=  new Contact();
+        contact.setUserId(user.getUserId());
+        contact.setFullName(registrationResponse.getDisplayName());
+        contact.setImageURL(registrationResponse.getImageLink());
+        contact.setContactNumber(registrationResponse.getContactNumber());
+        contact.setStatus(registrationResponse.getStatusMessage());
+        contact.processContactNumbers(context);
+        new AppContactService(context).upsert(contact);
 
         new Thread(new Runnable() {
             @Override

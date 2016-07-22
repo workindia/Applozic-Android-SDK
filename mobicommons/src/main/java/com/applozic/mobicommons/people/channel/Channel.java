@@ -136,13 +136,18 @@ public class Channel implements Serializable {
         this.clientGroupId = clientGroupId;
     }
 
+    public boolean isBroadcastMessage(){
+        return type.equals(GroupType.BROADCAST.getValue());
+    }
+
     public enum GroupType {
 
         VIRTUAL(0),
         PRIVATE(1),
         PUBLIC(2),
         SELLER(3),
-        SELF(4);
+        SELF(4),
+        BROADCAST(5);
 
         private Integer value;
 

@@ -1,6 +1,8 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicommons.json.Exclude;
 import com.applozic.mobicommons.json.JsonMarker;
+import com.applozic.mobicommons.people.channel.Channel;
 
 import java.io.Serializable;
 
@@ -13,6 +15,18 @@ public class GroupInfoUpdate extends JsonMarker {
     private String clientGroupId;
     private String newName;
     private String imageUrl;
+    @Exclude
+    private String localImagePath;
+    @Exclude
+    private String newlocalPath;
+
+    public GroupInfoUpdate(Channel channel) {
+        this.newName = channel.getName();
+        this.groupId = channel.getKey();
+        this.clientGroupId = channel.getClientGroupId();
+        this.imageUrl = channel.getImageUrl();
+        this.localImagePath = channel.getLocalImageUri();
+    }
 
     public GroupInfoUpdate(String newName, int groupId) {
         this.newName = newName;
@@ -54,6 +68,22 @@ public class GroupInfoUpdate extends JsonMarker {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getLocalImagePath() {
+        return localImagePath;
+    }
+
+    public void setLocalImagePath(String localImagePath) {
+        this.localImagePath = localImagePath;
+    }
+
+    public String getNewlocalPath() {
+        return newlocalPath;
+    }
+
+    public void setNewlocalPath(String newlocalPath) {
+        this.newlocalPath = newlocalPath;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -27,6 +28,7 @@ public class SyncCallService {
     private MobiComConversationService mobiComConversationService;
     private BaseContactService contactService;
     private ChannelService channelService;
+    private MessageClientService messageClientService;
 
     private SyncCallService(Context context) {
         this.context = context;
@@ -34,6 +36,7 @@ public class SyncCallService {
         this.mobiComConversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
         this.channelService = ChannelService.getInstance(context);
+        this.messageClientService = new MessageClientService(context);
     }
 
     public synchronized static SyncCallService getInstance(Context context) {
@@ -65,8 +68,10 @@ public class SyncCallService {
     public synchronized void syncMessages(String key) {
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
             Log.d(TAG, "Message is already present, MQTT reached before GCM.");
-        } else {
-            mobiComMessageService.syncMessages();
+        }else {
+            Intent intent = new Intent(context, ConversationIntentService.class);
+            intent.putExtra(ConversationIntentService.SYNC, true);
+            context.startService(intent);
         }
     }
 
@@ -108,4 +113,9 @@ public class SyncCallService {
             }
         }).start();
     }
+
+    public void processUserStatus(String userId) {
+        messageClientService.processUserStatus(userId);
+    }
+
 }

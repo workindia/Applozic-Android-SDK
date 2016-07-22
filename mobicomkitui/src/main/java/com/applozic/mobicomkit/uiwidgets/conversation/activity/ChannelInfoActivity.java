@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -50,11 +52,14 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -65,6 +70,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChannelInfoActivity extends AppCompatActivity {
 
     private static final String TAG = "ChannelInfoActivity";
+    public static final String GROUP_UPDTAE_INFO ="GROUP_UPDTAE_INFO" ;
     private ActionBar mActionBar;
     private ImageLoader contactImageLoader,channelImageLoader;
     public static final String CHANNEL_KEY = "CHANNEL_KEY";
@@ -127,12 +133,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
             if (channel != null) {
                 String title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getApplicationContext()).getUserId());
-                contact = new AppContactService(this).getContactById(channel.getAdminKey());
-                mActionBar.setTitle(title);
-                if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
-                    createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
-                }else {
-                    createdBy.setText(getString(R.string.channel_created_by) + " " + contact.getDisplayName());
+                if(!TextUtils.isEmpty(channel.getAdminKey())){
+                    contact = new AppContactService(this).getContactById(channel.getAdminKey());
+                    mActionBar.setTitle(title);
+                    if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
+                        createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
+                    }else {
+                        createdBy.setText(getString(R.string.channel_created_by) + " " + contact.getDisplayName());
+                    }
                 }
                 if (!isUserPresent) {
                     channelExitRelativeLayout.setVisibility(View.GONE);
@@ -161,8 +169,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         channelImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
         channelImageLoader.setImageFadeIn(false);
 
-        if(channelImage != null){
+        if(channelImage != null && !channel.isBroadcastMessage()){
             channelImageLoader.loadImage(channel,channelImage);
+        }else{
+            channelImage.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
         }
 
         channelUserMapperList = ChannelService.getInstance(this).getListOfUsersFromChannelUserMapper(channel.getKey());
@@ -198,6 +208,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 deleteChannel(channel);
             }
         });
+        if(channel.isBroadcastMessage()){
+
+        }
     }
 
     @Override
@@ -233,7 +246,11 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 }
             }
             if (requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_NAME && resultCode == Activity.RESULT_OK) {
-                GroupInfoUpdate groupInfoUpdate = new GroupInfoUpdate(data.getExtras().getString(ChannelNameActivity.CHANNEL_NAME), channel.getKey());
+                GroupInfoUpdate groupInfoUpdate = (GroupInfoUpdate) GsonUtils.getObjectFromJson(data.getExtras().getString(GROUP_UPDTAE_INFO), GroupInfoUpdate.class);
+                System.out.println("GroupInfoUpdate ::: " +  data.getExtras().getString(GROUP_UPDTAE_INFO));
+                if (channel.getName().equals(groupInfoUpdate.getNewName())){
+                    groupInfoUpdate.setNewName(null);
+                }
                 new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this).execute();
             }
         }
@@ -274,7 +291,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (setting.isHideGroupAddMemberButton() || !ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
             menu.removeItem(R.id.add_member_to_channel);
         }
-        if(setting.isHideGroupNameEditButton()){
+        if(setting.isHideGroupNameEditButton()|| channel.isBroadcastMessage()){
             menu.removeItem(R.id.edit_channel_name);
         }
         return true;
@@ -317,7 +334,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
         } else if (id == R.id.edit_channel_name) {
             if (isUserPresent) {
                 Intent editChannelNameIntent = new Intent(ChannelInfoActivity.this, ChannelNameActivity.class);
-                editChannelNameIntent.putExtra(ChannelNameActivity.CHANNEL_NAME, channel.getName());
+                GroupInfoUpdate groupInfoUpdate =  new GroupInfoUpdate(channel);
+                String groupJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
+                editChannelNameIntent.putExtra(GROUP_UPDTAE_INFO,groupJson);
                 startActivityForResult(editChannelNameIntent, REQUEST_CODE_FOR_CHANNEL_NEW_NAME);
             } else {
                 Toast.makeText(this, getString(R.string.channel_edit_alert), Toast.LENGTH_SHORT).show();
@@ -379,6 +398,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 holder.circleImageView = (CircleImageView) convertView.findViewById(R.id.contactImage);
                 holder.adminTextView = (TextView) convertView.findViewById(R.id.adminTextView);
                 holder.lastSeenAtTextView = (TextView) convertView.findViewById(R.id.lastSeenAtTextView);
+                holder.onlineTextView = (TextView) convertView.findViewById(R.id.onlineTextView);
                 convertView.setTag(holder);
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
@@ -538,59 +558,12 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
 
     private class ContactViewHolder {
-        public TextView displayName, alphabeticImage, adminTextView, lastSeenAtTextView;
+        public TextView displayName, alphabeticImage, adminTextView, lastSeenAtTextView,onlineTextView;
         public CircleImageView circleImageView;
 
         public ContactViewHolder() {
         }
 
-        public ContactViewHolder(TextView displayName, TextView alphabeticImage, TextView adminTextView, TextView lastSeenAtTextView, CircleImageView circleImageView) {
-            this.displayName = displayName;
-            this.alphabeticImage = alphabeticImage;
-            this.adminTextView = adminTextView;
-            this.lastSeenAtTextView = lastSeenAtTextView;
-            this.circleImageView = circleImageView;
-        }
-
-        public TextView getDisplayName() {
-            return displayName;
-        }
-
-        public void setDisplayName(TextView displayName) {
-            this.displayName = displayName;
-        }
-
-        public TextView getAlphabeticImage() {
-            return alphabeticImage;
-        }
-
-        public void setAlphabeticImage(TextView alphabeticImage) {
-            this.alphabeticImage = alphabeticImage;
-        }
-
-        public TextView getAdminTextView() {
-            return adminTextView;
-        }
-
-        public void setAdminTextView(TextView adminTextView) {
-            this.adminTextView = adminTextView;
-        }
-
-        public CircleImageView getCircleImageView() {
-            return circleImageView;
-        }
-
-        public void setCircleImageView(CircleImageView circleImageView) {
-            this.circleImageView = circleImageView;
-        }
-
-        public TextView getLastSeenAtTextView() {
-            return lastSeenAtTextView;
-        }
-
-        public void setLastSeenAtTextView(TextView lastSeenAtTextView) {
-            this.lastSeenAtTextView = lastSeenAtTextView;
-        }
     }
 
 
@@ -774,6 +747,16 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             if (groupInfoUpdate != null) {
+                if(!TextUtils.isEmpty(groupInfoUpdate.getNewlocalPath())){
+                    try {
+                        String  response= new FileClientService(context).uploadProfileImage(groupInfoUpdate.getNewlocalPath());
+                        groupInfoUpdate.setImageUrl(response);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    groupInfoUpdate.setImageUrl(null);
+                }
                 responseForChannelUpdate = channelService.updateChannel(groupInfoUpdate);
             }
             if (channel != null) {
@@ -802,8 +785,23 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 ChannelInfoActivity.this.finish();
             }
             if (!TextUtils.isEmpty(responseForChannelUpdate) && SUCCESS.equals(responseForChannelUpdate)) {
-                mActionBar.setTitle(groupInfoUpdate.getNewName());
-                collapsingToolbarLayout.setTitle(groupInfoUpdate.getNewName());
+                if(!TextUtils.isEmpty(groupInfoUpdate.getNewName())){
+                    mActionBar.setTitle(groupInfoUpdate.getNewName());
+                    collapsingToolbarLayout.setTitle(groupInfoUpdate.getNewName());
+                }
+                //File has been updated..rename new file to oldfile
+                if(!TextUtils.isEmpty(groupInfoUpdate.getNewlocalPath()) && !TextUtils.isEmpty(groupInfoUpdate.getImageUrl())){
+                    File file = new File(groupInfoUpdate.getNewlocalPath());
+                    channel = ChannelInfoActivity.this.channel;
+                    if(!TextUtils.isEmpty(channel.getLocalImageUri())){
+                        file.renameTo(new File(channel.getLocalImageUri()));
+                    }else{
+                        file.renameTo(FileClientService.getFilePath(channel.getKey() + "_profile.jpeg",context,"image"));
+                    }
+                    channel.setLocalImageUri(file.getAbsolutePath());
+                    channelService.updateChannel(channel);
+                    channelImage.setImageURI(Uri.fromFile(file));
+                }
             }
         }
     }

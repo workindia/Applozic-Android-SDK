@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.app.Fragment;
+import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -192,6 +193,7 @@ public class MobiComQuickConversationFragment extends Fragment {
             menu.findItem(R.id.conversations).setVisible(true);
         }
         menu.findItem(R.id.refresh).setVisible(true);
+        menu.findItem(R.id.applozicUserProfile).setVisible(true);
     }
 
     public void addMessage(final Message message) {
@@ -436,7 +438,8 @@ public class MobiComQuickConversationFragment extends Fragment {
                                  int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0 && loadMore) {
                     loadMore = false;
-                    new DownloadConversation(view, false, firstVisibleItem, visibleItemCount, totalItemCount).execute();
+                    DownloadConversation downloadConversation = new DownloadConversation(view, false, firstVisibleItem, visibleItemCount, totalItemCount);
+                    AsyncTaskCompat.executeParallel(downloadConversation);
                 }
             }
         });
@@ -450,7 +453,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void downloadConversations(boolean showInstruction) {
         minCreatedAtTime = null;
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, showInstruction);
-        downloadConversation.execute();
+        AsyncTaskCompat.executeParallel(downloadConversation);
     }
 
     public void updateLastSeenStatus(final String userId) {

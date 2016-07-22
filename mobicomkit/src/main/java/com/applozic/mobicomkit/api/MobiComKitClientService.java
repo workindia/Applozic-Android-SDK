@@ -2,8 +2,8 @@ package com.applozic.mobicomkit.api;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -32,7 +32,7 @@ public class MobiComKitClientService {
     protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
     protected String DEFAULT_MQTT_URL = "tcp://apps.applozic.com:1883";
-
+    public static String applicationKey;
 
     public MobiComKitClientService() {
 
@@ -40,6 +40,7 @@ public class MobiComKitClientService {
 
     public MobiComKitClientService(Context context) {
         this.context = context;
+        applicationKey = ApplozicClient.getInstance(context).getApplicationKey();
     }
 
     protected String getBaseUrl() {
@@ -89,7 +90,7 @@ public class MobiComKitClientService {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
+            /*String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
             String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
             httpConn.setRequestProperty("Authorization", basicAuth);
             httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));
@@ -98,7 +99,7 @@ public class MobiComKitClientService {
                 httpConn.setRequestProperty(APP_MOUDLE_NAME_KEY_HEADER, getApplicationKey(context));
             }
 
-            httpConn.setRequestProperty(HttpRequestUtils.USERID_HEADER, HttpRequestUtils.USERID_HEADER_VALUE);
+            httpConn.setRequestProperty(HttpRequestUtils.USERID_HEADER, HttpRequestUtils.USERID_HEADER_VALUE);*/
             httpConn.connect();
             //Shifting this Code to individual class..this is needed so that caller can decide ..what should be done with the error
 //            response = httpConn.getResponseCode();
@@ -114,9 +115,10 @@ public class MobiComKitClientService {
     }
 
     public static String getApplicationKey(Context context) {
-
+        if(!TextUtils.isEmpty(applicationKey) && applicationKey.trim().length()>0){
+            return  applicationKey;
+        }
         return Utils.getMetaDataValue(context, APPLICATION_KEY_HEADER_VALUE_METADATA);
-
     }
 
     public static String getAppModuleName(Context context) {

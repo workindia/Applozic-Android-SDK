@@ -61,6 +61,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConve
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
+import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -72,6 +74,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.soundcloud.android.crop.Crop;
+
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -81,7 +85,7 @@ import java.util.Date;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback,MobicomkitUriListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -121,6 +125,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private ApplozicSetting applozicSetting;
     Integer currentConversationId;
     private Uri videoFileUri;
+    private Uri imageUri;
+    ProfileFragment profilefragment;
 
     public ConversationActivity() {
 
@@ -174,7 +180,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 fragmentTag);
 
         if (supportFragmentManager.getBackStackEntryCount() > 1
-                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag)){
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) && !ConversationUIService.USER_PROFILE_FRAMENT.equalsIgnoreCase(fragmentTag)){
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
@@ -263,6 +269,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         layout = (LinearLayout) findViewById(R.id.footerAd);
         applozicPermission = new ApplozicPermissions(this, layout);
         childFragmentLayout = (RelativeLayout) findViewById(R.id.layout_child_activity);
+        profilefragment =  new ProfileFragment();
 
         if (Utils.hasMarshmallow()) {
             applozicPermission.checkRuntimePermissionForStorage();
@@ -358,6 +365,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         new ConversationUIService(this).onActivityResult(requestCode, resultCode, data);
+        handleOnActivityResult(requestCode,data);
         if (requestCode == LOCATION_SERVICE_ENABLE) {
             if (((LocationManager) getSystemService(Context.LOCATION_SERVICE))
                     .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -367,6 +375,40 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             return;
         }
+    }
+
+
+    public void handleOnActivityResult(int requestCode, Intent intent) {
+
+        switch (requestCode) {
+
+            case ProfileFragment.REQUEST_CODE_ATTACH_PHOTO:
+                Uri selectedFileUri = (intent == null ? null : intent.getData());
+                beginCrop(selectedFileUri);
+                break;
+
+
+            case MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO:
+                beginCrop(imageUri);
+                break;
+
+            case Crop.REQUEST_CROP:
+                try {
+                    Uri imageUri = Crop.getOutput(intent);
+                    if (imageUri != null && profilefragment != null) {
+                        profilefragment.handleProfileimageUpload(imageUri);
+
+                    }
+                } catch (Exception e) {
+                    Log.i("ConversationActivity", "exception in profile image");
+                }
+                break;
+        }
+    }
+
+    private void beginCrop(Uri source) {
+        Uri destination = Uri.fromFile(new File(getCacheDir(), "profile.jpeg"));
+        Crop.of(source, destination).asSquare().start(ConversationActivity.this);
     }
 
     @Override
@@ -504,6 +546,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     .setType("text/plain").putExtra(Intent.EXTRA_TEXT, inviteMessage);
             startActivity(Intent.createChooser(intent, "Share Via"));
             return super.onOptionsItemSelected(item);
+        }else if(id == R.id.applozicUserProfile){
+            addFragment(this,profilefragment,ProfileFragment.ProfileFragmentTag);
         }
         return false;
     }
@@ -824,5 +868,16 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
         videoFileUri = Uri.fromFile(fileUri);
         startActivityForResult(videoIntent, MultimediaOptionFragment.REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
+    }
+
+
+    @Override
+    public Uri getCurrentImageUri() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_" + ".jpeg";
+
+        File photoFile = FileClientService.getFilePath(imageFileName, this, "image/jpeg");
+        imageUri= Uri.fromFile(photoFile);
+        return imageUri;
     }
 }

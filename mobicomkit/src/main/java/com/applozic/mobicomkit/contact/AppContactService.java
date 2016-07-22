@@ -21,10 +21,12 @@ public class AppContactService implements BaseContactService {
     private static final String TAG = "AppContactService";
     ContactDatabase contactDatabase;
     Context context;
+    FileClientService fileClientService;
 
     public AppContactService(Context context) {
         this.context = context;
         this.contactDatabase = new ContactDatabase(context);
+        this.fileClientService =  new FileClientService(context);
     }
 
     @Override
@@ -88,13 +90,13 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public Bitmap downloadContactImage(Context context, Contact contact) {
-       return new FileClientService(context).downloadBitmap(contact,null);
+       return fileClientService.downloadBitmap(contact,null);
 
     }
 
     @Override
     public Bitmap downloadGroupImage(Context context, Channel channel) {
-        return new FileClientService(context).downloadBitmap(null,channel);
+        return fileClientService.downloadBitmap(null,channel);
     }
 
 

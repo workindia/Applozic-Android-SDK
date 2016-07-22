@@ -97,5 +97,6 @@
     <string name="applozic_audio_permission_missing">Unable to launch audio recorder.</string>
     <string name="applozic_message_info">Message Info</string>
     <string name="applozic_message_info_no_network">Not able to fetch message info.</string>
+    <string name="applozic_user_profile_heading">Profile</string>
 
 </resources>

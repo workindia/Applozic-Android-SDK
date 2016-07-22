@@ -49,14 +49,20 @@ public class FileClientService extends MobiComKitClientService {
     public static final String MOBI_COM_THUMBNAIL_SUFIX = "/.Thumbnail";
     public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
-    private static final int MARK = 128*1024;
+    private static final int MARK = 1024;
     private static final String TAG = "FileClientService";
     private HttpRequestUtils httpRequestUtils;
+    public static final String AL_UPLOAD_FILE_URL = "/rest/ws/upload/file";
+
     private static final String MAIN_FOLDER_META_DATA = "main_folder_name";
 
     public FileClientService(Context context) {
         super(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
+    }
+
+    public String profileImageUploadURL(){
+        return getBaseUrl() + AL_UPLOAD_FILE_URL;
     }
 
     public String getFileUploadUrl() {
@@ -130,7 +136,7 @@ public class FileClientService extends MobiComKitClientService {
                 }
             }
             if (attachedImage == null) {
-                HttpURLConnection connection = new MobiComKitClientService(context).openHttpConnection(thumbnailUrl);
+                HttpURLConnection connection = openHttpConnection(thumbnailUrl);
                 if (connection.getResponseCode() == 200) {
                     // attachedImage = BitmapFactory.decodeStream(connection.getInputStream(),null,options);
                     attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
@@ -174,7 +180,7 @@ public class FileClientService extends MobiComKitClientService {
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context, contentType);
             if (!file.exists()) {
-                connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {
@@ -282,20 +288,22 @@ public class FileClientService extends MobiComKitClientService {
             if (attachedImage == null) {
                 HttpURLConnection connection = null;
                 if (contact != null) {
-                    connection = new MobiComKitClientService(context).openHttpConnection(contact.getImageURL());
+                    connection = openHttpConnection(contact.getImageURL());
                 } else {
-                    connection = new MobiComKitClientService(context).openHttpConnection(channel.getImageUrl());
+                    connection = openHttpConnection(channel.getImageUrl());
                 }
                 if (connection != null && connection.getResponseCode() == 200) {
                     MarkStream inputStream =  new MarkStream(connection.getInputStream());
                     BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
                     optionsBitmap.inJustDecodeBounds = true;
+                    inputStream.allowMarksToExpire(false);
                     long mark = inputStream.setPos(MARK);
                     BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
                     inputStream.resetPos(mark);
                     optionsBitmap.inJustDecodeBounds = false;
                     optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
                     attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                    inputStream.allowMarksToExpire(true);
                     inputStream.close();
                     connection.disconnect();
                     if (attachedImage != null) {
@@ -362,5 +370,16 @@ public class FileClientService extends MobiComKitClientService {
         }
         return videoThumbnail;
 
+    }
+
+    public String uploadProfileImage(String path) throws UnsupportedEncodingException {
+        try{
+            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(profileImageUploadURL(),"UTF-8",context);
+            multipart.addFilePart("file", new File(path));
+            return multipart.getResponse();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

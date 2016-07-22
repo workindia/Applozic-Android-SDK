@@ -13,6 +13,7 @@ public class ChannelInfo extends JsonMarker{
     private String groupName;
     private List<String> groupMemberList;
     private String imageUrl;
+    private Integer type;
 
     public ChannelInfo(String groupName, List<String> groupMemberList) {
         this.groupName = groupName;
@@ -57,12 +58,22 @@ public class ChannelInfo extends JsonMarker{
         this.imageUrl = imageUrl;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "ChannelInfo{" +
-                "groupName='" + groupName + '\'' +
+                "clientGroupId='" + clientGroupId + '\'' +
+                ", groupName='" + groupName + '\'' +
                 ", groupMemberList=" + groupMemberList +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", type=" + type +
                 '}';
     }
 }

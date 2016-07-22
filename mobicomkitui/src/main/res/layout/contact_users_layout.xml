@@ -48,7 +48,7 @@
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="@dimen/listview_item_padding"
         android:singleLine="true"
-        android:textColor="@color/message_text_color" />
+        android:textColor="#757575" />
 
     <!-- Use standard android.R class text1 id instead of app specific id. This is just useful for
          consistency. This view also sets layout_alignWithParentIfMissing=true which lets the view
@@ -64,15 +64,16 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_toRightOf="@id/profile_image_relative_layout"
         android:ellipsize="marquee"
-        android:textStyle="bold"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="@dimen/listview_item_padding"
         android:singleLine="true"
         android:textSize="15sp"
-        android:textColor="@color/message_text_color" />
+        android:textColor="#616161" />
 
+
+    <!--Originally, @string/admin_text at android:text="Group Admin"-->
     <TextView
         android:id="@+id/adminTextView"
         android:layout_width="wrap_content"
@@ -80,13 +81,16 @@
         android:gravity="center"
         android:layout_marginRight="10dp"
         android:singleLine="true"
-        android:text="@string/admin_text"
-        android:background="@drawable/admin_text"
-        android:textSize="12sp"
+        android:text="Group Admin"
+        android:textSize="15sp"
         android:visibility="gone"
-        android:padding="2dp"
-        android:textColor="@color/applozic_theme_color_primary"
-        android:layout_alignTop="@+id/displayName"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:background="#0288D1"
+        android:textColor="#FFFFFF"
+        android:layout_alignBottom="@+id/displayName"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+         />
 </RelativeLayout>

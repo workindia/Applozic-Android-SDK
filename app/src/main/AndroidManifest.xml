@@ -131,6 +131,10 @@
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
+        <meta-data
+            android:name="com.applozic.mobicomkit.sample.LoginActivity"
+            android:value="com.applozic.mobicomkit.sample.LoginActivity" />
+
         <service
             android:name=".pushnotification.ApplozicGcmListenerService">
             <intent-filter>
@@ -200,6 +204,10 @@
             android:name="activity.open.on.call.button.click"
             android:value="com.applozic.mobicomkit.sample.MainActivity" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9b43bb084d2988834ffc7cc5c9de46ad80356861" />
+
         <!--<activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -219,6 +227,9 @@
             android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
             android:exported="false" />
 
+        <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
+            android:exported="false" />
+
         <receiver android:name="com.applozic.mobicomkit.broadcast.NotificationBroadcastReceiver">
             <intent-filter>
                 <action android:name="applozic.LAUNCH_APP" />
@@ -228,6 +239,9 @@
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
         </receiver>
 
+        <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+            android:exported="false" />
+
         <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.TIME_SET" />
@@ -235,6 +249,7 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <receiver
             android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver"
             android:enabled="true"
@@ -288,9 +303,6 @@
             android:windowSoftInputMode="adjustResize"></activity>
 
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="9b43bb084d2988834ffc7cc5c9de46ad80356861" />
     </application>
 
 </manifest>

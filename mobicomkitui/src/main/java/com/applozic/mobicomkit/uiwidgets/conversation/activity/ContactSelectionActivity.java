@@ -50,9 +50,11 @@ public class ContactSelectionActivity extends AppCompatActivity {
     public static final String CHANNEL = "CHANNEL_NAME";
     public static final String CHANNEL_OBJECT = "CHANNEL";
     public static final String CHECK_BOX = "CHECK_BOX";
+    public static final String IMAGE_LINK = "IMAGE_LINK";
     ListView mainListView;
     Channel channel;
     private String name;
+    private String imageUrl;
     private ContactsAdapter mAdapter;
     private ImageLoader mImageLoader;
     private BaseContactService contactService;
@@ -60,6 +62,7 @@ public class ContactSelectionActivity extends AppCompatActivity {
     private ActionBar mActionBar;
     boolean disableCheckBox;
     boolean isUserPresnt;
+    Integer groupType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +86,9 @@ public class ContactSelectionActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View item,
                                     int position, long id) {
                 Contact contact = contactList.get(position);
-                if (disableCheckBox ) {
-                    isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(),contact.getContactIds());
-                    if(!isUserPresnt){
+                if (disableCheckBox) {
+                    isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(), contact.getContactIds());
+                    if (!isUserPresnt) {
                         Intent intent = new Intent();
                         intent.putExtra(ChannelInfoActivity.USERID, contact.getUserId());
                         setResult(RESULT_OK, intent);
@@ -169,15 +172,19 @@ public class ContactSelectionActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         name = getIntent().getStringExtra(CHANNEL);
+                        imageUrl = getIntent().getStringExtra(IMAGE_LINK);
+                        groupType = getIntent().getIntExtra(ChannelCreateActivity.GROUP_TYPE,2);
                         List<String> channelMemberNames = null;
                         if (!TextUtils.isEmpty(name) && mAdapter.getResult().size() > 0) {
                             channelMemberNames = mAdapter.getResult();
                             ChannelInfo channelInfo = new ChannelInfo(name, channelMemberNames);
+                            channelInfo.setImageUrl(imageUrl);
+                            channelInfo.setType(groupType);
                             Channel channel = ChannelService.getInstance(ContactSelectionActivity.this).createChannel(channelInfo);
                             if (channel != null) {
                                 Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-                                if(ApplozicClient.getInstance(ContactSelectionActivity.this).isContextBasedChat()){
-                                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                                if (ApplozicClient.getInstance(ContactSelectionActivity.this).isContextBasedChat()) {
+                                    intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                                 }
                                 intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
                                 intent.putExtra(ConversationUIService.GROUP_NAME, channel.getName());
@@ -259,17 +266,17 @@ public class ContactSelectionActivity extends AppCompatActivity {
                 circleImageView = viewHolder.getCircleImageView();
             }
             if (disableCheckBox) {
-                isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(),contact.getContactIds());
-                if(isUserPresnt){
+                isUserPresnt = ChannelService.getInstance(ContactSelectionActivity.this).isUserAlreadyPresentInChannel(channel.getKey(), contact.getContactIds());
+                if (isUserPresnt) {
                     text1.setVisibility(View.VISIBLE);
                     text1.setTextColor(getResources().getColor(R.color.applozic_lite_black_color));
                     text2.setTextColor(getResources().getColor(R.color.applozic_lite_black_color));
-                }else {
+                } else {
                     text1.setVisibility(View.GONE);
                     text2.setTextColor(getResources().getColor(R.color.black));
                 }
                 checkBox.setVisibility(View.GONE);
-            }else {
+            } else {
                 text2.setTextColor(getResources().getColor(R.color.black));
             }
 

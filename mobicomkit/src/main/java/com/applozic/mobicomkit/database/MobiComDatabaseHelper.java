@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 16;
+    public static final int DB_VERSION = 17;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -106,6 +106,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_APPLICATION_ID_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN applicationId varchar(2000) null";
     private static final String ALTER_SMS_TABLE_FOR__APPLICATION_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + APPLICATION_ID + " varchar(2000) null";
     private static final String ALTER_SMS_TABLE_FOR_CONTENT_TYPE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + MESSAGE_CONTENT_TYPE + " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_FOR_STATUS = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + STATUS + " varchar(2500) null";
     private static final String ALTER_SMS_TABLE_FOR_METADATA_TYPE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + MESSAGE_METADATA + " varchar(2000) null";
     private static final String ALTER_CONTACT_TABLE_FOR_CONNECTED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + CONNECTED + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_LAST_SEEN_AT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + LAST_SEEN_AT_TIME + " integer default 0";
@@ -132,7 +133,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + LAST_SEEN_AT_TIME + " integer, "
             + UNREAD_COUNT + " integer default 0,"
             + BLOCKED + " integer default 0, "
-            + BLOCKED_BY + " integer default 0 "
+            + BLOCKED_BY + " integer default 0, "
+            + STATUS +" varchar(2500) null"
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -288,6 +290,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if(!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)){
                 database.execSQL(ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "contact", STATUS)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_STATUS);
             }
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);

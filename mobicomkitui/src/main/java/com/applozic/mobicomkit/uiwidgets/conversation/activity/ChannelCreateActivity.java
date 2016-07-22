@@ -1,19 +1,32 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FilePathFinder;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.people.channel.Channel;
+import com.soundcloud.android.crop.Crop;
+
+import java.io.File;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -24,11 +37,18 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChannelCreateActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CODE_ATTACH_PHOTO = 901;
+    private static final String TAG = "ChannelCreateActivity";
+    public static String GROUP_TYPE ="GroupType";
     private EditText channelName;
     private CircleImageView circleImageView;
     private View focus;
     private ActionBar mActionBar;
     public static Activity channelActivity;
+    private ImageView uploadImageButton;
+    private Uri imageChangeUri;
+    private String groupIconImageLink;
+    private Integer groupType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +63,18 @@ public class ChannelCreateActivity extends AppCompatActivity {
         mActionBar.setDisplayHomeAsUpEnabled(true);
         channelName = (EditText) findViewById(R.id.channelName);
         circleImageView = (CircleImageView) findViewById(R.id.channelIcon);
-
+        uploadImageButton = (ImageView)  findViewById(R.id.applozic_channel_profile_camera);
+        uploadImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchImagePicker();
+            }
+        });
+        groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PRIVATE.getValue().intValue());
+        if(groupType.equals(Channel.GroupType.BROADCAST.getValue().intValue())){
+            circleImageView.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
+            uploadImageButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -68,10 +99,96 @@ public class ChannelCreateActivity extends AppCompatActivity {
                 Utils.toggleSoftKeyBoard(ChannelCreateActivity.this, true);
                 Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
                 intent.putExtra(ContactSelectionActivity.CHANNEL, channelName.getText().toString());
+                if(!TextUtils.isEmpty(groupIconImageLink)){
+                    intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
+                }
+                intent.putExtra(GROUP_TYPE, groupType);
                 startActivity(intent);
             }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void beginCrop(Uri source) {
+        Uri destination = Uri.fromFile(new File(getCacheDir(), "new_group_profile.jpeg"));
+        Crop.of(source, destination).asSquare().start(this);
+    }
+
+    public void launchImagePicker(){
+        Intent getContentIntent = FileUtils.createGetContentIntent();
+        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
+        startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        Uri selectedFileUri=null;
+        if(requestCode == REQUEST_CODE_ATTACH_PHOTO  && resultCode == RESULT_OK){
+            selectedFileUri = (intent == null ? null : intent.getData());
+            Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
+            beginCrop(selectedFileUri);
+        }
+        if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
+            try{
+                imageChangeUri = Crop.getOutput(intent);
+                circleImageView.setImageDrawable(null); // <--- added to force redraw of ImageView
+                circleImageView.setImageURI(imageChangeUri);
+                new ProfilePictureUpload(imageChangeUri,ChannelCreateActivity.this).execute((Void[]) null);
+            }catch (Exception e){
+                Log.i(TAG, "exception in profile image");
+            }
+        }
+
+    }
+
+    class ProfilePictureUpload extends AsyncTask<Void, Void, Boolean> {
+
+        Context context;
+        Uri fileUri;
+        String displayName;
+        private ProgressDialog progressDialog;
+
+        public ProfilePictureUpload( Uri fileUri , Context context) {
+            this.context = context;
+            this.fileUri=fileUri;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(context, "",
+                    context.getString(R.string.applozic_contacts_loading_info), true);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+            FileClientService fileClientService =new FileClientService(context);
+            try {
+                if(fileUri!=null){
+                    String filePath = FilePathFinder.getPath(context, fileUri);
+                    groupIconImageLink= fileClientService.uploadProfileImage(filePath);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(ChannelCreateActivity.class.getName(),  "Exception");
+
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean result) {
+            progressDialog.dismiss();
+        }
+
+    }
+
+
+
 }

@@ -81,10 +81,6 @@ public class MessageClientService extends MobiComKitClientService {
         this.baseContactService = new AppContactService(context);
     }
 
-    public synchronized static void syncPendingMessages(Context context) {
-        new MessageClientService(context).syncPendingMessages(true);
-    }
-
     public synchronized static void syncDeleteMessages(Context context) {
         new MessageClientService(context).syncDeleteMessages(true);
     }
@@ -624,18 +620,22 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void processUserStatus(Contact contact) {
+        if (contact != null && contact.getContactIds() != null) {
+            processUserStatus(contact.getUserId());
+        }
+    }
 
+    public void processUserStatus(String userId) {
         try {
             String contactNumberParameter = "";
             String response = "";
-            if (contact != null && contact.getContactIds() != null) {
-                try {
-                    contactNumberParameter = "?userIds=" + URLEncoder.encode(contact.getContactIds());
-                }catch (Exception e){
-                    contactNumberParameter = "?userIds=" +contact.getContactIds();
-                    e.printStackTrace();
-                }
+            try {
+                contactNumberParameter = "?userIds=" + URLEncoder.encode(userId);
+            } catch (Exception e) {
+                contactNumberParameter = "?userIds=" + userId;
+                e.printStackTrace();
             }
+
             response = httpRequestUtils.getResponse(getCredentials(), getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
             Log.i(TAG, "User details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
@@ -646,15 +646,18 @@ public class MessageClientService extends MobiComKitClientService {
 
             if (userDetails != null) {
                 for (UserDetail userDetail : userDetails) {
+                    Contact contact = new Contact();
+                    contact.setUserId(userDetail.getUserId());
                     contact.setFullName(userDetail.getDisplayName());
                     contact.setConnected(userDetail.isConnected());
                     contact.setContactNumber(userDetail.getPhoneNumber());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                     contact.setImageURL(userDetail.getImageLink());
+                    contact.setStatus(userDetail.getStatusMessage());
                     contact.setUnreadCount(0);
                     baseContactService.upsert(contact);
                 }
-                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(),contact.getContactIds());
+                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId);
             }
         } catch (Exception e) {
             e.printStackTrace();

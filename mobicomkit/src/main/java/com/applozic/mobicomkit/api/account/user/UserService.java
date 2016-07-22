@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -135,6 +136,7 @@ public class UserService {
         contact.setUserId(userDetail.getUserId());
         contact.setContactNumber(userDetail.getPhoneNumber());
         contact.setConnected(userDetail.isConnected());
+        contact.setStatus(userDetail.getStatusMessage());
         contact.setFullName(userDetail.getDisplayName());
         contact.setLastSeenAt(userDetail.getLastSeenAtTime());
         contact.setUnreadCount(0);
@@ -183,4 +185,26 @@ public class UserService {
         return null;
     }
 
+
+
+    public void updateDisplayNameORImageLink( String displayName, String profileImageLink, String localURL, String status ){
+
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName,profileImageLink,status);
+        if(response != null && response.isSuccess()){
+            Contact contact=   baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
+            if(!TextUtils.isEmpty(displayName)){
+                contact.setFullName(displayName);
+            }
+            if(!TextUtils.isEmpty(profileImageLink)){
+                contact.setImageURL(profileImageLink);
+            }
+            contact.setLocalImageUrl(localURL);
+            if(!TextUtils.isEmpty(status)){
+                contact.setStatus(status);
+            }
+            baseContactService.upsert(contact);
+            Contact contact1=   baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
+            Log.i("UserService", contact1.getImageURL() + ", " +contact1.getDisplayName() + "," + contact1.getStatus() );
+        }
+    }
 }

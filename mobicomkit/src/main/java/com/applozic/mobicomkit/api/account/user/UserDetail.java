@@ -14,6 +14,7 @@ public class UserDetail extends JsonMarker {
     private String imageLink;
     private Integer unreadCount;
     private String phoneNumber;
+    private String statusMessage;
 
 
     public String getUserId() {
@@ -72,6 +73,14 @@ public class UserDetail extends JsonMarker {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
+
     @Override
     public String toString() {
         return "UserDetail{" +
@@ -82,6 +91,7 @@ public class UserDetail extends JsonMarker {
                 ", imageLink='" + imageLink + '\'' +
                 ", unreadCount=" + unreadCount +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", statusMessage='" + statusMessage + '\'' +
                 '}';
     }
 }

@@ -78,8 +78,13 @@ public class ChannelDatabaseService {
         contentValues.put(MobiComDatabaseHelper.CLIENT_GROUP_ID, channel.getClientGroupId());
         contentValues.put(MobiComDatabaseHelper.TYPE, channel.getType());
         contentValues.put(MobiComDatabaseHelper.ADMIN_ID, channel.getAdminKey());
+        Channel oldChannel = null;
         if (!TextUtils.isEmpty(channel.getImageUrl())) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
+            oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
+        }
+        if(oldChannel != null && !TextUtils.isEmpty(channel.getImageUrl()) && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())){
+            updateChannelLocalImageURI(channel.getKey(),null);
         }
         if (!TextUtils.isEmpty(channel.getLocalImageUri())) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI, channel.getLocalImageUri());
@@ -309,12 +314,16 @@ public class ChannelDatabaseService {
         try {
             ContentValues values = new ContentValues();
             if(groupInfoUpdate != null){
+                if(!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId())){
+                    Channel channel = getChannelByClientGroupId(groupInfoUpdate.getClientGroupId());
+                    groupInfoUpdate.setGroupId(channel.getKey());
+                }
                 if(groupInfoUpdate.getNewName() != null){
                     values.put("channelName", groupInfoUpdate.getNewName());
                 }
                 if(groupInfoUpdate.getImageUrl() != null){
                     values.put("channelImageURL", groupInfoUpdate.getImageUrl());
-                    values.put("channelImageLocalURI","");
+                    values.putNull("channelImageLocalURI");
                 }
             }
             rowUpdated = dbHelper.getWritableDatabase().update("channel", values, "channelKey=" + groupInfoUpdate.getGroupId(), null);
@@ -323,6 +332,7 @@ public class ChannelDatabaseService {
         }
         return rowUpdated;
     }
+
     public int deleteChannel(Integer channelKey){
         int deletedRows = 0;
         try {

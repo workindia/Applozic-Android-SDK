@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,6 +51,8 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_DETAILS_URL = "/rest/ws/user/detail?";
     public static final String ONLINE_USER_LIST_URL = "/rest/ws/user/ol/list";
     public static final String REGISTERED_USER_LIST_URL = "/rest/ws/user/filter";
+    public static final String USER_PROFILE_UPDATE_URL = "/rest/ws/user/update";
+
 
     private HttpRequestUtils httpRequestUtils;
 
@@ -60,6 +63,10 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getPhoneNumberUpdateUrl() {
         return getBaseUrl() + PHONE_NUMBER_UPDATE_URL;
+    }
+
+    public String getUserProfileUpdateUrl() {
+        return getBaseUrl() + USER_PROFILE_UPDATE_URL;
     }
 
     public String getNotifyContactsAboutJoiningMt() {
@@ -360,6 +367,31 @@ public class UserClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return response;
+    }
+
+    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink,String status)  {
+
+        JSONObject jsonFromObject = new JSONObject();
+        try {
+            User user = new User();
+            if(!TextUtils.isEmpty(displayName) ){
+                jsonFromObject.put("displayName",displayName);
+            }
+            if(!TextUtils.isEmpty(profileImageLink) ){
+                jsonFromObject.put("imageLink",profileImageLink);
+            }
+            if(!TextUtils.isEmpty(status) ){
+                jsonFromObject.put("statusMessage",status);
+            }
+            String response = httpRequestUtils.postData(getCredentials(), getUserProfileUpdateUrl() , "application/json", "application/json",jsonFromObject.toString());
+            Log.i(TAG,response);
+            return ((ApiResponse) GsonUtils.getObjectFromJson(response,ApiResponse.class));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

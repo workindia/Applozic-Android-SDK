@@ -8,7 +8,9 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
@@ -47,8 +49,10 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                         @Override
                         public void run() {
                             SyncCallService.getInstance(context).syncMessages(null);
-                            MessageClientService.syncPendingMessages(context);
+                            new MessageClientService(context).syncPendingMessages(true);
                             MessageClientService.syncDeleteMessages(context);
+                            new MobiComConversationService(context).processLastSeenAtStatus();
+                            UserService.getInstance(context).processSyncUserBlock();
                         }
                     });
                     thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);

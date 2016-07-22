@@ -147,8 +147,10 @@ public class QuickConversationAdapter extends BaseAdapter {
                 smReceivers.setText(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId()));
                 if (!TextUtils.isEmpty(channel.getImageUrl())) {
                     channelImageLoader.loadImage(channel, contactImage);
+                }else if(channel.isBroadcastMessage()){
+                    contactImage.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
                 }else {
-                    contactImage.setImageResource(R.drawable.applozic_group_icon);
+                    channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
                 }
             } else if (contactReceiver != null) {
                 contactNumber = contactReceiver.getDisplayName().toUpperCase();

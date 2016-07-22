@@ -52,6 +52,7 @@ public class Contact implements Serializable {
     private Integer unreadCount;
     private boolean blocked;
     private boolean blockedBy;
+    private String status;
 
     public Contact() {
 
@@ -263,6 +264,14 @@ public class Contact implements Serializable {
 
     public void setUnreadCount(Integer unreadCount) {
         this.unreadCount = unreadCount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public void processFullName(String fullName) {

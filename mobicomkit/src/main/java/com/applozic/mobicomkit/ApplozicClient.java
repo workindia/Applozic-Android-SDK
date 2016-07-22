@@ -19,6 +19,7 @@ public class ApplozicClient {
     private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
     private static final String NOTIFICATION_SMALL_ICON= "NOTIFICATION_SMALL_ICON";
     private static final String APP_NAME = "APP_NAME";
+    private static final String APPLICATION_KEY = "APPLICATION_KEY";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -98,6 +99,15 @@ public class ApplozicClient {
 
     public ApplozicClient setAppName(String notficationAppName) {
         sharedPreferences.edit().putString(APP_NAME, notficationAppName).commit();
+        return this;
+    }
+
+    public String getApplicationKey() {
+        return sharedPreferences.getString(APPLICATION_KEY, null);
+    }
+
+    public ApplozicClient setApplicationKey(String applicationKey) {
+        sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
         return this;
     }
 }

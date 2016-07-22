@@ -46,7 +46,7 @@ import java.util.List;
 
 public class MobiComConversationService {
 
-    public static final String SERVER_SYNC = "SERVER_SYNC_";
+    public static final String SERVER_SYNC = "SERVER_SYNC_[CONVERSATION]_[CONTACT]_[CHANNEL]";
     private static final String TAG = "Conversation";
     protected Context context = null;
     protected MessageClientService messageClientService;
@@ -97,7 +97,8 @@ public class MobiComConversationService {
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel,conversationId);
 
         if (!cachedMessageList.isEmpty() &&
-                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel,conversationId))) {
+                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
+                || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId))) {
             Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
@@ -119,10 +120,7 @@ public class MobiComConversationService {
             return cachedMessageList;
         }
 
-        if (contact != null || channel != null) {
-            String conversationIdString = getConversationIdString(conversationId);
-            sharedPreferences.edit().putBoolean(SERVER_SYNC + (contact != null ? contact.getContactIds()+conversationIdString : channel.getKey()+conversationIdString), true).commit();
-        }
+        updateServerCallDoneStatus(contact, channel, conversationId);
 
         try {
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
@@ -162,11 +160,6 @@ public class MobiComConversationService {
                 }
             }
 
-            if (contact != null) {
-                UserService.getInstance(context).processUserDetails(contact.getContactIds());
-            } else {
-                new MobiComMessageService(context, MessageIntentService.class).processUserDetailFromMessages(Arrays.asList(messages));
-            }
 
             for (Message message : messages) {
                 if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
@@ -222,6 +215,7 @@ public class MobiComConversationService {
             Contact contact = new Contact();
             contact.setUserId(userDetail.getUserId());
             contact.setContactNumber(userDetail.getPhoneNumber());
+            contact.setStatus(userDetail.getStatusMessage());
             //contact.setApplicationId(); Todo: set the application id
             contact.setConnected(userDetail.isConnected());
             contact.setFullName(userDetail.getDisplayName());
@@ -242,12 +236,19 @@ public class MobiComConversationService {
         MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
     }
 
-    private boolean wasServerCallDoneBefore(Contact contact, Channel channel,Integer conversationId) {
-        String conversationIdString = getConversationIdString(conversationId);
-        if (contact != null||channel != null) {
-            return sharedPreferences.getBoolean(SERVER_SYNC + (contact!= null?contact.getContactIds()+conversationIdString:channel != null?channel.getKey()+conversationIdString:""), false);
-        }
-        return false;
+    private boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
+        return sharedPreferences.getBoolean(getServerSyncCallKey(contact, channel, conversationId), false);
+    }
+
+    private void updateServerCallDoneStatus(Contact contact, Channel channel, Integer conversationId) {
+        Log.i(TAG, "updating server call to true");
+        sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
+    }
+
+    public String getServerSyncCallKey(Contact contact, Channel channel, Integer conversationId) {
+        return SERVER_SYNC.replace("[CONVERSATION]", conversationId != null ? String.valueOf(conversationId) : "")
+                .replace("[CONTACT]", contact != null ? contact.getContactIds() : "")
+                .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()): "");
     }
 
     private void setFilePathifExist(Message message) {
@@ -358,6 +359,7 @@ public class MobiComConversationService {
                 contact.setConnected(userDetail.isConnected());
                 contact.setFullName(userDetail.getDisplayName());
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+                contact.setStatus(userDetail.getStatusMessage());
                 contact.setUnreadCount(userDetail.getUnreadCount());
                 contact.setImageURL(userDetail.getImageLink());
                 baseContactService.upsert(contact);

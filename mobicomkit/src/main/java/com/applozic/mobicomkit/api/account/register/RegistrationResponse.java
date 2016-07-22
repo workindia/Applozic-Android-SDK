@@ -12,11 +12,15 @@ public class RegistrationResponse extends JsonMarker {
     private String message;
     private String deviceKey;
     private String userKey;
+    private String userId;
     private String contactNumber;
     private Long lastSyncTime;
     private Long currentTimeStamp;
+    private String displayName;
     private String notificationResponse;
     private String brokerUrl;
+    private String imageLink;
+    private String statusMessage;
     private Short pricingPackage = PricingType.STARTER.getValue();
 
     public static enum PricingType {
@@ -108,6 +112,37 @@ public class RegistrationResponse extends JsonMarker {
 
     public void setPricingPackage(Short pricingPackage) {
         this.pricingPackage = pricingPackage;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 
     @Override

@@ -63,6 +63,7 @@ public class ContactDatabase {
         contact.setBlocked(userBlocked);
         Boolean userBlockedBy = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED_BY)) == 1);
         contact.setBlockedBy(userBlockedBy);
+        contact.setStatus(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
         return contact;
     }
 
@@ -165,7 +166,7 @@ public class ContactDatabase {
         String query = "select userId as _id, fullName, contactNO, " +
                 "displayName,contactImageURL,contactImageLocalURI,email," +
                 "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                "blockedBy from " + CONTACT;
+                "blockedBy,status from " + CONTACT;
 
         cursor = db.rawQuery(query, null);
 
@@ -204,14 +205,19 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-
+        Contact contactImage = null;
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
         if (!TextUtils.isEmpty(contact.getContactNumber())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         }
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
+            contactImage = getContactById(contact.getUserId());
         }
+        if(contactImage != null && !TextUtils.isEmpty(contactImage.getImageURL()) && !TextUtils.isEmpty(contact.getImageURL()) && !contact.getImageURL().equals(contactImage.getImageURL())){
+            updateContactLocalImageURIToNull(contact.getUserId());
+        }
+
         if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
         }
@@ -230,7 +236,9 @@ public class ContactDatabase {
         if (contact.getUnreadCount() != null && contact.getUnreadCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, contact.getUnreadCount());
         }
-
+        if(!TextUtils.isEmpty(contact.getStatus())){
+            contentValues.put(MobiComDatabaseHelper.STATUS, contact.getStatus());
+        }
         if (contact.isBlocked()) {
             contentValues.put(MobiComDatabaseHelper.BLOCKED, contact.isBlocked());
         }
@@ -340,7 +348,7 @@ public class ContactDatabase {
                 String query = "select userId as _id, fullName, contactNO, " +
                         "displayName,contactImageURL,contactImageLocalURI,email," +
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                        "blockedBy from " + CONTACT;
+                        "blockedBy,status from " + CONTACT;
 
                 if (userIdArray != null && userIdArray.length > 0) {
                     String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
@@ -368,4 +376,9 @@ public class ContactDatabase {
         };
     }
 
+    public void updateContactLocalImageURIToNull(String userId ){
+        ContentValues contentValues =  new ContentValues();
+        contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+        int updatedRow =  dbHelper.getWritableDatabase().update(CONTACT,contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+    }
 }

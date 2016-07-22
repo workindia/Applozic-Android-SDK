@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
@@ -19,9 +20,12 @@ public class ApplozicMqttIntentService extends IntentService {
      */
     public static final String TAG = "ApplozicMqttIntentService";
     public static final String SUBSCRIBE = "subscribe";
+    public static final String SUBSCRIBE_TO_TYPING = "subscribeToTyping";
+    public static final String UN_SUBSCRIBE_TO_TYPING = "unSubscribeToTyping";
     public static final String USER_KEY_STRING = "userKeyString";
     public static final String CONNECTED_PUBLISH = "connectedPublish";
     public static final String CONTACT = "contact";
+    public static final String CHANNEL = "channel";
     public static final String TYPING = "typing";
     public static final String STOP_TYPING = "STOP_TYPING";
 
@@ -35,6 +39,19 @@ public class ApplozicMqttIntentService extends IntentService {
         if (subscribe) {
             ApplozicMqttService.getInstance(getApplicationContext()).subscribe();
         }
+        Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
+        Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
+
+        boolean subscribeToTyping = intent.getBooleanExtra(SUBSCRIBE_TO_TYPING,false);
+        if(subscribeToTyping){
+            ApplozicMqttService.getInstance(getApplicationContext()).subscribeToTypingTopic(channel);
+            return;
+        }
+        boolean unSubscribeToTyping = intent.getBooleanExtra(UN_SUBSCRIBE_TO_TYPING,false);
+        if(unSubscribeToTyping){
+            ApplozicMqttService.getInstance(getApplicationContext()).unSubscribeToTypingTopic(channel);
+            return;
+        }
         String userKeyString = intent.getStringExtra(USER_KEY_STRING);
         if (!TextUtils.isEmpty(userKeyString)) {
             ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
@@ -44,20 +61,26 @@ public class ApplozicMqttIntentService extends IntentService {
         if (connectedStatus) {
             ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(), "1");
         }
-        Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
-        if (contact != null && !contact.isBlocked() && !contact.isBlockedBy()){
-            boolean typing = intent.getBooleanExtra(TYPING, false);
-            if (typing) {
-                ApplozicMqttService.getInstance(getApplicationContext()).typingStarted(contact);
-            } else {
-                ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact);
-            }
-        }
+
         if (contact != null ){
             boolean stop = intent.getBooleanExtra(STOP_TYPING, false);
             if (stop) {
-                ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact);
+                ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact,null);
             }
         }
+
+        if(contact != null && (contact.isBlocked() || contact.isBlockedBy())){
+            return;
+        }
+
+        if (contact != null || channel != null){
+            boolean typing = intent.getBooleanExtra(TYPING, false);
+            if (typing) {
+                ApplozicMqttService.getInstance(getApplicationContext()).typingStarted(contact,channel);
+            } else {
+                ApplozicMqttService.getInstance(getApplicationContext()).typingStopped(contact,channel);
+            }
+        }
+
     }
 }
