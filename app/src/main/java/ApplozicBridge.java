@@ -3,6 +3,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -100,6 +101,17 @@ public class ApplozicBridge {
     }
 
     public static void gcmRegister(Context context, String pushnotificationId) {
+
+        if (!MobiComUserPreference.getInstance(context).isRegistered()) {
+            Log.i("ApplozicBridge", "user is not Registered");
+            MobiComUserPreference pref = MobiComUserPreference.getInstance(context);
+
+            if (!TextUtils.isEmpty(pushnotificationId)) {
+                pref.setDeviceRegistrationId(pushnotificationId);
+            }
+            return;
+        }
+
         PushNotificationTask pushNotificationTask = null;
         PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {
 
