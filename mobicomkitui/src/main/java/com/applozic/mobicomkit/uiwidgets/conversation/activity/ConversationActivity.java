@@ -180,7 +180,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 fragmentTag);
 
         if (supportFragmentManager.getBackStackEntryCount() > 1
-                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) && !ConversationUIService.USER_PROFILE_FRAMENT.equalsIgnoreCase(fragmentTag)){
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) &&  !ConversationUIService.USER_PROFILE_FRAMENT.equalsIgnoreCase(fragmentTag)){
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
@@ -317,8 +317,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 .addApi(LocationServices.API).build();
         onNewIntent(getIntent());
 
-        new MobiComConversationService(this).processLastSeenAtStatus();
-        UserService.getInstance(this).processSyncUserBlock();
+        Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
+
+        if(!takeOrder){
+            new MobiComConversationService(this).processLastSeenAtStatus();
+        }
 
         if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
             snackbar = Snackbar.make(layout, ApplozicClient.getInstance(this).isAccountClosed() ?
@@ -471,7 +474,22 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.contact_permission_not_granted);
             }
-        } else {
+        } else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showSnackBar(R.string.phone_camera_permission_granted);
+                processImageCaptureForProfilePhoto();
+            } else {
+                showSnackBar(R.string.phone_camera_permission_not_granted);
+            }
+        }else if (requestCode == PermissionsUtils.REQUEST_STORAGE_FOR_PROFILE_PHOTO) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.storage_permission_granted);
+                processGalleryPhotoSelection();
+            } else {
+                showSnackBar(R.string.storage_permission_not_granted);
+            }
+        }
+        else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -880,4 +898,47 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         imageUri= Uri.fromFile(photoFile);
         return imageUri;
     }
+
+
+    public void imageCaptureForProfilePhoto() {
+        if( !(this instanceof  MobicomkitUriListener) ){
+            Log.d("ConversationActvity" , "Activity must implement MobicomkitUriListener to get image file uri");
+            return;
+        }
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            Uri capturedImageUri = ((MobicomkitUriListener) ConversationActivity.this).getCurrentImageUri();
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, capturedImageUri);
+            startActivityForResult(cameraIntent, MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO);
+        }
+    }
+
+
+    public void processImageCaptureForProfilePhoto() {
+        try {
+            if (PermissionsUtils.isCameraPermissionGranted(this)) {
+                imageCaptureForProfilePhoto();
+            } else {
+                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCameraPermission(this)) {
+                    applozicPermission.requestCameraPermissionForProfilePhoto();
+                } else {
+                    imageCaptureForProfilePhoto();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void processGalleryPhotoSelection(){
+        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)){
+            applozicPermission.requestStoragePermissionsForProfilePhoto();
+        }else {
+            Intent getContentIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(getContentIntent, ProfileFragment.REQUEST_CODE_ATTACH_PHOTO);
+        }
+    }
+
 }

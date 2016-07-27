@@ -246,11 +246,13 @@
             <ImageButton
                 android:id="@+id/attach_button"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom"
-                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|left"
                 android:background="@android:color/transparent"
                 android:paddingLeft="10dp"
+                android:gravity="center"
+                android:minHeight="48dp"
+                android:scaleType="center"
                 android:paddingRight="20dp"
                 android:src="@drawable/applozic_ic_action_attachment"
                 android:visibility="visible" />

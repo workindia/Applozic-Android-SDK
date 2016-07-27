@@ -126,7 +126,7 @@
     <string name="adding_channel_user">Adding....</string>
     <string name="deleting_channel_user">Deleting...</string>
     <string name="channel_member_exit">Exiting....</string>
-    <string name="channel_update">Updating group name....</string>
+    <string name="channel_update">Updating group info....</string>
     <string name="dialog_remove_group_user">Remove [name] from [group]?</string>
     <string name="dialog_add_group_user">Add [name] to [group]?</string>
     <string name="group_name_info">[group]</string>

@@ -193,7 +193,9 @@ public class MobiComQuickConversationFragment extends Fragment {
             menu.findItem(R.id.conversations).setVisible(true);
         }
         menu.findItem(R.id.refresh).setVisible(true);
-        menu.findItem(R.id.applozicUserProfile).setVisible(true);
+        if(ApplozicSetting.getInstance(getActivity()).isProfileOptionEnabled()){
+            menu.findItem(R.id.applozicUserProfile).setVisible(true);
+        }
     }
 
     public void addMessage(final Message message) {
@@ -383,6 +385,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         BroadcastService.currentUserId = null;
         if(conversationAdapter != null){
             conversationAdapter.contactImageLoader.setPauseWork(false);
+            conversationAdapter.channelImageLoader.setPauseWork(false);
         }
     }
 
@@ -426,8 +429,10 @@ public class MobiComQuickConversationFragment extends Fragment {
                 if (conversationAdapter != null) {
                     if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
                         conversationAdapter.contactImageLoader.setPauseWork(true);
+                        conversationAdapter.channelImageLoader.setPauseWork(true);
                     } else {
                         conversationAdapter.contactImageLoader.setPauseWork(false);
+                        conversationAdapter.channelImageLoader.setPauseWork(false);
                     }
                 }
 

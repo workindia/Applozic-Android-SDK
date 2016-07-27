@@ -4,6 +4,9 @@ package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,13 +16,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FilePathFinder;
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.soundcloud.android.crop.Crop;
 
@@ -28,7 +34,8 @@ import java.io.File;
 /**
  * Created by sunil on 10/3/16.
  */
-public class ChannelNameActivity extends AppCompatActivity {
+public class ChannelNameActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+
     private static final String TAG = "ChannelNameActivity";
     private EditText channelName;
     private Button ok, cancel;
@@ -40,8 +47,10 @@ public class ChannelNameActivity extends AppCompatActivity {
     private ImageView selectImageProfileIcon;
     private ImageView applozicGroupProfileIcon;
     GroupInfoUpdate groupInfoUpdate;
-
+    private LinearLayout layout;
     private Uri imageChangeUri;
+    private Snackbar snackbar;
+    private ApplozicPermissions applozicPermissions;
 
 
     @Override
@@ -51,6 +60,8 @@ public class ChannelNameActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         mActionBar = getSupportActionBar();
+        layout = (LinearLayout) findViewById(R.id.footerAd);
+        applozicPermissions = new ApplozicPermissions(this, layout);
         mActionBar.setTitle(getString(R.string.update_channel_title_name));
         selectImageProfileIcon = (ImageView) findViewById(R.id.applozic_group_profile_camera);
         applozicGroupProfileIcon = (ImageView) findViewById(R.id.applozic_group_profile);
@@ -77,7 +88,7 @@ public class ChannelNameActivity extends AppCompatActivity {
         selectImageProfileIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchImagePicker();
+                processImagePicker();
             }
         });
 
@@ -115,11 +126,18 @@ public class ChannelNameActivity extends AppCompatActivity {
         });
     }
 
-    public void launchImagePicker(){
-        Intent getContentIntent = FileUtils.createGetContentIntent();
-        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-        startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.storage_permission_granted);
+                processImagePicker();
+            } else {
+                showSnackBar(R.string.storage_permission_not_granted);
+            }
+        }else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     @Override
@@ -147,5 +165,20 @@ public class ChannelNameActivity extends AppCompatActivity {
         Crop.of(source, destination).asSquare().start(this);
     }
 
+    public void processImagePicker(){
+        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)){
+            applozicPermissions.requestStoragePermissions();
+        }else {
+            Intent getContentIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(getContentIntent, REQUEST_CODE_ATTACH_PHOTO);
+        }
+    }
+
+    public void showSnackBar(int resId) {
+        snackbar = Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
 
 }

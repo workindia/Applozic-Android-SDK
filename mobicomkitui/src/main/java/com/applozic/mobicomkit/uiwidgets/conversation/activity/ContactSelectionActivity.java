@@ -173,13 +173,13 @@ public class ContactSelectionActivity extends AppCompatActivity {
                     public void run() {
                         name = getIntent().getStringExtra(CHANNEL);
                         imageUrl = getIntent().getStringExtra(IMAGE_LINK);
-                        groupType = getIntent().getIntExtra(ChannelCreateActivity.GROUP_TYPE,2);
+                        // groupType = getIntent().getIntExtra(ChannelCreateActivity.GROUP_TYPE,2);
                         List<String> channelMemberNames = null;
                         if (!TextUtils.isEmpty(name) && mAdapter.getResult().size() > 0) {
                             channelMemberNames = mAdapter.getResult();
                             ChannelInfo channelInfo = new ChannelInfo(name, channelMemberNames);
                             channelInfo.setImageUrl(imageUrl);
-                            channelInfo.setType(groupType);
+                            // channelInfo.setType(groupType);
                             Channel channel = ChannelService.getInstance(ContactSelectionActivity.this).createChannel(channelInfo);
                             if (channel != null) {
                                 Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);

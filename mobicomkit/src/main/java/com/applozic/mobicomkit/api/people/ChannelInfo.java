@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.people;
 
 import com.applozic.mobicommons.json.JsonMarker;
+import com.applozic.mobicommons.people.channel.Channel;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class ChannelInfo extends JsonMarker{
     private String groupName;
     private List<String> groupMemberList;
     private String imageUrl;
-    private Integer type;
+    private int type = Channel.GroupType.PUBLIC.getValue().intValue();
 
     public ChannelInfo(String groupName, List<String> groupMemberList) {
         this.groupName = groupName;
@@ -58,11 +59,11 @@ public class ChannelInfo extends JsonMarker{
         this.imageUrl = imageUrl;
     }
 
-    public Integer getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(int type) {
         this.type = type;
     }
 

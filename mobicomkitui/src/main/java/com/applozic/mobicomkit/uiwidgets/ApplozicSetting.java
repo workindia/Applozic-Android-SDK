@@ -57,7 +57,7 @@ public class ApplozicSetting {
     private static final String EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String TYPING_TEXT_COLOR= "TYPING_TEXT_COLOR";
-
+    private static final String PROFILE_OPTION= "PROFILE_OPTION";
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
 
 
@@ -543,6 +543,15 @@ public class ApplozicSetting {
 
     public boolean isActionDialWithoutCallingEnabled() {
         return sharedPreferences.getBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING, false);
+    }
+
+    public ApplozicSetting disableProfileOption(){
+        sharedPreferences.edit().putBoolean(PROFILE_OPTION,true).apply();
+        return this;
+    }
+
+    public boolean isProfileOptionEnabled() {
+        return sharedPreferences.getBoolean(PROFILE_OPTION, true);
     }
 
     public boolean clearAll() {

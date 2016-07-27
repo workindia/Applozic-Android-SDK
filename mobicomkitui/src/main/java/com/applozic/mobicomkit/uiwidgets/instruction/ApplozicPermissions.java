@@ -7,7 +7,6 @@ import android.widget.LinearLayout;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 
 /**
@@ -81,6 +80,22 @@ public class ApplozicPermissions {
             showSnackBar(R.string.contact_permission, PermissionsUtils.PERMISSION_CONTACT, PermissionsUtils.REQUEST_CONTACT);
         } else {
             PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CONTACT, PermissionsUtils.REQUEST_CONTACT);
+        }
+    }
+
+    public void requestCameraPermissionForProfilePhoto() {
+        if (PermissionsUtils.shouldShowRequestForCameraPermission(activity)) {
+            showSnackBar(R.string.phone_camera_permission, PermissionsUtils.PERMISSION_CAMERA, PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CAMERA, PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO);
+        }
+    }
+
+    public void requestStoragePermissionsForProfilePhoto() {
+        if (PermissionsUtils.shouldShowRequestForStoragePermission(activity)) {
+            showSnackBar(R.string.storage_permission, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE_FOR_PROFILE_PHOTO);
+        } else {
+            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE_FOR_PROFILE_PHOTO);
         }
     }
 

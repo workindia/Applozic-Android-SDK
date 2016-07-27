@@ -2,12 +2,8 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
-import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 
 /**
  * Created by sunil on 25/5/16.
@@ -61,9 +57,7 @@ public class PictureUploadPopUpFragment extends DialogFragment {
                 getDialog().dismiss();
 
                 try {
-                    Intent getContentIntent = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    getActivity().startActivityForResult(getContentIntent, ProfileFragment.REQUEST_CODE_ATTACH_PHOTO);
+                    ((ConversationActivity)getActivity()).processGalleryPhotoSelection();
                 } catch (Exception e) {
 
                 }
@@ -76,32 +70,13 @@ public class PictureUploadPopUpFragment extends DialogFragment {
             public void onClick(View v) {
                 getDialog().dismiss();
                 try {
-                    imageCapture();
+                    ((ConversationActivity)getActivity()).processImageCaptureForProfilePhoto();
                 } catch (Exception e) {
 
                 }
-
             }
         });
-
-
         return view;
-
     }
 
-    public void imageCapture() {
-
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if( !(getActivity() instanceof  MobicomkitUriListener) ){
-           Log.d(TAG , "Activity must implement MobicomkitUriListener to get image file uri");
-            return;
-        }
-
-        if (cameraIntent.resolveActivity(getContext().getPackageManager()) != null) {
-                Uri capturedImageUri = ((MobicomkitUriListener) getActivity()).getCurrentImageUri();
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, capturedImageUri);
-                getActivity().startActivityForResult(cameraIntent, MultimediaOptionFragment.REQUEST_CODE_TAKE_PHOTO);
-        }
-    }
 }

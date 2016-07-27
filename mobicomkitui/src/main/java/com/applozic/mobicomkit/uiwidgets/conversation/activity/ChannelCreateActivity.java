@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,12 +20,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FilePathFinder;
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.soundcloud.android.crop.Crop;
 
@@ -35,7 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 
-public class ChannelCreateActivity extends AppCompatActivity {
+public class ChannelCreateActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int REQUEST_CODE_ATTACH_PHOTO = 901;
     private static final String TAG = "ChannelCreateActivity";
@@ -49,6 +54,9 @@ public class ChannelCreateActivity extends AppCompatActivity {
     private Uri imageChangeUri;
     private String groupIconImageLink;
     private Integer groupType;
+    private LinearLayout layout;
+    private Snackbar snackbar;
+    private ApplozicPermissions applozicPermissions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,20 +69,22 @@ public class ChannelCreateActivity extends AppCompatActivity {
         mActionBar.setTitle(R.string.channel_create_title);
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
+        layout = (LinearLayout) findViewById(R.id.footerAd);
+        applozicPermissions = new ApplozicPermissions(this, layout);
         channelName = (EditText) findViewById(R.id.channelName);
         circleImageView = (CircleImageView) findViewById(R.id.channelIcon);
         uploadImageButton = (ImageView)  findViewById(R.id.applozic_channel_profile_camera);
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchImagePicker();
+                processImagePicker();
             }
         });
-        groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PRIVATE.getValue().intValue());
+       /* groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PRIVATE.getValue().intValue());
         if(groupType.equals(Channel.GroupType.BROADCAST.getValue().intValue())){
             circleImageView.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
             uploadImageButton.setVisibility(View.GONE);
-        }
+        }*/
     }
 
     @Override
@@ -102,7 +112,7 @@ public class ChannelCreateActivity extends AppCompatActivity {
                 if(!TextUtils.isEmpty(groupIconImageLink)){
                     intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
                 }
-                intent.putExtra(GROUP_TYPE, groupType);
+                // intent.putExtra(GROUP_TYPE, groupType);
                 startActivity(intent);
             }
             return true;
@@ -115,13 +125,15 @@ public class ChannelCreateActivity extends AppCompatActivity {
         Crop.of(source, destination).asSquare().start(this);
     }
 
-    public void launchImagePicker(){
-        Intent getContentIntent = FileUtils.createGetContentIntent();
-        getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-        startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+    public void processImagePicker(){
+        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)){
+            applozicPermissions.requestStoragePermissions();
+        }else {
+            Intent getContentIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(getContentIntent, REQUEST_CODE_ATTACH_PHOTO);
+        }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -189,6 +201,25 @@ public class ChannelCreateActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.storage_permission_granted);
+                processImagePicker();
+            } else {
+                showSnackBar(R.string.storage_permission_not_granted);
+            }
+        }else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public void showSnackBar(int resId) {
+        snackbar = Snackbar.make(layout, resId,
+                Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
 
 
 }

@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -162,6 +161,7 @@ public class MainActivity extends MobiComActivityForFragment
                     Intent intent = new Intent(context, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
+                    finish();
                 }
 
                 @Override
@@ -184,8 +184,6 @@ public class MainActivity extends MobiComActivityForFragment
 
             userLogoutTask = new UserLogoutTask(userLogoutTaskListener,this);
             userLogoutTask.execute((Void)null);
-            finish();
-            return;
         }
 
         FragmentManager fragmentManager = getSupportFragmentManager();

@@ -4,8 +4,6 @@ import com.applozic.mobicommons.json.Exclude;
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicommons.people.channel.Channel;
 
-import java.io.Serializable;
-
 /**
  * Created by sunil on 11/3/16.
  */

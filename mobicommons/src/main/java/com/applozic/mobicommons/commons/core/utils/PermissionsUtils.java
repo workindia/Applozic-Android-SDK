@@ -18,6 +18,8 @@ public class PermissionsUtils {
     public static final int REQUEST_CALL_PHONE = 4;
     public static final int REQUEST_CAMERA = 5;
     public static final int REQUEST_CONTACT = 6;
+    public static final int REQUEST_CAMERA_FOR_PROFILE_PHOTO = 7;
+    public static final int REQUEST_STORAGE_FOR_PROFILE_PHOTO = 8;
     public static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION};
     public static String[] PERMISSION_CALL = {Manifest.permission.CALL_PHONE};
     public static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -113,16 +115,15 @@ public class PermissionsUtils {
     }
 
     public static boolean isAudioRecordingPermissionGranted(Context context) {
-            String permission = "android.permission.RECORD_AUDIO";
-            int res = context.checkCallingOrSelfPermission(permission);
-            return (res == PackageManager.PERMISSION_GRANTED);
+        String permission = "android.permission.RECORD_AUDIO";
+        int res = context.checkCallingOrSelfPermission(permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
     }
 
     public static boolean isCameraPermissionGranted(Context context) {
         int res = context.checkCallingOrSelfPermission(Manifest.permission.CAMERA);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
-
     public static boolean isCallPermissionGranted(Context context) {
         int res = context.checkCallingOrSelfPermission(Manifest.permission.CALL_PHONE);
         return (res == PackageManager.PERMISSION_GRANTED);

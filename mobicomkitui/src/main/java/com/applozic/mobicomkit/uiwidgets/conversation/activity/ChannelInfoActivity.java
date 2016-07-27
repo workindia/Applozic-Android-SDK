@@ -398,7 +398,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 holder.circleImageView = (CircleImageView) convertView.findViewById(R.id.contactImage);
                 holder.adminTextView = (TextView) convertView.findViewById(R.id.adminTextView);
                 holder.lastSeenAtTextView = (TextView) convertView.findViewById(R.id.lastSeenAtTextView);
-                holder.onlineTextView = (TextView) convertView.findViewById(R.id.onlineTextView);
                 convertView.setTag(holder);
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
@@ -558,7 +557,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
 
     private class ContactViewHolder {
-        public TextView displayName, alphabeticImage, adminTextView, lastSeenAtTextView,onlineTextView;
+        public TextView displayName, alphabeticImage, adminTextView, lastSeenAtTextView;
         public CircleImageView circleImageView;
 
         public ContactViewHolder() {

@@ -132,7 +132,7 @@
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
         <meta-data
-            android:name="com.applozic.mobicomkit.sample.LoginActivity"
+            android:name="com.applozic.loginActivity"
             android:value="com.applozic.mobicomkit.sample.LoginActivity" />
 
         <service

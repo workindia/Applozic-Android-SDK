@@ -227,6 +227,11 @@ public abstract class ImageLoader {
             if (progressBar != null) {
                 progressBar.setVisibility(View.VISIBLE);
             }
+            final ImageView imageView = getAttachedImageView();
+            if (imageView != null && textView != null) {
+                textView.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.GONE);
+            }
         }
 
         /**
@@ -295,6 +300,7 @@ public abstract class ImageLoader {
                 if (textView != null) {
                     textView.setVisibility(View.GONE);
                 }
+                imageView.setVisibility(View.VISIBLE);
                 setImageBitmap(imageView, bitmap);
             } else if (imageView != null && textView != null) {
                 imageView.setVisibility(View.GONE);

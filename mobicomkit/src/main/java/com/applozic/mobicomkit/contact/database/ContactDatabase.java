@@ -236,9 +236,7 @@ public class ContactDatabase {
         if (contact.getUnreadCount() != null && contact.getUnreadCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, contact.getUnreadCount());
         }
-        if(!TextUtils.isEmpty(contact.getStatus())){
-            contentValues.put(MobiComDatabaseHelper.STATUS, contact.getStatus());
-        }
+        contentValues.put(MobiComDatabaseHelper.STATUS, contact.getStatus());
         if (contact.isBlocked()) {
             contentValues.put(MobiComDatabaseHelper.BLOCKED, contact.isBlocked());
         }
