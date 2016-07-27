@@ -25,7 +25,7 @@ Documentation: [Applozic Developers](https://www.applozic.com/docs/android-chat-
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.51' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.52' `
 
 
 Add the following in gradle android target:      
@@ -245,6 +245,8 @@ Paste the following in your androidmanifest.xml:
             android:theme="@style/ApplozicTheme"
             android:windowSoftInputMode="adjustResize">
  </activity>
+ 
+<activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
                    
 <service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
@@ -257,6 +259,12 @@ Paste the following in your androidmanifest.xml:
              
 <service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
          android:exported="false" />
+         
+ <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
+            android:exported="false" />
+
+ <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+            android:exported="false" />
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
