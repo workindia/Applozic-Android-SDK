@@ -210,7 +210,7 @@ Code
             channelMembersList.add("user2");
             channelMembersList.add("user3");
             ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
-            channelInfo.setType(Channel.GroupType.OPEN.getValue().intValue()); //group type
+            channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
           //channelInfo.setImageUrl("");pass group image link URL
             ChannelService.getInstance(context).createChannel(channelInfo);
 
