@@ -1,6 +1,17 @@
 
 ##Changelog
 
+**Version 4.52**  - Wednesday,27 July 2016
+
+User and Group image upload and change
+
+Group typing status 
+
+Typing status is moved from bottom to App Bar
+
+User status message change
+
+Bug fixes and performance improvement
 
 **Version 3.31**
 
