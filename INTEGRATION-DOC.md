@@ -420,7 +420,7 @@ startActivity(intent);
  
  
  
- Note: If you are running ProGuard, please add following lines:        
+ ####Note: If you are running ProGuard, please add following lines:        
  
  
  
