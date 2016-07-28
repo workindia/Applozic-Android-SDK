@@ -13,6 +13,26 @@ User status message change
 
 Bug fixes and performance improvement
 
+###  Steps for upgrading from 4.51 to 4.52
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.52'`
+
+
+**Step 2: In Your Android manifest add below code**
+
+```
+ <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+
+ <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
+          android:exported="false" />
+
+ <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+           android:exported="false" />
+
+```
+
 **Version 3.31**
 
 Bug fixes and improvements
