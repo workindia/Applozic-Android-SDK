@@ -187,39 +187,32 @@ ApplozicSetting.getInstance(context).hideStartNewGroupButton();
 
 ####1) Create Group
 
-Create the Group with Group Name and Group Members. 
+ Create a group with a specific group type 
+ 
+ Private group with type : Channel.GroupType.PRIVATE.getValue().intValue()
+ 
+ Public group with type : Channel.GroupType.PUBLIC.getValue().intValue()
+ 
+ Open group with type : Channel.GroupType.OPEN.getValue().intValue()
+ 
 
 Import
 
 ```
-import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelCreateTask;
+import com.applozic.mobicomkit.api.people.ChannelInfo;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 ```
 
 Code
  ```
-  ApplozicChannelCreateTask.ChannelCreateListener channelCreateListener = new ApplozicChannelCreateTask.ChannelCreateListener() {
-            @Override
-            public void onSuccess(Channel channel, Context context) {
-                Log.i("ApplzoicChannelCreate", "After success full creation of channel");
-                Log.i("Channel", "Channel object:" + channel);//channel.getKey() is a channel key or group id
-            }
-
-            @Override
-            public void onFailure(Exception e, Context context) {
-
-            }
-        };
-
-                String groupName = "Applozic Group"; // Name of group.
-                List<String> groupMemberList = new ArrayList<String>(); // List Of unique group member Names.
-                groupMemberList.add("member1");   // Put userId of the user
-                groupMemberList.add("member2");
-                groupMemberList.add("member3");
-                groupMemberList.add("member4");
-                String groupImageLink = ""; //Group image link
-                
-ApplozicChannelCreateTask applozicChannelCreateTask = new ApplozicChannelCreateTask(context, channelCreateListener, groupName, groupMemberList,groupImageLink);
-applozicChannelCreateTask.execute((Void) null);
+            List<String> channelMembersList =  new ArrayList<String>();
+            channelMembersList.add("user1");
+            channelMembersList.add("user2");
+            channelMembersList.add("user3");
+            ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
+            channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
+          //channelInfo.setImageUrl("");pass group image link URL
+            ChannelService.getInstance(context).createChannel(channelInfo);
 
  ```
 

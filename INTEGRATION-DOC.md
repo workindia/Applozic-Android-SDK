@@ -1,7 +1,7 @@
 ####Step 1: Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.51'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.52'
 ```
 
 
@@ -29,7 +29,7 @@ android {
        
 **Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
 
-**Note**:Add Permissions outisde the application Tag ```  <application> ```  
+**Note**: Add Permissions outisde the application Tag ```  <application> ```  
 ``` 
 
 <meta-data android:name="com.applozic.application.key"
@@ -220,6 +220,8 @@ Paste the following in your androidmanifest.xml:
             android:theme="@style/ApplozicTheme"
             android:windowSoftInputMode="adjustResize">
  </activity>
+ 
+ <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
                    
 <service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
@@ -232,6 +234,13 @@ Paste the following in your androidmanifest.xml:
              
 <service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
          android:exported="false" />
+         
+<service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
+            android:exported="false" />
+
+<service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+            android:exported="false" />
+        
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
@@ -411,7 +420,7 @@ startActivity(intent);
  
  
  
- Note: If you are running ProGuard, please add following lines:        
+ ####Note: If you are running ProGuard, please add following lines:        
  
  
  
