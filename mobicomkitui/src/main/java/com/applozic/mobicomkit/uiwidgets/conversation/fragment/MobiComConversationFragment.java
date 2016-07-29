@@ -454,7 +454,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 if (channel != null) {
-                    Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
+                  Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY, channel.getKey());
                     startActivity(channelInfo);
                 } else {
@@ -1166,6 +1166,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (channel != null) {
             messageToSend.setGroupId(channel.getKey());
+            if (!TextUtils.isEmpty(channel.getClientGroupId())){
+                messageToSend.setClientGroupId(channel.getClientGroupId());
+            }
             /*   List<String> contactIds = new ArrayList<String>();
             List<String> toList = new ArrayList<String>();
             for (Contact contact : channel.getContacts()) {

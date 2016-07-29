@@ -386,7 +386,9 @@ public class MessageClientService extends MobiComKitClientService {
         if (message.getGroupId() != null ) {
             newMessage.setGroupId(message.getGroupId());
         }
-
+        if(!TextUtils.isEmpty(message.getClientGroupId())){
+            newMessage.setClientGroupId(message.getClientGroupId());
+        }
         if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
             newMessage.setApplicationId(contact.getApplicationId());
         } else {

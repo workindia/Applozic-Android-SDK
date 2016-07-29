@@ -69,7 +69,7 @@ public class MessageDatabaseService {
         message.setRead(read != null && read.intValue() == 1);
 
         message.setStatus(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
-
+        message.setClientGroupId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CLIENT_GROUP_ID)));
 
         Long scheduledAt = cursor.getLong(cursor.getColumnIndex("scheduledAt"));
         message.setScheduledAt(scheduledAt == null || scheduledAt.intValue() == 0 ? null : scheduledAt);
@@ -489,6 +489,9 @@ public class MessageDatabaseService {
             if(message.getGroupId() != null) {
                 values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
             }
+            if(!TextUtils.isEmpty(message.getClientGroupId())) {
+                values.put(MobiComDatabaseHelper.CLIENT_GROUP_ID, message.getClientGroupId());
+            }
             if (message.getFileMetaKeyStrings() != null) {
                 values.put("fileMetaKeyStrings", message.getFileMetaKeyStrings());
             }
@@ -703,6 +706,61 @@ public class MessageDatabaseService {
         dbHelper.close();
         return messages;
     }
+
+    public List<Message> getLatestMessageByClientGroupId(String clientGroupId) {
+        return getLatestMessageForChannel(null,clientGroupId);
+    }
+
+    public List<Message> getLatestMessageByChannelKey(Integer channelKey) {
+        return getLatestMessageForChannel(channelKey,null);
+    }
+
+    private List<Message> getLatestMessageForChannel(Integer channelKey,String clientGroupId) {
+
+        String clauseString = null;
+
+        if (channelKey != null && channelKey != 0) {
+            clauseString = " channelKey = " + "'" + channelKey + "'";
+        } else if (!TextUtils.isEmpty(clientGroupId)) {
+            clauseString = " clientGroupId = " + "'" + clientGroupId + "'";
+        }
+        List<Message> messages = new ArrayList<Message>();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from sms where " + clauseString + " order by createdAt desc limit 1", null);
+        if (cursor.moveToFirst()) {
+            messages = MessageDatabaseService.getMessageList(cursor);
+        }
+        cursor.close();
+        dbHelper.close();
+        return messages;
+    }
+
+
+    public List<Message> getChannelCustomMessagesByClientGroupId(String clientGroupId) {
+        return getChannelCustomMessageList(null,clientGroupId);
+    }
+
+    public List<Message> getChannelCustomMessagesByChannelKey(Integer channelKey) {
+        return getChannelCustomMessageList(channelKey,null);
+    }
+
+    private List<Message> getChannelCustomMessageList(Integer channelKey,String clientGroupId){
+        String structuredNameWhere = "";
+        List<String> structuredNameParamsList = new ArrayList<String>();
+        if (channelKey != null && channelKey != 0) {
+            structuredNameWhere = "channelKey = ? AND ";
+            structuredNameParamsList.add(String.valueOf(channelKey));
+        } else if (!TextUtils.isEmpty(clientGroupId)) {
+            structuredNameWhere = "clientGroupId = ? AND ";
+            structuredNameParamsList.add(clientGroupId);
+        }
+
+        structuredNameWhere += "messageContentType in (10) ";
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt desc");
+        return  MessageDatabaseService.getMessageList(cursor);
+    }
+
 
     public int updateReadStatus(String contactNumbers) {
         ContentValues values = new ContentValues();

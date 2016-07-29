@@ -51,6 +51,7 @@ public class Message extends JsonMarker {
     private Integer conversationId;
     private String topicId;
     private boolean connected = false;
+    private String clientGroupId;
     private short contentType = ContentType.DEFAULT.getValue();
     private Map<String, String> metadata = new HashMap<>();
 
@@ -513,46 +514,6 @@ public class Message extends JsonMarker {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "createdAtTime=" + createdAtTime +
-                ", to='" + to + '\'' +
-                ", message='" + message + '\'' +
-                ", key='" + key + '\'' +
-                ", deviceKey='" + deviceKey + '\'' +
-                ", userKey='" + userKey + '\'' +
-                ", emailIds='" + emailIds + '\'' +
-                ", shared=" + shared +
-                ", sent=" + sent +
-                ", delivered=" + delivered +
-                ", type=" + type +
-                ", storeOnDevice=" + storeOnDevice +
-                ", contactIds='" + contactIds + '\'' +
-                ", groupId=" + groupId +
-                ", sendToDevice=" + sendToDevice +
-                ", scheduledAt=" + scheduledAt +
-                ", source=" + source +
-                ", timeToLive=" + timeToLive +
-                ", sentToServer=" + sentToServer +
-                ", fileMetaKey='" + fileMetaKey + '\'' +
-                ", filePaths=" + filePaths +
-                ", pairedMessageKey='" + pairedMessageKey + '\'' +
-                ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
-                ", canceled=" + canceled +
-                ", fileMeta=" + fileMeta +
-                ", messageId=" + messageId +
-                ", read=" + read +
-                ", attDownloadInProgress=" + attDownloadInProgress +
-                ", applicationId='" + applicationId + '\'' +
-                ", conversationId=" + conversationId +
-                ", topicId='" + topicId + '\'' +
-                ", connected=" + connected +
-                ", contentType=" + contentType +
-                ", metadata=" + metadata +
-                ", status=" + status +
-                '}';
-    }
 
     public boolean isTempDateType() {
         return type.equals(MessageType.DATE_TEMP.value);
@@ -597,6 +558,56 @@ public class Message extends JsonMarker {
 
     public boolean isGroupMessage() {
         return ( this.groupId != null );
+    }
+
+    public String getClientGroupId() {
+        return clientGroupId;
+    }
+
+    public void setClientGroupId(String clientGroupId) {
+        this.clientGroupId = clientGroupId;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "createdAtTime=" + createdAtTime +
+                ", to='" + to + '\'' +
+                ", message='" + message + '\'' +
+                ", key='" + key + '\'' +
+                ", deviceKey='" + deviceKey + '\'' +
+                ", userKey='" + userKey + '\'' +
+                ", emailIds='" + emailIds + '\'' +
+                ", shared=" + shared +
+                ", sent=" + sent +
+                ", delivered=" + delivered +
+                ", type=" + type +
+                ", storeOnDevice=" + storeOnDevice +
+                ", contactIds='" + contactIds + '\'' +
+                ", groupId=" + groupId +
+                ", sendToDevice=" + sendToDevice +
+                ", scheduledAt=" + scheduledAt +
+                ", source=" + source +
+                ", timeToLive=" + timeToLive +
+                ", sentToServer=" + sentToServer +
+                ", fileMetaKey='" + fileMetaKey + '\'' +
+                ", filePaths=" + filePaths +
+                ", pairedMessageKey='" + pairedMessageKey + '\'' +
+                ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
+                ", canceled=" + canceled +
+                ", fileMeta=" + fileMeta +
+                ", messageId=" + messageId +
+                ", read=" + read +
+                ", attDownloadInProgress=" + attDownloadInProgress +
+                ", applicationId='" + applicationId + '\'' +
+                ", conversationId=" + conversationId +
+                ", topicId='" + topicId + '\'' +
+                ", connected=" + connected +
+                ", clientGroupId='" + clientGroupId + '\'' +
+                ", contentType=" + contentType +
+                ", metadata=" + metadata +
+                ", status=" + status +
+                '}';
     }
 
     public enum Source {

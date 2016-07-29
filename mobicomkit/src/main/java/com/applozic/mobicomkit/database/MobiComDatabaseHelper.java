@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 17;
+    public static final int DB_VERSION = 18;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -96,10 +96,11 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "topicId varchar(300) null,"
             + "channelKey integer default 0,"
             + STATUS + " varchar(200) default 0,"
+            + CLIENT_GROUP_ID +" varchar(1000) default null,"
             + "UNIQUE (keyString,contactNumbers,channelKey))";
     private static final String SMS_BACKUP = "sms_backup";
-    public static final String INSERT_INTO_SMS_FROM_SMS_BACKUP_QUERY = "INSERT INTO sms (id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId)" +
-            " SELECT id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId" +
+    public static final String INSERT_INTO_SMS_FROM_SMS_BACKUP_QUERY = "INSERT INTO sms (id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status)" +
+            " SELECT id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status" +
             " FROM " + SMS_BACKUP;
     private static final String DROP_SMS_BACKUP = "DROP TABLE " + SMS_BACKUP;
     private static final String ALTER_SMS_TABLE_FOR_DELETE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN deleted integer default 0";
