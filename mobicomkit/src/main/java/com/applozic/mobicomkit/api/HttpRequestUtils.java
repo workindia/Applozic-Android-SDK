@@ -110,22 +110,6 @@ public class HttpRequestUtils {
         return null;
     }
 
-    public String getStringFromUrl(String url) throws Exception {
-     /*   BufferedReader br;
-        br = new BufferedReader(new InputStreamReader(getInputStreamFromUrl(url), "UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        try {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();*/
-        return null;
-    }
-
     public String postJsonToServer(String StringUrl, String data) throws Exception {
         HttpURLConnection connection;
         URL url = new URL(StringUrl);
@@ -161,20 +145,6 @@ public class HttpRequestUtils {
         }
         Log.i(TAG, "Response: " + sb.toString());
         return sb.toString();
-    }
-
-    public String getStringFromUrlWithPost(String url, String data) throws Exception {
-       /* HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost(url);
-        httppost.addHeader("Content-Type", "application/xml");
-        addGlobalHeaders(httppost);
-        HttpEntity entity = new StringEntity(data, "UTF-8");
-        httppost.setEntity(entity);
-        HttpResponse httpResponse = httpclient.execute(httppost);
-        String response = EntityUtils.toString(httpResponse.getEntity());
-        log("response for post call is: " + response);
-        return response;*/
-        return  null;
     }
 
     public String getResponse(PasswordAuthentication credentials, String urlString, String contentType, String accept) {

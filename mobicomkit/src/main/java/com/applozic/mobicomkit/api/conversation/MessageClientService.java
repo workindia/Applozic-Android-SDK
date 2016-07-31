@@ -145,18 +145,6 @@ public class MessageClientService extends MobiComKitClientService {
         return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
     }
 
-    public String updateDeliveryStatus(Message message, String contactNumber, String countryCode) {
-        try {
-            String argString = "?smsKeyString=" + message.getKeyString() + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + "&deviceKeyString=" + message.getDeviceKeyString()
-                    + "&countryCode=" + countryCode;
-            String URL = getUpdateDeliveryFlagUrl() + argString;
-            return httpRequestUtils.getStringFromUrl(URL);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public void updateDeliveryStatus(String messageKeyString, String userId, String receiverNumber) {
         try {
             //Note: messageKeyString comes as null for the welcome message as it is inserted directly.
@@ -569,25 +557,6 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + keyString, "text/plain", "text/plain");
     }
 
-    public void updateMessageDeliveryReport(final Message message, final String contactNumber) throws Exception {
-        message.setDelivered(Boolean.TRUE);
-        messageDatabaseService.updateMessageDeliveryReportForContact(message.getKeyString(), contactNumber,false);
-
-        BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_DELIVERY.toString(), message);
-       Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                updateDeliveryStatus(message, contactNumber, MobiComUserPreference.getInstance(context).getCountryCode());
-            }
-        });
-        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
-
-        if (MobiComUserPreference.getInstance(context).isWebHookEnable()) {
-            processWebHook(message);
-        }
-    }
-
     public SyncUserDetailsResponse getUserDetailsList(String lastSeenAt) {
         try {
             String url = getUserDetailsListUrl() + "?lastSeenAt=" + lastSeenAt;
@@ -665,31 +634,6 @@ public class MessageClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
     }
-/*
-
-    public synchronized Integer getConversationId(String topicId, String userId) {
-        try {
-            int conversationId = 0;
-            String url = getProductConversationUrl() + "?topicId=" + topicId + ARGUMRNT_SAPERATOR + "userId=" + userId;
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
-            if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
-                return null;
-            }
-            Log.i(TAG, "Response for Product ConversationId :" + response);
-            ApiResponse productConversationIdResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-            if ("success".equals(productConversationIdResponse.getStatus())) {
-                JSONObject jsonObject = new JSONObject(productConversationIdResponse.getResponse().toString());
-                if (jsonObject.has("conversationId")) {
-                    conversationId = jsonObject.getInt("conversationId");
-                }
-            }
-            return conversationId;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-*/
 
     public String getTopicId(Integer conversationId) {
         try {
@@ -725,18 +669,4 @@ public class MessageClientService extends MobiComKitClientService {
        return messageInfoResponse;
     }
 
-    public void processWebHook(final Message message) {
-       /* new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String url = "";
-                    String response = HttpRequestUtils.getStringFromUrl(url);
-                    AppUtil.myLogger(TAG, "Got response from webhook url: " + response);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();*/
-    }
 }

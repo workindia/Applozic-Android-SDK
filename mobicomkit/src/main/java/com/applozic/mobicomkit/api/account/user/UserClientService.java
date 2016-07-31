@@ -148,19 +148,6 @@ public class UserClientService extends MobiComKitClientService {
         }
     }
 
-    public String updateTimezone(String osuUserKeyString) {
-        //Note: This can be used if user decides to change the timezone
-        String response = null;
-        try {
-            response = httpRequestUtils.getStringFromUrl(getTimezoneUpdataeUrl() + "?suUserKeyString=" + osuUserKeyString +
-                    "&timeZone=" + URLEncoder.encode(TimeZone.getDefault().getID(), "UTF-8"));
-            Log.i(TAG, "Response from sendDeviceTimezoneToServer : " + response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return response;
-    }
-
     public boolean sendVerificationCodeToServer(String verificationCode) {
         try {
             String response = httpRequestUtils.getResponse(getCredentials(), getVerificationCodeContactNumberUrl() + "?verificationCode=" + verificationCode, "application/json", "application/json");
