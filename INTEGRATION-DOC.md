@@ -1,7 +1,7 @@
 ####Step 1: Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.52'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.53'
 ```
 
 
@@ -439,5 +439,7 @@ startActivity(intent);
 -keepattributes Signature          
 -keep class sun.misc.Unsafe { *; }           
 -keep class com.google.gson.examples.android.model.** { *; }            
--keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; }                                    
+-keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; } 
+-keep class android.support.** { *; }
+-keep interface android.support.** { *; }
  ``` 
