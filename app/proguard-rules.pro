@@ -36,7 +36,8 @@
 -keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.examples.android.model.** { *; }
 -keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; }
-
+-keep class android.support.** { *; }
+-keep interface android.support.** { *; }
 
 # Keep SafeParcelable value, needed for reflection. This is required to support backwards
 # compatibility of some classes.
