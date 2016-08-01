@@ -1,9 +1,11 @@
 package com.applozic.mobicomkit.api.attachment;
 
+import com.applozic.mobicommons.json.JsonMarker;
+
 /**
  * Created by adarsh on 4/10/14.
  */
-public class FileMeta {
+public class FileMeta extends JsonMarker {
 
     private String key;
     private String userKey;

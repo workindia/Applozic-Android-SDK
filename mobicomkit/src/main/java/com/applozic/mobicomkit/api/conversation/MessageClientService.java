@@ -66,8 +66,6 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_INFO_URL = "/rest/ws/message/info";
 
     private static final String TAG = "MessageClientService";
-    /* public static List<Message> recentProcessedMessage = new ArrayList<Message>();
-     public static List<Message> recentMessageSentToServer = new ArrayList<Message>();*/
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private HttpRequestUtils httpRequestUtils;

@@ -77,18 +77,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private static final String TAG = "DetailedConversation";
 
     private static final int FILE_THRESOLD_SIZE = 400;
-    private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
-
-    static {
-        messageTypeColorMap.put(Message.MessageType.INBOX.getValue(), R.color.message_type_inbox);
-        messageTypeColorMap.put(Message.MessageType.OUTBOX.getValue(), R.color.message_type_outbox);
-        messageTypeColorMap.put(Message.MessageType.OUTBOX_SENT_FROM_DEVICE.getValue(), R.color.message_type_outbox_sent_from_device);
-        messageTypeColorMap.put(Message.MessageType.MT_INBOX.getValue(), R.color.message_type_mt_inbox);
-        messageTypeColorMap.put(Message.MessageType.MT_OUTBOX.getValue(), R.color.message_type_mt_outbox);
-        messageTypeColorMap.put(Message.MessageType.CALL_INCOMING.getValue(), R.color.message_type_incoming_call);
-        messageTypeColorMap.put(Message.MessageType.CALL_OUTGOING.getValue(), R.color.message_type_outgoing_call);
-    }
-
     public ImageLoader contactImageLoader, loadImage;
     private Context context;
     private Contact contact;

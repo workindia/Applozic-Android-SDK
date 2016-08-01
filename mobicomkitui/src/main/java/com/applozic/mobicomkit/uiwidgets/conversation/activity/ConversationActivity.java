@@ -179,8 +179,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         fragmentTransaction.replace(R.id.layout_child_activity, fragmentToAdd,
                 fragmentTag);
 
-        if (supportFragmentManager.getBackStackEntryCount() > 1
-                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) &&  !ConversationUIService.USER_PROFILE_FRAMENT.equalsIgnoreCase(fragmentTag)){
+        if (supportFragmentManager.getBackStackEntryCount() >1
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) ){
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
