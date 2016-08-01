@@ -368,3 +368,97 @@ Code
 
   This activity will receive the userId of the selected chat in intent.
   
+  
+#### Context Based Chat 
+
+
+
+Setting need to be added in UserLoginTask onSuccess method
+
+
+``` 
+
+ApplozicClient.getInstance(context).setContextBasedChat(true);
+
+```
+
+
+When Starting ConversationActivity add  CONTEXT_BASED_CHAT flag in intent: 
+
+
+```
+
+Intent intent = new Intent(this, ConversationActivity.class);
+intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+startActivity(intent);
+ 
+```
+ 
+ 
+ 
+ Setps to create Context based chat 
+ 
+ 
+#### Step 1 : Bulid Context chat Conversation
+ 
+```
+     private Conversation buildConversation() {
+        
+       //Title and subtitles are required if you are enabling the view for particular context.
+       
+        TopicDetail topic = new TopicDetail();
+        topic.setTitle("Hyundai i20");//Your Topic title
+        topic.setSubtitle("May be your car model");//Put Your Topic subtitle
+        topic.setLink("Topic Image link if any");
+
+       //You can set two Custom key-value pair which will appear on context view .
+
+        topic.setKey1("Mileage  : ");
+        topic.setValue1("18 kmpl");
+        topic.setKey2("Price :");
+        topic.setValue2("RS. 5.7 lakh");
+
+        //Create Conversation.
+        
+        Conversation conversation = new Conversation();
+
+        //SET UserId for which you want to launch chat or conversation
+
+        conversation.setTopicId("Your Topic Id //unique ");
+        conversation.setUserId("RECEIVER USERID");
+        conversation.setTopicDetail(topic.getJson());
+        return conversation;
+
+    }
+ ```
+    
+#### Step 2 : Create Async task and Starting Conversation chat
+
+```
+     ApplzoicConversationCreateTask applzoicConversationCreateTask = null;
+
+        ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
+            @Override
+            public void onSuccess(Integer conversationId, Context context) {
+
+                //For launching the  one to one  chat
+                Intent intent = new Intent(context, ConversationActivity.class);
+                intent.putExtra("takeOrder", true);
+                intent.putExtra(ConversationUIService.USER_ID, "userId");//RECEIVER USERID
+                intent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in this car, Can we chat?");
+                intent.putExtra(ConversationUIService.DISPLAY_NAME,"display name");
+                intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                intent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(Exception e, Context context) {
+
+            }
+        };
+    Conversation conversation = buildConversation(); //From Step 1 
+applzoicConversationCreateTask = new ApplzoicConversationCreateTask(context,conversationCreateListener,conversation);
+   applzoicConversationCreateTask.execute((Void)null);
+ 
+```
