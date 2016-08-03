@@ -419,8 +419,8 @@ Call the following when user logout from your app:
 new UserClientService(this).logout();      
 ```
  
- 
- #### ProGuard Setup
+
+#### Step 8: ProGuard Setup
 Add the following if you are using ProGuard:
  
 ```
