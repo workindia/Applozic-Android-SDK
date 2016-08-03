@@ -381,7 +381,7 @@ SenderId is a unique numerical value created when you configure your API project
 
 
 
-####Step 5: Push Notifications
+####Step 5: Receiving Notifications
 Add the following in your GcmListenerService onMessageReceived method.     
 
        
