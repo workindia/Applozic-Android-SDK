@@ -1,7 +1,7 @@
 Refer to the below documentation for a deeper integration if you wish to perform chat operation directly from your app's interface without using the Applozic UI toolkit:
 
 
-####Account registration   
+#### User Login/Register   
    
 Import
 ```
@@ -14,7 +14,7 @@ new RegisterUserClientService(activity).createAccount
 (USER_EMAIL, USER_ID, USER_PHONE_NUMBER, GCM_REGISTRATION_ID);         
  ``` 
 
-####Send message   
+#### Send message   
 
 Import
 ```
@@ -36,7 +36,7 @@ Message("contact@applozic.com", "hello test"));
 ```
 
 
-####Message list      
+#### Messages      
 
 Import
 ```
@@ -66,7 +66,7 @@ Code
  }                           
 ```
 
-####Custom Message
+#### Custom Message
 Send an automated custom message to connect 2 users. The message layout will be same for both users so that it doesn't look like a sent message.
 
 
@@ -94,7 +94,7 @@ The below methods are for creating contacts to be stored locally on the user's d
 You can create the contact list in two easy steps by using AppContactService.java api. 
 Sample method **buildContactData()** for adding contacts is present in sample app MainActivity.java.
 
-####Step 1: Creating contact   
+#####Step 1: Creating contact   
 
 Create
 ```
@@ -117,7 +117,7 @@ Example :
     contact.setEmailId("github@applozic.com");                
 ```
 
-####Step 2: Save contact
+#####Step 2: Save contact
 
 Save the contact using AppContactService.java add() method.
  
@@ -129,8 +129,7 @@ Save the contact using AppContactService.java add() method.
 
 
 
-####AppContactService.Java at a glance
-
+#####AppContactService.Java at a glance
 
 
 AppContactService.java provides methods you need to add, delete and update contacts.
@@ -172,7 +171,7 @@ upsert(Contact contact)
 
 
 
-### Group 
+#### Group 
 
 Enable Group Messaging for a user
 ```
@@ -185,7 +184,7 @@ ApplozicSetting.getInstance(context).hideStartNewGroupButton();
 ```
 
 
-####1) Create Group
+#####1) Create Group
 
  Create a group with a specific group type 
  
@@ -216,7 +215,7 @@ Code
 
  ```
 
-####2) Add Member to Group
+#####2) Add Member to Group
   
 Import
 ```
@@ -251,7 +250,7 @@ Code
 | userId | Unique identifier of the user |
 
  
-####3) Remove Member from Group
+#####3) Remove Member from Group
  
 Import  
 ```
@@ -287,7 +286,7 @@ Code
   __NOTE:__ Only admin can remove member from the group/channel.
   
  
-####4) Leave Group
+#####4) Leave Group
  
 Import
 ```
@@ -320,7 +319,7 @@ Code
  
  __Note:__ This is only for logged in user who want's to leave from group
  
-####5) Change Group Name
+#####5) Change Group Name
 
 Import
 
@@ -355,7 +354,7 @@ Code
   
   
   
-#### Open Activity on tap of toolbar in Chat Screen
+##### Open Activity on tap of toolbar in Chat Screen
 
   Add the following in your androidmanifest.xml
   
@@ -399,7 +398,7 @@ startActivity(intent);
  Setps to create Context based chat 
  
  
-#### Step 1 : Bulid Context chat Conversation
+##### Step 1 : Bulid Context chat Conversation
  
 ```
      private Conversation buildConversation() {
@@ -432,7 +431,7 @@ startActivity(intent);
     }
  ```
     
-#### Step 2 : Create Async task and Starting Conversation chat
+##### Step 2 : Create Async task and Starting Conversation chat
 
 ```
      ApplzoicConversationCreateTask applzoicConversationCreateTask = null;
