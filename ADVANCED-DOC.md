@@ -395,7 +395,7 @@ startActivity(intent);
  
  
  
- Setps to create Context based chat 
+Steps to create Context based chat 
  
  
 ##### Step 1 : Bulid Context chat Conversation
