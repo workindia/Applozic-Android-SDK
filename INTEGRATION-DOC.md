@@ -393,7 +393,7 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 ```
 
 
-####Step 6: Initiate chat with other user
+####Step 6: Initiate Chat
 
 For starting the messaging activity      
       
