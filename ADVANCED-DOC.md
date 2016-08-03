@@ -36,7 +36,7 @@ Message("contact@applozic.com", "hello test"));
 ```
 
 
-#### Messages      
+#### Messages list 
 
 Import
 ```
