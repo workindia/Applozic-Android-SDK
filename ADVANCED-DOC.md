@@ -171,7 +171,7 @@ upsert(Contact contact)
 
 
 
-#### Group 
+#### Group Chaat
 
 Enable Group Messaging for a user
 ```
