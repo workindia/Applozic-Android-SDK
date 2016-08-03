@@ -27,7 +27,7 @@ android {
 ```
 
 
-####Step 2: AndroidManifest.xml changes
+####Step 2: AndroidManifest changes
 Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
 **Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
