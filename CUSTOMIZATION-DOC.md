@@ -178,9 +178,9 @@ ApplozicSetting.getInstance(context).hideStartNewFloatingActionButton();
 #### UI source code
 
 For complete control over UI, you can also download open source chat UI toolkit and change it as per your designs :
-```
+
 [https://github.com/AppLozic/Applozic-Android-SDK](https://github.com/AppLozic/Applozic-Android-SDK)
-```
+
 
 Import [MobiComKitUI Library](https://github.com/AppLozic/Applozic-Android-SDK/tree/master/mobicomkitui) into your android project and add the following in the build.gradle file:
 
