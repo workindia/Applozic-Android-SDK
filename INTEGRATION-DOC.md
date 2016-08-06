@@ -32,7 +32,7 @@ Add the following Permissions, Activities, Services and Receivers in androidmani
        
 **Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
 
-**Note**: Add Permissions outisde the application Tag ```  <application> ```  
+**Note**: Add Permissions outside the application Tag ```  <application> ```  
 ``` 
 
 <meta-data android:name="com.applozic.application.key"
