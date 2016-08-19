@@ -171,6 +171,17 @@ upsert(Contact contact)
 
 #### Group Chat
 
+Open Group Chat
+
+For opening group conversation thread, set "groupdId" in intent:
+
+```
+Intent intent = new Intent(this, ConversationActivity.class);            
+intent.putExtra(ConversationUIService.GROUP_ID, 12);      //Pass group id here.       
+startActivity(intent);
+```
+
+
 Enable Group Messaging for a user
 ```
 ApplozicSetting.getInstance(context).showStartNewGroupButton();
