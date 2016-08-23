@@ -1,4 +1,6 @@
-####Add UI customization setting inside UserLoginTask "onSuccess" method
+#### Chat Bubble
+
+Add UI customization setting inside UserLoginTask "onSuccess" method
 
 Sent Message Chat Bubble Color
 
@@ -49,12 +51,6 @@ Received Contact Message Text Color
 ApplozicSetting.getInstance(context).setReceivedContactMessageTextColor(int color); // accepts the R.color.name
  ```
  
- Edit Text Background  Color Or DrawableResource 
-
- ```
-ApplozicSetting.getInstance(context).setEditTextBackgroundColorOrDrawableResource(int colorOrdrawableName); // accepts the R.color.name or  R.drawable.drawableName
- ```
- 
 Sent Message Hyper Link Text Color
 
  ```
@@ -67,12 +63,23 @@ ApplozicSetting.getInstance(context).setSentMessageLinkTextColor(int color); // 
 ApplozicSetting.getInstance(context).setReceivedMessageLinkTextColor(int color); // accepts the R.color.name
  ```
  
+ 
+#### Chat Background
+
 Chat Background Image or Color
 
  ```
 ApplozicSetting.getInstance(context).setChatBackgroundColorOrDrawableResource(int color); // accepts the R.color.name or  R.drawable.drawableName
  ```
  
+Edit Text Background  Color Or DrawableResource 
+
+ ```
+ApplozicSetting.getInstance(context).setEditTextBackgroundColorOrDrawableResource(int colorOrdrawableName); // accepts the R.color.name or  R.drawable.drawableName
+ ```
+
+#### Send Message Layout
+
 Message EditText Text Color
 
  ```
@@ -96,7 +103,9 @@ ApplozicSetting.getInstance(context).setAttachmentIconsBackgroundColor(int color
  ```
   ApplozicSetting.getInstance(context).setSendButtonBackgroundColor(int color); // accepts the R.color.name
   ```
-  
+
+#### Online status
+
 Show/Hide Green Dot for Online
 
  ```
@@ -104,19 +113,7 @@ ApplozicSetting.getInstance(context).showOnlineStatusInMasterList();
 ApplozicSetting.getInstance(context).hideOnlineStatusInMasterList();
  ```
 
-Show/hide 'Start New Conversation' Plus (+) Button 
- 
- ```
- ApplozicSetting.getInstance(context).showStartNewButton();
- ApplozicSetting.getInstance(context).hideStartNewButton();
-```
-
-Show/hide 'Start New' FloatingActionButton
-
-```
-ApplozicSetting.getInstance(context).showStartNewFloatingActionButton();
-ApplozicSetting.getInstance(context).hideStartNewFloatingActionButton();
-```
+#### Group Messaging
 
 For Group Add Member Button Hide
 
@@ -135,12 +132,29 @@ For Group Exit Button Hide
  ApplozicSetting.getInstance(context).setHideGroupNameEditButton(true);
  ```
  
- For  Group Memebr Remove Option Hide
+ For  Group Member Remove Option Hide
  
   ```
  ApplozicSetting.getInstance(context).setHideGroupRemoveMemberOption(true);
   ```
   
+#### 'Start New' button
+Show/hide 'Start New Conversation' Plus (+) Button 
+ 
+ ```
+ ApplozicSetting.getInstance(context).showStartNewButton();
+ ApplozicSetting.getInstance(context).hideStartNewButton();
+```
+
+Show/hide 'Start New' FloatingActionButton
+
+```
+ApplozicSetting.getInstance(context).showStartNewFloatingActionButton();
+ApplozicSetting.getInstance(context).hideStartNewFloatingActionButton();
+```
+
+#### Theme customization
+
   To customize the theme, copy paste the following in your theme's  res file:
    ```
   <style name="ApplozicTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -160,10 +174,13 @@ For Group Exit Button Hide
   
    Change the name of the style  name="ApplozicTheme"  to some new name and in your app androidmanifest.xml file find for ApplozicTheme and replace with your new theme style.
  
+ 
+#### UI source code
+
 For complete control over UI, you can also download open source chat UI toolkit and change it as per your designs :
-```
+
 [https://github.com/AppLozic/Applozic-Android-SDK](https://github.com/AppLozic/Applozic-Android-SDK)
-```
+
 
 Import [MobiComKitUI Library](https://github.com/AppLozic/Applozic-Android-SDK/tree/master/mobicomkitui) into your android project and add the following in the build.gradle file:
 

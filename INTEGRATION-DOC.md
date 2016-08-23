@@ -1,4 +1,6 @@
-####Step 1: Add the following in your build.gradle dependency  
+####Step 1: Gradle Dependency
+
+Add the following in your build.gradle dependency  
 
 ```
 compile 'com.applozic.communication.uiwidget:mobicomkitui:4.53'
@@ -25,11 +27,12 @@ android {
 ```
 
 
-####Step 2: Addition of Permissions, Activities, Services and Receivers in androidmanifest.xml
+####Step 2: AndroidManifest
+Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
 **Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
 
-**Note**: Add Permissions outisde the application Tag ```  <application> ```  
+**Note**: Add Permissions outside the application Tag ```  <application> ```  
 ``` 
 
 <meta-data android:name="com.applozic.application.key"
@@ -265,9 +268,8 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-####Step 3: Register user account
-
-
+####Step 3: Login/Register User
+Applozic will create a new user if the user doesn't exists. userId is the unique identifier for any user, it can be anything like email, phone number or uuid from your database.
 
      
 ```
@@ -379,9 +381,8 @@ SenderId is a unique numerical value created when you configure your API project
 
 
 
-####Step 5: Handling push notification
+####Step 5: Receiving Notifications
 Add the following in your GcmListenerService onMessageReceived method.     
-
 
        
 ```
@@ -392,18 +393,17 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 ```
 
 
-####Step 6: For starting the messaging activity      
+####Step 6: Initiate Chat
 
+For starting the messaging activity      
       
 ```
 Intent intent = new Intent(this, ConversationActivity.class);            
 startActivity(intent);                               
 ``` 
  
+For starting individual conversation thread, set "userId" in intent:        
  
- For starting individual conversation thread, set "userId" in intent:        
- 
-           
 ```
 Intent intent = new Intent(this, ConversationActivity.class);            
 intent.putExtra(ConversationUIService.USER_ID, "devashish@applozic.com");             
@@ -411,20 +411,17 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-####Step 7: On logout, call the following:       
+####Step 7: Logout user       
 
+Call the following when user logout from your app:
 
+```
+new UserClientService(this).logout();      
+```
+ 
 
-
- new UserClientService(this).logout();      
- 
- 
- 
- ####Note: If you are running ProGuard, please add following lines:        
- 
- 
- 
- 
+#### Step 8: ProGuard Setup
+Add the following if you are using ProGuard:
  
 ```
  #keep json classes                
