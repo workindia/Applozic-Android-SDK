@@ -3,7 +3,7 @@
 Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.53'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.55'
 ```
 
 
@@ -242,6 +242,9 @@ Paste the following in your androidmanifest.xml:
             android:exported="false" />
 
 <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+            android:exported="false" />
+            
+<service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
             android:exported="false" />
         
 
