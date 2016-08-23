@@ -34,18 +34,17 @@ public class UserProfileFragment extends Fragment {
     TextView name, email, phone, status;
     ImageLoader contactImageLoader;
     TextView alphabeticTextView;
-    TextView applozicUserStatus;
     CircleImageView contactImage;
     AppContactService baseContactService;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        baseContactService = new AppContactService(getActivity());
         super.onCreate(savedInstanceState);
+        baseContactService = new AppContactService(getActivity());
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return baseContactService.downloadContactImage((Activity) getContext(), (Contact) data);
+                return baseContactService.downloadContactImage(getContext(), (Contact) data);
             }
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);

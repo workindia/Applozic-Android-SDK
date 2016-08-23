@@ -61,7 +61,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/common_action_bar_splitter" />
+        android:background="@color/applozic_location_view_divider_color" />
 
 </LinearLayout>
 

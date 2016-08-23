@@ -9,12 +9,15 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * Created by devashish on 21/12/14.
@@ -98,6 +101,7 @@ public class ImageUtils {
     }
 
 
+
     public static Bitmap getImageRotatedBitmap(Bitmap bitmap, String filePath, int reqWidth, int reqHeight) {
         int rotate = 0;
         try {
@@ -125,6 +129,40 @@ public class ImageUtils {
         Matrix matrix = new Matrix();
         matrix.postRotate(rotate);
         return Bitmap.createBitmap(bitmap, 0, 0, reqWidth, reqHeight, matrix, true);
+    }
+
+    public static Bitmap getBitMapFromLocalPath(String imageLocalPath) {
+        if (TextUtils.isEmpty(imageLocalPath)) {
+            return null;
+        }
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        if (imageLocalPath != null) {
+            try {
+                // Calculate inSampleSize
+                options.inSampleSize = ImageUtils.calculateInSampleSize(options, 100, 50);
+                // Decode bitmap with inSampleSize set
+                options.inJustDecodeBounds = false;
+                return BitmapFactory.decodeFile(imageLocalPath, options);
+            } catch (Exception ex) {
+                Log.e(TAG, "Image not found on local storage: " + ex.getMessage());
+            }
+        }
+        return null;
+    }
+
+
+    public static String saveImageToInternalStorage(File file, Bitmap bitmapImage) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file.getAbsolutePath();
     }
 
 }

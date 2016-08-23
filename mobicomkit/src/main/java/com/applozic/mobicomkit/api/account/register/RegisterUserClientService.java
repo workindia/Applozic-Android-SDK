@@ -104,9 +104,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         }
         Log.i("Registration response ", "is " + registrationResponse);
-        if(registrationResponse.getNotificationResponse() != null){
-            Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
-        }
+       if(registrationResponse.getNotificationResponse() != null){
+           Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
+       }
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
@@ -257,7 +257,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     public void syncAccountStatus() {
         try {
-            String response = httpRequestUtils.getResponse(getCredentials(), getPricingPackageUrl(), "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(getPricingPackageUrl(), "application/json", "application/json");
             Log.i(TAG, "Pricing package response: " + response);
             ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             if (apiResponse.getResponse() != null) {

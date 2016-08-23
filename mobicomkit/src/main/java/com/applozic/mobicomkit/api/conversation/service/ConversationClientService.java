@@ -53,7 +53,7 @@ public class ConversationClientService extends MobiComKitClientService {
         ChannelFeed channelFeed = null;
         try {
             String jsonFromObject = GsonUtils.getJsonFromObject(conversation, conversation.getClass());
-            String createChannelResponse = httpRequestUtils.postData(getCredentials(), getCreateConversationUrl(), "application/json", "application/json", jsonFromObject);
+            String createChannelResponse = httpRequestUtils.postData(getCreateConversationUrl(), "application/json", "application/json", jsonFromObject);
             Log.i(TAG, "Create Conversation reponse:" + createChannelResponse);
             ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
 
@@ -71,7 +71,7 @@ public class ConversationClientService extends MobiComKitClientService {
         String response = "";
         try {
             if (conversationId != null) {
-                response = httpRequestUtils.getResponse(getCredentials(), getConversationUrl() + "?id=" + String.valueOf(conversationId), "application/json", "application/json");
+                response = httpRequestUtils.getResponse(getConversationUrl() + "?id=" + String.valueOf(conversationId), "application/json", "application/json");
                 ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 Log.i(TAG, "Conversation response  is :" + response);
                 if (apiResponse != null && apiResponse.isSuccess()) {

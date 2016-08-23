@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,6 +13,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduledMessageUtil;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
@@ -23,12 +23,10 @@ import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.people.contact.Contact;;
+import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -149,7 +147,7 @@ public class MessageClientService extends MobiComKitClientService {
             if (TextUtils.isEmpty(messageKeyString) || TextUtils.isEmpty(userId)) {
                 return;
             }
-            httpRequestUtils.getResponse(getCredentials(), getMtextDeliveryUrl() + "?key=" + messageKeyString
+            httpRequestUtils.getResponse(getMtextDeliveryUrl() + "?key=" + messageKeyString
                     + "&userId=" + userId, "text/plain", "text/plain");
         } catch (Exception ex) {
             Log.e(TAG, "Exception while updating delivery report for MT message", ex);
@@ -186,7 +184,7 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            response = httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
         }
         Log.i(TAG, "Delete response from server for pending message: " + response);
         if ("success".equals(response)) {
@@ -298,23 +296,32 @@ public class MessageClientService extends MobiComKitClientService {
         message.setSuUserKeyString(userPreferences.getSuUserKeyString());
         message.processContactIds(context);
         Contact contact = null;
+        Channel channel = null;
+        boolean isBroadcastOneByOneGroupType = false;
         if (message.getGroupId() == null) {
             contact = baseContactService.getContactById(message.getContactIds());
+        } else {
+            channel = ChannelService.getInstance(context).getChannel(message.getGroupId());
+            isBroadcastOneByOneGroupType = channel.getType().equals(Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue());
         }
         long messageId = -1;
 
         List<String> fileKeys = new ArrayList<String>();
         String keyString = null;
-        keyString = UUID.randomUUID().toString();
-        message.setKeyString(keyString);
-        message.setSentToServer(false);
+        if(!isBroadcastOneByOneGroupType){
+            keyString = UUID.randomUUID().toString();
+            message.setKeyString(keyString);
+            message.setSentToServer(false);
+        }else {
+            message.setSentToServer(true);
+        }
 
         messageId = messageDatabaseService.createMessage(message);
 
         if (isBroadcast) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
-        if (message.isUploadRequired()) {
+        if (!isBroadcastOneByOneGroupType && message.isUploadRequired()) {
             for (String filePath : message.getFilePaths()) {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
@@ -375,6 +382,7 @@ public class MessageClientService extends MobiComKitClientService {
         if(!TextUtils.isEmpty(message.getClientGroupId())){
             newMessage.setClientGroupId(message.getClientGroupId());
         }
+
         if (contact != null && !TextUtils.isEmpty(contact.getApplicationId())) {
             newMessage.setApplicationId(contact.getApplicationId());
         } else {
@@ -384,22 +392,25 @@ public class MessageClientService extends MobiComKitClientService {
         //Todo: set filePaths
 
         try {
-            String response = new MessageClientService(context).sendMessage(newMessage);
-            if(message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage() ){
-                messageDatabaseService.updateCanceledFlag(messageId, 1);
-                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
+            if(!isBroadcastOneByOneGroupType) {
+                String response = sendMessage(newMessage);
+                if (message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage()) {
+                    messageDatabaseService.updateCanceledFlag(messageId, 1);
+                    BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
+                }
+                MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
+                keyString = messageResponse.getMessageKey();
+                if (!TextUtils.isEmpty(keyString)) {
+                    message.setSentMessageTimeAtServer(Long.parseLong(messageResponse.getCreatedAtTime()));
+                    message.setConversationId(messageResponse.getConversationId());
+                    message.setSentToServer(true);
+                    message.setKeyString(keyString);
+                }
+                messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
+            } else {
+                message.setSentMessageTimeAtServer(message.getCreatedAtTime());
+                messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
             }
-            MessageResponse messageResponse = (MessageResponse) GsonUtils.getObjectFromJson(response, MessageResponse.class);
-            keyString = messageResponse.getMessageKey();
-            if (!TextUtils.isEmpty(keyString)) {
-                message.setSentMessageTimeAtServer(Long.parseLong(messageResponse.getCreatedAtTime()));
-                message.setConversationId(messageResponse.getConversationId());
-                message.setSentToServer(true);
-                message.setKeyString(keyString);
-            }
-
-            // messageDatabaseService.updateMessageFileMetas(messageId, message);
-            messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
 
             if (!TextUtils.isEmpty(keyString)) {
                 //Todo: Handle server message add failure due to internet disconnect.
@@ -419,14 +430,14 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String syncMessages(SmsSyncRequest smsSyncRequest) throws Exception {
         String data = GsonUtils.getJsonFromObject(smsSyncRequest, SmsSyncRequest.class);
-        return httpRequestUtils.postData(getCredentials(), getSyncSmsUrl(), "application/json", null, data);
+        return httpRequestUtils.postData(getSyncSmsUrl(), "application/json", null, data);
     }
 
     public String sendMessage(Message message) {
         try{
             String jsonFromObject = GsonUtils.getJsonFromObject(message, message.getClass());
             Log.i(TAG, "Sending message to server: " + jsonFromObject);
-            return httpRequestUtils.postData(getCredentials(), getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
+            return httpRequestUtils.postData(getSendMessageUrl(), "application/json;charset=utf-8", null, jsonFromObject);
         }catch (Exception e){
             return null;
         }
@@ -437,7 +448,7 @@ public class MessageClientService extends MobiComKitClientService {
                 LAST_SYNC_KEY
                 + "=" + lastSyncTime;
         try {
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
             Log.i(TAG, "Sync call response: " + response);
             return (SyncMessageFeed) GsonUtils.getObjectFromJson(response, SyncMessageFeed.class);
         } catch (Exception e) {
@@ -452,7 +463,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
         try {
             String url = getMessageThreadDeleteUrl() + "?userId=" + contact.getContactIds();
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
+            String response = httpRequestUtils.getResponse(url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response + contact.getContactIds());
         } catch (Exception e) {
             e.printStackTrace();
@@ -470,7 +481,7 @@ public class MessageClientService extends MobiComKitClientService {
                 parameterString = "?groupId=" + channel.getKey();
             }
             String url = getMessageThreadDeleteUrl() + parameterString;
-            response = httpRequestUtils.getResponse(getCredentials(), url, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(url, "text/plain", "text/plain");
             Log.i(TAG, "Delete messages response from server: " + response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -489,7 +500,7 @@ public class MessageClientService extends MobiComKitClientService {
             }
         }
         if (message.isSentToServer()) {
-            response = httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
+            response = httpRequestUtils.getResponse(getMessageDeleteUrl() + "?key=" + message.getKeyString() + contactNumberParameter, "text/plain", "text/plain");
             Log.i(TAG, "delete response is " + response);
         }
         return response;
@@ -503,7 +514,7 @@ public class MessageClientService extends MobiComKitClientService {
         } else if(channel != null){
             contactNumberParameter = "?groupId=" + channel.getKey();
         }
-        response = httpRequestUtils.getResponse(getCredentials(), getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
+        response = httpRequestUtils.getResponse(getUpdateReadStatusUrl() + contactNumberParameter, "text/plain", "text/plain");
         Log.i(TAG, "Read status response is " + response);
     }
 
@@ -513,7 +524,7 @@ public class MessageClientService extends MobiComKitClientService {
         if (!TextUtils.isEmpty(pairedmessagekey)) {
             try {
                 singleReadMessageParm = "?key=" + pairedmessagekey;
-                response = httpRequestUtils.getResponse(getCredentials(), getSingleMessageReadUrl() + singleReadMessageParm, "text/plain", "text/plain");
+                response = httpRequestUtils.getResponse(getSingleMessageReadUrl() + singleReadMessageParm, "text/plain", "text/plain");
                 Log.i(TAG, "Read status response for single message is " + response);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -543,7 +554,7 @@ public class MessageClientService extends MobiComKitClientService {
                 params += "conversationReq=true";
             }
         }
-        return httpRequestUtils.getResponse(getCredentials(), getMessageListUrl() + "?" + params
+        return httpRequestUtils.getResponse(getMessageListUrl() + "?" + params
                 , "application/json", "application/json");
     }
 
@@ -552,13 +563,13 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public String deleteMessage(String keyString) {
-        return httpRequestUtils.getResponse(getCredentials(), getMessageDeleteUrl() + "?key=" + keyString, "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getMessageDeleteUrl() + "?key=" + keyString, "text/plain", "text/plain");
     }
 
     public SyncUserDetailsResponse getUserDetailsList(String lastSeenAt) {
         try {
             String url = getUserDetailsListUrl() + "?lastSeenAt=" + lastSeenAt;
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
 
             if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
                 return null;
@@ -605,7 +616,7 @@ public class MessageClientService extends MobiComKitClientService {
                 e.printStackTrace();
             }
 
-            response = httpRequestUtils.getResponse(getCredentials(), getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
+            response = httpRequestUtils.getResponse(getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
             Log.i(TAG, "User details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                 return;
@@ -637,7 +648,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             String topicId = null;
             String url = getProductTopicIdUrl() + "?conversationId=" + conversationId;
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
             if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
                 return null;
             }
@@ -657,7 +668,7 @@ public class MessageClientService extends MobiComKitClientService {
     public MessageInfoResponse getMessageInfoList(String messageKey){
 
         String url = getMessageInfoUrl() + "?key=" + messageKey;
-        String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+        String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
 
         if (response == null || TextUtils.isEmpty(response) || response.equals("UnAuthorized Access")) {
             return null;

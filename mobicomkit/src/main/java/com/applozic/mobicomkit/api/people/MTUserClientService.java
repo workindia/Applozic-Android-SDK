@@ -29,7 +29,7 @@ public class MTUserClientService extends MobiComKitClientService {
     public ContactContent getContactContent(String contactNumber) {
         String response = null;
         try {
-            response = new HttpRequestUtils(context).getResponse(getCredentials(), getCheckForMtUser()+ "?requestSource=1&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8"), "text/plain", "application/json");
+            response = new HttpRequestUtils(context).getResponse(getCheckForMtUser()+ "?requestSource=1&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8"), "text/plain", "application/json");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

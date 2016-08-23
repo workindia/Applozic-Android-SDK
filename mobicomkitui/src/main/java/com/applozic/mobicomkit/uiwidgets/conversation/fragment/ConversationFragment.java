@@ -98,7 +98,7 @@ public class ConversationFragment extends MobiComConversationFragment {
                 }
 
                 if (contact != null && contact.isBlocked()) {
-                    userUnBlockDialog(contact.getUserId());
+                    userBlockDialog(false);
                 }
             }
         });

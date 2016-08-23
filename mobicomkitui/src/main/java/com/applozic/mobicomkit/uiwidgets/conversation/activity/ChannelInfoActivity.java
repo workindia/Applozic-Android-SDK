@@ -74,7 +74,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
     private ActionBar mActionBar;
     private ImageLoader contactImageLoader,channelImageLoader;
     public static final String CHANNEL_KEY = "CHANNEL_KEY";
-    private BaseContactService contactService;
     private List<ChannelUserMapper> channelUserMapperList;
     private Channel channel;
     private static final String SUCCESS= "success" ;
@@ -134,7 +133,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (channel != null) {
                 String title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getApplicationContext()).getUserId());
                 if(!TextUtils.isEmpty(channel.getAdminKey())){
-                    contact = new AppContactService(this).getContactById(channel.getAdminKey());
+                    contact = baseContactService.getContactById(channel.getAdminKey());
                     mActionBar.setTitle(title);
                     if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
                         createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
@@ -148,11 +147,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 }
             }
         }
-        contactService = new AppContactService(this);
         contactImageLoader = new ImageLoader(this, getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadContactImage(getApplicationContext(), (Contact) data);
+                return baseContactService.downloadContactImage(getApplicationContext(), (Contact) data);
             }
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
@@ -161,7 +159,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         channelImageLoader = new ImageLoader(this, getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadGroupImage(ChannelInfoActivity.this, (Channel) data);
+                return baseContactService.downloadGroupImage(ChannelInfoActivity.this, (Channel) data);
             }
         };
 
@@ -208,9 +206,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 deleteChannel(channel);
             }
         });
-        if(channel.isBroadcastMessage()){
-
-        }
     }
 
     @Override
@@ -388,7 +383,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             char firstLetter;
             ContactViewHolder holder;
             ChannelUserMapper channelUserMapper = channelUserMapperList.get(position);
-            Contact contact = contactService.getContactById(channelUserMapper.getUserKey());
+            Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
             if (convertView == null) {
                 convertView =
                         mInflater.inflate(R.layout.contact_users_layout, parent, false);

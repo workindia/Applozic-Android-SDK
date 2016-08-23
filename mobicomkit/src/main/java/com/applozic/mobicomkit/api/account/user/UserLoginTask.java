@@ -17,7 +17,7 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     public interface TaskListener {
-        void onSuccess(RegistrationResponse registrationResponse,Context context);
+        void onSuccess(RegistrationResponse registrationResponse, Context context);
 
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 

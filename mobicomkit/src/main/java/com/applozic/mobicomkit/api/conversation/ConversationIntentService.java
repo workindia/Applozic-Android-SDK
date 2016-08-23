@@ -51,7 +51,7 @@ public class ConversationIntentService extends IntentService {
         public void run() {
             try {
                 MobiComConversationService mobiComConversationService = new MobiComConversationService(ConversationIntentService.this);
-                List<Message> messages = new MobiComConversationService(ConversationIntentService.this).getLatestMessagesGroupByPeople();
+                List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
                 for (Message message: messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
                     Contact contact = null;
                     Channel channel = null;

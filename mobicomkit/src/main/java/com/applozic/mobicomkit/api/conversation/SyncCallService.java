@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -101,8 +102,8 @@ public class SyncCallService {
         contactService.updateUserBlockedBy(userId, userBlockedBy);
     }
 
-    public synchronized  void updateUnreadCount(final Contact contact ,final Channel channel){
-        mobiComConversationService.updateUnreadCount(contact,channel);
+    public void syncBlockUsers() {
+        UserService.getInstance(context).processSyncUserBlock();
     }
 
     public void checkAccountStatus() {

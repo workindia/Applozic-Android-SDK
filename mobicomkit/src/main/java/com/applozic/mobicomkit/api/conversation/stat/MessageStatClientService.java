@@ -27,7 +27,7 @@ public class MessageStatClientService extends MobiComKitClientService {
 
     public String sendMessageStat(MessageStat messageStat) {
         try{
-            return new HttpRequestUtils(context).postData(getCredentials(), getMessageStatUrl(), "application/json", null, GsonUtils.getJsonFromObject(messageStat, MessageStat.class));
+            return new HttpRequestUtils(context).postData(getMessageStatUrl(), "application/json", null, GsonUtils.getJsonFromObject(messageStat, MessageStat.class));
         }catch (Exception e){
             e.printStackTrace();
         }

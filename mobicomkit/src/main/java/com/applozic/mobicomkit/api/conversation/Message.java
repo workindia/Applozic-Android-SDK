@@ -41,6 +41,7 @@ public class Message extends JsonMarker {
     private String pairedMessageKey;
     private long sentMessageTimeAtServer;
     private boolean canceled = false;
+    private String clientGroupId;
     @SerializedName("fileMeta")
     private FileMeta fileMeta;
     @SerializedName("id")
@@ -51,7 +52,6 @@ public class Message extends JsonMarker {
     private Integer conversationId;
     private String topicId;
     private boolean connected = false;
-    private String clientGroupId;
     private short contentType = ContentType.DEFAULT.getValue();
     private Map<String, String> metadata = new HashMap<>();
 
@@ -514,7 +514,6 @@ public class Message extends JsonMarker {
         this.status = status;
     }
 
-
     public boolean isTempDateType() {
         return type.equals(MessageType.DATE_TEMP.value);
     }
@@ -595,6 +594,7 @@ public class Message extends JsonMarker {
                 ", pairedMessageKey='" + pairedMessageKey + '\'' +
                 ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
                 ", canceled=" + canceled +
+                ", clientGroupId='" + clientGroupId + '\'' +
                 ", fileMeta=" + fileMeta +
                 ", messageId=" + messageId +
                 ", read=" + read +
@@ -603,7 +603,6 @@ public class Message extends JsonMarker {
                 ", conversationId=" + conversationId +
                 ", topicId='" + topicId + '\'' +
                 ", connected=" + connected +
-                ", clientGroupId='" + clientGroupId + '\'' +
                 ", contentType=" + contentType +
                 ", metadata=" + metadata +
                 ", status=" + status +

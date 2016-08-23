@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -308,7 +310,6 @@ public class ChannelDatabaseService {
         }
         return deletedRows;
     }
-
     public int updateChannel(GroupInfoUpdate groupInfoUpdate) {
         int rowUpdated = 0;
         try {
@@ -351,6 +352,34 @@ public class ChannelDatabaseService {
             e.printStackTrace();
         }
         return deletedRows;
+    }
+
+    public Loader<Cursor> getSearchCursorForGroupsLoader(final String searchString) {
+
+        return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " asc") {
+            @Override
+            public Cursor loadInBackground() {
+
+                SQLiteDatabase db = dbHelper.getReadableDatabase();
+                Cursor cursor;
+
+                StringBuffer stringBuffer = new StringBuffer();
+
+                stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
+                        append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).
+                        append(" FROM ").append(MobiComDatabaseHelper.CHANNEL);
+
+
+                if (!TextUtils.isEmpty(searchString)) {
+                    stringBuffer.append(" where " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " like '%" + searchString.replaceAll("'", "''") + "%'");
+                }
+                stringBuffer.append(" order by "+MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME +" asc ");
+                cursor = db.rawQuery(stringBuffer.toString(), null);
+
+                return cursor;
+
+            }
+        };
     }
 
 }

@@ -88,7 +88,7 @@
         android:layout_height="0dp"
         android:layout_gravity="bottom"
         android:layout_weight="4"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:clickable="false"
         android:longClickable="false"
         android:visibility="gone">
@@ -166,7 +166,7 @@
                 android:layout_height="fill_parent"
                 android:background="@color/message_action_button"
                 android:text="Schedule"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/black" />
 
         </FrameLayout>
 
@@ -237,7 +237,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
-                android:background="@android:color/transparent"
+                android:background="@color/apploizc_transparent_color"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:scaleType="center"
@@ -248,7 +248,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|left"
-                android:background="@android:color/transparent"
+                android:background="@color/apploizc_transparent_color"
                 android:paddingLeft="10dp"
                 android:gravity="center"
                 android:minHeight="48dp"
@@ -274,7 +274,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="8"
-                android:background="@android:color/transparent"
+                android:background="@color/apploizc_transparent_color"
                 android:cursorVisible="true"
                 android:hint="@string/enter_message_hint"
                 android:maxLines="6"

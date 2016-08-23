@@ -3,13 +3,17 @@ package com.applozic.mobicomkit.contact;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -90,13 +94,49 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public Bitmap downloadContactImage(Context context, Contact contact) {
-       return fileClientService.downloadBitmap(contact,null);
+        if (contact != null && TextUtils.isEmpty(contact.getImageURL())) {
+            return null;
+        }
 
+        Bitmap attachedImage = ImageUtils.getBitMapFromLocalPath(contact.getLocalImageUrl());
+        if (attachedImage != null) {
+            return attachedImage;
+        }
+
+        Bitmap bitmap = fileClientService.downloadBitmap(contact, null);
+        if (bitmap != null) {
+            File file = FileClientService.getFilePath(contact.getContactIds(), context, "image", true);
+            String imageLocalPath = ImageUtils.saveImageToInternalStorage(file, bitmap);
+            contact.setLocalImageUrl(imageLocalPath);
+        }
+        if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
+            updateLocalImageUri(contact);
+        }
+        return bitmap;
     }
 
     @Override
     public Bitmap downloadGroupImage(Context context, Channel channel) {
-        return fileClientService.downloadBitmap(null,channel);
+        if (channel != null && TextUtils.isEmpty(channel.getImageUrl())) {
+            return null;
+        }
+
+        Bitmap attachedImage = ImageUtils.getBitMapFromLocalPath(channel.getLocalImageUri());
+        if (attachedImage != null) {
+            return attachedImage;
+        }
+
+        Bitmap bitmap = fileClientService.downloadBitmap(null, channel);
+        if (bitmap != null) {
+            File file = FileClientService.getFilePath(String.valueOf(channel.getKey()), context, "image", true);
+            String imageLocalPath = ImageUtils.saveImageToInternalStorage(file, bitmap);
+            channel.setLocalImageUri(imageLocalPath);
+        }
+
+        if (!TextUtils.isEmpty(channel.getLocalImageUri())) {
+            ChannelService.getInstance(context).updateChannelLocalImageURI(channel.getKey(), channel.getLocalImageUri());
+        }
+        return bitmap;
     }
 
 
@@ -117,7 +157,7 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateConnectedStatus(String contactId, Date date, boolean connected) {
-        Contact contact = getContactById(contactId);
+        Contact contact = contactDatabase.getContactById(contactId);
             if(contact != null && contact.isConnected() != connected){
                 contactDatabase.updateConnectedOrDisconnectedStatus(contactId, date, connected);
                 BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contactId);

@@ -70,6 +70,7 @@ public class ContactSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.contact_select_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        contactService = new AppContactService(this);
         mActionBar = getSupportActionBar();
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -110,8 +111,6 @@ public class ContactSelectionActivity extends AppCompatActivity {
         mImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         mImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
         mImageLoader.setImageFadeIn(false);
-
-        contactService = new AppContactService(this);
         contactList = contactService.getAllContactListExcludingLoggedInUser();
         mAdapter = new ContactsAdapter(this);
         mainListView.setAdapter(mAdapter);

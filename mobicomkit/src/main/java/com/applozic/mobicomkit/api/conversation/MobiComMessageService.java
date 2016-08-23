@@ -54,6 +54,7 @@ public class MobiComMessageService {
     protected Class messageIntentServiceClass;
     protected BaseContactService baseContactService;
     protected UserService userService;
+    protected FileClientService fileClientService;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
         this.context = context;
@@ -63,6 +64,7 @@ public class MobiComMessageService {
         this.messageIntentServiceClass = messageIntentServiceClass;
         //Todo: this can be changed to DeviceContactService for device contacts usage.
         this.baseContactService = new AppContactService(context);
+        fileClientService =  new FileClientService(context);;
         this.userService = UserService.getInstance(context);
     }
 
@@ -116,7 +118,6 @@ public class MobiComMessageService {
 
         messageDatabaseService.createMessage(message);
         //download contacts in advance.
-        FileClientService fileClientService =  new FileClientService(context);
         if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
             fileClientService.loadContactsvCard(message);
         }
@@ -124,7 +125,7 @@ public class MobiComMessageService {
         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
         //Check if we are........container is already opened...don't send broadcast
-        boolean isContainerOpened = false;
+        boolean isContainerOpened;
         if(message.getConversationId() != null && BroadcastService.isContextBasedChatEnabled()){
             if(BroadcastService.currentConversationId == null){
                 BroadcastService.currentConversationId = message.getConversationId();
@@ -157,7 +158,9 @@ public class MobiComMessageService {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         Log.i(TAG, "Starting syncMessages for lastSyncTime: " + userpref.getLastSyncTime());
         SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime());
-
+        if(syncMessageFeed == null){
+            return;
+        }
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
             Log.i(TAG, "Got sync response " + syncMessageFeed.getMessages().size() + " messages.");
             processUserDetailFromMessages(syncMessageFeed.getMessages());
@@ -178,6 +181,7 @@ public class MobiComMessageService {
 
                if(Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
                    ChannelService.getInstance(context).syncChannels();
+                   //Todo: fix this, what if there are mulitple messages.
                    ChannelService.isUpdateTitle = true;
                }
                 for (String tofield : toList) {

@@ -117,7 +117,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        contactService = new AppContactService(getActivity().getApplicationContext());
+        contactService = new AppContactService(getActivity());
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         applozicSetting = ApplozicSetting.getInstance(getContext());
         userPreference = MobiComUserPreference.getInstance(getContext());
@@ -128,10 +128,11 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             mPreviouslySelectedSearchItem =
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
         }
-        mImageLoader = new ImageLoader(getActivity(), getListPreferredItemHeight()) {
+        final Context context = getActivity();
+        mImageLoader = new ImageLoader(context, getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadContactImage(getActivity(), (Contact) data);
+                return contactService.downloadContactImage(context, (Contact) data);
             }
         };
         // Set a placeholder loading image for the image loader
@@ -157,7 +158,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MobiComKitPeopleActivity) getActivity()).setSearchListFragment(this);
         shareButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -241,11 +241,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ((MobiComKitPeopleActivity) getActivity()).setSearchListFragment(null);
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -313,14 +308,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         String newFilter = !TextUtils.isEmpty(newText) ? newText : null;
 
         // Don't do anything if the filter is empty
-        if (mSearchTerm == null && newFilter == null) {
-            return true;
-        }
-
-        // Don't do anything if the new filter is the same as the current filter
-        if (mSearchTerm != null && mSearchTerm.equals(newFilter)) {
-            return true;
-        }
 
         // Updates current filter to new filter
         mSearchTerm = newFilter;

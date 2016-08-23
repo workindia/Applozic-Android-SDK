@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.MenuItemCompat;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MobiComKitPeopleActivity extends AppCompatActivity implements OnContactsInteractionListener,
-        SearchView.OnQueryTextListener {
+        SearchView.OnQueryTextListener,TabLayout.OnTabSelectedListener  {
 
     public static final String SHARED_TEXT = "SHARED_TEXT";
     public static final String FORWARD_MESSAGE = "forwardMessage";
@@ -63,6 +64,9 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     ActionBar actionBar;
     String[] userIdArray;
     public static boolean isSearching = false;
+    AppContactFragment appContactFragment;
+    ChannelFragment channelFragment;
+    ViewPagerAdapter adapter;
 
 
     @Override
@@ -70,6 +74,8 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         super.onCreate(savedInstanceState);
         setContentView(R.layout.people_activity);
         applozicSetting = ApplozicSetting.getInstance(getBaseContext());
+        appContactFragment = new AppContactFragment(userIdArray);
+        channelFragment = new ChannelFragment();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -81,6 +87,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         if (getIntent().getExtras() != null) {
             userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
         }
+        setSearchListFragment(appContactFragment);
         if (applozicSetting.isStartNewGroupButtonVisible()) {
             actionBar.setTitle(getString(R.string.search_title));
             viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -89,9 +96,10 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             tabLayout = (TabLayout) findViewById(R.id.tab_layout);
             tabLayout.setVisibility(View.VISIBLE);
             tabLayout.setupWithViewPager(viewPager);
+            tabLayout.setOnTabSelectedListener(this);
         } else {
             actionBar.setTitle(getString(R.string.search_title));
-            addFragment(this, new AppContactFragment(userIdArray), "AppContactFragment");
+            addFragment(this,appContactFragment , "AppContactFragment");
         }
       /*  mContactsListFragment = (AppContactFragment)
                 getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
@@ -270,13 +278,43 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new AppContactFragment(userIdArray), "Contact");
-        adapter.addFrag(new ChannelFragment(), "Group");
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(appContactFragment, "Contact");
+        adapter.addFrag(channelFragment, "Group");
         viewPager.setAdapter(adapter);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        viewPager.setCurrentItem(tab.getPosition(), true);
+        switch (tab.getPosition()) {
+            case 0:
+                setSearchListFragment((AppContactFragment)adapter.getItem(0));
+                if(getSearchListFragment() != null){
+                    getSearchListFragment().onQueryTextChange(null);
+                }
+                break;
+            case 1:
+                setSearchListFragment((ChannelFragment)adapter.getItem(1));
+                if(getSearchListFragment() != null){
+                    getSearchListFragment().onQueryTextChange(null);
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+        viewPager.setCurrentItem(tab.getPosition(),true);
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
+
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();
         private final List<String> titleList = new ArrayList<>();
 

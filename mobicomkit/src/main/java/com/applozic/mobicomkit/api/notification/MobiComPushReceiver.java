@@ -49,7 +49,16 @@ public class MobiComPushReceiver {
         notificationKeyList.add("APPLOZIC_14");// 13 for GROUP_LEFT
         notificationKeyList.add("APPLOZIC_15");// 14 for group_sync
         notificationKeyList.add("APPLOZIC_16");//15 for blocked
-        notificationKeyList.add("APPLOZIC_17");//16 for blocked
+        notificationKeyList.add("APPLOZIC_17");//16 for unblocked
+        notificationKeyList.add("APPLOZIC_18");//17 ACTIVATED
+        notificationKeyList.add("APPLOZIC_19");//18 DEACTIVATED
+        notificationKeyList.add("APPLOZIC_20");//19 REGISTRATION
+        notificationKeyList.add("APPLOZIC_21");//20 GROUP_CONVERSATION_READ
+        notificationKeyList.add("APPLOZIC_22");//21 GROUP_MESSAGE_DELETED
+        notificationKeyList.add("APPLOZIC_23");//22 GROUP_CONVERSATION_DELETED
+        notificationKeyList.add("APPLOZIC_24");//23 APPLOZIC_TEST
+        notificationKeyList.add("APPLOZIC_25");//24 USER_ONLINE_STATUS
+        notificationKeyList.add("APPLOZIC_26");//25 CONTACT_SYNC
 
     }
 
@@ -264,7 +273,6 @@ public class MobiComPushReceiver {
                     syncCallService.updateDeliveryStatusForContact(updateDeliveryStatusForContactResponse.getMessage().toString(),true);
                 }
             }
-
             String userBlockedResponse = bundle.getString(notificationKeyList.get(15));
             if(!TextUtils.isEmpty(userBlockedResponse)) {
                 MqttMessageResponse syncUserBlock = (MqttMessageResponse) GsonUtils.getObjectFromJson(userBlockedResponse, MqttMessageResponse.class);
@@ -272,17 +280,7 @@ public class MobiComPushReceiver {
                     return;
                 }
                 addPushNotificationId(syncUserBlock.getId());
-                 String[] splitKeyString = syncUserBlock.getMessage().toString().split(":");
-                 String type = splitKeyString[0];
-                 String userId;
-                if (splitKeyString.length >= 2) {
-                    userId = splitKeyString[1];
-                    if(BLOCKED_TO.equals(type)){
-                        syncCallService.updateUserBlocked(userId,true);
-                    }else {
-                        syncCallService.updateUserBlockedBy(userId, true);
-                    }
-                }
+                SyncCallService.getInstance(context).syncBlockUsers();
             }
 
 
@@ -293,18 +291,7 @@ public class MobiComPushReceiver {
                     return;
                 }
                 addPushNotificationId(syncUserUnBlock.getId());
-                String[] splitKeyString = syncUserUnBlock.getMessage().toString().split(":");
-                String type = splitKeyString[0];
-                String userId;
-
-                if (splitKeyString.length >= 2) {
-                    userId = splitKeyString[1];
-                    if(UNBLOCKED_TO.equals(type)){
-                        syncCallService.updateUserBlocked(userId,false);
-                    }else {
-                        syncCallService.updateUserBlockedBy(userId,false);
-                    }
-                }
+                SyncCallService.getInstance(context).syncBlockUsers();
             }
 
         } catch (Exception e) {

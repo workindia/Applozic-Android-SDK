@@ -72,6 +72,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
     private Toolbar toolbar;
+    private MessageDatabaseService messageDatabaseService;
 
     public ConversationListView getListView() {
         return listView;
@@ -85,6 +86,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
         baseContactService = new AppContactService(getActivity());
+        messageDatabaseService = new MessageDatabaseService(getActivity());
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -234,7 +236,6 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void updateLastMessage(String keyString, String userId) {
         for (Message message : messageList) {
             if (message.getKeyString() != null && message.getKeyString().equals(keyString)) {
-                MessageDatabaseService messageDatabaseService = new MessageDatabaseService(getActivity());
                 List<Message> lastMessage = messageDatabaseService.getLatestMessage(userId);
                 if (lastMessage.isEmpty()) {
                     removeConversation(message, userId);

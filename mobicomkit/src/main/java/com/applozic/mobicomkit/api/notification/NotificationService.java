@@ -20,12 +20,14 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -71,7 +73,7 @@ public class NotificationService {
             title = contact.getDisplayName();
         }
 
-         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
+        if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
             notificationText = MobiComKitConstants.LOCATION;
         } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
             notificationText = MobiComKitConstants.AUDIO;
@@ -80,8 +82,8 @@ public class NotificationService {
         } else if(message.hasAttachment() && TextUtils.isEmpty(message.getMessage())){
             notificationText = MobiComKitConstants.ATTACHMENT;
         }else {
-             notificationText = message.getMessage();
-         }
+            notificationText = message.getMessage();
+        }
 
         Class activity = null;
         try {
@@ -136,7 +138,8 @@ public class NotificationService {
                         in = httpConn.getInputStream();
                         Bitmap bitmap = BitmapFactory.decodeStream(in);
                         String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
-                        FileClientService.saveImageToInternalStorage(bitmap, imageName, context, fileMeta.getContentType());
+                        File file = new FileClientService(context).getFilePath(imageName, context, "image", true);
+                        ImageUtils.saveImageToInternalStorage(file, bitmap);
                         mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                     }
                 }

@@ -9,7 +9,7 @@
         android:id="@+id/galleryImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:background="@android:color/transparent"
+        android:background="@color/apploizc_transparent_color"
         android:scaleType="centerCrop"/>
 
     <ImageView
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:drawablePadding="6dp"
         android:visibility="gone"
-        android:background="@android:color/transparent"
+        android:background="@color/apploizc_transparent_color"
         android:src="@drawable/applozic_ic_action_attachment"
         android:scaleType="centerCrop"/>
 

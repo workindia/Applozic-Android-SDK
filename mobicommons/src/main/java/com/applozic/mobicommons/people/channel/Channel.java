@@ -149,7 +149,8 @@ public class Channel implements Serializable {
         SELF(4),
         BROADCAST(5),
         OPEN(6),
-        GROUPOFTWO(7);
+        GROUPOFTWO(7),
+        BROADCAST_ONE_BY_ONE(106);
 
         private Integer value;
 

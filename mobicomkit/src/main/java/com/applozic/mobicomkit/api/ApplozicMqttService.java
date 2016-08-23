@@ -49,7 +49,17 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         MESSAGE_READ("APPLOZIC_07"), MESSAGE_DELIVERED_AND_READ("APPLOZIC_08"),
         CONVERSATION_READ("APPLOZIC_09"), CONVERSATION_DELIVERED_AND_READ("APPLOZIC_10"),
         USER_CONNECTED("APPLOZIC_11"), USER_DISCONNECTED("APPLOZIC_12"),
-        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14"), GROUP_SYNC("APPLOZIC_15"),USER_BLOCKED("APPLOZIC_16"),USER_UN_BLOCKED("APPLOZIC_17");
+        GROUP_DELETED("APPLOZIC_13"), GROUP_LEFT("APPLOZIC_14"), GROUP_SYNC("APPLOZIC_15"),
+        USER_BLOCKED("APPLOZIC_16"), USER_UN_BLOCKED("APPLOZIC_17"),
+        ACTIVATED("APPLOZIC_18"),
+        DEACTIVATED("APPLOZIC_19"),
+        REGISTRATION("APPLOZIC_20"),
+        GROUP_CONVERSATION_READ("APPLOZIC_21"),
+        GROUP_MESSAGE_DELETED("APPLOZIC_22"),
+        GROUP_CONVERSATION_DELETED("APPLOZIC_23"),
+        APPLOZIC_TEST("APPLOZIC_24"),
+        USER_ONLINE_STATUS("APPLOZIC_25"),
+        CONTACT_SYNC("APPLOZIC_26");
         private String value;
 
         private NOTIFICATION_TYPE(String c) {
@@ -298,32 +308,9 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.syncMessages(sentMessageSync.getKeyString());
                             }
 
-                            if(NOTIFICATION_TYPE.USER_BLOCKED.getValue().equals(mqttMessageResponse.getType())){
-                                String[] splitKeyString = mqttMessageResponse.getMessage().toString().split(":");
-                                String type = splitKeyString[0];
-                                String userId;
-                                if (splitKeyString.length >= 2) {
-                                    userId = splitKeyString[1];
-                                    if(MobiComPushReceiver.BLOCKED_TO.equals(type)){
-                                        syncCallService.updateUserBlocked(userId,true);
-                                    }else {
-                                        syncCallService.updateUserBlockedBy(userId, true);
-                                    }
-                                }
-                            }
-
-                            if(NOTIFICATION_TYPE.USER_UN_BLOCKED.getValue().equals(mqttMessageResponse.getType())){
-                                String[] splitKeyString = mqttMessageResponse.getMessage().toString().split(":");
-                                String type = splitKeyString[0];
-                                String userId;
-                                if (splitKeyString.length >= 2) {
-                                    userId = splitKeyString[1];
-                                    if(MobiComPushReceiver.UNBLOCKED_TO.equals(type)){
-                                        syncCallService.updateUserBlocked(userId,false);
-                                    }else {
-                                        syncCallService.updateUserBlockedBy(userId,false);
-                                    }
-                                }
+                            if (NOTIFICATION_TYPE.USER_BLOCKED.getValue().equals(mqttMessageResponse.getType()) ||
+                                    NOTIFICATION_TYPE.USER_UN_BLOCKED.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.syncBlockUsers();
                             }
 
                         }

@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -15,16 +14,12 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
-import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
-
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -100,19 +95,6 @@ public class FileClientService extends MobiComKitClientService {
         return filePath;
     }
 
-    public static String saveImageToInternalStorage(Bitmap bitmapImage, String fileName, Context context, String contentType) {
-        File filePath = getFilePath(fileName, context, contentType, true);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(filePath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return filePath.getAbsolutePath();
-    }
 
     public static File getFilePath(String fileName, Context context, String contentType) {
         return getFilePath(fileName, context, contentType, false);
@@ -140,7 +122,8 @@ public class FileClientService extends MobiComKitClientService {
                 if (connection.getResponseCode() == 200) {
                     // attachedImage = BitmapFactory.decodeStream(connection.getInputStream(),null,options);
                     attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
-                    imageLocalPath = saveImageToInternalStorage(attachedImage, imageName, context, contentType);
+                    File file = FileClientService.getFilePath(imageName, context, contentType, true);
+                    imageLocalPath = ImageUtils.saveImageToInternalStorage(file, attachedImage);
 
                 } else {
                     Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
@@ -255,73 +238,35 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        return httpRequestUtils.getResponse(getCredentials(), getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {
         try {
-            if (contact != null && TextUtils.isEmpty(contact.getImageURL())) {
-                return null;
+            HttpURLConnection connection;
+            if (contact != null) {
+                connection = openHttpConnection(contact.getImageURL());
+            } else {
+                connection = openHttpConnection(channel.getImageUrl());
             }
-
-            if (channel != null && TextUtils.isEmpty(channel.getImageUrl())) {
-                return null;
+            if (connection != null && connection.getResponseCode() == 200) {
+                MarkStream inputStream =  new MarkStream(connection.getInputStream());
+                BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
+                optionsBitmap.inJustDecodeBounds = true;
+                inputStream.allowMarksToExpire(false);
+                long mark = inputStream.setPos(MARK);
+                BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                inputStream.resetPos(mark);
+                optionsBitmap.inJustDecodeBounds = false;
+                optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
+                Bitmap attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                inputStream.allowMarksToExpire(true);
+                inputStream.close();
+                connection.disconnect();
+                return attachedImage;
+            } else {
+                Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
             }
-
-            Bitmap attachedImage = null;
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            String imageLocalPath = contact != null ? contact.getLocalImageUrl() : channel.getLocalImageUri();
-            if (imageLocalPath != null) {
-                try {
-                    attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
-                    // Calculate inSampleSize
-                    options.inSampleSize = ImageUtils.calculateInSampleSize(options, 100, 50);
-                    // Decode bitmap with inSampleSize set
-                    options.inJustDecodeBounds = false;
-                    attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
-                    return attachedImage;
-                } catch (Exception ex) {
-                    Log.e(TAG, "Image not found on local storage: " + ex.getMessage());
-                }
-            }
-            if (attachedImage == null) {
-                HttpURLConnection connection = null;
-                if (contact != null) {
-                    connection = openHttpConnection(contact.getImageURL());
-                } else {
-                    connection = openHttpConnection(channel.getImageUrl());
-                }
-                if (connection != null && connection.getResponseCode() == 200) {
-                    MarkStream inputStream =  new MarkStream(connection.getInputStream());
-                    BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
-                    optionsBitmap.inJustDecodeBounds = true;
-                    inputStream.allowMarksToExpire(false);
-                    long mark = inputStream.setPos(MARK);
-                    BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
-                    inputStream.resetPos(mark);
-                    optionsBitmap.inJustDecodeBounds = false;
-                    optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
-                    attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
-                    inputStream.allowMarksToExpire(true);
-                    inputStream.close();
-                    connection.disconnect();
-                    if (attachedImage != null) {
-                        String name = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
-                        imageLocalPath = new FileClientService(context).saveImageToInternalStorage(attachedImage, name, context, "image");
-                        if (contact != null) {
-                            contact.setLocalImageUrl(imageLocalPath);
-                            new AppContactService(context).updateLocalImageUri(contact);
-                        } else {
-                            ChannelService.getInstance(context).updateChannelLocalImageURI(channel.getKey(), imageLocalPath);
-                        }
-                    }
-                } else {
-                    Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
-                    return null;
-                }
-            }
-            return attachedImage;
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             Log.e(TAG, "Image not found on server: " + ex.getMessage());
@@ -334,6 +279,7 @@ public class FileClientService extends MobiComKitClientService {
         return null;
 
     }
+
     public Bitmap createAndSaveVideoThumbnail(String filePath) {
         String[] parts = filePath.split("/");
         String videoThumbnailPath = "";

@@ -108,7 +108,7 @@ public class ChannelClientService extends MobiComKitClientService {
     public ChannelFeed getChannelInfoByParameters(String parameters) {
         String response = "";
         try {
-            response = httpRequestUtils.getResponse(getCredentials(), getChannelInfoUrl() + "?" + parameters, "application/json", "application/json");
+            response = httpRequestUtils.getResponse(getChannelInfoUrl() + "?" + parameters, "application/json", "application/json");
             ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(response, ChannelFeedApiResponse.class);
             Log.i(TAG, "Channel info response  is :" + response);
 
@@ -136,7 +136,7 @@ public class ChannelClientService extends MobiComKitClientService {
                 UPDATED_AT
                 + "=" + lastChannelSyncTime;
         try {
-            String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
             Log.i(TAG, "Channel sync call response: " + response);
             return (SyncChannelFeed) GsonUtils.getObjectFromJson(response, SyncChannelFeed.class);
         } catch (Exception e) {
@@ -148,7 +148,7 @@ public class ChannelClientService extends MobiComKitClientService {
         ChannelFeed channelFeed = null;
         try {
             String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass());
-            String createChannelResponse = httpRequestUtils.postData(getCredentials(), getCreateChannelUrl(), "application/json", "application/json", jsonFromObject);
+            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(), "application/json", "application/json", jsonFromObject);
             Log.i(TAG, "Create channel Response :" + createChannelResponse);
             ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
 
@@ -167,7 +167,7 @@ public class ChannelClientService extends MobiComKitClientService {
         List<ChannelFeed> channelFeeds = null;
         try {
             String jsonFromObject = GsonUtils.getJsonFromObject(channels, new TypeToken<List<ChannelInfo>>() {}.getType());
-            String createChannelResponse = httpRequestUtils.postData(getCredentials(), getCreateMultipleChannelUrl(), "application/json", "application/json", jsonFromObject);
+            String createChannelResponse = httpRequestUtils.postData(getCreateMultipleChannelUrl(), "application/json", "application/json", jsonFromObject);
             Log.i(TAG, "Create Multiple channel Response :" + createChannelResponse);
             MultipleChannelFeedApiResponse channelFeedApiResponse = (MultipleChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, MultipleChannelFeedApiResponse.class);
 
@@ -208,7 +208,7 @@ public class ChannelClientService extends MobiComKitClientService {
                     parameters += USER_ID + "=" + URLEncoder.encode(userId, "UTF-8") + "&";
                 }
                 String url = getRemoveMembersFromMultipChannels() + "?" + parameters;
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
                     Log.i(TAG, "Channel remove members from channels response: " + apiResponse.getStatus());
@@ -236,7 +236,7 @@ public class ChannelClientService extends MobiComKitClientService {
                     }
                 }
                 String url = getAddMemberToMultipleChannelsUrl() + "?" + parameters + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
                     Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
@@ -267,7 +267,7 @@ public class ChannelClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(parameters) && !TextUtils.isEmpty(userId) ) {
                 String url = getAddMemberToGroup() + "?" +
                         parameters + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if(apiResponse != null){
                     Log.i(TAG, "Channel add member call response: " + apiResponse.getStatus());
@@ -300,7 +300,7 @@ public class ChannelClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(parameters) &&  !TextUtils.isEmpty(userId) ) {
                 String url = getRemoveMemberUrl() + "?" +
                         parameters + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if(apiResponse != null){
                     Log.i(TAG, "Channel remove member response: " + apiResponse.getStatus());
@@ -325,7 +325,7 @@ public class ChannelClientService extends MobiComKitClientService {
         try {
             if (groupInfoUpdate != null && (!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId()) || groupInfoUpdate.getGroupId() != null) && (!TextUtils.isEmpty(groupInfoUpdate.getNewName()) || !TextUtils.isEmpty(groupInfoUpdate.getImageUrl()))) {
                 String channelNameUpdateJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
-                String response = httpRequestUtils.postData(getCredentials(), getChannelUpdateUrl() , "application/json", "application/json", channelNameUpdateJson);
+                String response = httpRequestUtils.postData(getChannelUpdateUrl() , "application/json", "application/json", channelNameUpdateJson);
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if(apiResponse != null){
                     Log.i(TAG, "Update Channel response: " + apiResponse.getStatus());
@@ -357,7 +357,7 @@ public class ChannelClientService extends MobiComKitClientService {
 
             if (!TextUtils.isEmpty(clientGroupId) || (channelKey != null && channelKey != 0)) {
                 String url = getChannelLeftUrl() + "?" + parameters;
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if(apiResponse != null){
                     Log.i(TAG, "Channel leave member call response: " + apiResponse.getStatus());
@@ -375,7 +375,7 @@ public class ChannelClientService extends MobiComKitClientService {
                 String url = getChannelDeleteUrl() + "?" +
                         GROUP_ID
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
-                String response = httpRequestUtils.getResponse(getCredentials(), url, "application/json", "application/json");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
                 ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if(apiResponse != null){
                     Log.i(TAG, "Channel delete call response: " + apiResponse.getStatus());

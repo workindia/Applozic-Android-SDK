@@ -77,6 +77,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private static final String TAG = "DetailedConversation";
 
     private static final int FILE_THRESOLD_SIZE = 400;
+
     public ImageLoader contactImageLoader, loadImage;
     private Context context;
     private Contact contact;
@@ -125,7 +126,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadContactImage((Activity) getContext(), (Contact) data);
+                return contactService.downloadContactImage(getContext(), (Contact) data);
             }
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);
@@ -631,27 +632,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             shareContactName.setText(data.getName());
 
-            if (message.isTypeOutbox()) {
-                int resId = applozicSetting.getSentContactMessageTextColor();
-                shareContactName.setTextColor(ContextCompat.getColor(context, resId));
-                shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
-                shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
-                addContactButton.setTextColor(ContextCompat.getColor(context, resId));
-            } else {
-                int resId = applozicSetting.getReceivedContactMessageTextColor();
-                shareContactName.setTextColor(ContextCompat.getColor(context, resId));
-                shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
-                shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
-                addContactButton.setTextColor(ContextCompat.getColor(context, resId));
-            }
+            int resId = message.isTypeOutbox() ? applozicSetting.getSentContactMessageTextColor() : applozicSetting.getReceivedContactMessageTextColor();
+            shareContactName.setTextColor(ContextCompat.getColor(context, resId));
+            shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
+            shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
+            addContactButton.setTextColor(ContextCompat.getColor(context, resId));
 
             if (data.getProfilePic() != null) {
-                if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
-                    shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
-                } else {
+                if (imageCache.getBitmapFromMemCache(message.getKeyString()) == null) {
                     imageCache.addBitmapToCache(message.getKeyString(), data.getProfilePic());
-                    shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
                 }
+
+                shareContactImage.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
             }
             if (!TextUtils.isEmpty(data.getTelephoneNumber())) {
                 shareContactNo.setText(data.getTelephoneNumber());

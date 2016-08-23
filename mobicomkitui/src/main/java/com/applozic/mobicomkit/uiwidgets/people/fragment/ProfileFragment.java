@@ -1,17 +1,19 @@
 package com.applozic.mobicomkit.uiwidgets.people.fragment;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
+
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -21,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -37,12 +40,15 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.uiwidgets.R;
+
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.PictureUploadPopUpFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicomkit.uiwidgets.R;
 
 import java.io.File;
 
@@ -83,9 +89,9 @@ public class ProfileFragment extends Fragment {
         displayNameText = (TextView) view.findViewById(R.id.applozic_profile_displayname);
         statusText = (TextView) view.findViewById(R.id.applozic_profile_status);
 
-        setupDeviderView(view, R.id.applozic_profile_section_rl, R.id.applozic_profile_verticalline_rl);
-        setupDeviderView(view, R.id.applozic_datausage_section_rl, R.id.applozic_datausage_verticalline_rl);
-        setupDeviderView(view, R.id.applozic_notification_section_rl, R.id.applozic_notification_verticalline_rl);
+        setupDeviderView(view,R.id.applozic_profile_section_rl,R.id.applozic_profile_verticalline_rl);
+        setupDeviderView(view,R.id.applozic_datausage_section_rl,R.id.applozic_datausage_verticalline_rl);
+        setupDeviderView(view,R.id.applozic_notification_section_rl,R.id.applozic_notification_verticalline_rl);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
@@ -103,7 +109,7 @@ public class ProfileFragment extends Fragment {
         mImageLoader = new ImageLoader(getActivity(), img_profile.getHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadContactImage(getActivity(), (Contact) data);
+                return contactService.downloadContactImage(getContext(), (Contact) data);
             }
         };
         //For profile image
@@ -121,12 +127,12 @@ public class ProfileFragment extends Fragment {
                 try {
                     String activityClass = Utils.getMetaDataValue(getActivity(), MobiComKitConstants.APPLICATION_LOGIN_ACTIVITY);
                     if (!TextUtils.isEmpty(activityClass)) {
-                            new UserClientService(getActivity()).logout();
-                            Intent intent = new Intent(getActivity(), Class.forName(activityClass));
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            startActivity(intent);
-                            getActivity().finish();
-                            return;
+                        new UserClientService(getActivity()).logout();
+                        Intent intent = new Intent(getActivity(), Class.forName(activityClass));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        getActivity().finish();
+                        return;
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -213,9 +219,9 @@ public class ProfileFragment extends Fragment {
     }
 
     public void handleProfileimageUpload(Uri imageUri) {
-         img_profile.setImageDrawable(null);
-         img_profile.setImageURI(imageUri);
-         new ProfilePictureUpload(imageUri,getActivity()).execute((Void[]) null);
+        img_profile.setImageDrawable(null);
+        img_profile.setImageURI(imageUri);
+        new ProfilePictureUpload(imageUri,getActivity()).execute((Void[]) null);
     }
 
 
@@ -286,7 +292,7 @@ public class ProfileFragment extends Fragment {
             if(file==null || !file.exists()) {
                 Log.i(TAG,"file not found,exporting it from drawable");
                 Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.applozic_ic_contact_picture_180_holo_light);
-                String filePath =new FileClientService(getContext()).saveImageToInternalStorage(bm, DEFAULT_CONATCT_IMAGE, getContext(), "image");
+                String filePath = ImageUtils.saveImageToInternalStorage(FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getContext(), "image", true), bm);
                 file= new File(filePath);
             }
             handleProfileimageUpload(Uri.fromFile(file));

@@ -148,7 +148,7 @@
     <string name="user_not_in_this_group_text">You are no longer a participant of this group</string>
     <string name="update_channel_title_name">Enter Group Name</string>
     <string name="new_channel_name_hint">Group name..</string>
-    <string name="user_block_info">Block [name]? Blocked user no longer be able to send you messages</string>
+    <string name="user_block_info">Block [name]? Blocked user will no longer be able to send you messages</string>
     <string name="user_un_block_info">Unblock [name] to send a message</string>
     <string name="please_wait_info">Please wait a moment...</string>
     <string name="applozic_userId_error_info_in_logs">UserId can not be null or empty and Channel key should not be null</string>

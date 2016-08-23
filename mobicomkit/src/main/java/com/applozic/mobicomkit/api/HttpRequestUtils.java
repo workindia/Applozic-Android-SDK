@@ -53,7 +53,7 @@ public class HttpRequestUtils {
         Log.i(TAG, message);
     }
 
-    public String postData(PasswordAuthentication credentials, String urlString, String contentType, String accept, String data) throws Exception {
+    public String postData(String urlString, String contentType, String accept, String data) throws Exception {
         Log.i(TAG, "Calling url: " + urlString);
         HttpURLConnection connection;
         URL url;
@@ -147,7 +147,7 @@ public class HttpRequestUtils {
         return sb.toString();
     }
 
-    public String getResponse(PasswordAuthentication credentials, String urlString, String contentType, String accept) {
+    public String getResponse(String urlString, String contentType, String accept) {
         Log.i(TAG, "Calling url: " + urlString);
 
         HttpURLConnection connection = null;

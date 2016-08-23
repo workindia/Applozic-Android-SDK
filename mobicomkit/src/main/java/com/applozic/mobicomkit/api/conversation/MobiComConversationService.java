@@ -11,7 +11,6 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
-import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -36,12 +35,7 @@ import com.google.gson.JsonParser;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 public class MobiComConversationService {
@@ -231,7 +225,7 @@ public class MobiComConversationService {
                     BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
                 }
             }
-            new AppContactService(context).upsert(contact);
+            baseContactService.upsert(contact);
         }
         MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
     }
@@ -336,7 +330,7 @@ public class MobiComConversationService {
             @Override
             public void run() {
                 try {
-                    SyncUserDetailsResponse userDetailsResponse = new MessageClientService(context).getUserDetailsList(MobiComUserPreference.getInstance(context).getLastSeenAtSyncTime());
+                    SyncUserDetailsResponse userDetailsResponse = messageClientService.getUserDetailsList(MobiComUserPreference.getInstance(context).getLastSeenAtSyncTime());
                     if (userDetailsResponse != null && userDetailsResponse.getResponse() != null && "success".equals(userDetailsResponse.getStatus())) {
                         processUserDetails(userDetailsResponse);
                     }
@@ -365,27 +359,6 @@ public class MobiComConversationService {
                 baseContactService.upsert(contact);
             }
         }
-    }
-
-    public void updateUnreadCount(final Contact contact,final Channel channel){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Integer unreadCount = null;
-                if (contact != null) {
-                    Contact newContact =  baseContactService.getContactById(contact.getContactIds());
-                    unreadCount = newContact.getUnreadCount();
-                    messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
-                } else if (channel != null) {
-                    Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(channel.getKey());
-                    unreadCount = newChannel.getUnreadCount();
-                    messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
-                }
-                if (unreadCount != null && unreadCount != 0) {
-                    messageClientService.updateReadStatus(contact, channel);
-                }
-            }
-        }).start();
     }
 
     public String getConversationIdString(Integer conversationId){

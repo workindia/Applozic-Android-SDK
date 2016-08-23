@@ -400,7 +400,7 @@ public class MessageDatabaseService {
             for (String tofield : toList) {
                 Message singleMessage = new Message(message);
                 singleMessage.setKeyString(message.getKeyString());
-              //  singleMessage.setBroadcastGroupId(null);
+                //  singleMessage.setBroadcastGroupId(null);
                 singleMessage.setTo(tofield);
                 singleMessage.processContactIds(context);
                 singleMessage.setMessageId(createSingleMessage(singleMessage));
@@ -762,6 +762,7 @@ public class MessageDatabaseService {
     }
 
 
+
     public int updateReadStatus(String contactNumbers) {
         ContentValues values = new ContentValues();
         values.put("read", 1);
@@ -850,7 +851,7 @@ public class MessageDatabaseService {
 
     public void deleteConversation(String contactNumber) {
         Log.i(TAG, "Deleting conversation for contactNumber: " + contactNumber);
-        int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=?", new String[]{contactNumber});
+        int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=? AND channelKey = 0", new String[]{contactNumber});
         updateContactUnreadCountToZero(contactNumber);
         dbHelper.close();
         Log.i(TAG, "Delete " + deletedRows + " messages.");
@@ -924,12 +925,12 @@ public class MessageDatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-                if (channelCursor != null) {
-                    channelCursor.close();
-                }
-                if (contactCursor != null) {
-                    contactCursor.close();
-                }
+            if (channelCursor != null) {
+                channelCursor.close();
+            }
+            if (contactCursor != null) {
+                contactCursor.close();
+            }
         }
         return totalCount;
     }

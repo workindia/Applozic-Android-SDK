@@ -3,14 +3,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@android:color/background_dark"
+    android:background="@color/apploizc_dark_black_color"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/background_dark"
+        android:background="@color/apploizc_dark_black_color"
         android:elevation="4dp"
         android:paddingTop="10dp"
         android:theme="@style/Applozic_FullScreen_Theme"
@@ -18,9 +18,9 @@
 
     <com.applozic.mobicomkit.api.attachment.AttachmentView
         android:id="@+id/full_screen_image"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scaleType="centerInside"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
         android:adjustViewBounds="true" />
 
     <ProgressBar

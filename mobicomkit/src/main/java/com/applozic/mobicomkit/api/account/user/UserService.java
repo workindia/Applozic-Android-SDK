@@ -88,20 +88,11 @@ public class UserService {
         thread.start();
     }
 
-    public String processUserBlock(String userId) {
-        ApiResponse apiResponse = userClientService.userBlock(userId);
+    public ApiResponse processUserBlock(String userId, boolean block) {
+        ApiResponse apiResponse = userClientService.userBlock(userId, block);
         if (apiResponse != null && apiResponse.isSuccess()) {
-            baseContactService.updateUserBlocked(userId, true);
-            return apiResponse.getStatus();
-        }
-        return null;
-    }
-
-    public String processUserUnBlockUser(String userId) {
-        ApiResponse apiResponse = userClientService.userUnBlock(userId);
-        if (apiResponse != null && apiResponse.isSuccess()) {
-            baseContactService.updateUserBlocked(userId, false);
-            return apiResponse.getStatus();
+            baseContactService.updateUserBlocked(userId, block);
+            return apiResponse;
         }
         return null;
     }
@@ -185,8 +176,6 @@ public class UserService {
         return null;
     }
 
-
-
     public void updateDisplayNameORImageLink( String displayName, String profileImageLink, String localURL, String status ){
 
         ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName,profileImageLink,status);
@@ -207,4 +196,9 @@ public class UserService {
             Log.i("UserService", contact1.getImageURL() + ", " +contact1.getDisplayName() + "," + contact1.getStatus() );
         }
     }
+
+    public ApiResponse processUserReadConversation(){
+        return  userClientService.getUserReadServerCall();
+    }
+
 }
