@@ -1,6 +1,35 @@
 
 ##Changelog
  
+ 
+**Version 4.55**  - Tuesday, 23 August 2016
+
+User block and unblock bug fix
+
+Unread message count fix
+
+Code improvements 
+
+###  Steps for upgrading from 4.53 to 4.55
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.55'`
+
+
+**Step 2: In Your Android manifest add below code**
+
+```
+<service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
+          android:exported="false" />
+
+```
+
+
+
+ 
+ 
+ 
 **Version 4.53**  - Monday,1 August 2016
 
 Bug fixes and improvement
