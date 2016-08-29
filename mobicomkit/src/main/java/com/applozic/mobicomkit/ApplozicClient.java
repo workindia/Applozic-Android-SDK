@@ -20,6 +20,7 @@ public class ApplozicClient {
     private static final String NOTIFICATION_SMALL_ICON= "NOTIFICATION_SMALL_ICON";
     private static final String APP_NAME = "APP_NAME";
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
+    private static final String NOTIFICATION_DISABLE= "NOTIFICATION_DISABLE";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -108,6 +109,20 @@ public class ApplozicClient {
 
     public ApplozicClient setApplicationKey(String applicationKey) {
         sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
+        return this;
+    }
+
+    public boolean isNotificationDisabled() {
+        return  sharedPreferences.getBoolean(NOTIFICATION_DISABLE, false);
+    }
+
+    public ApplozicClient enableNotification() {
+        sharedPreferences.edit().putBoolean(NOTIFICATION_DISABLE, false).commit();
+        return this;
+    }
+
+    public ApplozicClient disableNotification() {
+        sharedPreferences.edit().putBoolean(NOTIFICATION_DISABLE, true).commit();
         return this;
     }
 }

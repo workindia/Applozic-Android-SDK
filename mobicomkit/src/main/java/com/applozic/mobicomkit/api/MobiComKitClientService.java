@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.api;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -32,7 +32,6 @@ public class MobiComKitClientService {
     protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
     protected String DEFAULT_MQTT_URL = "tcp://apps.applozic.com:1883";
-    public static String applicationKey;
 
     public MobiComKitClientService() {
 
@@ -40,7 +39,6 @@ public class MobiComKitClientService {
 
     public MobiComKitClientService(Context context) {
         this.context = context;
-        applicationKey = ApplozicClient.getInstance(context).getApplicationKey();
     }
 
     protected String getBaseUrl() {
@@ -115,8 +113,9 @@ public class MobiComKitClientService {
     }
 
     public static String getApplicationKey(Context context) {
-        if(!TextUtils.isEmpty(applicationKey) && applicationKey.trim().length()>0){
-            return  applicationKey;
+        String applicationKey = Applozic.getInstance(context).getApplicationKey();
+        if(!TextUtils.isEmpty(applicationKey)){
+            return applicationKey;
         }
         return Utils.getMetaDataValue(context, APPLICATION_KEY_HEADER_VALUE_METADATA);
     }

@@ -69,7 +69,7 @@ public class MobiComPushReceiver {
 
     public static boolean isMobiComPushNotification(Bundle bundle) {
         //This is to identify collapse key sent in notification..
-        String payLoad = bundle.getString("collapse_key");
+        String payLoad = bundle.toString();
         Log.i(TAG, "Received notification: " + payLoad);
 
         if (payLoad != null && payLoad.contains(MTCOM_PREFIX) || notificationKeyList.contains(payLoad)) {

@@ -1645,11 +1645,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
         if (channel != null) {
-            Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-            if (newChannel != null && !channel.getName().equals(newChannel.getName())) {
-                title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
-            }
+            updateChannelTitle();
             boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
             if (!present) {
                 individualMessageSendLayout.setVisibility(View.GONE);
@@ -1665,12 +1661,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void updateChannelTitleAndSubTitle() {
         if (channel != null) {
-            Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-            if (newChannel != null && !channel.getName().equals(newChannel.getName())) {
-                title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
-            }
+            updateChannelTitle();
             updateChannelSubTitle();
+        }
+    }
+
+    public void updateChannelTitle(){
+        Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
+        if (newChannel != null && !TextUtils.isEmpty(channel.getName())&& !channel.getName().equals(newChannel.getName())) {
+            title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
         }
     }
 

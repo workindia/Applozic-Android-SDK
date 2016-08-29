@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -41,6 +42,7 @@ import java.util.List;
 public class NotificationService {
 
     private static final int NOTIFICATION_ID = 1000;
+    private static final String TAG = "NotificationService";
     private static final String NOTIFICATION_SMALL_ICON_METADATA = "com.applozic.mobicomkit.notification.smallIcon";
     private Context context;
     private int iconResourceId;
@@ -63,6 +65,10 @@ public class NotificationService {
     }
 
     public void notifyUser(Contact contact, Channel channel, Message message) {
+        if(ApplozicClient.getInstance(context).isNotificationDisabled()){
+            Log.i(TAG,"Notification is disabled");
+            return;
+        }
         String title;
         String notificationText;
         Contact displayNameContact = null;
