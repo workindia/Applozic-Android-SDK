@@ -1,3 +1,18 @@
+###Building a New App
+
+If you are building a new app, you can download the sample app with chat integrated from Github:
+[https://github.com/Applozic/Applozic-Android-SDK/](https://github.com/Applozic/Applozic-Android-SDK/)
+
+Open the downloaded project in Android Studio, replace pplozic Appication Key in androidmanifest.xml in the following meta data:
+
+```
+<meta-data android:name="com.applozic.application.key"
+           android:value="YOUR_APPLOZIC_APPLICATION_KEY" />
+```
+
+
+###Add Applozic Chat to existing App
+
 ####Step 1: Gradle Dependency
 
 Add the following in your build.gradle dependency  
