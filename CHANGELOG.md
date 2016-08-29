@@ -1,6 +1,17 @@
 
 ##Changelog
  
+ **Version 4.56**  - Tuesday, 30 August 2016
+ 
+ Improvements and bug fixs
+ 
+ 
+###  Steps for upgrading from 4.55 to 4.56
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.56'`
+
  
 **Version 4.55**  - Tuesday, 23 August 2016
 
