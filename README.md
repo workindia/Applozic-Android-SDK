@@ -19,7 +19,7 @@ Applozic One to One and Group Chat SDK
 
 To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
 
-Documentation: [Applozic Developers](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
+Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 
 
@@ -479,7 +479,9 @@ From your app's first activity, set the following to disable display name featur
 ApplozicClient.getInstance(this).setHandleDisplayName(false);
 By default, the display name feature is enabled.
 
-For more details, visit: https://www.applozic.com/docs/android-chat-sdk.html
+
+###Documentation:
+[Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 
 
