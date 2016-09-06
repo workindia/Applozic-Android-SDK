@@ -8,7 +8,7 @@ Android Chat SDK
 
 Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
 
-Signup at https://www.applozic.com/signup.html to get the application key.
+Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
 
 Applozic One to One and Group Chat SDK
 
@@ -17,9 +17,9 @@ Applozic One to One and Group Chat SDK
 ### Getting Started       
 
 
-To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=android&utm_medium=github) to get the application key.
+To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
 
-Documentation: [Applozic Developers](https://www.applozic.com/docs/android-chat-sdk.html)
+Documentation: [Applozic Developers](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 
 
