@@ -485,7 +485,7 @@ For advanced options and customization, visit [Applozic Android Chat & Messaging
 
 
 ###Changelog
-(Changelog)[https://github.com/AppLozic/Applozic-Android-SDK/blob/master/CHANGELOG.md]
+[Changelog](https://github.com/AppLozic/Applozic-Android-SDK/blob/master/CHANGELOG.md)
 
 
 ####Features:
