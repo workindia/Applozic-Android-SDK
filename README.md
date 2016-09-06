@@ -484,6 +484,9 @@ By default, the display name feature is enabled.
 For advanced options and customization, visit [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 
+###Changelog
+(Changelog)[https://github.com/AppLozic/Applozic-Android-SDK/blob/master/CHANGELOG.md]
+
 
 ####Features:
 
