@@ -540,6 +540,11 @@ We provide support over at [StackOverflow] (http://stackoverflow.com/questions/t
 
 Applozic is the best android chat sdk for instant messaging, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
 
+
+###Free Android Chat SDK
+Special plans for startup and open source contributors, write to us at github@applozic.com 
+
+
 ##Github projects
 
 Android Chat SDK https://github.com/AppLozic/Applozic-Android-SDK
