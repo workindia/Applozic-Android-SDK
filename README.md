@@ -25,7 +25,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.56' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.57' `
 
 
 Add the following in gradle android target:      
@@ -101,11 +101,8 @@ Permissions:
 
 
 ```
-<uses-permission android:name="<APP_PKG_NAME>.permission.C2D_MESSAGE" />
 <uses-permission android:name="<APP_PKG_NAME>.permission.MAPS_RECEIVE" />
-<permission android:name="<APP_PKG_NAME>.permission.C2D_MESSAGE" android:protectionLevel="signature" />
 <permission android:name="<APP_PKG_NAME>.permission.MAPS_RECEIVE" android:protectionLevel="signature" />
-<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  />
 <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -325,71 +322,70 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-**Step 4: Updating GCM registration id:**
 
-**Don't have GCM setup?**
+####Step 4: Push Notification Setup
 
-In case, if you don't have the existing GCM related code, then copy the push notification related files from Applozic sample app to your project
+***Go to Applozic Dashboard, Edit Application. 
+Under Module section, update the GCM Server Key.***
 
-``` 
-https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/java/com/applozic/mobicomkit/sample/pushnotification 
 
-``` 
-And add this in your androidmanifest.xml file
+##### Firebase Cloud Messaging (FCM)  is already enabled in my app
 
-``` 
-<receiver android:name="com.google.android.gms.gcm.GcmReceiver"
-          android:exported="true"
-          android:permission="com.google.android.c2dm.permission.SEND">
-          <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="<APP_PKG_NAME>" />
-          </intent-filter>
-</receiver>
-        
-<service android:name="<CLASS_PACKAGE>.ApplozicGcmListenerService">
-         <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-         </intent-filter>
-</service>
-        
-<service android:name="<CLASS_PACKAGE>.GcmInstanceIDListenerService"
-         android:exported="false">
-         <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-         </intent-filter>
-</service>
+  Add this below code in two places and  pass the push notification tooken:
+  
+  1.In UserLoginTask "onSuccess" (refer Step 3)
+  
+  2.In your FcmInstanceIDListenerService  onTokenRefresh() method  
 
-  ``` 
-Setup GCM in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
- GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);          
- gcmRegistrationUtils.setUpGcmNotification();                      
+if(MobiComUserPreference.getInstance(context).isRegistered()){
+PushNotificationTask pushNotificationTask = null;         
+PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {                  
+@Override           
+public void onSuccess(RegistrationResponse registrationResponse)
+{      
+}            
+@Override          
+public void onFailure(RegistrationResponse registrationResponse, Exception exception)
+{             
+} 
+};                    
+
+pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
+pushNotificationTask.execute((Void) null);  
+}
+
+                        
 ```
 
-To Enable Android Push Notification using Google Cloud Messaging (GCM) visit the below link http://www.applozic.com/blog/enable-android-push-notification-using-google-cloud-messaging-gcm/
+##### For Receiving Notifications in FCM
 
-After Registering project at https://console.developers.google.com Replace the value of GCM_SENDER_ID in GCMRegistrationUtils.java with your own project gcm sender id.
-SenderId is a unique numerical value created when you configure your API project (given as "Project Number" in the Google Developers Console).            
+Add the following in your FcmListenerService  in onMessageReceived(RemoteMessage remoteMessage) 
+
+```
+ if (MobiComPushReceiver.isMobiComPushNotification(remoteMessage.getData())) {
+           MobiComPushReceiver.processMessageAsync(this, remoteMessage.getData());
+           return;
+   }
+```
 
 
-**GCM is already enabled in my app**
+
+#####GCM is already enabled in my app
 
 If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
 ```
 PushNotificationTask pushNotificationTask = null;         
-PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener()   
-{                  
-
+PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener(){                  
 @Override           
-public void onSuccess(RegistrationResponse registrationResponse)             
-{            
+public void onSuccess(RegistrationResponse registrationResponse) {  
+
 }            
 @Override          
-public void onFailure(RegistrationResponse registrationResponse, Exception exception)      
-{             
+public void onFailure(RegistrationResponse registrationResponse, Exception exception) {     
+
 } 
 
 };                    
@@ -399,15 +395,11 @@ pushNotificationTask.execute((Void) null);
 ```
 
 
-
-**Step 5: Handling push notification**:
-Add the following in your GcmListenerService onMessageReceived method.     
+##### For Receiving Notifications In GCM
 
 
+Add the following in your GcmListenerService  in onMessageReceived 
 
-
-
-       
 ```
 if(MobiComPushReceiver.isMobiComPushNotification(data)) {            
         MobiComPushReceiver.processMessageAsync(this, data);               
@@ -416,7 +408,49 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 ```
 
 
-**Step 6: For starting the messaging activity**:        
+
+
+#####Don't have Android Push Notification code ?
+
+To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console] (https://console.firebase.google.com) and create new project , add the google service json to your app by getting server key from project settings update in  
+***[Applozic Dashboard](https://www.applozic.com/signin.html) under Edit Application. 
+Under Module section, update the GCM Server Key.***
+
+
+In case, if you don't have the existing FCM related code, then copy the push notification related files from Applozic sample app to your project from the below github link
+
+[Github push notification code link]
+(https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/java/com/applozic/mobicomkit/sample/pushnotification)
+
+
+And add below code in your androidmanifest.xml file
+
+``` 
+<service
+       android:name="<CLASS_PACKAGE>.FcmListenerService">
+        <intent-filter>
+               <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        </intent-filter>
+</service>
+<service
+       android:name="<CLASS_PACKAGE>.FcmInstanceIDListenerService"
+       android:exported="false">
+       <intent-filter>
+               <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+        </intent-filter>
+</service>
+
+  ``` 
+####Setup FCM in UserLoginTask "onSuccess" (refer Step 3).
+
+```
+ FCMRegistrationUtils fcmRegistrationUtils = new FCMRegistrationUtils(context);          
+ gcmRegistrationUtils.setUpFcmNotification();                      
+```
+
+
+
+**Step 5: For starting the messaging activity**:        
 
       
 ```
@@ -435,7 +469,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-**Step 7: On logout, call the following**:       
+**Step 6: On logout, call the following**:       
 
 
 
