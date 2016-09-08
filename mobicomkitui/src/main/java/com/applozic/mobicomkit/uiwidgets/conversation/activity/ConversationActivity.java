@@ -127,6 +127,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private Uri videoFileUri;
     private Uri imageUri;
     ProfileFragment profilefragment;
+    MobiComMessageService  mobiComMessageService;
+    private ConversationUIService conversationUIService;
 
     public ConversationActivity() {
 
@@ -179,8 +181,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         fragmentTransaction.replace(R.id.layout_child_activity, fragmentToAdd,
                 fragmentTag);
 
-        if (supportFragmentManager.getBackStackEntryCount() >1
-                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) ){
+        if (supportFragmentManager.getBackStackEntryCount() > 1
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag)){
             supportFragmentManager.popBackStack();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
@@ -195,9 +197,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onStop() {
         super.onStop();
+        final String deviceKeyString = MobiComUserPreference.getInstance(this).getDeviceKeyString();
         final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
         Intent intent = new Intent(this, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
+        intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
         startService(intent);
     }
 
@@ -258,6 +262,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         resourceId = ApplozicSetting.getInstance(this).getChatBackgroundColorOrDrawableResource();
         baseContactService =  new AppContactService(this);
         applozicSetting = ApplozicSetting.getInstance(this);
+        conversationUIService =  new ConversationUIService(this);
+        mobiComMessageService = new MobiComMessageService(this, MessageIntentService.class);
         if(resourceId != 0){
             getWindow().setBackgroundDrawableResource(resourceId);
         }
@@ -346,7 +352,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             if(intent.getExtras() != null){
                 BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
             }
-            new ConversationUIService(this).checkForStartNewConversation(intent);
+            conversationUIService.checkForStartNewConversation(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -367,7 +373,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        new ConversationUIService(this).onActivityResult(requestCode, resultCode, data);
+        conversationUIService.onActivityResult(requestCode, resultCode, data);
         handleOnActivityResult(requestCode,data);
         if (requestCode == LOCATION_SERVICE_ENABLE) {
             if (((LocationManager) getSystemService(Context.LOCATION_SERVICE))
@@ -551,13 +557,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
-            new ConversationUIService(this).startContactActivityForResult();
+            conversationUIService.startContactActivityForResult();
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
             startActivity(intent);
         } else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);
-            new MobiComMessageService(this, MessageIntentService.class).syncMessagesWithServer(message);
+            mobiComMessageService.syncMessagesWithServer(message);
         } else if (id == R.id.shareOptions) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setAction(Intent.ACTION_SEND)
@@ -581,7 +587,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void startContactActivityForResult() {
-        new ConversationUIService(this).startContactActivityForResult();
+        conversationUIService.startContactActivityForResult();
     }
 
     @Override
@@ -608,13 +614,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void updateLatestMessage(Message message, String formattedContactNumber) {
-        new ConversationUIService(this).updateLatestMessage(message, formattedContactNumber);
+        conversationUIService.updateLatestMessage(message, formattedContactNumber);
 
     }
 
     @Override
     public void removeConversation(Message message, String formattedContactNumber) {
-        new ConversationUIService(this).removeConversation(message, formattedContactNumber);
+        conversationUIService.removeConversation(message, formattedContactNumber);
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicommons.encryption.EncryptionUtils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -58,6 +59,9 @@ public class HttpRequestUtils {
         HttpURLConnection connection;
         URL url;
         try {
+            if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())){
+                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),data);
+            }
             url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -99,7 +103,12 @@ public class HttpRequestUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Log.i(TAG, "Response: " + sb.toString());
+            Log.i(TAG, "Response : " + sb.toString());
+            if(!TextUtils.isEmpty(sb.toString())){
+                if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())){
+                   return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
+                }
+            }
             return sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,6 +125,9 @@ public class HttpRequestUtils {
         connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
+        if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getDeviceKeyString())){
+            connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+        }
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.connect();
@@ -146,8 +158,11 @@ public class HttpRequestUtils {
         Log.i(TAG, "Response: " + sb.toString());
         return sb.toString();
     }
+    public String getResponse(String urlString, String contentType, String accept){
+        return getResponse(urlString, contentType, accept,false);
+    }
 
-    public String getResponse(String urlString, String contentType, String accept) {
+    public String getResponse(String urlString, String contentType, String accept,boolean isFileUpload) {
         Log.i(TAG, "Calling url: " + urlString);
 
         HttpURLConnection connection = null;
@@ -191,6 +206,13 @@ public class HttpRequestUtils {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            Log.i(TAG,"Response :"+sb.toString());
+
+            if(!TextUtils.isEmpty(sb.toString())){
+                if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())){
+                   return isFileUpload?sb.toString(): EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
+                }
             }
             return sb.toString();
         } catch (ConnectException e) {

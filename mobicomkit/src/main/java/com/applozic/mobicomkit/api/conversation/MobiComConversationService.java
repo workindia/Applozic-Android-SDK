@@ -75,8 +75,8 @@ public class MobiComConversationService {
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt) {
         boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
 
-        if (emptyTable) {
-            getMessages(null, null, null, null,null);
+        if (emptyTable || createdAt != null  && createdAt != 0) {
+            getMessages(null, createdAt, null, null,null);
         }
 
         return  messageDatabaseService.getMessages(createdAt);
@@ -124,7 +124,13 @@ public class MobiComConversationService {
             String channelFeedResponse = "";
             String conversationPxyResponse="";
             String element = parser.parse(data).getAsJsonObject().get("message").toString();
-             String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+            String userDetailsElement = parser.parse(data).getAsJsonObject().get("userDetails").toString();
+
+            if (!TextUtils.isEmpty(userDetailsElement)) {
+                UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
+                processUserDetails(userDetails);
+            }
+
             if (jsonObject.has("groupFeeds")) {
                 channelFeedResponse = parser.parse(data).getAsJsonObject().get("groupFeeds").toString();
                 ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
@@ -135,14 +141,8 @@ public class MobiComConversationService {
                 Conversation[] conversationPxy = (Conversation[]) GsonUtils.getObjectFromJson(conversationPxyResponse, Conversation[].class);
                 ConversationService.getInstance(context).processConversationArray(conversationPxy,channel,contact);
             }
-
             Message[] messages = gson.fromJson(element, Message[].class);
-            if (!TextUtils.isEmpty(userDetailsElement)) {
-                UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(userDetailsElement, UserDetail[].class);
-                processUserDetails(userDetails);
-            }
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-
 
             /*String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
             String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);*/
@@ -231,10 +231,16 @@ public class MobiComConversationService {
     }
 
     private boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
+        if(contact == null && channel == null ){
+            return false;
+        }
         return sharedPreferences.getBoolean(getServerSyncCallKey(contact, channel, conversationId), false);
     }
 
     private void updateServerCallDoneStatus(Contact contact, Channel channel, Integer conversationId) {
+        if (contact == null && channel == null){
+            return;
+        }
         Log.i(TAG, "updating server call to true");
         sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
     }

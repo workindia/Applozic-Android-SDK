@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
@@ -73,12 +74,12 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
 
-                if (position < getCount() - 1) {
+                if(position<getCount()-1){
                     return;
                 }
 
-                if (getCount() > ApplozicSetting.getInstance(context).getMaxAttachmentAllowed()) {
-                    Toast.makeText(context, R.string.mobicom_max_attachment_warning, Toast.LENGTH_LONG).show();
+                if( getCount()> ApplozicSetting.getInstance(context).getMaxAttachmentAllowed()){
+                    Toast.makeText(context,R.string.mobicom_max_attachment_warning,Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -104,19 +105,19 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
             deleteButton.setVisibility(View.VISIBLE);
 
         }
-         try{
-             Uri uri = (Uri) getItem(position);
-             Bitmap previewBitmap = ImageUtils.getPreview(context,uri);
-             if (previewBitmap != null) {
-                 setGalleryView(previewBitmap);
-             } else {
-                 setAttachmentView(uri);
-             }
-             fileSize.setText(getSize(uri));
+        try{
+            Uri uri = (Uri) getItem(position);
+            Bitmap previewBitmap = ImageUtils.getPreview(context,uri);
+            if (previewBitmap != null) {
+                setGalleryView(previewBitmap);
+            } else {
+                setAttachmentView(uri);
+            }
+            fileSize.setText(FileUtils.getSize(context,uri));
 
-         }catch (Exception e){
-             e.printStackTrace();
-         }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         return view;
     }
@@ -125,7 +126,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     private void setAttachmentView(Uri uri) {
         attachmentImageView.setVisibility(View.VISIBLE);
         fileName.setVisibility(View.VISIBLE);
-        fileName.setText(getFileName(uri));
+        fileName.setText(FileUtils.getFileName(context,uri));
         galleryImageView.setImageBitmap(null);
     }
 
@@ -141,49 +142,6 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
         fileName.setVisibility(View.GONE);
         attachmentImageView.setVisibility(View.GONE);
         fileSize.setText("New Attachment");
-    }
-
-
-
-    /**
-     *
-     * @param uri
-     * @return
-     */
-    public String getFileName(Uri uri) {
-
-        String fileName=null;
-        Cursor returnCursor =
-                context.getContentResolver().query(uri, null, null, null, null);
-        if (returnCursor != null &&  returnCursor.moveToFirst()) {
-           int columnIndex =  returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            fileName=  returnCursor.getString(columnIndex);
-        }
-
-        return fileName;
-    }
-
-    public String getSize(Uri uri) {
-
-        String sizeInMB =null;
-        Cursor returnCursor =
-                context.getContentResolver().query(uri, null, null, null, null);
-
-        if (returnCursor != null &&  returnCursor.moveToFirst()) {
-
-            int columnIndex =  returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            Long fileSize = returnCursor.getLong(columnIndex);
-            if( fileSize  < 1024 ) {
-                sizeInMB = (int)(fileSize / (1024 * 1024)) +" B";
-
-            }else if(fileSize < 1024 *1024){
-                sizeInMB = (int)(fileSize / (1024 )) +" KB";
-            }else {
-                sizeInMB = (int)(fileSize / (1024 * 1024)) +" MB";
-            }
-        }
-
-        return sizeInMB;
     }
 
 }

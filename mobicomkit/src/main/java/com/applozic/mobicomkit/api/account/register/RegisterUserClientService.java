@@ -10,6 +10,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
@@ -107,6 +108,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
        if(registrationResponse.getNotificationResponse() != null){
            Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
        }
+        mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
@@ -137,6 +139,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
             @Override
             public void run() {
                 SyncCallService.getInstance(context).getLatestMessagesGroupByPeople();
+                Intent intent = new Intent(context, ConversationIntentService.class);
+                context.startService(intent);
             }
         }).start();
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
@@ -215,6 +219,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         Gson gson = new Gson();
         user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         user.setApplicationId(getApplicationKey(context));
+        if(getAppModuleName(context) != null){
+            user.setAppModuleName(getAppModuleName(context));
+        }
         user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
         Log.i(TAG, "Registration update json " + gson.toJson(user));

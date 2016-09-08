@@ -84,13 +84,14 @@ public class ChannelService {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
                 Set<String> memberUserIds = channelFeed.getMembersName();
+                Set<String> userIds = new HashSet<>();
                 Channel channel = getChannel(channelFeed);
                 if (channelDatabaseService.isChannelPresent(channel.getKey())) {
                     channelDatabaseService.updateChannel(channel);
                 } else {
                     channelDatabaseService.addChannel(channel);
                 }
-                if(channelFeed.getConversationPxy() != null){
+                if (channelFeed.getConversationPxy() != null) {
                     channelFeed.getConversationPxy().setGroupId(channelFeed.getId());
                     ConversationService.getInstance(context).addConversation(channelFeed.getConversationPxy());
                 }
@@ -102,10 +103,16 @@ public class ChannelService {
                         } else {
                             channelDatabaseService.addChannelUserMapper(channelUserMapper);
                         }
+                        if (!baseContactService.isContactExists(userId)) {
+                            userIds.add(userId);
+                        }
                     }
-                    if (isUserDetails) {
-                        userService.processUserDetail(channelFeed.getUsers());
-                    }
+                }
+                if (!isUserDetails && userIds != null && userIds.size() > 0) {
+                    userService.processUserDetails(userIds);
+                }
+                if (isUserDetails) {
+                    userService.processUserDetail(channelFeed.getUsers());
                 }
             }
         }

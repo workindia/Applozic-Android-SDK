@@ -400,7 +400,7 @@ public class MessageDatabaseService {
             for (String tofield : toList) {
                 Message singleMessage = new Message(message);
                 singleMessage.setKeyString(message.getKeyString());
-                //  singleMessage.setBroadcastGroupId(null);
+              //  singleMessage.setBroadcastGroupId(null);
                 singleMessage.setTo(tofield);
                 singleMessage.processContactIds(context);
                 singleMessage.setMessageId(createSingleMessage(singleMessage));
@@ -925,12 +925,12 @@ public class MessageDatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (channelCursor != null) {
-                channelCursor.close();
-            }
-            if (contactCursor != null) {
-                contactCursor.close();
-            }
+                if (channelCursor != null) {
+                    channelCursor.close();
+                }
+                if (contactCursor != null) {
+                    contactCursor.close();
+                }
         }
         return totalCount;
     }

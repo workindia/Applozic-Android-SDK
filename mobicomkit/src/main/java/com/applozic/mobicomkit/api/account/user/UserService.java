@@ -61,18 +61,28 @@ public class UserService {
                             if (blockedToUserList != null && blockedToUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockedFeed : blockedToUserList) {
                                     if (syncUserBlockedFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockedFeed.getBlockedTo())) {
-                                        contact.setBlocked(syncUserBlockedFeed.getUserBlocked());
-                                        contact.setUserId(syncUserBlockedFeed.getBlockedTo());
-                                        baseContactService.upsert(contact);
+                                        if(baseContactService.isContactExists(syncUserBlockedFeed.getBlockedTo())){
+                                            baseContactService.updateUserBlocked(syncUserBlockedFeed.getBlockedTo(),syncUserBlockedFeed.getUserBlocked());
+                                        }else {
+                                            contact.setBlocked(syncUserBlockedFeed.getUserBlocked());
+                                            contact.setUserId(syncUserBlockedFeed.getBlockedTo());
+                                            baseContactService.upsert(contact);
+                                            baseContactService.updateUserBlocked(syncUserBlockedFeed.getBlockedTo(),syncUserBlockedFeed.getUserBlocked());
+                                        }
                                     }
                                 }
                             }
                             if (blockedByUserList != null && blockedByUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockByFeed : blockedByUserList) {
                                     if (syncUserBlockByFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockByFeed.getBlockedBy())) {
-                                        contact.setBlockedBy(syncUserBlockByFeed.getUserBlocked());
-                                        contact.setUserId(syncUserBlockByFeed.getBlockedBy());
-                                        baseContactService.upsert(contact);
+                                        if(baseContactService.isContactExists(syncUserBlockByFeed.getBlockedBy())){
+                                            baseContactService.updateUserBlockedBy(syncUserBlockByFeed.getBlockedBy(),syncUserBlockByFeed.getUserBlocked());
+                                        }else {
+                                            contact.setBlockedBy(syncUserBlockByFeed.getUserBlocked());
+                                            contact.setUserId(syncUserBlockByFeed.getBlockedBy());
+                                            baseContactService.upsert(contact);
+                                            baseContactService.updateUserBlockedBy(syncUserBlockByFeed.getBlockedBy(),syncUserBlockByFeed.getUserBlocked());
+                                        }
                                     }
                                 }
                             }

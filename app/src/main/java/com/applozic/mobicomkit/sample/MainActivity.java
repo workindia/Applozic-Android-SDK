@@ -253,8 +253,7 @@ public class MainActivity extends MobiComActivityForFragment
     public void groupChat(View v) {
         Intent groupChat = new Intent(this, ConversationActivity.class);
         groupChat.putExtra(TAKE_ORDER, true);
-        groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
-        groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
+        groupChat.putExtra(ConversationUIService.GROUP_ID, 686330);
         startActivity(groupChat);
     }
 

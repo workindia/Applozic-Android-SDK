@@ -288,10 +288,10 @@ abstract public class MobiComActivityForFragment extends ActionBarActivity imple
         }
 
         String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);
-        if (!TextUtils.isEmpty(forwardMessage)) {
+       /* if (!TextUtils.isEmpty(forwardMessage)) {
             Message messageToForward = (Message) GsonUtils.getObjectFromJson(forwardMessage, Message.class);
-            conversationFragment.forwardMessage(messageToForward, contact);
-        }
+            conversationFragment.forwardMessage(messageToForward, contact,);
+        }*/
 
         String sharedText = intent.getStringExtra(MobiComKitPeopleActivity.SHARED_TEXT);
         if (!TextUtils.isEmpty(sharedText)) {

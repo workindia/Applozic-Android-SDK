@@ -66,7 +66,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class AppContactFragment extends ListFragment implements SearchListFragment,
         AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
     // Defines a tag for identifying log entries
     private static final String TAG = "AppContactFragment";
     private static final String SHARE_TEXT = "share_text";
@@ -170,9 +169,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 if (!resInfo.isEmpty()) {
                     for (ResolveInfo resolveInfo : resInfo) {
                         String packageName = resolveInfo.activityInfo.packageName;
-                        if (packageName.equals(PACKAGE_TO_EXCLUDE_FOR_INVITE)) {
-                            continue;
-                        }
                         Intent targetedShareIntent = new Intent(Intent.ACTION_SEND);
                         targetedShareIntent.setType("text/plain")
                                 .setAction(Intent.ACTION_SEND)

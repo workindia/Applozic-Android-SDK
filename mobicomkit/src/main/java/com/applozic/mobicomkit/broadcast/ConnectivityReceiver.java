@@ -24,10 +24,14 @@ public class ConnectivityReceiver extends BroadcastReceiver {
     private static final String BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";
     Context context;
     private static boolean firstConnect = true;
+    private MessageClientService messageClientService;
+    private MobiComConversationService conversationService;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
         this.context = context;
+        this.messageClientService = new MessageClientService(context);
+        this.conversationService = new MobiComConversationService(context);
 
         String action = intent.getAction();
 
@@ -49,9 +53,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                         @Override
                         public void run() {
                             SyncCallService.getInstance(context).syncMessages(null);
-                            new MessageClientService(context).syncPendingMessages(true);
-                            MessageClientService.syncDeleteMessages(context);
-                            new MobiComConversationService(context).processLastSeenAtStatus();
+                            messageClientService.syncPendingMessages(true);
+                            messageClientService.syncDeleteMessages(true);
+                            conversationService.processLastSeenAtStatus();
                             UserService.getInstance(context).processSyncUserBlock();
                         }
                     });

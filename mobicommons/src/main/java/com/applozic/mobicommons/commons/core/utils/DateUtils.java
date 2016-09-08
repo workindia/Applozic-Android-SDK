@@ -2,8 +2,6 @@ package com.applozic.mobicommons.commons.core.utils;
 
 import android.os.SystemClock;
 
-import net.mobitexter.mobiframework.commons.core.utils.SntpClient;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;

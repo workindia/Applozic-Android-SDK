@@ -135,7 +135,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + UNREAD_COUNT + " integer default 0,"
             + BLOCKED + " integer default 0, "
             + BLOCKED_BY + " integer default 0, "
-            + STATUS +" varchar(2500) null"
+            + STATUS +" varchar(2500) null "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +

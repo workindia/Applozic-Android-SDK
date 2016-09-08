@@ -1,7 +1,5 @@
 package com.applozic.mobicomkit.sample.pushnotification;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -14,12 +12,9 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.io.IOException;
-
-public class GCMRegistrationUtils extends Handler {
+public class FCMRegistrationUtils extends Handler {
 
     private static final String TAG = "GCMRegistrationUtils";
     private static final String GCM_SENDER_ID = "195932243324";
@@ -27,7 +22,7 @@ public class GCMRegistrationUtils extends Handler {
     private  Context context;
     private PushNotificationTask pushNotificationTask = null;
 
-    public GCMRegistrationUtils(Context context) {
+    public FCMRegistrationUtils(Context context) {
         super();
        this.context = context;
     }
@@ -57,7 +52,7 @@ public class GCMRegistrationUtils extends Handler {
     }
 
     // To Register for push notification service
-    public void setUpGcmNotification() {
+    public void setUpFcmNotification() {
         // Check device for Play Services APK. If check succeeds, proceed with
         // GCM registration.
         if (checkPlayServices()) {
@@ -103,15 +98,12 @@ public class GCMRegistrationUtils extends Handler {
             public void run() {
                 Log.i(TAG, "Registering In Background Thread");
                 try {
-                    InstanceID instanceID = InstanceID.getInstance(context);
-                    String token = instanceID.getToken(GCM_SENDER_ID,
-                            GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-
+                    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
                     Message msg = new Message();
                     msg.what = 1; // success
-                    msg.obj = token;
+                    msg.obj = refreshedToken;
                     handler.sendMessage(msg);
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     // Retry three times....
                     retryCount++;
                     if (retryCount < 3) {

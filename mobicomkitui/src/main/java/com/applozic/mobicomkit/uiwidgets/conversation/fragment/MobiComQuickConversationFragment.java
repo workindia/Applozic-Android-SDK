@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +74,12 @@ public class MobiComQuickConversationFragment extends Fragment {
     private BaseContactService baseContactService;
     private Toolbar toolbar;
     private MessageDatabaseService messageDatabaseService;
+    private int visibleThreshold = 5;
+    private int currentPage = 0;
+    private int previousTotalItemCount = 0;
+    private boolean loading = true;
+    private int startingPageIndex = 0;
+    private ProgressBar progressBar;
 
     public ConversationListView getListView() {
         return listView;
@@ -108,7 +115,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
-
+        loading = true;
         LinearLayout individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
         LinearLayout extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
 
@@ -116,6 +123,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         extendedSendingOptionLayout.setVisibility(View.GONE);
 
         View spinnerLayout = inflater.inflate(R.layout.mobicom_message_list_header_footer, null);
+        progressBar = (ProgressBar) spinnerLayout.findViewById(R.id.load_more_progressbar);
         listView.addFooterView(spinnerLayout);
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
@@ -236,7 +244,12 @@ public class MobiComQuickConversationFragment extends Fragment {
     public void updateLastMessage(String keyString, String userId) {
         for (Message message : messageList) {
             if (message.getKeyString() != null && message.getKeyString().equals(keyString)) {
-                List<Message> lastMessage = messageDatabaseService.getLatestMessage(userId);
+                List<Message> lastMessage;
+                if(message.getGroupId() != null){
+                    lastMessage =  messageDatabaseService.getLatestMessageByChannelKey(message.getGroupId());
+                }else {
+                    lastMessage  = messageDatabaseService.getLatestMessage(message.getContactIds());
+                }
                 if (lastMessage.isEmpty()) {
                     removeConversation(message, userId);
                 } else {
@@ -295,13 +308,13 @@ public class MobiComQuickConversationFragment extends Fragment {
                 if (message.getGroupId() != null) {
                     recentMessage = latestMessageForEachContact.get(ConversationUIService.GROUP + message.getGroupId());
                 } else {
-                    recentMessage = latestMessageForEachContact.get(userId);
+                    recentMessage = latestMessageForEachContact.get(message.getContactIds());
                 }
                 if (recentMessage != null && message.getCreatedAtTime() <= recentMessage.getCreatedAtTime()) {
                     if (message.getGroupId() != null) {
                         latestMessageForEachContact.put(ConversationUIService.GROUP + message.getGroupId(), message);
                     } else {
-                        latestMessageForEachContact.put(userId, message);
+                        latestMessageForEachContact.put(message.getContactIds(), message);
                     }
 
                     messageList.set(messageList.indexOf(recentMessage), message);
@@ -324,7 +337,11 @@ public class MobiComQuickConversationFragment extends Fragment {
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                latestMessageForEachContact.remove(userId);
+                if (message.getGroupId() != null && message.getGroupId() != 0) {
+                    latestMessageForEachContact.remove(ConversationUIService.GROUP + message.getGroupId());
+                } else {
+                    latestMessageForEachContact.remove(message.getContactIds());
+                }
                 messageList.remove(message);
                 conversationAdapter.notifyDataSetChanged();
                 checkForEmptyConversations();
@@ -428,13 +445,8 @@ public class MobiComQuickConversationFragment extends Fragment {
             @Override
             public void onScrollStateChanged(AbsListView absListView, int scrollState) {
                 if (conversationAdapter != null) {
-                    if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                        conversationAdapter.contactImageLoader.setPauseWork(true);
-                        conversationAdapter.channelImageLoader.setPauseWork(true);
-                    } else {
-                        conversationAdapter.contactImageLoader.setPauseWork(false);
-                        conversationAdapter.channelImageLoader.setPauseWork(false);
-                    }
+                    conversationAdapter.contactImageLoader.setPauseWork(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING);
+                    conversationAdapter.channelImageLoader.setPauseWork(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING);
                 }
 
             }
@@ -442,10 +454,23 @@ public class MobiComQuickConversationFragment extends Fragment {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0 && loadMore) {
-                    loadMore = false;
+                if (loading) {
+                    if (totalItemCount > previousTotalItemCount) {
+                        if(!messageList.isEmpty()){
+                            loading = false;
+                        }
+                        previousTotalItemCount = totalItemCount;
+                        currentPage++;
+                    }
+                }
+                if ((totalItemCount - visibleItemCount) == 0) {
+                    return;
+                }
+
+                if (loadMore && !loading && (totalItemCount - visibleItemCount)<=(firstVisibleItem + visibleThreshold)) {
                     DownloadConversation downloadConversation = new DownloadConversation(view, false, firstVisibleItem, visibleItemCount, totalItemCount);
                     AsyncTaskCompat.executeParallel(downloadConversation);
+                    loading = true;
                 }
             }
         });
@@ -498,6 +523,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         private boolean showInstruction;
         private List<Message> nextMessageList = new ArrayList<Message>();
         private Context context;
+        private boolean loadMoreMessages;
 
         public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, boolean showInstruction) {
             this.context = getActivity();
@@ -511,19 +537,24 @@ public class MobiComQuickConversationFragment extends Fragment {
 
         public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems) {
             this(view, initial, firstVisibleItem, amountVisible, totalItems, false);
+            loadMoreMessages = true;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            loadMore = false;
-            swipeLayout.setEnabled(true);
-            swipeLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeLayout.setRefreshing(true);
-                }
-            });
+
+            if(progressBar != null && loadMoreMessages){
+                progressBar.setVisibility(View.VISIBLE);
+            }else {
+                swipeLayout.setEnabled(true);
+                swipeLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(true);
+                    }
+                });
+            }
         }
 
         protected Long doInBackground(Void... voids) {
@@ -547,13 +578,15 @@ public class MobiComQuickConversationFragment extends Fragment {
         }
 
         protected void onPostExecute(Long result) {
-            swipeLayout.setEnabled(true);
-            swipeLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeLayout.setRefreshing(false);
-                }
-            });
+            if(!loadMoreMessages){
+                swipeLayout.setEnabled(true);
+                swipeLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeLayout.setRefreshing(false);
+                    }
+                });
+            }
             for (Message currentMessage : nextMessageList) {
                 if (currentMessage.isSentToMany()) {
                     continue;
@@ -587,7 +620,9 @@ public class MobiComQuickConversationFragment extends Fragment {
                     messageList.add(currentMessage);
                 }
             }
-
+            if(progressBar != null && loadMoreMessages){
+                progressBar.setVisibility(View.GONE);
+            }
             conversationAdapter.notifyDataSetChanged();
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
@@ -598,7 +633,9 @@ public class MobiComQuickConversationFragment extends Fragment {
                     listView.setSelection(0);
                 }
             } else {
-                listView.setSelection(firstVisibleItem);
+                if(!loadMoreMessages){
+                    listView.setSelection(firstVisibleItem);
+                }
             }
             /*if (isAdded()) {
                 //Utils.isNetworkAvailable(getActivity(), errorMessage);
@@ -610,6 +647,9 @@ public class MobiComQuickConversationFragment extends Fragment {
 
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
+            }
+            if(!nextMessageList.isEmpty()){
+                loadMore = true;
             }
         }
     }

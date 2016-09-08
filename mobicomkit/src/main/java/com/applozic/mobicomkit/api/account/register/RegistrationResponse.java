@@ -21,6 +21,7 @@ public class RegistrationResponse extends JsonMarker {
     private String brokerUrl;
     private String imageLink;
     private String statusMessage;
+    private String encryptionKey;
     private Short pricingPackage = PricingType.STARTER.getValue();
 
     public static enum PricingType {
@@ -145,15 +146,31 @@ public class RegistrationResponse extends JsonMarker {
         this.statusMessage = statusMessage;
     }
 
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
     @Override
     public String toString() {
         return "RegistrationResponse{" +
                 "message='" + message + '\'' +
                 ", deviceKey='" + deviceKey + '\'' +
                 ", userKey='" + userKey + '\'' +
+                ", userId='" + userId + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
-                ", lastSyncTime='" + lastSyncTime + '\'' +
-                ", currentTimeStamp='" + currentTimeStamp + '\'' +
+                ", lastSyncTime=" + lastSyncTime +
+                ", currentTimeStamp=" + currentTimeStamp +
+                ", displayName='" + displayName + '\'' +
+                ", notificationResponse='" + notificationResponse + '\'' +
+                ", brokerUrl='" + brokerUrl + '\'' +
+                ", imageLink='" + imageLink + '\'' +
+                ", statusMessage='" + statusMessage + '\'' +
+                ", encryptionKey='" + encryptionKey + '\'' +
+                ", pricingPackage=" + pricingPackage +
                 '}';
     }
 }

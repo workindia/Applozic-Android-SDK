@@ -42,9 +42,9 @@ import java.util.List;
 public class NotificationService {
 
     private static final int NOTIFICATION_ID = 1000;
-    private static final String TAG = "NotificationService";
     private static final String NOTIFICATION_SMALL_ICON_METADATA = "com.applozic.mobicomkit.notification.smallIcon";
     private Context context;
+    private static final String TAG = "NotificationService";
     private int iconResourceId;
     private int wearable_action_title;
     private int wearable_action_label;

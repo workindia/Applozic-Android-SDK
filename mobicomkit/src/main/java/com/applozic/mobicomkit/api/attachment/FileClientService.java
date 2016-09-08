@@ -238,7 +238,7 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        return httpRequestUtils.getResponse(getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain");
+        return httpRequestUtils.getResponse(getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain",true);
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {

@@ -25,28 +25,23 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.BuildConfig;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.applozic.mobicommons.R;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -550,9 +545,9 @@ public class FileUtils {
             extension = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
         }
 
-        if (extension != null) {
+        if (!TextUtils.isEmpty(extension)) {
             MimeTypeMap mime = MimeTypeMap.getSingleton();
-            type = mime.getMimeTypeFromExtension(extension);
+            type = mime.getMimeTypeFromExtension(extension.toLowerCase());
         }
 
         return type;
@@ -563,24 +558,24 @@ public class FileUtils {
         if(mimeType.startsWith("video")){
             return ThumbnailUtils.createVideoThumbnail(filePath, 1);
         }
-            return getPreview(filePath, reqWidth,reqHeight);
+        return getPreview(filePath, reqWidth,reqHeight);
     }
 
 
 
     public static Bitmap getPreview(String filePath, int reqWidth, int reqHeight) {
         File image = new File(filePath);
-            Bitmap bitmap;
-            BitmapFactory.Options bounds = new BitmapFactory.Options();
-            bounds.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(image.getPath(), bounds);
-            if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
-                return null;
-            }
-            bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
-            bounds.inJustDecodeBounds = false;
-            bitmap = BitmapFactory.decodeFile(image.getPath(), bounds);
-            return ImageUtils.getImageRotatedBitmap(bitmap, image.getPath(), bitmap.getWidth(), bitmap.getHeight());
+        Bitmap bitmap;
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(image.getPath(), bounds);
+        if ((bounds.outWidth == -1) || (bounds.outHeight == -1)) {
+            return null;
+        }
+        bounds.inSampleSize = calculateInSampleSize(bounds, reqWidth, reqHeight);
+        bounds.inJustDecodeBounds = false;
+        bitmap = BitmapFactory.decodeFile(image.getPath(), bounds);
+        return ImageUtils.getImageRotatedBitmap(bitmap, image.getPath(), bitmap.getWidth(), bitmap.getHeight());
     }
 
 
@@ -695,6 +690,71 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    return new File(newFileName);
+        return new File(newFileName);
     }
+
+    /**
+     * @param directory
+     * @return
+     */
+
+    public static File getLastModifiedFile(String directory) {
+        File dir = new File(directory);
+        File[] allFiles = dir.listFiles();
+
+        if (allFiles == null || allFiles.length == 0) {
+            return null;
+        }
+
+        File lastModifiedFile = allFiles[0];
+
+        for (int i = 1; i < allFiles.length; i++) {
+            if (lastModifiedFile.lastModified() < allFiles[i].lastModified()) {
+                lastModifiedFile = allFiles[i];
+            }
+        }
+        return lastModifiedFile;
+    }
+
+    /**
+     * @param uri
+     * @param context
+     * @return
+     */
+    public static String getFileName(Context context, Uri uri) {
+
+        String fileName = null;
+        Cursor returnCursor =
+                context.getContentResolver().query(uri, null, null, null, null);
+        if (returnCursor != null && returnCursor.moveToFirst()) {
+            int columnIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            fileName = returnCursor.getString(columnIndex);
+        }
+
+        return fileName;
+    }
+
+    public static String getSize(Context context, Uri uri) {
+
+        String sizeInMB = null;
+        Cursor returnCursor =
+                context.getContentResolver().query(uri, null, null, null, null);
+
+        if (returnCursor != null && returnCursor.moveToFirst()) {
+
+            int columnIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            Long fileSize = returnCursor.getLong(columnIndex);
+            if (fileSize < 1024) {
+                sizeInMB = (int) (fileSize / (1024 * 1024)) + " B";
+
+            } else if (fileSize < 1024 * 1024) {
+                sizeInMB = (int) (fileSize / (1024)) + " KB";
+            } else {
+                sizeInMB = (int) (fileSize / (1024 * 1024)) + " MB";
+            }
+        }
+
+        return sizeInMB;
+    }
+
 }

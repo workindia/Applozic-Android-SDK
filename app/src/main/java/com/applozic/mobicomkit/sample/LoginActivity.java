@@ -44,7 +44,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.sample.pushnotification.GCMRegistrationUtils;
+import com.applozic.mobicomkit.sample.pushnotification.FCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -281,8 +281,8 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);*/
 
                     //Start GCM registration....
-                    GCMRegistrationUtils gcmRegistrationUtils = new GCMRegistrationUtils(activity);
-                    gcmRegistrationUtils.setUpGcmNotification();
+                    FCMRegistrationUtils fcmRegistrationUtils = new FCMRegistrationUtils(activity);
+                    fcmRegistrationUtils.setUpFcmNotification();
 
                     buildContactData();
 

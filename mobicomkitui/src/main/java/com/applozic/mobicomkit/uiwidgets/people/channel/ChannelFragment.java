@@ -51,8 +51,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ChannelFragment extends ListFragment implements
         AdapterView.OnItemClickListener,SearchListFragment,LoaderManager.LoaderCallbacks<Cursor> {
 
-
-    public static final String PACKAGE_TO_EXCLUDE_FOR_INVITE = "net.mobitexter";
     private static final String SHARE_TEXT = "share_text";
     private static String inviteMessage;
     private ChannelAdapter mAdapter; // The main query adapter
@@ -151,9 +149,6 @@ public class ChannelFragment extends ListFragment implements
                 if (!resInfo.isEmpty()) {
                     for (ResolveInfo resolveInfo : resInfo) {
                         String packageName = resolveInfo.activityInfo.packageName;
-                        if (packageName.equals(PACKAGE_TO_EXCLUDE_FOR_INVITE)) {
-                            continue;
-                        }
                         Intent targetedShareIntent = new Intent(Intent.ACTION_SEND);
                         targetedShareIntent.setType("text/plain")
                                 .setAction(Intent.ACTION_SEND)
@@ -173,11 +168,7 @@ public class ChannelFragment extends ListFragment implements
         getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    mChannelImageLoader.setPauseWork(true);
-                } else {
-                    mChannelImageLoader.setPauseWork(false);
-                }
+                mChannelImageLoader.setPauseWork(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING);
             }
 
             @Override

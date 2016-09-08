@@ -13,6 +13,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 public class MessageIntentService extends IntentService {
 
     private static final String TAG = "MessageIntentService";
+    private MessageClientService messageClientService;
 
     public MessageIntentService() {
         super("MessageIntentService");
@@ -20,6 +21,7 @@ public class MessageIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        messageClientService = new MessageClientService(MessageIntentService.this);
         final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
         Thread thread = new Thread(new MessageSender(message));
         thread.start();
@@ -35,7 +37,6 @@ public class MessageIntentService extends IntentService {
         @Override
         public void run() {
             try {
-                MessageClientService messageClientService = new MessageClientService(MessageIntentService.this);
                 messageClientService.sendMessageToServer(message, ScheduleMessageService.class);
                 messageClientService.syncPendingMessages(true);
             } catch (Exception e) {

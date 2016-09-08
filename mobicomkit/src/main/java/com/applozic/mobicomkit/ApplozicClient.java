@@ -57,7 +57,7 @@ public class ApplozicClient {
     }
 
     public ApplozicClient hideChatListOnNotification() {
-        sharedPreferences.edit().putBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, true).apply();
+        sharedPreferences.edit().putBoolean(CHAT_LIST_HIDE_ON_NOTIFICATION, true).commit();
         return this;
     }
 
@@ -66,7 +66,7 @@ public class ApplozicClient {
     }
 
     public ApplozicClient setContextBasedChat(boolean enable){
-        sharedPreferences.edit().putBoolean(CONTEXT_BASED_CHAT,enable).apply();
+        sharedPreferences.edit().putBoolean(CONTEXT_BASED_CHAT,enable).commit();
         return this;
     }
 
@@ -75,12 +75,12 @@ public class ApplozicClient {
     }
 
     public ApplozicClient hideNotificationSmallIcon() {
-        sharedPreferences.edit().putBoolean(NOTIFICATION_SMALL_ICON, true).apply();
+        sharedPreferences.edit().putBoolean(NOTIFICATION_SMALL_ICON, true).commit();
         return this;
     }
 
     public boolean isNotificationSmallIconHidden() {
-      return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
+        return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
     }
 
     public boolean isNotAllowed() {

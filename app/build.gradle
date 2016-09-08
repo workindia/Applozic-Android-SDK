@@ -35,7 +35,6 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            applicationIdSuffix ".debug"
         }
     }
     lintOptions {
@@ -60,7 +59,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':mobicomkitui') //Note: use this for customization
-   // compile 'com.applozic.communication.uiwidget:mobicomkitui:4.56' //Note:use this in case customization is not required
+  // compile 'com.applozic.communication.uiwidget:mobicomkitui:4.57' //Note:use this in case customization is not required
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.1.0'
@@ -72,3 +71,4 @@ dependencies {
         transitive = true;
     }
 }
+apply plugin: 'com.google.gms.google-services'

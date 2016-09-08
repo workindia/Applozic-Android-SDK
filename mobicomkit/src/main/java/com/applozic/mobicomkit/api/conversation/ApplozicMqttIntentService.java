@@ -22,6 +22,7 @@ public class ApplozicMqttIntentService extends IntentService {
     public static final String SUBSCRIBE = "subscribe";
     public static final String SUBSCRIBE_TO_TYPING = "subscribeToTyping";
     public static final String UN_SUBSCRIBE_TO_TYPING = "unSubscribeToTyping";
+    public static final String DEVICE_KEY_STRING = "deviceKeyString";
     public static final String USER_KEY_STRING = "userKeyString";
     public static final String CONNECTED_PUBLISH = "connectedPublish";
     public static final String CONTACT = "contact";
@@ -53,13 +54,14 @@ public class ApplozicMqttIntentService extends IntentService {
             return;
         }
         String userKeyString = intent.getStringExtra(USER_KEY_STRING);
-        if (!TextUtils.isEmpty(userKeyString)) {
-            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, "0");
+        String deviceKeyString = intent.getStringExtra(DEVICE_KEY_STRING);
+        if (!TextUtils.isEmpty(userKeyString) && !TextUtils.isEmpty(deviceKeyString)) {
+            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString,deviceKeyString, "0");
         }
 
         boolean connectedStatus = intent.getBooleanExtra(CONNECTED_PUBLISH, false);
         if (connectedStatus) {
-            ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(), "1");
+            ApplozicMqttService.getInstance(getApplicationContext()).connectPublish(MobiComUserPreference.getInstance(getApplicationContext()).getSuUserKeyString(),MobiComUserPreference.getInstance(getApplicationContext()).getDeviceKeyString(), "1");
         }
 
         if (contact != null ){

@@ -56,10 +56,11 @@ public class ApplozicSetting {
     private static final String HIDE_GROUP_REMOVE_MEMBER_OPTION= "HIDE_GROUP_REMOVE_MEMBER_OPTION";
     private static final String EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE";
     private static final String EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE";
-    private static final String TYPING_TEXT_COLOR= "TYPING_TEXT_COLOR";
+    protected static final String TYPING_TEXT_COLOR= "TYPING_TEXT_COLOR";
     private static final String PROFILE_OPTION= "PROFILE_OPTION";
-    private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
 
+
+    private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
 
     public static ApplozicSetting applozicSetting;
 
@@ -157,7 +158,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setChatBackgroundColorOrDrawableResource(int colorOrDrawable) {
-        sharedPreferences.edit().putInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).apply();
+        sharedPreferences.edit().putInt(CHAT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).commit();
         return this;
     }
 
@@ -166,7 +167,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setEditTextBackgroundColorOrDrawableResource(int colorOrDrawable) {
-        sharedPreferences.edit().putInt(EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).apply();
+        sharedPreferences.edit().putInt(EDIT_TEXT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).commit();
         return this;
     }
 
@@ -176,7 +177,7 @@ public class ApplozicSetting {
 
 
     public ApplozicSetting setEditTextLayoutBackgroundColorOrDrawableResource(int colorOrDrawable) {
-        sharedPreferences.edit().putInt(EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).apply();
+        sharedPreferences.edit().putInt(EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE, colorOrDrawable).commit();
         return this;
     }
 
@@ -186,7 +187,7 @@ public class ApplozicSetting {
 
 
     public ApplozicSetting setTypingTextColor(int color) {
-        sharedPreferences.edit().putInt(TYPING_TEXT_COLOR, color).apply();
+        sharedPreferences.edit().putInt(TYPING_TEXT_COLOR, color).commit();
         return this;
     }
 
@@ -195,7 +196,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setMessageEditTextTextColor(int textColor) {
-        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_TEXT_COLOR, textColor).apply();
+        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_TEXT_COLOR, textColor).commit();
         return this;
     }
 
@@ -204,7 +205,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setMessageEditTextHintColor(int textColor) {
-        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_HINT_TEXT_COLOR, textColor).apply();
+        sharedPreferences.edit().putInt(MESSAGE_EDITTEXT_HINT_TEXT_COLOR, textColor).commit();
         return this;
     }
 
@@ -249,7 +250,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setSentMessageLinkTextColor(int color) {
-        sharedPreferences.edit().putInt(SENT_MESSAGE_LINK_TEXT_COLOR, color).apply();
+        sharedPreferences.edit().putInt(SENT_MESSAGE_LINK_TEXT_COLOR, color).commit();
         return this;
     }
 
@@ -258,7 +259,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setReceivedMessageLinkTextColor(int color) {
-        sharedPreferences.edit().putInt(RECEIVED_MESSAGE_LINK_TEXT_COLOR, color).apply();
+        sharedPreferences.edit().putInt(RECEIVED_MESSAGE_LINK_TEXT_COLOR, color).commit();
         return this;
     }
 
@@ -418,7 +419,7 @@ public class ApplozicSetting {
     }
 
     public boolean isLocationSharingViaMap() {
-       return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
+        return sharedPreferences.getBoolean(LOCATION_SHARE_VIA_MAP, true);
     }
 
     public ApplozicSetting setLocationSharingViaMap(boolean value) {
@@ -440,7 +441,7 @@ public class ApplozicSetting {
 
     //Default value is 5.
     public int getMaxAttachmentAllowed(){
-       return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
+        return  sharedPreferences.getInt(MAX_ATTACHMENT_ALLOWED, 5);
     }
 
     public ApplozicSetting setMaxAttachmentSize(int maxAttachmentSize) {
@@ -458,7 +459,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setTotalOnlineUserToFetch(int totalNumber) {
-        sharedPreferences.edit().putInt(TOTAL_ONLINE_USERS, totalNumber).apply();
+        sharedPreferences.edit().putInt(TOTAL_ONLINE_USERS, totalNumber).commit();
         return this;
     }
 
@@ -514,12 +515,12 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting setTotalRegisteredUsersToFetch(int totalNumber) {
-        sharedPreferences.edit().putInt(REGISTERED_USER_CONTACT_LIST, totalNumber).apply();
+        sharedPreferences.edit().putInt(REGISTERED_USER_CONTACT_LIST, totalNumber).commit();
         return this;
     }
 
     public ApplozicSetting enableRegisteredUsersContactCall(){
-        sharedPreferences.edit().putBoolean(REGISTERED_USER_CONTACT_LIST_CALL,true).apply();
+        sharedPreferences.edit().putBoolean(REGISTERED_USER_CONTACT_LIST_CALL,true).commit();
         return this;
     }
 
@@ -528,7 +529,7 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting enableCreateAnyContact(){
-        sharedPreferences.edit().putBoolean(CREATE_ANY_CONTACT,true).apply();
+        sharedPreferences.edit().putBoolean(CREATE_ANY_CONTACT,true).commit();
         return this;
     }
 
@@ -536,22 +537,22 @@ public class ApplozicSetting {
         return sharedPreferences.getBoolean(CREATE_ANY_CONTACT, false);
     }
 
-    public ApplozicSetting showActionDialWithoutCalling(){
-        sharedPreferences.edit().putBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING,true).apply();
-        return this;
-    }
-
-    public boolean isActionDialWithoutCallingEnabled() {
-        return sharedPreferences.getBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING, false);
-    }
-
     public ApplozicSetting disableProfileOption(){
-        sharedPreferences.edit().putBoolean(PROFILE_OPTION,true).apply();
+        sharedPreferences.edit().putBoolean(PROFILE_OPTION,true).commit();
         return this;
     }
 
     public boolean isProfileOptionEnabled() {
         return sharedPreferences.getBoolean(PROFILE_OPTION, true);
+    }
+
+    public ApplozicSetting showActionDialWithoutCalling(){
+        sharedPreferences.edit().putBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING,true).commit();
+        return this;
+    }
+
+    public boolean isActionDialWithoutCallingEnabled() {
+        return sharedPreferences.getBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING, false);
     }
 
     public boolean clearAll() {

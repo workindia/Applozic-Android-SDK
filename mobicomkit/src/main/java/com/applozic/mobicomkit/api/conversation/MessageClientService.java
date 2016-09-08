@@ -77,10 +77,6 @@ public class MessageClientService extends MobiComKitClientService {
         this.baseContactService = new AppContactService(context);
     }
 
-    public synchronized static void syncDeleteMessages(Context context) {
-        new MessageClientService(context).syncDeleteMessages(true);
-    }
-
     public String getMtextDeliveryUrl() {
         return getBaseUrl() + MTEXT_DELIVERY_URL;
     }
@@ -154,7 +150,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public void syncPendingMessages(boolean broadcast) {
+    public synchronized void syncPendingMessages(boolean broadcast) {
         List<Message> pendingMessages = messageDatabaseService.getPendingMessages();
         Log.i(TAG, "Found " + pendingMessages.size() + " pending messages to sync.");
         for (Message message : pendingMessages) {
@@ -163,13 +159,12 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
-    public void syncDeleteMessages(boolean deleteMessage) {
+    public synchronized void syncDeleteMessages(boolean deleteMessage) {
         List<Message> pendingDeleteMessages = messageDatabaseService.getPendingDeleteMessages();
         Log.i(TAG, "Found " + pendingDeleteMessages.size() + " pending messages for Delete.");
         for (Message message : pendingDeleteMessages) {
             deletePendingMessages(message, deleteMessage);
         }
-
     }
 
     public void deletePendingMessages(Message message, boolean deleteMessage) {
@@ -538,6 +533,9 @@ public class MessageClientService extends MobiComKitClientService {
         String params = "";
         if (contact != null || channel != null) {
             params = "startIndex=0&pageSize=50" + "&";
+        }
+        if(contact == null && channel == null){
+            params =  "startIndex=0&mainPageSize=60" + "&";
         }
         if (contact != null && !TextUtils.isEmpty(contact.getUserId())) {
             params += "userId=" + contact.getUserId() + "&";

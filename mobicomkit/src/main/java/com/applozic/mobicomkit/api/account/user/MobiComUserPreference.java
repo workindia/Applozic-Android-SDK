@@ -52,6 +52,7 @@ public class MobiComUserPreference {
     private static String contact_list_server_call = "contact_list_server_call";
     private static String pricing_package = "pricing_package";
     private static String delete_channel = "delete_channel";
+    private static String encryption_Key = "encryption_Key";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -397,7 +398,7 @@ public class MobiComUserPreference {
     }
 
     public void setImageLink(String imageUrl) {
-        sharedPreferences.edit().putString(image_link, imageUrl).apply();
+        sharedPreferences.edit().putString(image_link, imageUrl).commit();
     }
 
     public String getPassword() {
@@ -405,7 +406,7 @@ public class MobiComUserPreference {
     }
 
     public void setPassword(String val) {
-        sharedPreferences.edit().putString(password, val).apply();
+        sharedPreferences.edit().putString(password, val).commit();
     }
 
     public String getAuthenticationType() {
@@ -413,7 +414,7 @@ public class MobiComUserPreference {
     }
 
     public void setAuthenticationType(String val) {
-        sharedPreferences.edit().putString(authenticationType, val).apply();
+        sharedPreferences.edit().putString(authenticationType, val).commit();
     }
 
     public void setDeleteChannel(boolean channelDelete) {
@@ -458,5 +459,13 @@ public class MobiComUserPreference {
 
     public void setWasContactListServerCallAlreadyDone(Boolean serverCallAlreadyDone) {
         sharedPreferences.edit().putBoolean(contact_list_server_call, serverCallAlreadyDone).commit();
+    }
+
+    public String getEncryptionKey() {
+        return sharedPreferences.getString(encryption_Key, null);
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        sharedPreferences.edit().putString(encryption_Key, encryptionKey).commit();
     }
 }
