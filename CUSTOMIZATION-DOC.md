@@ -153,6 +153,21 @@ ApplozicSetting.getInstance(context).showStartNewFloatingActionButton();
 ApplozicSetting.getInstance(context).hideStartNewFloatingActionButton();
 ```
 
+#### Notifications
+
+Enable/disable the notfications
+
+```
+ApplozicClient.getInstance(context).disableNotification();
+ApplozicClient.getInstance(context).enableNotification();
+```
+
+
+
+
+
+
+
 #### Theme customization
 
   To customize the theme, copy paste the following in your theme's  res file:
