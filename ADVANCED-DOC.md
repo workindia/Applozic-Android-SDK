@@ -66,6 +66,33 @@ Code
  }                           
 ```
 
+#### Unread Count
+
+i)To get the unread count of individual conatct pass the userId
+
+Code
+
+```
+   int contactUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForContact("userId");
+```
+
+ii)To get the unread count of individual channel/group pass the channelKey
+
+Code
+
+```
+int channelUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForChannel(channelKey);
+```
+
+iii)To get the total unread count
+
+Code
+
+```
+int totalUnreadCount = new MessageDatabaseService(context).getTotalUnreadCount();
+```
+
+
 #### Custom Message
 Send an automated custom message to connect 2 users. The message layout will be same for both users so that it doesn't look like a sent message.
 
