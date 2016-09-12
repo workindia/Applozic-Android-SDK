@@ -73,7 +73,7 @@ i)To get the unread count of individual conatct pass the userId
 Code
 
 ```
-   int contactUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForContact("userId");
+   int contactUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForContact(userId);
 ```
 
 ii)To get the unread count of individual channel/group pass the channelKey
