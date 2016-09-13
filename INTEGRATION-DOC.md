@@ -28,8 +28,7 @@ Add the following in gradle android target:
 ```
 android {
 
-        packagingOptions    
-         {           
+        packagingOptions {           
            exclude 'META-INF/DEPENDENCIES'      
            exclude 'META-INF/NOTICE'         
            exclude 'META-INF/LICENSE'      
@@ -45,7 +44,7 @@ android {
 ####Step 2: AndroidManifest
 Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
-**Note**: Add meta-data,Activities,Services and Receivers within application Tag ``` <application> </application>  ``` 
+**Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application>  ``` 
 
 **Note**: Add Permissions outside the application Tag ```  <application> ```  
 ``` 
@@ -101,7 +100,6 @@ Permissions:
 <uses-permission android:name="android.permission.READ_CONTACTS" />
 <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 <uses-permission android:name="android.permission.VIBRATE"/>
-<uses-permission android:name="android.permission.WAKE_LOCK" />
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -178,29 +176,27 @@ Paste the following in your androidmanifest.xml:
           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
 </activity>
 
-<activity
-    android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ContactSelectionActivity"
-    android:configChanges="keyboardHidden|orientation|screenSize"
-    android:launchMode="singleTop"
-    android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-    android:theme="@style/ApplozicTheme">
+<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ContactSelectionActivity"
+          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:launchMode="singleTop"
+          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+          android:theme="@style/ApplozicTheme">
  <meta-data
            android:name="android.support.PARENT_ACTIVITY"
            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
 </activity>
 
-<activity
-    android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelCreateActivity"
-    android:configChanges="keyboardHidden|orientation|screenSize"
-    android:launchMode="singleTop"
-    android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-    android:theme="@style/ApplozicTheme">
+<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelCreateActivity"
+          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:launchMode="singleTop"
+          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+          android:theme="@style/ApplozicTheme">
 <meta-data
           android:name="android.support.PARENT_ACTIVITY"
           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
 </activity>
 
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelNameActivity"
+<activity  android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelNameActivity"
            android:configChanges="keyboardHidden|orientation|screenSize"
            android:launchMode="singleTop"
            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
@@ -217,30 +213,29 @@ Paste the following in your androidmanifest.xml:
            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
  </activity>
 
-<activity
-     android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
-     android:configChanges="keyboardHidden|orientation|screenSize"
-     android:launchMode="singleTop"
-     android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-     android:theme="@style/ApplozicTheme"
-     android:windowSoftInputMode="stateHidden|adjustResize">
+<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
+          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:launchMode="singleTop"
+          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+          android:theme="@style/ApplozicTheme"
+          android:windowSoftInputMode="stateHidden|adjustResize">
  <meta-data 
            android:name="android.support.PARENT_ACTIVITY"
            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
   </activity>
   
-  <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:theme="@style/ApplozicTheme"
-            android:windowSoftInputMode="adjustResize">
+<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
+          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+          android:theme="@style/ApplozicTheme"
+          android:windowSoftInputMode="adjustResize">
  </activity>
  
  <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
                    
 <service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
-          android:exported="false" />
+         android:exported="false" />
               
 <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
@@ -251,13 +246,13 @@ Paste the following in your androidmanifest.xml:
          android:exported="false" />
          
 <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
-            android:exported="false" />
+         android:exported="false" />
 
 <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-            android:exported="false" />
+         android:exported="false" />
             
 <service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
-            android:exported="false" />
+         android:exported="false" />
         
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
@@ -270,8 +265,8 @@ Paste the following in your androidmanifest.xml:
 <receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver"
           android:exported="true" android:enabled="true">
           <intent-filter>
-                  <action android:name="android.intent.action.BOOT_COMPLETED" />
-                  <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
           </intent-filter>
 </receiver>                  
 ```
@@ -291,17 +286,15 @@ Applozic will create a new user if the user doesn't exists. userId is the unique
 UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {                  
 
 @Override          
-public void onSuccess(RegistrationResponse registrationResponse, Context context)         
-{           
-   // After successful registration with Applozic server the callback will come here 
-    ApplozicSetting.getInstance(context).showStartNewButton();//To show contact list.
+public void onSuccess(RegistrationResponse registrationResponse, Context context) {           
+     //After successful registration with Applozic server the callback will come here 
+     ApplozicSetting.getInstance(context).showStartNewButton();//To show contact list.
      //ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
 }                       
 
 @Override             
-public void onFailure(RegistrationResponse registrationResponse, Exception exception)         
-{  
-    // If any failure in registration the callback  will come here 
+public void onFailure(RegistrationResponse registrationResponse, Exception exception) {  
+    //If any failure in registration the callback  will come here 
 }};                      
 
 User user = new User();          
@@ -323,32 +316,31 @@ Under Module section, update the GCM Server Key.***
 
 ##### Firebase Cloud Messaging (FCM)  is already enabled in my app
 
-  Add this below code in two places and  pass the push notification tooken:
+  Add this below code in two places and pass the push notification tooken:
   
-  1.In UserLoginTask "onSuccess" (refer Step 3)
+  1. In UserLoginTask "onSuccess" (refer Step 3)
   
-  2.In your FcmInstanceIDListenerService  onTokenRefresh() method  
+  2. In your FcmInstanceIDListenerService  onTokenRefresh() method  
 
 
 ```
-if(MobiComUserPreference.getInstance(context).isRegistered()){
+if(MobiComUserPreference.getInstance(context).isRegistered()) {
 PushNotificationTask pushNotificationTask = null;         
 PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {                  
 @Override           
-public void onSuccess(RegistrationResponse registrationResponse)
-{      
+public void onSuccess(RegistrationResponse registrationResponse) {   
+
 }            
 @Override          
-public void onFailure(RegistrationResponse registrationResponse, Exception exception)
-{             
+public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+
 } 
+
 };                    
 
 pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
 pushNotificationTask.execute((Void) null);  
 }
-
-                        
 ```
 
 ##### For Receiving Notifications in FCM
@@ -370,7 +362,7 @@ If you already have GCM enabled in your app, then paste PushNotificationTask cod
      
 ```
 PushNotificationTask pushNotificationTask = null;         
-PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener(){                  
+PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {                  
 @Override           
 public void onSuccess(RegistrationResponse registrationResponse) {  
 
@@ -418,20 +410,17 @@ In case, if you don't have the existing FCM related code, then copy the push not
 And add below code in your androidmanifest.xml file
 
 ``` 
-<service
-       android:name="<CLASS_PACKAGE>.FcmListenerService">
+<service android:name="<CLASS_PACKAGE>.FcmListenerService">
         <intent-filter>
                <action android:name="com.google.firebase.MESSAGING_EVENT" />
         </intent-filter>
 </service>
-<service
-       android:name="<CLASS_PACKAGE>.FcmInstanceIDListenerService"
+<service android:name="<CLASS_PACKAGE>.FcmInstanceIDListenerService"
        android:exported="false">
        <intent-filter>
                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
         </intent-filter>
 </service>
-
   ``` 
 ####Setup FCM in UserLoginTask "onSuccess" (refer Step 3).
 
