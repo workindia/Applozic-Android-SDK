@@ -101,6 +101,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private boolean loading = true;
     private int startingPageIndex = 0;
     private ApplozicSetting applozicSetting;
+    private ContactDatabase contactDatabase;
 
     /**
      * Fragments require an empty constructor.
@@ -116,6 +117,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        contactDatabase = new ContactDatabase(getContext());
         contactService = new AppContactService(getActivity());
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         applozicSetting = ApplozicSetting.getInstance(getContext());
@@ -270,7 +272,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
         // Moves to the Cursor row corresponding to the ListView item that was clicked
         cursor.moveToPosition(position);
-        Contact contact = new ContactDatabase(getContext()).getContact(cursor, "_id");
+        Contact contact = contactDatabase.getContact(cursor, "_id");
         mOnContactSelectedListener.onCustomContactSelected(contact);
     }
 
@@ -342,7 +344,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        ContactDatabase contactDatabase = new ContactDatabase(getContext());
         Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray);
         return loader;
     }
@@ -452,7 +453,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             final ViewHolder holder = (ViewHolder) view.getTag();
 
             //////////////////////////
-            Contact contact = new ContactDatabase(context).getContact(cursor, "_id");
+            Contact contact = contactDatabase.getContact(cursor, "_id");
             ///////////////////
 
             holder.text1.setText(contact.getDisplayName() == null ? contact.getUserId() : contact.getDisplayName());
@@ -628,7 +629,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
 
             if (registeredUsersApiResponse != null) {
-                mAdapter.changeCursor(new ContactDatabase(context).loadContacts());
+                mAdapter.changeCursor(contactDatabase.loadContacts());
                 mAdapter.notifyDataSetChanged();
             }
 

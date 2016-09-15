@@ -110,6 +110,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.reconnectMQTT();
         } else if(BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)){
             conversationUIService.updateChannelSync();
+        }else  if(BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString().equals(action)){
+            conversationUIService.updateTitleAndSubtitle();
         }
     }
 }

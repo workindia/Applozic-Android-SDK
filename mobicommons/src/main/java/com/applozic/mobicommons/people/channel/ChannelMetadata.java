@@ -18,7 +18,7 @@ public class ChannelMetadata extends JsonMarker {
 
     public static final String ADMIN_NAME = ":adminName";
     public static final String GROUP_NAME = ":groupName";
-    private static final String USER_NAME = ":userName";
+    public static final String USER_NAME = ":userName";
 
     private String createGroupMessage;
     private String removeMemberMessage;

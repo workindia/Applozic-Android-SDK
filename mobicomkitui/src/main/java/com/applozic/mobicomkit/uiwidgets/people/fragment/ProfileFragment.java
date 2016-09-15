@@ -43,6 +43,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 
 import com.applozic.mobicomkit.contact.AppContactService;
 
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.PictureUploadPopUpFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -125,10 +126,10 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    String activityClass = Utils.getMetaDataValue(getActivity(), MobiComKitConstants.APPLICATION_LOGIN_ACTIVITY);
-                    if (!TextUtils.isEmpty(activityClass)) {
+                    final String logoutActivity = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.USER_LOOUT);
+                    if (!TextUtils.isEmpty(logoutActivity)) {
                         new UserClientService(getActivity()).logout();
-                        Intent intent = new Intent(getActivity(), Class.forName(activityClass));
+                        Intent intent = new Intent(getActivity(), Class.forName(logoutActivity));
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
                         getActivity().finish();

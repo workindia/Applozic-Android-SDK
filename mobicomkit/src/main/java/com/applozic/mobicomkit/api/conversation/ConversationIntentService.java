@@ -50,6 +50,7 @@ public class ConversationIntentService extends IntentService {
         @Override
         public void run() {
             try {
+                UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
                 MobiComConversationService mobiComConversationService = new MobiComConversationService(ConversationIntentService.this);
                 List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
                 for (Message message: messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
@@ -64,8 +65,6 @@ public class ConversationIntentService extends IntentService {
 
                     mobiComConversationService.getMessages(1L, null, contact, channel, null);
                 }
-
-                UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -48,13 +48,15 @@ public class MobiComConversationService {
     private SharedPreferences sharedPreferences;
     private BaseContactService baseContactService;
     private ConversationService conversationService;
+    private ChannelService channelService;
 
     public MobiComConversationService(Context context) {
         this.context = context;
         this.messageClientService = new MessageClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.baseContactService = new AppContactService(context);
-        conversationService = ConversationService.getInstance(context);
+        this.conversationService = ConversationService.getInstance(context);
+        this.channelService = ChannelService.getInstance(context);
         this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
@@ -89,10 +91,18 @@ public class MobiComConversationService {
     public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId) {
         List<Message> messageList = new ArrayList<Message>();
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel,conversationId);
+        boolean isServerCallNotRequired = false;
 
-        if (!cachedMessageList.isEmpty() &&
+        if (channel != null) {
+            Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(channel.getKey());
+            isServerCallNotRequired = (newChannel != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType()) || channelService.processIsUserPresentInChannel(channel.getKey()));
+        } else if (contact != null) {
+            isServerCallNotRequired = true;
+        }
+
+        if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
                 (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
-                || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId))) {
+                || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
             Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
@@ -135,6 +145,9 @@ public class MobiComConversationService {
                 channelFeedResponse = parser.parse(data).getAsJsonObject().get("groupFeeds").toString();
                 ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
                 ChannelService.getInstance(context).processChannelFeedList(channelFeeds,false);
+                if(channel != null && !isServerCallNotRequired ){
+                    BroadcastService.sendUpdateTitleAndSubtitle(context, BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString());
+                }
             }
             if (jsonObject.has("conversationPxys")) {
                 conversationPxyResponse = parser.parse(data).getAsJsonObject().get("conversationPxys").toString();
@@ -143,7 +156,6 @@ public class MobiComConversationService {
             }
             Message[] messages = gson.fromJson(element, Message[].class);
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-
             /*String connectedUsersResponse = parser.parse(data).getAsJsonObject().get("connectedUsers").toString();
             String[] connectedUserIds = (String[]) GsonUtils.getObjectFromJson(connectedUsersResponse, String[].class);*/
 
@@ -370,6 +382,29 @@ public class MobiComConversationService {
     public String getConversationIdString(Integer conversationId){
         return BroadcastService.isContextBasedChatEnabled() && conversationId != null && conversationId != 0 ? "_"+conversationId :"";
     }
+
+    public void read(Contact contact, Channel channel) {
+        try {
+            int unreadCount = 0;
+            if (contact != null) {
+                Contact newContact = baseContactService.getContactById(contact.getContactIds());
+                unreadCount = newContact.getUnreadCount();
+                messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
+            } else if (channel != null) {
+                Channel newChannel = channelService.getChannelByChannelKey(channel.getKey());
+                unreadCount = newChannel.getUnreadCount();
+                messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
+            }
+
+            Intent intent =  new Intent(context, ConversationReadService.class);
+            intent.putExtra(ConversationReadService.CONTACT,contact);
+            intent.putExtra(ConversationReadService.CHANNEL,channel);
+            intent.putExtra(ConversationReadService.UNREAD_COUNT, unreadCount);
+            context.startService(intent);
+        } catch (Exception e){
+        }
+    }
+
 
 //    public void addFileMetaDetails(String responseString, Message message) {
 //        JsonParser jsonParser = new JsonParser();

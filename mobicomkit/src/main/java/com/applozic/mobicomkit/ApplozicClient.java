@@ -80,7 +80,7 @@ public class ApplozicClient {
     }
 
     public boolean isNotificationSmallIconHidden() {
-        return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
+      return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
     }
 
     public boolean isNotAllowed() {

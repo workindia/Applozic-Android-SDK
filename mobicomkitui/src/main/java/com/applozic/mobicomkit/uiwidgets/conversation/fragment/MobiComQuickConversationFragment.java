@@ -31,6 +31,7 @@ import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
@@ -80,6 +81,7 @@ public class MobiComQuickConversationFragment extends Fragment {
     private boolean loading = true;
     private int startingPageIndex = 0;
     private ProgressBar progressBar;
+    ConversationUIService conversationUIService;
 
     public ConversationListView getListView() {
         return listView;
@@ -92,6 +94,7 @@ public class MobiComQuickConversationFragment extends Fragment {
         syncCallService = SyncCallService.getInstance(getActivity());
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
+        conversationUIService = new ConversationUIService(getActivity());
         baseContactService = new AppContactService(getActivity());
         messageDatabaseService = new MessageDatabaseService(getActivity());
         Thread thread = new Thread(new Runnable() {
@@ -156,9 +159,39 @@ public class MobiComQuickConversationFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.setHeaderTitle(R.string.conversation);
 
-        menu.add(Menu.NONE, Menu.NONE, 0, "Delete");
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        int position = info.position;
+        if (messageList.size() <= position) {
+            return;
+        }
+        Message message = messageList.get(position);
+        menu.setHeaderTitle(R.string.conversation_options);
+
+        String[] menuItems = getResources().getStringArray(R.array.conversation_options_menu);
+
+        boolean isUserPresentInGroup = false;
+        if (message.getGroupId() != null) {
+            isUserPresentInGroup =  ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
+        }
+
+        for (int i = 0; i < menuItems.length; i++) {
+
+            if (message.getGroupId() == null &&  (menuItems[i].equals("Delete group") ||
+                    menuItems[i].equals("Exit group"))) {
+                continue;
+            }
+
+            if (menuItems[i].equals("Exit group") && !isUserPresentInGroup) {
+                continue;
+            }
+
+            if (menuItems[i].equals("Delete group") && isUserPresentInGroup) {
+                continue;
+            }
+
+            menu.add(Menu.NONE, i, i, menuItems[i]);
+        }
     }
 
     @Override
@@ -171,16 +204,24 @@ public class MobiComQuickConversationFragment extends Fragment {
         }
         Message message = messageList.get(position);
 
+        Channel channel = null;
+        Contact contact = null;
+
+        if (message.getGroupId() != null) {
+            channel = ChannelDatabaseService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
+        } else {
+            contact = baseContactService.getContactById(message.getContactIds());
+        }
+
         switch (item.getItemId()) {
             case 0:
-                Channel channel = null;
-                Contact contact = null;
-                if (message.getGroupId() != null) {
-                    channel = ChannelDatabaseService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
-                } else {
-                    contact = baseContactService.getContactById(message.getContactIds());
-                }
-                new ConversationUIService(getActivity()).deleteConversationThread(contact, channel);
+                conversationUIService.deleteConversationThread(contact, channel);
+                break;
+            case 1:
+                conversationUIService.deleteGroupConversation(channel);
+                break;
+            case 2:
+                conversationUIService.channelLeaveProcess(channel);
                 break;
             default:
                 return super.onContextItemSelected(item);

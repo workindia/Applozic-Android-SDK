@@ -53,7 +53,9 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A login screen that offers login via email/password.
@@ -267,13 +269,15 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     //Basic settings...
 
                     //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
-
                     ApplozicSetting.getInstance(context).showStartNewGroupButton()
                             .setCompressedImageSizeInMB(5)
                             .enableImageCompression()
                             .setMaxAttachmentAllowed(5);
                     ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
-                    ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
+
+                    Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
+                    activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
+                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
 
                     //Set activity callbacks
                     /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();

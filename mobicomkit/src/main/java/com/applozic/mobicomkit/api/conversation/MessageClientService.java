@@ -130,7 +130,7 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public String getMessageInfoUrl(){
-         return getBaseUrl() + MESSAGE_INFO_URL;
+        return getBaseUrl() + MESSAGE_INFO_URL;
     }
 
     public String getSingleMessageReadUrl() {
@@ -297,7 +297,7 @@ public class MessageClientService extends MobiComKitClientService {
             contact = baseContactService.getContactById(message.getContactIds());
         } else {
             channel = ChannelService.getInstance(context).getChannel(message.getGroupId());
-            isBroadcastOneByOneGroupType = channel.getType().equals(Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue());
+            isBroadcastOneByOneGroupType = Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue().equals(channel.getType());
         }
         long messageId = -1;
 
@@ -673,7 +673,7 @@ public class MessageClientService extends MobiComKitClientService {
         }
         MessageInfoResponse messageInfoResponse =
                 (MessageInfoResponse) GsonUtils.getObjectFromJson(response, MessageInfoResponse.class);
-       return messageInfoResponse;
+        return messageInfoResponse;
     }
 
 }

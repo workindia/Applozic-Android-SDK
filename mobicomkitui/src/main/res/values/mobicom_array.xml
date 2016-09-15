@@ -31,6 +31,12 @@
         <item>Info</item>
     </string-array>
 
+    <string-array name="conversation_options_menu">
+        <item>Delete conversation</item>
+        <item>Delete group</item>
+        <item>Exit group</item>
+    </string-array>
+
     <!--Multimedia options -->
     <string-array name="multimediaOptions_sms">
         <item>Current location</item>

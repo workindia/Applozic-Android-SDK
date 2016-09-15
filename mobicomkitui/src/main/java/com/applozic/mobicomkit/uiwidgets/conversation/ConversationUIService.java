@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,6 +40,8 @@ import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelDeleteTask;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelLeaveMember;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
@@ -73,6 +76,7 @@ public class ConversationUIService {
     public static final String USER_PROFILE_FRAMENT = "userProfilefragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String DISPLAY_NAME = "displayName";
+    public static final String TAKE_ORDER = "takeOrder";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
     public static final String GROUP_NAME = "groupName";
@@ -268,6 +272,89 @@ public class ConversationUIService {
         }
         alertDialog.setTitle(fragmentActivity.getString(R.string.dialog_delete_conversation_title).replace("[name]", name));
         alertDialog.setMessage(fragmentActivity.getString(R.string.dialog_delete_conversation_confir).replace("[name]", name));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
+    }
+
+    public void deleteGroupConversation(final Channel channel) {
+
+        if (!Utils.isInternetAvailable(fragmentActivity)) {
+            showToastMessage(fragmentActivity.getString(R.string.you_dont_have_any_network_access_info));
+            return;
+        }
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragmentActivity).
+                setPositiveButton(R.string.channel_deleting, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        final ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, "",
+                                fragmentActivity.getString(R.string.deleting_channel_user), true);
+                        ApplozicChannelDeleteTask.TaskListener channelDeleteTask = new ApplozicChannelDeleteTask.TaskListener() {
+                            @Override
+                            public void onSuccess(String response) {
+                                Log.i(TAG, "Channel deleted response:" + response);
+
+                            }
+
+                            @Override
+                            public void onFailure(String response, Exception exception) {
+                                showToastMessage(fragmentActivity.getString(Utils.isInternetAvailable(fragmentActivity) ? R.string.applozic_server_error : R.string.you_dont_have_any_network_access_info));
+                            }
+
+                            @Override
+                            public void onCompletion() {
+                                if (progressDialog != null && progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                }
+
+                            }
+                        };
+                        ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(fragmentActivity, channelDeleteTask, channel);
+                        applozicChannelDeleteTask.execute((Void) null);
+                    }
+                });
+        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        alertDialog.setMessage(fragmentActivity.getString(R.string.delete_channel_messages_and_channel_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
+    }
+
+    public void channelLeaveProcess(final Channel channel) {
+        if (!Utils.isInternetAvailable(fragmentActivity)) {
+            showToastMessage(fragmentActivity.getString(R.string.you_dont_have_any_network_access_info));
+            return;
+        }
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragmentActivity).
+                setPositiveButton(R.string.channel_exit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ApplozicChannelLeaveMember.ChannelLeaveMemberListener applozicLeaveMemberListener = new ApplozicChannelLeaveMember.ChannelLeaveMemberListener() {
+                            @Override
+                            public void onSuccess(String response, Context context) {
+                            }
+
+                            @Override
+                            public void onFailure(String response, Exception e, Context context) {
+                                showToastMessage(fragmentActivity.getString(Utils.isInternetAvailable(fragmentActivity) ? R.string.applozic_server_error : R.string.you_dont_have_any_network_access_info));
+                            }
+                        };
+                        ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(fragmentActivity, channel.getKey(), MobiComUserPreference.getInstance(fragmentActivity).getUserId(), applozicLeaveMemberListener);
+                        applozicChannelLeaveMember.setEnableProgressDialog(true);
+                        applozicChannelLeaveMember.execute((Void) null);
+
+                    }
+                });
+        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        alertDialog.setMessage(fragmentActivity.getString(R.string.exit_channel_message_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()));
         alertDialog.setCancelable(true);
         alertDialog.create().show();
     }
@@ -470,6 +557,15 @@ public class ConversationUIService {
         }
         if (BroadcastService.isIndividual()) {
             getConversationFragment().updateChannelTitleAndSubTitle();
+        }
+    }
+
+    public void updateTitleAndSubtitle() {
+        if (!BroadcastService.isIndividual()) {
+            return;
+        }
+        if (BroadcastService.isIndividual()) {
+            getConversationFragment().updateTitleForOpenGroup();
         }
     }
 
@@ -699,6 +795,12 @@ public class ConversationUIService {
             getConversationFragment().sendMessage(sharedText);
         }
 
+    }
+
+    void showToastMessage(final String messageToShow) {
+        Toast toast = Toast.makeText(fragmentActivity, messageToShow, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     public void reconnectMQTT() {

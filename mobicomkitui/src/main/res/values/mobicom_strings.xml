@@ -87,6 +87,7 @@
     <string name="enter_mt_message_hint">Write a Message..</string>
     <string name="messageOptions">Message Options</string>
     <string name="conversation">Conversation</string>
+    <string name="conversation_options">Options</string>
     <string name="enter_support_query_hint">enter your queries, bug reporting or feedback here</string>
     <string name="info_message_scheduled">Message is successfully scheduled</string>
 
@@ -140,6 +141,7 @@
     <string name="channel_exit">Exit</string>
     <string name="channel_deleting">Delete</string>
     <string name="leave_channel">Are you sure you want to exit from this group?</string>
+    <string name="exit_channel_message_info">Are you sure you want to exit [group] group?</string>
     <string name="delete_channel_messages_and_channel_info">Are you sure you want to delete [group] group?</string>
     <string name="channel_name_empty">Group name can not be empty</string>
     <string name="channel_add_alert">Unable to add participant in group because you are not a participant</string>

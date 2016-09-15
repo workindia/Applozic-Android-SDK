@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.sample;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +12,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,21 +25,17 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
-import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.async.ApplzoicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComActivityForFragment;
-import com.applozic.mobicomkit.uiwidgets.conversation.fragment.ConversationFragment;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
 
-public class MainActivity extends MobiComActivityForFragment
+public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
-
     private UserLogoutTask userLogoutTask;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String TAG = "MainActivity";
@@ -253,7 +250,8 @@ public class MainActivity extends MobiComActivityForFragment
     public void groupChat(View v) {
         Intent groupChat = new Intent(this, ConversationActivity.class);
         groupChat.putExtra(TAKE_ORDER, true);
-        groupChat.putExtra(ConversationUIService.GROUP_ID, 686330);
+        groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
+        groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
         startActivity(groupChat);
     }
 
@@ -292,26 +290,6 @@ public class MainActivity extends MobiComActivityForFragment
     }
 
     @Override
-    public void processLocation() {
-
-    }
-
-    @Override
-    public void startContactActivityForResult() {
-        new ConversationUIService(this).startContactActivityForResult();
-    }
-
-    @Override
-    public void addFragment(ConversationFragment conversationFragment) {
-        addFragment(this, conversationFragment, CONVERSATION_FRAGMENT);
-    }
-
-    @Override
-    public void startContactActivityForResult(Message message, String messageContent) {
-
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -329,33 +307,6 @@ public class MainActivity extends MobiComActivityForFragment
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-
-    @Override
-    public void updateLatestMessage(Message message, String formattedContactNumber) {
-        new ConversationUIService(this).updateLatestMessage(message, formattedContactNumber);
-
-    }
-
-    @Override
-    public void removeConversation(Message message, String formattedContactNumber) {
-
-        new ConversationUIService(this).removeConversation(message, formattedContactNumber);
-    }
-
-    @Override
-    public void showErrorMessageView(String errorMessage) {
-
-    }
-
-    @Override
-    public void retry() {
-
-    }
-
-    @Override
-    public int getRetryCount() {
-        return 0;
     }
 
     private void buildSupportContactData() {

@@ -53,13 +53,13 @@ public class UserService {
                 try {
                     SyncBlockUserApiResponse apiResponse = userClientService.getSyncUserBlockList(userPreference.getUserBlockSyncTime());
                     if (apiResponse != null && SyncBlockUserApiResponse.SUCCESS.equals(apiResponse.getStatus())) {
-                        Contact contact = new Contact();
                         SyncUserBlockListFeed syncUserBlockListFeed = apiResponse.getResponse();
                         if (syncUserBlockListFeed != null) {
                             List<SyncUserBlockFeed> blockedToUserList = syncUserBlockListFeed.getBlockedToUserList();
                             List<SyncUserBlockFeed> blockedByUserList = syncUserBlockListFeed.getBlockedByUserList();
                             if (blockedToUserList != null && blockedToUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockedFeed : blockedToUserList) {
+                                    Contact contact = new Contact();
                                     if (syncUserBlockedFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockedFeed.getBlockedTo())) {
                                         if(baseContactService.isContactExists(syncUserBlockedFeed.getBlockedTo())){
                                             baseContactService.updateUserBlocked(syncUserBlockedFeed.getBlockedTo(),syncUserBlockedFeed.getUserBlocked());
@@ -74,6 +74,7 @@ public class UserService {
                             }
                             if (blockedByUserList != null && blockedByUserList.size() > 0) {
                                 for (SyncUserBlockFeed syncUserBlockByFeed : blockedByUserList) {
+                                    Contact contact = new Contact();
                                     if (syncUserBlockByFeed.getUserBlocked() != null && !TextUtils.isEmpty(syncUserBlockByFeed.getBlockedBy())) {
                                         if(baseContactService.isContactExists(syncUserBlockByFeed.getBlockedBy())){
                                             baseContactService.updateUserBlockedBy(syncUserBlockByFeed.getBlockedBy(),syncUserBlockByFeed.getUserBlocked());

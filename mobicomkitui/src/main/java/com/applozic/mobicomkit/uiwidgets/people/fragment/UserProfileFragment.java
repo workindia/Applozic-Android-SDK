@@ -105,6 +105,8 @@ public class UserProfileFragment extends Fragment {
             if (!TextUtils.isEmpty(contact.getContactNumber())) {
                 phone_cardView.setVisibility(View.VISIBLE);
                 phone.setText(contact.getContactNumber());
+            }else {
+                phone_cardView.setVisibility(View.GONE);
             }
 
         }

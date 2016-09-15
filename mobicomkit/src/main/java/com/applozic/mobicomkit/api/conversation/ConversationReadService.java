@@ -4,9 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.applozic.mobicomkit.api.account.user.UserService;
-import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
-import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -15,9 +12,10 @@ import com.applozic.mobicommons.people.contact.Contact;
  */
 public class ConversationReadService extends IntentService {
 
+    private static final String TAG = "ConversationReadService";
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
-    private static final String TAG = "ConversationReadService";
+    public static final String UNREAD_COUNT = "UNREAD_COUNT";
 
     public ConversationReadService() {
         super(TAG);
@@ -25,23 +23,12 @@ public class ConversationReadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
-        Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
-        MessageClientService messageClientService = new MessageClientService(getApplicationContext());
-        MessageDatabaseService messageDatabaseService = new MessageDatabaseService(getApplicationContext());
+        Integer unreadCount = intent.getIntExtra(UNREAD_COUNT, 0);
 
-        Integer unreadCount = null;
-        if (contact != null) {
-            Contact newContact = new AppContactService(getApplicationContext()).getContactById(contact.getContactIds());
-            unreadCount = newContact.getUnreadCount();
-            messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
-        } else if (channel != null) {
-            Channel newChannel = ChannelService.getInstance(getApplicationContext()).getChannelByChannelKey(channel.getKey());
-            unreadCount = newChannel.getUnreadCount();
-            messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
-        }
-        if (unreadCount != null && unreadCount != 0) {
-            messageClientService.updateReadStatus(contact, channel);
+        if (unreadCount != 0) {
+            Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
+            Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
+            new MessageClientService(getApplicationContext()).updateReadStatus(contact, channel);
         } else {
             UserService.getInstance(getApplicationContext()).processUserReadConversation();
         }

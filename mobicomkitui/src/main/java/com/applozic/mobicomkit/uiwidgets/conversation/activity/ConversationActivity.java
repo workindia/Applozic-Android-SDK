@@ -334,7 +334,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                             R.string.applozic_account_closed : R.string.applozic_free_version_not_allowed_on_release_build,
                     Snackbar.LENGTH_INDEFINITE);
             snackbar.show();
-            SyncCallService.getInstance(this).checkAccountStatus();
         }
     }
 

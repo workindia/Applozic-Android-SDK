@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
@@ -21,6 +22,16 @@ public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
     ChannelService channelService;
     Exception exception;
     String leaveResponse;
+    ProgressDialog progressDialog;
+    boolean enableProgressDialog;
+
+    public boolean isEnableProgressDialog() {
+        return enableProgressDialog;
+    }
+
+    public void setEnableProgressDialog(boolean enableProgressDialog) {
+        this.enableProgressDialog = enableProgressDialog;
+    }
 
     public String getClientGroupId() {
         return clientGroupId;
@@ -36,6 +47,15 @@ public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
         this.channelLeaveMemberListener = channelLeaveMemberListener;
         this.context = context;
         this.channelService = ChannelService.getInstance(context);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        if(enableProgressDialog){
+            progressDialog = ProgressDialog.show(context, "",
+                    context.getString(R.string.channel_member_exit), true);
+        }
     }
 
     @Override
@@ -64,6 +84,9 @@ public class ApplozicChannelLeaveMember extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean resultBoolean) {
         super.onPostExecute(resultBoolean);
+        if(progressDialog!=null && progressDialog.isShowing()){
+            progressDialog.dismiss();
+        }
 
         if (resultBoolean && channelLeaveMemberListener != null) {
             channelLeaveMemberListener.onSuccess(leaveResponse, context);

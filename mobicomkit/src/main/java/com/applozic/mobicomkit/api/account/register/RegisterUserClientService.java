@@ -124,6 +124,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setUserBlockSyncTime("10000");
         mobiComUserPreference.setPassword(user.getPassword());
+        mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
 
         Contact contact=  new Contact();
@@ -241,6 +242,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
         Log.i(TAG, "Registration update response: " + registrationResponse);
+        mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         if(registrationResponse.getNotificationResponse() != null){
             Log.e(TAG,"Notification response: "+registrationResponse.getNotificationResponse());
         }
