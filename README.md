@@ -25,7 +25,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 **Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.57' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.58' `
 
 
 Add the following in gradle android target:      
@@ -102,7 +102,6 @@ Permissions:
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  />
 <uses-permission android:name="android.permission.READ_CONTACTS" />
-<uses-permission android:name="android.permission.WRITE_CONTACTS" />
 <uses-permission android:name="android.permission.VIBRATE"/>
 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
