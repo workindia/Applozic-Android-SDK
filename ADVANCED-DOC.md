@@ -23,16 +23,14 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 
 Code
 ```
- public void sendMessage(Message message)        
- {             
+ public void sendMessage(Message message) {             
    ...        
  }                
 ```
 
 Example
 ```
-new MobiComConversationService(activity).sendMessage(new     
-Message("contact@applozic.com", "hello test"));         
+new MobiComConversationService(activity).sendMessage(new Message("contact@applozic.com", "hello test"));         
 ```
 
 
@@ -48,8 +46,7 @@ i) Get single latest message from each conversation
 
 Code
 ```
- public synchronized List<Message> getLatestMessagesGroupByPeople()        
- {            
+ public synchronized List<Message> getLatestMessagesGroupByPeople() {            
   ...         
  }                              
 ```
@@ -60,8 +57,7 @@ startTime and endTime are considered in time in milliseconds from 1970.
 
 Code
 ```
- public List<Message> getMessages(String userId, Long startTime, Long endTime)        
- {            
+ public List<Message> getMessages(String userId, Long startTime, Long endTime) {            
   ...           
  }                           
 ```
@@ -73,7 +69,7 @@ i)To get the unread count of individual conatct pass the userId
 Code
 
 ```
-   int contactUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForContact(userId);
+int contactUnreadCount = new MessageDatabaseService(context).getUnreadMessageCountForContact(userId);
 ```
 
 ii)To get the unread count of individual channel/group pass the channelKey
@@ -240,14 +236,14 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 
 Code
  ```
-            List<String> channelMembersList =  new ArrayList<String>();
-            channelMembersList.add("user1");
-            channelMembersList.add("user2");
-            channelMembersList.add("user3");
-            ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
-            channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
-          //channelInfo.setImageUrl("");pass group image link URL
-            ChannelService.getInstance(context).createChannel(channelInfo);
+       List<String> channelMembersList =  new ArrayList<String>();
+       channelMembersList.add("user1");
+       channelMembersList.add("user2");
+       channelMembersList.add("user3");
+       ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
+       channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
+       //channelInfo.setImageUrl("");pass group image link URL
+        Channel channel = ChannelService.getInstance(context).createChannel(channelInfo);
 
  ```
 
@@ -265,7 +261,6 @@ Code
             public void onSuccess(String response, Context context) {
                 //Response will be "success" if user is added successfully
                 Log.i("ApplozicChannelMember","Add Response:" + response);
-
             }
 
             @Override
@@ -300,7 +295,6 @@ Code
             public void onSuccess(String response, Context context) {
                 //Response will be "success" if user is removed successfully
                 Log.i("ApplozicChannel","remove member response:"+response);
-
             }
 
             @Override
@@ -309,8 +303,8 @@ Code
             }
         };
 
-        ApplozicChannelRemoveMemberTask applozicChannelRemoveMemberTask =  new ApplozicChannelRemoveMemberTask(context,channelKey,userId,channelRemoveMemberListener);//pass channelKey and userId whom you want to remove from channel
-        applozicChannelRemoveMemberTask.execute((Void)null);
+  ApplozicChannelRemoveMemberTask applozicChannelRemoveMemberTask =  new ApplozicChannelRemoveMemberTask(context,channelKey,userId,channelRemoveMemberListener);//pass channelKey and userId whom you want to remove from channel
+  applozicChannelRemoveMemberTask.execute((Void)null);
  ```
   
 | Parameter | Description  |
@@ -344,8 +338,8 @@ Code
             }
         };
 
-        ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(context,channelKey,userId,channelLeaveMemberListener);//pass channelKey and userId
-        applozicChannelLeaveMember.execute((Void)null);
+  ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(context,channelKey,userId,channelLeaveMemberListener);//pass channelKey and userId
+  applozicChannelLeaveMember.execute((Void)null);
   ```
  
 | Parameter | Description  |
@@ -379,8 +373,8 @@ Code
             }
         };
 
-        ApplozicChannelNameUpdateTask channelNameUpdateTask = new ApplozicChannelNameUpdateTask(context, channelKey, channelName, channelNameUpdateListener);//pass context ,channelKey,chnanel new name 
-        channelNameUpdateTask.execute((Void) null);
+  ApplozicChannelNameUpdateTask channelNameUpdateTask = new ApplozicChannelNameUpdateTask(context, channelKey, channelName, channelNameUpdateListener);//pass context ,channelKey,chnanel new name 
+  channelNameUpdateTask.execute((Void) null);
 
  ```
 | Parameter | Description  |
@@ -470,9 +464,9 @@ Steps to create Context based chat
 ##### Step 2 : Create Async task and Starting Conversation chat
 
 ```
-     ApplzoicConversationCreateTask applzoicConversationCreateTask = null;
+   ApplzoicConversationCreateTask applzoicConversationCreateTask = null;
 
-        ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
+   ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
             @Override
             public void onSuccess(Integer conversationId, Context context) {
 
