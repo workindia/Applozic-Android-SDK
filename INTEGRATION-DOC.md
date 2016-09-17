@@ -310,7 +310,7 @@ Under Module section, update the GCM Server Key.***
 
 ##### Firebase Cloud Messaging (FCM)  is already enabled in my app
 
-  Add the below code and pass the push notification tooken:
+  Add the below code and pass the push notification token:
   
  **1.** In UserLoginTask "onSuccess" (refer Step 3)
   
