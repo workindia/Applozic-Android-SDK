@@ -1,5 +1,42 @@
 
 ##Changelog
+
+
+ **Version 4.58**  - Thursday, 15 September 2016
+ 
+ Unread count bug fix
+ 
+ Open group issues
+ 
+ Improvements  
+
+ 
+###  Steps for upgrading from 4.57 to 4.58
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.58'`
+
+
+ **Version 4.57**  - Wednesday, 7 September 2016
+ 
+ Block and unblock fix
+ 
+ Message list pagination
+ 
+ Message Encryption
+ 
+ Group add,remove,exit,delete group,group icon change meta data supports 
+ 
+ Improvements and bug fixs
+ 
+
+ 
+###  Steps for upgrading from 4.56 to 4.57
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.57'`
  
  **Version 4.56**  - Tuesday, 30 August 2016
  
