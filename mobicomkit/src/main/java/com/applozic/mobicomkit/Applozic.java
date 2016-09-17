@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 public class Applozic {
 
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
+    private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
     public static Applozic applozic;
     public SharedPreferences sharedPreferences;
@@ -38,6 +39,15 @@ public class Applozic {
 
     public Applozic setApplicationKey(String applicationKey) {
         sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
+        return this;
+    }
+
+    public String getDeviceRegistrationId() {
+        return sharedPreferences.getString(DEVICE_REGISTRATION_ID, null);
+    }
+
+    public Applozic setDeviceRegistrationId(String registrationId) {
+        sharedPreferences.edit().putString(DEVICE_REGISTRATION_ID, registrationId).commit();
         return this;
     }
 

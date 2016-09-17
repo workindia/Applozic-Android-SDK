@@ -38,13 +38,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.sample.pushnotification.FCMRegistrationUtils;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -285,8 +286,20 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);*/
 
                     //Start GCM registration....
-                    FCMRegistrationUtils fcmRegistrationUtils = new FCMRegistrationUtils(activity);
-                    fcmRegistrationUtils.setUpFcmNotification();
+
+                    PushNotificationTask.TaskListener pushNotificationTaskListener=  new PushNotificationTask.TaskListener() {
+                        @Override
+                        public void onSuccess(RegistrationResponse registrationResponse) {
+
+                        }
+
+                        @Override
+                        public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+
+                        }
+                    };
+                    PushNotificationTask pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(),pushNotificationTaskListener,context);
+                    pushNotificationTask.execute((Void)null);
 
                     buildContactData();
 
