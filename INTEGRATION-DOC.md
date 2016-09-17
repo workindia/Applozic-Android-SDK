@@ -18,7 +18,7 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.58'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.59'
 ```
 
 
@@ -310,12 +310,10 @@ Under Module section, update the GCM Server Key.***
 
 ##### Firebase Cloud Messaging (FCM)  is already enabled in my app
 
-  Add this below code in two places and pass the push notification tooken:
+  Add the below code and pass the push notification tooken:
   
-  1. In UserLoginTask "onSuccess" (refer Step 3)
+ **1.** In UserLoginTask "onSuccess" (refer Step 3)
   
-  2. In your FcmInstanceIDListenerService  onTokenRefresh() method  
-
 
 ```
 if(MobiComUserPreference.getInstance(context).isRegistered()) {
@@ -336,6 +334,14 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
 pushNotificationTask.execute((Void) null);  
 }
+```
+
+ **2.** In your FcmInstanceIDListenerService  onTokenRefresh() method
+
+ ```
+ if (MobiComUserPreference.getInstance(this).isRegistered()) {
+      new RegisterUserClientService(this).updatePushNotificationId(registrationToken);
+ }
 ```
 
 ##### For Receiving Notifications in FCM
@@ -418,11 +424,23 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup FCM in UserLoginTask "onSuccess" (refer Step 3).
+####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
- FCMRegistrationUtils fcmRegistrationUtils = new FCMRegistrationUtils(context);          
- gcmRegistrationUtils.setUpFcmNotification();                      
+ PushNotificationTask pushNotificationTask = null;
+ PushNotificationTask.TaskListener listener=  new PushNotificationTask.TaskListener() {
+ @Override
+ public void onSuccess(RegistrationResponse registrationResponse) {
+
+ }
+ @Override
+ public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+
+ }
+  
+ };
+ pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(),listener,context);
+ pushNotificationTask.execute((Void)null);
 ```
 
 
