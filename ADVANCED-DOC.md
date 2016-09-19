@@ -235,15 +235,15 @@ ApplozicSetting.getInstance(context).hideStartNewGroupButton();
   **Note:** If the channel meta data  is set as empty String, no notification is sent to other users in the group/channel.
 
    ```
-  ChannelMetadata channelMetadata = new ChannelMetadata();
-  channelMetadata.setCreateGroupMessage(ChannelMetadata.ADMIN_NAME+" Created the "+ChannelMetadata.GROUP_NAME);
-  channelMetadata.setAddMemberMessage(ChannelMetadata.ADMIN_NAME+" Added the "+ChannelMetadata.USER_NAME);
-  channelMetadata.setRemoveMemberMessage(ChannelMetadata.ADMIN_NAME+" Removed the  "+ChannelMetadata.USER_NAME);
-  channelMetadata.setGroupNameChangeMessage(ChannelMetadata.USER_NAME+" user changed name "+ChannelMetadata.GROUP_NAME);
-  channelMetadata.setJoinMemberMessage(ChannelMetadata.USER_NAME+" user joined");
-  channelMetadata.setGroupLeftMessage(ChannelMetadata.USER_NAME+" left group "+ChannelMetadata.GROUP_NAME);
-  channelMetadata.setGroupIconChangeMessage(ChannelMetadata.USER_NAME+" changed icon ");
-  channelMetadata.setDeletedGroupMessage(ChannelMetadata.ADMIN_NAME +" Deleted the group "+ChannelMetadata.GROUP_NAME);
+ ChannelMetadata channelMetadata = new ChannelMetadata();
+ channelMetadata.setCreateGroupMessage(ChannelMetadata.ADMIN_NAME+" Created the "+ChannelMetadata.GROUP_NAME);
+ channelMetadata.setAddMemberMessage(ChannelMetadata.ADMIN_NAME+" Added the "+ChannelMetadata.USER_NAME);
+ channelMetadata.setRemoveMemberMessage(ChannelMetadata.ADMIN_NAME+" Removed the  "+ChannelMetadata.USER_NAME);
+ channelMetadata.setGroupNameChangeMessage(ChannelMetadata.USER_NAME+" user changed name "+ChannelMetadata.GROUP_NAME);
+ channelMetadata.setJoinMemberMessage(ChannelMetadata.USER_NAME+" user joined");
+ channelMetadata.setGroupLeftMessage(ChannelMetadata.USER_NAME+" left group "+ChannelMetadata.GROUP_NAME);
+ channelMetadata.setGroupIconChangeMessage(ChannelMetadata.USER_NAME+" changed icon");
+ channelMetadata.setDeletedGroupMessage(ChannelMetadata.ADMIN_NAME +" Deleted the group "+ChannelMetadata.GROUP_NAME);
  ```
  
   Following place holders will be replaced
@@ -272,7 +272,7 @@ Code
        ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
        channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
        //channelInfo.setImageUrl(""); //pass group image link URL
-       //channelInfo.setChannelMetadata(channelMetadata); //Optional option for setting the group meta data 
+       //channelInfo.setChannelMetadata(channelMetadata); //Optional option for setting group meta data 
         Channel channel = ChannelService.getInstance(context).createChannel(channelInfo);
 
  ```
