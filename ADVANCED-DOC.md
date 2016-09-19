@@ -226,6 +226,35 @@ ApplozicSetting.getInstance(context).hideStartNewGroupButton();
  
  Open group with type : Channel.GroupType.OPEN.getValue().intValue()
  
+ 
+ 
+ **Note:** Group meta data is optional 
+ 
+ Setting group meta data for messages like created the group,left the group,removed from group,group deleted,group icon changed and group name changed.
+  
+  **Note:** If the channel meta data  is set as empty String, no notification is sent to other users in the group/channel.
+
+   ```
+  ChannelMetadata channelMetadata = new ChannelMetadata();
+  channelMetadata.setCreateGroupMessage(ChannelMetadata.ADMIN_NAME+" Created the "+ChannelMetadata.GROUP_NAME);
+  channelMetadata.setAddMemberMessage(ChannelMetadata.ADMIN_NAME+" Added the "+ChannelMetadata.USER_NAME);
+  channelMetadata.setRemoveMemberMessage(ChannelMetadata.ADMIN_NAME+" Removed the  "+ChannelMetadata.USER_NAME);
+  channelMetadata.setGroupNameChangeMessage(ChannelMetadata.USER_NAME+" user changed name "+ChannelMetadata.GROUP_NAME);
+  channelMetadata.setJoinMemberMessage(ChannelMetadata.USER_NAME+" user joined");
+  channelMetadata.setGroupLeftMessage(ChannelMetadata.USER_NAME+" left group "+ChannelMetadata.GROUP_NAME);
+  channelMetadata.setGroupIconChangeMessage(ChannelMetadata.USER_NAME+" changed icon ");
+  channelMetadata.setDeletedGroupMessage(ChannelMetadata.ADMIN_NAME +" Deleted the group "+ChannelMetadata.GROUP_NAME);
+ ```
+ 
+  Following place holders will be replaced
+
+  ChannelMetadata.ADMIN_NAME : admin name of the group
+  
+  ChannelMetadata.USER_NAME  : user name of the user
+  
+  ChannelMetadata.GROUP_NAME : group name
+
+ 
 
 Import
 
@@ -242,7 +271,8 @@ Code
        channelMembersList.add("user3");
        ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
        channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
-       //channelInfo.setImageUrl("");pass group image link URL
+       //channelInfo.setImageUrl(""); //pass group image link URL
+       //channelInfo.setChannelMetadata(channelMetadata); //Optional option for setting the group meta data 
         Channel channel = ChannelService.getInstance(context).createChannel(channelInfo);
 
  ```
@@ -380,8 +410,11 @@ Code
 | Parameter | Description  |
 | --------- | ------------ |
 | channelKey | Unique identifier of the group/channel |
-| userId | Unique identifier of the user |
-  
+| userId | Unique identifier of the user
+
+
+
+
   
   
 ##### Open Activity on tap of toolbar in Chat Screen
