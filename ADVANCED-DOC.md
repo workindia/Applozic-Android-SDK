@@ -230,7 +230,7 @@ ApplozicSetting.getInstance(context).hideStartNewGroupButton();
  
  **Note:** Group meta data is optional 
  
- Setting group meta data for messages like created the group,left the group,removed from group,group deleted,group icon changed and group name changed.
+ Setting group meta data for messages like created group,left group, removed from group, group deleted, group icon changed and group name changed.
   
   **Note:** If the channel meta data  is set as empty String, no notification is sent to other users in the group/channel.
 
