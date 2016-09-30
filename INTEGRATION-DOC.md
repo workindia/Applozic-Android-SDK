@@ -18,7 +18,7 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.59'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.60'
 ```
 
 
@@ -51,9 +51,6 @@ Add the following Permissions, Activities, Services and Receivers in androidmani
 
 <meta-data android:name="com.applozic.application.key"
            android:value="YOUR_APPLOZIC_APPLICATION_KEY" /> <!-- Applozic Application Key -->
-
-<meta-data android:name="com.applozic.mobicomkit.notification.icon" 
-           android:resource="YOUR_LAUNCHER_ICON" />  <!-- Launcher Icon -->
 
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
