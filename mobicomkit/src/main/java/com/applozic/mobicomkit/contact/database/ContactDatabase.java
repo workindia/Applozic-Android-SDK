@@ -29,7 +29,7 @@ public class ContactDatabase {
     private MobiComDatabaseHelper dbHelper;
 
     public ContactDatabase(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.userPreferences = MobiComUserPreference.getInstance(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
@@ -87,6 +87,9 @@ public class ContactDatabase {
 
     public List<Contact> getAllContactListExcludingLoggedInUser() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if(TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getUserId())){
+            return new ArrayList<Contact>();
+        }
         String structuredNameWhere = MobiComDatabaseHelper.USERID + " != ?";
         Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{MobiComUserPreference.getInstance(context).getUserId()}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
         List<Contact> contactList = getContactList(cursor);
@@ -105,6 +108,9 @@ public class ContactDatabase {
     }
 
     public Contact getContactById(String id) {
+        if(TextUtils.isEmpty(id)){
+            return null;
+        }
         String structuredNameWhere = MobiComDatabaseHelper.USERID + " =?";
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{id}, null, null, null);
@@ -340,9 +346,11 @@ public class ContactDatabase {
             @Override
             public Cursor loadInBackground() {
 
+                if(TextUtils.isEmpty(userPreferences.getUserId())){
+                    return null;
+                }
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
                 Cursor cursor;
-
                 String query = "select userId as _id, fullName, contactNO, " +
                         "displayName,contactImageURL,contactImageLocalURI,email," +
                         "applicationId,connected,lastSeenAt,unreadCount,blocked," +
@@ -360,7 +368,7 @@ public class ContactDatabase {
                     cursor = db.rawQuery(query, userIdArray);
                 } else {
                     if (!TextUtils.isEmpty(searchString)) {
-                        query = query + " where fullName like '%" + searchString.replaceAll("'","''") + "%'";
+                        query = query + " where fullName like '%" + searchString.replaceAll("'","''") + "%' AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'","''") + "')";
                     } else {
                         query = query + " where userId != '" + userPreferences.getUserId() + "'";
                     }

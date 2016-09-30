@@ -99,7 +99,6 @@
             android:gravity="center"
             android:paddingLeft="2dp"
             android:text="created at time"
-            android:textColor="@color/message_details_text_color"
             android:textSize="11sp" />
 
     </LinearLayout>

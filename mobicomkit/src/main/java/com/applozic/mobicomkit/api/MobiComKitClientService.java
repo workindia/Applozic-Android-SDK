@@ -38,7 +38,7 @@ public class MobiComKitClientService {
     }
 
     public MobiComKitClientService(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     protected String getBaseUrl() {
@@ -47,7 +47,7 @@ public class MobiComKitClientService {
         if (!TextUtils.isEmpty(SELECTED_BASE_URL)) {
             return SELECTED_BASE_URL;
         }
-        String BASE_URL = Utils.getMetaDataValue(context, BASE_URL_METADATA);
+        String BASE_URL = Utils.getMetaDataValue(context.getApplicationContext(), BASE_URL_METADATA);
         if (!TextUtils.isEmpty(BASE_URL)) {
             return BASE_URL;
         }
@@ -60,7 +60,7 @@ public class MobiComKitClientService {
         if(!TextUtils.isEmpty(MQTT_BROKER_URL)){
             return MQTT_BROKER_URL;
         }
-        String MQTT_BASE_URL = Utils.getMetaDataValue(context, MQTT_BASE_URL_METADATA);
+        String MQTT_BASE_URL = Utils.getMetaDataValue(context.getApplicationContext(), MQTT_BASE_URL_METADATA);
         if (!TextUtils.isEmpty(MQTT_BASE_URL)) {
             return MQTT_BASE_URL;
         }
@@ -117,12 +117,12 @@ public class MobiComKitClientService {
         if(!TextUtils.isEmpty(applicationKey)){
             return applicationKey;
         }
-        return Utils.getMetaDataValue(context, APPLICATION_KEY_HEADER_VALUE_METADATA);
+        return Utils.getMetaDataValue(context.getApplicationContext(), APPLICATION_KEY_HEADER_VALUE_METADATA);
     }
 
     public static String getAppModuleName(Context context) {
 
-        return Utils.getMetaDataValue(context, APP_MODULE_NAME_META_DATA_KEY);
+        return Utils.getMetaDataValue(context.getApplicationContext(), APP_MODULE_NAME_META_DATA_KEY);
 
     }
 

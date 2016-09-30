@@ -71,17 +71,17 @@ public class MobiComConversationService {
     }
 
     public List<Message> getLatestMessagesGroupByPeople() {
-        return getLatestMessagesGroupByPeople(null);
+        return getLatestMessagesGroupByPeople(null,null);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt) {
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt,String searchString) {
         boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
 
         if (emptyTable || createdAt != null  && createdAt != 0) {
             getMessages(null, createdAt, null, null,null);
         }
 
-        return  messageDatabaseService.getMessages(createdAt);
+        return  messageDatabaseService.getMessages(createdAt,searchString);
     }
 
     public List<Message> getMessages(String userId, Long startTime, Long endTime) {
@@ -265,7 +265,7 @@ public class MobiComConversationService {
 
     private void setFilePathifExist(Message message) {
         FileMeta fileMeta = message.getFileMetas();
-        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context, fileMeta.getContentType());
+        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context.getApplicationContext(), fileMeta.getContentType());
         if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());
@@ -300,6 +300,10 @@ public class MobiComConversationService {
 
     public void deleteConversationFromDevice(String contactNumber) {
         messageDatabaseService.deleteConversation(contactNumber);
+    }
+
+    public void deleteChannelConversationFromDevice(Integer channelKey) {
+        messageDatabaseService.deleteChannelConversation(channelKey);
     }
 
     public void deleteAndBroadCast(final Contact contact, boolean deleteFromServer) {

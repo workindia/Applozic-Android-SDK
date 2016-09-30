@@ -10,6 +10,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -81,7 +82,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
     public static ApplozicMqttService getInstance(Context context) {
 
         if (applozicMqttService == null) {
-            applozicMqttService = new ApplozicMqttService(context);
+            applozicMqttService = new ApplozicMqttService(context.getApplicationContext());
         }
         return applozicMqttService;
     }
@@ -159,7 +160,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
     public synchronized void unSubscribe() {
         unSubscribeToConversation();
-       // unSubscribeToTypingTopic();
+        // unSubscribeToTypingTopic();
     }
 
     public synchronized void subscribeToConversation() {
@@ -268,6 +269,15 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.updateDeliveryStatusForContact(contactId, true);
                             }
 
+                         /*   if (NOTIFICATION_TYPE.CONVERSATION_READ.getValue().equals(mqttMessageResponse.getType())) {
+                                syncCallService.updateConversationReadStatus(mqttMessageResponse.getMessage().toString(),false);
+                            }
+
+                            if (NOTIFICATION_TYPE.GROUP_CONVERSATION_READ.getValue().equals(mqttMessageResponse.getType())) {
+                                InstantMessageResponse instantMessageResponse = (InstantMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), InstantMessageResponse.class);
+                                syncCallService.updateConversationReadStatus(instantMessageResponse.getMessage(),true);
+                            }*/
+
                             if (NOTIFICATION_TYPE.USER_CONNECTED.getValue().equals(mqttMessageResponse.getType())) {
                                 syncCallService.updateConnectedStatus(mqttMessageResponse.getMessage().toString(), new Date(), true);
                             }
@@ -286,6 +296,12 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                             if(NOTIFICATION_TYPE.CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
                                 syncCallService.deleteConversationThread(mqttMessageResponse.getMessage().toString());
                                 BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), mqttMessageResponse.getMessage().toString(), 0, "success");
+                            }
+
+                            if(NOTIFICATION_TYPE.GROUP_CONVERSATION_DELETED.getValue().equals(mqttMessageResponse.getType())) {
+                                InstantMessageResponse instantMessageResponse = (InstantMessageResponse) GsonUtils.getObjectFromJson(mqttMessage.toString(), InstantMessageResponse.class);
+                                syncCallService.deleteChannelConversationThread(instantMessageResponse.getMessage());
+                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(),null, Integer.valueOf(instantMessageResponse.getMessage()), "success");
                             }
 
                             if (NOTIFICATION_TYPE.MESSAGE_DELETED.getValue().equals(mqttMessageResponse.getType())) {

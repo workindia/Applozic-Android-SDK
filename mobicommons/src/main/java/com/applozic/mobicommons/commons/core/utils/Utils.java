@@ -240,6 +240,15 @@ public class Utils {
         return null;
     }
 
+    public static int getLauncherIcon(Context context) {
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            return ai.icon;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
     public static Integer getMetaDataValueForResources(Context context, String metaDataName) {
         try {
@@ -279,6 +288,7 @@ public class Utils {
             return sb.toString();
         }
     }
+
 
     public static CharSequence getStyleString(String name){
         SpannableStringBuilder builder = new SpannableStringBuilder();

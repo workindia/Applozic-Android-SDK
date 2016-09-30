@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -245,6 +246,19 @@ public class MainActivity extends ActionBarActivity
         conversation.setReceiverSmsFormat("usertest2", "RECEIVER SMS FORMAT");
         conversation.setTopicDetail(topic.getJson());
         return conversation;
+    }
+
+    public void initiateChatClick(View v) {
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        DialogFragment fragment = new InitiateDialogFragment();
+        FragmentTransaction fragmentTransaction = supportFragmentManager
+                .beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("InitiateDialogFragment");
+        if (prev != null) {
+            fragmentTransaction.remove(prev);
+        }
+        fragmentTransaction.addToBackStack(null);
+        fragment.show(fragmentTransaction, "InitiateDialogFragment");
     }
 
     public void groupChat(View v) {

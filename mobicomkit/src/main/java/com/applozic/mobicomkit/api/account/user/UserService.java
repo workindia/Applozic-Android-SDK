@@ -41,7 +41,7 @@ public class UserService {
 
     public static UserService getInstance(Context context) {
         if (userService == null) {
-            userService = new UserService(context);
+            userService = new UserService(context.getApplicationContext());
         }
         return userService;
     }

@@ -110,6 +110,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
@@ -183,6 +184,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     MessageDatabaseService messageDatabaseService;
     AppContactService appContactService;
     protected Message messageToForward;
+    protected String searchString;
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
     }
@@ -256,6 +258,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         infoBroadcast = (TextView) spinnerLayout.findViewById(R.id.info_broadcast);
         spinnerLayout.setVisibility(View.GONE);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
+        emptyTextView.setTextColor(ContextCompat.getColor(getActivity(),  applozicSetting.getNoConversationLabelTextColor()));
         emoticonsBtn.setOnClickListener(this);
         listView.addHeaderView(spinnerLayout);
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
@@ -459,14 +462,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY, channel.getKey());
                     startActivity(channelInfo);
                 } else {
-                    UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
-                    if (userProfileFragment == null) {
-                        userProfileFragment = new UserProfileFragment();
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable(ConversationUIService.CONTACT, contact);
-                        userProfileFragment.setArguments(bundle);
-                        ConversationActivity.addFragment(getActivity(), userProfileFragment, ConversationUIService.USER_PROFILE_FRAMENT);
+                    if(applozicSetting.isUserProfileFragmentVisible()){
+                        UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
+                        if (userProfileFragment == null) {
+                            userProfileFragment = new UserProfileFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(ConversationUIService.CONTACT, contact);
+                            userProfileFragment.setArguments(bundle);
+                            ConversationActivity.addFragment(getActivity(), userProfileFragment, ConversationUIService.USER_PROFILE_FRAMENT);
+                        }
                     }
+
                 }
             }
         });
@@ -709,6 +715,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 menu.findItem(R.id.userBlock).setVisible(true);
             }
         }
+        menu.removeItem(R.id.menu_search);
         menu.removeItem(R.id.start_new);
         menu.findItem(R.id.refresh).setVisible(true);
         menu.findItem(R.id.deleteConversation).setVisible(true);
@@ -734,7 +741,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return false;
     }
 
-    public void loadConversation(final Contact contact,final Channel channel,final Integer conversationId) {
+    public void loadConversation(final Contact contact,final Channel channel,final Integer conversationId,final String searchString) {
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
@@ -1169,7 +1176,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             filePath = messageToForward.getFilePaths().get(0);
         }
         this.messageToForward = messageToForward;
-        loadConversation(contact,channel,currentConversationId);
+        loadConversation(contact,channel,currentConversationId,null);
 
     }
 
@@ -1182,6 +1189,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 return;
             }
             messageToForward.setGroupId(channel.getKey());
+            messageToForward.setClientGroupId(null);
             messageToForward.setContactIds(null);
             messageToForward.setTo(null);
         } else {
@@ -1189,6 +1197,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 return;
             }
             messageToForward.setGroupId(null);
+            messageToForward.setClientGroupId(null);
             messageToForward.setTo(contact.getContactIds());
             messageToForward.setContactIds(contact.getContactIds());
         }
@@ -1554,11 +1563,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void loadConversation(Channel channel,Integer conversationId) {
-        loadConversation(null, channel,conversationId);
+        loadConversation(null, channel,conversationId,null);
     }
 
     public void loadConversation(Contact contact,Integer conversationId) {
-        loadConversation(contact, null,conversationId);
+        loadConversation(contact, null,conversationId,null);
+    }
+    //With search
+    public void loadConversation(Contact contact,Integer conversationId,String searchString) {
+        loadConversation(contact, null,conversationId,searchString);
+    }
+
+    public void loadConversation(Channel channel,Integer conversationId,String searchString) {
+        loadConversation(null, channel,conversationId,searchString);
     }
 
     public void deleteConversationThread() {
@@ -1694,7 +1711,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (messageList.isEmpty()) {
-                loadConversation(contact, channel, currentConversationId);
+                loadConversation(contact, channel, currentConversationId,null);
             } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
                 loadnewMessageOnResume(contact, channel, currentConversationId);
             }
@@ -1764,6 +1781,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel,conversationId);
         downloadConversation.execute();
     }
+
+    public int ScrollToFirstSearchIndex(){
+
+        int position=0;
+        if(searchString!=null){
+
+            for(position =messageList.size()-1 ; position>=0 ;position--){
+                Message message = messageList.get(position);
+                if(!TextUtils.isEmpty(message.getMessage()) &&  message.getMessage().toLowerCase(Locale.getDefault()).indexOf(
+                        searchString.toString().toLowerCase(Locale.getDefault()))!=-1){
+                    return position;
+                }
+            }
+        }else{
+            position = messageList.size();
+        }
+        return position;
+    }
+
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
@@ -1935,12 +1971,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (initial) {
                 messageList.addAll(nextMessageList);
+                conversationAdapter.searchString=searchString;
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!messageList.isEmpty()) {
                     listView.post(new Runnable() {
                         @Override
                         public void run() {
-                            listView.setSelection(messageList.size() - 1);
+                            if(!TextUtils.isEmpty(searchString)){
+                                int height = listView.getHeight();
+                                int itemHeight = listView.getChildAt(0).getHeight();
+                                listView.requestFocusFromTouch();
+                                ((ListView)listView).setSelectionFromTop(ScrollToFirstSearchIndex()+1, height/2 - itemHeight/2);
+                            }else{
+                                listView.setSelection(messageList.size() - 1);
+
+                            }
                         }
                     });
                 }

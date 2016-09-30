@@ -13,15 +13,17 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
+import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
-public class ConversationFragment extends MobiComConversationFragment {
+public class ConversationFragment extends MobiComConversationFragment implements SearchListFragment {
 
     private static final String TAG = "ConversationFragment";
     private MultimediaOptionsGridView popupGrid;
@@ -36,6 +38,18 @@ public class ConversationFragment extends MobiComConversationFragment {
         this.contact = contact;
         this.channel = channel;
         this.currentConversationId = conversationId;
+    }
+
+    public ConversationFragment(Contact contact, Channel channel,Integer conversationId,String searchString) {
+        this.messageIntentClass = MessageIntentService.class;
+        this.contact = contact;
+        this.channel = channel;
+        this.currentConversationId = conversationId;
+        this.searchString=searchString;
+
+        if (searchString != null) {
+            SyncCallService.refreshView=true;
+        }
     }
 
     public void attachLocation(Location mCurrentLocation) {
@@ -120,5 +134,15 @@ public class ConversationFragment extends MobiComConversationFragment {
         if (multimediaPopupGrid.getVisibility() == View.VISIBLE) {
             multimediaPopupGrid.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        if (TextUtils.isEmpty(newText)) {
+            conversationAdapter.getFilter().filter(null);
+        } else {
+            conversationAdapter.getFilter().filter(newText);
+        }
+        return true;
     }
 }

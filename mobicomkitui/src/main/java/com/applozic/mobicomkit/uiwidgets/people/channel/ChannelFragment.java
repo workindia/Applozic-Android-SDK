@@ -82,7 +82,7 @@ public class ChannelFragment extends ListFragment implements
         if (savedInstanceState != null) {
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
         }
-        final Context context = getActivity();
+        final Context context = getActivity().getApplicationContext();
         mChannelImageLoader = new ImageLoader(context, getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {

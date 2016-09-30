@@ -62,7 +62,7 @@ public class AudioMessageFragment extends DialogFragment {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String audioFileName = "AUD_" + timeStamp + "_" + ".m4a";
 
-        outputFile = FileClientService.getFilePath(audioFileName, getContext(), "audio/m4a").getAbsolutePath();
+        outputFile = FileClientService.getFilePath(audioFileName, getActivity().getApplicationContext(), "audio/m4a").getAbsolutePath();
         prepareMediaRecorder();
 
         record.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +193,3 @@ public class AudioMessageFragment extends DialogFragment {
         return audioRecorder;
     }
 }
-
-
-

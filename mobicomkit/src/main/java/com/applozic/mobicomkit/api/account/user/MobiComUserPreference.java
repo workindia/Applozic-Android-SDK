@@ -67,7 +67,7 @@ public class MobiComUserPreference {
 
     public static MobiComUserPreference getInstance(Context context) {
         if (userpref == null) {
-            userpref = new MobiComUserPreference(context);
+            userpref = new MobiComUserPreference(context.getApplicationContext());
         }
         return userpref;
     }
@@ -264,7 +264,7 @@ public class MobiComUserPreference {
     }
 
     public void setContactNumber(String contactNumber) {
-       // contactNumber = ContactNumberUtils.getPhoneNumber(contactNumber, getCountryCode());
+        // contactNumber = ContactNumberUtils.getPhoneNumber(contactNumber, getCountryCode());
         sharedPreferences.edit().putString(phone_number_key, contactNumber).commit();
     }
 
@@ -373,7 +373,7 @@ public class MobiComUserPreference {
     }
 
     public int getCompressedImageSizeInMB() {
-       return  sharedPreferences.getInt(max_compressed_image_size,10);
+        return  sharedPreferences.getInt(max_compressed_image_size,10);
 
     }
 

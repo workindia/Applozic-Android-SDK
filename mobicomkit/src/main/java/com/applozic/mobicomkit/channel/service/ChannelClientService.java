@@ -56,7 +56,7 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public static ChannelClientService getInstance(Context context) {
         if (channelClientService == null) {
-            channelClientService = new ChannelClientService(context);
+            channelClientService = new ChannelClientService(context.getApplicationContext());
         }
         return channelClientService;
     }

@@ -38,7 +38,7 @@ public class ChannelDatabaseService {
 
     public synchronized static ChannelDatabaseService getInstance(Context context) {
         if (channelDatabaseService == null) {
-            channelDatabaseService = new ChannelDatabaseService(context);
+            channelDatabaseService = new ChannelDatabaseService(context.getApplicationContext());
         }
         return channelDatabaseService;
     }

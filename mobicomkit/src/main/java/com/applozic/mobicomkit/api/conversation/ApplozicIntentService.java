@@ -22,7 +22,12 @@ public class ApplozicIntentService extends IntentService {
 
     public ApplozicIntentService() {
         super(TAG);
-        this.messageClientService = new MessageClientService(ApplozicIntentService.this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.messageClientService = new MessageClientService(this);
     }
 
     @Override

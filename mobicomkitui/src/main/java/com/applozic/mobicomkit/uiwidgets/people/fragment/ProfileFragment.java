@@ -107,10 +107,11 @@ public class ProfileFragment extends Fragment {
         if(!TextUtils.isEmpty(userContact.getStatus())){
             statusText.setText(userContact.getStatus());
         }
-        mImageLoader = new ImageLoader(getActivity(), img_profile.getHeight()) {
+        final  Context context = getActivity().getApplicationContext();
+        mImageLoader = new ImageLoader(context, img_profile.getHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return contactService.downloadContactImage(getContext(), (Contact) data);
+                return contactService.downloadContactImage(context, (Contact) data);
             }
         };
         //For profile image
@@ -121,6 +122,12 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+
+        if(ApplozicSetting.getInstance(getActivity()).isProfileLogoutEnable()){
+            logoutbtn.setVisibility(View.VISIBLE);
+        }else {
+            logoutbtn.setVisibility(View.GONE);
+        }
         logoutbtn.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -178,6 +185,7 @@ public class ProfileFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.findItem(R.id.refresh).setVisible(false);
+        menu.findItem(R.id.menu_search).setVisible(false);
     }
 
     private void setupDeviderView(View view,int parentLayout, int childVerticalLineLayout) {
@@ -293,7 +301,7 @@ public class ProfileFragment extends Fragment {
             if(file==null || !file.exists()) {
                 Log.i(TAG,"file not found,exporting it from drawable");
                 Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.applozic_ic_contact_picture_180_holo_light);
-                String filePath = ImageUtils.saveImageToInternalStorage(FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getContext(), "image", true), bm);
+                String filePath = ImageUtils.saveImageToInternalStorage(FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getActivity().getApplicationContext(), "image", true), bm);
                 file= new File(filePath);
             }
             handleProfileimageUpload(Uri.fromFile(file));

@@ -58,6 +58,17 @@ public class ApplozicSetting {
     private static final String EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE= "EDIT_TEXT_LAYOUT_BACKGROUND_COLOR_OR_DRAWABLE";
     protected static final String TYPING_TEXT_COLOR= "TYPING_TEXT_COLOR";
     private static final String PROFILE_OPTION= "PROFILE_OPTION";
+    private static final String NO_CONVERSATION_LABEL_TEXT_COLOR= "NO_CONVERSATION_LABEL_TEXT_COLOR";
+    private static final String CONVERSATION_DATE_TEXT_COLOR= "CONVERSATION_DATE_TEXT_COLOR";
+    private static final String CONVERSATION_DAY_TEXT_COLOR= "CONVERSATION_DATE_TEXT_COLOR";
+    private static final String MESSAGE_TIME_TEXT_COLOR= "MESSAGE_TIME_TEXT_COLOR";
+    private static final String CHANNEL_CUSTOM_MESSAGE_BG_COLOR= "CHANNEL_CUSTOM_MESSAGE_BG_COLOR";
+    private static final String CHANNEL_CUSTOM_MESSAGE_BORDER_COLOR= "CHANNEL_CUSTOM_MESSAGE_BORDER_COLOR";
+    private static final String CHANNEL_CUSTOM_MESSAGE_TEXT_COLOR= "CHANNEL_CUSTOM_MESSAGE_TEXT_COLOR";
+    private static final String NO_SEARCH_FOUND_FOR_CHAT_MESSAGES = "NO_SEARCH_FOUND_FOR_CHAT_MESSAGES";
+    private static final String PROFILE_LOGOUT_BUTTON = "PROFILE_LOGOUT_BUTTON";
+    private static final String USER_PROFILE_FRAGMENT= "PROFILE_LOGOUT_BUTTON";
+    private static final String MESSAGE_SEARCH_OPTION= "MESSAGE_SEARCH_OPTION";
 
 
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
@@ -71,7 +82,7 @@ public class ApplozicSetting {
 
     public static ApplozicSetting getInstance(Context context) {
         if (applozicSetting == null) {
-            applozicSetting = new ApplozicSetting(context);
+            applozicSetting = new ApplozicSetting(context.getApplicationContext());
         }
 
         return applozicSetting;
@@ -538,12 +549,17 @@ public class ApplozicSetting {
     }
 
     public ApplozicSetting disableProfileOption(){
+        sharedPreferences.edit().putBoolean(PROFILE_OPTION,false).commit();
+        return this;
+    }
+
+    public ApplozicSetting enableProfileOption(){
         sharedPreferences.edit().putBoolean(PROFILE_OPTION,true).commit();
         return this;
     }
 
     public boolean isProfileOptionEnabled() {
-        return sharedPreferences.getBoolean(PROFILE_OPTION, true);
+        return sharedPreferences.getBoolean(PROFILE_OPTION, false);
     }
 
     public ApplozicSetting showActionDialWithoutCalling(){
@@ -553,6 +569,123 @@ public class ApplozicSetting {
 
     public boolean isActionDialWithoutCallingEnabled() {
         return sharedPreferences.getBoolean(SHOW_ACTION_DIAL_WITH_OUT_CALLING, false);
+    }
+
+
+    public ApplozicSetting setNoConversationLabelTextColor(int color) {
+        sharedPreferences.edit().putInt(NO_CONVERSATION_LABEL_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getNoConversationLabelTextColor() {
+        return sharedPreferences.getInt(NO_CONVERSATION_LABEL_TEXT_COLOR, R.color.black);
+    }
+
+
+    public ApplozicSetting setConversationDateTextColor(int color) {
+        sharedPreferences.edit().putInt(CONVERSATION_DATE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getConversationDateTextColor() {
+        return sharedPreferences.getInt(CONVERSATION_DATE_TEXT_COLOR, R.color.apploizc_gray_color);
+    }
+
+    public ApplozicSetting setConversationDayTextColor(int color) {
+        sharedPreferences.edit().putInt(CONVERSATION_DAY_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getConversationDayTextColor() {
+        return sharedPreferences.getInt(CONVERSATION_DAY_TEXT_COLOR, R.color.apploizc_gray_color);
+    }
+
+    public ApplozicSetting setMessageTimeTextColor(int color) {
+        sharedPreferences.edit().putInt(MESSAGE_TIME_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getMessageTimeTextColor() {
+        return sharedPreferences.getInt(MESSAGE_TIME_TEXT_COLOR, R.color.message_details_text_color);
+    }
+
+
+    public ApplozicSetting setChannelCustomMesssageTextColor(int color) {
+        sharedPreferences.edit().putInt(CHANNEL_CUSTOM_MESSAGE_TEXT_COLOR, color).commit();
+        return this;
+    }
+
+    public int getChannelCustomMesssageTextColor() {
+        return sharedPreferences.getInt(CHANNEL_CUSTOM_MESSAGE_TEXT_COLOR, R.color.apploizc_lite_gray_color);
+    }
+
+    public ApplozicSetting setChannelCustomMesssageBgColor(int color) {
+        sharedPreferences.edit().putInt(CHANNEL_CUSTOM_MESSAGE_BG_COLOR, color).commit();
+        return this;
+    }
+
+    public int getChannelCustomMesssageBgColor() {
+        return sharedPreferences.getInt(CHANNEL_CUSTOM_MESSAGE_BG_COLOR, R.color.apploizc_custom_channel_message_text_color);
+    }
+
+    public ApplozicSetting setChannelCustomMesssageBorderColor(int color) {
+        sharedPreferences.edit().putInt(CHANNEL_CUSTOM_MESSAGE_BORDER_COLOR, color).commit();
+        return this;
+    }
+
+    public int getChannelCustomMesssageBorderColor() {
+        return sharedPreferences.getInt(CHANNEL_CUSTOM_MESSAGE_BORDER_COLOR, R.color.apploizc_custom_channel_message_text_color);
+    }
+
+    public ApplozicSetting setSearchNotFoundLabelForChats(String label) {
+        sharedPreferences.edit().putString(NO_SEARCH_FOUND_FOR_CHAT_MESSAGES, label).commit();
+        return this;
+    }
+
+    public String getSearchNotFoundLabelForChats() {
+        return sharedPreferences.getString(NO_SEARCH_FOUND_FOR_CHAT_MESSAGES, context.getResources().getString(R.string.search_not_found_for_messages));
+    }
+
+    public ApplozicSetting showProfileLogout() {
+        sharedPreferences.edit().putBoolean(PROFILE_LOGOUT_BUTTON,true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideProfileLogout() {
+        sharedPreferences.edit().putBoolean(PROFILE_LOGOUT_BUTTON,false).commit();
+        return this;
+    }
+
+    public boolean isProfileLogoutEnable() {
+        return sharedPreferences.getBoolean(PROFILE_LOGOUT_BUTTON, false);
+    }
+
+    public ApplozicSetting showUserProfileFragment() {
+        sharedPreferences.edit().putBoolean(USER_PROFILE_FRAGMENT,true).commit();
+        return this;
+    }
+
+    public ApplozicSetting hideUserProfileFragment() {
+        sharedPreferences.edit().putBoolean(USER_PROFILE_FRAGMENT,false).commit();
+        return this;
+    }
+
+    public boolean isUserProfileFragmentVisible() {
+        return sharedPreferences.getBoolean(USER_PROFILE_FRAGMENT, true);
+    }
+
+    public ApplozicSetting enableMessageSearch() {
+        sharedPreferences.edit().putBoolean(MESSAGE_SEARCH_OPTION,true).commit();
+        return this;
+    }
+
+    public ApplozicSetting disableMessageSearch() {
+        sharedPreferences.edit().putBoolean(MESSAGE_SEARCH_OPTION,false).commit();
+        return this;
+    }
+
+    public boolean isMessageSearchEnabled() {
+        return sharedPreferences.getBoolean(MESSAGE_SEARCH_OPTION, false);
     }
 
     public boolean clearAll() {

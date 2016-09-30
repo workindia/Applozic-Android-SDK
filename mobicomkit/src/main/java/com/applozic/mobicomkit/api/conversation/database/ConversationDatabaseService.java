@@ -32,7 +32,7 @@ public class ConversationDatabaseService {
 
     public static synchronized ConversationDatabaseService getInstance(Context context) {
         if (conversationDatabaseService == null) {
-            conversationDatabaseService = new ConversationDatabaseService(context);
+            conversationDatabaseService = new ConversationDatabaseService(context.getApplicationContext());
         }
         return conversationDatabaseService;
     }

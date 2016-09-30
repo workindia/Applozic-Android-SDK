@@ -5,11 +5,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.app.FragmentActivity;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,9 +40,11 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -45,7 +52,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * Created by adarsh on 4/7/15.
  */
-public class QuickConversationAdapter extends BaseAdapter {
+public class QuickConversationAdapter extends BaseAdapter implements Filterable {
 
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
 
@@ -66,6 +73,10 @@ public class QuickConversationAdapter extends BaseAdapter {
     private BaseContactService contactService;
     private EmojiconHandler emojiconHandler;
     private long deviceTimeOffset = 0;
+    private List<Message> originalList;
+    public String searchString = null;
+    private AlphabetIndexer mAlphabetIndexer;
+    private TextAppearanceSpan highlightTextSpan;
 
     public QuickConversationAdapter(final Context context, List<Message> messageList, EmojiconHandler emojiconHandler) {
         this.context = context;
@@ -89,6 +100,9 @@ public class QuickConversationAdapter extends BaseAdapter {
         };
         channelImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         channelImageLoader.setImageFadeIn(false);
+        final String alphabet = context.getString(R.string.alphabet);
+        mAlphabetIndexer = new AlphabetIndexer(null,1 , alphabet);
+        highlightTextSpan = new TextAppearanceSpan(context, R.style.searchTextHiglight);
     }
 
 
@@ -101,7 +115,6 @@ public class QuickConversationAdapter extends BaseAdapter {
         smTime.setVisibility(View.GONE);
         final Message message = getItem(position);
         if (message != null) {
-
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
             TextView messageTextView = (TextView) customView.findViewById(R.id.message);
@@ -152,7 +165,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 }else {
                     channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
                 }
-            } else if (contactReceiver != null) {
+            }else if (contactReceiver != null) {
                 contactNumber = contactReceiver.getDisplayName().toUpperCase();
                 firstLetter = contactReceiver.getDisplayName().toUpperCase().charAt(0);
 
@@ -188,7 +201,7 @@ public class QuickConversationAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View view) {
                     InstructionUtil.hideInstruction(context, R.string.instruction_open_conversation_thread);
-                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver, channel,message.getConversationId());
+                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contactReceiver,channel,message.getConversationId(),searchString);
                 }
             });
 
@@ -246,6 +259,19 @@ public class QuickConversationAdapter extends BaseAdapter {
             } else {
                 unReadCountTextView.setVisibility(View.GONE);
             }
+
+            int startIndex =indexOfSearchQuery(message.getMessage());
+            if(startIndex!=-1){
+
+                final SpannableString highlightedName = new SpannableString(message.getMessage());
+
+                // Sets the span to start at the starting point of the match and end at "length"
+                // characters beyond the starting point
+                highlightedName.setSpan(highlightTextSpan, startIndex,
+                        startIndex + searchString.toString().length(), 0);
+
+                messageTextView.setText(highlightedName);
+            }
         }
 
 
@@ -271,5 +297,52 @@ public class QuickConversationAdapter extends BaseAdapter {
     public int getItemViewType(int position) {
         return getItem(position).isTypeOutbox() ? 1 : 0;
     }
+
+
+    private int indexOfSearchQuery(String message) {
+        if (!TextUtils.isEmpty(searchString)) {
+            return message.toLowerCase(Locale.getDefault()).indexOf(
+                    searchString.toString().toLowerCase(Locale.getDefault()));
+        }
+        return -1;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                final FilterResults oReturn = new FilterResults();
+                final List<Message> results = new ArrayList<Message>();
+                if (originalList == null)
+                    originalList = messageList;
+                if (constraint != null) {
+                    searchString = constraint.toString();
+                    if (originalList != null && originalList.size() > 0) {
+                        for (final Message message : originalList) {
+                            if (message.getMessage().toLowerCase()
+                                    .contains(constraint.toString())) {
+                                results.add(message);
+                            }
+                        }
+                    }
+                    oReturn.values = results;
+                }else{
+                    oReturn.values = originalList;
+                }
+                return oReturn;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+                messageList = (ArrayList<Message>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
 
 }

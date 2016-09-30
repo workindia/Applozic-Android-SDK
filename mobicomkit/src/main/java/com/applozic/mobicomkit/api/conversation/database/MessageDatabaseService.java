@@ -43,7 +43,7 @@ public class MessageDatabaseService {
     private MobiComDatabaseHelper dbHelper;
 
     public MessageDatabaseService(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.userPreferences = MobiComUserPreference.getInstance(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
@@ -400,7 +400,7 @@ public class MessageDatabaseService {
             for (String tofield : toList) {
                 Message singleMessage = new Message(message);
                 singleMessage.setKeyString(message.getKeyString());
-              //  singleMessage.setBroadcastGroupId(null);
+                //  singleMessage.setBroadcastGroupId(null);
                 singleMessage.setTo(tofield);
                 singleMessage.processContactIds(context);
                 singleMessage.setMessageId(createSingleMessage(singleMessage));
@@ -797,6 +797,10 @@ public class MessageDatabaseService {
     }
 
     public List<Message> getMessages(Long createdAt) {
+        return getMessages(createdAt,null);
+    }
+
+    public List<Message> getMessages(Long createdAt,String searchText) {
         String createdAtClause = "";
         if (createdAt != null && createdAt > 0) {
             createdAtClause = " and m1.createdAt < " + createdAt;
@@ -805,10 +809,15 @@ public class MessageDatabaseService {
 
         String messageTypeClause = "";
         String messageTypeJoinClause = "";
+        String searchCaluse= "";
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isDisplayCallRecordEnable()) {
             messageTypeClause = " and m1.type != " + Message.MessageType.CALL_INCOMING.getValue() + " and m1.type != " + Message.MessageType.CALL_OUTGOING.getValue();
             messageTypeJoinClause = " and m1.type = m2.type";
+        }
+
+        if (!TextUtils.isEmpty(searchText) ){
+            searchCaluse  +=  " and m1.message like '%"+searchText.replaceAll("'","''") +"%' ";
         }
 
         String hiddenType = " and m1.messageContentType != "+Message.ContentType.HIDDEN.getValue() ;
@@ -817,7 +826,7 @@ public class MessageDatabaseService {
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
                 "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
         final Cursor cursor = db.rawQuery("select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause +hiddenType+ messageTypeClause
+                + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) where m2.createdAt is null " + createdAtClause +searchCaluse+hiddenType+ messageTypeClause
                 + " order by m1.createdAt desc", null);
 
         /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +
@@ -925,12 +934,12 @@ public class MessageDatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-                if (channelCursor != null) {
-                    channelCursor.close();
-                }
-                if (contactCursor != null) {
-                    contactCursor.close();
-                }
+            if (channelCursor != null) {
+                channelCursor.close();
+            }
+            if (contactCursor != null) {
+                contactCursor.close();
+            }
         }
         return totalCount;
     }

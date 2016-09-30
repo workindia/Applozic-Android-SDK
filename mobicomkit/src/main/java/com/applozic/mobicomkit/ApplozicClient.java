@@ -32,7 +32,7 @@ public class ApplozicClient {
 
     public static ApplozicClient getInstance(Context context) {
         if (applozicClient == null) {
-            applozicClient = new ApplozicClient(context);
+            applozicClient = new ApplozicClient(context.getApplicationContext());
         }
 
         return applozicClient;
@@ -80,7 +80,7 @@ public class ApplozicClient {
     }
 
     public boolean isNotificationSmallIconHidden() {
-      return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
+        return sharedPreferences.getBoolean(NOTIFICATION_SMALL_ICON, false);
     }
 
     public boolean isNotAllowed() {

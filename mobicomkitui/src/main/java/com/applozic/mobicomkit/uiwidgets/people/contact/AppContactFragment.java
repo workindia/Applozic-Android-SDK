@@ -129,7 +129,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             mPreviouslySelectedSearchItem =
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
         }
-        final Context context = getActivity();
+        final Context context = getActivity().getApplicationContext();
         mImageLoader = new ImageLoader(context, getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -201,7 +201,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if (applozicSetting.isRegisteredUsersContactCall() && Utils.isInternetAvailable(getContext())) {
+                if (applozicSetting.isRegisteredUsersContactCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
 
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;
@@ -580,7 +580,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         private long timeToFetch;
         boolean callForRegistered;
         private RegisteredUsersApiResponse registeredUsersApiResponse;
-        private Context context = getContext();
+        private Context context = getActivity();
 
         public DownloadNNumberOfUserAsync(int nNumberOfUsers, Message message, String messageContent) {
             this.message = message;
@@ -636,4 +636,3 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
     }
 }
-

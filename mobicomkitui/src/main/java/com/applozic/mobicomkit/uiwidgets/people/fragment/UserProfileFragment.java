@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.uiwidgets.people.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -41,10 +42,11 @@ public class UserProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         baseContactService = new AppContactService(getActivity());
-        contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
+        final Context context = getActivity().getApplicationContext();
+        contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return baseContactService.downloadContactImage(getContext(), (Contact) data);
+                return baseContactService.downloadContactImage(context, (Contact) data);
             }
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);

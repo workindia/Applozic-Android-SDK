@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -94,6 +95,7 @@ public class ConversationUIService {
     private static final String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     public static final String GROUP = "group-";
     public static final String SUCCESS = "success";
+    public static final String SEARCH_STRING = "searchString" ;
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
     private MobiComUserPreference userPreference;
@@ -103,12 +105,14 @@ public class ConversationUIService {
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
     public static final String TOPIC_ID = "TOPIC_ID";
     private Contact contact;
+    private NotificationManager notificationManager;
 
     public ConversationUIService(FragmentActivity fragmentActivity) {
         this.fragmentActivity = fragmentActivity;
         this.baseContactService = new AppContactService(fragmentActivity);
         this.userPreference = MobiComUserPreference.getInstance(fragmentActivity);
         this.applozicSetting = ApplozicSetting.getInstance(fragmentActivity);
+        this.notificationManager  = (NotificationManager) fragmentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public MobiComQuickConversationFragment getQuickConversationFragment() {
@@ -139,31 +143,31 @@ public class ConversationUIService {
     public void onQuickConversationFragmentItemClick(View view, Contact contact) {
         TextView textView = (TextView) view.findViewById(R.id.unreadSmsCount);
         textView.setVisibility(View.GONE);
-        openConversationFragment(contact, null);
+        openConversationFragment(contact, null,null);
     }
 
-    public void openConversationFragment(final Contact contact, final Integer conversationId) {
+    public void openConversationFragment(final Contact contact, final Integer conversationId,final String searchString) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
                 if (conversationFragment == null) {
-                    conversationFragment = new ConversationFragment(contact, null, conversationId);
+                    conversationFragment = new ConversationFragment(contact, null, conversationId,searchString);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
-                    conversationFragment.loadConversation(contact, conversationId);
+                    conversationFragment.loadConversation(contact, conversationId,searchString);
                 }
             }
         });
     }
 
-    public void openConversationFragment(final Channel channel, Integer conversationId) {
+    public void openConversationFragment(final Channel channel, Integer conversationId,String searchString) {
         ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
         if (conversationFragment == null) {
-            conversationFragment = new ConversationFragment(null, channel, conversationId);
+            conversationFragment = new ConversationFragment(null, channel, conversationId,searchString);
             ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
         } else {
-            conversationFragment.loadConversation(channel, conversationId);
+            conversationFragment.loadConversation(channel, conversationId,searchString);
         }
     }
 
@@ -423,7 +427,7 @@ public class ConversationUIService {
         if (!BroadcastService.isQuick()) {
             return;
         }
-        getQuickConversationFragment().downloadConversations(showInstruction);
+        getQuickConversationFragment().downloadConversations(showInstruction,null);
     }
 
     public void setLoadMore(boolean loadMore) {
@@ -532,11 +536,10 @@ public class ConversationUIService {
         getConversationFragment().updateDownloadStatus(message);
     }
 
-    public void updateName(Integer channelKey) {
-        if (BroadcastService.isIndividual()) {
-            return;
+    public void updateChannelName() {
+        if(BroadcastService.isQuick()){
+            getQuickConversationFragment().updateChannelName();
         }
-        getQuickConversationFragment().updateUserName(channelKey);
     }
 
     public void updateTypingStatus(String userId,String isTypingStatus) {
@@ -566,6 +569,19 @@ public class ConversationUIService {
         }
         if (BroadcastService.isIndividual()) {
             getConversationFragment().updateTitleForOpenGroup();
+        }
+    }
+
+
+    public void updateConversationRead(String currentId, boolean isGroup) {
+        if (TextUtils.isEmpty(currentId)) {
+            return;
+        }
+        if (!BroadcastService.isIndividual()) {
+            notificationManager.cancel(currentId.hashCode());
+        }
+        if (BroadcastService.isQuick()) {
+            getQuickConversationFragment().updateConversationRead(currentId, isGroup);
         }
     }
 
@@ -724,7 +740,7 @@ public class ConversationUIService {
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
         }
-
+        String searchString = intent.getStringExtra(SEARCH_STRING);
         String applicationId = intent.getStringExtra(APPLICATION_ID);
         if (contact != null) {
             contact.setApplicationId(applicationId);
@@ -772,11 +788,11 @@ public class ConversationUIService {
         }
 
         if (contact != null) {
-            openConversationFragment(contact, conversationId);
+            openConversationFragment(contact, conversationId,searchString);
         }
 
         if (channel != null) {
-            openConversationFragment(channel, conversationId);
+            openConversationFragment(channel, conversationId,searchString);
         }
         String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
         String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);

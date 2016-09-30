@@ -38,7 +38,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private HttpRequestUtils httpRequestUtils;
 
     public RegisterUserClientService(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
@@ -79,9 +79,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
             user.setAppModuleName(getAppModuleName(context));
         }
 
-        Log.i(TAG, "Net status" + Utils.isInternetAvailable(context));
+        Log.i(TAG, "Net status" + Utils.isInternetAvailable(context.getApplicationContext()));
 
-        if (!Utils.isInternetAvailable(context)) {
+        if (!Utils.isInternetAvailable(context.getApplicationContext())) {
             throw new ConnectException("No Internet Connection");
         }
 
@@ -105,9 +105,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         }
         Log.i("Registration response ", "is " + registrationResponse);
-       if(registrationResponse.getNotificationResponse() != null){
-           Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
-       }
+        if(registrationResponse.getNotificationResponse() != null){
+            Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
+        }
         mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
@@ -139,7 +139,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SyncCallService.getInstance(context).getLatestMessagesGroupByPeople();
+                SyncCallService.getInstance(context).getLatestMessagesGroupByPeople(null);
                 Intent intent = new Intent(context, ConversationIntentService.class);
                 context.startService(intent);
             }

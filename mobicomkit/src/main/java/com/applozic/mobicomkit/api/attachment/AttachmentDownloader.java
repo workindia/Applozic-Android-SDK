@@ -161,7 +161,7 @@ class AttachmentDownloader implements Runnable {
                 fileName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
             }
 
-            file = FileClientService.getFilePath(fileName, context, contentType);
+            file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
                 connection = new MobiComKitClientService(context).openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -262,4 +262,3 @@ class AttachmentDownloader implements Runnable {
         String getContentType();
     }
 }
-

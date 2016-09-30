@@ -192,7 +192,10 @@ public class ContactSelectionActivity extends AppCompatActivity {
                         }
                     }
                 }).start();
-                ChannelCreateActivity.channelActivity.finish();
+
+                if(getIntent() != null && getIntent().getStringExtra(CHANNEL) != null){
+                    sendBroadcast(new Intent(ChannelCreateActivity.ACTION_FINISH_CHANNEL_CREATE));
+                }
                 finish();
             }
             return true;

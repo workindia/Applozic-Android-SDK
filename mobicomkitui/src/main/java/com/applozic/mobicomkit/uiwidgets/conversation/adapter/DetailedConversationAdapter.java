@@ -9,7 +9,9 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -17,8 +19,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -60,6 +64,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,9 +101,14 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private Contact senderContact;
     private long deviceTimeOffset = 0;
     private Class<?> messageIntentClass;
+    private List<Message> messageList;
+    private List<Message> originalList;
     private MobiComConversationService conversationService;
     private ImageCache imageCache;
     ApplozicSetting applozicSetting;
+    public String searchString;
+    private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
+    private TextAppearanceSpan highlightTextSpan;
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
         this(context, textViewResourceId, messageList, null, channel, messageIntentClass, emojiconHandler);
@@ -122,6 +132,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         this.contactService = new AppContactService(context);
         this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
+        this.messageList = messageList;
         applozicSetting = ApplozicSetting.getInstance(context);
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
@@ -154,6 +165,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         deliveredIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
         pendingIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_pending);
         scheduledIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_schedule);
+        final String alphabet = context.getString(R.string.alphabet);
+        mAlphabetIndexer = new AlphabetIndexer(null,1 , alphabet);
+        highlightTextSpan = new TextAppearanceSpan(context, R.style.searchTextHiglight);
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -169,6 +183,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             TextView dateView = (TextView) customView.findViewById(R.id.chat_screen_date);
             TextView dayTextView = (TextView) customView.findViewById(R.id.chat_screen_day);
             Date date = new Date(message.getCreatedAtTime());
+            dateView.setTextColor(ContextCompat.getColor(context,  applozicSetting.getConversationDateTextColor()));
+            dayTextView.setTextColor(ContextCompat.getColor(context,  applozicSetting.getConversationDayTextColor()));
+
             if (DateUtils.isSameDay(message.getCreatedAtTime())) {
                 dayTextView.setVisibility(View.VISIBLE);
                 dayTextView.setText("Today");
@@ -187,8 +204,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             return customView;
         } else if (type == 4) {
             customView = inflater.inflate(R.layout.applozic_channel_custom_message_layout, parent, false);
-            TextView channelMessageTextview = (TextView) customView.findViewById(R.id.channel_message);
-            channelMessageTextview.setText(message.getMessage());
+            TextView channelMessageTextView = (TextView) customView.findViewById(R.id.channel_message);
+            GradientDrawable bgGradientDrawable = (GradientDrawable) channelMessageTextView.getBackground();
+            bgGradientDrawable.setColor(ContextCompat.getColor(context, applozicSetting.getChannelCustomMesssageBgColor()));
+            bgGradientDrawable.setStroke(3, ContextCompat.getColor(context,applozicSetting.getChannelCustomMesssageBorderColor()));
+            channelMessageTextView.setTextColor(ContextCompat.getColor(context, applozicSetting.getChannelCustomMesssageTextColor()));
+            channelMessageTextView.setText(message.getMessage());
             return customView;
         } else if (type == 0) {
             customView = inflater.inflate(R.layout.mobicom_received_message_list_view, parent, false);
@@ -249,6 +270,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
             TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
 
+            createdAtTime.setTextColor(ContextCompat.getColor(context,  applozicSetting.getMessageTimeTextColor()));
 
             final String messageTapActivityClassName = ApplozicSetting.getInstance(context).getActivityCallback(ApplozicSetting.RequestCode.MESSAGE_TAP);
 
@@ -613,6 +635,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 mainContactShareLayout.setVisibility(View.GONE);
 
             }
+
+            int startIndex = indexOfSearchQuery(message.getMessage());
+            if(startIndex!=-1){
+                final SpannableString highlightedName = new SpannableString(message.getMessage());
+
+                // Sets the span to start at the starting point of the match and end at "length"
+                // characters beyond the starting point
+                highlightedName.setSpan(highlightTextSpan, startIndex,
+                        startIndex + searchString.toString().length(), 0);
+
+                messageTextView.setText(highlightedName);
+            }
         }
         return customView;
     }
@@ -834,5 +868,52 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
         }
         return params;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                final FilterResults oReturn = new FilterResults();
+                final List<Message> results = new ArrayList<Message>();
+                if (originalList == null)
+                    originalList = messageList;
+                if (constraint != null) {
+                    searchString = constraint.toString();
+                    if (originalList != null && originalList.size() > 0) {
+                        for (final Message message : originalList) {
+                            if (message.getMessage().toLowerCase()
+                                    .contains(constraint.toString())) {
+                                results.add(message);
+
+
+                            }
+                        }
+                    }
+                    oReturn.values = results;
+                }else{
+                    oReturn.values = originalList;
+                }
+                return oReturn;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+                messageList = (ArrayList<Message>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+    private int indexOfSearchQuery(String message) {
+        if (!TextUtils.isEmpty(searchString)) {
+            return message.toLowerCase(Locale.getDefault()).indexOf(
+                    searchString.toString().toLowerCase(Locale.getDefault()));
+        }
+        return -1;
     }
 }

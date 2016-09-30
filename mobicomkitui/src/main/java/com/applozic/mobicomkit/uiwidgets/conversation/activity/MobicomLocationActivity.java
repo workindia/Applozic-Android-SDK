@@ -66,7 +66,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
         sendLocation = (RelativeLayout) findViewById(R.id.sendLocation);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        googleApiClient = new GoogleApiClient.Builder(this)
+        googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
@@ -139,11 +139,28 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
     }
 
     public void processLocation() {
-      //  if (Utils.hasMarshmallow()) {
-          //  new ApplozicPermissions(MobicomLocationActivity.this, layout).checkRuntimePermissionForLocation();
-       // } else {
-            processingLocation();
-       // }
+        //  if (Utils.hasMarshmallow()) {
+        //  new ApplozicPermissions(MobicomLocationActivity.this, layout).checkRuntimePermissionForLocation();
+        // } else {
+        processingLocation();
+        // }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(googleApiClient != null){
+            googleApiClient.connect();
+        }
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(googleApiClient != null){
+            googleApiClient.disconnect();
+        }
     }
 
     @Override

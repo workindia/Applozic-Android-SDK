@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+;
+
 /**
  * Created by devashish on 26/12/14.
  */
@@ -71,7 +73,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public MessageClientService(Context context) {
         super(context);
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
         this.baseContactService = new AppContactService(context);

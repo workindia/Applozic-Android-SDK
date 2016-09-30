@@ -36,6 +36,9 @@ public class ApplozicMqttIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(intent == null){
+            return;
+        }
         boolean subscribe = intent.getBooleanExtra(SUBSCRIBE,false);
         if (subscribe) {
             ApplozicMqttService.getInstance(getApplicationContext()).subscribe();

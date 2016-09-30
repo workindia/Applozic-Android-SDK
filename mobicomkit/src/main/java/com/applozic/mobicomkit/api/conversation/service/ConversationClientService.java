@@ -35,7 +35,7 @@ public class ConversationClientService extends MobiComKitClientService {
 
     public synchronized static ConversationClientService getInstance(Context context) {
         if (conversationClientService == null) {
-            conversationClientService = new ConversationClientService(context);
+            conversationClientService = new ConversationClientService(context.getApplicationContext());
         }
         return conversationClientService;
     }

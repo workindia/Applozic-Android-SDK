@@ -118,7 +118,7 @@ public class AttachmentTask implements
         // Gets the width and height of the provided ImageView
         mTargetWidth = photoView.getWidth();
         mTargetHeight = photoView.getHeight();
-        context = photoView.getContext();
+        context = photoView.getContext().getApplicationContext();
 
     }
 
@@ -169,7 +169,7 @@ public class AttachmentTask implements
 
     @Override
     public Context getContext() {
-        return context;
+        return context.getApplicationContext();
     }
 
     @Override

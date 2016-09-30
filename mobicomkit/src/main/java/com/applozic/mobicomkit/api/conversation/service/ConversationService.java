@@ -31,7 +31,7 @@ public class ConversationService {
 
     public synchronized static ConversationService getInstance(Context context) {
         if (conversationService == null) {
-            conversationService = new ConversationService(context);
+            conversationService = new ConversationService(context.getApplicationContext());
         }
         return conversationService;
     }

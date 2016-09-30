@@ -101,7 +101,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         setContentView(R.layout.channel_info_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        baseContactService = new AppContactService(this);
+        baseContactService = new AppContactService(getApplicationContext());
         channelImage = (ImageView) findViewById(R.id.channelImage);
         createdBy = (TextView) findViewById(R.id.created_by);
         exitChannelButton = (Button) findViewById(R.id.exit_channel);
@@ -147,7 +147,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 }
             }
         }
-        contactImageLoader = new ImageLoader(this, getListPreferredItemHeight()) {
+        contactImageLoader = new ImageLoader(getApplicationContext(), getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
                 return baseContactService.downloadContactImage(getApplicationContext(), (Contact) data);
@@ -156,10 +156,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
         contactImageLoader.addImageCache(this.getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
-        channelImageLoader = new ImageLoader(this, getListPreferredItemHeight()) {
+        channelImageLoader = new ImageLoader(getApplicationContext(), getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return baseContactService.downloadGroupImage(ChannelInfoActivity.this, (Channel) data);
+                return baseContactService.downloadGroupImage(getApplicationContext(), (Channel) data);
             }
         };
 
@@ -790,7 +790,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     if(!TextUtils.isEmpty(channel.getLocalImageUri())){
                         file.renameTo(new File(channel.getLocalImageUri()));
                     }else{
-                        file.renameTo(FileClientService.getFilePath(channel.getKey() + "_profile.jpeg",context,"image"));
+                        file.renameTo(FileClientService.getFilePath(channel.getKey() + "_profile.jpeg",context.getApplicationContext(),"image"));
                     }
                     channel.setLocalImageUri(file.getAbsolutePath());
                     channelService.updateChannel(channel);

@@ -137,7 +137,6 @@
             android:gravity="center"
             android:paddingRight="2dp"
             android:text="created at time"
-            android:textColor="@color/message_details_text_color"
             android:textSize="11sp" />
 
         <TextView

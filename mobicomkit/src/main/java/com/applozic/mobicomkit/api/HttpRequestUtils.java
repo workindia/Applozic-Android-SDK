@@ -47,7 +47,7 @@ public class HttpRequestUtils {
 
 
     public HttpRequestUtils(Context context) {
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     private void log(String message) {
@@ -106,7 +106,7 @@ public class HttpRequestUtils {
             Log.i(TAG, "Response : " + sb.toString());
             if(!TextUtils.isEmpty(sb.toString())){
                 if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())){
-                   return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
+                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
                 }
             }
             return sb.toString();
@@ -211,7 +211,7 @@ public class HttpRequestUtils {
 
             if(!TextUtils.isEmpty(sb.toString())){
                 if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())){
-                   return isFileUpload?sb.toString(): EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
+                    return isFileUpload?sb.toString(): EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(),sb.toString());
                 }
             }
             return sb.toString();

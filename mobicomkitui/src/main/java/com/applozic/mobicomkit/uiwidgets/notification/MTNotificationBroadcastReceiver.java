@@ -27,12 +27,10 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MTBroadcastReceiver";
 
-    private static String NOTIFICATION_ICON_METADATA = "com.applozic.mobicomkit.notification.icon";
-
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        Integer notificationId = Utils.getMetaDataValueForResources(context, NOTIFICATION_ICON_METADATA);
+        int notificationId = Utils.getLauncherIcon(context.getApplicationContext());
 
         String action = intent.getAction();
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
@@ -40,7 +38,7 @@ public class MTNotificationBroadcastReceiver extends BroadcastReceiver {
         if (!TextUtils.isEmpty(messageJson)) {
             final Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
             final NotificationService notificationService =
-                    new NotificationService(notificationId == null ? R.drawable.mobicom_ic_launcher : notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
+                    new NotificationService(notificationId == 0 ? R.drawable.mobicom_ic_launcher : notificationId, context, R.string.wearable_action_label, R.string.wearable_action_title, R.drawable.mobicom_ic_action_send);
 
 
             if (MobiComUserPreference.getInstance(context).isLoggedIn()) {

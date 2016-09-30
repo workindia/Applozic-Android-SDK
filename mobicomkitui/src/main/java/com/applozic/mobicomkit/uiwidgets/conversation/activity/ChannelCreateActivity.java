@@ -2,8 +2,10 @@ package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,7 +46,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
 
     private static final int REQUEST_CODE_ATTACH_PHOTO = 901;
     private static final String TAG = "ChannelCreateActivity";
-    public static String GROUP_TYPE ="GroupType";
+    public static String GROUP_TYPE = "GroupType";
     private EditText channelName;
     private CircleImageView circleImageView;
     private View focus;
@@ -57,6 +59,9 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private LinearLayout layout;
     private Snackbar snackbar;
     private ApplozicPermissions applozicPermissions;
+    private FinishActivityReceiver finishActivityReceiver;
+    public static final String ACTION_FINISH_CHANNEL_CREATE =
+            "channelCreateActivity.ACTION_FINISH";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +69,17 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         setContentView(R.layout.channel_create_activty_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-        channelActivity = this;
         mActionBar = getSupportActionBar();
         mActionBar.setTitle(R.string.channel_create_title);
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
+        finishActivityReceiver = new FinishActivityReceiver();
+        registerReceiver(finishActivityReceiver, new IntentFilter(ACTION_FINISH_CHANNEL_CREATE));
         layout = (LinearLayout) findViewById(R.id.footerAd);
         applozicPermissions = new ApplozicPermissions(this, layout);
         channelName = (EditText) findViewById(R.id.channelName);
         circleImageView = (CircleImageView) findViewById(R.id.channelIcon);
-        uploadImageButton = (ImageView)  findViewById(R.id.applozic_channel_profile_camera);
+        uploadImageButton = (ImageView) findViewById(R.id.applozic_channel_profile_camera);
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,7 +115,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 Utils.toggleSoftKeyBoard(ChannelCreateActivity.this, true);
                 Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
                 intent.putExtra(ContactSelectionActivity.CHANNEL, channelName.getText().toString());
-                if(!TextUtils.isEmpty(groupIconImageLink)){
+                if (!TextUtils.isEmpty(groupIconImageLink)) {
                     intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
                 }
                 // intent.putExtra(GROUP_TYPE, groupType);
@@ -125,10 +131,10 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         Crop.of(source, destination).asSquare().start(this);
     }
 
-    public void processImagePicker(){
-        if(Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)){
+    public void processImagePicker() {
+        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForStoragePermission(this)) {
             applozicPermissions.requestStoragePermissions();
-        }else {
+        } else {
             Intent getContentIntent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(getContentIntent, REQUEST_CODE_ATTACH_PHOTO);
@@ -138,19 +144,19 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        Uri selectedFileUri=null;
-        if(requestCode == REQUEST_CODE_ATTACH_PHOTO  && resultCode == RESULT_OK){
+        Uri selectedFileUri = null;
+        if (requestCode == REQUEST_CODE_ATTACH_PHOTO && resultCode == RESULT_OK) {
             selectedFileUri = (intent == null ? null : intent.getData());
             Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
             beginCrop(selectedFileUri);
         }
         if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
-            try{
+            try {
                 imageChangeUri = Crop.getOutput(intent);
                 circleImageView.setImageDrawable(null); // <--- added to force redraw of ImageView
                 circleImageView.setImageURI(imageChangeUri);
-                new ProfilePictureUpload(imageChangeUri,ChannelCreateActivity.this).execute((Void[]) null);
-            }catch (Exception e){
+                new ProfilePictureUpload(imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
+            } catch (Exception e) {
                 Log.i(TAG, "exception in profile image");
             }
         }
@@ -164,9 +170,9 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         String displayName;
         private ProgressDialog progressDialog;
 
-        public ProfilePictureUpload( Uri fileUri , Context context) {
+        public ProfilePictureUpload(Uri fileUri, Context context) {
             this.context = context;
-            this.fileUri=fileUri;
+            this.fileUri = fileUri;
 
         }
 
@@ -180,15 +186,15 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            FileClientService fileClientService =new FileClientService(context);
+            FileClientService fileClientService = new FileClientService(context);
             try {
-                if(fileUri!=null){
+                if (fileUri != null) {
                     String filePath = FilePathFinder.getPath(context, fileUri);
-                    groupIconImageLink= fileClientService.uploadProfileImage(filePath);
+                    groupIconImageLink = fileClientService.uploadProfileImage(filePath);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ChannelCreateActivity.class.getName(),  "Exception");
+                Log.i(ChannelCreateActivity.class.getName(), "Exception");
 
             }
             return true;
@@ -210,7 +216,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
             } else {
                 showSnackBar(R.string.storage_permission_not_granted);
             }
-        }else {
+        } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -221,5 +227,18 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         snackbar.show();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(finishActivityReceiver);
+    }
+
+    private final class FinishActivityReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction().equals(ACTION_FINISH_CHANNEL_CREATE))
+                finish();
+        }
+    }
 
 }

@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,10 +74,11 @@ public class AttachmentManager {
     static final int TASK_COMPLETE = 4;
     private static final String TAG = "AttachmentManager";
     // Sets the size of the storage that's used to cache images
-    private static final int IMAGE_CACHE_SIZE = 1024 * 1024 * 4;
-
     // Sets the amount of time an idle thread will wait for a task before terminating
     private static final int KEEP_ALIVE_TIME = 1;
+
+    // Sets the size of the storage that's used to cache images
+    private static final int IMAGE_CACHE_SIZE = 1024 * 1024 * 4;
 
     // Sets the Time Unit to seconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT;

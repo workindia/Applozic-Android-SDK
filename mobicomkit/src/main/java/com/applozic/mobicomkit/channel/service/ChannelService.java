@@ -46,7 +46,7 @@ public class ChannelService {
 
     public synchronized static ChannelService getInstance(Context context) {
         if (channelService == null) {
-            channelService = new ChannelService(context);
+            channelService = new ChannelService(context.getApplicationContext());
         }
         return channelService;
     }
@@ -66,6 +66,7 @@ public class ChannelService {
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);
+                BroadcastService.sendUpdateForName(context,BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString());
                 channel = getChannel(channelFeed);
                 return channel;
             }
@@ -354,8 +355,8 @@ public class ChannelService {
     }
 
     public synchronized String processChannelDeleteConversation(Channel channel, Context context) {
-           String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
-         if(!TextUtils.isEmpty(response) && "success".equals(response)){
+        String response =  new MobiComConversationService(context).deleteSync(null,channel,null);
+        if(!TextUtils.isEmpty(response) && "success".equals(response)){
             channelDatabaseService.deleteChannelUserMappers(channel.getKey());
             channelDatabaseService.deleteChannel(channel.getKey());
         }
@@ -368,7 +369,4 @@ public class ChannelService {
     }
 
 }
-
-
-
 

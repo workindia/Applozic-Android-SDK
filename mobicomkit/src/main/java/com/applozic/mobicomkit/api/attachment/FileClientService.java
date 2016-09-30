@@ -161,7 +161,7 @@ public class FileClientService extends MobiComKitClientService {
             String contentType = fileMeta.getContentType();
             HttpURLConnection connection;
             String fileName = fileMeta.getName();
-            file = FileClientService.getFilePath(fileName, context, contentType);
+            file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
                 connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
