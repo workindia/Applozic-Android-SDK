@@ -305,9 +305,9 @@ If it is a new user, new user account will get created else existing user will b
 Under Module section, update the GCM Server Key.***
 
 
-##### Firebase Cloud Messaging (FCM)  is already enabled in my app
+#### Firebase Cloud Messaging (FCM)  is already enabled in my app
 
-  Add the below code and pass the push notification token:
+  Add the below code and pass the FCM registration token:
   
  **1.** In UserLoginTask "onSuccess" (refer Step 3)
   
@@ -328,7 +328,7 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 
 };                    
 
-pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, mActivity);            
+pushNotificationTask = new PushNotificationTask(registrationToken, listener, mActivity);            
 pushNotificationTask.execute((Void) null);  
 }
 ```
@@ -354,7 +354,7 @@ Add the following in your FcmListenerService  in onMessageReceived(RemoteMessage
 
 
 
-#####GCM is already enabled in my app
+#### GCM is already enabled in my app
 
 If you already have GCM enabled in your app, then paste PushNotificationTask code at the place where you are getting the GCM registration id in your app.       
      
@@ -392,11 +392,9 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 
 
 
-#####Don't have Android Push Notification code ?
+#### Don't have Android Push Notification code ?
 
-To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the 
-[Firebase console](https://console.firebase.google.com) and create new project , add the google service json to your app by getting server key from project settings update in  
-***[Applozic Dashboard](https://www.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application. 
+To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console](https://console.firebase.google.com) and create new project, add the google service json to your app, configure the build.gradle files in your app ,finally get server key from project settings and update in  ***[Applozic Dashboard](https://www.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application. 
 Under Module section, update the GCM Server Key.***
 
 
