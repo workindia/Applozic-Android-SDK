@@ -2,6 +2,33 @@
 ##Changelog
 
 
+
+
+ **Version 4.60**  - Friday, 30 September 2016
+ 
+ Bug fixes and Improvements
+ 
+  
+### Steps for upgrading from 4.59 to 4.60
+
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.60'`
+
+ 
+ **Version 4.59**  - Saturday, 17 September 2016
+ 
+ Bug fixes and Improvements
+ 
+ 
+###  Steps for upgrading from 4.58 to 4.59
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.59'`
+ 
+
  **Version 4.58**  - Thursday, 15 September 2016
  
  Unread count bug fix
