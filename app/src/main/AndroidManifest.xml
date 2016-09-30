@@ -18,14 +18,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="com.mobicomkit.sample.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="com.applozic.mobicomkit.sample.permission.MAPS_RECEIVE" />
 
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <permission
-        android:name="com.mobicomkit.sample.permission.MAPS_RECEIVE"
+        android:name="com.applozic.mobicomkit.sample.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
     <application
@@ -120,7 +120,7 @@
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true"
-            android:label="@string/title_activity_login"
+            android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
         <meta-data
