@@ -17,20 +17,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
+import android.widget.Toast;
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FilePathFinder;
-import com.applozic.mobicommons.people.channel.Channel;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
@@ -51,7 +55,6 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private CircleImageView circleImageView;
     private View focus;
     private ActionBar mActionBar;
-    public static Activity channelActivity;
     private ImageView uploadImageButton;
     private Uri imageChangeUri;
     private String groupIconImageLink;
@@ -62,6 +65,8 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private FinishActivityReceiver finishActivityReceiver;
     public static final String ACTION_FINISH_CHANNEL_CREATE =
             "channelCreateActivity.ACTION_FINISH";
+    ApplozicSetting applozicSetting;
+    MobiComUserPreference userPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,8 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         setContentView(R.layout.channel_create_activty_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        applozicSetting = ApplozicSetting.getInstance(ChannelCreateActivity.this);
+        userPreference = MobiComUserPreference.getInstance(ChannelCreateActivity.this);
         mActionBar = getSupportActionBar();
         mActionBar.setTitle(R.string.channel_create_title);
         mActionBar.setDisplayShowHomeEnabled(true);
@@ -97,6 +104,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.group_create_menu, menu);
         menu.removeItem(R.id.Done);
+        menu.findItem(R.id.menu_search).setVisible(false);
         return true;
     }
 
@@ -113,6 +121,35 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
             }
             if (check) {
                 Utils.toggleSoftKeyBoard(ChannelCreateActivity.this, true);
+                if (applozicSetting.getTotalRegisteredUsers() > 0 && applozicSetting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                    processDownloadRegisteredUsers();
+                }else {
+                    Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
+                    intent.putExtra(ContactSelectionActivity.CHANNEL, channelName.getText().toString());
+                    if (!TextUtils.isEmpty(groupIconImageLink)) {
+                        intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
+                    }
+                    // intent.putExtra(GROUP_TYPE, groupType);
+                    startActivity(intent);
+                }
+
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void processDownloadRegisteredUsers(){
+        final ProgressDialog progressDialog = ProgressDialog.show(ChannelCreateActivity.this, "",
+                getString(R.string.applozic_contacts_loading_info), true);
+
+        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
+            @Override
+            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                userPreference.setWasContactListServerCallAlreadyDone(true);
                 Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
                 intent.putExtra(ContactSelectionActivity.CHANNEL, channelName.getText().toString());
                 if (!TextUtils.isEmpty(groupIconImageLink)) {
@@ -120,10 +157,28 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 }
                 // intent.putExtra(GROUP_TYPE, groupType);
                 startActivity(intent);
+
             }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+
+            @Override
+            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                String error = getString(Utils.isInternetAvailable(ChannelCreateActivity.this) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
+                Toast toast = Toast.makeText(ChannelCreateActivity.this, error, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
+            @Override
+            public void onCompletion() {
+
+            }
+        };
+        RegisteredUsersAsyncTask usersAsyncTask  = new RegisteredUsersAsyncTask(ChannelCreateActivity.this,usersAsyncTaskTaskListener,applozicSetting .getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(),null,null,true);
+        usersAsyncTask.execute((Void)null);
+
     }
 
     private void beginCrop(Uri source) {

@@ -140,9 +140,10 @@ public class ConversationDatabaseService {
 
         if (cursor.moveToFirst()) {
             conversation = getConversationList(cursor);
+        }
+        if(cursor != null){
             cursor.close();
         }
-
         return conversation;
     }
 
@@ -193,6 +194,9 @@ public class ConversationDatabaseService {
             conversation = getConversation(cursor);
             cursor.close();
             return conversation.getId();
+        }
+        if(cursor != null){
+            cursor.close();
         }
         return null;
     }

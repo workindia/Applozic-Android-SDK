@@ -32,6 +32,9 @@ public class ApplozicIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(intent == null){
+            return;
+        }
         final String pairedMessageKeyString = intent.getStringExtra(PAIRED_MESSAGE_KEY_STRING);
         Thread thread = new Thread(new Runnable() {
             @Override

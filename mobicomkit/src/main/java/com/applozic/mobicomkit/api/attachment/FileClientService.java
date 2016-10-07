@@ -11,7 +11,6 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -242,30 +241,31 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {
+        HttpURLConnection connection = null;
+        MarkStream inputStream = null;
         try {
-            HttpURLConnection connection;
             if (contact != null) {
                 connection = openHttpConnection(contact.getImageURL());
             } else {
                 connection = openHttpConnection(channel.getImageUrl());
             }
-            if (connection != null && connection.getResponseCode() == 200) {
-                MarkStream inputStream =  new MarkStream(connection.getInputStream());
-                BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
-                optionsBitmap.inJustDecodeBounds = true;
-                inputStream.allowMarksToExpire(false);
-                long mark = inputStream.setPos(MARK);
-                BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
-                inputStream.resetPos(mark);
-                optionsBitmap.inJustDecodeBounds = false;
-                optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
-                Bitmap attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
-                inputStream.allowMarksToExpire(true);
-                inputStream.close();
-                connection.disconnect();
-                return attachedImage;
-            } else {
-                Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
+            if (connection != null) {
+                if (connection.getResponseCode() == 200) {
+                    inputStream = new MarkStream(connection.getInputStream());
+                    BitmapFactory.Options optionsBitmap = new BitmapFactory.Options();
+                    optionsBitmap.inJustDecodeBounds = true;
+                    inputStream.allowMarksToExpire(false);
+                    long mark = inputStream.setPos(MARK);
+                    BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                    inputStream.resetPos(mark);
+                    optionsBitmap.inJustDecodeBounds = false;
+                    optionsBitmap.inSampleSize = ImageUtils.calculateInSampleSize(optionsBitmap, 100, 50);
+                    Bitmap attachedImage = BitmapFactory.decodeStream(inputStream, null, optionsBitmap);
+                    inputStream.allowMarksToExpire(true);
+                    return attachedImage;
+                } else {
+                    Log.w(TAG, "Download is failed response code is ...." + connection.getResponseCode());
+                }
             }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -275,6 +275,17 @@ public class FileClientService extends MobiComKitClientService {
             Log.e(TAG, "Exception fetching file from server: " + ex.getMessage());
         } catch (Throwable t) {
 
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
 

@@ -220,7 +220,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
     @Override
     public void connectionLost(Throwable throwable) {
-        BroadcastService.sendMQTTDisconnected(context, BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
+        BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
     }
 
     @Override

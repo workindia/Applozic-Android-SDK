@@ -21,6 +21,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -250,7 +252,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+            if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                if (upIntent != null && isTaskRoot()) {
+                    TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+                }
                 ConversationActivity.this.finish();
                 return true;
             }
@@ -611,6 +617,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void onBackPressed() {
         if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+            try{
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                if(upIntent != null && isTaskRoot()){
+                    TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             this.finish();
             return;
         }

@@ -19,6 +19,9 @@ public class UserIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(intent == null){
+            return;
+        }
         String userId = intent.getStringExtra(USER_ID);
         SyncCallService.getInstance(UserIntentService.this).processUserStatus(userId);
     }

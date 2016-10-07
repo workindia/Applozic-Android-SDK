@@ -38,12 +38,14 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
+import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
@@ -93,7 +95,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
     Contact contact;
     BaseContactService baseContactService;
     MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
-
+    ApplozicSetting setting;
+    MobiComUserPreference userPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +106,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         baseContactService = new AppContactService(getApplicationContext());
         channelImage = (ImageView) findViewById(R.id.channelImage);
+        setting = ApplozicSetting.getInstance(this);
+        userPreference = MobiComUserPreference.getInstance(this);
         createdBy = (TextView) findViewById(R.id.created_by);
         exitChannelButton = (Button) findViewById(R.id.exit_channel);
         deleteChannelButton = (Button) findViewById(R.id.delete_channel_button);
@@ -131,11 +136,11 @@ public class ChannelInfoActivity extends AppCompatActivity {
             channel = ChannelService.getInstance(this).getChannelByChannelKey(channelKey);
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
             if (channel != null) {
-                String title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getApplicationContext()).getUserId());
+                String title = ChannelUtils.getChannelTitleName(channel, userPreference.getUserId());
                 if(!TextUtils.isEmpty(channel.getAdminKey())){
                     contact = baseContactService.getContactById(channel.getAdminKey());
                     mActionBar.setTitle(title);
-                    if(MobiComUserPreference.getInstance(this).getUserId().equals(contact.getUserId())){
+                    if(userPreference.getUserId().equals(contact.getUserId())){
                         createdBy.setText(getString(R.string.channel_created_by) + " " +getString(R.string.you_string));
                     }else {
                         createdBy.setText(getString(R.string.channel_created_by) + " " + contact.getDisplayName());
@@ -264,7 +269,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
 
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(position);
-        if (MobiComUserPreference.getInstance(this).getUserId().equals(channelUserMapper.getUserKey())) {
+        if (userPreference.getUserId().equals(channelUserMapper.getUserKey())) {
             return true;
         }
         switch (item.getItemId()) {
@@ -282,8 +287,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.channel_menu_option, menu);
-        ApplozicSetting setting = ApplozicSetting.getInstance(this);
-        if (setting.isHideGroupAddMemberButton() || !ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
+        if (setting.isHideGroupAddMemberButton() || !ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
             menu.removeItem(R.id.add_member_to_channel);
         }
         if(setting.isHideGroupNameEditButton()|| channel.isBroadcastMessage()){
@@ -300,7 +304,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             return;
         }
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(positionInList);
-        if (ChannelUtils.isAdminUserId(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId(), channel)) {
+        if (ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
             boolean isHideRemove = ApplozicSetting.getInstance(this).isHideGroupRemoveMemberOption();
             if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent && !isHideRemove ) {
@@ -319,10 +323,16 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
         if (id == R.id.add_member_to_channel) {
             if (isUserPresent) {
-                Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);
-                addMemberIntent.putExtra(ContactSelectionActivity.CHECK_BOX, true);
-                addMemberIntent.putExtra(ContactSelectionActivity.CHANNEL_OBJECT, channel);
-                startActivityForResult(addMemberIntent, REQUEST_CODE_FOR_CONTACT);
+                Utils.toggleSoftKeyBoard(ChannelInfoActivity.this, true);
+                if (setting.getTotalRegisteredUsers() > 0 && setting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                    processLoadRegisteredUsers();
+                }else {
+                    Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);
+                    addMemberIntent.putExtra(ContactSelectionActivity.CHECK_BOX, true);
+                    addMemberIntent.putExtra(ContactSelectionActivity.CHANNEL_OBJECT, channel);
+                    startActivityForResult(addMemberIntent, REQUEST_CODE_FOR_CONTACT);
+                }
+
             } else {
                 Toast.makeText(this, getString(R.string.channel_add_alert), Toast.LENGTH_SHORT).show();
             }
@@ -340,6 +350,44 @@ public class ChannelInfoActivity extends AppCompatActivity {
         return false;
     }
 
+
+    public void processLoadRegisteredUsers() {
+        final ProgressDialog progressDialog = ProgressDialog.show(ChannelInfoActivity.this, "",
+                getString(R.string.applozic_contacts_loading_info), true);
+
+        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
+            @Override
+            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                userPreference.setWasContactListServerCallAlreadyDone(true);
+                Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);
+                addMemberIntent.putExtra(ContactSelectionActivity.CHECK_BOX, true);
+                addMemberIntent.putExtra(ContactSelectionActivity.CHANNEL_OBJECT, channel);
+                startActivityForResult(addMemberIntent, REQUEST_CODE_FOR_CONTACT);
+            }
+
+            @Override
+            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                String error = getString(Utils.isInternetAvailable(ChannelInfoActivity.this) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
+                Toast toast = Toast.makeText(ChannelInfoActivity.this, error, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
+            @Override
+            public void onCompletion() {
+
+            }
+        };
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, setting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        usersAsyncTask.execute((Void) null);
+
+    }
 
     private int getListPreferredItemHeight() {
         final TypedValue typedValue = new TypedValue();
@@ -397,7 +445,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
             }
-            if(MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())){
+            if(userPreference.getUserId().equals(contact.getUserId())){
                 holder.displayName.setText(getString(R.string.you_string));
             }else {
                 holder.displayName.setText(contact.getDisplayName());
@@ -407,7 +455,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder.adminTextView.setVisibility(View.GONE);
             }
-            if (!MobiComUserPreference.getInstance(context).getUserId().equals(contact.getUserId())) {
+            if (!userPreference.getUserId().equals(contact.getUserId())) {
                 if (contact.isConnected()) {
                     holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
                     holder.lastSeenAtTextView.setText(getString(R.string.user_online));
@@ -630,7 +678,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
                 }
                 startActivity(intent);
-                MobiComUserPreference.getInstance(ChannelInfoActivity.this).setDeleteChannel(true);
+                userPreference.setDeleteChannel(true);
                 finish();
             }
 
@@ -754,7 +802,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 responseForChannelUpdate = channelService.updateChannel(groupInfoUpdate);
             }
             if (channel != null) {
-                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(),MobiComUserPreference.getInstance(context).getUserId());
+                responseForExit = channelService.leaveMemberFromChannelProcess(channel.getKey(),userPreference.getUserId());
             }
             return null;
         }

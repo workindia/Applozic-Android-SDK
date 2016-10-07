@@ -34,8 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserService;
-import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
@@ -220,12 +219,9 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                     if (!loading && (totalItemsCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                         if (!MobiComKitPeopleActivity.isSearching) {
                             loading = true;
-                            new DownloadNNumberOfUserAsync(applozicSetting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true).execute((Void[]) null);
+                            processLoadRegisteredUsers();
                         }
                     }
-               /* if ((getListView().getLastVisiblePosition() >= totalItemsCount - 5) && (!MobiComKitPeopleActivity.isSearching)) {
-                    new DownloadNNumberOfUserAsync(ApplozicSetting.getInstance(getActivity()).getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true).execute((Void[]) null);
-                }*/
                 }
             }
         });
@@ -569,70 +565,46 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
     }
 
-    public class DownloadNNumberOfUserAsync extends AsyncTask<Void, Integer, Long> {
+    public void  processLoadRegisteredUsers() {
 
-        private Message message;
-        private UserService userService;
-        private ProgressDialog progressDialog;
-        private String messageContent;
-        private int nNumberOfUsers;
-        private String[] userIdArray;
-        private long timeToFetch;
-        boolean callForRegistered;
-        private RegisteredUsersApiResponse registeredUsersApiResponse;
-        private Context context = getActivity();
+        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
+                getActivity().getString(R.string.applozic_contacts_loading_info), true);
 
-        public DownloadNNumberOfUserAsync(int nNumberOfUsers, Message message, String messageContent) {
-            this.message = message;
-            this.messageContent = messageContent;
-            this.nNumberOfUsers = nNumberOfUsers;
-            this.userService = UserService.getInstance(context);
-        }
+        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
+            @Override
+            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                try {
+                    if (registeredUsersApiResponse != null) {
+                        getLoaderManager().restartLoader(
+                                AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);
+                    }
 
-        public DownloadNNumberOfUserAsync(int numberOfUsersToFetch, long timeToFetch, Message message, String messageContent, boolean callForRegistered) {
-            this.callForRegistered = callForRegistered;
-            this.message = message;
-            this.messageContent = messageContent;
-            this.nNumberOfUsers = numberOfUsersToFetch;
-            this.timeToFetch = timeToFetch;
-            this.userService = UserService.getInstance(context);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = ProgressDialog.show(context, "",
-                    context.getString(R.string.applozic_contacts_loading_info), true);
-        }
-
-        @Override
-        protected Long doInBackground(Void... params) {
-            if (callForRegistered) {
-                registeredUsersApiResponse = userService.getRegisteredUsersList(timeToFetch, nNumberOfUsers);
-            } else {
-                userIdArray = userService.getOnlineUsers(nNumberOfUsers);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            if (!Utils.isInternetAvailable(context)) {
-                Toast toast = Toast.makeText(context, context.getString(R.string.applozic_contacts_loading_error), Toast.LENGTH_SHORT);
+            @Override
+            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                String error = getString(Utils.isInternetAvailable(getActivity()) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
+                Toast toast = Toast.makeText(getActivity(), error, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
 
-            if (registeredUsersApiResponse != null) {
-                mAdapter.changeCursor(contactDatabase.loadContacts());
-                mAdapter.notifyDataSetChanged();
-            }
+            @Override
+            public void onCompletion() {
 
-        }
+            }
+        };
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, applozicSetting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        usersAsyncTask.execute((Void) null);
     }
 }
+

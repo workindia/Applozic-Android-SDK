@@ -139,6 +139,7 @@
     <string name="channel_created_by">Created by</string>
     <string name="remove_member">Remove</string>
     <string name="add_member">Add</string>
+    <string name="group_creating_info">Creating group please wait</string>
     <string name="channel_exit">Exit</string>
     <string name="channel_deleting">Delete</string>
     <string name="leave_channel">Are you sure you want to exit from this group?</string>

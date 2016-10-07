@@ -66,7 +66,7 @@ public class ChannelService {
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);
-                BroadcastService.sendUpdateForName(context,BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString());
+                BroadcastService.sendUpdate(context,BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString());
                 channel = getChannel(channelFeed);
                 return channel;
             }
@@ -159,7 +159,7 @@ public class ChannelService {
         }
         if (syncChannelFeed.isSuccess()) {
             processChannelList(syncChannelFeed.getResponse());
-            BroadcastService.sendUpdateForChannelSync(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
+            BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
         }
         userpref.setChannelSyncTime(syncChannelFeed.getGeneratedAt());
 
@@ -369,4 +369,3 @@ public class ChannelService {
     }
 
 }
-

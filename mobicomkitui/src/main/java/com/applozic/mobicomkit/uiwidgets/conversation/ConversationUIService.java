@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
@@ -605,10 +606,10 @@ public class ConversationUIService {
 
     public void startContactActivityForResult(final Message message, final String messageContent) {
         if (applozicSetting.getTotalOnlineUser() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
-            new DownloadNNumberOfUserAsync(applozicSetting.getTotalOnlineUser(), message, messageContent).execute((Void[]) null);
+            processLoadUsers(false, message, messageContent);
         } else if (applozicSetting.getTotalRegisteredUsers() > 0 && applozicSetting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
             if (Utils.isInternetAvailable(fragmentActivity)) {
-                new DownloadNNumberOfUserAsync(applozicSetting.getTotalRegisteredUsers(), message, messageContent, true).execute((Void[]) null);
+                processLoadUsers(true, message, messageContent);
             }
         } else {
             Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
@@ -839,73 +840,58 @@ public class ConversationUIService {
         getConversationFragment().sendMessage(position, Message.ContentType.LOCATION.getValue());
     }
 
-    public class DownloadNNumberOfUserAsync extends AsyncTask<Void, Integer, Long> {
+    public void processLoadUsers(boolean isRegisteredUserCall, final Message message, final String messageContent) {
 
-        private Message message;
-        private UserService userService;
-        private ProgressDialog progressDialog;
-        private String messageContent;
-        private int nNumberOfUsers;
-        private String[] userIdArray;
-        boolean callForRegistered;
-        private RegisteredUsersApiResponse registeredUsersApiResponse;
+        final ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, "",
+                fragmentActivity.getString(R.string.applozic_contacts_loading_info), true);
 
-        public DownloadNNumberOfUserAsync(int nNumberOfUsers, Message message, String messageContent) {
-            this.message = message;
-            this.messageContent = messageContent;
-            this.nNumberOfUsers = nNumberOfUsers;
-            this.userService = UserService.getInstance(fragmentActivity);
-        }
+        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
+            @Override
+            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                try {
+                    if (registeredUsersApiResponse != null) {
+                        userPreference.setWasContactListServerCallAlreadyDone(true);
+                        Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
+                        startContactActivityForResult(intent, message, messageContent, null);
+                    }
 
-        public DownloadNNumberOfUserAsync(int numberOfUsersToFetch, Message message, String messageContent, boolean callForRegistered) {
-            this.callForRegistered = callForRegistered;
-            this.message = message;
-            this.messageContent = messageContent;
-            this.nNumberOfUsers = numberOfUsersToFetch;
-            this.userService = UserService.getInstance(fragmentActivity);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = ProgressDialog.show(fragmentActivity, "",
-                    fragmentActivity.getString(R.string.applozic_contacts_loading_info), true);
-        }
-
-        @Override
-        protected Long doInBackground(Void... params) {
-            if (callForRegistered) {
-                registeredUsersApiResponse = userService.getRegisteredUsersList(0l, nNumberOfUsers);
-            } else {
-                userIdArray = userService.getOnlineUsers(nNumberOfUsers);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
+                    if (userIdArray != null && userIdArray.length > 0) {
+                        Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
+                        startContactActivityForResult(intent, message, messageContent, userIdArray);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            if (!Utils.isInternetAvailable(fragmentActivity)) {
-                Toast toast = Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.applozic_contacts_loading_error), Toast.LENGTH_SHORT);
+            @Override
+            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                String error = fragmentActivity.getString(Utils.isInternetAvailable(fragmentActivity) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
+                Toast toast = Toast.makeText(fragmentActivity, error, Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
-            if (userIdArray != null && userIdArray.length > 0) {
-                Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
-                startContactActivityForResult(intent, message, messageContent, userIdArray);
-            }
 
-            if (registeredUsersApiResponse != null) {
-                userPreference.setWasContactListServerCallAlreadyDone(true);
-                Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
-                startContactActivityForResult(intent, message, messageContent, null);
-            }
+            @Override
+            public void onCompletion() {
 
+            }
+        };
+        RegisteredUsersAsyncTask usersAsyncTask;
+        if (isRegisteredUserCall) {
+            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, applozicSetting.getTotalRegisteredUsers(), 0l, message, messageContent, true);
+        } else {
+            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, applozicSetting.getTotalOnlineUser(), message, messageContent);
         }
+        usersAsyncTask.execute((Void) null);
+
     }
+
 
 }

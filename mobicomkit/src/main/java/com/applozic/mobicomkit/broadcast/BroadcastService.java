@@ -106,14 +106,6 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
-    public static void sendNumberVerifiedBroadcast(Context context, String action) {
-        Log.i(TAG, "Sending number verified broadcast");
-        Intent intentUpdate = new Intent();
-        intentUpdate.setAction(action);
-        intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intentUpdate);
-    }
-
     public static void sendNotificationBroadcast(Context context, Message message) {
         Log.i(TAG, "Sending notification broadcast....");
         Intent notificationIntent = new Intent();
@@ -142,37 +134,15 @@ public class BroadcastService {
         sendBroadcast(context, intentTyping);
     }
 
-    public static void sendMQTTDisconnected(Context context, String action){
-        Log.i(TAG, "Sending typing Broadcast.......");
-        Intent intentTyping = new Intent();
-        intentTyping.setAction(action);
-        intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intentTyping);
-    }
 
-    public static void sendUpdateForName(Context context,String action){
-        Log.i(TAG, "Sending  Broadcast for dataChange.......");
-        Intent intent = new Intent();
+    public static void sendUpdate(Context context,String action){
+        Log.i(TAG,action);
+        Intent intent=new Intent();
         intent.setAction(action);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intent);
+        sendBroadcast(context,intent);
     }
 
-    public static void sendUpdateForChannelSync(Context context,String action){
-        Log.i(TAG, "Sending  Broadcast for channelSync ......");
-        Intent intent = new Intent();
-        intent.setAction(action);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intent);
-    }
-
-    public static void sendUpdateTitleAndSubtitle(Context context,String action){
-        Log.i(TAG, "Sending  Broadcast for Update title and subtitle ......");
-        Intent intent = new Intent();
-        intent.setAction(action);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intent);
-    }
 
     public static void sendConversationReadBroadcast(Context context,String action,String currentId,boolean isGroup){
         Log.i(TAG, "Sending  Broadcast for conversation read ......");

@@ -32,6 +32,9 @@ public class ConversationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(intent == null){
+            return;
+        }
         boolean sync = intent.getBooleanExtra(SYNC, false);
         Log.i(TAG, "Syncing messages service started: " + sync);
         if (sync) {

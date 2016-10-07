@@ -53,11 +53,19 @@ public class ChannelDatabaseService {
 
     public static List<ChannelUserMapper> getListOfUsers(Cursor cursor) {
         List<ChannelUserMapper> channelUserMapper = new ArrayList<ChannelUserMapper>();
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                channelUserMapper.add(getChannelUser(cursor));
-            } while (cursor.moveToNext());
+        try {
+            cursor.moveToFirst();
+            if (cursor.getCount() > 0) {
+                do {
+                    channelUserMapper.add(getChannelUser(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
         return channelUserMapper;
     }

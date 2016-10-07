@@ -23,6 +23,9 @@ public class ConversationReadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(intent == null){
+            return;
+        }
         Integer unreadCount = intent.getIntExtra(UNREAD_COUNT, 0);
 
         if (unreadCount != 0) {

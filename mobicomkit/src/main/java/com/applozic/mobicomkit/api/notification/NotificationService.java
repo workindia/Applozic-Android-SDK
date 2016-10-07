@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.api.notification;
 
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,7 +29,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -109,17 +106,10 @@ public class NotificationService {
         }
         intent.putExtra("sms_body", "text");
         intent.setType("vnd.android-dir/mms-sms");
-        PendingIntent pendingIntent;
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        if (!isRunning(context)) {
-            stackBuilder.addParentStack(activity);
-            stackBuilder.addNextIntent(intent);
-            pendingIntent = stackBuilder.getPendingIntent((int) (System.currentTimeMillis() & 0xfffffff), PendingIntent.FLAG_UPDATE_CURRENT);
-        }else {
-            pendingIntent = PendingIntent.getActivity(context, (int) (System.currentTimeMillis() & 0xfffffff),
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
+        PendingIntent  pendingIntent = PendingIntent.getActivity(context, (int) (System.currentTimeMillis() & 0xfffffff),
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(smallIconResourceId)
@@ -165,17 +155,5 @@ public class NotificationService {
             e.printStackTrace();
         }
     }
-
-    public boolean isRunning(Context ctx) {
-        try {
-            ActivityManager activityManager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
-            return tasks != null && tasks.size() > 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
 
 }

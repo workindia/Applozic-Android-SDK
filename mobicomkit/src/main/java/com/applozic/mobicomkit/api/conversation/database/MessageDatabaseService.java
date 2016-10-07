@@ -123,14 +123,22 @@ public class MessageDatabaseService {
     }
 
     public static List<Message> getMessageList(Cursor cursor) {
-        List<Message> smsList = new ArrayList<Message>();
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                smsList.add(getMessage(cursor));
-            } while (cursor.moveToNext());
+        List<Message> messageList = new ArrayList<Message>();
+        try {
+            cursor.moveToFirst();
+            if (cursor.getCount() > 0) {
+                do {
+                    messageList.add(getMessage(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return smsList;
+        return messageList;
     }
 
     public List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel,Integer conversationId) {
@@ -179,7 +187,6 @@ public class MessageDatabaseService {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
         List<Message> messageList = MessageDatabaseService.getMessageList(cursor);
-        cursor.close();
         dbHelper.close();
         return messageList;
     }
@@ -187,7 +194,7 @@ public class MessageDatabaseService {
     public List<Message> getUnreadMessages(){
         String structuredNameWhere = "";
         List<String> structuredNameParamsList = new ArrayList<String>();
-        structuredNameWhere += "messageContentType not in (10,11) AND ";
+        structuredNameWhere += "messageContentType not in (11) AND ";
         structuredNameWhere += "status in (0,3) AND ";
         structuredNameWhere += "type = ? ";
         structuredNameParamsList.add(String.valueOf(Message.MessageType.MT_INBOX.getValue()));
@@ -205,7 +212,6 @@ public class MessageDatabaseService {
         structuredNameParamsList.add("0");
         Cursor cursor = dbHelper.getWritableDatabase().query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
         List<Message> messageList = getMessageList(cursor);
-        cursor.close();
         dbHelper.close();
         return messageList;
     }
@@ -218,7 +224,6 @@ public class MessageDatabaseService {
         structuredNameParamsList.add("1");
         Cursor cursor = dbHelper.getWritableDatabase().query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
         List<Message> messageList = getMessageList(cursor);
-        cursor.close();
         return messageList;
     }
 
@@ -463,6 +468,9 @@ public class MessageDatabaseService {
                 dbHelper.close();
                 return -1;
             }
+            if(cursor != null){
+                cursor.close();
+            }
         }
 
         try {
@@ -702,7 +710,6 @@ public class MessageDatabaseService {
         if (cursor.moveToFirst()) {
             messages = MessageDatabaseService.getMessageList(cursor);
         }
-        cursor.close();
         dbHelper.close();
         return messages;
     }
@@ -833,7 +840,6 @@ public class MessageDatabaseService {
                 "  JOIN (SELECT contactNumbers, MAX(createdAt) createdAt FROM sms GROUP BY contactNumbers) t2" +
                 "  ON t1.contactNumbers = t2.contactNumbers AND t1.createdAt = t2.createdAt order by createdAt desc", null);*/
         List<Message> messageList = getMessageList(cursor);
-        cursor.close();
         dbHelper.close();
         return messageList;
     }

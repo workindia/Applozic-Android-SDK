@@ -146,7 +146,7 @@ public class MobiComConversationService {
                 ChannelFeed[] channelFeeds = (ChannelFeed[]) GsonUtils.getObjectFromJson(channelFeedResponse, ChannelFeed[].class);
                 ChannelService.getInstance(context).processChannelFeedList(channelFeeds,false);
                 if(channel != null && !isServerCallNotRequired ){
-                    BroadcastService.sendUpdateTitleAndSubtitle(context, BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString());
+                    BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString());
                 }
             }
             if (jsonObject.has("conversationPxys")) {

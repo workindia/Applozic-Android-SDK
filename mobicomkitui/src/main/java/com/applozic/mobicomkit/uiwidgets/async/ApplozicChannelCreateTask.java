@@ -45,10 +45,9 @@ public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
                     channelInfo.setClientGroupId(clientGroupId);
                 }
                 channel = channelService.createChannel(channelInfo);
-                return true;
-            } else {
-                throw new Exception(context.getString(R.string.applozic_channel_error_info_in_logs));
+                return channel != null;
             }
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
             exception = e;
@@ -62,7 +61,7 @@ public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
 
         if (resultBoolean && channel != null && channelCreateListener != null) {
             channelCreateListener.onSuccess(channel, context);
-        } else if (exception != null && !resultBoolean && channelCreateListener != null) {
+        } else if (!resultBoolean && channelCreateListener != null) {
             channelCreateListener.onFailure(exception, context);
         }
 

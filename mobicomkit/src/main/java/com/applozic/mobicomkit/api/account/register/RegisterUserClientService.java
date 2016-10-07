@@ -141,6 +141,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             public void run() {
                 SyncCallService.getInstance(context).getLatestMessagesGroupByPeople(null);
                 Intent intent = new Intent(context, ConversationIntentService.class);
+                intent.putExtra(ConversationIntentService.SYNC,false);
                 context.startService(intent);
             }
         }).start();
