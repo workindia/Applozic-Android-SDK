@@ -3,6 +3,20 @@
 
 
 
+ **Version 4.61**  - wednesday, 5 October 2016
+
+   Contact list selection added search option ,UI change
+
+   Bug fixes and Improvements
+
+
+### Steps for upgrading from 4.60 to 4.61
+
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.61'`
+
 
  **Version 4.60**  - Friday, 30 September 2016
  
