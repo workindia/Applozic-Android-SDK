@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
@@ -40,6 +39,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -99,8 +99,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private int previousTotalItemCount = 0;
     private boolean loading = true;
     private int startingPageIndex = 0;
-    private ApplozicSetting applozicSetting;
     private ContactDatabase contactDatabase;
+    AlCustomizationSettings alCustomizationSettings;
 
     /**
      * Fragments require an empty constructor.
@@ -113,13 +113,17 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         this.userIdArray = userIdArray;
     }
 
+
+    public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
+        this.alCustomizationSettings = alCustomizationSettings;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         contactDatabase = new ContactDatabase(getContext());
         contactService = new AppContactService(getActivity());
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
-        applozicSetting = ApplozicSetting.getInstance(getContext());
         userPreference = MobiComUserPreference.getInstance(getContext());
         inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(), SHARE_TEXT);
         if (savedInstanceState != null) {
@@ -149,7 +153,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         // Inflate the list fragment layout
         View view = inflater.inflate(R.layout.contact_list_fragment, container, false);
         shareButton = (Button) view.findViewById(R.id.actionButton);
-        shareButton.setVisibility(ApplozicSetting.getInstance(getActivity()).isInviteFriendsButtonVisible() ? View.VISIBLE : View.GONE);
+        shareButton.setVisibility(alCustomizationSettings.isInviteFriendsInContactActivity() ? View.VISIBLE : View.GONE);
         resultTextView = (TextView) view.findViewById(R.id.result);
         return view;
     }
@@ -200,7 +204,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if (applozicSetting.isRegisteredUsersContactCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
+                if (alCustomizationSettings.isRegisteredUserContactListCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
 
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;
@@ -603,7 +607,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             }
         };
-        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, applozicSetting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
         usersAsyncTask.execute((Void) null);
     }
 }

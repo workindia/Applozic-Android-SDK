@@ -94,8 +94,9 @@ public class ConversationFragment extends MobiComConversationFragment implements
             @Override
             public void onClick(View view) {
 
-                MobicomMultimediaPopupAdapter adap = new MobicomMultimediaPopupAdapter(getActivity(), getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
-                multimediaPopupGrid.setAdapter(adap);
+                MobicomMultimediaPopupAdapter mobicomMultimediaPopupAdapter = new MobicomMultimediaPopupAdapter(getActivity(), getResources().getStringArray(R.array.multimediaOptionIcons_without_price), getResources().getStringArray(R.array.multimediaOptions_without_price_text));
+                mobicomMultimediaPopupAdapter.setAlCustomizationSettings(alCustomizationSettings);
+                multimediaPopupGrid.setAdapter(mobicomMultimediaPopupAdapter);
                 multimediaPopupGrid.setVisibility(View.VISIBLE);
                 if (inputMethodManager.isActive()) {
                     inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);

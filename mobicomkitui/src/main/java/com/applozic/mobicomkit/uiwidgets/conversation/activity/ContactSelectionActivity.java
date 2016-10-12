@@ -15,7 +15,6 @@ import android.view.MenuItem;
 
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.people.contact.ContactSelectionFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -41,7 +40,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     Integer groupType;
     private String mSearchTerm;
     ContactDatabase contactDatabase;
-    ApplozicSetting applozicSetting;
     public static boolean isSearching = false;
     ContactSelectionFragment contactSelectionFragment;
     private AppContactService contactService;
@@ -52,7 +50,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contact_select_layout);
         contactDatabase = new ContactDatabase(this);
-        applozicSetting = ApplozicSetting.getInstance(this);
         contactSelectionFragment = new ContactSelectionFragment();
         setSearchListFragment(contactSelectionFragment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);

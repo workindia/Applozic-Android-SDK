@@ -39,11 +39,13 @@ import android.webkit.MimeTypeMap;
 
 import com.applozic.mobicommons.commons.image.ImageUtils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
@@ -407,6 +409,36 @@ public class FileUtils {
             }
         }
         return null;
+    }
+
+    public static String loadSettingsJsonFile(Context context) {
+        BufferedReader br = null;
+        StringBuffer sb = new StringBuffer();
+
+        try {
+            br = new BufferedReader(new InputStreamReader(context.getAssets().open(
+                    "applozic-settings.json"), "UTF-8"));
+            String line;
+            if (br != null) {
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }catch (Exception e){
+            e.printStackTrace();
+        }  finally{
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
     }
 
     /**

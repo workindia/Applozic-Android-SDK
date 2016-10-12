@@ -3,21 +3,18 @@ package com.applozic.mobicomkit.uiwidgets.conversation.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -36,9 +33,11 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     TextView fileSize;
     ImageView attachmentImageView;
     TextView fileName;
+    AlCustomizationSettings alCustomizationSettings;
 
-    public MobiComAttachmentGridViewAdapter(Context context, ArrayList<Uri> uris) {
+    public MobiComAttachmentGridViewAdapter(Context context, ArrayList<Uri> uris,AlCustomizationSettings alCustomizationSettings) {
         this.context = context;
+        this.alCustomizationSettings = alCustomizationSettings;
         this.uris = uris;
     }
 
@@ -78,7 +77,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
                     return;
                 }
 
-                if( getCount()> ApplozicSetting.getInstance(context).getMaxAttachmentAllowed()){
+                if( getCount()> alCustomizationSettings.getMaxAttachmentAllowed()){
                     Toast.makeText(context,R.string.mobicom_max_attachment_warning,Toast.LENGTH_LONG).show();
                     return;
                 }

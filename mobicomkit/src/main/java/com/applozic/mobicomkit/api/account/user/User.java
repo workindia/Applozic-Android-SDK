@@ -21,6 +21,7 @@ public class User extends JsonMarker {
     private String roleName = "USER";
     private Short deviceType;
     private String imageLink;
+    private boolean enableEncryption;
     private Short authenticationTypeId = AuthenticationType.CLIENT.getValue();
     private String displayName;
 
@@ -160,6 +161,14 @@ public class User extends JsonMarker {
 
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
+    }
+
+    public boolean isEnableEncryption() {
+        return enableEncryption;
+    }
+
+    public void setEnableEncryption(boolean enableEncryption) {
+        this.enableEncryption = enableEncryption;
     }
 
     public enum AuthenticationType {

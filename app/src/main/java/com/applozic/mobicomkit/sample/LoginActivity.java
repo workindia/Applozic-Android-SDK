@@ -265,15 +265,9 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                 public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
                     mAuthTask = null;
                     showProgress(false);
-                    ApplozicSetting.getInstance(context).showStartNewButton().showPriceOption();
 
                     //Basic settings...
 
-                    //ApplozicSetting.getInstance(context).hideConversationContactImage().hideStartNewButton().hideStartNewFloatingActionButton();
-                    ApplozicSetting.getInstance(context).showStartNewGroupButton()
-                            .setCompressedImageSizeInMB(5)
-                            .enableImageCompression()
-                            .setMaxAttachmentAllowed(5);
                     ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
 
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();

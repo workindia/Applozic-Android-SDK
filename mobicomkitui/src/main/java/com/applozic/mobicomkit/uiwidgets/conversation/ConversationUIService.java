@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -28,7 +27,6 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
-import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -40,7 +38,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.ContactService;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelDeleteTask;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelLeaveMember;
@@ -100,7 +98,6 @@ public class ConversationUIService {
     private FragmentActivity fragmentActivity;
     private BaseContactService baseContactService;
     private MobiComUserPreference userPreference;
-    private ApplozicSetting applozicSetting;
     private Conversation conversation;
     private TopicDetail topicDetailsParcelable;
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
@@ -112,7 +109,6 @@ public class ConversationUIService {
         this.fragmentActivity = fragmentActivity;
         this.baseContactService = new AppContactService(fragmentActivity);
         this.userPreference = MobiComUserPreference.getInstance(fragmentActivity);
-        this.applozicSetting = ApplozicSetting.getInstance(fragmentActivity);
         this.notificationManager  = (NotificationManager) fragmentActivity.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
@@ -605,11 +601,18 @@ public class ConversationUIService {
     }
 
     public void startContactActivityForResult(final Message message, final String messageContent) {
-        if (applozicSetting.getTotalOnlineUser() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
-            processLoadUsers(false, message, messageContent);
-        } else if (applozicSetting.getTotalRegisteredUsers() > 0 && applozicSetting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+        AlCustomizationSettings alCustomizationSettings;
+        String jsonString = FileUtils.loadSettingsJsonFile(fragmentActivity.getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings)GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings = new AlCustomizationSettings();
+        }
+        if (alCustomizationSettings.getTotalOnlineUsers() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
+            processLoadUsers(false, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
+        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
             if (Utils.isInternetAvailable(fragmentActivity)) {
-                processLoadUsers(true, message, messageContent);
+                processLoadUsers(true, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
             }
         } else {
             Intent intent = new Intent(fragmentActivity, MobiComKitPeopleActivity.class);
@@ -840,7 +843,7 @@ public class ConversationUIService {
         getConversationFragment().sendMessage(position, Message.ContentType.LOCATION.getValue());
     }
 
-    public void processLoadUsers(boolean isRegisteredUserCall, final Message message, final String messageContent) {
+    public void processLoadUsers(boolean isRegisteredUserCall, final Message message, final String messageContent,int totalRegisteredUsers,int totalOnlineUser) {
 
         final ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, "",
                 fragmentActivity.getString(R.string.applozic_contacts_loading_info), true);
@@ -885,9 +888,9 @@ public class ConversationUIService {
         };
         RegisteredUsersAsyncTask usersAsyncTask;
         if (isRegisteredUserCall) {
-            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, applozicSetting.getTotalRegisteredUsers(), 0l, message, messageContent, true);
+            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, totalRegisteredUsers, 0l, message, messageContent, true);
         } else {
-            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, applozicSetting.getTotalOnlineUser(), message, messageContent);
+            usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, totalOnlineUser, message, messageContent);
         }
         usersAsyncTask.execute((Void) null);
 

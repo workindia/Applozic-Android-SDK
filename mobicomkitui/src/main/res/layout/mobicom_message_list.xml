@@ -218,6 +218,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:background="@color/apploizc_transparent_color"
         android:orientation="horizontal"
         android:visibility="gone">
 
@@ -227,6 +228,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginBottom="8dp"
+            android:background="@drawable/input"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"

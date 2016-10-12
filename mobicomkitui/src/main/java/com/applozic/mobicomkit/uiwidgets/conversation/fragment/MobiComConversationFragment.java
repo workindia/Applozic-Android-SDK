@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
@@ -18,7 +19,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -76,10 +76,9 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
-import com.applozic.mobicomkit.api.conversation.ConversationReadService;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -171,7 +170,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private Integer channelKey;
     private Toolbar toolbar;
     LinearLayout userNotAbleToChatLayout;
-    protected ApplozicSetting applozicSetting;
     public GridView multimediaPopupGrid;
     int resourceId;
     private Menu menu;
@@ -185,6 +183,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     AppContactService appContactService;
     protected Message messageToForward;
     protected String searchString;
+    protected AlCustomizationSettings alCustomizationSettings;
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
     }
@@ -192,8 +191,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings)GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         syncCallService = SyncCallService.getInstance(getActivity());
-        applozicSetting = ApplozicSetting.getInstance(getActivity());
         appContactService = new AppContactService(getActivity());
         messageDatabaseService = new MessageDatabaseService(getActivity());
         setHasOptionsMenu(true);
@@ -215,14 +219,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         toolbar.setClickable(true);
 
         individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
-        individualMessageSendLayout.setBackgroundResource(applozicSetting.getEditTextLayoutBackgroundColorOrDrawableResource());
+
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
         editTextLinearLayout = (LinearLayout) list.findViewById(R.id.edit_text_linear_layout);
-        editTextLinearLayout.setBackgroundResource(applozicSetting.getEditTextBackgroundColorOrDrawableResource());
+
         statusMessageLayout = (LinearLayout) list.findViewById(R.id.status_message_layout);
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);
         isTyping = (TextView) list.findViewById(R.id.isTyping);
-        isTyping.setTextColor(ContextCompat.getColor(getActivity(), applozicSetting.getTypingTextColor()));
+
         contextFrameLayout = (FrameLayout) list.findViewById(R.id.contextFrameLayout);
 
         contextSpinner = (Spinner) list.findViewById(R.id.spinner_show);
@@ -258,7 +262,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         infoBroadcast = (TextView) spinnerLayout.findViewById(R.id.info_broadcast);
         spinnerLayout.setVisibility(View.GONE);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
-        emptyTextView.setTextColor(ContextCompat.getColor(getActivity(),  applozicSetting.getNoConversationLabelTextColor()));
+        emptyTextView.setTextColor(Color.parseColor(alCustomizationSettings.getNoConversationLabelTextColor().trim()));
         emoticonsBtn.setOnClickListener(this);
         listView.addHeaderView(spinnerLayout);
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
@@ -268,13 +272,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         sendButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.conversation_send);
         GradientDrawable bgShape = (GradientDrawable) sendButton.getBackground();
-        bgShape.setColor(getActivity().getResources().getColor(applozicSetting.getSendButtonBackgroundColor()));
-
+        bgShape.setColor(Color.parseColor(alCustomizationSettings.getSendButtonBackgroundColor().trim()));
         attachButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.attach_button);
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
         messageEditText = (EditText) individualMessageSendLayout.findViewById(R.id.conversation_message);
-        messageEditText.setTextColor(ContextCompat.getColor(getActivity(), applozicSetting.getMessageEditTextTextColor()));
-        messageEditText.setHintTextColor(ContextCompat.getColor(getActivity(), applozicSetting.getMessageEditTextHintColor()));
+
+        messageEditText.setTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextTextColor()));
+
+        messageEditText.setHintTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextHintTextColor()));
+
         userNotAbleToChatLayout = (LinearLayout) list.findViewById(R.id.user_not_able_to_chat_layout);
 
         if (!TextUtils.isEmpty(defaultText)) {
@@ -462,7 +468,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY, channel.getKey());
                     startActivity(channelInfo);
                 } else {
-                    if(applozicSetting.isUserProfileFragmentVisible()){
+                    if(alCustomizationSettings.isUserProfileFragment()){
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
                         if (userProfileFragment == null) {
                             userProfileFragment = new UserProfileFragment();
@@ -775,9 +781,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (contact != null) {
             conversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
+            conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
         } else if (channel != null) {
             conversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
+            conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
         }
         listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         listView.setAdapter(conversationAdapter);
@@ -1072,7 +1080,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
             Long fileSize = returnCursor.getLong(sizeIndex);
-            int maxFileSize = ApplozicSetting.getInstance(getActivity()).getMaxAttachmentSizeAllowed() * 1024 * 1024;
+            int maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
             if (fileSize > maxFileSize) {
                 Toast.makeText(getActivity(), R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
                 return;
@@ -1097,7 +1105,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 reqHeight = displaymetrics.heightPixels;
                 reqWidth = displaymetrics.widthPixels;
             }
-            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight, ApplozicSetting.getInstance(getActivity()).isImageCompressionEnabled(), mimeType);
+            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight, alCustomizationSettings.isImageCompression(), mimeType);
             mediaContainer.setImageBitmap(previewThumbnail);
         } else {
             attachedFile.setVisibility(View.VISIBLE);

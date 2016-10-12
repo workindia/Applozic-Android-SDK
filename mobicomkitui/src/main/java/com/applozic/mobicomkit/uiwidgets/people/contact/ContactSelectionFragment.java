@@ -43,7 +43,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelCreateTask;
@@ -54,6 +54,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ContactSelectionA
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -77,7 +79,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "SELECTED_ITEM";
     public static boolean isSearching = false;
-    ApplozicSetting applozicSetting;
     ContactDatabase contactDatabase;
     boolean disableCheckBox;
     boolean isUserPresnt;
@@ -98,11 +99,18 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private String channelName;
     private Bundle bundle;
     private List<String> userIdList;
+    AlCustomizationSettings alCustomizationSettings;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bundle = getArguments();
+        String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         if (bundle != null) {
             channel = (Channel) bundle.getSerializable(CHANNEL_OBJECT);
             disableCheckBox = bundle.getBoolean(CHECK_BOX, false);
@@ -121,7 +129,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         contactDatabase = new ContactDatabase(getContext());
         appContactService = new AppContactService(getActivity());
         mAdapter = new ContactsAdapter(getActivity());
-        applozicSetting = ApplozicSetting.getInstance(getContext());
         final Context context = getActivity().getApplicationContext();
         mImageLoader = new ImageLoader(context, getListPreferredItemHeight()) {
             @Override
@@ -173,7 +180,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if (ApplozicSetting.getInstance(getContext()).isRegisteredUsersContactCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
+                if (alCustomizationSettings.isRegisteredUserContactListCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
 
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;
@@ -262,7 +269,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             }
         };
-        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, applozicSetting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
         usersAsyncTask.execute((Void) null);
 
     }
@@ -291,7 +298,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         // Inflate the list fragment layout
         View view = inflater.inflate(R.layout.contact_list_fragment, container, false);
         Button shareButton = (Button) view.findViewById(R.id.actionButton);
-        shareButton.setVisibility(ApplozicSetting.getInstance(getActivity()).isInviteFriendsButtonVisible() ? View.VISIBLE : View.GONE);
+        shareButton.setVisibility(alCustomizationSettings.isInviteFriendsInContactActivity() ? View.VISIBLE : View.GONE);
         TextView resultTextView = (TextView) view.findViewById(R.id.result);
         return view;
     }

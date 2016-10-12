@@ -1,12 +1,11 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 
-import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
@@ -38,7 +37,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -47,6 +46,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationA
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -73,7 +74,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     protected QuickConversationAdapter conversationAdapter = null;
     protected boolean loadMore = false;
     protected SyncCallService syncCallService;
-    private ApplozicSetting applozicSetting;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
@@ -86,6 +86,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private int startingPageIndex = 0;
     private ProgressBar progressBar;
     ConversationUIService conversationUIService;
+    AlCustomizationSettings alCustomizationSettings;
 
     public ConversationListView getListView() {
         return listView;
@@ -94,10 +95,16 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        applozicSetting = ApplozicSetting.getInstance(getActivity());
+        String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings)GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings = new AlCustomizationSettings();
+        }
         syncCallService = SyncCallService.getInstance(getActivity());
         conversationAdapter = new QuickConversationAdapter(getActivity(),
                 messageList, null);
+        conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
         conversationUIService = new ConversationUIService(getActivity());
         baseContactService = new AppContactService(getActivity());
         messageDatabaseService = new MessageDatabaseService(getActivity());
@@ -135,10 +142,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
-        emptyTextView.setTextColor(ContextCompat.getColor(getActivity(),  applozicSetting.getNoConversationLabelTextColor()));
+        emptyTextView.setTextColor(Color.parseColor(alCustomizationSettings.getNoConversationLabelTextColor().trim()));
+
         // startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
-        fabButton.setVisibility(applozicSetting.isStartNewFloatingActionButtonVisible() ? View.VISIBLE : View.GONE);
+        fabButton.setVisibility(alCustomizationSettings.isStartNewFloatingButton() ? View.VISIBLE : View.GONE);
 
         swipeLayout = (SwipeRefreshLayout) list.findViewById(R.id.swipe_container);
         swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
@@ -238,21 +246,21 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        if (!ApplozicSetting.getInstance(getActivity()).isStartNewButtonVisible()) {
+        if (!alCustomizationSettings.isStartNewButton()) {
             menu.removeItem(R.id.start_new);
         }else {
             menu.findItem(R.id.start_new).setVisible(true);
         }
-        if (!ApplozicSetting.getInstance(getActivity()).isStartNewGroupButtonVisible()) {
+        if (!alCustomizationSettings.isStartNewGroup()) {
             menu.removeItem(R.id.conversations);
         }else {
             menu.findItem(R.id.conversations).setVisible(true);
         }
         menu.findItem(R.id.refresh).setVisible(true);
-        if(ApplozicSetting.getInstance(getActivity()).isProfileOptionEnabled()){
+        if(alCustomizationSettings.isProfileOption()){
             menu.findItem(R.id.applozicUserProfile).setVisible(true);
         }
-        if(ApplozicSetting.getInstance(getActivity()).isMessageSearchEnabled()){
+        if(alCustomizationSettings.isMessageSearchOption()){
             menu.findItem(R.id.menu_search).setVisible(true);
         }
     }
@@ -285,7 +293,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 //listView.smoothScrollToPosition(messageList.size());
                 listView.setSelection(0);
                 emptyTextView.setVisibility(View.GONE);
-                emptyTextView.setText(ApplozicSetting.getInstance(getActivity()).getNoConversationLabel());
+                emptyTextView.setText(alCustomizationSettings.getNoConversationLabel());
                 // startQNewButton.setVisibility(View.GONE);
             }
         });
@@ -418,7 +426,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
-            emptyTextView.setText(ApplozicSetting.getInstance(getActivity()).getNoConversationLabel());
+            emptyTextView.setText(alCustomizationSettings.getNoConversationLabel());
             //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
@@ -525,7 +533,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void updateLastSeenStatus(final String userId) {
-        if (!ApplozicSetting.getInstance(getActivity()).isOnlineStatusInMasterListVisible()) {
+        if (!alCustomizationSettings.isOnlineStatusMasterList()) {
             return;
         }
         this.getActivity().runOnUiThread(new Runnable() {
@@ -706,9 +714,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                 if(!TextUtils.isEmpty(searchString) && messageList.isEmpty()){
-                    emptyTextView.setText(ApplozicSetting.getInstance(getActivity()).getSearchNotFoundLabelForChats());
+                    emptyTextView.setText(alCustomizationSettings.getNoSearchFoundForChatMessages());
                 }else if(TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
-                    emptyTextView.setText(ApplozicSetting.getInstance(getActivity()).getNoConversationLabel());
+                    emptyTextView.setText(alCustomizationSettings.getNoConversationLabel());
                 }
                 if (!messageList.isEmpty()) {
                     listView.setSelection(0);

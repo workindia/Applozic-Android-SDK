@@ -67,6 +67,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
+        user.setEnableEncryption(user.isEnableEncryption());
+
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
@@ -109,6 +111,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
         }
         mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
+        mobiComUserPreference.enableEncryption(user.isEnableEncryption());
         mobiComUserPreference.setCountryCode(user.getCountryCode());
         mobiComUserPreference.setUserId(user.getUserId());
         mobiComUserPreference.setContactNumber(user.getContactNumber());
@@ -219,6 +222,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
+        user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
         user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         user.setApplicationId(getApplicationKey(context));
         if(getAppModuleName(context) != null){

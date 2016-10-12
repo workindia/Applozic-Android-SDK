@@ -46,7 +46,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -54,6 +54,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceive
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
@@ -95,8 +96,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
     Contact contact;
     BaseContactService baseContactService;
     MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
-    ApplozicSetting setting;
     MobiComUserPreference userPreference;
+    AlCustomizationSettings alCustomizationSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +105,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
         setContentView(R.layout.channel_info_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         baseContactService = new AppContactService(getApplicationContext());
         channelImage = (ImageView) findViewById(R.id.channelImage);
-        setting = ApplozicSetting.getInstance(this);
         userPreference = MobiComUserPreference.getInstance(this);
         createdBy = (TextView) findViewById(R.id.created_by);
         exitChannelButton = (Button) findViewById(R.id.exit_channel);
@@ -128,7 +134,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
         registerForContextMenu(mainListView);
 
-        if(ApplozicSetting.getInstance(this).isHideGroupExitMemberButton()){
+        if(alCustomizationSettings.isHideGroupExitButton()){
             channelExitRelativeLayout.setVisibility(View.GONE);
         }
         if (getIntent().getExtras() != null) {
@@ -287,10 +293,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.channel_menu_option, menu);
-        if (setting.isHideGroupAddMemberButton() || !ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
+        if (alCustomizationSettings.isHideGroupAddMembersButton() || !ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
             menu.removeItem(R.id.add_member_to_channel);
         }
-        if(setting.isHideGroupNameEditButton()|| channel.isBroadcastMessage()){
+        if(alCustomizationSettings.isHideGroupNameUpdateButton()|| channel.isBroadcastMessage()){
             menu.removeItem(R.id.edit_channel_name);
         }
         return true;
@@ -306,7 +312,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(positionInList);
         if (ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
             isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
-            boolean isHideRemove = ApplozicSetting.getInstance(this).isHideGroupRemoveMemberOption();
+            boolean isHideRemove = alCustomizationSettings.isHideGroupRemoveMemberOption();
             if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent && !isHideRemove ) {
                 menu.add(Menu.NONE, Menu.NONE, 0, "Remove");
             }
@@ -324,7 +330,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (id == R.id.add_member_to_channel) {
             if (isUserPresent) {
                 Utils.toggleSoftKeyBoard(ChannelInfoActivity.this, true);
-                if (setting.getTotalRegisteredUsers() > 0 && setting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
                     processLoadRegisteredUsers();
                 }else {
                     Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);
@@ -384,7 +390,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
             }
         };
-        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, setting.getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
         usersAsyncTask.execute((Void) null);
 
     }

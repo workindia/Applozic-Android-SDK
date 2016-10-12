@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,12 +28,14 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FilePathFinder;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
@@ -65,8 +66,8 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private FinishActivityReceiver finishActivityReceiver;
     public static final String ACTION_FINISH_CHANNEL_CREATE =
             "channelCreateActivity.ACTION_FINISH";
-    ApplozicSetting applozicSetting;
     MobiComUserPreference userPreference;
+    AlCustomizationSettings alCustomizationSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +75,12 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         setContentView(R.layout.channel_create_activty_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-        applozicSetting = ApplozicSetting.getInstance(ChannelCreateActivity.this);
+        String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         userPreference = MobiComUserPreference.getInstance(ChannelCreateActivity.this);
         mActionBar = getSupportActionBar();
         mActionBar.setTitle(R.string.channel_create_title);
@@ -121,7 +127,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
             }
             if (check) {
                 Utils.toggleSoftKeyBoard(ChannelCreateActivity.this, true);
-                if (applozicSetting.getTotalRegisteredUsers() > 0 && applozicSetting.isRegisteredUsersContactCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
                     processDownloadRegisteredUsers();
                 }else {
                     Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
@@ -176,7 +182,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
 
             }
         };
-        RegisteredUsersAsyncTask usersAsyncTask  = new RegisteredUsersAsyncTask(ChannelCreateActivity.this,usersAsyncTaskTaskListener,applozicSetting .getTotalRegisteredUsers(), userPreference.getRegisteredUsersLastFetchTime(),null,null,true);
+        RegisteredUsersAsyncTask usersAsyncTask  = new RegisteredUsersAsyncTask(ChannelCreateActivity.this,usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(),null,null,true);
         usersAsyncTask.execute((Void)null);
 
     }

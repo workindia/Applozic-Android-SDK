@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,19 +43,18 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
-import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -69,6 +69,8 @@ import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
@@ -81,10 +83,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.soundcloud.android.crop.Crop;
 
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -105,7 +107,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String CAPTURED_VIDEO_URI = "capturedVideoUri";
-
     private static final String SHARE_TEXT = "share_text";
     private static Uri capturedImageUri;
     private static String inviteMessage;
@@ -123,12 +124,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     String activityToOpenOnClickOfCallButton;
     int resourceId;
     RelativeLayout childFragmentLayout;
-    boolean isTakePhoto;
-    boolean isAttachment;
+    private boolean isTakePhoto;
+    private boolean isAttachment;
     private BaseContactService baseContactService;
     private ApplozicPermissions applozicPermission;
-    private ApplozicSetting applozicSetting;
-    Integer currentConversationId;
+    private Integer currentConversationId;
     private Uri videoFileUri;
     private Uri imageUri;
     ProfileFragment profilefragment;
@@ -137,6 +137,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchView searchView;
     private String searchTerm;
     private SearchListFragment searchListFragment;
+    AlCustomizationSettings alCustomizationSettings;
 
     public ConversationActivity() {
 
@@ -277,9 +278,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         super.onCreate(savedInstanceState);
         resourceId = ApplozicSetting.getInstance(this).getChatBackgroundColorOrDrawableResource();
         baseContactService =  new AppContactService(this);
-        applozicSetting = ApplozicSetting.getInstance(this);
         conversationUIService =  new ConversationUIService(this);
         mobiComMessageService = new MobiComMessageService(this, MessageIntentService.class);
+        String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings = new AlCustomizationSettings();
+        }
         if(resourceId != 0){
             getWindow().setBackgroundDrawableResource(resourceId);
         }
@@ -292,6 +298,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         applozicPermission = new ApplozicPermissions(this, layout);
         childFragmentLayout = (RelativeLayout) findViewById(R.id.layout_child_activity);
         profilefragment =  new ProfileFragment();
+        profilefragment.setAlCustomizationSettings(alCustomizationSettings);
 
         if (Utils.hasMarshmallow()) {
             applozicPermission.checkRuntimePermissionForStorage();
@@ -371,6 +378,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         mActionBar.setDisplayShowTitleEnabled(true);
     }
 
+    @SuppressLint("NewApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -518,9 +526,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-
     public void processingLocation() {
-        if (ApplozicSetting.getInstance(this).isLocationSharingViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
+        if (alCustomizationSettings.isLocationShareViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
             Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
             startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
             Log.i("test", "Activity for result strarted");
@@ -783,10 +790,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         }else{
 
-            if(ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound()==null){
+            if(alCustomizationSettings.getAudioPermissionNotFoundMsg()==null){
                 showSnackBar(R.string.applozic_audio_permission_missing);
             }else{
-                snackbar = Snackbar.make(layout,ApplozicSetting.getInstance(this).getTextForAudioPermissionNotFound(),
+                snackbar = Snackbar.make(layout, alCustomizationSettings.getAudioPermissionNotFoundMsg(),
                         Snackbar.LENGTH_SHORT);
                 snackbar.show();
             }
@@ -807,7 +814,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 }
                 callIntent.putExtra(ConversationUIService.CONTACT, contact);
                 startActivity(callIntent);
-            } else if (applozicSetting.isActionDialWithoutCallingEnabled()){
+            } else if (alCustomizationSettings.isShowActionDialWithOutCalling()){
                 if(!TextUtils.isEmpty(contact.getContactNumber())) {
                     Intent callIntent;
                     String uri = "tel:" + contact.getContactNumber().trim();

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,10 +15,11 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentGridViewAdapter;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.ArrayList;
 
@@ -37,6 +39,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
 
     private  GridView galleryImagesGridView;
     private  ArrayList<Uri> attachmentFileList = new ArrayList<Uri>();
+    AlCustomizationSettings alCustomizationSettings;
 
     private MobiComAttachmentGridViewAdapter imagesAdapter;
 
@@ -44,6 +47,12 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mobicom_multi_attachment_activity);
+        String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         initViews();
         setUpGridView();
 
@@ -109,37 +118,37 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
      *
      */
     private void setUpGridView() {
-        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList);
+        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList, alCustomizationSettings);
         galleryImagesGridView.setAdapter(imagesAdapter);
     }
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-            if(resultCode == Activity.RESULT_OK ){
-                Uri selectedFileUri = (intent == null ? null : intent.getData());
-                Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
-                if(selectedFileUri != null) {
-                    try{
-                        int maxFileSize = ApplozicSetting.getInstance(this).getMaxAttachmentSizeAllowed()*1024*1024;
-                        Cursor returnCursor =
-                                getContentResolver().query(selectedFileUri, null, null, null, null);
-                        if (returnCursor != null) {
-                            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                            returnCursor.moveToFirst();
-                            Long fileSize = returnCursor.getLong(sizeIndex);
-                            returnCursor.close();
-                            if (fileSize > maxFileSize) {
-                                Toast.makeText(this, R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
-                                return;
-                            }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if(resultCode == Activity.RESULT_OK ){
+            Uri selectedFileUri = (intent == null ? null : intent.getData());
+            Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
+            if(selectedFileUri != null) {
+                try{
+                    int maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed()*1024*1024;
+                    Cursor returnCursor =
+                            getContentResolver().query(selectedFileUri, null, null, null, null);
+                    if (returnCursor != null) {
+                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        Long fileSize = returnCursor.getLong(sizeIndex);
+                        returnCursor.close();
+                        if (fileSize > maxFileSize) {
+                            Toast.makeText(this, R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
+                            return;
                         }
-                        addUri(selectedFileUri);
-                        imagesAdapter.notifyDataSetChanged();
-                    }catch (Exception e){
-                        e.printStackTrace();
                     }
+                    addUri(selectedFileUri);
+                    imagesAdapter.notifyDataSetChanged();
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
-            super.onActivityResult(requestCode, resultCode, intent);
         }
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
 
 }

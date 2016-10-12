@@ -22,6 +22,7 @@ public class RegistrationResponse extends JsonMarker {
     private String imageLink;
     private String statusMessage;
     private String encryptionKey;
+    private boolean enableEncryption;
     private Short pricingPackage = PricingType.STARTER.getValue();
 
     public static enum PricingType {
@@ -152,6 +153,14 @@ public class RegistrationResponse extends JsonMarker {
 
     public void setEncryptionKey(String encryptionKey) {
         this.encryptionKey = encryptionKey;
+    }
+
+    public boolean isEnableEncryption() {
+        return enableEncryption;
+    }
+
+    public void setEnableEncryption(boolean enableEncryption) {
+        this.enableEncryption = enableEncryption;
     }
 
     @Override

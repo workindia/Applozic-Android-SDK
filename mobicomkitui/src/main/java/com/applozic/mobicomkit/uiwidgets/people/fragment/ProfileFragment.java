@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.uiwidgets.people.fragment;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
@@ -35,7 +34,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
@@ -44,8 +42,8 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.contact.AppContactService;
 
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.PictureUploadPopUpFragment;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -74,7 +72,11 @@ public class ProfileFragment extends Fragment {
     AppContactService contactService;
     Contact userContact;
     private String changedStatusString;
+    AlCustomizationSettings alCustomizationSettings;
 
+    public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
+        this.alCustomizationSettings = alCustomizationSettings;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -123,7 +125,7 @@ public class ProfileFragment extends Fragment {
         });
 
 
-        if(ApplozicSetting.getInstance(getActivity()).isProfileLogoutEnable()){
+        if(alCustomizationSettings.isProfileOption()){
             logoutbtn.setVisibility(View.VISIBLE);
         }else {
             logoutbtn.setVisibility(View.GONE);

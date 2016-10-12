@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -44,6 +44,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -67,10 +68,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -105,10 +104,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private List<Message> originalList;
     private MobiComConversationService conversationService;
     private ImageCache imageCache;
-    ApplozicSetting applozicSetting;
     public String searchString;
     private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
     private TextAppearanceSpan highlightTextSpan;
+    AlCustomizationSettings alCustomizationSettings;
+
+
+    public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
+        this.alCustomizationSettings = alCustomizationSettings;
+    }
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
         this(context, textViewResourceId, messageList, null, channel, messageIntentClass, emojiconHandler);
@@ -133,7 +137,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
         this.messageList = messageList;
-        applozicSetting = ApplozicSetting.getInstance(context);
         contactImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -183,8 +186,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             TextView dateView = (TextView) customView.findViewById(R.id.chat_screen_date);
             TextView dayTextView = (TextView) customView.findViewById(R.id.chat_screen_day);
             Date date = new Date(message.getCreatedAtTime());
-            dateView.setTextColor(ContextCompat.getColor(context,  applozicSetting.getConversationDateTextColor()));
-            dayTextView.setTextColor(ContextCompat.getColor(context,  applozicSetting.getConversationDayTextColor()));
+            dateView.setTextColor(Color.parseColor(alCustomizationSettings.getConversationDateTextColor().trim()));
+            dayTextView.setTextColor(Color.parseColor(alCustomizationSettings.getConversationDayTextColor().trim()));
 
             if (DateUtils.isSameDay(message.getCreatedAtTime())) {
                 dayTextView.setVisibility(View.VISIBLE);
@@ -206,9 +209,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             customView = inflater.inflate(R.layout.applozic_channel_custom_message_layout, parent, false);
             TextView channelMessageTextView = (TextView) customView.findViewById(R.id.channel_message);
             GradientDrawable bgGradientDrawable = (GradientDrawable) channelMessageTextView.getBackground();
-            bgGradientDrawable.setColor(ContextCompat.getColor(context, applozicSetting.getChannelCustomMesssageBgColor()));
-            bgGradientDrawable.setStroke(3, ContextCompat.getColor(context,applozicSetting.getChannelCustomMesssageBorderColor()));
-            channelMessageTextView.setTextColor(ContextCompat.getColor(context, applozicSetting.getChannelCustomMesssageTextColor()));
+            bgGradientDrawable.setColor(Color.parseColor(alCustomizationSettings.getChannelCustomMessageBgColor()));
+            bgGradientDrawable.setStroke(3, Color.parseColor(alCustomizationSettings.getChannelCustomMessageBorderColor()));
+            channelMessageTextView.setTextColor(Color.parseColor(alCustomizationSettings.getChannelCustomMessageTextColor()));
             channelMessageTextView.setText(message.getMessage());
             return customView;
         } else if (type == 0) {
@@ -270,7 +273,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             final ProgressBar mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
             TextView nameTextView = (TextView) customView.findViewById(R.id.name_textView);
 
-            createdAtTime.setTextColor(ContextCompat.getColor(context,  applozicSetting.getMessageTimeTextColor()));
+            createdAtTime.setTextColor(Color.parseColor(alCustomizationSettings.getMessageTimeTextColor()));
 
             final String messageTapActivityClassName = ApplozicSetting.getInstance(context).getActivityCallback(ApplozicSetting.RequestCode.MESSAGE_TAP);
 
@@ -539,10 +542,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             }
             String mimeType = "";
             if (messageTextView != null) {
-                messageTextView.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
-                        applozicSetting.getSentMessageTextColor() : applozicSetting.getReceivedMessageTextColor()));
-                messageTextView.setLinkTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
-                        applozicSetting.getSentMessageLinkTextColor() : applozicSetting.getReceivedMessageLinkTextColor()));
+                messageTextView.setTextColor(message.isTypeOutbox() ?
+                        Color.parseColor(alCustomizationSettings.getSentMessageTextColor()) :  Color.parseColor(alCustomizationSettings.getReceivedMessageTextColor()));
+                messageTextView.setLinkTextColor(message.isTypeOutbox() ?
+                        Color.parseColor(alCustomizationSettings.getSentMessageLinkTextColor()) : Color.parseColor(alCustomizationSettings.getReceivedMessageLinkTextColor()));
 
                 if (message.getContentType() == Message.ContentType.TEXT_URL.getValue()) {
                     try {
@@ -596,13 +599,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
 
                 if (messageTextLayout != null) {
-                    int resId = message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBackgroundColor() : applozicSetting.getReceivedMessageBackgroundColor();
-                    int borderResId = message.isTypeOutbox() ?
-                            applozicSetting.getSentMessageBorderColor() : applozicSetting.getReceivedMessageBorderColor();
                     GradientDrawable bgShape = (GradientDrawable) messageTextLayout.getBackground();
-                    bgShape.setColor(ContextCompat.getColor(context, resId));
-                    bgShape.setStroke(3, ContextCompat.getColor(context, borderResId));
+                    bgShape.setColor(message.isTypeOutbox() ?
+                            Color.parseColor(alCustomizationSettings.getSentMessageBackgroundColor()) : Color.parseColor(alCustomizationSettings.getReceivedMessageBackgroundColor()));
+                    bgShape.setStroke(3, message.isTypeOutbox() ?
+                            Color.parseColor(alCustomizationSettings.getSentMessageBorderColor()) : Color.parseColor(alCustomizationSettings.getReceivedMessageBackgroundColor()));
                 }
                /* if (messageTextLayout != null) {
                     //messageTextLayout.setBackgroundResource(messageTypeColorMap.get(message.getType()));
@@ -666,11 +667,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             Button addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
             shareContactName.setText(data.getName());
 
-            int resId = message.isTypeOutbox() ? applozicSetting.getSentContactMessageTextColor() : applozicSetting.getReceivedContactMessageTextColor();
-            shareContactName.setTextColor(ContextCompat.getColor(context, resId));
-            shareContactNo.setTextColor(ContextCompat.getColor(context, resId));
-            shareEmailContact.setTextColor(ContextCompat.getColor(context, resId));
-            addContactButton.setTextColor(ContextCompat.getColor(context, resId));
+            int resId = message.isTypeOutbox() ? Color.parseColor(alCustomizationSettings.getSentContactMessageTextColor() ): Color.parseColor(alCustomizationSettings.getReceivedContactMessageTextColor());
+            shareContactName.setTextColor(resId);
+            shareContactNo.setTextColor(resId);
+            shareEmailContact.setTextColor(resId);
+            addContactButton.setTextColor(resId);
 
             if (data.getProfilePic() != null) {
                 if (imageCache.getBitmapFromMemCache(message.getKeyString()) == null) {
@@ -710,9 +711,6 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     }
 
     private void loadContactImage(Contact contact, Contact contactDisplayName, Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
-        if (!applozicSetting.isConversationContactImageVisible()) {
-            return;
-        }
 
         if (alphabeticTextView != null) {
             String contactNumber = "";
@@ -776,8 +774,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         } else if (message.getFileMetas() != null) {
             fileName = message.getFileMetas().getName();
         }
-        attachedFile.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ?
-                applozicSetting.getSentMessageTextColor() : applozicSetting.getReceivedMessageTextColor()));
+        attachedFile.setTextColor(message.isTypeOutbox() ?
+                Color.parseColor(alCustomizationSettings.getSentMessageTextColor()) : Color.parseColor(alCustomizationSettings.getReceivedMessageTextColor()));
         attachedFile.setText(fileName);
         attachedFile.setVisibility(View.VISIBLE);
         attachedFile.setOnClickListener(new View.OnClickListener() {

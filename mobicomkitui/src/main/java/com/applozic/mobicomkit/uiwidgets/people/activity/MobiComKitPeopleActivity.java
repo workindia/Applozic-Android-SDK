@@ -10,7 +10,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
@@ -27,12 +26,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.people.channel.ChannelFragment;
 import com.applozic.mobicomkit.uiwidgets.people.contact.AppContactFragment;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -58,7 +59,6 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     protected String searchTerm;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-    ApplozicSetting applozicSetting;
     ViewPager viewPager;
     TabLayout tabLayout;
     ActionBar actionBar;
@@ -67,14 +67,21 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     AppContactFragment appContactFragment;
     ChannelFragment channelFragment;
     ViewPagerAdapter adapter;
+    AlCustomizationSettings alCustomizationSettings;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.people_activity);
-        applozicSetting = ApplozicSetting.getInstance(getBaseContext());
+        String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
+        if(!TextUtils.isEmpty(jsonString)){
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
+        }else {
+            alCustomizationSettings =  new AlCustomizationSettings();
+        }
         appContactFragment = new AppContactFragment(userIdArray);
+        appContactFragment.setAlCustomizationSettings(alCustomizationSettings);
         channelFragment = new ChannelFragment();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -88,7 +95,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             userIdArray = getIntent().getStringArrayExtra(USER_ID_ARRAY);
         }
         setSearchListFragment(appContactFragment);
-        if (applozicSetting.isStartNewGroupButtonVisible()) {
+        if (alCustomizationSettings.isStartNewGroup()) {
             actionBar.setTitle(getString(R.string.search_title));
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             viewPager.setVisibility(View.VISIBLE);
@@ -247,7 +254,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (applozicSetting.isCreateAnyContact()) {
+        if (alCustomizationSettings.isCreateAnyContact()) {
             this.searchTerm = query;
             startNewConversation(query);
             isSearching = false;

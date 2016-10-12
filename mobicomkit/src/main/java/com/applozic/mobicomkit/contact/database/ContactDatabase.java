@@ -165,19 +165,6 @@ public class ContactDatabase {
         }
     }
 
-    public Cursor loadContacts() {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor;
-
-        String query = "select userId as _id, fullName, contactNO, " +
-                "displayName,contactImageURL,contactImageLocalURI,email," +
-                "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                "blockedBy,status from " + CONTACT;
-
-        cursor = db.rawQuery(query, null);
-
-        return cursor;
-    }
 
     public void updateUserBlockStatus(String userId, boolean userBlocked) {
         try {

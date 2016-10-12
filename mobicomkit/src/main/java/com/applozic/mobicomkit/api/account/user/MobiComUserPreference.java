@@ -53,6 +53,7 @@ public class MobiComUserPreference {
     private static String pricing_package = "pricing_package";
     private static String delete_channel = "delete_channel";
     private static String encryption_Key = "encryption_Key";
+    private static String enable_encryption = "enable_encryption";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -468,4 +469,13 @@ public class MobiComUserPreference {
     public void setEncryptionKey(String encryptionKey) {
         sharedPreferences.edit().putString(encryption_Key, encryptionKey).commit();
     }
+
+    public boolean isEncryptionEnabled() {
+        return sharedPreferences.getBoolean(enable_encryption, false);
+    }
+
+    public void enableEncryption(boolean enableEncryption) {
+        sharedPreferences.edit().putBoolean(enable_encryption, enableEncryption).commit();
+    }
+
 }
