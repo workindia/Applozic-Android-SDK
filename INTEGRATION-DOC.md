@@ -18,7 +18,7 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.61'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.62'
 ```
 
 
