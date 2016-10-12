@@ -286,8 +286,6 @@ UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {
 @Override          
 public void onSuccess(RegistrationResponse registrationResponse, Context context) {           
    // After successful registration with Applozic server the callback will come here 
-    ApplozicSetting.getInstance(context).showStartNewButton();//To show contact list.
-    ApplozicSetting.getInstance(context).enableRegisteredUsersContactCall();//To enable the applozic Registered Users Contact Note:for disable that you can comment this line of code
 }                       
 
 @Override             
