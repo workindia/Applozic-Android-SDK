@@ -32,7 +32,7 @@ ext.supportLibraryVersion = '23.1.1'
 
 **Step 2: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.62' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.63' `
 
 
 Add the following in gradle android target:      
