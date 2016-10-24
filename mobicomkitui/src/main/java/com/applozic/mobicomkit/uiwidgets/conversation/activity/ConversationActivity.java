@@ -263,7 +263,12 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
             if (takeOrder) {
-                this.finish();
+                Intent upIntent = NavUtils.getParentActivityIntent(this);
+                if (upIntent != null && isTaskRoot()) {
+                    TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+                }
+                ConversationActivity.this.finish();
+                return true;
             } else {
                 getSupportFragmentManager().popBackStack();
             }
@@ -585,8 +590,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             conversationUIService.startContactActivityForResult();
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
+            intent.putExtra(ChannelCreateActivity.GROUP_TYPE,Channel.GroupType.PUBLIC.getValue().intValue());
             startActivity(intent);
-        } else if (id == R.id.refresh) {
+        }else if(id == R.id.broadcast){
+            Intent intent = new Intent(this, ContactSelectionActivity.class);
+            intent.putExtra(ContactSelectionActivity.GROUP_TYPE,Channel.GroupType.BROADCAST.getValue().intValue());
+            startActivity(intent);
+        }else if (id == R.id.refresh) {
             String message = this.getString(R.string.info_message_sync);
             mobiComMessageService.syncMessagesWithServer(message);
         } else if (id == R.id.shareOptions) {
@@ -642,7 +652,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             return;
         }
         if (takeOrder){
-            this.finish();
+            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            if (upIntent != null && isTaskRoot()) {
+                TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+            }
+            ConversationActivity.this.finish();
         }else {
             super.onBackPressed();
         }

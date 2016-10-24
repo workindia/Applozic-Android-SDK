@@ -36,6 +36,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
@@ -59,7 +60,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private ImageView uploadImageButton;
     private Uri imageChangeUri;
     private String groupIconImageLink;
-    private Integer groupType;
+    private int groupType;
     private LinearLayout layout;
     private Snackbar snackbar;
     private ApplozicPermissions applozicPermissions;
@@ -99,6 +100,10 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 processImagePicker();
             }
         });
+
+        if(getIntent() != null){
+            groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
+        }
        /* groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PRIVATE.getValue().intValue());
         if(groupType.equals(Channel.GroupType.BROADCAST.getValue().intValue())){
             circleImageView.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
@@ -135,7 +140,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                     if (!TextUtils.isEmpty(groupIconImageLink)) {
                         intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
                     }
-                    // intent.putExtra(GROUP_TYPE, groupType);
+                    intent.putExtra(ContactSelectionActivity.GROUP_TYPE, groupType);
                     startActivity(intent);
                 }
 
@@ -161,7 +166,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 if (!TextUtils.isEmpty(groupIconImageLink)) {
                     intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
                 }
-                // intent.putExtra(GROUP_TYPE, groupType);
+                intent.putExtra(ContactSelectionActivity.GROUP_TYPE, groupType);
                 startActivity(intent);
 
             }

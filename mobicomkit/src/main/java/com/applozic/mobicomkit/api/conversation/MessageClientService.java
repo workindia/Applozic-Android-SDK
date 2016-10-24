@@ -295,6 +295,7 @@ public class MessageClientService extends MobiComKitClientService {
         Contact contact = null;
         Channel channel = null;
         boolean isBroadcastOneByOneGroupType = false;
+        boolean skipMessage = false;
         if (message.getGroupId() == null) {
             contact = baseContactService.getContactById(message.getContactIds());
         } else {
@@ -313,9 +314,15 @@ public class MessageClientService extends MobiComKitClientService {
             message.setSentToServer(true);
         }
 
-        messageId = messageDatabaseService.createMessage(message);
+        if(Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))){
+            skipMessage = true;
+        }
 
-        if (isBroadcast) {
+        if(!skipMessage){
+            messageId = messageDatabaseService.createMessage(message);
+        }
+
+        if (isBroadcast && !skipMessage) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
         if (!isBroadcastOneByOneGroupType && message.isUploadRequired()) {
@@ -323,6 +330,9 @@ public class MessageClientService extends MobiComKitClientService {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
                     if (fileMetaResponse == null) {
+                        if(skipMessage){
+                            return;
+                        }
                         if( !message.isContactMessage() ){
                             messageDatabaseService.updateCanceledFlag(messageId, 1);
                         }
@@ -338,15 +348,16 @@ public class MessageClientService extends MobiComKitClientService {
                 } catch (Exception ex) {
                     Log.e(TAG, "Error uploading file to server: " + filePath);
                   /*  recentMessageSentToServer.remove(message);*/
-                    if( !message.isContactMessage() ){
+                    if( !message.isContactMessage() && !skipMessage ){
                         messageDatabaseService.updateCanceledFlag(messageId, 1);
                     }
-
-                    BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
+                    if(!skipMessage){
+                        BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
+                    }
                     return;
                 }
             }
-            if (messageId != -1) {
+            if (messageId != -1 && !skipMessage) {
                 messageDatabaseService.updateMessageFileMetas(messageId, message);
             }
         }
@@ -391,7 +402,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             if(!isBroadcastOneByOneGroupType) {
                 String response = sendMessage(newMessage);
-                if (message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage()) {
+                if (message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage() && !skipMessage) {
                     messageDatabaseService.updateCanceledFlag(messageId, 1);
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                 }
@@ -403,7 +414,9 @@ public class MessageClientService extends MobiComKitClientService {
                     message.setSentToServer(true);
                     message.setKeyString(keyString);
                 }
-                messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
+                if(!skipMessage){
+                    messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
+                }
             } else {
                 message.setSentMessageTimeAtServer(message.getCreatedAtTime());
                 messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
@@ -414,8 +427,9 @@ public class MessageClientService extends MobiComKitClientService {
             } else {
                 //Todo: If message type is mtext, tell user that internet is not working, else send update with db id.
             }
-
-            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
+            if (!skipMessage) {
+                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
+            }
 
         } catch (Exception e) {
         }

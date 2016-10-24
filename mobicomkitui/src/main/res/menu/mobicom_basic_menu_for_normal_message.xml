@@ -93,5 +93,13 @@
         mobicomkit:showAsAction="collapseActionView"
         android:showAsAction="collapseActionView"/>
 
+    <item
+        android:id="@+id/broadcast"
+        android:orderInCategory="8"
+        android:showAsAction="ifRoom"
+        android:visible="false"
+        android:title="@string/new_broadcast_name_info"
+        mobicomkit:showAsAction="collapseActionView" />
+
 
 </menu>

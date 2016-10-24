@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.HashSet;
 import java.util.List;
@@ -206,6 +207,19 @@ public class UserService {
             Contact contact1=   baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
             Log.i("UserService", contact1.getImageURL() + ", " +contact1.getDisplayName() + "," + contact1.getStatus() );
         }
+    }
+
+    public void processUserDetailsResponse(String response){
+        if(!TextUtils.isEmpty(response)){
+            List<UserDetail> userDetails = (List<UserDetail>) GsonUtils.getObjectFromJson(response, new TypeToken<List<UserDetail>>() {}.getType());
+            for (UserDetail userDetail : userDetails) {
+                processUser(userDetail);
+            }
+        }
+    }
+
+    public void processUserDetailsByUserIds(Set<String> userIds){
+        userClientService.postUserDetailsByUserIds(userIds);
     }
 
     public ApiResponse processUserReadConversation(){

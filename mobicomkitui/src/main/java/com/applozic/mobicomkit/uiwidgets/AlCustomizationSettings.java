@@ -61,13 +61,15 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean hideGroupExitButton;
     private boolean hideGroupRemoveMemberOption;
     private boolean profileOption;
+    private boolean broadcastOption;
+
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
     private int maxAttachmentSizeAllowed = 30;
     private int totalOnlineUsers = 0;
 
-
+    public boolean isBroadcastOption() {return broadcastOption;}
     public boolean isStartNewFloatingButton() {
         return startNewFloatingButton;
     }

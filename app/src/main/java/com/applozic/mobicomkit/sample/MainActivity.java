@@ -26,13 +26,19 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
+import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.uiwidgets.async.ApplzoicConversationCreateTask;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity
@@ -182,7 +188,29 @@ public class MainActivity extends ActionBarActivity
 
             userLogoutTask = new UserLogoutTask(userLogoutTaskListener,this);
             userLogoutTask.execute((Void)null);
+
         }
+
+        if(position == 3){
+            Map<String,String> messageMetaData = new HashMap<>();
+            messageMetaData.put(Message.MetaDataType.KEY.getValue(),Message.MetaDataType.HIDDEN.getValue());
+            Message message = new Message();
+            MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(MainActivity.this);
+            message.setContactIds("android");
+            message.setTo("android");
+            message.setContentType(Message.ContentType.CUSTOM.getValue());
+            message.setMessage("this is meta data hidden");
+            message.setMetadata(messageMetaData);
+            message.setStoreOnDevice(Boolean.TRUE);
+            message.setRead(Boolean.TRUE);
+            message.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+            message.setSendToDevice(Boolean.FALSE);
+            message.setType(Message.MessageType.MT_OUTBOX.getValue());
+            message.setDeviceKeyString(userPreferences.getDeviceKeyString());
+            message.setSource(Message.Source.MT_MOBILE_APP.getValue());
+            new MobiComConversationService(MainActivity.this).sendMessage(message, MessageIntentService.class);
+        }
+
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
@@ -203,9 +231,9 @@ public class MainActivity extends ActionBarActivity
 
     public void takeOrder(View v) {
         Conversation conversation = buildConversation();
-        ApplzoicConversationCreateTask applzoicConversationCreateTask;
+        ApplozicConversationCreateTask applozicConversationCreateTask;
 
-        ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
+        ApplozicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplozicConversationCreateTask.ConversationCreateListener() {
             @Override
             public void onSuccess(Integer conversationId, Context context) {
                 Log.i(TAG,"ConversationID is:"+conversationId);
@@ -224,8 +252,8 @@ public class MainActivity extends ActionBarActivity
 
             }
         };
-        applzoicConversationCreateTask =  new ApplzoicConversationCreateTask(MainActivity.this,conversationCreateListener,conversation);
-        applzoicConversationCreateTask.execute((Void)null);
+        applozicConversationCreateTask =  new ApplozicConversationCreateTask(MainActivity.this,conversationCreateListener,conversation);
+        applozicConversationCreateTask.execute((Void)null);
 
     }
 

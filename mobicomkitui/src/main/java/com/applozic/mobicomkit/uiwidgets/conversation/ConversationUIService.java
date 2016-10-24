@@ -320,7 +320,7 @@ public class ConversationUIService {
             public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
-        alertDialog.setMessage(fragmentActivity.getString(R.string.delete_channel_messages_and_channel_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()));
+        alertDialog.setMessage(fragmentActivity.getString(R.string.delete_channel_messages_and_channel_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()).replace(fragmentActivity.getString(R.string.groupType_info),Channel.GroupType.BROADCAST.getValue().equals(channel.getType())?fragmentActivity.getString(R.string.broadcast_string):fragmentActivity.getString(R.string.group_string)));
         alertDialog.setCancelable(true);
         alertDialog.create().show();
     }
@@ -355,7 +355,7 @@ public class ConversationUIService {
             public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
-        alertDialog.setMessage(fragmentActivity.getString(R.string.exit_channel_message_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()));
+        alertDialog.setMessage(fragmentActivity.getString(R.string.exit_channel_message_info).replace(fragmentActivity.getString(R.string.group_name_info), channel.getName()).replace(fragmentActivity.getString(R.string.groupType_info),Channel.GroupType.BROADCAST.getValue().equals(channel.getType())?fragmentActivity.getString(R.string.broadcast_string):fragmentActivity.getString(R.string.group_string)));
         alertDialog.setCancelable(true);
         alertDialog.create().show();
     }

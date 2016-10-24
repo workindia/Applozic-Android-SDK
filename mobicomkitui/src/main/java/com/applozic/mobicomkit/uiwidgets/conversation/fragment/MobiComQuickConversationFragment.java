@@ -263,6 +263,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         if(alCustomizationSettings.isMessageSearchOption()){
             menu.findItem(R.id.menu_search).setVisible(true);
         }
+        if(alCustomizationSettings.isBroadcastOption()){
+            menu.findItem(R.id.broadcast).setVisible(true);
+        }
     }
 
     public void addMessage(final Message message) {

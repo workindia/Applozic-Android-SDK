@@ -77,8 +77,7 @@
             android:ellipsize="marquee"
             android:visibility="gone"
             android:singleLine="true"
-            android:textSize="14sp"
-            android:text="@string/applozic_user_already_in_a_group" />
+            android:textSize="14sp" />
 
         <!-- Use standard android.R class text1 id instead of app specific id. This is just useful for
              consistency. This view also sets layout_alignWithParentIfMissing=true which lets the view

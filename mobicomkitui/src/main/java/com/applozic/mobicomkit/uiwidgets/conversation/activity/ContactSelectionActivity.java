@@ -29,6 +29,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     public static final String CHANNEL_OBJECT = "CHANNEL";
     public static final String CHECK_BOX = "CHECK_BOX";
     public static final String IMAGE_LINK = "IMAGE_LINK";
+    public static final String GROUP_TYPE = "GROUP_TYPE";
     Channel channel;
     private String name;
     private String imageUrl;
@@ -37,13 +38,12 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     protected SearchView searchView;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-    Integer groupType;
+    int groupType;
     private String mSearchTerm;
     ContactDatabase contactDatabase;
     public static boolean isSearching = false;
     ContactSelectionFragment contactSelectionFragment;
     private AppContactService contactService;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +64,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
             mActionBar.setTitle(R.string.channel_member_title);
             name = getIntent().getStringExtra(CHANNEL);
             imageUrl = getIntent().getStringExtra(IMAGE_LINK);
+            groupType =  getIntent().getIntExtra(GROUP_TYPE,Channel.GroupType.PUBLIC.getValue().intValue());
         } else {
             mActionBar.setTitle(R.string.channel_members_title);
         }
@@ -72,6 +73,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         bundle.putBoolean(CHECK_BOX, disableCheckBox);
         bundle.putString(CHANNEL,name);
         bundle.putString(IMAGE_LINK,imageUrl);
+        bundle.putInt(GROUP_TYPE,groupType);
         contactSelectionFragment.setArguments(bundle);
         addFragment(this, contactSelectionFragment, "ContactSelectionFragment");
     }

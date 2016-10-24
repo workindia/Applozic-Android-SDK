@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.people.channel.Channel;
 
 import java.util.List;
@@ -25,7 +24,16 @@ public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
     ChannelCreateListener channelCreateListener;
     String groupImageLink;
     String clientGroupId;
+    int type = Channel.GroupType.PUBLIC.getValue().intValue();
 
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public ApplozicChannelCreateTask(Context context, ChannelCreateListener channelCreateListener, String groupName, List<String> groupMemberList, String groupImageLink) {
         this.context = context;
@@ -44,6 +52,7 @@ public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
                 if (!TextUtils.isEmpty(clientGroupId)) {
                     channelInfo.setClientGroupId(clientGroupId);
                 }
+                channelInfo.setType(type);
                 channel = channelService.createChannel(channelInfo);
                 return channel != null;
             }

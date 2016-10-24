@@ -137,7 +137,7 @@ public class Channel implements Serializable {
     }
 
     public boolean isBroadcastMessage(){
-        return type.equals(GroupType.BROADCAST.getValue());
+        return type.equals(GroupType.BROADCAST.getValue()) || type.equals(GroupType.BROADCAST_ONE_BY_ONE.getValue());
     }
 
     public enum GroupType {

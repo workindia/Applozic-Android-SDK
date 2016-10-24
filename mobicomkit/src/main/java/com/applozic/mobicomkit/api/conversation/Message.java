@@ -531,13 +531,16 @@ public class Message extends JsonMarker {
     }
 
     public boolean isDeliveredAndRead() {
-        return Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
+        return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
     }
 
     public boolean isReadStatus() {
         return Status.READ.getValue()== getStatus();
     }
 
+    public boolean isReadStatusForUpdate() {
+        return Status.READ.getValue() == getStatus() || isTypeOutbox();
+    }
 
     public boolean isContactMessage(){
         return ContentType.CONTACT_MSG.getValue().equals( getContentType());
@@ -565,6 +568,10 @@ public class Message extends JsonMarker {
 
     public void setClientGroupId(String clientGroupId) {
         this.clientGroupId = clientGroupId;
+    }
+
+    public String getMetaDataValueForKey(String key) {
+        return getMetadata() != null ? getMetadata().get(key) : null;
     }
 
     @Override
@@ -667,6 +674,23 @@ public class Message extends JsonMarker {
         }
 
         public Short getValue() {
+            return value;
+        }
+    }
+
+    public enum MetaDataType {
+        KEY("category"),
+        HIDDEN("HIDDEN"),
+        PUSHNOTIFICATION("PUSHNOTIFICATION"),
+        ARCHIVE("ARCHIVE");
+
+        private String value;
+
+        MetaDataType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
             return value;
         }
     }

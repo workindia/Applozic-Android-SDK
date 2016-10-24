@@ -21,6 +21,9 @@ public class ApplozicClient {
     private static final String APP_NAME = "APP_NAME";
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String NOTIFICATION_DISABLE= "NOTIFICATION_DISABLE";
+    private static final String CONTACT_DEFAULT_IMAGE = "CONTACT_DEFAULT_IMAGE";
+    private static final String GROUP_DEFAULT_IMAGE = "GROUP_DEFAULT_IMAGE";
+    private static final String MESSAGE_META_DATA_SERVICE = "MESSAGE_META_DATA_SERVICE";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -125,4 +128,32 @@ public class ApplozicClient {
         sharedPreferences.edit().putBoolean(NOTIFICATION_DISABLE, true).commit();
         return this;
     }
+
+    public String getDefaultContactImage() {
+        return sharedPreferences.getString(CONTACT_DEFAULT_IMAGE, "applozic_ic_contact_picture_holo_light");
+    }
+
+    public ApplozicClient setDefaultContactImage(String imageName) {
+        sharedPreferences.edit().putString(CONTACT_DEFAULT_IMAGE, imageName).commit();
+        return this;
+    }
+
+    public String getDefaultChannelImage() {
+        return sharedPreferences.getString(GROUP_DEFAULT_IMAGE, "applozic_group_icon");
+    }
+
+    public ApplozicClient setgetDefaultChannelImage(String groupImageName) {
+        sharedPreferences.edit().putString(GROUP_DEFAULT_IMAGE, groupImageName).commit();
+        return this;
+    }
+
+    public String getMessageMetaDataServiceName() {
+        return sharedPreferences.getString(MESSAGE_META_DATA_SERVICE, null);
+    }
+
+    public ApplozicClient setMessageMetaDataServiceName(String messageMetaDataServiceName) {
+        sharedPreferences.edit().putString(MESSAGE_META_DATA_SERVICE, messageMetaDataServiceName).commit();
+        return this;
+    }
+
 }

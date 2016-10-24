@@ -68,12 +68,15 @@ public class NotificationService {
         }
         String title;
         String notificationText;
+        Bitmap notificationIconBitmap;
         Contact displayNameContact = null;
         if (message.getGroupId() != null) {
             title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
             displayNameContact = appContactService.getContactById(message.getTo());
+            notificationIconBitmap = appContactService.downloadGroupImage(context,channel);
         } else {
             title = contact.getDisplayName();
+            notificationIconBitmap = appContactService.downloadContactImage(context,contact);
         }
 
         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
@@ -113,7 +116,7 @@ public class NotificationService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(smallIconResourceId)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), iconResourceId))
+                        .setLargeIcon(notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(message.getGroupId() != null ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())))
                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setWhen(System.currentTimeMillis())

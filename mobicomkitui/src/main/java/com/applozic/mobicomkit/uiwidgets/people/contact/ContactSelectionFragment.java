@@ -76,6 +76,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     public static final String CHANNEL_OBJECT = "CHANNEL";
     public static final String CHECK_BOX = "CHECK_BOX";
     public static final String IMAGE_LINK = "IMAGE_LINK";
+    public static final String GROUP_TYPE = "GROUP_TYPE";
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "SELECTED_ITEM";
     public static boolean isSearching = false;
@@ -97,6 +98,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private int mPreviouslySelectedSearchItem = 0;
     private String imageUrl;
     private String channelName;
+    private int groupType;
     private Bundle bundle;
     private List<String> userIdList;
     AlCustomizationSettings alCustomizationSettings;
@@ -116,6 +118,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             disableCheckBox = bundle.getBoolean(CHECK_BOX, false);
             channelName = bundle.getString(CHANNEL);
             imageUrl = bundle.getString(IMAGE_LINK);
+            groupType = bundle.getInt(GROUP_TYPE);
         }
         userPreference = MobiComUserPreference.getInstance(getActivity());
         setHasOptionsMenu(true);
@@ -315,8 +318,8 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             if (userIdList != null && userIdList.size() == 0) {
                 Toast.makeText(getActivity(), R.string.select_at_least, Toast.LENGTH_SHORT).show();
             } else {
-                final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
-                        getActivity().getString(R.string.group_creating_info), true);
+                final ProgressDialog progressDialog  = ProgressDialog.show(getActivity(), "",
+                        getActivity().getString(TextUtils.isEmpty(channelName)?R.string.broadcast_creating_info:R.string.group_creating_info), true);
                 ApplozicChannelCreateTask.ChannelCreateListener channelCreateListener = new ApplozicChannelCreateTask.ChannelCreateListener() {
                     @Override
                     public void onSuccess(Channel channel, Context context) {
@@ -350,8 +353,22 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
                 };
 
-                if (!TextUtils.isEmpty(channelName) && userIdList != null && userIdList.size() > 0) {
+                if (userIdList != null && userIdList.size() > 0) {
+                    if(TextUtils.isEmpty(channelName)){
+                        StringBuffer stringBuffer = new StringBuffer();
+                        int i = 0;
+                        for (String userId : userIdList) {
+                            i++;
+                            if (i > 10)
+                                break;
+                            Contact contactDisplayName = appContactService.getContactById(userId);
+                            stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
+                        }
+                        int lastIndex = stringBuffer.lastIndexOf(",");
+                        channelName = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
+                    }
                     ApplozicChannelCreateTask applozicChannelCreateTask = new ApplozicChannelCreateTask(getActivity(), channelCreateListener, channelName, userIdList, imageUrl);
+                    applozicChannelCreateTask.setType(groupType);
                     applozicChannelCreateTask.execute((Void) null);
                 }
 
@@ -502,6 +519,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                 isUserPresnt = ChannelService.getInstance(context).isUserAlreadyPresentInChannel(channel.getKey(), contact.getContactIds());
                 if (isUserPresnt) {
                     holder.textView1.setVisibility(View.VISIBLE);
+                    holder.textView1.setText(getString(R.string.applozic_user_already_in_a_group).replace(getString(R.string.groupType_info),Channel.GroupType.BROADCAST.getValue().equals(channel.getType())?getString(R.string.broadcast_string):getString(R.string.group_string)));
                     holder.contactNumberTextView.setVisibility(View.GONE);
                     holder.textView1.setTextColor(ContextCompat.getColor(context, R.color.applozic_lite_black_color));
                     holder.textView2.setTextColor(ContextCompat.getColor(context, R.color.applozic_lite_black_color));

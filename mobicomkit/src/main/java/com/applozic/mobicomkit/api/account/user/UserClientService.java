@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
+import com.applozic.mobicomkit.feed.UserDetailListFeed;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import org.json.JSONException;
@@ -21,8 +22,10 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +54,8 @@ public class UserClientService extends MobiComKitClientService {
     public static final String REGISTERED_USER_LIST_URL = "/rest/ws/user/filter";
     public static final String USER_PROFILE_UPDATE_URL = "/rest/ws/user/update";
     public static final String USER_READ_URL = "/rest/ws/user/read";
+    public static final String USER_DETAILS_LIST_POST_URL = "/rest/ws/user/detail";
+    public static final int BATCH_SIZE = 60;
 
 
     private HttpRequestUtils httpRequestUtils;
@@ -121,6 +126,10 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getRegisteredUserListUrl() {
         return getBaseUrl() + REGISTERED_USER_LIST_URL;
+    }
+
+    public String getUserDetailsListPostUrl() {
+        return getBaseUrl() + USER_DETAILS_LIST_POST_URL;
     }
 
     public String getUserReadUrl() {
@@ -318,6 +327,55 @@ public class UserClientService extends MobiComKitClientService {
                 Log.i(TAG, "User details response is :" + response);
                 if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                     return null;
+                }
+                return response;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+    public String postUserDetailsByUserIds(Set<String> userIds) {
+        try {
+            if (userIds !=null && userIds.size()>0  ) {
+                List<String> userDetailsList = new ArrayList<>();
+                String response = "";
+                int count = 0;
+                for (String userId : userIds) {
+                    count++;
+                    userDetailsList.add(userId);
+                    if( count% BATCH_SIZE==0){
+                        UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
+                        userDetailListFeed.setContactSync(true);
+                        userDetailListFeed.setUserIdList(userDetailsList);
+                        String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
+                        Log.i(TAG,"Sending json:" + jsonFromObject);
+                        response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+                        userDetailsList =  new ArrayList<String>();
+                        if(!TextUtils.isEmpty(response)){
+                            UserService.getInstance(context).processUserDetailsResponse(response);
+                        }
+                    }
+                }
+                if(!userDetailsList.isEmpty()&& userDetailsList.size()>0) {
+                    UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
+                    userDetailListFeed.setContactSync(true);
+                    userDetailListFeed.setUserIdList(userDetailsList);
+                    String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
+                    response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+
+                    Log.i(TAG, "User details response is :" + response);
+                    if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+                        return null;
+                    }
+
+                    if (!TextUtils.isEmpty(response)) {
+                        UserService.getInstance(context).processUserDetailsResponse(response);
+                    }
                 }
                 return response;
             }

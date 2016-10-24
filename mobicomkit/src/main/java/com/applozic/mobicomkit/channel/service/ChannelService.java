@@ -104,14 +104,9 @@ public class ChannelService {
                         } else {
                             channelDatabaseService.addChannelUserMapper(channelUserMapper);
                         }
-                        if (!baseContactService.isContactExists(userId)) {
-                            userIds.add(userId);
-                        }
                     }
                 }
-                if (!isUserDetails && userIds != null && userIds.size() > 0) {
-                    userService.processUserDetails(userIds);
-                }
+
                 if (isUserDetails) {
                     userService.processUserDetail(channelFeed.getUsers());
                 }
@@ -329,7 +324,7 @@ public class ChannelService {
                         }
                     }
                     if(userIds != null && userIds.size()>0){
-                        userService.processUserDetails(userIds);
+                        userService.processUserDetailsByUserIds(userIds);
                     }
                 }
             }

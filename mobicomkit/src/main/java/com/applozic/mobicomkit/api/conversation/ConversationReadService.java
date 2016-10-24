@@ -32,8 +32,6 @@ public class ConversationReadService extends IntentService {
             Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
             Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
             new MessageClientService(getApplicationContext()).updateReadStatus(contact, channel);
-        } else {
-            UserService.getInstance(getApplicationContext()).processUserReadConversation();
         }
     }
 

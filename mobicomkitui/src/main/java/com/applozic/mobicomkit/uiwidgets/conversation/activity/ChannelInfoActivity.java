@@ -158,6 +158,17 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 }
             }
         }
+
+        if(channel.getType() != null ) {
+            if (Channel.GroupType.BROADCAST.getValue().equals(channel.getType())) {
+                deleteChannelButton.setText(R.string.broadcast_delete_button);
+                exitChannelButton.setText(R.string.broadcast_exit_button);
+            } else {
+                deleteChannelButton.setText(R.string.channel_delete_group_button);
+                exitChannelButton.setText(R.string.channel_exit_button);
+            }
+        }
+
         contactImageLoader = new ImageLoader(getApplicationContext(), getListPreferredItemHeight()) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -732,8 +743,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
-        alertDialog.setMessage(getString(R.string.leave_channel));
-        alertDialog.setCancelable(true);
+        if(channel.getType() != null){
+            alertDialog.setMessage(getString(R.string.leave_channel).replace(getString(R.string.groupType_info),Channel.GroupType.BROADCAST.getValue().equals(channel.getType())?getString(R.string.broadcast_string):getString(R.string.group_string)));
+        }        alertDialog.setCancelable(true);
         alertDialog.create().show();
     }
 
@@ -750,7 +762,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
-        alertDialog.setMessage(getString(R.string.delete_channel_messages_and_channel_info).replace(getString(R.string.group_name_info),channel.getName()));
+        if(channel.getType() != null){
+            alertDialog.setMessage(getString(R.string.delete_channel_messages_and_channel_info).replace(getString(R.string.group_name_info),channel.getName()).replace(getString(R.string.groupType_info),Channel.GroupType.BROADCAST.getValue().equals(channel.getType())?getString(R.string.broadcast_string):getString(R.string.group_string)));
+        }
         alertDialog.setCancelable(true);
         alertDialog.create().show();
     }

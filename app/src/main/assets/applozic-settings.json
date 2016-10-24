@@ -50,5 +50,6 @@
   "hideGroupNameUpdateButton": false,
   "hideGroupExitButton": false,
   "hideGroupRemoveMemberOption": false,
-  "profileOption": false
+  "profileOption": false,
+  "broadcastOption":true
 }

@@ -10,7 +10,7 @@ import com.applozic.mobicommons.people.channel.Conversation;
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplzoicConversationCreateTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicConversationCreateTask extends AsyncTask<Void, Void, Boolean> {
     Context context;
     ChannelService channelService;
     Exception exception;
@@ -19,7 +19,7 @@ public class ApplzoicConversationCreateTask extends AsyncTask<Void, Void, Boolea
     Conversation conversation;
     Integer conversationId;
 
-    public ApplzoicConversationCreateTask(Context context, ConversationCreateListener conversationCreateListener, Conversation conversation) {
+    public ApplozicConversationCreateTask(Context context, ConversationCreateListener conversationCreateListener, Conversation conversation) {
         this.context = context;
         this.conversationCreateListener = conversationCreateListener;
         this.channelService = ChannelService.getInstance(context);

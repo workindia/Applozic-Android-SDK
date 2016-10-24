@@ -7,6 +7,7 @@ import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -174,17 +175,6 @@ public class MobiComConversationService {
                     if (message.getTo() == null) {
                         continue;
                     }
-                    /*if(connectedUserIds != null && connectedUserIds.length>0){
-                        for (String userId : connectedUserIds) {
-                            if (message.getTo().equals(userId)) {
-                                Contact connectedContact = new Contact();
-                                connectedContact.setUserId(userId);
-                                connectedContact.setConnected(true);
-                                connectedContact.setContactNumber(userId);
-                                baseContactService.upsert(connectedContact);
-                            }
-                        }
-                    }*/
 
                     if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                         setFilePathifExist(message);
@@ -193,7 +183,17 @@ public class MobiComConversationService {
                         FileClientService fileClientService = new FileClientService(context);
                         fileClientService.loadContactsvCard(message);
                     }
-                    messageList.add(message);
+                    try {
+                        if(!TextUtils.isEmpty(ApplozicClient.getInstance(context).getMessageMetaDataServiceName()) && Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))){
+                            Class serviceName = Class.forName(ApplozicClient.getInstance(context).getMessageMetaDataServiceName());
+                            Intent hiddenIntent = new Intent(context,serviceName);
+                            hiddenIntent.putExtra(MobiComKitConstants.MESSAGE,message);
+                            context.startService(hiddenIntent);
+                            continue;
+                        }
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     messageDatabaseService.createMessage(message);
                 }
             }

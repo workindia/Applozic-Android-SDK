@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -69,6 +70,17 @@ public class MobiComMessageService {
     }
 
     public Message processMessage(final Message messageToProcess, String tofield) {
+        try {
+            if(!TextUtils.isEmpty(ApplozicClient.getInstance(context).getMessageMetaDataServiceName()) && Message.MetaDataType.HIDDEN.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))){
+                Class serviceName = Class.forName(ApplozicClient.getInstance(context).getMessageMetaDataServiceName());
+                Intent hiddenIntent = new Intent(context,serviceName);
+                hiddenIntent.putExtra(MobiComKitConstants.MESSAGE,messageToProcess);
+                context.startService(hiddenIntent);
+                return null;
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         Message message = prepareMessage(messageToProcess, tofield);
 
         if (message.getType().equals(Message.MessageType.MT_INBOX.getValue())) {
@@ -136,12 +148,12 @@ public class MobiComMessageService {
         }
         if (!isContainerOpened) {
             if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())  && !message.isReadStatus()){
-                    if(message.getTo() != null && message.getGroupId() == null){
-                        messageDatabaseService.updateContactUnreadCount(message.getTo());
-                    }
-                    if(message.getGroupId() != null && message.getContentType() != Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue()){
-                        messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
-                    }
+                if(message.getTo() != null && message.getGroupId() == null){
+                    messageDatabaseService.updateContactUnreadCount(message.getTo());
+                }
+                if(message.getGroupId() != null){
+                    messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
                 BroadcastService.sendNotificationBroadcast(context, message);
                 Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
@@ -179,11 +191,11 @@ public class MobiComMessageService {
             for (final Message message : messageList) {
                 String[] toList = message.getTo().trim().replace("undefined,", "").split(",");
 
-               if(Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
-                   ChannelService.getInstance(context).syncChannels();
-                   //Todo: fix this, what if there are mulitple messages.
-                   ChannelService.isUpdateTitle = true;
-               }
+                if(Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
+                    ChannelService.getInstance(context).syncChannels();
+                    //Todo: fix this, what if there are mulitple messages.
+                    ChannelService.isUpdateTitle = true;
+                }
                 for (String tofield : toList) {
                     processMessage(message, tofield);
                     MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());

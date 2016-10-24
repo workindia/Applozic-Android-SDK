@@ -691,7 +691,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()))) {
                     continue;
                 }
-                if(menuItems[i].equals("Info") && TextUtils.isEmpty(message.getKeyString())){
+                if(menuItems[i].equals("Info") && (TextUtils.isEmpty(message.getKeyString()) || (channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))){
                     continue;
                 }
                 menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -1762,6 +1762,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
         if (newChannel != null && !TextUtils.isEmpty(channel.getName()) && !channel.getName().equals(newChannel.getName())) {
             title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
+            channel = newChannel;
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(title);
         }
     }
