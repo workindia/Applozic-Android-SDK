@@ -13,12 +13,21 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 
 ###Add Applozic Chat to existing App
 
-####Step 1: Gradle Dependency
+
+
+####Step 1: Add the following in your Top-level/Proejct level build.gradle file change the version according to your app:   
+
+```
+ext.googlePlayServicesVersion = '9.0.2'
+ext.supportLibraryVersion = '23.1.1'
+```
+
+####Step 2: Gradle Dependency
 
 Add the following in your build.gradle dependency  
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.62'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.63'
 ```
 
 
@@ -41,7 +50,7 @@ android {
 ```
 
 
-####Step 2: AndroidManifest
+####Step 3: AndroidManifest
 Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application>  ``` 
@@ -268,7 +277,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-####Step 3: Login/Register User
+####Step 4: Login/Register User
 Applozic will create a new user if the user doesn't exists. userId is the unique identifier for any user, it can be anything like email, phone number or uuid from your database.
 
      
@@ -296,7 +305,7 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-####Step 4: Push Notification Setup
+####Step 5: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application. 
 Under Module section, update the GCM Server Key.***
@@ -416,7 +425,7 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
+####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 4).
 
 ```
  PushNotificationTask pushNotificationTask = null;
@@ -435,7 +444,7 @@ And add below code in your androidmanifest.xml file
  pushNotificationTask.execute((Void)null);
 ```
 
-####Step 5: Initiate Chat
+####Step 6: Initiate Chat
 
 For starting the messaging activity      
       
@@ -453,7 +462,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-####Step 6: Logout user       
+####Step 7: Logout user       
 
 Call the following when user logout from your app:
 
@@ -462,7 +471,7 @@ new UserClientService(this).logout();
 ```
  
 
-#### Step 7: ProGuard Setup
+#### Step 8: ProGuard Setup
 Add the following if you are using ProGuard:
  
 ```
