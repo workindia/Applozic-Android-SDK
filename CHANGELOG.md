@@ -2,6 +2,45 @@
 ##Changelog
 
 
+ **Version 4.63**  - Tuesday, 25 October 2016
+   
+  Broadcast messageing 
+  
+  Smart messaging with message meta data : Hidden messages
+
+  Bug fixes and Improvements
+
+
+### Steps for upgrading from 4.62 to 4.63
+
+
+**Step 1: Add the following in your Top-level/Proejct level build.gradle file change the version according to your app**:   
+
+ ```
+ext.googlePlayServicesVersion = '9.0.2'
+ext.supportLibraryVersion = '23.1.1'
+ ```
+
+**Step 2: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.63'`
+
+
+ **Version 4.62**  - Tuesday, 11 October 2016
+
+  
+  Change in Settings config now added json file 
+  
+  Bug fixes and Improvements
+
+
+### Steps for upgrading from 4.61 to 4.62
+
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.62'`
+
 
  **Version 4.61**  - wednesday, 5 October 2016
 
