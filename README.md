@@ -23,7 +23,14 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 
 
-**Step 1: Add the following in your build.gradle dependency**:      
+**Step 1: Add the following in your Top-level/Proejct level build.gradle file change the version according to your app**:   
+
+```
+ext.googlePlayServicesVersion = '9.0.2'
+ext.supportLibraryVersion = '23.1.1'
+```
+
+**Step 2: Add the following in your build.gradle dependency**:      
 
 `compile 'com.applozic.communication.uiwidget:mobicomkitui:4.62' `
 
@@ -47,7 +54,7 @@ android {
 ```
 
 
-**Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
+**Step 3: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
         
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```
 
@@ -275,7 +282,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-**Step 3: Register user account**:     
+**Step 4: Register user account**:     
 
 
 
@@ -305,7 +312,7 @@ If it is a new user, new user account will get created else existing user will b
 
 
 
-####Step 4: Push Notification Setup
+####Step 5: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application. 
 Under Module section, update the GCM Server Key.***
@@ -425,7 +432,7 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
+####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 4).
 
 ```
  PushNotificationTask pushNotificationTask = null;
@@ -445,7 +452,7 @@ And add below code in your androidmanifest.xml file
 ```
 
 
-**Step 5: For starting the messaging activity**:        
+**Step 6: For starting the messaging activity**:        
 
       
 ```
@@ -464,7 +471,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-**Step 6: On logout, call the following**:       
+**Step 7: On logout, call the following**:       
 
 
 
