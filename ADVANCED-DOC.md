@@ -497,9 +497,9 @@ Steps to create Context based chat
 ##### Step 2 : Create Async task and Starting Conversation chat
 
 ```
-   ApplzoicConversationCreateTask applzoicConversationCreateTask = null;
+   ApplozicConversationCreateTask applozicConversationCreateTask = null;
 
-   ApplzoicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplzoicConversationCreateTask.ConversationCreateListener() {
+   ApplozicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplozicConversationCreateTask.ConversationCreateListener() {
             @Override
             public void onSuccess(Integer conversationId, Context context) {
 
@@ -520,7 +520,7 @@ Steps to create Context based chat
             }
         };
     Conversation conversation = buildConversation(); //From Step 1 
-applzoicConversationCreateTask = new ApplzoicConversationCreateTask(context,conversationCreateListener,conversation);
-   applzoicConversationCreateTask.execute((Void)null);
+applozicConversationCreateTask = new ApplozicConversationCreateTask(context,conversationCreateListener,conversation);
+   applozicConversationCreateTask.execute((Void)null);
  
 ```
