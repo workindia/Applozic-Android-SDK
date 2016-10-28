@@ -35,7 +35,7 @@
   "conversationContactImageVisibility": false,
   "locationShareViaMap": true,
   "startNewFloatingButton": false,
-  "startNewButton": false,
+  "startNewButton": true,
   "onlineStatusMasterList": false,
   "startNewGroup": true,
   "imageCompression": false,
