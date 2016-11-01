@@ -35,6 +35,7 @@ new MobiComConversationService(activity).sendMessage(new Message("contact@apploz
 
 #### Send message with metadata
 
+You can send extra information along with message text as meta-data. These key value pair can be used to do some extra processing or keep information about messages.
 
 ```
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
