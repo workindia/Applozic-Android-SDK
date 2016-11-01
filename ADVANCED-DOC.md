@@ -33,6 +33,41 @@ Example
 new MobiComConversationService(activity).sendMessage(new Message("contact@applozic.com", "hello test"));         
 ```
 
+#### Send message with metadata
+
+
+```
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        Message message = new Message();
+        //Note:This is only for sending a message to Group then pass the channelKey
+        message.setGroupId(channelKey);  
+        
+        //Note:This is only for sending a message to User then pass the receiver UserId 
+        message.setTo(receiverUserId); 
+        message.setContactIds(receiverUserId); 
+        
+        message.setRead(Boolean.TRUE);
+        message.setStoreOnDevice(Boolean.TRUE);
+        message.setCreatedAtTime(System.currentTimeMillis() + userPreferences.getDeviceTimeOffset());
+        message.setSendToDevice(Boolean.FALSE);
+        message.setType(Message.MessageType.MT_OUTBOX.getValue());
+        message.setMessage(messageToSend); //Message to send
+        message.setDeviceKeyString(userPreferences.getDeviceKeyString());
+        message.setSource(Message.Source.MT_MOBILE_APP.getValue());
+        
+       //Messsage metadata map 
+        Map<String,String> messageMetaDataMap = new HashMap<>();
+        messageMetaDataMap.put("key1","value1");
+        messageMetaDataMap.put("key2","value2");
+        message.setMetadata(messageMetaDataMap);
+        
+        //Method for sending a message 
+        new MobiComConversationService(context).sendMessage(message);
+
+```
+
+
+
 
 #### Messages list 
 
@@ -64,7 +99,7 @@ Code
 
 #### Unread Count
 
-i)To get the unread count of individual conatct pass the userId
+i)To get the unread count of individual contact pass the userId
 
 Code
 
