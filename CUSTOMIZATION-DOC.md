@@ -110,3 +110,16 @@ For your custom contact list, replace MobiComKitPeopleActivity with your contact
 
 Sample app with integration is available under [app](https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app)
 
+
+#### Fragment support
+
+You can add the chat fragments to any activity  below documentation links will explain how to add the chat fragments to your activity   
+
+**1**. [Adding Chat fragments to Activity](https://docs.google.com/document/d/1qH1razXLCg_aCWgdhVp4ATCAZqU3APugWiUbSEJm0-A/edit?usp=sharing)
+
+ **2**. [Adding Chat fragments to TabView Activity](https://docs.google.com/document/d/1-TbJWCUEIzwWGD8mBkV6y2PLrNAIWTmTI6jJuzgC7c4/edit?usp=sharing)
+
+
+
+
+
