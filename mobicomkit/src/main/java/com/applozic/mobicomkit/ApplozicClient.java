@@ -142,7 +142,7 @@ public class ApplozicClient {
         return sharedPreferences.getString(GROUP_DEFAULT_IMAGE, "applozic_group_icon");
     }
 
-    public ApplozicClient setgetDefaultChannelImage(String groupImageName) {
+    public ApplozicClient setDefaultChannelImage(String groupImageName) {
         sharedPreferences.edit().putString(GROUP_DEFAULT_IMAGE, groupImageName).commit();
         return this;
     }

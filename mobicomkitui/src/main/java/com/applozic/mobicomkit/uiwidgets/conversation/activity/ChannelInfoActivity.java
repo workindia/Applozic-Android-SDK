@@ -280,17 +280,19 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (channelUserMapperList.size() <= position) {
             return true;
         }
-
         if (channel == null) {
             return true;
         }
 
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(position);
-        if (userPreference.getUserId().equals(channelUserMapper.getUserKey())) {
-            return true;
-        }
         switch (item.getItemId()) {
             case 0:
+                Intent startConversationIntent = new Intent(ChannelInfoActivity.this, ConversationActivity.class);
+                startConversationIntent.putExtra(ConversationUIService.USER_ID, channelUserMapper.getUserKey());
+                startActivity(startConversationIntent);
+                finish();
+                break;
+            case 1:
                 removeChannelUser(channel, channelUserMapper);
                 break;
             default:
@@ -321,12 +323,17 @@ public class ChannelInfoActivity extends AppCompatActivity {
             return;
         }
         ChannelUserMapper channelUserMapper = channelUserMapperList.get(positionInList);
-        if (ChannelUtils.isAdminUserId(userPreference.getUserId(), channel)) {
-            isUserPresent = ChannelService.getInstance(this).processIsUserPresentInChannel(channelKey);
-            boolean isHideRemove = alCustomizationSettings.isHideGroupRemoveMemberOption();
-            if (!ChannelUtils.isAdminUserId(channelUserMapper.getUserKey(), channel)  &&  isUserPresent && !isHideRemove ) {
-                menu.add(Menu.NONE, Menu.NONE, 0, "Remove");
+        if(MobiComUserPreference.getInstance(ChannelInfoActivity.this).getUserId().equals(channelUserMapper.getUserKey())){
+            return;
+        }
+        boolean isHideRemove = alCustomizationSettings.isHideGroupRemoveMemberOption();
+        String[] menuItems = getResources().getStringArray(R.array.channel_users_menu_option);
+        Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
+        for (int i = 0; i < menuItems.length; i++) {
+            if (menuItems[i].equals(getString(R.string.remove_member)) && (isHideRemove || !isUserPresent  || !ChannelUtils.isAdminUserId(userPreference.getUserId(), channel))) {
+                continue;
             }
+            menu.add(Menu.NONE, i, i, menuItems[i]+" "+contact.getDisplayName());
         }
     }
 

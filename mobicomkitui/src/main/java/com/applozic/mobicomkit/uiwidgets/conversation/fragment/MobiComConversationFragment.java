@@ -638,10 +638,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
                     if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())) {
+                        messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
                         Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
                         intent.putExtra(ApplozicIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
                         getActivity().startService(intent);
-                        messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
                     }
                 }
 
@@ -688,7 +688,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.isSentToServer())) {
                     continue;
                 }
-                if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()))) {
+                if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) ||(channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                     continue;
                 }
                 if(menuItems[i].equals("Info") && (TextUtils.isEmpty(message.getKeyString()) || (channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))){
@@ -756,9 +756,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         typingStarted = false;
         onSelected = false;
 
+        if (contact != null) {
+            userNotAbleToChatLayout.setVisibility(View.GONE);
+        }
+        if(contact != null &&  this.channel != null){
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle("");
+        }
         /*
         filePath = null;*/
-        if (TextUtils.isEmpty(filePath)) {
+        if (TextUtils.isEmpty(filePath) && attachmentLayout != null) {
             attachmentLayout.setVisibility(View.GONE);
         }
 
@@ -767,7 +773,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         extendedSendingOptionLayout.setVisibility(View.VISIBLE);
         setContact(contact);
         setChannel(channel);
-
 
         unregisterForContextMenu(listView);
         clearList();
@@ -1047,7 +1052,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
                         }
-                    } else {
+                    } else if (!Message.ContentType.HIDDEN.getValue().equals(message.getContentType()) ){
                         messageList.add(message);
                         listView.smoothScrollToPosition(messageList.size());
                         listView.setSelection(messageList.size());

@@ -11,7 +11,7 @@
   "sentMessageTextColor": "#FFFFFFFF",
   "receivedMessageTextColor": "#000000",
   "messageEditTextTextColor": "#000000",
-  "sentMessageLinkTextColor": "#5fba7d",
+  "sentMessageLinkTextColor": "#FFFFFFFF",
   "receivedMessageLinkTextColor": "#5fba7d",
   "messageEditTextHintTextColor": "#bdbdbd",
   "noConversationLabelTextColor": "#000000",

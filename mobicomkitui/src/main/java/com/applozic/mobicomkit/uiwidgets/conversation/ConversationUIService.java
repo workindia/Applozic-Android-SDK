@@ -375,7 +375,7 @@ public class ConversationUIService {
     }
 
     public void addMessage(Message message) {
-        if (!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())) {
+        if (message.isUpdateMessage()) {
             if (!BroadcastService.isQuick()) {
                 return;
             }
@@ -414,7 +414,7 @@ public class ConversationUIService {
                 }
             }
 
-            if (message.getGroupId() == null) {
+            if (message.getGroupId() == null && !Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                 updateLastMessage(keyString, userId);
             }
         }

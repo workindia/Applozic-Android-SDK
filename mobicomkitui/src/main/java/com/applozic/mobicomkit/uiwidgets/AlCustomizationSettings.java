@@ -23,8 +23,8 @@ public class AlCustomizationSettings extends JsonMarker {
     private String sentMessageTextColor = "#FFFFFFFF";
     private String receivedMessageTextColor = "#000000";
     private String messageEditTextTextColor = "#000000";
-    private String sentMessageLinkTextColor = "#5fba7d";
-    private String receivedMessageLinkTextColor = "#000000";
+    private String sentMessageLinkTextColor = "#FFFFFFFF";
+    private String receivedMessageLinkTextColor = "#5fba7d";
     private String messageEditTextHintTextColor = "#bdbdbd";
     private String typingTextColor;
     private String noConversationLabelTextColor = "#000000";

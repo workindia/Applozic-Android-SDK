@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -587,6 +588,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 } else if ((message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) && !message.isAttachmentDownloaded()) {
                     preview.setVisibility(View.VISIBLE);
                     preview.setImageResource(R.drawable.applozic_video_default_thumbnail);
+                }else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
+                    messageTextView.setText(Html.fromHtml(message.getMessage()));
                 } else {
                     messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
                     if (mimeType != null && attachmentIcon != null) {
