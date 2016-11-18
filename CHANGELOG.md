@@ -1,8 +1,25 @@
 
 ##Changelog
 
+ **Version 4.64**  - Friday, 18 November 2016
+   
+  Group info members context menu
+ 
+  Smart messaging with message meta data : Push notification,Archive
+  
+  Group silent notifications 
 
- **Version 4.63**  - Tuesday, 25 October 2016
+  Bug fixes and Improvements
+  
+### Steps for upgrading from 4.63 to 4.64
+
+
+**Step 1: Add the following in your build.gradle dependency**
+
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.64'`
+
+
+**Version 4.63**  - Tuesday, 25 October 2016
    
   Broadcast messageing 
   
