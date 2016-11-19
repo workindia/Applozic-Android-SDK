@@ -304,7 +304,7 @@ Code
        List<String> channelMembersList =  new ArrayList<String>();
        channelMembersList.add("user1");
        channelMembersList.add("user2");
-       channelMembersList.add("user3");//Note:while creating group exculed your userId from list
+       channelMembersList.add("user3");//Note:while creating group exclude logged in userId from list
        ChannelInfo channelInfo  = new ChannelInfo("Group name",channelMembersList);
        channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
        //channelInfo.setImageUrl(""); //pass group image link URL
