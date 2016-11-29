@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,6 +42,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -82,7 +84,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     private static final String SUCCESS= "success" ;
     private ImageView channelImage;
     public static final String USERID = "USERID";
-    private TextView createdBy;
+    private TextView createdBy,groupParticipantsTexView;
     protected ListView mainListView;
     CollapsingToolbarLayout collapsingToolbarLayout;
     public static final String CHANNEL_NAME = "CHANNEL_NAME";
@@ -115,11 +117,17 @@ public class ChannelInfoActivity extends AppCompatActivity {
         channelImage = (ImageView) findViewById(R.id.channelImage);
         userPreference = MobiComUserPreference.getInstance(this);
         createdBy = (TextView) findViewById(R.id.created_by);
+        groupParticipantsTexView  = (TextView) findViewById(R.id.groupParticipantsTexView);
         exitChannelButton = (Button) findViewById(R.id.exit_channel);
         deleteChannelButton = (Button) findViewById(R.id.delete_channel_button);
         channelDeleteRelativeLayout = (RelativeLayout) findViewById(R.id.channel_delete_relativeLayout);
         channelExitRelativeLayout = (RelativeLayout) findViewById(R.id.channel_exit_relativeLayout);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        collapsingToolbarLayout.setContentScrimColor(Color.parseColor(alCustomizationSettings.getCollapsingToolbarLayoutColor()));
+        groupParticipantsTexView.setTextColor(Color.parseColor(alCustomizationSettings.getGroupParticipantsTextColor()));
+        deleteChannelButton.setBackgroundColor(Color.parseColor((alCustomizationSettings.getGroupDeleteButtonBackgroundColor())));
+        exitChannelButton.setBackgroundColor(Color.parseColor(alCustomizationSettings.getGroupExitButtonBackgroundColor()));
+
         mActionBar = getSupportActionBar();
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
@@ -469,6 +477,12 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
             }
+
+            GradientDrawable bgShapeAdminText = (GradientDrawable) holder.adminTextView.getBackground();
+            bgShapeAdminText.setColor(Color.parseColor(alCustomizationSettings.getAdminBackgroundColor()));
+            bgShapeAdminText.setStroke(2, Color.parseColor(alCustomizationSettings.getAdminBorderColor()));
+            holder.adminTextView.setTextColor(Color.parseColor(alCustomizationSettings.getAdminTextColor()));
+
             if(userPreference.getUserId().equals(contact.getUserId())){
                 holder.displayName.setText(getString(R.string.you_string));
             }else {

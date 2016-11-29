@@ -24,6 +24,7 @@ public class ApplozicClient {
     private static final String CONTACT_DEFAULT_IMAGE = "CONTACT_DEFAULT_IMAGE";
     private static final String GROUP_DEFAULT_IMAGE = "GROUP_DEFAULT_IMAGE";
     private static final String MESSAGE_META_DATA_SERVICE = "MESSAGE_META_DATA_SERVICE";
+    private static final String SHOW_MY_CONTACT_ONLY = "SHOW_MY_CONTACT_ONLY";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -155,5 +156,20 @@ public class ApplozicClient {
         sharedPreferences.edit().putString(MESSAGE_META_DATA_SERVICE, messageMetaDataServiceName).commit();
         return this;
     }
+
+    public boolean isShowMyContacts() {
+        return  sharedPreferences.getBoolean(SHOW_MY_CONTACT_ONLY, false);
+    }
+
+    public ApplozicClient enableShowMyContacts() {
+        sharedPreferences.edit().putBoolean(SHOW_MY_CONTACT_ONLY, true).commit();
+        return this;
+    }
+
+    public ApplozicClient disableShowMyContacts() {
+        sharedPreferences.edit().putBoolean(SHOW_MY_CONTACT_ONLY, false).commit();
+        return this;
+    }
+
 
 }

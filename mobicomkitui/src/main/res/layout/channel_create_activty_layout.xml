@@ -33,7 +33,6 @@
         android:clickable="true"
         android:id="@+id/applozic_channel_profile_camera"
         android:background="@color/apploizc_transparent_color"
-        android:src="@drawable/applozic_ic_action_camera_new"
         android:layout_above="@+id/channelName"
         android:layout_alignRight="@+id/channelIcon"
         android:layout_alignEnd="@+id/channelIcon" />

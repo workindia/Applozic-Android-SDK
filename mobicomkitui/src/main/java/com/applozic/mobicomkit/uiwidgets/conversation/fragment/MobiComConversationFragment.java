@@ -148,7 +148,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected ScheduledTimeHolder scheduledTimeHolder = new ScheduledTimeHolder();
     protected Spinner selfDestructMessageSpinner;
     protected ImageView mediaContainer;
-    protected TextView attachedFile;
+    protected TextView attachedFile,userNotAbleToChatTextView;
     protected String filePath;
     protected boolean firstTimeMTexterFriend;
     protected MessageCommunicator messageCommunicator;
@@ -282,6 +282,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageEditText.setHintTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextHintTextColor()));
 
         userNotAbleToChatLayout = (LinearLayout) list.findViewById(R.id.user_not_able_to_chat_layout);
+        userNotAbleToChatTextView = (TextView) userNotAbleToChatLayout.findViewById(R.id.user_not_able_to_chat_textView);
+        userNotAbleToChatTextView.setTextColor(Color.parseColor(alCustomizationSettings.getUserNotAbleToChatTextColor()));
 
         if (!TextUtils.isEmpty(defaultText)) {
             messageEditText.setText(defaultText);
@@ -756,7 +758,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         typingStarted = false;
         onSelected = false;
 
-        if (contact != null) {
+        if (contact != null && userNotAbleToChatLayout != null) {
             userNotAbleToChatLayout.setVisibility(View.GONE);
         }
         if(contact != null &&  this.channel != null){
