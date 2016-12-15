@@ -297,7 +297,9 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 User user = new User();          
 user.setUserId(userId); //userId it can be any unique user identifier
 user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
-user.setEmail(email); //optional   
+user.setEmail(email); //optional
+user.setAuthenticationTypeId(User.AuthenticationType.APPLOZIC.getValue());  //User.AuthenticationType.APPLOZIC.getValue() for password verification from Applozic server and User.AuthenticationType.CLIENT.getValue() for access Token verification from your server set access token as password
+user.setPassword(""); //optional, leave it blank for testing purpose, read this if you want to add additional security by verifying password from your server https://www.applozic.com/docs/configuration.html#access-token-url
 user.setImageLink("");//optional,pass your image link
 new UserLoginTask(user, listener, this).execute((Void) null);                                       
 ```
