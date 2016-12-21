@@ -27,12 +27,12 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 ```
 ext.googlePlayServicesVersion = '9.0.2'
-ext.supportLibraryVersion = '23.1.1'
+ext.supportLibraryVersion = '23.2.1'
 ```
 
 **Step 2: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.67' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.68' `
 
 
 Add the following in gradle android target:      
