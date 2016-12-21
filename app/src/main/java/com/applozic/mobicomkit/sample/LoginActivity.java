@@ -101,7 +101,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
 
         mPhoneNumberView = (EditText) findViewById(R.id.phoneNumber);
         mUserIdView = (EditText) findViewById(R.id.userId);
@@ -218,7 +217,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String phoneNumber = mPhoneNumberView.getText().toString();
-        String userId = mUserIdView.getText().toString();
+        String userId = mUserIdView.getText().toString().trim();
         String password = mPasswordView.getText().toString();
         String displayName = mDisplayName.getText().toString();
 

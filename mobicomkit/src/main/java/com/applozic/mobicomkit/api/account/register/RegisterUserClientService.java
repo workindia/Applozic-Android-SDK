@@ -69,7 +69,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setTimezone(TimeZone.getDefault().getID());
         user.setEnableEncryption(user.isEnableEncryption());
 
-
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
@@ -225,11 +224,13 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
         user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         user.setApplicationId(getApplicationKey(context));
+        user.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
         if(getAppModuleName(context) != null){
             user.setAppModuleName(getAppModuleName(context));
         }
-        user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
-
+        if(!TextUtils.isEmpty(mobiComUserPreference.getDeviceRegistrationId())){
+            user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
+        }
         Log.i(TAG, "Registration update json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(user));
 

@@ -93,6 +93,15 @@ public class MainActivity extends ActionBarActivity
 
         setContentView(R.layout.activity_main);
 
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
+        if (!userPreference.isRegistered()) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -105,15 +114,7 @@ public class MainActivity extends ActionBarActivity
         //Put Support Contact Data
         buildSupportContactData();
 
-        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
-        if (!userPreference.isRegistered()) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            //startActivity(intent);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-            return;
-        } /*else {
+        /*else {
             Intent intent = new Intent(this, ConversationActivity.class);
                 startActivity(intent);
         }*/
