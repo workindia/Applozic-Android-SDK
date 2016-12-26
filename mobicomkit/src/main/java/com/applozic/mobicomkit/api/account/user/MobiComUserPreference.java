@@ -57,6 +57,8 @@ public class MobiComUserPreference {
     private static String enable_auto_download_on_wifi = "enable_auto_download_on_wifi";
     private static String enable_auto_download_on_cellular = "enable_auto_download_on_cellular";
 
+    private static String video_call_token= "video_call_token";
+
     public SharedPreferences sharedPreferences;
     private Context context;
     private String countryCode;
@@ -494,6 +496,16 @@ public class MobiComUserPreference {
 
     public boolean getAutoDownloadOnCellular(){
         return sharedPreferences.getBoolean(enable_auto_download_on_cellular, false);
+    }
+
+    public void setVideoCallToken(String token){
+        sharedPreferences.edit().putString(video_call_token, token).commit();
+
+    }
+
+    public String getVideoCallToken(){
+        return sharedPreferences.getString(video_call_token, null);
+
     }
 
 }

@@ -837,6 +837,16 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.contact = baseContactService.getContactById(contactObj.getContactIds());
         this.currentConversationId = conversationId;
         try {
+            if(ApplozicClient.getInstance(getApplicationContext()).isIPCallEnabled()){
+                //Audio Call
+                String activityName = ApplozicSetting.getInstance(this).getActivityCallback(ApplozicSetting.RequestCode.AUDIO_CALL);
+                Class activityToOpen =  Class.forName(activityName);
+                Intent intent = new Intent(this, activityToOpen);
+                intent.putExtra("CONTACT_ID", contact.getUserId());
+                startActivity(intent);
+                return;
+            }
+
             if (activityToOpenOnClickOfCallButton != null) {
                 Intent callIntent = new Intent(this, Class.forName(activityToOpenOnClickOfCallButton));
                 if (currentConversationId != null) {

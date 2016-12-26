@@ -168,6 +168,6 @@
     <string name="applozic_userId_error_info_in_logs">UserId can not be null or empty and Channel key should not be null</string>
     <string name="applozic_channel_error_info_in_logs">Please check group name is Null or Empty or it has at least one member to be added in group</string>
     <string name="applozic_add_user_to_multiple_channel_error_info_in_logs">UserId can not be null or empty and Channel key list should not be null</string>
-
+    <string name="video_string">Video</string>
 
 </resources>

@@ -69,6 +69,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setTimezone(TimeZone.getDefault().getID());
         user.setEnableEncryption(user.isEnableEncryption());
 
+
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();

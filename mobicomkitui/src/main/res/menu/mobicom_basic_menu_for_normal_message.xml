@@ -72,6 +72,15 @@
         mobicomkit:showAsAction="collapseActionView" />
 
     <item
+        android:id="@+id/video_call"
+        android:orderInCategory="3"
+        android:visible="false"
+        android:icon="@drawable/ic_videocam_white_24px"
+        android:padding="8dp"
+        mobicomkit:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/video_string" />
+
+    <item
         android:id="@+id/userBlock"
         android:showAsAction="collapseActionView"
         android:title="@string/user_block"

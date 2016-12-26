@@ -312,4 +312,21 @@ public class Utils {
         builder.append(message);
         return builder;
     }
+
+    public static String getTimeDurationInFormat(Long timeInMillis) {
+
+        long timeInSecond = timeInMillis / 1000;
+        String formattedDuration;
+
+        if (timeInSecond < 60) {
+            return (timeInSecond + " Sec");
+        } else {
+            formattedDuration = timeInSecond / 60 + " Min";
+            if (timeInSecond % 60 > 0) {
+                formattedDuration = formattedDuration + " "+ timeInSecond % 60 + " Sec";
+            }
+        }
+
+        return formattedDuration;
+    }
 }

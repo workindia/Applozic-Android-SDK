@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -78,6 +79,8 @@ public class QuickConversationAdapter extends BaseAdapter implements Filterable 
     private AlphabetIndexer mAlphabetIndexer;
     private TextAppearanceSpan highlightTextSpan;
     private AlCustomizationSettings alCustomizationSettings;
+    TextView messageTextView;
+     ImageView attachmentIcon;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
@@ -122,14 +125,14 @@ public class QuickConversationAdapter extends BaseAdapter implements Filterable 
         if (message != null) {
             TextView smReceivers = (TextView) customView.findViewById(R.id.smReceivers);
             TextView createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
-            TextView messageTextView = (TextView) customView.findViewById(R.id.message);
+            messageTextView = (TextView) customView.findViewById(R.id.message);
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
             CircleImageView contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
             TextView alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
             TextView onlineTextView = (TextView) customView.findViewById(R.id.onlineTextView);
             ImageView sentOrReceived = (ImageView) customView.findViewById(R.id.sentOrReceivedIcon);
             TextView attachedFile = (TextView) customView.findViewById(R.id.attached_file);
-            final ImageView attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
+            attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
             TextView unReadCountTextView = (TextView) customView.findViewById(R.id.unreadSmsCount);
             List<String> items = null;
             List<String> userIds = null;
@@ -279,6 +282,11 @@ public class QuickConversationAdapter extends BaseAdapter implements Filterable 
 
                 messageTextView.setText(highlightedName);
             }
+
+            if(message.isVideoCallMessage()){
+                createVideoCallView(message);
+            }
+
         }
 
 
@@ -351,5 +359,26 @@ public class QuickConversationAdapter extends BaseAdapter implements Filterable 
         };
     }
 
+    public void createVideoCallView(Message message ){
+
+        if(message.getMetadata()==null || message.getMetadata().isEmpty()){
+
+            attachmentIcon.setImageResource(R.drawable.ic_videocam_white_24px);
+            attachmentIcon.setColorFilter(R.color.applozic_green_color);
+            return;
+        }
+        messageTextView.setText(VideoCallNotificationHelper.getStatus(message.getMetadata()));
+        attachmentIcon.setVisibility(View.VISIBLE);
+
+        if (VideoCallNotificationHelper.isMissedCall(message)) {
+            attachmentIcon.setImageResource(R.drawable.ic_communication_call_missed);
+        } else if(VideoCallNotificationHelper.isAudioCall(message)) {
+            attachmentIcon.setImageResource(R.drawable.applozic_ic_action_call_holo_light);
+        }else{
+            attachmentIcon.setImageResource(R.drawable.ic_videocam_white_24px);
+            attachmentIcon.setColorFilter(R.color.applozic_green_color);
+        }
+
+    }
 
 }

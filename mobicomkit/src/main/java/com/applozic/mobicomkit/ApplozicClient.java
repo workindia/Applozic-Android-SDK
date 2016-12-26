@@ -24,6 +24,7 @@ public class ApplozicClient {
     private static final String CONTACT_DEFAULT_IMAGE = "CONTACT_DEFAULT_IMAGE";
     private static final String GROUP_DEFAULT_IMAGE = "GROUP_DEFAULT_IMAGE";
     private static final String MESSAGE_META_DATA_SERVICE = "MESSAGE_META_DATA_SERVICE";
+    private static final String ENABLE_IP_CALL = "ENABLE_IP_CALL";
     private static final String SHOW_MY_CONTACT_ONLY = "SHOW_MY_CONTACT_ONLY";
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -170,6 +171,12 @@ public class ApplozicClient {
         sharedPreferences.edit().putBoolean(SHOW_MY_CONTACT_ONLY, false).commit();
         return this;
     }
+    public void setIPCallEnabled(boolean iPCallEnabled) {
+        sharedPreferences.edit().putBoolean(ENABLE_IP_CALL, iPCallEnabled).commit();
+    }
 
+    public boolean isIPCallEnabled() {
+        return sharedPreferences.getBoolean(ENABLE_IP_CALL, false);
+    }
 
 }

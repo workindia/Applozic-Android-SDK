@@ -77,6 +77,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -681,21 +682,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     continue;
                 }
 
-                if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue()) &&
+                if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue() || message.isVideoOrAudioCallMessage()) &&
                         menuItems[i].equals("Copy")) {
                     continue;
                 }
-                if (message.isCall() && (menuItems[i].equals("Forward") ||
+                if ((message.isCall()||message.isVideoOrAudioCallMessage()) && (menuItems[i].equals("Forward") ||
                         menuItems[i].equals("Resend"))) {
                     continue;
                 }
-                if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.isSentToServer())) {
+                if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.isSentToServer() ||message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
                 if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) ||(channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                     continue;
                 }
-                if(menuItems[i].equals("Info") && (TextUtils.isEmpty(message.getKeyString()) || (channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))){
+                if(menuItems[i].equals("Info") && (TextUtils.isEmpty(message.getKeyString())||message.isVideoOrAudioCallMessage() || (channel !=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))){
                     continue;
                 }
                 menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -709,15 +710,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.menu = menu;
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
-        if (ApplozicClient.getInstance(getActivity()).isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2) {
+        ApplozicClient setting = ApplozicClient.getInstance(getActivity());
+
+        if ((setting.isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2)
+                || (setting.isIPCallEnabled()) )  {
             menu.findItem(R.id.dial).setVisible(true);
+            menu.findItem(R.id.video_call).setVisible(true);
         } else {
+            menu.findItem(R.id.video_call).setVisible(false);
             menu.findItem(R.id.dial).setVisible(false);
         }
         if (channel != null) {
             menu.findItem(R.id.userBlock).setVisible(false);
             menu.findItem(R.id.userUnBlock).setVisible(false);
             menu.findItem(R.id.dial).setVisible(false);
+            menu.findItem(R.id.video_call).setVisible(false);
         } else if (contact != null) {
             if (contact.isBlocked()) {
                 menu.findItem(R.id.userUnBlock).setVisible(true);
@@ -747,6 +754,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (id == R.id.deleteConversation) {
             deleteConversationThread();
             return true;
+        }
+        if(id == R.id.video_call){
+            try{
+                String activityName = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.VIDEO_CALL);
+                Class activityToOpen =  Class.forName(activityName);
+                Intent intent = new Intent(getActivity(), activityToOpen);
+                intent.putExtra("CONTACT_ID", contact.getUserId());
+                startActivity(intent);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return false;
     }
@@ -1056,7 +1074,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
                         }
-                    } else if (!Message.ContentType.HIDDEN.getValue().equals(message.getContentType()) ){
+                    } else if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())
+                            && !message.isVideoNotificationMessage()){
                         messageList.add(message);
                         listView.smoothScrollToPosition(messageList.size());
                         listView.setSelection(messageList.size());
