@@ -647,6 +647,7 @@ public class MessageClientService extends MobiComKitClientService {
                     contact.setContactNumber(userDetail.getPhoneNumber());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                     contact.setImageURL(userDetail.getImageLink());
+                    contact.setUserTypeId(userDetail.getUserTypeId());
                     contact.setStatus(userDetail.getStatusMessage());
                     contact.setUnreadCount(0);
                     baseContactService.upsert(contact);

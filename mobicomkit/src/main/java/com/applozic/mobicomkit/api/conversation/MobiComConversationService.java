@@ -369,6 +369,7 @@ public class MobiComConversationService {
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                 contact.setStatus(userDetail.getStatusMessage());
                 contact.setUnreadCount(userDetail.getUnreadCount());
+                contact.setUserTypeId(userDetail.getUserTypeId());
                 contact.setImageURL(userDetail.getImageLink());
                 baseContactService.upsert(contact);
             }

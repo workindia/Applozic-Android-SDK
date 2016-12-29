@@ -167,7 +167,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
         }
 
-        if(channel.getType() != null ) {
+        if(channel != null && channel.getType() != null ) {
             if (Channel.GroupType.BROADCAST.getValue().equals(channel.getType())) {
                 deleteChannelButton.setText(R.string.broadcast_delete_button);
                 exitChannelButton.setText(R.string.broadcast_exit_button);

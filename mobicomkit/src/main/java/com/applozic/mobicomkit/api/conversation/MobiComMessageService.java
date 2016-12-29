@@ -177,7 +177,9 @@ public class MobiComMessageService {
                     sendNotification(message);
                 }
                 if(message.getGroupId() != null && !Message.GroupMessageMetaData.FALSE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.KEY.getValue()))){
-                    messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                   if(!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
+                       messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                   }
                     sendNotification(message);
                 }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
