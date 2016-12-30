@@ -323,7 +323,7 @@ Under Module section, update the GCM Server Key.***
 
   Add the below code and pass the FCM registration token:
   
- **1.** In UserLoginTask "onSuccess" (refer Step 3)
+ **1.** In UserLoginTask "onSuccess" (refer Step 4)
   
 
 ```
