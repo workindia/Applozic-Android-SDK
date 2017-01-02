@@ -562,6 +562,8 @@ applozicConversationCreateTask = new ApplozicConversationCreateTask(context,conv
 ```
 #### Audio/Video Call setup
 
+Once you done with [normal chat integration](https://www.applozic.com/docs/android-chat-sdk.html#overview), below steps you need to follow to enable audio/video call.
+
 a) Enable audio/video feature: 
 
 while doing user registration, you should set audio/video feature in user detail.
@@ -585,5 +587,31 @@ onSuccess of UserLoginTask, you need to set below handlers in settings.
   ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
   
 ```
+
+c) Add these activity in your AndroidManifest.xml.
+
+```
+<activity android:name="com.applozic.audiovideo.activity.AudioCallActivityV2"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Applozic_FullScreen_Theme"/>
+
+        <activity
+            android:name="com.applozic.audiovideo.activity.CallActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/Applozic_FullScreen_Theme"/>
+
+        <activity
+            android:name="com.applozic.audiovideo.activity.VideoActivity"
+            android:launchMode="singleTop"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Applozic_FullScreen_Theme">
+        </activity>
+```
+
 
 
