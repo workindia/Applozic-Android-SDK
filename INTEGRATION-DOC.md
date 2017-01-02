@@ -25,14 +25,21 @@ ext.supportLibraryVersion = '23.2.1'
 ####Step 2: Gradle Dependency
 
 Add the following in your build.gradle dependency  
+a) Chat SDK (Without audio/video)
 
 ```
 compile 'com.applozic.communication.uiwidget:mobicomkitui:4.70'
 ```
 
+b) Chat SDK with Audio/Video.
 
-Add the following in gradle android target:      
+```
+compile 'com.applozic.communication.uiwidget:audiovideo:1.0'
+```
+**NOTE** : To enable Audio/Video you need to follow extra steps:
+https://www.applozic.com/docs/android-chat-sdk.html#audio-video-call-setup
 
+Add the following in gradle android target:
 
 ```
 android {
@@ -269,10 +276,6 @@ Paste the following in your androidmanifest.xml:
           </intent-filter>
 </receiver>                  
 ```
-
-
-
-
 
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
