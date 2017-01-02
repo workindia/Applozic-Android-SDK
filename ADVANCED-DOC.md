@@ -560,3 +560,30 @@ applozicConversationCreateTask = new ApplozicConversationCreateTask(context,conv
    applozicConversationCreateTask.execute((Void)null);
  
 ```
+#### Audio/Video Call setup
+
+a) Enable audio/video feature: 
+
+while doing user registration, you should set audio/video feature in user detail.
+
+```
+List<String> featureList =  new ArrayList<>();
+featureList.add(User.Features.IP_AUDIO_CALL.getValue());// FOR AUDIO
+featureList.add(User.Features.IP_VIDEO_CALL.getValue());// FOR VIDEO
+user.setFeatures(featureList); // ADD FEATURES
+```
+
+b) Add setting for audio/video handler class:
+
+onSuccess of UserLoginTask, you need to set below handlers in settings.
+
+```
+  ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true).setIPCallEnabled(true);
+  Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
+  activityCallbacks.put(ApplozicSetting.RequestCode.AUDIO_CALL, AudioCallActivityV2.class.getName());
+  activityCallbacks.put(ApplozicSetting.RequestCode.VIDEO_CALL, VideoActivity.class.getName());
+  ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
+  
+```
+
+
