@@ -241,17 +241,6 @@ startActivity(intent);
 ```
 
 
-Enable Group Messaging for a user
-```
-ApplozicSetting.getInstance(context).showStartNewGroupButton();
-```
-
-Disable Group Messaging for a user
-```
-ApplozicSetting.getInstance(context).hideStartNewGroupButton();
-```
-
-
 #####1) Create Group
 
  Create a group with a specific group type 
@@ -309,6 +298,7 @@ Code
        channelInfo.setType(Channel.GroupType.PUBLIC.getValue().intValue()); //group type
        //channelInfo.setImageUrl(""); //pass group image link URL
        //channelInfo.setChannelMetadata(channelMetadata); //Optional option for setting group meta data 
+       //channelInfo.setClientGroupId(clientGroupId); //Optional if you have your own groupId then you can pass here
         Channel channel = ChannelService.getInstance(context).createChannel(channelInfo);
 
  ```
