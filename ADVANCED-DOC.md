@@ -562,7 +562,7 @@ applozicConversationCreateTask = new ApplozicConversationCreateTask(context,conv
 ```
 #### Audio/Video Call setup
 
-Once you done with [normal chat integration](https://www.applozic.com/docs/android-chat-sdk.html#overview), below steps you need to follow to enable audio/video call.
+Once you are done with [normal chat integration](https://www.applozic.com/docs/android-chat-sdk.html#overview), below steps you need to follow to enable audio/video call.
 
 a) Enable audio/video feature: 
 
