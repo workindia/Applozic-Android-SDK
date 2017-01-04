@@ -370,7 +370,7 @@ Add the following in your FcmListenerService  in onMessageReceived(RemoteMessage
 
 #### GCM is already enabled in my app
 
-If you already have GCM enabled in your app,add the below code and pass the GCM registration id:
+If you already have GCM enabled in your app, add the below code and pass the GCM registration token:
   
  **1.** In UserLoginTask "onSuccess" (refer Step 4)
   
@@ -391,16 +391,16 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
 
 };                    
 
-pushNotificationTask = new PushNotificationTask(registrationId, listener, mActivity);            
+pushNotificationTask = new PushNotificationTask(registrationToken, listener, mActivity);            
 pushNotificationTask.execute((Void) null);  
 }
 ```
 
- **2.** At the place where you are getting the GCM registration id in your app.       
+ **2.** At the place where you are getting the GCM registration token in your app.       
 
  ```
  if (MobiComUserPreference.getInstance(this).isRegistered()) {
-      new RegisterUserClientService(this).updatePushNotificationId(registrationId);
+      new RegisterUserClientService(this).updatePushNotificationId(registrationToken);
  }
 ```
 
