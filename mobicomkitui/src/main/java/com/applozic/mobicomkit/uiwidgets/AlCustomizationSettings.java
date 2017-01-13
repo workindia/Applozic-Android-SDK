@@ -2,6 +2,8 @@ package com.applozic.mobicomkit.uiwidgets;
 
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.util.Map;
+
 /**
  * Created by sunil on 10/10/16.
  */
@@ -72,14 +74,19 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean hideGroupRemoveMemberOption;
     private boolean profileOption;
     private boolean broadcastOption;
-
+    private boolean hideAttachmentButton;
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
     private int maxAttachmentSizeAllowed = 30;
     private int totalOnlineUsers = 0;
 
-    public boolean isBroadcastOption() {return broadcastOption;}
+    private Map<String, Boolean> attachmentOptions;
+
+    public boolean isBroadcastOption() {
+        return broadcastOption;
+    }
+
     public boolean isStartNewFloatingButton() {
         return startNewFloatingButton;
     }
@@ -335,6 +342,22 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public String getChatBackgroundImageName() {
         return chatBackgroundImageName;
+    }
+    public Map<String, Boolean> getAttachmentOptions() {
+        return attachmentOptions;
+    }
+
+    public void setAttachmentOptions(Map<String, Boolean> attachmentOptions) {
+        this.attachmentOptions = attachmentOptions;
+    }
+
+
+    public boolean isHideAttachmentButton() {
+        return hideAttachmentButton;
+    }
+
+    public void setHideAttachmentButton(boolean hideAttachmentButton) {
+        this.hideAttachmentButton = hideAttachmentButton;
     }
 
 

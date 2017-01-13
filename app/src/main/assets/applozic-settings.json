@@ -60,5 +60,15 @@
   "hideGroupExitButton": false,
   "hideGroupRemoveMemberOption": false,
   "profileOption": false,
-  "broadcastOption":true
+  "broadcastOption":true,
+  "hideAttachmentButton":false,
+
+    "attachmentOptions": {
+      ":location": false,
+      ":camera": false,
+      ":file": true,
+      ":audio": true,
+      ":video": false,
+      ":contact": true
+    }
 }
