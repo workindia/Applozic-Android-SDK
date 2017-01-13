@@ -63,13 +63,12 @@
   "broadcastOption":true,
   "restrictedWordMessage":" Please don't use restricted word",
   "hideAttachmentButton":false,
-
-    "attachmentOptions": {
-      ":location": false,
-      ":camera": false,
+  "attachmentOptions": {
+      ":location": true,
+      ":camera": true,
       ":file": true,
-      ":audio": false,
-      ":video": false,
-      ":contact": false
+      ":audio": true,
+      ":video": true,
+      ":contact": true
     }
 }
