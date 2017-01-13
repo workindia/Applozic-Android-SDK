@@ -108,11 +108,14 @@ import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
+
+import static java.util.Collections.disjoint;
 
 /**
  * reg
@@ -186,6 +189,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected String searchString;
     ConversationUIService conversationUIService;
     protected AlCustomizationSettings alCustomizationSettings;
+    List<String> restrictedWords;
+
     public void setEmojiIconHandler(EmojiconHandler emojiIconHandler) {
         this.emojiIconHandler = emojiIconHandler;
     }
@@ -199,7 +204,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }else {
             alCustomizationSettings =  new AlCustomizationSettings();
         }
-         conversationUIService = new ConversationUIService(getActivity());
+        restrictedWords=FileUtils.loadRestrictedWordsFile(getContext());
+
+        conversationUIService = new ConversationUIService(getActivity());
         syncCallService = SyncCallService.getInstance(getActivity());
         appContactService = new AppContactService(getActivity());
         messageDatabaseService = new MessageDatabaseService(getActivity());
@@ -416,15 +423,36 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                                   alertDialog.setCancelable(true);
                                                   alertDialog.create().show();*/
                                                   } else {
-                                                      sendMessage(messageEditText.getText().toString().trim());
-                                                      messageEditText.setText("");
-                                                      scheduleOption.setText(R.string.ScheduleText);
-                                                      if (scheduledTimeHolder.getTimestamp() != null) {
-                                                          showScheduleMessageToast();
-                                                      }
-                                                      scheduledTimeHolder.resetScheduledTimeHolder();
+                                                      String inputMessage=messageEditText.getText().toString();
+                                                      String[] inputMsg=inputMessage.toLowerCase().split(" ");
+                                                      List<String> userInputList = Arrays.asList(inputMsg);
+                                                      boolean disjointResult = (restrictedWords==null)? true : disjoint(restrictedWords, userInputList);
 
+                                                      if (disjointResult) {
+
+                                                          sendMessage(messageEditText.getText().toString().trim());
+                                                          messageEditText.setText("");
+                                                          scheduleOption.setText(R.string.ScheduleText);
+                                                          if (scheduledTimeHolder.getTimestamp() != null) {
+                                                              showScheduleMessageToast();
+                                                          }
+                                                          scheduledTimeHolder.resetScheduledTimeHolder();
+
+                                                      } else {
+
+                                                          final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                                                                  setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener() {
+                                                                      @Override
+                                                                      public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                                      }
+                                                                  });
+                                                          alertDialog.setTitle(alCustomizationSettings.getRestrictedWordMessage());
+                                                          alertDialog.setCancelable(true);
+                                                          alertDialog.create().show();
+                                                      }
                                                   }
+
                                               }
                                               if (contact != null && contact.isBlocked()) {
                                                   userBlockDialog(false);
@@ -1780,6 +1808,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void updateChannelTitleAndSubTitle() {
         if (channel != null) {
+            if(!ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) && userNotAbleToChatLayout != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())){
+                individualMessageSendLayout.setVisibility(View.GONE);
+                userNotAbleToChatLayout.setVisibility(View.VISIBLE);
+
+            }
             updateChannelTitle();
             updateChannelSubTitle();
         }

@@ -61,14 +61,15 @@
   "hideGroupRemoveMemberOption": false,
   "profileOption": false,
   "broadcastOption":true,
+  "restrictedWordMessage":" Please don't use restricted word",
   "hideAttachmentButton":false,
 
     "attachmentOptions": {
       ":location": false,
       ":camera": false,
       ":file": true,
-      ":audio": true,
+      ":audio": false,
       ":video": false,
-      ":contact": true
+      ":contact": false
     }
 }

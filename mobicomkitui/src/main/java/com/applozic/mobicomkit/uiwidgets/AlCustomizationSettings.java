@@ -52,7 +52,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private String audioPermissionNotFoundMsg;
     private String noConversationLabel = "You have no conversations";
     private String noSearchFoundForChatMessages = "No conversation found";
-
+    private String restrictedWordMessage = "Restricted words are not allowed";
     private boolean locationShareViaMap = true;
     private boolean startNewFloatingButton;
     private boolean startNewButton;
@@ -360,6 +360,13 @@ public class AlCustomizationSettings extends JsonMarker {
         this.hideAttachmentButton = hideAttachmentButton;
     }
 
+    public String getRestrictedWordMessage() {
+        return restrictedWordMessage;
+    }
+
+    public void setRestrictedWordMessage(String restrictedWordMessage) {
+        this.restrictedWordMessage = restrictedWordMessage;
+    }
 
     @Override
     public String toString() {
