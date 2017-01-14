@@ -55,7 +55,7 @@ Applozic provide easy settings to customise your ui themes color,pop-up messages
 | restrictedWordMessage | String | Restricted words are not allowed |
 | hideAttachmentButton | true/false | Show and hide media attachment button |
 
-#### Customising attachment options.
+#### Customizing attachment options.
 
 You can hide particular attachment options by setting value as **false** in attachmentOptions in applozic-settings.json file. 
 ```
