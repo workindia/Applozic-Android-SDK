@@ -52,6 +52,24 @@ Applozic provide easy settings to customise your ui themes color,pop-up messages
 | hideGroupExitButton | true/false | Hide group exit option button in group |
 | hideGroupRemoveMemberOption | true/false | Hide remove member option  from group |
 | profileOption | true/false | Show and hide the profile option |
+| restrictedWordMessage | String | Restricted words are not allowed |
+| hideAttachmentButton | true/false | Show and hide media attachment button |
+
+#### Customising attachment options.
+
+You can hide particular attachment options by setting value as **false** in attachmentOptions in applozic-settings.json file. 
+```
+"attachmentOptions": {
+      ":location": true,
+      ":camera": true,
+      ":file": true,
+      ":audio": true,
+      ":video": true,
+      ":contact": true
+    }
+```
+Example : to hide location option in attachment set **":location": false**. 
+
 
 
 #### Notifications
@@ -62,11 +80,6 @@ Enable/disable the notfications
 ApplozicClient.getInstance(context).disableNotification();
 ApplozicClient.getInstance(context).enableNotification();
 ```
-
-
-
-
-
 
 
 #### Theme customization
