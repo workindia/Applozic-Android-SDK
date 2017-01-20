@@ -27,6 +27,7 @@ public class MobiComKitConstants {
     public static final String APPLOZIC_VIDEO_CALL_ANSWER = "applozic.video.call.answer";
     public static final String APPLOZIC_VIDEO_CALL_REJECTED = "applozic.video.call.rejected";
     public static final String APPLOZIC_VIDEO_DIALED = "applozic.video.call.dialed";
+    public static final String PACKAGE_NAME = "com.package.name";
 
 
 

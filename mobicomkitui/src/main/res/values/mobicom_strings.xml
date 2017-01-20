@@ -140,6 +140,8 @@
     <string name="group_string">group</string>
     <string name="broadcast_string">broadcast</string>
     <string name="new_broadcast_name_info">New broadcast</string>
+    <string name="mute_Group">Mute</string>
+    <string name="unmute_Group">UnMute</string>
     <string name="user_name_info">[name]</string>
     <string name="channel_member_title">Select contact</string>
     <string name="channel_exit_button">EXIT GROUP</string>

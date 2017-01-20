@@ -23,6 +23,7 @@ public class ChannelFeed extends JsonMarker {
     private Set<String> membersName;
     private Set<UserDetail> users;
     private Conversation conversationPxy;
+    private Long notificationAfterTime;
 
 
     public ChannelFeed(Integer id, String name) {
@@ -123,6 +124,14 @@ public class ChannelFeed extends JsonMarker {
         this.imageUrl = imageUrl;
     }
 
+    public Long getNotificationAfterTime() {
+        return notificationAfterTime;
+    }
+
+    public void setNotificationAfterTime(Long notificationAfterTime) {
+        this.notificationAfterTime = notificationAfterTime;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
@@ -136,6 +145,7 @@ public class ChannelFeed extends JsonMarker {
                 ", membersName=" + membersName +
                 ", users=" + users +
                 ", conversationPxy=" + conversationPxy +
+                ", notificationAfterTime=" + notificationAfterTime +
                 '}';
     }
 }

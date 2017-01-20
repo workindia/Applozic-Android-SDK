@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.FileProvider;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -702,13 +703,21 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 shareEmailContact.setVisibility(View.GONE);
             }
 
+
             addContactButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(new File(message.getFilePaths().get(0))), "text/x-vcard");
+                    Uri outputUri = null;
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    if(Utils.hasNougat()){
+                        outputUri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME)+".provider" , new File(message.getFilePaths().get(0)));
+                    }else {
+                        outputUri =Uri.fromFile(new File(message.getFilePaths().get(0)));
+                    }
                     if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        intent.setDataAndType(outputUri, "text/x-vcard");
                         context.startActivity(intent);
                     } else {
                         Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
@@ -719,6 +728,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         } catch (Exception e) {
             Log.e("DetailedConvAdapter", "Exception in parsing", e);
         }
+
     }
 
     private void loadContactImage(Contact contact, Contact contactDisplayName, Message messageObj, ImageView contactImage, TextView alphabeticTextView) {
@@ -795,8 +805,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 if (message.isAttachmentDownloaded()) {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(new File(message.getFilePaths().get(0))), mimeType);
+                    Uri outputUri;
+                    if(Utils.hasNougat()){
+                        outputUri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME)+".provider" , new File(message.getFilePaths().get(0)));
+                    }else {
+                        outputUri =Uri.fromFile(new File(message.getFilePaths().get(0)));
+                    }
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        intent.setDataAndType(outputUri, mimeType);
                         context.startActivity(intent);
                     } else {
                         Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
@@ -827,8 +844,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 if (smListItem.isAttachmentDownloaded()) {
                     Intent intentVideo = new Intent();
                     intentVideo.setAction(Intent.ACTION_VIEW);
-                    intentVideo.setDataAndType(Uri.fromFile(new File(smListItem.getFilePaths().get(0))), "video/*");
+                    Uri outputUri;
+                    if(Utils.hasNougat()){
+                        outputUri = FileProvider.getUriForFile(context,  Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME)+".provider", new File(smListItem.getFilePaths().get(0)));
+                    }else {
+                        outputUri =Uri.fromFile(new File(smListItem.getFilePaths().get(0)));
+                    }
+                    intentVideo.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     if (intentVideo.resolveActivity(context.getPackageManager()) != null) {
+                        intentVideo.setDataAndType(outputUri, "video/*");
                         context.startActivity(intentVideo);
                     } else {
                         Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();

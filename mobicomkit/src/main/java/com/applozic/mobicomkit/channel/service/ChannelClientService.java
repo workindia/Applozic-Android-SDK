@@ -7,6 +7,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.MultipleChannelFeedApiResponse;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
@@ -35,6 +36,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String ADD_MEMBER_TO_MULTIPLE_CHANNELS_URL = "/rest/ws/group/add/user";
     private static final String CHANNEL_DELETE_URL = "/rest/ws/group/delete";
     private static final String REMOVE_MEMBERS_FROM_MULTIPE_CHANNELS = "/rest/ws/group/remove/user";
+    private static final String MUTE_CHANNEL_UPDATE = "/rest/ws/group/user/update";
 
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
@@ -72,6 +74,11 @@ public class ChannelClientService extends MobiComKitClientService {
     public String getCreateChannelUrl() {
         return getBaseUrl() + CREATE_CHANNEL_URL;
     }
+
+    public String getMuteChannelUrl() {
+        return getBaseUrl() + MUTE_CHANNEL_UPDATE;
+    }
+
 
     public String getCreateMultipleChannelUrl() {
         return getBaseUrl() + CREATE_MULTIPLE_CHANNEL_URL;
@@ -130,6 +137,30 @@ public class ChannelClientService extends MobiComKitClientService {
     public ChannelFeed getChannelInfo(Integer channelKey) {
         return getChannelInfoByParameters(GROUP_ID + "=" + channelKey);
     }
+
+
+    public ApiResponse muteNotification(MuteNotificationRequest muteNotificationRequest) {
+        ApiResponse apiResponse=null;
+
+        try {
+            if (muteNotificationRequest.isRequestValid()) {
+                String requestJson = GsonUtils.getJsonFromObject(muteNotificationRequest, MuteNotificationRequest.class);
+                String response = httpRequestUtils.postData(getMuteChannelUrl() , "application/json", "application/json", requestJson);
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+
+                if(apiResponse != null){
+                    Log.i(TAG, "Mute notification response: " + apiResponse.getStatus());
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return apiResponse;
+    }
+
 
     public SyncChannelFeed getChannelFeed(String lastChannelSyncTime) {
         String url = getChannelSyncUrl() + "?" +
@@ -323,7 +354,7 @@ public class ChannelClientService extends MobiComKitClientService {
     public synchronized ApiResponse updateChannel(GroupInfoUpdate groupInfoUpdate) {
         ApiResponse apiResponse = null;
         try {
-            if (groupInfoUpdate != null && (!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId()) || groupInfoUpdate.getGroupId() != null) && (!TextUtils.isEmpty(groupInfoUpdate.getNewName()) || !TextUtils.isEmpty(groupInfoUpdate.getImageUrl()))) {
+            if (groupInfoUpdate != null && (!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId()) || groupInfoUpdate.getGroupId() != null) && (!TextUtils.isEmpty(groupInfoUpdate.getNewName()) || TextUtils.isEmpty(groupInfoUpdate.getImageUrl()) || !TextUtils.isEmpty(groupInfoUpdate.getImageUrl()))) {
                 String channelNameUpdateJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
                 String response = httpRequestUtils.postData(getChannelUpdateUrl() , "application/json", "application/json", channelNameUpdateJson);
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);

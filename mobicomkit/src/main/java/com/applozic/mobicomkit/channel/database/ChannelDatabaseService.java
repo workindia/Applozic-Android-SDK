@@ -87,6 +87,7 @@ public class ChannelDatabaseService {
         contentValues.put(MobiComDatabaseHelper.CHANNEL_KEY, channel.getKey());
         contentValues.put(MobiComDatabaseHelper.CLIENT_GROUP_ID, channel.getClientGroupId());
         contentValues.put(MobiComDatabaseHelper.TYPE, channel.getType());
+        contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME,channel.getNotificationAfterTime());
         contentValues.put(MobiComDatabaseHelper.ADMIN_ID, channel.getAdminKey());
         Channel oldChannel = null;
         if (!TextUtils.isEmpty(channel.getImageUrl())) {
@@ -212,6 +213,7 @@ public class ChannelDatabaseService {
         channel.setImageUrl(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_IMAGE_URL)));
         channel.setLocalImageUri(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI)));
         int count = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
+        channel.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         if (count > 0) {
             channel.setUnreadCount(count);
         }
@@ -248,6 +250,12 @@ public class ChannelDatabaseService {
         ContentValues contentValues = prepareChannelValues(channel);
         dbHelper.getWritableDatabase().update(CHANNEL, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(channel.getKey())});
         dbHelper.close();
+    }
+
+    public void updateNotificationAfterTime(Integer id, Long notificationAfterTime) {
+        ContentValues contentValues =  new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME,notificationAfterTime);
+        dbHelper.getWritableDatabase().update(CHANNEL,contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(id)});
     }
 
     public void updateChannel(ChannelUserMapper channelUserMapper) {
@@ -318,7 +326,12 @@ public class ChannelDatabaseService {
         }
         return deletedRows;
     }
+
     public int updateChannel(GroupInfoUpdate groupInfoUpdate) {
+        if(groupInfoUpdate.getImageUrl() == null && groupInfoUpdate.getNewName() == null ){
+            return 0;
+        }
+
         int rowUpdated = 0;
         try {
             ContentValues values = new ContentValues();
@@ -374,7 +387,8 @@ public class ChannelDatabaseService {
                 StringBuffer stringBuffer = new StringBuffer();
 
                 stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
-                        append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).
+                        append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI). append(",").
+                        append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).
                         append(" FROM ").append(MobiComDatabaseHelper.CHANNEL);
 
 

@@ -7,6 +7,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
+import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -175,6 +176,7 @@ public class ChannelService {
     public Channel getChannel(ChannelFeed channelFeed) {
         Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount(),channelFeed.getImageUrl());
         channel.setClientGroupId(channelFeed.getClientGroupId());
+        channel.setNotificationAfterTime(channelFeed.getNotificationAfterTime());
         return channel;
     }
 
@@ -363,4 +365,16 @@ public class ChannelService {
         channelDatabaseService.updateChannelLocalImageURI(channelKey,localImageURI);
     }
 
+    public ApiResponse muteNotifications(MuteNotificationRequest muteNotificationRequest) {
+
+        ApiResponse apiResponse = channelClientService.muteNotification(muteNotificationRequest);
+
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            channelDatabaseService.updateNotificationAfterTime(muteNotificationRequest.getId(),muteNotificationRequest.getNotificationAfterTime());
+        }
+        return apiResponse;
+    }
 }

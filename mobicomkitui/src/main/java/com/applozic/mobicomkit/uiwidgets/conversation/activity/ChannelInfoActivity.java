@@ -6,9 +6,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +44,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
+import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -65,6 +67,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -100,6 +103,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     MobiComUserPreference userPreference;
     AlCustomizationSettings alCustomizationSettings;
+    ConnectivityReceiver connectivityReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +142,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (Utils.hasLollipop()) {
             mainListView.setNestedScrollingEnabled(true);
         }
+        connectivityReceiver = new ConnectivityReceiver();
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
 
         registerForContextMenu(mainListView);
@@ -236,6 +241,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 deleteChannel(channel);
             }
         });
+
+        registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -253,6 +260,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         if (channel != null) {
             BroadcastService.currentInfoId = String.valueOf(channel.getKey());
+            Channel newChannel = ChannelService.getInstance(this).getChannelByChannelKey(channel.getKey());
+            if(newChannel != null && TextUtils.isEmpty(newChannel.getImageUrl())){
+                if(!channel.isBroadcastMessage()){
+                    channelImage.setImageResource(R.drawable.applozic_group_icon);
+                }else{
+                    channelImage.setImageResource(R.drawable.applozic_ic_applozic_broadcast);
+                }
+            }
         }
     }
 
@@ -583,7 +598,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (channel != null && channelUserMapper != null) {
                 responseForRemove = channelService.removeMemberFromChannelProcess(channel.getKey(), channelUserMapper.getUserKey());
             }
-
             return null;
         }
 
@@ -873,7 +887,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     collapsingToolbarLayout.setTitle(groupInfoUpdate.getNewName());
                 }
                 //File has been updated..rename new file to oldfile
-                if(!TextUtils.isEmpty(groupInfoUpdate.getNewlocalPath()) && !TextUtils.isEmpty(groupInfoUpdate.getImageUrl())){
+                if(!TextUtils.isEmpty(groupInfoUpdate.getNewlocalPath()) && !TextUtils.isEmpty(groupInfoUpdate.getImageUrl()) && !TextUtils.isEmpty(groupInfoUpdate.getContentUri())){
                     File file = new File(groupInfoUpdate.getNewlocalPath());
                     channel = ChannelInfoActivity.this.channel;
                     if(!TextUtils.isEmpty(channel.getLocalImageUri())){
@@ -883,9 +897,21 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     }
                     channel.setLocalImageUri(file.getAbsolutePath());
                     channelService.updateChannel(channel);
-                    channelImage.setImageURI(Uri.fromFile(file));
+                    channelImage.setImageURI(Uri.parse(groupInfoUpdate.getContentUri()));
                 }
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            if(connectivityReceiver != null){
+                unregisterReceiver(connectivityReceiver);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

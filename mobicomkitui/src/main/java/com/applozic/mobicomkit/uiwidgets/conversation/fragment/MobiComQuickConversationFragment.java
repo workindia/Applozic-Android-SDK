@@ -87,6 +87,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private ProgressBar progressBar;
     ConversationUIService conversationUIService;
     AlCustomizationSettings alCustomizationSettings;
+    String searchString;
 
     public ConversationListView getListView() {
         return listView;
@@ -269,6 +270,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void addMessage(final Message message) {
+        if(getActivity() == null){
+            return;
+        }
         final Context context = getActivity();
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -468,7 +472,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 listView.setSelection(0);
             }
         }
-        downloadConversations();
+        downloadConversations(false,searchString);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 SyncMessages syncMessages = new SyncMessages();
@@ -538,6 +542,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void updateLastSeenStatus(final String userId) {
+        if(getActivity() == null){
+            return;
+        }
         if (!alCustomizationSettings.isOnlineStatusMasterList()) {
             return;
         }
@@ -765,6 +772,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        this.searchString = newText;
         if (TextUtils.isEmpty(newText)) {
             downloadConversations(false,null);
         } else {
