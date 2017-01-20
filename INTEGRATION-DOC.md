@@ -15,20 +15,14 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 
 
 
-####Step 1: Add the following in your Top-level/Proejct level build.gradle file change the version according to your app:   
 
-```
-ext.googlePlayServicesVersion = '9.0.2'
-ext.supportLibraryVersion = '23.2.1'
-```
-
-####Step 2: Gradle Dependency
+####Step 1: Gradle Dependency
 
 Add the following in your build.gradle dependency  
 a) Chat SDK (Without audio/video)
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.71'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.73'
 ```
 
 b) Chat SDK with Audio/Video.
@@ -57,7 +51,7 @@ android {
 ```
 
 
-####Step 3: AndroidManifest
+####Step 2: AndroidManifest
 Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application>  ``` 
@@ -84,6 +78,14 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
             
  <meta-data android:name="com.package.name" 
            android:value="${applicationId}" /> <!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->
+           
+<provider android:name="android.support.v4.content.FileProvider"
+           android:authorities="${applicationId}.provider"
+           android:exported="false"
+           android:grantUriPermissions="true">
+<meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+           android:resource="@xml/provider_paths"/>
+ </provider>         
          
 ```
    **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
@@ -95,6 +97,17 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
 <string name="default_media_location_folder">YOUR_APP_NAME</string> 
 ```
 
+Adding  File Provider path in your app 
+
+1.Create a android resorce directory as xml directory  
+2.Create a XML resource file in xml directory as provider_paths and paste the below code
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path name="files" path="."/>
+</paths>
+```
 
 
 Permissions:          
@@ -144,7 +157,7 @@ Paste the following in your androidmanifest.xml:
    
 ```
  <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-           android:configChanges="keyboardHidden|orientation|screenSize"
+           android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
            android:label="@string/app_name"
            android:parentActivityName="<APP_PARENT_ACTIVITY>"
            android:theme="@style/ApplozicTheme"
@@ -156,7 +169,7 @@ Paste the following in your androidmanifest.xml:
  </activity>
                    
 <activity android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:label="@string/activity_contacts_list"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme"
@@ -185,7 +198,7 @@ Paste the following in your androidmanifest.xml:
 </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ContactSelectionActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:launchMode="singleTop"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme">
@@ -195,7 +208,7 @@ Paste the following in your androidmanifest.xml:
 </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelCreateActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:launchMode="singleTop"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme">
@@ -205,14 +218,14 @@ Paste the following in your androidmanifest.xml:
 </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelNameActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:launchMode="singleTop"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme">
 </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:launchMode="singleTop"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme">
@@ -222,7 +235,7 @@ Paste the following in your androidmanifest.xml:
  </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:launchMode="singleTop"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme"
@@ -233,14 +246,15 @@ Paste the following in your androidmanifest.xml:
 </activity>
   
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
-          android:configChanges="keyboardHidden|orientation|screenSize"
+          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
           android:theme="@style/ApplozicTheme"
           android:windowSoftInputMode="adjustResize">
  </activity>
  
-<activity android:name="com.soundcloud.android.crop.CropImageActivity" />
-
+<activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+           android:theme="@style/Base.Theme.AppCompat"/>
+           
 <service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
          android:exported="false" />
               
@@ -272,7 +286,6 @@ Paste the following in your androidmanifest.xml:
           android:exported="true" android:enabled="true">
           <intent-filter>
               <action android:name="android.intent.action.BOOT_COMPLETED" />
-              <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
           </intent-filter>
 </receiver>                  
 ```
@@ -280,7 +293,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-####Step 4: Login/Register User
+####Step 3: Login/Register User
 Applozic will create a new user if the user doesn't exists. userId is the unique identifier for any user, it can be anything like email, phone number or uuid from your database.
 
      
@@ -310,7 +323,7 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 
 
-####Step 5: Push Notification Setup
+####Step 4: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application. 
 Under Module section, update the GCM Server Key.***
@@ -320,7 +333,7 @@ Under Module section, update the GCM Server Key.***
 
   Add the below code and pass the FCM registration token:
   
- **1.** In UserLoginTask "onSuccess" (refer Step 4)
+ **1.** In UserLoginTask "onSuccess" (refer Step 3)
   
 
 ```
@@ -368,7 +381,7 @@ Add the following in your FcmListenerService  in onMessageReceived(RemoteMessage
 
 If you already have GCM enabled in your app, add the below code and pass the GCM registration token:
   
- **1.** In UserLoginTask "onSuccess" (refer Step 4)
+ **1.** In UserLoginTask "onSuccess" (refer Step 3)
   
 
 ```
@@ -418,7 +431,7 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 
 #### Don't have Android Push Notification code ?
 
-To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console](https://console.firebase.google.com) and create new project, add the google service json to your app, configure the build.gradle files in your app ,finally get server key from project settings and update in  ***[Applozic Dashboard](https://www.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application. 
+To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console](https://console.firebase.google.com) and create new project, add the google service json to your app, configure the build.gradle files in your app ,finally get server key from project settings and update in  ***[Applozic Dashboard](https://dashboard.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application. 
 Under Module section, update the GCM Server Key.***
 
 
@@ -443,7 +456,7 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 4).
+####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
  PushNotificationTask pushNotificationTask = null;
@@ -462,7 +475,7 @@ And add below code in your androidmanifest.xml file
  pushNotificationTask.execute((Void)null);
 ```
 
-####Step 6: Initiate Chat
+####Step 5: Initiate Chat
 
 For starting the messaging activity      
       
@@ -480,7 +493,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put 
 startActivity(intent);                              
 ```
 
-####Step 7: Logout user       
+####Step 6: Logout user       
 
 Call the following when user logout from your app:
 
@@ -489,7 +502,7 @@ new UserClientService(this).logout();
 ```
  
 
-#### Step 8: ProGuard Setup
+#### Step 7: ProGuard Setup
 Add the following if you are using ProGuard:
  
 ```
