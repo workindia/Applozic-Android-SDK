@@ -488,8 +488,8 @@ For starting individual conversation thread, set "userId" in intent:
  
 ```
 Intent intent = new Intent(this, ConversationActivity.class);            
-intent.putExtra(ConversationUIService.USER_ID, "devashish@applozic.com");             
-intent.putExtra(ConversationUIService.DISPLAY_NAME, "Devashish Mamgain"); //put it for displaying the title.             
+intent.putExtra(ConversationUIService.USER_ID, "receiveruserid123");             
+intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //put it for displaying the title.             
 startActivity(intent);                              
 ```
 
