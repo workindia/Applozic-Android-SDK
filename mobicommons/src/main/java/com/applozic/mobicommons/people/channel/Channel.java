@@ -154,7 +154,8 @@ public class Channel implements Serializable {
 
     public boolean isNotificationMuted() {
         Date date= Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
-        return (getNotificationAfterTime()-date.getTime()>0);
+        return (getNotificationAfterTime()!=null) && (getNotificationAfterTime()-date.getTime()>0);
+
     }
 
     public enum GroupType {

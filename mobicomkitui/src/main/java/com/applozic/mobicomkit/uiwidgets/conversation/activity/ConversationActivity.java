@@ -214,12 +214,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         if (supportFragmentManager.getBackStackEntryCount() > 1
                 && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag)){
-            supportFragmentManager.popBackStack();
+            supportFragmentManager.popBackStackImmediate();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
-      /*if (activeFragment != null) {
-            fragmentTransaction.hide(activeFragment);
-        }*/
+        fragmentTransaction.setAllowOptimization(false);
         fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
