@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 22;
+    public static final int DB_VERSION = 23;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -63,6 +63,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CONTACT_TYPE = "contactType";
     public static final String USER_TYPE_ID = "userTypeId";
     public static final String NOTIFICATION_AFTER_TIME = "notificationAfterTime";
+    public static final String DELETED_AT = "deletedAtTime";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -129,6 +130,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_CONTENT_TYPE_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + CONTACT_TYPE + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_USER_TYPE_ID_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + USER_TYPE_ID + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_FOR_NOTIFICATION_AFTER_TIME_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + NOTIFICATION_AFTER_TIME + " integer default 0";
+
+    private static final String ALTER_CHANNEL_TABLE_FOR_DELETED_AT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + DELETED_AT + " integer";
+
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
             + FULL_NAME + " VARCHAR(200), "
@@ -159,7 +163,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + USER_COUNT + "integer, "
             + CHANNEL_IMAGE_URL + " VARCHAR(300), "
             + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300), "
-            + NOTIFICATION_AFTER_TIME +" integer default 0"
+            + NOTIFICATION_AFTER_TIME +" integer default 0, "
+            + DELETED_AT +" integer"
             + " )";
 
     private static final String CREATE_CHANNEL_USER_X_TABLE = " CREATE TABLE channel_User_X ( " +
@@ -320,6 +325,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, "channel", NOTIFICATION_AFTER_TIME)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_NOTIFICATION_AFTER_TIME_COLUMN);
             }
+            if (!DBUtils.existsColumnInTable(database, "channel", DELETED_AT)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_DELETED_AT_COLUMN);
+            }
+
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);

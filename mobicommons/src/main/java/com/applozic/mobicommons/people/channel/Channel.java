@@ -28,6 +28,7 @@ public class Channel implements Serializable {
     private Conversation conversationPxy;
     private List<Contact> contacts = new ArrayList<Contact>();
     private Long notificationAfterTime;
+    private Long deletedAtTime;
 
 
     public Channel() {
@@ -148,6 +149,14 @@ public class Channel implements Serializable {
         this.notificationAfterTime = notificationAfterTime;
     }
 
+    public Long getDeletedAtTime() {
+        return deletedAtTime;
+    }
+
+    public void setDeletedAtTime(Long deletedAtTime) {
+        this.deletedAtTime = deletedAtTime;
+    }
+
     public Long getNotificationAfterTime() {
         return notificationAfterTime;
     }
@@ -156,6 +165,10 @@ public class Channel implements Serializable {
         Date date= Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
         return (getNotificationAfterTime()!=null) && (getNotificationAfterTime()-date.getTime()>0);
 
+    }
+
+    public boolean isDeleted(){
+        return (deletedAtTime!=null && deletedAtTime >0 );
     }
 
     public enum GroupType {

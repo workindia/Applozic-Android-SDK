@@ -303,6 +303,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         userNotAbleToChatLayout = (LinearLayout) list.findViewById(R.id.user_not_able_to_chat_layout);
         userNotAbleToChatTextView = (TextView) userNotAbleToChatLayout.findViewById(R.id.user_not_able_to_chat_textView);
         userNotAbleToChatTextView.setTextColor(Color.parseColor(alCustomizationSettings.getUserNotAbleToChatTextColor()));
+        if(channel.isDeleted()){
+            userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+        }
 
         if (!TextUtils.isEmpty(defaultText)) {
             messageEditText.setText(defaultText);
@@ -1823,7 +1826,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             updateChannelTitle();
             if(channel.getType() != null  && !Channel.GroupType.OPEN.getValue().equals(channel.getType())){
                 boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-                if (!present) {
+                if (channel.isDeleted() || !present ) {
                     individualMessageSendLayout.setVisibility(View.GONE);
                     userNotAbleToChatLayout.setVisibility(View.VISIBLE);
                 }else {

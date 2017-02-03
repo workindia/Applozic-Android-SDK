@@ -24,6 +24,7 @@ public class ChannelFeed extends JsonMarker {
     private Set<UserDetail> users;
     private Conversation conversationPxy;
     private Long notificationAfterTime;
+    private Long deletedAtTime;
 
 
     public ChannelFeed(Integer id, String name) {
@@ -132,6 +133,14 @@ public class ChannelFeed extends JsonMarker {
         this.notificationAfterTime = notificationAfterTime;
     }
 
+    public Long getDeletedAtTime() {
+        return deletedAtTime;
+    }
+
+    public void setDeletedAtTime(Long deletedAtTime) {
+        this.deletedAtTime = deletedAtTime;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
@@ -145,7 +154,9 @@ public class ChannelFeed extends JsonMarker {
                 ", membersName=" + membersName +
                 ", users=" + users +
                 ", conversationPxy=" + conversationPxy +
+                ", deletedAtTime=" + deletedAtTime +
                 ", notificationAfterTime=" + notificationAfterTime +
+
                 '}';
     }
 }

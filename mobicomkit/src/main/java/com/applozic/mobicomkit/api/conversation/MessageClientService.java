@@ -568,6 +568,8 @@ public class MessageClientService extends MobiComKitClientService {
                 params += "conversationReq=true";
             }
         }
+        params = params + "&"+ "deletedGroupIncluded=true";
+
         return httpRequestUtils.getResponse(getMessageListUrl() + "?" + params
                 , "application/json", "application/json");
     }

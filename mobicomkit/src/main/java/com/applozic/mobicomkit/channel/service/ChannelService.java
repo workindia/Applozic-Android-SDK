@@ -177,6 +177,7 @@ public class ChannelService {
         Channel channel = new Channel(channelFeed.getId(), channelFeed.getName(), channelFeed.getAdminName(), channelFeed.getType(), channelFeed.getUnreadCount(),channelFeed.getImageUrl());
         channel.setClientGroupId(channelFeed.getClientGroupId());
         channel.setNotificationAfterTime(channelFeed.getNotificationAfterTime());
+        channel.setDeletedAtTime(channelFeed.getDeletedAtTime());
         return channel;
     }
 
