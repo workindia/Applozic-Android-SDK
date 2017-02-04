@@ -303,7 +303,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         userNotAbleToChatLayout = (LinearLayout) list.findViewById(R.id.user_not_able_to_chat_layout);
         userNotAbleToChatTextView = (TextView) userNotAbleToChatLayout.findViewById(R.id.user_not_able_to_chat_textView);
         userNotAbleToChatTextView.setTextColor(Color.parseColor(alCustomizationSettings.getUserNotAbleToChatTextColor()));
-        if(channel.isDeleted()){
+
+        if(channel!=null && channel.isDeleted()){
             userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
         }
 
@@ -513,10 +514,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (channel != null) {
+                if (channel != null ) {
+
+                    if(channel.isDeleted()){
+                       return;
+                    }
+
                     Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
                     channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY, channel.getKey());
                     startActivity(channelInfo);
+
                 } else {
                     if(alCustomizationSettings.isUserProfileFragment()){
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
@@ -770,12 +777,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.userUnBlock).setVisible(false);
             menu.findItem(R.id.dial).setVisible(false);
             menu.findItem(R.id.video_call).setVisible(false);
-            if(channel.isNotificationMuted()) {
-                menu.findItem(R.id.unmuteGroup).setVisible(true);
-            }
-            else{
-                menu.findItem(R.id.muteGroup).setVisible(true);
-            }
+
+            menu.findItem(R.id.unmuteGroup).setVisible(!channel.isDeleted() && channel.isNotificationMuted());
+            menu.findItem(R.id.muteGroup).setVisible(!channel.isDeleted() && !channel.isNotificationMuted());
 
         } else if (contact != null) {
             if (contact.isBlocked()) {
@@ -1824,14 +1828,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
         if (channel != null) {
             updateChannelTitle();
+
             if(channel.getType() != null  && !Channel.GroupType.OPEN.getValue().equals(channel.getType())){
                 boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-                if (channel.isDeleted() || !present ) {
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(View.VISIBLE);
-                }else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
-                }
+                hideSendMessageLayout(channel.isDeleted() || !present);
+            }else{
+                hideSendMessageLayout(channel.isDeleted());
             }
             if (ChannelService.isUpdateTitle) {
                 updateChannelSubTitle();
@@ -1841,13 +1843,35 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
+    private void hideSendMessageLayout(boolean hide) {
+        if(hide){
+            individualMessageSendLayout.setVisibility(View.GONE);
+            userNotAbleToChatLayout.setVisibility(View.VISIBLE);
+        }else{
+            userNotAbleToChatLayout.setVisibility(View.GONE);
+
+        }
+
+    }
+
     public void updateChannelTitleAndSubTitle() {
         if (channel != null) {
-            if(!ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) && userNotAbleToChatLayout != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())){
+            Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
+
+            if(channelInfo.isDeleted()){
                 individualMessageSendLayout.setVisibility(View.GONE);
                 userNotAbleToChatLayout.setVisibility(View.VISIBLE);
+                userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+            }else{
+                if((!ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
+                        && userNotAbleToChatLayout != null
+                        && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ){
 
+                    individualMessageSendLayout.setVisibility(View.GONE);
+                    userNotAbleToChatLayout.setVisibility(View.VISIBLE);
+                }
             }
+
             updateChannelTitle();
             updateChannelSubTitle();
         }

@@ -21,6 +21,7 @@ public class ChannelFeed extends JsonMarker {
     private String imageUrl;
     private short type;
     private Set<String> membersName;
+    private Set<String> membersId;
     private Set<UserDetail> users;
     private Conversation conversationPxy;
     private Long notificationAfterTime;
@@ -94,7 +95,8 @@ public class ChannelFeed extends JsonMarker {
     }
 
     public Set<String> getMembersName() {
-        return membersName;
+
+        return (membersName==null) ? membersId: membersName;
     }
 
     public void setMembersName(Set<String> membersName) {
@@ -139,6 +141,14 @@ public class ChannelFeed extends JsonMarker {
 
     public void setDeletedAtTime(Long deletedAtTime) {
         this.deletedAtTime = deletedAtTime;
+    }
+
+    public Set<String> getMembersId() {
+        return membersId;
+    }
+
+    public void setMembersId(Set<String> membersId) {
+        this.membersId = membersId;
     }
 
     @Override
