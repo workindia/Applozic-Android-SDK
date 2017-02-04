@@ -185,6 +185,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         String[] menuItems = getResources().getStringArray(R.array.conversation_options_menu);
 
         boolean isUserPresentInGroup = false;
+        Channel channel = ChannelService.getInstance(getActivity()).getChannelInfo(message.getGroupId());
         if (message.getGroupId() != null) {
             isUserPresentInGroup =  ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
         }
@@ -196,11 +197,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 continue;
             }
 
-            if (menuItems[i].equals("Exit group") && !isUserPresentInGroup) {
+            if (menuItems[i].equals("Exit group") && ( channel.isDeleted()) || !isUserPresentInGroup) {
                 continue;
             }
 
-            if (menuItems[i].equals("Delete group") && isUserPresentInGroup) {
+            if (menuItems[i].equals("Delete group") &&  ( isUserPresentInGroup || !channel.isDeleted())) {
                 continue;
             }
 
@@ -229,7 +230,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         switch (item.getItemId()) {
             case 0:
-                conversationUIService.deleteConversationThread(contact, channel);
+                if(channel!=null && channel.isDeleted()){
+                    conversationUIService.deleteGroupConversation(channel);
+                }else{
+                    conversationUIService.deleteConversationThread(contact, channel);
+                }
                 break;
             case 1:
                 conversationUIService.deleteGroupConversation(channel);

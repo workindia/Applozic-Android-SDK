@@ -790,8 +790,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         menu.removeItem(R.id.menu_search);
         menu.removeItem(R.id.start_new);
-        menu.findItem(R.id.refresh).setVisible(true);
-        menu.findItem(R.id.deleteConversation).setVisible(true);
+
+        if(channel!=null && channel.isDeleted()){
+            menu.findItem(R.id.refresh).setVisible(false);
+            menu.findItem(R.id.deleteConversation).setVisible(false);
+        }else{
+            menu.findItem(R.id.refresh).setVisible(true);
+            menu.findItem(R.id.deleteConversation).setVisible(true);
+        }
+
         menu.removeItem(R.id.conversations);
     }
 
