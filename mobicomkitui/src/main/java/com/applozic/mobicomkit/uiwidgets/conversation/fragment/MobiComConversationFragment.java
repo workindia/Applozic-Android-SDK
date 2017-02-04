@@ -1839,6 +1839,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if(channel.getType() != null  && !Channel.GroupType.OPEN.getValue().equals(channel.getType())){
                 boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
                 hideSendMessageLayout(channel.isDeleted() || !present);
+
             }else{
                 hideSendMessageLayout(channel.isDeleted());
             }
@@ -1866,6 +1867,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
 
             if(channelInfo.isDeleted()){
+                channel.setDeletedAtTime(channelInfo.getDeletedAtTime());
                 individualMessageSendLayout.setVisibility(View.GONE);
                 userNotAbleToChatLayout.setVisibility(View.VISIBLE);
                 userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
