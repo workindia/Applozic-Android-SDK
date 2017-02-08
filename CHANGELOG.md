@@ -1,6 +1,15 @@
 
 ##Changelog
-
+ **Version 4.75**  - Friday, 18 November 2016
+   
+  - Group Delete support: deleted group will be disabaled.
+ 
+ **Version 4.74**  - Friday, 18 November 2016
+   
+  - Support for version 7.1 
+  - Support for support-library version 25.1.0
+  - Chat not syncing bug fix for android 7.1
+  
  **Version 4.64**  - Friday, 18 November 2016
    
   Group info members context menu
