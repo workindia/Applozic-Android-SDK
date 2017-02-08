@@ -2,7 +2,7 @@
 ##Changelog
  **Version 4.75**  - Friday, 18 November 2016
    
-  - Group Delete support: deleted group will be disabaled.
+  - Group Delete support: deleted group will be disabled.
  
  **Version 4.74**  - Friday, 18 November 2016
    
