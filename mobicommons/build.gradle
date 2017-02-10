@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 25
         versionCode 1
-        versionName "4.74"
+        versionName "4.76"
     }
     buildTypes {
         release {
@@ -30,8 +30,8 @@ dependencies {
     //compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
 }
 
-
 /*
+
 ext {
     // Where you will see your artifact in Bintray's web interface
     // The "bintrayName" should match the name of the Bintray repro.
@@ -46,7 +46,7 @@ ext {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '4.74'
+    libraryVersion = '4.76'
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'
