@@ -1,5 +1,7 @@
 package com.applozic.mobicomkit.feed;
 
+import android.text.TextUtils;
+
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -16,6 +18,7 @@ public class ChannelFeed extends JsonMarker {
     private String clientGroupId;
     private String name;
     private String adminName;
+    private String adminId;
     private int unreadCount;
     private int userCount;
     private String imageUrl;
@@ -63,7 +66,7 @@ public class ChannelFeed extends JsonMarker {
     }
 
     public String getAdminName() {
-        return adminName;
+        return TextUtils.isEmpty(adminName)?adminId:adminName;
     }
 
     public void setAdminName(String adminName) {
@@ -151,22 +154,32 @@ public class ChannelFeed extends JsonMarker {
         this.membersId = membersId;
     }
 
+    public String getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
                 "id=" + id +
+                ", clientGroupId='" + clientGroupId + '\'' +
                 ", name='" + name + '\'' +
                 ", adminName='" + adminName + '\'' +
+                ", adminId='" + adminId + '\'' +
                 ", unreadCount=" + unreadCount +
                 ", userCount=" + userCount +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", type=" + type +
                 ", membersName=" + membersName +
+                ", membersId=" + membersId +
                 ", users=" + users +
                 ", conversationPxy=" + conversationPxy +
-                ", deletedAtTime=" + deletedAtTime +
                 ", notificationAfterTime=" + notificationAfterTime +
-
+                ", deletedAtTime=" + deletedAtTime +
                 '}';
     }
 }
