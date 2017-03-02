@@ -502,9 +502,9 @@ startActivity(intent);
 
 
 
-
+```
  new UserClientService(this).logout();      
- 
+ ```
  
  
  Note: If you are running ProGuard, please add following lines:        
