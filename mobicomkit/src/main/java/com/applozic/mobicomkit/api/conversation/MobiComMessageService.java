@@ -94,6 +94,9 @@ public class MobiComMessageService {
         }
         Message message = prepareMessage(messageToProcess, tofield);
         //download contacts in advance.
+        if(message.getGroupId() != null){
+            ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+        }
         if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
             fileClientService.loadContactsvCard(message);
         }

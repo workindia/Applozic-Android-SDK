@@ -231,7 +231,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                         imageChangeUri = result.getUri();
                         circleImageView.setImageDrawable(null); // <--- added to force redraw of ImageView
                         circleImageView.setImageURI(imageChangeUri);
-                        new ProfilePictureUpload(false,profilePhotoFile,imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
+                        new ProfilePictureUpload(true,profilePhotoFile,imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
                     }else {
                         imageChangeUri = result.getUri();
                         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -260,6 +260,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
 
             case ProfileFragment.REQUEST_CODE_ATTACH_PHOTO:
                 Uri selectedFileUri = (intent == null ? null : intent.getData());
+                imageChangeUri = null;
                 beginCrop(selectedFileUri);
                 break;
 

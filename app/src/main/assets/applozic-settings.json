@@ -63,6 +63,8 @@
   "broadcastOption":true,
   "restrictedWordMessage":" Please don't use restricted word",
   "hideAttachmentButton":false,
+  "groupUsersOnlineStatus":false,
+  "launchChatFromProfilePicOrName":false,
   "attachmentOptions": {
       ":location": true,
       ":camera": true,

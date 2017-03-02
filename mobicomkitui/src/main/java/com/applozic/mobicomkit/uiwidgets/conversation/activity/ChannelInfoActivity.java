@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -48,6 +49,8 @@ import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -666,7 +669,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         private ProgressDialog progressDialog;
         private Context context;
         private Channel channel;
-        String responseForAdd;
+        ApiResponse apiResponse;
         String responseForDeleteGroup;
         String userId;
 
@@ -699,7 +702,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(Void... params) {
             if (channel != null && !TextUtils.isEmpty(userId)) {
-                responseForAdd = channelService.addMemberToChannelProcess(channel.getKey(), userId);
+                apiResponse = channelService.addMemberToChannelWithResponseProcess(channel.getKey(), userId);
             }
             if(channel != null && TextUtils.isEmpty(userId)){
                 responseForDeleteGroup = channelService.processChannelDeleteConversation(channel, context);
@@ -718,12 +721,26 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
-            if (!TextUtils.isEmpty(responseForAdd) && SUCCESS.equals(responseForAdd)) {
-                ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
-                channelUserMapperList.add(channelUserMapper);
-                contactsAdapter.notifyDataSetChanged();
+            if (apiResponse != null ) {
+                if(apiResponse.isSuccess()){
+                    ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
+                    channelUserMapperList.add(channelUserMapper);
+                    contactsAdapter.notifyDataSetChanged();
+                }else {
+                    List<ErrorResponseFeed> error = apiResponse.getErrorResponse();
+                    if(error !=null  && error.size()>0){
+                        ErrorResponseFeed errorResponseFeed =  error.get(0);
+                        String  errorDescription  = errorResponseFeed.getDescription();
+                        if(!TextUtils.isEmpty(errorDescription)){
+                            if(MobiComKitConstants.GROUP_USER_LIMIT_EXCEED.equalsIgnoreCase(errorDescription)){
+                                Toast.makeText(context,R.string.group_members_limit_exceeds,Toast.LENGTH_SHORT).show();
+                            }else {
+                                Toast.makeText(context,R.string.applozic_server_error ,Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
             }
-
             if (!TextUtils.isEmpty(responseForDeleteGroup) && SUCCESS.equals(responseForDeleteGroup)) {
                 Intent intent = new Intent(ChannelInfoActivity.this, ConversationActivity.class);
                 if(ApplozicClient.getInstance(ChannelInfoActivity.this).isContextBasedChat()){

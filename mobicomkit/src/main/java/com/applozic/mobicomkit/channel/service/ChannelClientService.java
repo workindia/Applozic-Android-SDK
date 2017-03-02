@@ -162,7 +162,6 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-
     public SyncChannelFeed getChannelFeed(String lastChannelSyncTime) {
         String url = getChannelSyncUrl() + "?" +
                 UPDATED_AT
@@ -418,6 +417,22 @@ public class ChannelClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public ChannelFeedApiResponse createChannelWithResponse(ChannelInfo channelInfo) {
+        try {
+            String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass());
+            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(), "application/json", "application/json", jsonFromObject);
+            Log.i(TAG, "Create channel Response :" + createChannelResponse);
+            if(TextUtils.isEmpty(createChannelResponse)){
+                return null;
+            }
+            return (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  null;
     }
 
 }

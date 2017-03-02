@@ -456,7 +456,6 @@ public class FileUtils {
                 }
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
             return null;
         }catch (Exception e){
             e.printStackTrace();
@@ -466,7 +465,6 @@ public class FileUtils {
                     br.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         String outputString = sb.toString();
@@ -789,15 +787,11 @@ public class FileUtils {
      */
     public static String getFileName(Context context, Uri uri) {
 
-        String fileName = null;
-        Cursor returnCursor =
-                context.getContentResolver().query(uri, null, null, null, null);
-        if (returnCursor != null && returnCursor.moveToFirst()) {
-            int columnIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            fileName = returnCursor.getString(columnIndex);
+        if(uri == null){
+            return null;
         }
-
-        return fileName;
+        File file = new File(uri.toString());
+        return file.getName();
     }
 
     public static String getSize(Context context, Uri uri) {

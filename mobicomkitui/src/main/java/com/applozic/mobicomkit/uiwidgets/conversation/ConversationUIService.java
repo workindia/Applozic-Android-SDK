@@ -72,12 +72,13 @@ import java.util.regex.Pattern;
 
 public class ConversationUIService {
 
-    public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 101;
+    public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 1011;
     public static final String CONVERSATION_FRAGMENT = "ConversationFragment";
     public static final String MESSGAE_INFO_FRAGMENT = "messageInfoFagment";
     public static final String USER_PROFILE_FRAMENT = "userProfilefragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String FORWARD_MESSAGE = "forwardMessage";
+    public static final String CLIENT_GROUP_ID = "clientGroupId";
     public static final String DISPLAY_NAME = "displayName";
     public static final String TAKE_ORDER = "takeOrder";
     public static final String USER_ID = "userId";
@@ -281,7 +282,15 @@ public class ConversationUIService {
         });
         String name = "";
         if (channel != null) {
-            name = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(fragmentActivity).getUserId());
+            if(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                String userId = ChannelService.getInstance(fragmentActivity).getGroupOfTwoReceiverUserId(channel.getKey());
+                if(!TextUtils.isEmpty(userId)){
+                    Contact withUserContact = baseContactService.getContactById(userId);
+                    name =  withUserContact.getDisplayName();
+                }
+            }else {
+                name = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(fragmentActivity).getUserId());
+            }
         } else {
             name = contact.getDisplayName();
         }
@@ -474,7 +483,7 @@ public class ConversationUIService {
         }
         if (BroadcastService.isIndividual()) {
             ConversationFragment conversationFragment = getConversationFragment();
-            if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())) {
+            if (conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds())|| conversationFragment.getChannel() != null) {
                 conversationFragment.updateLastSeenStatus();
             }
         }
@@ -700,7 +709,6 @@ public class ConversationUIService {
         Contact contact = null;
         Channel channel = null;
         Integer conversationId = null;
-        ;
 
         if (Intent.ACTION_SEND.equals(intent.getAction()) && intent.getType() != null) {
             if ("text/plain".equals(intent.getType())) {
@@ -725,9 +733,15 @@ public class ConversationUIService {
         }
 
         Integer channelKey = intent.getIntExtra(GROUP_ID, -1);
+        String clientGroupId = intent.getStringExtra(CLIENT_GROUP_ID);
         String channelName = intent.getStringExtra(GROUP_NAME);
 
-        if (channelKey != -1 && channelKey != null && channelKey != 0) {
+        if(!TextUtils.isEmpty(clientGroupId)){
+            channel = ChannelService.getInstance(fragmentActivity).getChannelByClientGroupId(clientGroupId);
+            if(channel == null){
+                return;
+            }
+        }else if (channelKey != -1 && channelKey != null && channelKey != 0) {
             channel = ChannelService.getInstance(fragmentActivity).getChannel(channelKey);
         }
 

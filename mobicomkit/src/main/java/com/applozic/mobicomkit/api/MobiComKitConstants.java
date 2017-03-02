@@ -23,6 +23,7 @@ public class MobiComKitConstants {
     public static String APPLICATION_KEY_META_DATA = "com.applozic.application.key";
     public static String APPLICATION_ACTIVITY_TO_OPEN_ON_CHAT_TOOLBAR_TAP = "com.applozic.mobicomkit.uiwidgets.toolbar.tap.activity";
     public static String APPLICATION_LOGIN_ACTIVITY = "com.applozic.loginActivity";
+    public static String GROUP_USER_LIMIT_EXCEED = "GROUP_USER_LIMIT_EXCEED";
 
     public static final String APPLOZIC_VIDEO_CALL_ANSWER = "applozic.video.call.answer";
     public static final String APPLOZIC_VIDEO_CALL_REJECTED = "applozic.video.call.rejected";

@@ -139,7 +139,6 @@ public class ChannelDatabaseService {
         }
         return contentValues;
     }
-
     public Channel getChannelByClientGroupId(String clientGroupId) {
         Channel channel = null;
         try {
@@ -260,7 +259,7 @@ public class ChannelDatabaseService {
         dbHelper.getWritableDatabase().update(CHANNEL,contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(id)});
     }
 
-    public void updateChannel(ChannelUserMapper channelUserMapper) {
+    public void updateChannelUserMapper(ChannelUserMapper channelUserMapper) {
         ContentValues contentValues = prepareChannelUserMapperValues(channelUserMapper);
         dbHelper.getWritableDatabase().update(CHANNEL_USER_X, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?  and " + MobiComDatabaseHelper.USERID + "=?", new String[]{String.valueOf(channelUserMapper.getKey()), String.valueOf(channelUserMapper.getUserKey())});
         dbHelper.close();
@@ -406,5 +405,32 @@ public class ChannelDatabaseService {
             }
         };
     }
+
+
+    public String getGroupOfTwoReceiverId(Integer channelKey) {
+        try {
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String structuredNameWhere = "";
+
+            structuredNameWhere += "channelKey = ? AND userId NOT IN ('" + MobiComUserPreference.getInstance(context).getUserId().replaceAll("'", "''") + "')";
+            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
+
+            List<ChannelUserMapper> channelUserMappers = getListOfUsers(cursor);
+            if(channelUserMappers != null && channelUserMappers.size()>0){
+                ChannelUserMapper channelUserMapper =  channelUserMappers.get(0);
+                if(channelUserMapper != null){
+                    return channelUserMapper.getUserKey();
+                }
+            }
+            if(!cursor.isClosed() ){
+                cursor.close();
+            }
+            dbHelper.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }

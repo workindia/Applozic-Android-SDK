@@ -229,6 +229,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
 
             case ProfileFragment.REQUEST_CODE_ATTACH_PHOTO:
                 Uri selectedFileUri = (intent == null ? null : intent.getData());
+                imageChangeUri = null;
                 beginCrop(selectedFileUri);
                 break;
 

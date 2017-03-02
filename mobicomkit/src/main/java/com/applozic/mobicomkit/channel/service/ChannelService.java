@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
+import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -101,7 +102,7 @@ public class ChannelService {
                     for (String userId : memberUserIds) {
                         ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
                         if (channelDatabaseService.isChannelUserPresent(channelFeed.getId(), userId)) {
-                            channelDatabaseService.updateChannel(channelUserMapper);
+                            channelDatabaseService.updateChannelUserMapper(channelUserMapper);
                         } else {
                             channelDatabaseService.addChannelUserMapper(channelUserMapper);
                         }
@@ -208,6 +209,7 @@ public class ChannelService {
             channelDatabaseService.removeMemberFromChannel(clientGroupId, userId);
         }
         return apiResponse.getStatus();
+
     }
 
     public String addMemberToChannelProcess(Integer channelKey, String userId) {
@@ -378,4 +380,49 @@ public class ChannelService {
         }
         return apiResponse;
     }
+
+    public Channel getChannelByClientGroupId(String clientGroupId){
+        if(TextUtils.isEmpty(clientGroupId)){
+            return null;
+        }
+        return channelDatabaseService.getChannelByClientGroupId(clientGroupId);
+    }
+
+    public ChannelFeedApiResponse createChannelWithResponse(ChannelInfo channelInfo) {
+        ChannelFeedApiResponse channelFeedApiResponse = channelClientService.createChannelWithResponse(channelInfo);
+        if (channelFeedApiResponse == null) {
+            return null;
+        }
+        if (channelFeedApiResponse.isSuccess()) {
+            ChannelFeed channelFeed = channelFeedApiResponse.getResponse();
+            if (channelFeed != null) {
+                ChannelFeed[] channelFeeds = new ChannelFeed[1];
+                channelFeeds[0] = channelFeed;
+                processChannelFeedList(channelFeeds, true);
+            }
+        }
+        return channelFeedApiResponse;
+    }
+
+    public ApiResponse addMemberToChannelWithResponseProcess(Integer channelKey, String userId) {
+        if (channelKey == null && TextUtils.isEmpty(userId)) {
+            return null;
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToChannel(channelKey, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelKey, userId);
+            channelDatabaseService.addChannelUserMapper(channelUserMapper);
+        }
+        return apiResponse;
+    }
+
+    public String getGroupOfTwoReceiverUserId(Integer channelKey){
+        return channelDatabaseService.getGroupOfTwoReceiverId(channelKey);
+    }
+
+
+
 }

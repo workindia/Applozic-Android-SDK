@@ -185,23 +185,28 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         String[] menuItems = getResources().getStringArray(R.array.conversation_options_menu);
 
         boolean isUserPresentInGroup = false;
-        Channel channel = ChannelService.getInstance(getActivity()).getChannelInfo(message.getGroupId());
+        boolean isChannelDeleted = false;
+        Channel channel = null;
         if (message.getGroupId() != null) {
+            channel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
+            if(channel != null){
+                isChannelDeleted = channel.isDeleted();
+            }
             isUserPresentInGroup =  ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
         }
 
         for (int i = 0; i < menuItems.length; i++) {
 
-            if (message.getGroupId() == null &&  (menuItems[i].equals("Delete group") ||
+            if ((message.getGroupId() == null || channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) &&  (menuItems[i].equals("Delete group") ||
                     menuItems[i].equals("Exit group"))) {
                 continue;
             }
 
-            if (menuItems[i].equals("Exit group") && ( channel.isDeleted()) || !isUserPresentInGroup) {
+            if (menuItems[i].equals("Exit group") && (isChannelDeleted  || !isUserPresentInGroup)) {
                 continue;
             }
 
-            if (menuItems[i].equals("Delete group") &&  ( isUserPresentInGroup || !channel.isDeleted())) {
+            if (menuItems[i].equals("Delete group") &&  ( isUserPresentInGroup || !isChannelDeleted)) {
                 continue;
             }
 
@@ -414,6 +419,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     } else {
                         message = latestMessageForEachContact.get(contact.getUserId());
                     }
+                    if(message == null){
+                        return;
+                    }
                     messageList.remove(message);
                     if (channelKey != null && channelKey != 0) {
                         latestMessageForEachContact.remove(ConversationUIService.GROUP + channelKey);
@@ -455,6 +463,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         super.onPause();
         listIndex = listView.getFirstVisiblePosition();
         BroadcastService.currentUserId = null;
+        if(listView != null){
+            BroadcastService.lastIndexForChats = listView.getFirstVisiblePosition();
+        }
         if(conversationAdapter != null){
             conversationAdapter.contactImageLoader.setPauseWork(false);
             conversationAdapter.channelImageLoader.setPauseWork(false);
@@ -471,8 +482,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         latestMessageForEachContact.clear();
         messageList.clear();
         if (listView != null) {
-            if (listView.getCount() > listIndex) {
-                listView.setSelection(listIndex);
+            if (listView.getCount() > BroadcastService.lastIndexForChats) {
+                listView.setSelection(BroadcastService.lastIndexForChats);
             } else {
                 listView.setSelection(0);
             }
@@ -736,7 +747,14 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     emptyTextView.setText(alCustomizationSettings.getNoConversationLabel());
                 }
                 if (!messageList.isEmpty()) {
-                    listView.setSelection(0);
+                    if (listView != null) {
+                        if (listView.getCount() > BroadcastService.lastIndexForChats) {
+                            listView.setSelection(BroadcastService.lastIndexForChats);
+                            BroadcastService.lastIndexForChats = 0;
+                        } else {
+                            listView.setSelection(0);
+                        }
+                    }
                 }
             } else {
                 if(!loadMoreMessages){

@@ -75,11 +75,14 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean profileOption;
     private boolean broadcastOption;
     private boolean hideAttachmentButton;
+    private boolean groupUsersOnlineStatus;
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
     private int maxAttachmentSizeAllowed = 30;
     private int totalOnlineUsers = 0;
+
+    private boolean launchChatFromProfilePicOrName;
 
     private Map<String, Boolean> attachmentOptions;
 
@@ -366,6 +369,13 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setRestrictedWordMessage(String restrictedWordMessage) {
         this.restrictedWordMessage = restrictedWordMessage;
+    }
+
+    public boolean isLaunchChatFromProfilePicOrName() {
+              return launchChatFromProfilePicOrName;
+    }
+    public boolean isGroupUsersOnlineStatus() {
+        return groupUsersOnlineStatus;
     }
 
     @Override

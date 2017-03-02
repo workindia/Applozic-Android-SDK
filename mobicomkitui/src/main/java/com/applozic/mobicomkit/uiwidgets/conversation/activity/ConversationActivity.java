@@ -217,7 +217,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             supportFragmentManager.popBackStackImmediate();
         }
         fragmentTransaction.addToBackStack(fragmentTag);
-        fragmentTransaction.setAllowOptimization(false);
         fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
         //Log.i(TAG, "BackStackEntryCount: " + supportFragmentManager.getBackStackEntryCount());
@@ -495,6 +494,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             case ProfileFragment.REQUEST_CODE_ATTACH_PHOTO:
                 Uri selectedFileUri = (intent == null ? null : intent.getData());
+                imageUri = null;
                 beginCrop(selectedFileUri);
                 break;
 
@@ -870,7 +870,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             DialogFragment fragment = AudioMessageFragment.newInstance();
 
             FragmentTransaction fragmentTransaction = supportFragmentManager
-                    .beginTransaction().add(fragment, "dialog");
+                    .beginTransaction().add(fragment, "AudioMessageFragment");
 
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commitAllowingStateLoss();

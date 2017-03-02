@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
@@ -83,10 +84,10 @@ public class ConversationFragment extends MobiComConversationFragment implements
         populateAttachmentOptions();
 
         if(alCustomizationSettings.isHideAttachmentButton()){
+
             attachButton.setVisibility(View.GONE);
             messageEditText.setPadding(20,0,0,0);
         }
-
         sendType.setSelection(1);
 
         messageEditText.setHint(R.string.enter_mt_message_hint);
@@ -111,21 +112,6 @@ public class ConversationFragment extends MobiComConversationFragment implements
             @Override
             public void onClick(View view) {
 
-                MobicomMultimediaPopupAdapter mobicomMultimediaPopupAdapter = new MobicomMultimediaPopupAdapter(getActivity(),attachmentIcon ,attachmentText );
-                mobicomMultimediaPopupAdapter.setAlCustomizationSettings(alCustomizationSettings);
-                multimediaPopupGrid.setAdapter(mobicomMultimediaPopupAdapter);
-
-                int noOfColumn = (attachmentKey.size()== ATTCHMENT_OPTIONS)?3 :attachmentKey.size();
-                multimediaPopupGrid.setNumColumns(noOfColumn);
-                multimediaPopupGrid.setVisibility(View.VISIBLE);
-
-                if (inputMethodManager.isActive()) {
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-
-                MultimediaOptionsGridView itemClickHandler = new MultimediaOptionsGridView(getActivity(), multimediaPopupGrid);
-                itemClickHandler.setMultimediaClickListener(attachmentKey);
-
                 if (contact != null && !contact.isBlocked() || channel != null) {
                     if (attachmentLayout.getVisibility() == View.VISIBLE) {
                         Toast.makeText(getActivity(), R.string.select_file_count_limit, Toast.LENGTH_LONG).show();
@@ -133,12 +119,27 @@ public class ConversationFragment extends MobiComConversationFragment implements
                     }
                 }
 
-                if (contact != null && contact.isBlocked()) {
-                    userBlockDialog(false);
+                if(channel !=null){
+                    String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                    if(!TextUtils.isEmpty(userId)){
+                        Contact withUserContact = appContactService.getContactById(userId);
+                        if(withUserContact.isBlocked()){
+                            userBlockDialog(false,withUserContact,true);
+                        }else {
+                            processAttachButtonClick(view);
+                        }
+                    }else {
+                        processAttachButtonClick(view);
+                    }
+                }else if(contact != null ){
+                    if(contact.isBlocked()) {
+                        userBlockDialog(false,contact,false);
+                    }else {
+                        processAttachButtonClick(view);
+                    }
                 }
             }
         });
-
         return view;
     }
 
@@ -166,6 +167,24 @@ public class ConversationFragment extends MobiComConversationFragment implements
             conversationAdapter.getFilter().filter(newText);
         }
         return true;
+    }
+
+
+    void processAttachButtonClick(View view){
+        MobicomMultimediaPopupAdapter mobicomMultimediaPopupAdapter = new MobicomMultimediaPopupAdapter(getActivity(),attachmentIcon ,attachmentText );
+        mobicomMultimediaPopupAdapter.setAlCustomizationSettings(alCustomizationSettings);
+        multimediaPopupGrid.setAdapter(mobicomMultimediaPopupAdapter);
+
+        int noOfColumn = (attachmentKey.size()== ATTCHMENT_OPTIONS)?3 :attachmentKey.size();
+        multimediaPopupGrid.setNumColumns(noOfColumn);
+        multimediaPopupGrid.setVisibility(View.VISIBLE);
+        if (inputMethodManager.isActive()) {
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+        MultimediaOptionsGridView itemClickHandler = new MultimediaOptionsGridView(getActivity(), multimediaPopupGrid);
+        itemClickHandler.setMultimediaClickListener(attachmentKey);
+
     }
 
     private void populateAttachmentOptions() {

@@ -197,9 +197,15 @@ public class ContactDatabase {
     }
 
     public void addContact(Contact contact) {
-        ContentValues contentValues = prepareContactValues(contact);
-        dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
-        dbHelper.close();
+        try{
+            ContentValues contentValues = prepareContactValues(contact);
+            dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            dbHelper.close();
+        }
+
     }
 
     public ContentValues prepareContactValues(Contact contact) {
