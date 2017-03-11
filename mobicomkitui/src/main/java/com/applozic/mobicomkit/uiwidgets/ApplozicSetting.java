@@ -73,7 +73,7 @@ public class ApplozicSetting {
 
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
 
-    public static ApplozicSetting applozicSetting;
+    public static ApplozicSetting applozicCustomSetting;
 
     private ApplozicSetting(Context context) {
         this.context = context;
@@ -81,11 +81,11 @@ public class ApplozicSetting {
     }
 
     public static ApplozicSetting getInstance(Context context) {
-        if (applozicSetting == null) {
-            applozicSetting = new ApplozicSetting(context.getApplicationContext());
+        if (applozicCustomSetting == null) {
+            applozicCustomSetting = new ApplozicSetting(context.getApplicationContext());
         }
 
-        return applozicSetting;
+        return applozicCustomSetting;
     }
 
     public enum RequestCode {

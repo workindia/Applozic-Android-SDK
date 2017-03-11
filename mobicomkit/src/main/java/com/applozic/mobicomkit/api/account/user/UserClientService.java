@@ -427,7 +427,7 @@ public class UserClientService extends MobiComKitClientService {
 
         JSONObject jsonFromObject = new JSONObject();
         try {
-            User user = new User();
+            ApplozicUser applozicUser = new ApplozicUser();
             if(!TextUtils.isEmpty(displayName) ){
                 jsonFromObject.put("displayName",displayName);
             }
@@ -456,7 +456,7 @@ public class UserClientService extends MobiComKitClientService {
             if(response != null){
                 apiResponse = (ApiResponse)GsonUtils.getObjectFromJson(response,ApiResponse.class);
             }
-            Log.i(TAG,"User read response: "+response);
+            Log.i(TAG,"ApplozicUser read response: "+response);
         } catch (Exception e) {
             e.printStackTrace();
         }

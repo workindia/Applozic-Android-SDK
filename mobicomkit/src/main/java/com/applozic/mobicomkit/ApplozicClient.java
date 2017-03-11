@@ -33,7 +33,7 @@ public class ApplozicClient {
     public static final String AL_MESSAGE_META_DATA_KEY ="AL_MESSAGE_META_DATA_KEY";
     private static final String START_GROUP_OF_TWO = "START_GROUP_OF_TWO";
     private static final String AL_SHOW_APP_ICON = "AL_SHOW_APP_ICON";
-    public static ApplozicClient applozicClient;
+    public static ApplozicClient applozicClientInstance;
     public SharedPreferences sharedPreferences;
     private Context context;
 
@@ -43,11 +43,11 @@ public class ApplozicClient {
     }
 
     public static ApplozicClient getInstance(Context context) {
-        if (applozicClient == null) {
-            applozicClient = new ApplozicClient(context.getApplicationContext());
+        if (applozicClientInstance == null) {
+            applozicClientInstance = new ApplozicClient(context.getApplicationContext());
         }
 
-        return applozicClient;
+        return applozicClientInstance;
     }
 
     public boolean isHandleDisplayName() {

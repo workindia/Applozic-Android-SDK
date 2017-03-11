@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
 
 
 /**
@@ -31,10 +31,10 @@ public class AlSyncAccountStatusTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
-        User user = new User();
-        user.setUserId(loggedInUserId);
+        ApplozicUser applozicUser = new ApplozicUser();
+        applozicUser.setUserId(loggedInUserId);
         try {
-            registerUserClientService.updateRegisteredAccount(user);
+            registerUserClientService.updateRegisteredAccount(applozicUser);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -22,7 +22,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 
     }
-    private  User user;
+    private ApplozicUser applozicUser;
     private final TaskListener taskListener;
     private final String mUserId;
     private final String mEmail;
@@ -35,16 +35,16 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private RegistrationResponse registrationResponse;
 
 
-    public UserLoginTask(User user, TaskListener listener, Context context) {
-        mUserId = user.getUserId();
-        mEmail = user.getEmail();
-        mPassword = user.getPassword();
-        mPhoneNumber = user.getContactNumber();
-        mDisplayName = user.getDisplayName();
-        mImageLink = user.getImageLink();
+    public UserLoginTask(ApplozicUser applozicUser, TaskListener listener, Context context) {
+        mUserId = applozicUser.getUserId();
+        mEmail = applozicUser.getEmail();
+        mPassword = applozicUser.getPassword();
+        mPhoneNumber = applozicUser.getContactNumber();
+        mDisplayName = applozicUser.getDisplayName();
+        mImageLink = applozicUser.getImageLink();
         this.taskListener = listener;
         this.context = context;
-        this.user=user;
+        this.applozicUser = applozicUser;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         try {
             new UserClientService(context).logout();
             //registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName,mImageLink, "");
-            registrationResponse  = new RegisterUserClientService(context).createAccount(user);
+            registrationResponse  = new RegisterUserClientService(context).createAccount(applozicUser);
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;

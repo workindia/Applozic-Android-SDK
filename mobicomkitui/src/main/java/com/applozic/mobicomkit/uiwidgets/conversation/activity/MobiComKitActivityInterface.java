@@ -10,7 +10,7 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
- * Created by User on 23-05-2015.
+ * Created by ApplozicUser on 23-05-2015.
  */
 public interface MobiComKitActivityInterface {
 

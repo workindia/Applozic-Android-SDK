@@ -310,14 +310,14 @@ public void onFailure(RegistrationResponse registrationResponse, Exception excep
     //If any failure in registration the callback  will come here 
 }};                      
 
-User user = new User();          
-user.setUserId(userId); //userId it can be any unique user identifier
-user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
-user.setEmail(email); //optional
-user.setAuthenticationTypeId(User.AuthenticationType.APPLOZIC.getValue());  //User.AuthenticationType.APPLOZIC.getValue() for password verification from Applozic server and User.AuthenticationType.CLIENT.getValue() for access Token verification from your server set access token as password
-user.setPassword(""); //optional, leave it blank for testing purpose, read this if you want to add additional security by verifying password from your server https://www.applozic.com/docs/configuration.html#access-token-url
-user.setImageLink("");//optional,pass your image link
-new UserLoginTask(user, listener, this).execute((Void) null);                                       
+ApplozicUser applozicUser = new ApplozicUser();
+applozicUser.setUserId(userId); //userId it can be any unique applozicUser identifier
+applozicUser.setDisplayName(displayName); //displayName is the name of the applozicUser which will be shown in chat messages
+applozicUser.setEmail(email); //optional
+applozicUser.setAuthenticationTypeId(User.AuthenticationType.APPLOZIC.getValue());  //User.AuthenticationType.APPLOZIC.getValue() for password verification from Applozic server and User.AuthenticationType.CLIENT.getValue() for access Token verification from your server set access token as password
+applozicUser.setPassword(""); //optional, leave it blank for testing purpose, read this if you want to add additional security by verifying password from your server https://www.applozic.com/docs/configuration.html#access-token-url
+applozicUser.setImageLink("");//optional,pass your image link
+new UserLoginTask(applozicUser, listener, this).execute((Void) null);
 ```
 
 If it is a new user, new user account will get created else existing user will be logged in to the application.
@@ -493,7 +493,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //
 startActivity(intent);                              
 ```
 
-####Step 6: Logout user       
+####Step 6: Logout user
 
 Call the following when user logout from your app:
 

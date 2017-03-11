@@ -640,7 +640,7 @@ public class MessageClientService extends MobiComKitClientService {
             }
 
             response = httpRequestUtils.getResponse(getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
-            Log.i(TAG, "User details response is " + response);
+            Log.i(TAG, "ApplozicUser details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                 return;
             }

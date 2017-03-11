@@ -7,8 +7,8 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
@@ -62,23 +62,23 @@ public class RegisterUserClientService extends MobiComKitClientService {
 //    return registrationResponse;
 
 
-    public RegistrationResponse createAccount(User user) throws Exception {
+    public RegistrationResponse createAccount(ApplozicUser applozicUser) throws Exception {
 
-        user.setDeviceType(Short.valueOf("1"));
-        user.setPrefContactAPI(Short.valueOf("2"));
-        user.setTimezone(TimeZone.getDefault().getID());
-        user.setEnableEncryption(user.isEnableEncryption());
+        applozicUser.setDeviceType(Short.valueOf("1"));
+        applozicUser.setPrefContactAPI(Short.valueOf("2"));
+        applozicUser.setTimezone(TimeZone.getDefault().getID());
+        applozicUser.setEnableEncryption(applozicUser.isEnableEncryption());
 
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
-        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
-        user.setApplicationId(getApplicationKey(context));
-        user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
+        applozicUser.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
+        applozicUser.setApplicationId(getApplicationKey(context));
+        applozicUser.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
         if (getAppModuleName(context) != null) {
-            user.setAppModuleName(getAppModuleName(context));
+            applozicUser.setAppModuleName(getAppModuleName(context));
         }
 
         Log.i(TAG, "Net status" + Utils.isInternetAvailable(context.getApplicationContext()));
@@ -88,8 +88,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
 //        Log.i(TAG, "App Id is: " + getApplicationKey(context));
-        Log.i(TAG, "Registration json " + gson.toJson(user));
-        String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
+        Log.i(TAG, "Registration json " + gson.toJson(applozicUser));
+        String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(applozicUser));
 
         Log.i(TAG, "Registration response is: " + response);
 
@@ -111,34 +111,34 @@ public class RegisterUserClientService extends MobiComKitClientService {
             Log.e("Registration response ",""+registrationResponse.getNotificationResponse());
         }
         mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
-        mobiComUserPreference.enableEncryption(user.isEnableEncryption());
-        mobiComUserPreference.setCountryCode(user.getCountryCode());
-        mobiComUserPreference.setUserId(user.getUserId());
-        mobiComUserPreference.setContactNumber(user.getContactNumber());
-        mobiComUserPreference.setEmailVerified(user.isEmailVerified());
-        mobiComUserPreference.setDisplayName(user.getDisplayName());
+        mobiComUserPreference.enableEncryption(applozicUser.isEnableEncryption());
+        mobiComUserPreference.setCountryCode(applozicUser.getCountryCode());
+        mobiComUserPreference.setUserId(applozicUser.getUserId());
+        mobiComUserPreference.setContactNumber(applozicUser.getContactNumber());
+        mobiComUserPreference.setEmailVerified(applozicUser.isEmailVerified());
+        mobiComUserPreference.setDisplayName(applozicUser.getDisplayName());
         mobiComUserPreference.setMqttBrokerUrl(registrationResponse.getBrokerUrl());
         mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKey());
-        mobiComUserPreference.setEmailIdValue(user.getEmail());
-        mobiComUserPreference.setImageLink(user.getImageLink());
+        mobiComUserPreference.setEmailIdValue(applozicUser.getEmail());
+        mobiComUserPreference.setImageLink(applozicUser.getImageLink());
         mobiComUserPreference.setSuUserKeyString(registrationResponse.getUserKey());
         mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setUserBlockSyncTime("10000");
-        mobiComUserPreference.setPassword(user.getPassword());
+        mobiComUserPreference.setPassword(applozicUser.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
-        mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
-        if(user.getUserTypeId() != null){
-            mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
+        mobiComUserPreference.setAuthenticationType(String.valueOf(applozicUser.getAuthenticationTypeId()));
+        if(applozicUser.getUserTypeId() != null){
+            mobiComUserPreference.setUserTypeId(String.valueOf(applozicUser.getUserTypeId()));
         }
         Contact contact=  new Contact();
-        contact.setUserId(user.getUserId());
+        contact.setUserId(applozicUser.getUserId());
         contact.setFullName(registrationResponse.getDisplayName());
         contact.setImageURL(registrationResponse.getImageLink());
         contact.setContactNumber(registrationResponse.getContactNumber());
-        if(user.getUserTypeId() != null){
-            contact.setUserTypeId(user.getUserTypeId());
+        if(applozicUser.getUserTypeId() != null){
+            contact.setUserTypeId(applozicUser.getUserTypeId());
         }
         contact.setStatus(registrationResponse.getStatusMessage());
         contact.processContactNumbers(context);
@@ -172,27 +172,27 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String imageLink, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
-        User user = new User();
-        user.setUserId(userId);
-        user.setEmail(email);
-        user.setImageLink(imageLink);
-        user.setRegistrationId(pushNotificationId);
-        user.setDisplayName(displayName);
+        ApplozicUser applozicUser = new ApplozicUser();
+        applozicUser.setUserId(userId);
+        applozicUser.setEmail(email);
+        applozicUser.setImageLink(imageLink);
+        applozicUser.setRegistrationId(pushNotificationId);
+        applozicUser.setDisplayName(displayName);
 
-        //user.setCountryCode(mobiComUserPreference.getCountryCode());
+        //applozicUser.setCountryCode(mobiComUserPreference.getCountryCode());
        /*if (!TextUtils.isEmpty(phoneNumber)) {
             try {
 
-                    user.setCountryCode(PhoneNumberUtil.getInstance().getRegionCodeForNumber(PhoneNumberUtil.getInstance().parse(phoneNumber, "")));
-                    mobiComUserPreference.setCountryCode(user.getCountryCode());
+                    applozicUser.setCountryCode(PhoneNumberUtil.getInstance().getRegionCodeForNumber(PhoneNumberUtil.getInstance().parse(phoneNumber, "")));
+                    mobiComUserPreference.setCountryCode(applozicUser.getCountryCode());
 
             } catch (NumberParseException e) {
                 e.printStackTrace();
             }
         }*/
-        user.setContactNumber(phoneNumber);
+        applozicUser.setContactNumber(phoneNumber);
 
-        final RegistrationResponse registrationResponse = createAccount(user);
+        final RegistrationResponse registrationResponse = createAccount(applozicUser);
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
         context.startService(intent);
@@ -204,44 +204,44 @@ public class RegisterUserClientService extends MobiComKitClientService {
         //Note: In case if gcm registration is done before login then only updating in pref
 
         RegistrationResponse registrationResponse = null;
-        User user = getUserDetail();
+        ApplozicUser applozicUser = getUserDetail();
 
         if (!TextUtils.isEmpty(pushNotificationId)) {
             pref.setDeviceRegistrationId(pushNotificationId);
         }
-        user.setRegistrationId(pushNotificationId);
+        applozicUser.setRegistrationId(pushNotificationId);
         if (pref.isRegistered()) {
-            registrationResponse = updateRegisteredAccount(user);
+            registrationResponse = updateRegisteredAccount(applozicUser);
         }
         return registrationResponse;
     }
 
 
-    public RegistrationResponse updateRegisteredAccount(User user) throws Exception {
+    public RegistrationResponse updateRegisteredAccount(ApplozicUser applozicUser) throws Exception {
         RegistrationResponse registrationResponse = null;
 
-        user.setDeviceType(Short.valueOf("1"));
-        user.setPrefContactAPI(Short.valueOf("2"));
-        user.setTimezone(TimeZone.getDefault().getID());
+        applozicUser.setDeviceType(Short.valueOf("1"));
+        applozicUser.setPrefContactAPI(Short.valueOf("2"));
+        applozicUser.setTimezone(TimeZone.getDefault().getID());
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
-        user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
-        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
-        user.setApplicationId(getApplicationKey(context));
-        user.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
+        applozicUser.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
+        applozicUser.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
+        applozicUser.setApplicationId(getApplicationKey(context));
+        applozicUser.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
         if(!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())){
-            user.setUserTypeId(Short.valueOf(mobiComUserPreference.getUserTypeId()));
+            applozicUser.setUserTypeId(Short.valueOf(mobiComUserPreference.getUserTypeId()));
         }
         if(getAppModuleName(context) != null){
-            user.setAppModuleName(getAppModuleName(context));
+            applozicUser.setAppModuleName(getAppModuleName(context));
         }
         if(!TextUtils.isEmpty(mobiComUserPreference.getDeviceRegistrationId())){
-            user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
+            applozicUser.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
         }
-        Log.i(TAG, "Registration update json " + gson.toJson(user));
-        String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(user));
+        Log.i(TAG, "Registration update json " + gson.toJson(applozicUser));
+        String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(applozicUser));
 
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw null;
@@ -266,17 +266,17 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     }
 
-    private User getUserDetail() {
+    private ApplozicUser getUserDetail() {
 
         MobiComUserPreference pref = MobiComUserPreference.getInstance(context);
 
-        User user = new User();
-        user.setEmail(pref.getEmailIdValue());
-        user.setUserId(pref.getUserId());
-        user.setContactNumber(pref.getContactNumber());
-        user.setDisplayName(pref.getDisplayName());
-        user.setImageLink(pref.getImageLink());
-        return user;
+        ApplozicUser applozicUser = new ApplozicUser();
+        applozicUser.setEmail(pref.getEmailIdValue());
+        applozicUser.setUserId(pref.getUserId());
+        applozicUser.setContactNumber(pref.getContactNumber());
+        applozicUser.setDisplayName(pref.getDisplayName());
+        applozicUser.setImageLink(pref.getImageLink());
+        return applozicUser;
     }
 
     public void syncAccountStatus() {

@@ -5,8 +5,8 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
 
 import java.io.BufferedReader;
@@ -238,7 +238,7 @@ public class HttpRequestUtils {
             connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
             connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
             Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
-            if(User.AuthenticationType.APPLOZIC.getValue() == authenticationType ){
+            if(ApplozicUser.AuthenticationType.APPLOZIC.getValue() == authenticationType ){
                 connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
             }
 

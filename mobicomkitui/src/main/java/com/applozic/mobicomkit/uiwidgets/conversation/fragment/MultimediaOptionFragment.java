@@ -26,7 +26,7 @@ import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
- * User: shai
+ * ApplozicUser: shai
  * Date: 6/15/14
  * Time: 12:02 PM
  */

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by devashish on 22/12/14.
  */
-public class User extends JsonMarker {
+public class ApplozicUser extends JsonMarker {
 
     private String userId;
     private String email;
