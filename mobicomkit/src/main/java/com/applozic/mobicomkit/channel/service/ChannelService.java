@@ -179,6 +179,7 @@ public class ChannelService {
         channel.setClientGroupId(channelFeed.getClientGroupId());
         channel.setNotificationAfterTime(channelFeed.getNotificationAfterTime());
         channel.setDeletedAtTime(channelFeed.getDeletedAtTime());
+        channel.setMetadata(channelFeed.getMetadata());
         return channel;
     }
 

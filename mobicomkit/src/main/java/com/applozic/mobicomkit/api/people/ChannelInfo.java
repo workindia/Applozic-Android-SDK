@@ -97,6 +97,14 @@ public class ChannelInfo extends JsonMarker {
         }
     }
 
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
     @Override
     public String toString() {
         return "ChannelInfo{" +

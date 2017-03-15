@@ -7,7 +7,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -15,6 +17,7 @@ import java.util.TimeZone;
  */
 public class Channel implements Serializable {
 
+    private Map<String, String> metadata = new HashMap<>();
     private Integer key;
     private String clientGroupId;
     private String name;
@@ -169,6 +172,14 @@ public class Channel implements Serializable {
 
     public boolean isDeleted(){
         return (deletedAtTime!=null && deletedAtTime >0 );
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
     }
 
     public enum GroupType {

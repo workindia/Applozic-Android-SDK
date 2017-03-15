@@ -830,48 +830,61 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.userBlock) {
-            if(channel !=null){
-                String userId =   ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                if(!TextUtils.isEmpty(userId)){
-                    userBlockDialog(true,appContactService.getContactById(userId),true);
+            if (channel != null) {
+                String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                if (!TextUtils.isEmpty(userId)) {
+                    userBlockDialog(true, appContactService.getContactById(userId), true);
                 }
-            }else if(contact != null){
-                userBlockDialog(true,contact,false);
+            } else if (contact != null) {
+                userBlockDialog(true, contact, false);
             }
         }
         if (id == R.id.userUnBlock) {
-            if(channel !=null){
-                String userId =   ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                if(!TextUtils.isEmpty(userId)){
-                    userBlockDialog(false,appContactService.getContactById(userId),true);
+            if (channel != null) {
+                String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                if (!TextUtils.isEmpty(userId)) {
+                    userBlockDialog(false, appContactService.getContactById(userId), true);
                 }
-            }else if(contact != null){
-                userBlockDialog(false,contact,false);
+            } else if (contact != null) {
+                userBlockDialog(false, contact, false);
             }
         }
         if (id == R.id.dial) {
-            ((ConversationActivity)getActivity()).processCall(contact,currentConversationId);
+            if (contact != null) {
+                if (contact.isBlocked()) {
+                    userBlockDialog(false, contact, false);
+                } else {
+                    ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
+                }
+            }
         }
         if (id == R.id.deleteConversation) {
             deleteConversationThread();
             return true;
         }
 
-        if(id == R.id.video_call){
-            try{
-                String activityName = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.VIDEO_CALL);
-                Class activityToOpen =  Class.forName(activityName);
-                Intent intent = new Intent(getActivity(), activityToOpen);
-                intent.putExtra("CONTACT_ID", contact.getUserId());
-                startActivity(intent);
-            }catch (Exception e){
-                e.printStackTrace();
+        if (id == R.id.video_call) {
+            if (contact != null) {
+                if (contact.isBlocked()) {
+                    userBlockDialog(false, contact, false);
+                } else {
+                    try {
+                        String activityName = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.VIDEO_CALL);
+                        Class activityToOpen = Class.forName(activityName);
+                        Intent intent = new Intent(getActivity(), activityToOpen);
+                        intent.putExtra("CONTACT_ID", contact.getUserId());
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         }
         if (id == R.id.muteGroup) {
             muteGroupChat();
         }
-        if(id==R.id.unmuteGroup) {
+        if (id == R.id.unmuteGroup) {
             umuteGroupChat();
         }
         return false;

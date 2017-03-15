@@ -11,11 +11,13 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sunil on 28/12/15.
@@ -106,6 +108,9 @@ public class ChannelDatabaseService {
         }
         if (channel.getUnreadCount() != 0) {
             contentValues.put(MobiComDatabaseHelper.UNREAD_COUNT, channel.getUnreadCount());
+        }
+        if(channel.getMetadata()!=null){
+            contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
         }
         return contentValues;
     }
@@ -215,6 +220,8 @@ public class ChannelDatabaseService {
         int count = cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT));
         channel.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         channel.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
+        String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_META_DATA));
+        channel.setMetadata(((Map<String, String>)GsonUtils.getObjectFromJson(metadata, Map.class)));
         if (count > 0) {
             channel.setUnreadCount(count);
         }
@@ -390,7 +397,7 @@ public class ChannelDatabaseService {
                 stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
                         append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI). append(",").
                         append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").
-                        append(MobiComDatabaseHelper.DELETED_AT).
+                        append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).
                         append(" FROM ").append(MobiComDatabaseHelper.CHANNEL);
 
 
