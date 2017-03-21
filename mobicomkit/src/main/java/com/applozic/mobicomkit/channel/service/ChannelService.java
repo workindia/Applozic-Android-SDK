@@ -236,11 +236,6 @@ public class ChannelService {
         if (apiResponse == null) {
             return null;
         }
-        if (apiResponse.isSuccess()) {
-            Channel channel = channelDatabaseService.getChannelByClientGroupId(clientGroupId);
-            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
-            channelDatabaseService.addChannelUserMapper(channelUserMapper);
-        }
         return apiResponse.getStatus();
     }
 

@@ -405,7 +405,11 @@ public class ConversationUIService {
 
             MobiComQuickConversationFragment fragment = (MobiComQuickConversationFragment) UIService.getFragmentByTag(fragmentActivity, QUICK_CONVERSATION_FRAGMENT);
             if (fragment != null) {
-                fragment.addMessage(message);
+                if(message.isHidden()){
+                    fragment.refreshView();
+                }else {
+                    fragment.addMessage(message);
+                }
             }
         }
     }
@@ -425,11 +429,8 @@ public class ConversationUIService {
     }
 
     public void syncMessages(Message message, String keyString) {
-        if (!Message.ContentType.HIDDEN.getValue().equals(message.getContentType()) && !message.isVideoNotificationMessage()) {
-            String userId = null;
-            if (message.getGroupId() == null) {
-                userId = message.getContactIds();
-            }
+        if (!message.isHidden() && !message.isVideoNotificationMessage()) {
+
             if (BroadcastService.isIndividual()) {
                 ConversationFragment conversationFragment = getConversationFragment();
                 if (conversationFragment.isMsgForConversation(message) && !Message.GroupMessageMetaData.TRUE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.HIDE_KEY.getValue()))) {
@@ -437,10 +438,17 @@ public class ConversationUIService {
                 }
             }
 
-            if (message.getGroupId() == null && !Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
-                updateLastMessage(keyString, userId);
+            if (!Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                updateLastMessage(message);
             }
         }
+    }
+
+    public void updateLastMessage(Message message) {
+        if (!BroadcastService.isQuick()) {
+            return;
+        }
+        getQuickConversationFragment().updateLastMessage(message);
     }
 
     public void downloadConversations(boolean showInstruction) {

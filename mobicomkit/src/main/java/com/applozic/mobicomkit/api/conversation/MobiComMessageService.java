@@ -178,19 +178,25 @@ public class MobiComMessageService {
             if(message.isConsideredForCount()){
                 if(message.getTo() != null && message.getGroupId() == null){
                     messageDatabaseService.updateContactUnreadCount(message.getTo());
+                    BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     sendNotification(message);
                 }
                 if(message.getGroupId() != null && !Message.GroupMessageMetaData.FALSE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.KEY.getValue()))){
-                   if(!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
-                       messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
-                   }
+                    if(!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())){
+                        messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
+                    }
+                    BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Channel currentChannel= ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
                     if(!currentChannel.isNotificationMuted()) {
                         sendNotification(message);
                     }
                 }
                 MobiComUserPreference.getInstance(context).setNewMessageFlag(true);
+            }else {
+                BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             }
+        }else {
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
 
         Log.i(TAG, "Updating delivery status: " + message.getPairedMessageKeyString() + ", " + userPreferences.getUserId() + ", " + userPreferences.getContactNumber());

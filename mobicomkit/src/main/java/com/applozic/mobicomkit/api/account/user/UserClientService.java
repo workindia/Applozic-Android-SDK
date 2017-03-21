@@ -55,6 +55,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_PROFILE_UPDATE_URL = "/rest/ws/user/update";
     public static final String USER_READ_URL = "/rest/ws/user/read";
     public static final String USER_DETAILS_LIST_POST_URL = "/rest/ws/user/detail";
+    public static final String UPDATE_USER_PASSWORD ="/rest/ws/user/update/password";
     public static final int BATCH_SIZE = 60;
 
 
@@ -134,6 +135,10 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getUserReadUrl() {
         return getBaseUrl() + USER_READ_URL;
+    }
+
+    public String getUpdateUserPasswordUrl() {
+        return getBaseUrl() + UPDATE_USER_PASSWORD;
     }
 
     public void logout() {
@@ -463,4 +468,24 @@ public class UserClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
+    public String updateUserPassword(String oldPassword,String newPassword) {
+        if(TextUtils.isEmpty(oldPassword) || TextUtils.isEmpty(newPassword) ){
+            return null;
+        }
+        String response = "";
+        ApiResponse apiResponse = null;
+        try {
+            response = httpRequestUtils.getResponse(getUpdateUserPasswordUrl() + "?oldPassword=" +oldPassword+"&newPassword="+newPassword, "application/json", "application/json");
+            if(TextUtils.isEmpty(response)){
+                return null;
+            }
+            apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,ApiResponse.class);
+            if(apiResponse != null && apiResponse.isSuccess()){
+                return  apiResponse.getStatus();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

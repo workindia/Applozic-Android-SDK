@@ -190,6 +190,18 @@ public class MobiComConversationService {
                     if(Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))||Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))){
                         continue;
                     }
+                    if(contact == null && channel == null){
+                        if(message.isHidden()){
+                            if(message.getGroupId() != null){
+                                Channel newChannel =  ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+                                if(newChannel != null){
+                                    getMessages(null,null,null,newChannel,null,true);
+                                }
+                            }else {
+                                getMessages(null,null,new Contact(message.getContactIds()),null,null,true);
+                            }
+                        }
+                    }
                     messageDatabaseService.createMessage(message);
                 }
             }

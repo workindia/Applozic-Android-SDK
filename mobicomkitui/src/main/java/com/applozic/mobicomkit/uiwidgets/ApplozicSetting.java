@@ -384,7 +384,7 @@ public class ApplozicSetting {
     }
 
     public boolean isStartNewGroupButtonVisible() {
-        return sharedPreferences.getBoolean(START_NEW_GROUP, true);
+        return sharedPreferences.getBoolean(START_NEW_GROUP, false);
     }
 
     public ApplozicSetting showInviteFriendsButton() {

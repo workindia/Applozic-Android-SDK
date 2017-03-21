@@ -227,4 +227,8 @@ public class UserService {
         return  userClientService.getUserReadServerCall();
     }
 
+    public String processUpdateUserPassword(String oldPassword,String newPassword){
+        return  userClientService.updateUserPassword(oldPassword,newPassword);
+    }
+
 }

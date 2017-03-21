@@ -55,8 +55,8 @@ public class Message extends JsonMarker {
     private boolean connected = false;
     private short contentType = ContentType.DEFAULT.getValue();
     private Map<String, String> metadata = new HashMap<>();
-
     private short status = Status.READ.getValue();
+    private boolean hidden;
 
     public Message() {
 
@@ -603,8 +603,17 @@ public class Message extends JsonMarker {
 
     public boolean  isConsideredForCount(){
         return ( !Message.ContentType.HIDDEN.getValue().equals(getContentType()) &&
-                !ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue().equals(getContentType()) && !isReadStatus());
+                !ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue().equals(getContentType()) && !isReadStatus() && !isHidden());
     }
+
+    public boolean isHidden() {
+        return  GroupMessageMetaData.TRUE.getValue().equals(getMetaDataValueForKey(GroupMessageMetaData.HIDE_KEY.getValue())) || Message.ContentType.HIDDEN.getValue().equals(getContentType());
+    }
+
+    public void setHidden(boolean hidden) {
+        hidden = hidden;
+    }
+
 
 
     @Override

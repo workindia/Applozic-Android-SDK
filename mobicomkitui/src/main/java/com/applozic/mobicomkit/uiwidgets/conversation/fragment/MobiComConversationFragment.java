@@ -63,6 +63,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.conversation.ConversationReadService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -706,10 +707,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
                     if (Message.MessageType.MT_INBOX.getValue().equals(message.getType())) {
-                        messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
-                        Intent intent = new Intent(getActivity(), ApplozicIntentService.class);
-                        intent.putExtra(ApplozicIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
-                        getActivity().startService(intent);
+                        try{
+                            messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
+                            Intent intent = new Intent(getActivity(), ConversationReadService.class);
+                            intent.putExtra(ConversationReadService.SINGLE_MESSAGE_READ,true);
+                            intent.putExtra(ConversationReadService.CONTACT, contact);
+                            intent.putExtra(ConversationReadService.CHANNEL, channel);
+                            getActivity().startService(intent);
+                        }catch (Exception e){
+                            Log.i(TAG,"Got exception while read");
+                        }
                     }
                 }
 
@@ -789,7 +796,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())){
                 String userId =   ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                if(!TextUtils.isEmpty(userId)){
+                if(!TextUtils.isEmpty(userId) && alCustomizationSettings.isBlockOption()){
                     Contact withUserContact = appContactService.getContactById(userId);
                     if (withUserContact.isBlocked()) {
                         menu.findItem(R.id.userUnBlock).setVisible(true);
@@ -800,11 +807,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }else {
                 menu.findItem(R.id.userBlock).setVisible(false);
                 menu.findItem(R.id.userUnBlock).setVisible(false);
-                menu.findItem(R.id.unmuteGroup).setVisible(!channel.isDeleted() && channel.isNotificationMuted());
-                menu.findItem(R.id.muteGroup).setVisible(!channel.isDeleted() && !channel.isNotificationMuted());
-
+                if(alCustomizationSettings.isMuteOption()){
+                    menu.findItem(R.id.unmuteGroup).setVisible(!channel.isDeleted() && channel.isNotificationMuted());
+                    menu.findItem(R.id.muteGroup).setVisible(!channel.isDeleted() && !channel.isNotificationMuted());
+                }
             }
-        } else if (contact != null) {
+        } else if (contact != null && alCustomizationSettings.isBlockOption()) {
             if (contact.isBlocked()) {
                 menu.findItem(R.id.userUnBlock).setVisible(true);
             } else {
@@ -819,8 +827,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.refresh).setVisible(false);
             menu.findItem(R.id.deleteConversation).setVisible(false);
         }else{
-            menu.findItem(R.id.refresh).setVisible(true);
-            menu.findItem(R.id.deleteConversation).setVisible(true);
+            menu.findItem(R.id.refresh).setVisible(alCustomizationSettings.isRefreshOption());
+            menu.findItem(R.id.deleteConversation).setVisible(alCustomizationSettings.isDeleteOption());
         }
 
         menu.removeItem(R.id.conversations);
@@ -1027,8 +1035,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         if(menu != null){
-            menu.findItem(R.id.userBlock).setVisible(!withUserContact.isBlocked());
-            menu.findItem(R.id.userUnBlock).setVisible(withUserContact.isBlocked());
+            menu.findItem(R.id.userBlock).setVisible(alCustomizationSettings.isBlockOption() ?!withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
+            menu.findItem(R.id.userUnBlock).setVisible(alCustomizationSettings.isBlockOption() ?  withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
         }
 
         if( withUserContact.isBlocked() || withUserContact.isBlockedBy() ){
@@ -1242,8 +1250,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
                         }
-                    } else if(!Message.ContentType.HIDDEN.getValue().equals(message.getContentType())
-                            && !message.isVideoNotificationMessage()  && !Message.GroupMessageMetaData.TRUE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.HIDE_KEY.getValue()))){
+                    } else if(!message.isVideoNotificationMessage() && !message.isHidden()){
                         messageList.add(message);
                         listView.smoothScrollToPosition(messageList.size());
                         listView.setSelection(messageList.size());

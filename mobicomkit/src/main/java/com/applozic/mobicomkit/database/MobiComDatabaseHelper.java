@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.DBUtils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 24;
+    public static final int DB_VERSION = 25;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -65,6 +65,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String NOTIFICATION_AFTER_TIME = "notificationAfterTime";
     public static final String DELETED_AT = "deletedAtTime";
     public static final String CHANNEL_META_DATA = "channelMetadata";
+    public static final String HIDDEN = "hidden";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -103,10 +104,11 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "channelKey integer default 0,"
             + STATUS + " varchar(200) default 0,"
             + CLIENT_GROUP_ID +" varchar(1000) default null,"
+            + HIDDEN + " integer default 0,"
             + "UNIQUE (keyString,contactNumbers,channelKey))";
     private static final String SMS_BACKUP = "sms_backup";
-    public static final String INSERT_INTO_SMS_FROM_SMS_BACKUP_QUERY = "INSERT INTO sms (id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status)" +
-            " SELECT id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status" +
+    public static final String INSERT_INTO_SMS_FROM_SMS_BACKUP_QUERY = "INSERT INTO sms (id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,metadata,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status,hidden)" +
+            " SELECT id,keyString,toNumbers,contactNumbers,message,type,read,delivered,storeOnDevice,sentToServer,createdAt,scheduledAt,source,timeToLive,fileMetaKeyStrings,filePaths,metadata,thumbnailUrl,size,name,contentType,metaFileKeyString,blobKeyString,canceled,deleted,applicationId,messageContentType,conversationId,topicId,channelKey,status,hidden" +
             " FROM " + SMS_BACKUP;
     private static final String DROP_SMS_BACKUP = "DROP TABLE " + SMS_BACKUP;
     private static final String ALTER_SMS_TABLE_FOR_DELETE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN deleted integer default 0";
@@ -133,6 +135,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_FOR_NOTIFICATION_AFTER_TIME_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + NOTIFICATION_AFTER_TIME + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_FOR_DELETED_AT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + DELETED_AT + " integer";
     private static final String ALTER_CHANNEL_TABLE_FOR_CHANNEL_META_DATA = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_META_DATA + " VARCHAR(2000)";
+    private static final String ALTER_SMS_TABLE_FOR_HIDDEN = "ALTER TABLE " + SMS + " ADD COLUMN hidden integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -332,7 +335,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database,CHANNEL,CHANNEL_META_DATA)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_CHANNEL_META_DATA);
             }
-
+            if (!DBUtils.existsColumnInTable(database,SMS,HIDDEN)) {
+                database.execSQL(ALTER_SMS_TABLE_FOR_HIDDEN);
+            }
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);

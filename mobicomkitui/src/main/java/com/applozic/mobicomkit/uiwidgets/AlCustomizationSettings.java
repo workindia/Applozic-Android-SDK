@@ -76,6 +76,10 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean broadcastOption;
     private boolean hideAttachmentButton;
     private boolean groupUsersOnlineStatus;
+    private boolean refreshOption = true;
+    private boolean deleteOption = true;
+    private boolean blockOption = true;
+    private boolean muteOption = true;
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
@@ -376,6 +380,39 @@ public class AlCustomizationSettings extends JsonMarker {
     }
     public boolean isGroupUsersOnlineStatus() {
         return groupUsersOnlineStatus;
+    }
+
+
+    public boolean isRefreshOption() {
+        return refreshOption;
+    }
+
+    public void setRefreshOption(boolean refreshOption) {
+        this.refreshOption = refreshOption;
+    }
+
+    public boolean isDeleteOption() {
+        return deleteOption;
+    }
+
+    public void setDeleteOption(boolean deleteOption) {
+        this.deleteOption = deleteOption;
+    }
+
+    public boolean isBlockOption() {
+        return blockOption;
+    }
+
+    public void setBlockOption(boolean blockOption) {
+        this.blockOption = blockOption;
+    }
+
+    public boolean isMuteOption() {
+        return muteOption;
+    }
+
+    public void setMuteOption(boolean muteOption) {
+        this.muteOption = muteOption;
     }
 
     @Override

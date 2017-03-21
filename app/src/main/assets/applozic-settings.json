@@ -65,6 +65,10 @@
   "hideAttachmentButton":false,
   "groupUsersOnlineStatus":false,
   "launchChatFromProfilePicOrName":false,
+  "refreshOption": true,
+  "deleteOption": true,
+  "blockOption": true,
+  "muteOption": true,
   "attachmentOptions": {
       ":location": true,
       ":camera": true,

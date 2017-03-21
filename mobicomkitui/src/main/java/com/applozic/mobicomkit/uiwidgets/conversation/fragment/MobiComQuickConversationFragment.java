@@ -38,6 +38,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationListView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -118,6 +119,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
         setHasOptionsMenu(true);
+        BroadcastService.lastIndexForChats = 0;
     }
 
     @Override
@@ -209,6 +211,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (menuItems[i].equals("Delete group") &&  ( isUserPresentInGroup || !isChannelDeleted)) {
                 continue;
             }
+            if (menuItems[i].equals("Delete conversation") && !alCustomizationSettings.isDeleteOption()) {
+                continue;
+            }
 
             menu.add(Menu.NONE, i, i, menuItems[i]);
         }
@@ -257,17 +262,16 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        if (!alCustomizationSettings.isStartNewButton()) {
-            menu.removeItem(R.id.start_new);
-        }else {
+
+        if (alCustomizationSettings.isStartNewButton()|| ApplozicSetting.getInstance(getContext()).isStartNewButtonVisible()) {
             menu.findItem(R.id.start_new).setVisible(true);
         }
-        if (!alCustomizationSettings.isStartNewGroup()) {
-            menu.removeItem(R.id.conversations);
-        }else {
+        if (alCustomizationSettings.isStartNewGroup()|| ApplozicSetting.getInstance(getContext()).isStartNewGroupButtonVisible()) {
             menu.findItem(R.id.conversations).setVisible(true);
         }
-        menu.findItem(R.id.refresh).setVisible(true);
+        if(alCustomizationSettings.isRefreshOption()) {
+            menu.findItem(R.id.refresh).setVisible(true);
+        }
         if(alCustomizationSettings.isProfileOption()){
             menu.findItem(R.id.applozicUserProfile).setVisible(true);
         }
@@ -316,6 +320,24 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         });
     }
 
+    public void refreshView() {
+        if (!getUserVisibleHint()) {
+            return;
+        }
+        if (getActivity() == null) {
+            return;
+        }
+        try{
+            if (getActivity() != null) {
+                if(conversationAdapter != null){
+                    conversationAdapter.notifyDataSetChanged();
+                }
+            }
+        }catch (Exception e){
+            Log.w("AL", "Exception while updating view .");
+        }
+    }
+
     public void updateLastMessage(String keyString, String userId) {
         for (Message message : messageList) {
             if (message.getKeyString() != null && message.getKeyString().equals(keyString)) {
@@ -332,6 +354,23 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
                 break;
             }
+        }
+    }
+
+    public void updateLastMessage(Message message) {
+        if (message == null) {
+            return;
+        }
+        List<Message> lastMessage = new ArrayList<>();
+        if (message.getGroupId() != null) {
+            lastMessage = messageDatabaseService.getLatestMessageByChannelKey(message.getGroupId());
+        } else {
+            lastMessage = messageDatabaseService.getLatestMessage(message.getContactIds());
+        }
+        if (lastMessage.isEmpty()) {
+            removeConversation(message, message.getContactIds());
+        } else {
+            deleteMessage(lastMessage.get(0), message.getContactIds());
         }
     }
 

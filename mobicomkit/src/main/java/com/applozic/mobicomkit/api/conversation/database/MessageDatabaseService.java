@@ -87,6 +87,7 @@ public class MessageDatabaseService {
         if (!TextUtils.isEmpty(filePaths)) {
             message.setFilePaths(Arrays.asList(filePaths.split(",")));
         }
+        message.setHidden(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.HIDDEN)) == 1);
         String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.MESSAGE_METADATA));
         if (!TextUtils.isEmpty(metadata)) {
             message.setMetadata(((Map<String, String>)GsonUtils.getObjectFromJson(metadata, Map.class)));
@@ -226,6 +227,8 @@ public class MessageDatabaseService {
         structuredNameParamsList.add(String.valueOf(Message.ContentType.HIDDEN.getValue()));
         structuredNameParamsList.add(String.valueOf(Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue()));
         structuredNameWhere += "deleted = ? AND ";
+        structuredNameParamsList.add("0");
+        structuredNameWhere += "hidden = ? AND ";
         structuredNameParamsList.add("0");
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
@@ -549,6 +552,7 @@ public class MessageDatabaseService {
             values.put(MobiComDatabaseHelper.STATUS,message.getStatus());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
+            values.put(MobiComDatabaseHelper.HIDDEN, message.isHidden());
             if(message.getGroupId() != null) {
                 values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
             }
@@ -883,7 +887,7 @@ public class MessageDatabaseService {
         }
 
         String hiddenType = " and m1.messageContentType not in ("+Message.ContentType.HIDDEN.getValue()
-                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") ";
+                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 ";
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
