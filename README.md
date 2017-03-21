@@ -23,9 +23,9 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 
 
-**Step 1: Add the following in your build.gradle dependency**:      
+#### Step 1: Add the following in your build.gradle dependency**:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.80' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.81' `
 
 
 Add the following in gradle android target:      
@@ -47,7 +47,7 @@ android {
 ```
 
 
-**Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
+#### Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
         
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```
 
@@ -294,7 +294,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-**Step 3: Register user account**:     
+#### Step 3: Register user account**:     
 
 
 
@@ -326,7 +326,7 @@ If it is a new user, new user account will get created else existing user will b
 
 
 
-####Step 4: Push Notification Setup
+#### Step 4: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application. 
 Under Module section, update the GCM Server Key.***
@@ -459,7 +459,7 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
+#### Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
  PushNotificationTask pushNotificationTask = null;
@@ -479,7 +479,7 @@ And add below code in your androidmanifest.xml file
 ```
 
 
-**Step 5: For starting the messaging activity**:        
+#### Step 5: For starting the messaging activity**:        
 
       
 ```
@@ -498,7 +498,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //
 startActivity(intent);                              
 ```
 
-**Step 6: On logout, call the following**:       
+#### Step 6: On logout, call the following**:       
 
 
 
@@ -543,15 +543,15 @@ ApplozicClient.getInstance(this).setHandleDisplayName(false);
 By default, the display name feature is enabled.
 
 
-###Documentation:
+### Documentation:
 For advanced options and customization, visit [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 
-###Changelog
+### Changelog
 [Changelog](https://github.com/AppLozic/Applozic-Android-SDK/blob/master/CHANGELOG.md)
 
 
-####Features:
+#### Features:
 
 
  One to one and Group Chat
@@ -593,22 +593,22 @@ For advanced options and customization, visit [Applozic Android Chat & Messaging
  Cross Platform Support (iOS, Android & Web)
 
 
-###Sample code to build messenger and chat app
+### Sample code to build messenger and chat app
 https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app
 
 
-##Help
+## Help
 
 We provide support over at [StackOverflow] (http://stackoverflow.com/questions/tagged/applozic) when you tag using applozic, ask us anything.
 
 Applozic is the best android chat sdk for instant messaging, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
 
 
-###Free Android Chat SDK
+### Free Android Chat SDK
 Special plans for startup and open source contributors, write to us at github@applozic.com 
 
 
-##Github projects
+## Github projects
 
 Android Chat SDK https://github.com/AppLozic/Applozic-Android-SDK
 
