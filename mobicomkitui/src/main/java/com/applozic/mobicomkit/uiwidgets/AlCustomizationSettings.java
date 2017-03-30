@@ -80,6 +80,9 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean deleteOption = true;
     private boolean blockOption = true;
     private boolean muteOption = true;
+    private String logoutPackageName;
+    private boolean logoutOption = false;
+
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
@@ -413,6 +416,22 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setMuteOption(boolean muteOption) {
         this.muteOption = muteOption;
+    }
+
+    public boolean isLogoutOption() {
+        return logoutOption;
+    }
+
+    public void setLogout(boolean logoutOption) {
+        this.logoutOption = logoutOption;
+    }
+
+    public String getLogoutPackage() {
+        return logoutPackageName;
+    }
+
+    public void setLogoutPackageName(String logoutPackageName) {
+        this.logoutPackageName = logoutPackageName;
     }
 
     @Override

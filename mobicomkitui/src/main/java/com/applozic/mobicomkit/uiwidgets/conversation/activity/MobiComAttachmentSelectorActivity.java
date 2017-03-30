@@ -152,18 +152,18 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity  {
                         int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
                         returnCursor.moveToFirst();
                         Long fileSize = returnCursor.getLong(sizeIndex);
-                        fileName  = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                         returnCursor.close();
                         if (fileSize > maxFileSize) {
                             Toast.makeText(this, R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
                             return;
                         }
                     }
-                    String mimeType = getContentResolver().getType(selectedFileUri);
+                    String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this,selectedFileUri);
                     if(TextUtils.isEmpty(mimeType)){
                         return;
                     }
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                    fileName = FileUtils.getFileName(this,selectedFileUri);
                     String fileFormat = FileUtils.getFileFormat(fileName);
                     if(TextUtils.isEmpty(fileFormat)){
                         return;

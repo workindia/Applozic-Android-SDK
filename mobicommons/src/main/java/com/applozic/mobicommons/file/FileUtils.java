@@ -787,11 +787,48 @@ public class FileUtils {
      */
     public static String getFileName(Context context, Uri uri) {
 
+        String fileName = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+        if (TextUtils.isEmpty(fileName)) {
+            fileName = uri.getPath();
+            int cut = fileName.lastIndexOf('/');
+            if (cut != -1) {
+                fileName = fileName.substring(cut + 1);
+            }
+        }
+        return fileName;
+    }
+
+    public static String getFileName( Uri uri) {
         if(uri == null){
             return null;
         }
         File file = new File(uri.toString());
         return file.getName();
+    }
+
+    public static String getMimeTypeByContentUriOrOther(Context context, Uri uri) {
+        if(context == null){
+            return null ;
+        }
+        String mimeType = context.getContentResolver().getType(uri);
+        if (TextUtils.isEmpty(mimeType)) {
+            mimeType = getMimeType(context, uri);
+        }
+        return mimeType;
     }
 
     public static String getSize(Context context, Uri uri) {

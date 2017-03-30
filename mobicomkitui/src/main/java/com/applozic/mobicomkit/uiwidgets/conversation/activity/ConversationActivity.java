@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -677,6 +678,22 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }else if(id == R.id.applozicUserProfile){
             profilefragment.setApplozicPermissions(applozicPermission);
             addFragment(this,profilefragment,ProfileFragment.ProfileFragmentTag);
+        } else if (id == R.id.logout) {
+            try {
+                if (!TextUtils.isEmpty(alCustomizationSettings.getLogoutPackage())) {
+                    Class loginActivity = Class.forName(alCustomizationSettings.getLogoutPackage().trim());
+                    if (loginActivity != null) {
+                        new UserClientService(this).logout();
+                        Toast.makeText(getBaseContext(),getString(R.string.user_logout_info), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(this, loginActivity);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }

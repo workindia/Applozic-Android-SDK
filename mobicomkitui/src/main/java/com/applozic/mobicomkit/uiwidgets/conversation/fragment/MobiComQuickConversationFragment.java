@@ -281,6 +281,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         if(alCustomizationSettings.isBroadcastOption()){
             menu.findItem(R.id.broadcast).setVisible(true);
         }
+        if (alCustomizationSettings.isLogoutOption()) {
+            menu.findItem(R.id.logout).setVisible(true);
+        }
     }
 
     public void addMessage(final Message message) {

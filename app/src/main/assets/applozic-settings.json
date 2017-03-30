@@ -69,6 +69,8 @@
   "deleteOption": true,
   "blockOption": true,
   "muteOption": true,
+  "logoutOption": false,
+  "logoutPackageName": "",
   "attachmentOptions": {
       ":location": true,
       ":camera": true,

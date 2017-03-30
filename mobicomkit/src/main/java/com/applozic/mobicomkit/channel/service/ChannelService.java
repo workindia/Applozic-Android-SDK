@@ -65,6 +65,7 @@ public class ChannelService {
         if (channel == null) {
             ChannelFeed channelFeed = channelClientService.getChannelInfo(key);
             if (channelFeed != null) {
+                channelFeed.setUnreadCount(0);
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);

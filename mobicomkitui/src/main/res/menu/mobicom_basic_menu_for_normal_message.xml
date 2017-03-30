@@ -125,5 +125,11 @@
         android:showAsAction="collapseActionView"
         mobicomkit:showAsAction="collapseActionView"/>
 
-
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/applozic_ic_action_time"
+        android:orderInCategory="11"
+        android:showAsAction="collapseActionView"
+        android:title="Logout"
+        android:visible="false" />
 </menu>

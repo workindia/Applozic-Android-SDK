@@ -154,8 +154,6 @@ public class MobiComMessageService {
 
         messageDatabaseService.createMessage(message);
 
-        BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
-
         //Check if we are........container is already opened...don't send broadcast
         boolean isContainerOpened;
         if(message.getConversationId() != null && BroadcastService.isContextBasedChatEnabled()){
@@ -168,11 +166,13 @@ public class MobiComMessageService {
         }
         if(message.isVideoNotificationMessage()) {
             Log.i(TAG, "Got notifications for Video call...");
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
 
             VideoCallNotificationHelper helper = new VideoCallNotificationHelper(context);
             helper.handleVideoCallNotificationMessages(message);
 
         }else if(message.isVideoCallMessage()) {
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             VideoCallNotificationHelper.buildVideoCallNotification(context,message);
         }else if (!isContainerOpened) {
             if(message.isConsideredForCount()){

@@ -125,7 +125,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     private void setAttachmentView(Uri uri) {
         attachmentImageView.setVisibility(View.VISIBLE);
         fileName.setVisibility(View.VISIBLE);
-        fileName.setText(FileUtils.getFileName(context,uri));
+        fileName.setText(FileUtils.getFileName(uri));
         galleryImageView.setImageBitmap(null);
     }
 
