@@ -593,7 +593,7 @@ For advanced options and customization, visit [Applozic Android Chat & Messaging
  Cross Platform Support (iOS, Android & Web)
 
 
-### Sample code to build messenger and chat app
+### Sample source code to build messenger and chat app
 https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app
 
 
