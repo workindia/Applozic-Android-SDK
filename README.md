@@ -23,9 +23,9 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 
 
-#### Step 1: Add the following in your build.gradle dependency**:      
+#### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.82' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.83' `
 
 
 Add the following in gradle android target:      
@@ -47,7 +47,7 @@ android {
 ```
 
 
-#### Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml**:
+#### Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml:
         
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```
 
@@ -294,7 +294,7 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-#### Step 3: Register user account**:     
+#### Step 3: Register user account:     
 
 
 
@@ -479,7 +479,7 @@ And add below code in your androidmanifest.xml file
 ```
 
 
-#### Step 5: For starting the messaging activity**:        
+#### Step 5: For starting the messaging activity:        
 
       
 ```
@@ -498,7 +498,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //
 startActivity(intent);                              
 ```
 
-#### Step 6: On logout, call the following**:       
+#### Step 6: On logout, call the following:       
 
 
 
