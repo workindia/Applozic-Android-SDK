@@ -1,4 +1,4 @@
-###Building a New App
+### Building a New App
 
 If you are building a new app, you can download the sample app with chat integrated from Github:
 [https://github.com/Applozic/Applozic-Android-SDK/](https://github.com/Applozic/Applozic-Android-SDK/)
@@ -11,12 +11,12 @@ Open the downloaded project in Android Studio, replace Applozic Application Key 
 ```
 
 
-###Add Applozic Chat to existing App
+### Add Applozic Chat to existing App
 
 
 
 
-####Step 1: Gradle Dependency
+#### Step 1: Gradle Dependency
 
 Add the following in your build.gradle dependency  
 a) Chat SDK (Without audio/video)
@@ -51,7 +51,7 @@ android {
 ```
 
 
-####Step 2: AndroidManifest
+#### Step 2: AndroidManifest
 Add the following Permissions, Activities, Services and Receivers in androidmanifest.xml
        
 **Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application>  ``` 
@@ -456,7 +456,7 @@ And add below code in your androidmanifest.xml file
        </intent-filter>
 </service>
   ``` 
-####Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
+#### Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
  PushNotificationTask pushNotificationTask = null;
@@ -475,7 +475,7 @@ And add below code in your androidmanifest.xml file
  pushNotificationTask.execute((Void)null);
 ```
 
-####Step 5: Initiate Chat
+#### Step 5: Initiate Chat
 
 For starting the messaging activity      
       
@@ -493,7 +493,7 @@ intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //
 startActivity(intent);                              
 ```
 
-####Step 6: Logout user       
+#### Step 6: Logout user       
 
 Call the following when user logout from your app:
 
