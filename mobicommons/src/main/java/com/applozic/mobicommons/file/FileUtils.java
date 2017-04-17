@@ -854,4 +854,16 @@ public class FileUtils {
         return sizeInMB;
     }
 
+    public static String getName(String name){
+        if (TextUtils.isEmpty(name)) {
+            return "";
+        }
+        int pos = name.lastIndexOf(".");
+
+        if (pos == -1) {
+            return name;
+        }
+        return name.substring(0, pos);
+    }
+
 }

@@ -8,7 +8,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 25
         versionCode 1
-        versionName "4.82"
+        versionName "4.83"
     }
     buildTypes {
         release {
@@ -47,7 +47,7 @@ ext {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '4.82'
+    libraryVersion = '4.83'
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'
@@ -56,8 +56,8 @@ ext {
 
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
 apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
-*/
 
+*/
 
 
 

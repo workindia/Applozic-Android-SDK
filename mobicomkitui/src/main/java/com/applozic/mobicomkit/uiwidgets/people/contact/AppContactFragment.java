@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
@@ -28,6 +29,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AlphabetIndexer;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +43,7 @@ import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -445,7 +448,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
             return -1;
         }
-
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemLayout =
@@ -454,13 +456,18 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             final ViewHolder holder = new ViewHolder();
             holder.text1 = (TextView) itemLayout.findViewById(R.id.text1);
             holder.text2 = (TextView) itemLayout.findViewById(R.id.text2);
+            holder.contactNumberTextView = (TextView) itemLayout.findViewById(R.id.contactNumberTextView);
             holder.icon = (CircleImageView) itemLayout.findViewById(R.id.contactImage);
+            holder.contactIcon = (TextView) itemLayout.findViewById(R.id.contactIcon);
             itemLayout.setTag(holder);
             return itemLayout;
         }
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            RelativeLayout.LayoutParams layoutParams;
+            String contactNumber;
+            char firstLetter = 0;
 
             // Gets handles to individual view resources
             final ViewHolder holder = (ViewHolder) view.getTag();
@@ -471,11 +478,41 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             holder.text1.setText(contact.getDisplayName() == null ? contact.getUserId() : contact.getDisplayName());
             holder.text2.setText(contact.getUserId());
-            if (contact.isDrawableResources()) {
-                int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
-                holder.icon.setImageResource(drawableResourceId);
+            if (contact != null && !TextUtils.isEmpty(contact.getDisplayName())) {
+                contactNumber = contact.getDisplayName().toUpperCase();
+                firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
+                if (firstLetter != '+') {
+                    holder.contactIcon.setText(String.valueOf(firstLetter));
+                } else if (contactNumber.length() >= 2) {
+                    holder.contactIcon.setText(String.valueOf(contactNumber.charAt(1)));
+                }
+                Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
+                GradientDrawable bgShape = (GradientDrawable) holder.contactIcon.getBackground();
+                bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+            }
+            holder.contactIcon.setVisibility(View.GONE);
+            holder.icon.setVisibility(View.VISIBLE);
+            if (contact != null) {
+                if (contact.isDrawableResources()) {
+                    int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
+                    holder.icon.setImageResource(drawableResourceId);
+                } else {
+                    mImageLoader.loadImage(contact, holder.icon, holder.contactIcon);
+                }
+            }
+            if (!TextUtils.isEmpty(contact.getContactNumber())) {
+                layoutParams = (RelativeLayout.LayoutParams) holder.text1.getLayoutParams();
+                layoutParams.setMargins(0, 20, 0, 0);
+                holder.text1.setLayoutParams(layoutParams);
+                holder.contactNumberTextView.setVisibility(View.VISIBLE);
+                holder.contactNumberTextView.setText(contact.getContactNumber());
+
             } else {
-                mImageLoader.loadImage(contact, holder.icon);
+                holder.text2.setVisibility(View.GONE);
+                holder.contactNumberTextView.setVisibility(View.GONE);
+                layoutParams = (RelativeLayout.LayoutParams) holder.text1.getLayoutParams();
+                layoutParams.setMargins(0, 50, 0, 0);
+                holder.text1.setLayoutParams(layoutParams);
             }
             // Returns the item layout view
 
@@ -579,6 +616,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView text1;
             TextView text2;
             CircleImageView icon;
+            TextView contactIcon;
+            TextView contactNumberTextView;
         }
     }
 

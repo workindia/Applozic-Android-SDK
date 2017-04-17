@@ -1069,15 +1069,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 String userId =  ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
                 if (!TextUtils.isEmpty(userId)) {
                     Contact withUserContact = appContactService.getContactById(userId);
-                    if (withUserContact.isBlocked()) {
-                        ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
-                    } else {
-                        if (withUserContact.isConnected()) {
-                            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
-                        } else if (withUserContact.getLastSeenAt() != 0) {
-                            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(withUserContact.getLastSeenAt()));
-                        } else {
+                    if(withUserContact != null){
+                        if (withUserContact.isBlocked()) {
                             ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+                        } else {
+                            if (withUserContact.isConnected()) {
+                                ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.user_online));
+                            } else if (withUserContact.getLastSeenAt() != 0) {
+                                ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(withUserContact.getLastSeenAt()));
+                            } else {
+                                ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+                            }
                         }
                     }
                 }
@@ -1375,10 +1377,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (contact != null) {
             return contact.getDisplayName();
         } else if (channel != null) {
-            String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-            if(!TextUtils.isEmpty(userId)){
-                Contact withUserContact = appContactService.getContactById(userId);
-                return  withUserContact.getDisplayName();
+            if(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                if(!TextUtils.isEmpty(userId)){
+                    Contact withUserContact = appContactService.getContactById(userId);
+                    return withUserContact.getDisplayName();
+                }
             }else {
                 return ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getActivity()).getUserId());
             }
@@ -1471,8 +1475,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageToSend.setTo(contact.getContactIds());
             messageToSend.setContactIds(contact.getContactIds());
         }
-
-        messageToSend.setContentType(messageContentType);
         messageToSend.setRead(Boolean.TRUE);
         messageToSend.setStoreOnDevice(Boolean.TRUE);
         if (messageToSend.getCreatedAtTime() == null) {
@@ -1492,6 +1494,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             List<String> filePaths = new ArrayList<String>();
             filePaths.add(filePath);
             messageToSend.setFilePaths(filePaths);
+            if(messageContentType == Message.ContentType.AUDIO_MSG.getValue() || messageContentType == Message.ContentType.CONTACT_MSG.getValue()  || messageContentType ==  Message.ContentType.VIDEO_MSG.getValue()){
+                messageToSend.setContentType(messageContentType);
+            }else {
+                messageToSend.setContentType(Message.ContentType.ATTACHMENT.getValue());
+            }
+        }else {
+            messageToSend.setContentType(messageContentType);
         }
         messageToSend.setFileMetaKeyStrings(fileMetaKeyStrings);
         messageToSend.setFileMetas(fileMetas);

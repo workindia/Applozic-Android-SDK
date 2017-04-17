@@ -164,7 +164,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         imageThumbnailLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return fileClientService.loadThumbnailImage(getContext(), (FileMeta) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
+                return fileClientService.loadThumbnailImage(getContext(), (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
             }
         };
         imageThumbnailLoader.setImageFadeIn(false);
@@ -878,11 +878,10 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         });
     }
 
-    private void showPreview(Message smListItem, ImageView preview, LinearLayout attachmentDownloadLayout) {
-        FileMeta fileMeta = smListItem.getFileMetas();
+    private void showPreview(Message message, ImageView preview, LinearLayout attachmentDownloadLayout) {
         imageThumbnailLoader.setImageFadeIn(false);
         imageThumbnailLoader.setLoadingImage(R.id.media_upload_progress_bar);
-        imageThumbnailLoader.loadImage(fileMeta, preview);
+        imageThumbnailLoader.loadImage(message, preview);
         attachmentDownloadLayout.setVisibility(View.GONE);
     }
 

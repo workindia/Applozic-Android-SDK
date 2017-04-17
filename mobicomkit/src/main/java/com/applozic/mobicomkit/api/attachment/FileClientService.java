@@ -105,15 +105,16 @@ public class FileClientService extends MobiComKitClientService {
         return getFilePath(fileName, context, contentType, false);
     }
 
-    public Bitmap loadThumbnailImage(Context context, FileMeta fileMeta, int reqWidth, int reqHeight) {
+    public Bitmap loadThumbnailImage(Context context,Message message, int reqWidth, int reqHeight) {
         try {
             Bitmap attachedImage = null;
+            FileMeta fileMeta =   message.getFileMetas();
             String thumbnailUrl = fileMeta.getThumbnailUrl();
             String contentType = fileMeta.getContentType();
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             // Todo get the file format from server and append
-            String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+            String imageName = FileUtils.getName(fileMeta.getName())+message.getCreatedAtTime()+"."+FileUtils.getFileFormat(fileMeta.getName());
             String imageLocalPath = getFilePath(imageName, context, fileMeta.getContentType(), true).getAbsolutePath();
             if (imageLocalPath != null) {
                 try {

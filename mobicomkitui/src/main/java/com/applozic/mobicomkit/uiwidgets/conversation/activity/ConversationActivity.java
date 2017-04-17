@@ -382,21 +382,22 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if(!takeOrder){
             new MobiComConversationService(getApplicationContext()).processLastSeenAtStatus();
         }
-
-        new AlSyncAccountStatusTask(this, new AlSyncAccountStatusTask.TaskListener() {
-            @Override
-            public void onCompletion(Context context) {
-                try {
-                    if (ApplozicClient.getInstance(context).isAccountClosed() || ApplozicClient.getInstance(context).isNotAllowed()) {
-                        snackbar = Snackbar.make(layout, ApplozicClient.getInstance(context).isAccountClosed() ?
-                                        R.string.applozic_account_closed : R.string.applozic_free_version_not_allowed_on_release_build,
-                                Snackbar.LENGTH_INDEFINITE);
-                        snackbar.show();
+        if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
+            new AlSyncAccountStatusTask(this, new AlSyncAccountStatusTask.TaskListener() {
+                @Override
+                public void onCompletion(Context context) {
+                    try {
+                        if (ApplozicClient.getInstance(context).isAccountClosed() || ApplozicClient.getInstance(context).isNotAllowed()) {
+                            snackbar = Snackbar.make(layout, ApplozicClient.getInstance(context).isAccountClosed() ?
+                                            R.string.applozic_account_closed : R.string.applozic_free_version_not_allowed_on_release_build,
+                                    Snackbar.LENGTH_INDEFINITE);
+                            snackbar.show();
+                        }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
                 }
-            }
-        }).execute((Void)null);
+            }).execute((Void) null);
+        }
 
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }

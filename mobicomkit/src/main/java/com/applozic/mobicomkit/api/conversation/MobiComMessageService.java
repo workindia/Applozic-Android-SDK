@@ -95,7 +95,10 @@ public class MobiComMessageService {
         Message message = prepareMessage(messageToProcess, tofield);
         //download contacts in advance.
         if(message.getGroupId() != null){
-            ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+            Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+            if(channel == null){
+                return null;
+            }
         }
         if(message.getContentType()== Message.ContentType.CONTACT_MSG.getValue()){
             fileClientService.loadContactsvCard(message);
@@ -187,7 +190,7 @@ public class MobiComMessageService {
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Channel currentChannel= ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-                    if(!currentChannel.isNotificationMuted()) {
+                    if(currentChannel != null && !currentChannel.isNotificationMuted()) {
                         sendNotification(message);
                     }
                 }

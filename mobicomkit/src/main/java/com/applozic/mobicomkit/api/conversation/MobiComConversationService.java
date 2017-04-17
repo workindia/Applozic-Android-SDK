@@ -273,7 +273,7 @@ public class MobiComConversationService {
 
     private void setFilePathifExist(Message message) {
         FileMeta fileMeta = message.getFileMetas();
-        File file = FileClientService.getFilePath(fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName()), context.getApplicationContext(), fileMeta.getContentType());
+        File file = FileClientService.getFilePath(FileUtils.getName(fileMeta.getName())+message.getCreatedAtTime()+"."+FileUtils.getFileFormat(fileMeta.getName()), context.getApplicationContext(), fileMeta.getContentType());
         if (file.exists()) {
             ArrayList<String> arrayList = new ArrayList<String>();
             arrayList.add(file.getAbsolutePath());

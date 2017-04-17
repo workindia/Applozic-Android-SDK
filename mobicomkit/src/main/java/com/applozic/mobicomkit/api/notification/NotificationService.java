@@ -147,7 +147,7 @@ public class NotificationService {
                     int response = httpConn.getResponseCode();
                     if (response == HttpURLConnection.HTTP_OK) {
                         Bitmap bitmap = BitmapFactory.decodeStream(httpConn.getInputStream());
-                        String imageName = fileMeta.getBlobKeyString() + "." + FileUtils.getFileFormat(fileMeta.getName());
+                        String imageName = FileUtils.getName(fileMeta.getName())+message.getCreatedAtTime()+"."+FileUtils.getFileFormat(fileMeta.getName());
                         File file = FileClientService.getFilePath(imageName, context, "image", true);
                         ImageUtils.saveImageToInternalStorage(file, bitmap);
                         mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));

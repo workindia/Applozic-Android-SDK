@@ -420,6 +420,39 @@ public class ChannelService {
         return channelDatabaseService.getGroupOfTwoReceiverId(channelKey);
     }
 
-
+    public Channel createGroupOfTwo(ChannelInfo channelInfo) {
+        if (channelInfo == null) {
+            return null;
+        }
+        if (!TextUtils.isEmpty(channelInfo.getClientGroupId())) {
+            Channel channel = channelDatabaseService.getChannelByClientGroupId(channelInfo.getClientGroupId());
+            if (channel != null) {
+                return channel;
+            } else {
+                ChannelFeedApiResponse channelFeedApiResponse = channelClientService.createChannelWithResponse(channelInfo);
+                if (channelFeedApiResponse == null) {
+                    return null;
+                }
+                if (channelFeedApiResponse.isSuccess()) {
+                    ChannelFeed channelFeed = channelFeedApiResponse.getResponse();
+                    if (channelFeed != null) {
+                        ChannelFeed[] channelFeeds = new ChannelFeed[1];
+                        channelFeeds[0] = channelFeed;
+                        processChannelFeedList(channelFeeds, true);
+                        return getChannel(channelFeed);
+                    }
+                } else {
+                    ChannelFeed channelFeed = channelClientService.getChannelInfo(channelInfo.getClientGroupId());
+                    if (channelFeed != null) {
+                        ChannelFeed[] channelFeeds = new ChannelFeed[1];
+                        channelFeeds[0] = channelFeed;
+                        processChannelFeedList(channelFeeds, false);
+                        return getChannel(channelFeed);
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 }
