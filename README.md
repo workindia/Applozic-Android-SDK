@@ -529,6 +529,9 @@ startActivity(intent);
 -keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; } 
 -keep class android.support.** { *; }
 -keep interface android.support.** { *; }
+-dontwarn android.support.v4.**
+-keep public class com.google.android.gms.* { public *; }
+-dontwarn com.google.android.gms.**
  ``` 
    
 **Trying out the demo app:**
