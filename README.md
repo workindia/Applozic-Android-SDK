@@ -25,7 +25,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.83' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.84' `
 
 
 Add the following in gradle android target:      
@@ -270,6 +270,9 @@ Paste the following in your androidmanifest.xml:
          android:exported="false" />
             
 <service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
+         android:exported="false" />
+         
+<service android:name="com.applozic.mobicomkit.uiwidgets.notification.NotificationIntentService"
          android:exported="false" />
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
@@ -532,6 +535,8 @@ startActivity(intent);
 -dontwarn android.support.v4.**
 -keep public class com.google.android.gms.* { public *; }
 -dontwarn com.google.android.gms.**
+-keep class com.google.gson.** { *; }
+
  ``` 
    
 **Trying out the demo app:**
