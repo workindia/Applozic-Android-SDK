@@ -22,7 +22,7 @@ Add the following in your build.gradle dependency
 a) Chat SDK (Without audio/video)
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.83'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.84'
 ```
 
 b) Chat SDK with Audio/Video.
@@ -274,6 +274,9 @@ Paste the following in your androidmanifest.xml:
             
 <service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
          android:exported="false" />
+         
+<service android:name="com.applozic.mobicomkit.uiwidgets.notification.NotificationIntentService"
+         android:exported="false" />
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
@@ -498,7 +501,32 @@ startActivity(intent);
 Call the following when user logout from your app:
 
 ```
-new UserClientService(this).logout();      
+1)Async task call for logout:
+
+ UserLogoutTask.TaskListener userLogoutTaskListener = new UserLogoutTask.TaskListener() {
+ @Override
+ public void onSuccess(Context context) {
+   //Logout success
+ } 
+  @Override
+ public void onFailure(Exception exception) {
+  //Logout failure
+ }
+ };
+
+ UserLogoutTask userLogoutTask = new UserLogoutTask(userLogoutTaskListener, context);
+ userLogoutTask.execute((Void) null);     
+ 
+ 2)Logout Method call  
+ 
+ ApiResponse apiResponse =  new UserClientService(this).logout();
+ 
+ if(apiResponse != null && apiResponse.isSuccess()){
+      //Logout success
+  }else {
+     //Logout failure 
+ }
+Note :Use async task or thread to call this logout method  
 ```
  
 
@@ -524,5 +552,6 @@ Add the following if you are using ProGuard:
 -dontwarn android.support.v4.**
 -keep public class com.google.android.gms.* { public *; }
 -dontwarn com.google.android.gms.**
+-keep class com.google.gson.** { *; }
 
  ``` 
