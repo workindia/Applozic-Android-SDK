@@ -68,6 +68,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class AppContactFragment extends ListFragment implements SearchListFragment,
         AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+    static final String AL_CUSTOMIZATION_SETTINGS = "alCustomizationSettings";
     // Defines a tag for identifying log entries
     private static final String TAG = "AppContactFragment";
     private static final String SHARE_TEXT = "share_text";
@@ -75,24 +76,19 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "net.mobitexter.mobiframework.contact.ui.SELECTED_ITEM";
     private static String inviteMessage;
+    AlCustomizationSettings alCustomizationSettings;
     private ContactsAdapter mAdapter; // The main query adapter
     private ImageLoader mImageLoader; // Handles loading the contact image in a background thread
     private String mSearchTerm; // Stores the current search query term
-    static final String AL_CUSTOMIZATION_SETTINGS = "alCustomizationSettings";
-
     // Contact selected listener that allows the activity holding this fragment to be notified of
 // a contact being selected
     private OnContactsInteractionListener mOnContactSelectedListener;
-
     // Stores the previously selected search item so that on a configuration change the same item
 // can be reselected again
     private int mPreviouslySelectedSearchItem = 0;
     private BaseContactService contactService;
-
-
     private Button shareButton;
     private TextView resultTextView;
-
     private List<Contact> contactList;
     private boolean syncStatus = true;
     private String[] userIdArray;
@@ -104,7 +100,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private boolean loading = true;
     private int startingPageIndex = 0;
     private ContactDatabase contactDatabase;
-    AlCustomizationSettings alCustomizationSettings;
 
     /**
      * Fragments require an empty constructor.
@@ -205,6 +200,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                     mImageLoader.setPauseWork(false);
                 }
             }
+
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
                 if (alCustomizationSettings.isRegisteredUserContactListCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
@@ -213,7 +209,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                         previousTotalItemCount = totalItemsCount;
                         if (totalItemsCount == 0) {
                             loading = true;
-                        }else {
+                        } else {
                             loading = false;
 
                         }
@@ -225,11 +221,11 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                         currentPage++;
                     }
 
-                    if(totalItemsCount - visibleItemCount == 0){
+                    if (totalItemsCount - visibleItemCount == 0) {
                         return;
                     }
 
-                    if(totalItemsCount <= 5){
+                    if (totalItemsCount <= 5) {
                         return;
                     }
 
@@ -382,6 +378,49 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
     }
 
+    public void processLoadRegisteredUsers() {
+
+        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
+                getActivity().getString(R.string.applozic_contacts_loading_info), true);
+
+        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
+            @Override
+            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                try {
+                    if (registeredUsersApiResponse != null) {
+                        getLoaderManager().restartLoader(
+                                AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                String error = getString(Utils.isInternetAvailable(getActivity()) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
+                Toast toast = Toast.makeText(getActivity(), error, Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+
+            @Override
+            public void onCompletion() {
+
+            }
+        };
+        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
+        usersAsyncTask.execute((Void) null);
+    }
+
+
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
      * in the {@link android.provider.ContactsContract.Contacts} class.
@@ -391,7 +430,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         int QUERY_ID = 1;
 
     }
-
 
     /**
      * This is a subclass of CursorAdapter that supports binding Cursor columns to a view layout.
@@ -448,6 +486,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
             return -1;
         }
+
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemLayout =
@@ -619,48 +658,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView contactIcon;
             TextView contactNumberTextView;
         }
-    }
-
-    public void  processLoadRegisteredUsers() {
-
-        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
-                getActivity().getString(R.string.applozic_contacts_loading_info), true);
-
-        RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
-            @Override
-            public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-                try {
-                    if (registeredUsersApiResponse != null) {
-                        getLoaderManager().restartLoader(
-                                AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-                String error = getString(Utils.isInternetAvailable(getActivity()) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
-                Toast toast = Toast.makeText(getActivity(), error, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-            }
-
-            @Override
-            public void onCompletion() {
-
-            }
-        };
-        RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute((Void) null);
     }
 }
 

@@ -75,6 +75,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     protected QuickConversationAdapter conversationAdapter = null;
     protected boolean loadMore = false;
     protected SyncCallService syncCallService;
+    ConversationUIService conversationUIService;
+    AlCustomizationSettings alCustomizationSettings;
+    String searchString;
     private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
@@ -86,9 +89,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private boolean loading = true;
     private int startingPageIndex = 0;
     private ProgressBar progressBar;
-    ConversationUIService conversationUIService;
-    AlCustomizationSettings alCustomizationSettings;
-    String searchString;
 
     public ConversationListView getListView() {
         return listView;
@@ -98,9 +98,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
-        if(!TextUtils.isEmpty(jsonString)){
-            alCustomizationSettings = (AlCustomizationSettings)GsonUtils.getObjectFromJson(jsonString,AlCustomizationSettings.class);
-        }else {
+        if (!TextUtils.isEmpty(jsonString)) {
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
+        } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
         syncCallService = SyncCallService.getInstance(getActivity());
@@ -191,24 +191,24 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         Channel channel = null;
         if (message.getGroupId() != null) {
             channel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
-            if(channel != null){
+            if (channel != null) {
                 isChannelDeleted = channel.isDeleted();
             }
-            isUserPresentInGroup =  ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
+            isUserPresentInGroup = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
         }
 
         for (int i = 0; i < menuItems.length; i++) {
 
-            if ((message.getGroupId() == null || channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) &&  (menuItems[i].equals("Delete group") ||
+            if ((message.getGroupId() == null || channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) && (menuItems[i].equals("Delete group") ||
                     menuItems[i].equals("Exit group"))) {
                 continue;
             }
 
-            if (menuItems[i].equals("Exit group") && (isChannelDeleted  || !isUserPresentInGroup)) {
+            if (menuItems[i].equals("Exit group") && (isChannelDeleted || !isUserPresentInGroup)) {
                 continue;
             }
 
-            if (menuItems[i].equals("Delete group") &&  ( isUserPresentInGroup || !isChannelDeleted)) {
+            if (menuItems[i].equals("Delete group") && (isUserPresentInGroup || !isChannelDeleted)) {
                 continue;
             }
             if (menuItems[i].equals("Delete conversation") && !alCustomizationSettings.isDeleteOption()) {
@@ -231,7 +231,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         Channel channel = null;
         Contact contact = null;
-
         if (message.getGroupId() != null) {
             channel = ChannelDatabaseService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
         } else {
@@ -240,9 +239,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         switch (item.getItemId()) {
             case 0:
-                if(channel!=null && channel.isDeleted()){
+                if (channel != null && channel.isDeleted()) {
                     conversationUIService.deleteGroupConversation(channel);
-                }else{
+                } else {
                     conversationUIService.deleteConversationThread(contact, channel);
                 }
                 break;
@@ -263,22 +262,22 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         super.onCreateOptionsMenu(menu, inflater);
 
 
-        if (alCustomizationSettings.isStartNewButton()|| ApplozicSetting.getInstance(getContext()).isStartNewButtonVisible()) {
+        if (alCustomizationSettings.isStartNewButton() || ApplozicSetting.getInstance(getContext()).isStartNewButtonVisible()) {
             menu.findItem(R.id.start_new).setVisible(true);
         }
-        if (alCustomizationSettings.isStartNewGroup()|| ApplozicSetting.getInstance(getContext()).isStartNewGroupButtonVisible()) {
+        if (alCustomizationSettings.isStartNewGroup() || ApplozicSetting.getInstance(getContext()).isStartNewGroupButtonVisible()) {
             menu.findItem(R.id.conversations).setVisible(true);
         }
-        if(alCustomizationSettings.isRefreshOption()) {
+        if (alCustomizationSettings.isRefreshOption()) {
             menu.findItem(R.id.refresh).setVisible(true);
         }
-        if(alCustomizationSettings.isProfileOption()){
+        if (alCustomizationSettings.isProfileOption()) {
             menu.findItem(R.id.applozicUserProfile).setVisible(true);
         }
-        if(alCustomizationSettings.isMessageSearchOption()){
+        if (alCustomizationSettings.isMessageSearchOption()) {
             menu.findItem(R.id.menu_search).setVisible(true);
         }
-        if(alCustomizationSettings.isBroadcastOption()){
+        if (alCustomizationSettings.isBroadcastOption()) {
             menu.findItem(R.id.broadcast).setVisible(true);
         }
         if (alCustomizationSettings.isLogoutOption()) {
@@ -287,7 +286,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void addMessage(final Message message) {
-        if(getActivity() == null){
+        if (getActivity() == null) {
             return;
         }
         final Context context = getActivity();
@@ -330,13 +329,13 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         if (getActivity() == null) {
             return;
         }
-        try{
+        try {
             if (getActivity() != null) {
-                if(conversationAdapter != null){
+                if (conversationAdapter != null) {
                     conversationAdapter.notifyDataSetChanged();
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.w("AL", "Exception while updating view .");
         }
     }
@@ -345,10 +344,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         for (Message message : messageList) {
             if (message.getKeyString() != null && message.getKeyString().equals(keyString)) {
                 List<Message> lastMessage;
-                if(message.getGroupId() != null){
-                    lastMessage =  messageDatabaseService.getLatestMessageByChannelKey(message.getGroupId());
-                }else {
-                    lastMessage  = messageDatabaseService.getLatestMessage(message.getContactIds());
+                if (message.getGroupId() != null) {
+                    lastMessage = messageDatabaseService.getLatestMessageByChannelKey(message.getGroupId());
+                } else {
+                    lastMessage = messageDatabaseService.getLatestMessage(message.getContactIds());
                 }
                 if (lastMessage.isEmpty()) {
                     removeConversation(message, userId);
@@ -389,9 +388,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     conversationAdapter.notifyDataSetChanged();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -461,7 +460,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     } else {
                         message = latestMessageForEachContact.get(contact.getUserId());
                     }
-                    if(message == null){
+                    if (message == null) {
                         return;
                     }
                     messageList.remove(message);
@@ -505,10 +504,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         super.onPause();
         listIndex = listView.getFirstVisiblePosition();
         BroadcastService.currentUserId = null;
-        if(listView != null){
+        if (listView != null) {
             BroadcastService.lastIndexForChats = listView.getFirstVisiblePosition();
         }
-        if(conversationAdapter != null){
+        if (conversationAdapter != null) {
             conversationAdapter.contactImageLoader.setPauseWork(false);
             conversationAdapter.channelImageLoader.setPauseWork(false);
         }
@@ -530,7 +529,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 listView.setSelection(0);
             }
         }
-        downloadConversations(false,searchString);
+        downloadConversations(false, searchString);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 SyncMessages syncMessages = new SyncMessages();
@@ -587,45 +586,40 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
 
     public void downloadConversations() {
-        downloadConversations(false,null);
+        downloadConversations(false, null);
     }
 
-    public void downloadConversations(boolean showInstruction,String searchString) {
+    public void downloadConversations(boolean showInstruction, String searchString) {
         minCreatedAtTime = null;
-        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, showInstruction,searchString);
+        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, showInstruction, searchString);
         AsyncTaskCompat.executeParallel(downloadConversation);
-        if(conversationAdapter != null){
+        if (conversationAdapter != null) {
             conversationAdapter.searchString = searchString;
         }
     }
 
     public void updateLastSeenStatus(final String userId) {
-        if(getActivity() == null){
+        if (!alCustomizationSettings.isOnlineStatusMasterList()) {
             return;
         }
-        if (!alCustomizationSettings.isOnlineStatusMasterList()) {
+        if (getActivity() == null) {
+            return;
+        }
+        if (MobiComUserPreference.getInstance(getContext()).getUserId().equals(userId)) {
             return;
         }
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Message message = latestMessageForEachContact.get(userId);
-                    if (message != null) {
-                        int index = messageList.indexOf(message);
-                        View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
-                        if (view != null) {
-                            TextView onlineTextView = (TextView) view.findViewById(R.id.onlineTextView);
-                            Contact contact = baseContactService.getContactById(userId);
-                            onlineTextView.setVisibility(contact != null && contact.isOnline() ? View.VISIBLE : View.GONE);
-                        }
+                    if (conversationAdapter != null) {
+                        conversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
                     Log.w("AL", "Exception while updating online status.");
                 }
             }
         });
-
     }
 
     public void updateConversationRead(final String currentId, final boolean isGroup) {
@@ -660,6 +654,16 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         });
     }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        this.searchString = newText;
+        if (TextUtils.isEmpty(newText)) {
+            downloadConversations(false, null);
+        } else {
+            downloadConversations(false, newText);
+        }
+        return true;
+    }
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
@@ -674,7 +678,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         private boolean loadMoreMessages;
         private String searchString;
 
-        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, boolean showInstruction,String searchString) {
+        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, boolean showInstruction, String searchString) {
             this.context = getActivity();
             this.view = view;
             this.initial = initial;
@@ -686,7 +690,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
 
         public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems) {
-            this(view, initial, firstVisibleItem, amountVisible, totalItems, false,null);
+            this(view, initial, firstVisibleItem, amountVisible, totalItems, false, null);
             loadMoreMessages = true;
         }
 
@@ -694,9 +698,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         protected void onPreExecute() {
             super.onPreExecute();
 
-            if(progressBar != null && loadMoreMessages){
+            if (progressBar != null && loadMoreMessages) {
                 progressBar.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 swipeLayout.setEnabled(true);
                 swipeLayout.post(new Runnable() {
                     @Override
@@ -717,7 +721,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 listIndex = firstVisibleItem;
                 Long createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime,searchString);
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString);
             }
 
             return 0L;
@@ -728,7 +732,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
 
         protected void onPostExecute(Long result) {
-            if(!loadMoreMessages){
+            if (!loadMoreMessages) {
                 swipeLayout.setEnabled(true);
                 swipeLayout.post(new Runnable() {
                     @Override
@@ -738,7 +742,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 });
             }
 
-            if(!TextUtils.isEmpty(searchString)){
+            if (!TextUtils.isEmpty(searchString)) {
                 messageList.clear();
                 latestMessageForEachContact.clear();
 
@@ -762,8 +766,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         } else {
                             latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
                         }
-
-                        Log.d("Current message", "message" + currentMessage);
                         messageList.remove(recentSms);
                         messageList.add(currentMessage);
                     }
@@ -777,15 +779,15 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     messageList.add(currentMessage);
                 }
             }
-            if(progressBar != null && loadMoreMessages){
+            if (progressBar != null && loadMoreMessages) {
                 progressBar.setVisibility(View.GONE);
             }
             conversationAdapter.notifyDataSetChanged();
             if (initial) {
                 emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
-                if(!TextUtils.isEmpty(searchString) && messageList.isEmpty()){
+                if (!TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
                     emptyTextView.setText(alCustomizationSettings.getNoSearchFoundForChatMessages());
-                }else if(TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
+                } else if (TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
                     emptyTextView.setText(alCustomizationSettings.getNoConversationLabel());
                 }
                 if (!messageList.isEmpty()) {
@@ -799,7 +801,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     }
                 }
             } else {
-                if(!loadMoreMessages){
+                if (!loadMoreMessages) {
                     listView.setSelection(firstVisibleItem);
                 }
             }
@@ -814,14 +816,16 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (context != null && showInstruction) {
                 InstructionUtil.showInstruction(context, R.string.instruction_open_conversation_thread, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
             }
-            if(!nextMessageList.isEmpty()){
+            if (!nextMessageList.isEmpty()) {
                 loadMore = true;
             }
         }
     }
-    private class SyncMessages extends AsyncTask<Void, Integer, Long>{
-        SyncMessages(){
+
+    private class SyncMessages extends AsyncTask<Void, Integer, Long> {
+        SyncMessages() {
         }
+
         @Override
         protected Long doInBackground(Void... params) {
             syncCallService.syncMessages(null);
@@ -833,16 +837,5 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             super.onPostExecute(aLong);
             swipeLayout.setRefreshing(false);
         }
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        this.searchString = newText;
-        if (TextUtils.isEmpty(newText)) {
-            downloadConversations(false,null);
-        } else {
-            downloadConversations(false,newText);
-        }
-        return true;
     }
 }

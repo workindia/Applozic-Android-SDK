@@ -81,8 +81,8 @@ public class ChannelInfo extends JsonMarker {
     public void setChannelMetadata(ChannelMetadata channelMetadata) {
         this.channelMetadata = channelMetadata;
         if (channelMetadata != null) {
-            if(metadata == null){
-                metadata  = new HashMap<String, String>();
+            if (metadata == null) {
+                metadata = new HashMap<String, String>();
             }
             metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, channelMetadata.getCreateGroupMessage());
             metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, channelMetadata.getAddMemberMessage());

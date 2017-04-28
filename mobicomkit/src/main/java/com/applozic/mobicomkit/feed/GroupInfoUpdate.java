@@ -26,7 +26,7 @@ public class GroupInfoUpdate extends JsonMarker {
     private String newlocalPath;
     @Exclude
     private String contentUri;
-    private Map<String,String> metadata = new HashMap<>();
+    private Map<String, String> metadata = new HashMap<>();
 
     public GroupInfoUpdate(Integer channelKey) {
         this.groupId = channelKey;
@@ -126,11 +126,11 @@ public class GroupInfoUpdate extends JsonMarker {
         this.contentUri = contentUri;
     }
 
-    public Map<String,String> getMetadata() {
+    public Map<String, String> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String,String> metadata) {
+    public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
     }
 

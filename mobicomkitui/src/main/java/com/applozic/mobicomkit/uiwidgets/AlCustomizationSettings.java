@@ -47,7 +47,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private String attachCameraIconName = "applozic_ic_action_camera_new";
     private String adminBorderColor = "#FF03A9F4";
     private String userNotAbleToChatTextColor = "#000000";
-    private String chatBackgroundImageName ;
+    private String chatBackgroundImageName;
 
     private String audioPermissionNotFoundMsg;
     private String noConversationLabel = "You have no conversations";
@@ -353,6 +353,7 @@ public class AlCustomizationSettings extends JsonMarker {
     public String getChatBackgroundImageName() {
         return chatBackgroundImageName;
     }
+
     public Map<String, Boolean> getAttachmentOptions() {
         return attachmentOptions;
     }
@@ -379,8 +380,9 @@ public class AlCustomizationSettings extends JsonMarker {
     }
 
     public boolean isLaunchChatFromProfilePicOrName() {
-              return launchChatFromProfilePicOrName;
+        return launchChatFromProfilePicOrName;
     }
+
     public boolean isGroupUsersOnlineStatus() {
         return groupUsersOnlineStatus;
     }

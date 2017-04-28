@@ -43,12 +43,11 @@ import java.util.Map;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, EcommerceFragment.OnFragmentInteractionListener {
-    private UserLogoutTask userLogoutTask;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String TAG = "MainActivity";
     public static final String TAKE_ORDER_USERID_METADATA = "com.applozic.take.order.userId";
     private static final String CONVERSATION_FRAGMENT = "ConversationFragment";
-
+    private UserLogoutTask userLogoutTask;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -131,8 +130,8 @@ public class MainActivity extends ActionBarActivity
 
         if (position == 1) {
             Intent intent = new Intent(this, ConversationActivity.class);
-            if(ApplozicClient.getInstance(this).isContextBasedChat()){
-                intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+            if (ApplozicClient.getInstance(this).isContextBasedChat()) {
+                intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
             }
             startActivity(intent);
             return;
@@ -157,7 +156,7 @@ public class MainActivity extends ActionBarActivity
 
         if (position == 2) {
 
-            UserLogoutTask.TaskListener userLogoutTaskListener = new UserLogoutTask.TaskListener(){
+            UserLogoutTask.TaskListener userLogoutTaskListener = new UserLogoutTask.TaskListener() {
 
                 @Override
                 public void onSuccess(Context context) {
@@ -187,14 +186,14 @@ public class MainActivity extends ActionBarActivity
                 }
             };
 
-            userLogoutTask = new UserLogoutTask(userLogoutTaskListener,this);
-            userLogoutTask.execute((Void)null);
+            userLogoutTask = new UserLogoutTask(userLogoutTaskListener, this);
+            userLogoutTask.execute((Void) null);
 
         }
 
-        if(position == 3){
-            Map<String,String> messageMetaData = new HashMap<>();
-            messageMetaData.put(Message.MetaDataType.KEY.getValue(),Message.MetaDataType.HIDDEN.getValue());
+        if (position == 3) {
+            Map<String, String> messageMetaData = new HashMap<>();
+            messageMetaData.put(Message.MetaDataType.KEY.getValue(), Message.MetaDataType.HIDDEN.getValue());
             Message message = new Message();
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(MainActivity.this);
             message.setContactIds("android");
@@ -234,16 +233,16 @@ public class MainActivity extends ActionBarActivity
         Conversation conversation = buildConversation();
         ApplozicConversationCreateTask applozicConversationCreateTask;
 
-        ApplozicConversationCreateTask.ConversationCreateListener conversationCreateListener =  new ApplozicConversationCreateTask.ConversationCreateListener() {
+        ApplozicConversationCreateTask.ConversationCreateListener conversationCreateListener = new ApplozicConversationCreateTask.ConversationCreateListener() {
             @Override
             public void onSuccess(Integer conversationId, Context context) {
-                Log.i(TAG,"ConversationID is:"+conversationId);
+                Log.i(TAG, "ConversationID is:" + conversationId);
                 Intent takeOrderIntent = new Intent(context, ConversationActivity.class);
                 takeOrderIntent.putExtra(TAKE_ORDER, true);
-                takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                 takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
                 takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
-                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID, conversationId);
                 startActivity(takeOrderIntent);
 
             }
@@ -253,8 +252,8 @@ public class MainActivity extends ActionBarActivity
 
             }
         };
-        applozicConversationCreateTask =  new ApplozicConversationCreateTask(MainActivity.this,conversationCreateListener,conversation);
-        applozicConversationCreateTask.execute((Void)null);
+        applozicConversationCreateTask = new ApplozicConversationCreateTask(MainActivity.this, conversationCreateListener, conversation);
+        applozicConversationCreateTask.execute((Void) null);
 
     }
 

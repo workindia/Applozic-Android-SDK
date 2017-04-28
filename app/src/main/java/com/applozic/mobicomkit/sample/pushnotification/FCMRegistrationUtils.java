@@ -19,12 +19,12 @@ public class FCMRegistrationUtils extends Handler {
     private static final String TAG = "GCMRegistrationUtils";
     private static final String GCM_SENDER_ID = "195932243324";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private  Context context;
+    private Context context;
     private PushNotificationTask pushNotificationTask = null;
 
     public FCMRegistrationUtils(Context context) {
         super();
-       this.context = context;
+        this.context = context;
     }
 
     @Override
@@ -75,8 +75,8 @@ public class FCMRegistrationUtils extends Handler {
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (apiAvailability.isUserResolvableError(resultCode)) {
-                Toast.makeText(context,"Please download the Google play store apk",Toast.LENGTH_SHORT).show();
-            }else {
+                Toast.makeText(context, "Please download the Google play store apk", Toast.LENGTH_SHORT).show();
+            } else {
                 Log.e(TAG, "This device is not supported for Google Play Services");
             }
             return false;

@@ -32,7 +32,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CONTACT_IMAGE_LOCAL_URI = "contactImageLocalURI";
     public static final String CONTACT_IMAGE_URL = "contactImageURL";
     public static final String CHANNEL_IMAGE_URL = "channelImageURL";
-    public static final String CHANNEL_IMAGE_LOCAL_URI= "channelImageLocalURI";
+    public static final String CHANNEL_IMAGE_LOCAL_URI = "channelImageLocalURI";
     public static final String USERID = "userId";
     public static final String EMAIL = "email";
     public static final String APPLICATION_ID = "applicationId";
@@ -103,7 +103,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "topicId varchar(300) null,"
             + "channelKey integer default 0,"
             + STATUS + " varchar(200) default 0,"
-            + CLIENT_GROUP_ID +" varchar(1000) default null,"
+            + CLIENT_GROUP_ID + " varchar(1000) default null,"
             + HIDDEN + " integer default 0,"
             + "UNIQUE (keyString,contactNumbers,channelKey))";
     private static final String SMS_BACKUP = "sms_backup";
@@ -123,8 +123,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_MESSAGE_TABLE_FOR_TOPIC_ID_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN " + TOPIC_ID + " varchar(300) null";
     private static final String ALTER_CONTACT_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + UNREAD_COUNT + " integer default 0";
-    private static final String ALTER_CONTACT_TABLE_BLOCKED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED+ " integer default 0";
-    private static final String ALTER_CONTACT_TABLE_BLOCKED_BY_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED_BY+ " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_BLOCKED_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED + " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_BLOCKED_BY_COLUMN = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + BLOCKED_BY + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_FOR_IMAGE_URL_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_IMAGE_URL + " varchar(300) null";
     private static final String ALTER_CHANNEL_TABLE_FOR_IMAGE_LOCAL_URI_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_IMAGE_LOCAL_URI + " varchar(300) null";
     private static final String ALTER_CHANNEL_TABLE_FOR_CLIENT_GROUP_ID = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CLIENT_GROUP_ID + " varchar(200) null";
@@ -151,9 +151,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + UNREAD_COUNT + " integer default 0,"
             + BLOCKED + " integer default 0, "
             + BLOCKED_BY + " integer default 0, "
-            + STATUS +" varchar(2500) null, "
-            + CONTACT_TYPE+" integer default 0,"
-            + USER_TYPE_ID +" integer default 0 "
+            + STATUS + " varchar(2500) null, "
+            + CONTACT_TYPE + " integer default 0,"
+            + USER_TYPE_ID + " integer default 0 "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -167,8 +167,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + USER_COUNT + "integer, "
             + CHANNEL_IMAGE_URL + " VARCHAR(300), "
             + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300), "
-            + NOTIFICATION_AFTER_TIME +" integer default 0, "
-            + DELETED_AT +" integer,"
+            + NOTIFICATION_AFTER_TIME + " integer default 0, "
+            + DELETED_AT + " integer,"
             + CHANNEL_META_DATA + " VARCHAR(2000)) ";
 
     private static final String CREATE_CHANNEL_USER_X_TABLE = " CREATE TABLE channel_User_X ( " +
@@ -189,7 +189,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + TOPIC_LOCAL_IMAGE_URL + " varchar(500))";
 
     private static final String CREATE_INDEX_SMS_TYPE = "CREATE INDEX IF NOT EXISTS INDEX_SMS_TYPE ON sms (type)";
-    private static final String CREATE_INDEX_ON_CREATED_AT =  "CREATE INDEX IF NOT EXISTS message_createdAt ON sms (createdAt)";
+    private static final String CREATE_INDEX_ON_CREATED_AT = "CREATE INDEX IF NOT EXISTS message_createdAt ON sms (createdAt)";
     private static final String TAG = "MobiComDatabaseHelper";
     private static MobiComDatabaseHelper sInstance;
     private Context context;
@@ -311,7 +311,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, "channel", CLIENT_GROUP_ID)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_CLIENT_GROUP_ID);
             }
-            if(!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)){
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, UNREAD_COUNT)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_UNREAD_COUNT_COLUMN);
             }
             if (!DBUtils.existsColumnInTable(database, "contact", STATUS)) {
@@ -332,10 +332,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, "channel", DELETED_AT)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_DELETED_AT_COLUMN);
             }
-            if (!DBUtils.existsColumnInTable(database,CHANNEL,CHANNEL_META_DATA)) {
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, CHANNEL_META_DATA)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_CHANNEL_META_DATA);
             }
-            if (!DBUtils.existsColumnInTable(database,SMS,HIDDEN)) {
+            if (!DBUtils.existsColumnInTable(database, SMS, HIDDEN)) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_HIDDEN);
             }
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);

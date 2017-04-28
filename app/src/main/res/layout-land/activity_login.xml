@@ -50,7 +50,7 @@
         android:layout_gravity="center"
         android:background="#FFFFFF"
         android:entries="@array/select_url"
-        android:textAlignment="center"/>
+        android:textAlignment="center" />
 
     <ScrollView
         android:id="@+id/login_form"
@@ -71,8 +71,8 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:layout_marginBottom="5dp"
+                android:layout_marginTop="2dp"
                 android:background="#FFF"
                 android:hint="@string/prompt_user_id"
                 android:imeOptions="actionNext"
@@ -164,10 +164,9 @@
         android:id="@+id/footerSnack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="top"
         android:orientation="vertical"
-        android:visibility="gone"
-        android:layout_gravity="top">
-    </LinearLayout>
+        android:visibility="gone"></LinearLayout>
 
     <!--
     <com.facebook.login.widget.LoginButton

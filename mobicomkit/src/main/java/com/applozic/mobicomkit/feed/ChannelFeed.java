@@ -31,7 +31,7 @@ public class ChannelFeed extends JsonMarker {
     private Conversation conversationPxy;
     private Long notificationAfterTime;
     private Long deletedAtTime;
-    private Map<String,String> metadata = new HashMap<>();
+    private Map<String, String> metadata = new HashMap<>();
 
     public ChannelFeed(Integer id, String name) {
         this.id = id;
@@ -68,7 +68,7 @@ public class ChannelFeed extends JsonMarker {
     }
 
     public String getAdminName() {
-        return TextUtils.isEmpty(adminName)?adminId:adminName;
+        return TextUtils.isEmpty(adminName) ? adminId : adminName;
     }
 
     public void setAdminName(String adminName) {
@@ -101,7 +101,7 @@ public class ChannelFeed extends JsonMarker {
 
     public Set<String> getMembersName() {
 
-        return (membersName==null) ? membersId: membersName;
+        return (membersName == null) ? membersId : membersName;
     }
 
     public void setMembersName(Set<String> membersName) {

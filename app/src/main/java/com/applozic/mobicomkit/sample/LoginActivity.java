@@ -230,7 +230,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             cancel = true;
         }
         // Check for a valid password, if the user entered one.
-        if ((TextUtils.isEmpty(mPasswordView.getText().toString())||mPasswordView.getText().toString().trim().length() == 0) && !isPasswordValid(mPasswordView.getText().toString())) {
+        if ((TextUtils.isEmpty(mPasswordView.getText().toString()) || mPasswordView.getText().toString().trim().length() == 0) && !isPasswordValid(mPasswordView.getText().toString())) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -280,7 +280,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
                     //Start GCM registration....
 
-                    PushNotificationTask.TaskListener pushNotificationTaskListener=  new PushNotificationTask.TaskListener() {
+                    PushNotificationTask.TaskListener pushNotificationTaskListener = new PushNotificationTask.TaskListener() {
                         @Override
                         public void onSuccess(RegistrationResponse registrationResponse) {
 
@@ -291,8 +291,8 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
                         }
                     };
-                    PushNotificationTask pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(),pushNotificationTaskListener,context);
-                    pushNotificationTask.execute((Void)null);
+                    PushNotificationTask pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(), pushNotificationTaskListener, context);
+                    pushNotificationTask.execute((Void) null);
 
                     buildContactData();
 
@@ -300,8 +300,8 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Intent mainActvity = new Intent(context, MainActivity.class);
                     startActivity(mainActvity);
                     Intent intent = new Intent(context, ConversationActivity.class);
-                    if(ApplozicClient.getInstance(LoginActivity.this).isContextBasedChat()){
-                        intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT,true);
+                    if (ApplozicClient.getInstance(LoginActivity.this).isContextBasedChat()) {
+                        intent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                     }
                     startActivity(intent);
                     finish();
