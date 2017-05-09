@@ -495,7 +495,8 @@ startActivity(intent);
 ```
 Intent intent = new Intent(this, ConversationActivity.class);            
 intent.putExtra(ConversationUIService.USER_ID, "receiveruserid123");             
-intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //put it for displaying the title.             
+intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //put it for displaying the title.  
+intent.putExtra(ConversationUIService.TAKE_ORDER,true); //Skip chat list for showing on back press 
 startActivity(intent);                              
 ```
 
