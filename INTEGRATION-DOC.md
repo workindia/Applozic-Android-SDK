@@ -328,6 +328,9 @@ If it is a new user, new user account will get created else existing user will b
 
 #### Step 4: Push Notification Setup
 
+For push notifications, you must have a Firebase account.
+Signup to https://console.firebase.google.com/ and create your application and generate push notification services file.
+
 ***Go to Applozic Dashboard, Edit Application -> Push Notification -> Android -> GCM/FCM Server Key.***
 
 
