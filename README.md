@@ -25,7 +25,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.84' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.85' `
 
 
 Add the following in gradle android target:      
@@ -79,7 +79,7 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
            android:exported="false"
            android:grantUriPermissions="true">
 <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
-           android:resource="@xml/provider_paths"/>
+           android:resource="@xml/applozic_provider_paths"/>
  </provider>           
          
 ```
@@ -91,19 +91,6 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
 ```
 <string name="default_media_location_folder">YOUR_APP_NAME</string> 
 ```
-
-Adding  File Provider path in your app 
-
-1.Create a android resorce directory as xml directory  
-2.Create a XML resource file in xml directory as provider_paths and paste the below code
-
-```
-<?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <external-path name="files" path="."/>
-</paths>
-```
-
 
 Permissions:          
 
@@ -165,22 +152,31 @@ Paste the following in your androidmanifest.xml:
            android:value="<APP_PARENT_ACTIVITY>" />
  </activity>
                    
-<activity android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:label="@string/activity_contacts_list"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme"
-          android:windowSoftInputMode="adjustResize">
-     <!-- Parent activity meta-data to support API level 7+ -->
-<meta-data
-          android:name="android.support.PARENT_ACTIVITY"
-          android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
+ <activity android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
+           android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
+           android:label="@string/app_name"
+           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+           android:theme="@style/ApplozicTheme"
+           android:windowSoftInputMode="adjustResize">
+
+            <!-- Parent activity meta-data to support API level 7+ -->
+<meta-data android:name="android.support.PARENT_ACTIVITY"
+           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
+
          <intent-filter>
-             <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.SEARCH" />
          </intent-filter>
-<meta-data
-          android:name="android.app.searchable"
-          android:resource="@xml/searchable_contacts" />
+
+         <intent-filter>
+               <action android:name="android.intent.action.SEND" />             
+               <category android:name="android.intent.category.DEFAULT" />
+               <data android:mimeType="image/*" />
+               <data android:mimeType="audio/*" />
+               <data android:mimeType="video/*" />
+               <data android:mimeType="text/plain"/>
+         </intent-filter>
+<meta-data android:name="android.app.searchable"
+           android:resource="@xml/searchable_contacts" />
 </activity>
 
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity"
