@@ -65,6 +65,7 @@
   "deleteOption": true,
   "blockOption": true,
   "muteOption": true,
+  "replyOption": true,
   "logoutOption": false,
   "logoutPackageName": "",
   "attachmentOptions": {
@@ -74,5 +75,8 @@
     ":audio": true,
     ":video": true,
     ":contact": true
-  }
+  },
+  "editTextHintText:":"Write a Message..",
+  "replyMessageLayoutSentMessageBackground":"#C0C0C0",
+  "replyMessageLayoutReceivedMessageBackground":"#F5F5F5"
 }

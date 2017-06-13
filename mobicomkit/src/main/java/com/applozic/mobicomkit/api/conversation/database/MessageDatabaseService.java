@@ -78,6 +78,7 @@ public class MessageDatabaseService {
         message.setSentToServer(sentToServer != null && sentToServer.intValue() == 1);
         message.setTo(cursor.getString(cursor.getColumnIndex("toNumbers")));
         int timeToLive = cursor.getInt(cursor.getColumnIndex("timeToLive"));
+        message.setReplyMessage(cursor.getInt(cursor.getColumnIndex("replyMessage")));
         message.setTimeToLive(timeToLive != 0 ? timeToLive : null);
         String fileMetaKeyStrings = cursor.getString(cursor.getColumnIndex("fileMetaKeyStrings"));
         if (!TextUtils.isEmpty(fileMetaKeyStrings)) {
@@ -231,6 +232,8 @@ public class MessageDatabaseService {
         structuredNameParamsList.add("0");
         structuredNameWhere += "hidden = ? AND ";
         structuredNameParamsList.add("0");
+        structuredNameWhere += "replyMessage != ? AND ";
+        structuredNameParamsList.add(String.valueOf(Message.ReplyMessage.HIDE_MESSAGE.getValue()));
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isDisplayCallRecordEnable()) {
@@ -569,6 +572,7 @@ public class MessageDatabaseService {
             if (message.getMetadata() != null && !message.getMetadata().isEmpty()) {
                 values.put(MobiComDatabaseHelper.MESSAGE_METADATA, GsonUtils.getJsonFromObject(message.getMetadata(), Map.class));
             }
+            values.put(MobiComDatabaseHelper.REPLY_MESSAGE,message.isReplyMessage());
             //TODO:Right now we are supporting single image attachment...making entry in same table
             if (message.getFileMetas() != null) {
                 FileMeta fileMeta = message.getFileMetas();
@@ -803,6 +807,21 @@ public class MessageDatabaseService {
     }
 
 
+    public boolean isMessagePresent(String key,Integer replyMessageType) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Cursor cursor = database.rawQuery(
+                "SELECT COUNT(*) FROM sms WHERE keyString = ? AND replyMessage = ?",
+                new String[]{key,String.valueOf(replyMessageType)});
+        cursor.moveToFirst();
+        boolean present = cursor.getInt(0) > 0;
+        if (cursor != null) {
+            cursor.close();
+        }
+        dbHelper.close();
+        return present;
+    }
+
+
     public List<Message> getChannelCustomMessagesByClientGroupId(String clientGroupId) {
         return getChannelCustomMessageList(null, clientGroupId);
     }
@@ -862,6 +881,7 @@ public class MessageDatabaseService {
         return read;
     }
 
+
     public List<Message> getMessages(Long createdAt) {
         return getMessages(createdAt, null);
     }
@@ -887,7 +907,7 @@ public class MessageDatabaseService {
         }
 
         String hiddenType = " and m1.messageContentType not in (" + Message.ContentType.HIDDEN.getValue()
-                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 ";
+                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue()+")";
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
@@ -906,25 +926,25 @@ public class MessageDatabaseService {
     }
 
     public String deleteMessage(Message message, String contactNumber) {
-        String contactNumbers = contactNumber;
-        String contactNumberClause = TextUtils.isEmpty(contactNumber) ? "" : " and contactNumbers='" + contactNumber + "'";
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.rawQuery("select contactNumbers from sms where keyString=" + "'" + message.getKeyString() + "'"
-                + contactNumberClause, null);
-        try {
-            if (cursor.moveToFirst()) {
-                contactNumbers = cursor.getString(cursor.getColumnIndex("contactNumbers"));
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+        if (!message.isSentToServer()) {
+            deleteMessageFromDb(message);
+        } else if (isMessagePresent(message.getKeyString(), Message.ReplyMessage.REPLY_MESSAGE.getValue())) {
+            updateReplyFlag(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue());
+        } else if (!isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
+            deleteMessageFromDb(message);
         }
-        database.delete("sms", "keyString" + "='" + message.getKeyString() + "'" + contactNumberClause, null);
-        dbHelper.close();
-        return contactNumbers;
+        return null;
     }
 
+    public void deleteMessageFromDb(Message message) {
+        try {
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+            database.delete("sms", "keyString" + "='" + message.getKeyString() + "'" , null);
+            dbHelper.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     public void deleteConversation(String contactNumber) {
         Log.i(TAG, "Deleting conversation for contactNumber: " + contactNumber);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=? AND channelKey = 0", new String[]{contactNumber});
@@ -974,6 +994,24 @@ public class MessageDatabaseService {
             db.execSQL("UPDATE contact SET unreadCount = 0 WHERE userId =" + "'" + userId + "'");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void updateReplyFlag(String messageKey,int isReplyMessage){
+        ContentValues values = new ContentValues();
+        values.put("replyMessage", isReplyMessage);
+        int updatedMessage = dbHelper.getWritableDatabase().update("sms", values, " keyString = '" + messageKey + "'", null);
+    }
+
+    public void updateMessageReplyType(String messageKey,Integer replyMessage){
+        try {
+            ContentValues values = new ContentValues();
+            values.put("replyMessage", replyMessage);
+            dbHelper.getWritableDatabase().update("sms", values, "keyString = ?",new String[]{messageKey});
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            dbHelper.close();
         }
     }
 

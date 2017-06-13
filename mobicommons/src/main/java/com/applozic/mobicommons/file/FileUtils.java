@@ -866,4 +866,27 @@ public class FileUtils {
         return name.substring(0, pos);
     }
 
+    public static boolean isMaxUploadSizeReached(Context context ,Uri uri,int maxFileSize) {
+        try{
+            Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (returnCursor != null) {
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                returnCursor.moveToFirst();
+                Long fileSize = returnCursor.getLong(sizeIndex);
+                returnCursor.close();
+                return fileSize > maxFileSize;
+            }
+
+        }catch (Exception e){
+        }
+        return false;
+    }
+
+    public static boolean isContentScheme(Uri uri){
+        if (uri == null) {
+            return false;
+        }
+        return "content".equalsIgnoreCase(uri.getScheme());
+    }
+
 }

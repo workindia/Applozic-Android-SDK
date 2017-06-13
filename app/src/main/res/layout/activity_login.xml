@@ -11,6 +11,8 @@
     android:paddingLeft="@dimen/mobicom_activity_horizontal_margin"
     android:paddingRight="@dimen/mobicom_activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingStart="@dimen/mobicom_activity_horizontal_margin"
+    android:paddingEnd="@dimen/mobicom_activity_horizontal_margin"
     tools:context="com.applozic.mobicomkit.sample.LoginActivity">
 
     <!-- Login progress -->

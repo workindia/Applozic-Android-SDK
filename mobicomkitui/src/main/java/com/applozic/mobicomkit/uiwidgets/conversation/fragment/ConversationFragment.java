@@ -103,7 +103,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
         }
         sendType.setSelection(1);
 
-        messageEditText.setHint(R.string.enter_mt_message_hint);
+        messageEditText.setHint(alCustomizationSettings.getEditTextHintText());
 
         multimediaPopupGrid.setVisibility(View.GONE);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -133,15 +133,17 @@ public class ConversationFragment extends MobiComConversationFragment implements
                 }
 
                 if (channel != null) {
-                    String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                    if (!TextUtils.isEmpty(userId)) {
-                        Contact withUserContact = appContactService.getContactById(userId);
-                        if (withUserContact.isBlocked()) {
-                            userBlockDialog(false, withUserContact, true);
-                        } else {
-                            processAttachButtonClick(view);
+                    if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                        String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                        if (!TextUtils.isEmpty(userId)) {
+                            Contact withUserContact = appContactService.getContactById(userId);
+                            if (withUserContact.isBlocked()) {
+                                userBlockDialog(false, withUserContact, true);
+                            } else {
+                                processAttachButtonClick(view);
+                            }
                         }
-                    } else {
+                    }else {
                         processAttachButtonClick(view);
                     }
                 } else if (contact != null) {

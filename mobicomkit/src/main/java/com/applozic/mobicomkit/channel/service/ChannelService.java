@@ -69,7 +69,7 @@ public class ChannelService {
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);
-                BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString());
+                //BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString());
                 channel = getChannel(channelFeed);
                 return channel;
             }

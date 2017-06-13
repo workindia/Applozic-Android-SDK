@@ -194,6 +194,9 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                         previousTotalItemCount = totalItemsCount;
                         if (totalItemsCount == 0) {
                             loading = true;
+                        }else {
+                            loading = false;
+
                         }
                     }
 
@@ -201,6 +204,14 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                         loading = false;
                         previousTotalItemCount = totalItemsCount;
                         currentPage++;
+                    }
+
+                    if(totalItemsCount - visibleItemCount == 0){
+                        return;
+                    }
+
+                    if(totalItemsCount <= 5){
+                        return;
                     }
 
                     if (!loading && (totalItemsCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {

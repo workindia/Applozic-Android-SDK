@@ -131,12 +131,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-
-        if (alCustomizationSettings.isProfileOption()) {
-            logoutbtn.setVisibility(View.VISIBLE);
-        } else {
-            logoutbtn.setVisibility(View.GONE);
-        }
+        logoutbtn.setVisibility(View.GONE);
         logoutbtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -275,7 +270,6 @@ public class ProfileFragment extends Fragment {
         } else {
             Log.i(TAG, "Activity result failed with code: " + resultCode);
         }
-
     }
 
     class ProfilePictureUpload extends AsyncTask<Void, Void, Boolean> {
@@ -342,7 +336,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            if (!TextUtils.isEmpty(changedStatusString)) {
+            if (!TextUtils.isEmpty(changedStatusString) && statusText != null) {
                 statusText.setText(changedStatusString);
             }
             progressDialog.dismiss();

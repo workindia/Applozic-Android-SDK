@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -224,10 +225,22 @@ public class UserService {
 
     public String processUpdateUserPassword(String oldPassword, String newPassword) {
         String response = userClientService.updateUserPassword(oldPassword, newPassword);
-        if (!TextUtils.isEmpty(response) && "success".equals(response)) {
+        if (!TextUtils.isEmpty(response) && MobiComKitConstants.SUCCESS.equals(response)) {
             userPreference.setPassword(newPassword);
         }
         return response;
     }
 
+
+    public void processPackageDetail() {
+        CustomerPackageDetail customerPackageDetail = new CustomerPackageDetail();
+        customerPackageDetail.setApplicationKey((MobiComKitClientService.getApplicationKey(context)));
+        customerPackageDetail.setPackageName(context.getPackageName());
+        String response = userClientService.packageDetail(customerPackageDetail);
+        if (!TextUtils.isEmpty(response) && response.equals(MobiComKitConstants.APPLICATION_INFO_RESPONSE)) {
+            userPreference.setApplicationInfoCallDone(true);
+        } else {
+            userPreference.setApplicationInfoCallDone(false);
+        }
+    }
 }

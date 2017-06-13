@@ -41,6 +41,7 @@ import com.applozic.mobicomkit.contact.ContactService;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelDeleteTask;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelLeaveMember;
@@ -252,7 +253,6 @@ public class ConversationUIService {
             }
 
             if (requestCode == MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION && resultCode == Activity.RESULT_OK) {
-                Log.i("test", "posi");
                 Double latitude = intent.getDoubleExtra("latitude", 0);
                 Double longitude = intent.getDoubleExtra("longitude", 0);
                 //TODO: put your location(lat/lon ) in constructor.
@@ -641,7 +641,7 @@ public class ConversationUIService {
         }
         if (alCustomizationSettings.getTotalOnlineUsers() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
             processLoadUsers(false, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
-        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(fragmentActivity).isRegisteredUsersContactCall())&& !userPreference.getWasContactListServerCallAlreadyDone()) {
             if (Utils.isInternetAvailable(fragmentActivity)) {
                 processLoadUsers(true, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
             }

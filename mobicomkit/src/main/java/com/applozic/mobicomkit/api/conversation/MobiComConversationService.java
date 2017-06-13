@@ -33,6 +33,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -190,6 +191,11 @@ public class MobiComConversationService {
                     if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                         continue;
                     }
+                    if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
+                        messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
+                    } else {
+                        messageDatabaseService.createMessage(message);
+                    }
                     if (contact == null && channel == null) {
                         if (message.isHidden()) {
                             if (message.getGroupId() != null) {
@@ -202,9 +208,9 @@ public class MobiComConversationService {
                             }
                         }
                     }
-                    messageDatabaseService.createMessage(message);
                 }
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,7 +226,43 @@ public class MobiComConversationService {
             }
         });*/
 
-        return messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
+        List<Message> finalMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
+        List<String> messageKeys = new ArrayList<>();
+        for (Message msg : finalMessageList) {
+            if (msg.getTo() == null) {
+                continue;
+            }
+            if (Message.MetaDataType.HIDDEN.getValue().equals(msg.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(msg.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                continue;
+            }
+            if (msg.getMetadata() != null && msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()) != null && !messageDatabaseService.isMessagePresent(msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()))) {
+                messageKeys.add(msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+            }
+        }
+        if (messageKeys != null && messageKeys.size() > 0) {
+            Message[] replyMessageList = getMessageListByKeyList(messageKeys);
+            if (replyMessageList != null) {
+                for (Message replyMessage : replyMessageList) {
+                    if (replyMessage.getTo() == null) {
+                        continue;
+                    }
+                    if (Message.MetaDataType.HIDDEN.getValue().equals(replyMessage.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(replyMessage.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                        continue;
+                    }
+                    if (replyMessage.hasAttachment() && !(replyMessage.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
+                        setFilePathifExist(replyMessage);
+                    }
+                    if (replyMessage.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+                        FileClientService fileClientService = new FileClientService(context);
+                        fileClientService.loadContactsvCard(replyMessage);
+                    }
+                    replyMessage.setReplyMessage(Message.ReplyMessage.HIDE_MESSAGE.getValue());
+                    messageDatabaseService.createMessage(replyMessage);
+                }
+            }
+        }
+
+        return finalMessageList;
     }
 
     private void processUserDetails(SyncUserDetailsResponse userDetailsResponse) {
@@ -250,6 +292,32 @@ public class MobiComConversationService {
         MobiComUserPreference.getInstance(context).setLastSeenAtSyncTime(userDetailsResponse.getGeneratedAt());
     }
 
+
+    public Message[] getMessageListByKeyList(List<String> messageKeyList) {
+        String response = messageClientService.getMessageByMessageKeys(messageKeyList);
+        if (!TextUtils.isEmpty(response)) {
+            JsonParser parser = new JsonParser();
+            JSONObject jsonObject;
+            try {
+                jsonObject = new JSONObject(response);
+                String status = null;
+                if (jsonObject.has("status")) {
+                    status = jsonObject.getString("status");
+                }
+                if (!TextUtils.isEmpty(status) && "success".equals(status)) {
+                    String responseString = jsonObject.getString("response");
+                    String messageResponse = parser.parse(responseString).getAsJsonObject().get("message").toString();
+                    if (!TextUtils.isEmpty(messageResponse)) {
+                        return (Message[]) GsonUtils.getObjectFromJson(messageResponse, Message[].class);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     private boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
         if (contact == null && channel == null) {
             return false;
@@ -271,7 +339,7 @@ public class MobiComConversationService {
                 .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()) : "");
     }
 
-    private void setFilePathifExist(Message message) {
+    public void setFilePathifExist(Message message) {
         FileMeta fileMeta = message.getFileMetas();
         File file = FileClientService.getFilePath(FileUtils.getName(fileMeta.getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(fileMeta.getName()), context.getApplicationContext(), fileMeta.getContentType());
         if (file.exists()) {

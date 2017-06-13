@@ -11,6 +11,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -108,7 +109,7 @@ import java.util.List;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener,OnClickReplyInterface {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -160,7 +161,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchView searchView;
     private String searchTerm;
     private SearchListFragment searchListFragment;
-    private Calendar calendar;
 
     public ConversationActivity() {
 
@@ -348,6 +348,12 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
+        if(!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())){
+            mActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(alCustomizationSettings.getThemeColorPrimary())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(Color.parseColor(alCustomizationSettings.getThemeColorPrimaryDark()));
+            }
+        }
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
         if (savedInstanceState != null) {
@@ -393,7 +399,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             startService(lastSeenStatusIntent);
         }
 
-        if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
+       if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
             accountStatusAsyncTask = new SyncAccountStatusAsyncTask(this, layout, snackbar);
             accountStatusAsyncTask.execute();
         }
@@ -457,7 +463,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     if (imageUri != null) {
                         imageUri = result.getUri();
                         if (imageUri != null && profilefragment != null) {
-                            profilefragment.handleProfileimageUpload(false, imageUri, profilePhotoFile);
+                            profilefragment.handleProfileimageUpload(true, imageUri, profilePhotoFile);
                         }
                     } else {
                         imageUri = result.getUri();
@@ -469,7 +475,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                         }
                     }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
+                    Log.i(ConversationActivity.class.getName(),"Cropping failed:"+result.getError());
                 }
             }
             if (requestCode == LOCATION_SERVICE_ENABLE) {
@@ -1222,6 +1228,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     snackbar.show();
                 }
             }
+        }
+    }
+
+    @Override
+    public void onClickOnMessageReply(Message message) {
+        if (message != null && conversation != null) {
+            conversation.onClickOnMessageReply(message);
         }
     }
 

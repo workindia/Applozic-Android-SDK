@@ -30,9 +30,10 @@
 
     <application
         android:name=".ApplozicSampleApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/ApplozicTheme">
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -41,7 +42,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
+                android:resource="@xml/applozic_provider_paths" />
         </provider>
 
         <activity
@@ -52,7 +53,7 @@
             android:theme="@style/MobiComAppBaseTheme"></activity>
         <activity
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:configChanges="keyboardHidden|screenSize|locale|smallestScreenSize|screenLayout|orientation"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
@@ -258,7 +259,7 @@
         <activity
             android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
             android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-            android:label="@string/activity_contacts_list"
+            android:label="@string/app_name"
             android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
             android:theme="@style/ApplozicTheme"
             android:windowSoftInputMode="adjustResize">
@@ -272,10 +273,20 @@
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="audio/*" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_contacts" />
         </activity>
+
         <activity
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

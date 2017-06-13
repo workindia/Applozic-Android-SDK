@@ -224,8 +224,9 @@ public class ChannelFragment extends ListFragment implements
 
         // Updates current filter to new filter
         mSearchTerm = newFilter;
-        mAdapter.indexOfSearchQuery(newFilter);
-
+        if(mAdapter != null){
+            mAdapter.indexOfSearchQuery(newFilter);
+        }
         getLoaderManager().restartLoader(
                 QUERY_ID, null, ChannelFragment.this);
 

@@ -6,9 +6,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -40,6 +43,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.PictureUploadPopUpFragment;
@@ -105,6 +109,12 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         connectivityReceiver = new ConnectivityReceiver();
         userPreference = MobiComUserPreference.getInstance(ChannelCreateActivity.this);
         mActionBar = getSupportActionBar();
+        if(!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())){
+            mActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(alCustomizationSettings.getThemeColorPrimary())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(Color.parseColor(alCustomizationSettings.getThemeColorPrimaryDark()));
+            }
+        }
         mActionBar.setTitle(R.string.channel_create_title);
         mActionBar.setDisplayShowHomeEnabled(true);
         mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -158,7 +168,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
             }
             if (check) {
                 Utils.toggleSoftKeyBoard(ChannelCreateActivity.this, true);
-                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(this).isRegisteredUsersContactCall())&& !userPreference.getWasContactListServerCallAlreadyDone()) {
                     processDownloadRegisteredUsers();
                 } else {
                     Intent intent = new Intent(ChannelCreateActivity.this, ContactSelectionActivity.class);
@@ -422,7 +432,9 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            progressDialog.dismiss();
+            if(progressDialog != null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+            }
         }
 
     }

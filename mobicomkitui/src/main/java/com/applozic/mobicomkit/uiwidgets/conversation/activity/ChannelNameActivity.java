@@ -7,9 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -102,6 +105,13 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
+        }
+
+        if(!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())){
+            mActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(alCustomizationSettings.getThemeColorPrimary())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(Color.parseColor(alCustomizationSettings.getThemeColorPrimaryDark()));
+            }
         }
         int drawableResourceId = getResources().getIdentifier(alCustomizationSettings.getAttachCameraIconName(), "drawable", getPackageName());
         selectImageProfileIcon.setImageResource(drawableResourceId);
@@ -213,7 +223,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
                     fileClientService.writeFile(imageChangeUri, profilePhotoFile);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
+                Log.i(ChannelNameActivity.class.getName(),"Cropping failed:"+result.getError());
             }
         }
         if (resultCode == Activity.RESULT_OK) {

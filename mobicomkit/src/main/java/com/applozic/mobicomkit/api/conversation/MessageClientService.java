@@ -21,6 +21,7 @@ import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -64,6 +65,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String ARGUMRNT_SAPERATOR = "&";
     public static final String UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL = "/rest/ws/message/read";
     public static final String MESSAGE_INFO_URL = "/rest/ws/message/info";
+    public static final String MESSAGE_BY_MESSAGE_KEYS_URL = "/rest/ws/message/detail";
 
     private static final String TAG = "MessageClientService";
     private Context context;
@@ -137,6 +139,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getSingleMessageReadUrl() {
         return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
+    }
+
+    public String getMessageByMessageKeysUrl(){
+        return getBaseUrl() + MESSAGE_BY_MESSAGE_KEYS_URL;
     }
 
     public void updateDeliveryStatus(String messageKeyString, String userId, String receiverNumber) {
@@ -520,6 +526,24 @@ public class MessageClientService extends MobiComKitClientService {
         }
         return response;
     }
+
+
+    public String getMessageByMessageKeys(List<String> messageKeys){
+        if(messageKeys != null && messageKeys.size()>0){
+            String messageKeyUrlBuild="";
+            for (String messageKey : messageKeys) {
+                messageKeyUrlBuild += "keys" + "=" + messageKey+"&";
+            }
+            String  response = httpRequestUtils.getResponse(getMessageByMessageKeysUrl() +"?"+ messageKeyUrlBuild, "application/json", "application/json");
+            Log.d(TAG, "Message keys response is :" + response);
+            if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+                return null;
+            }
+            return response;
+        }
+        return null;
+    }
+
 
     public void updateReadStatus(Contact contact, Channel channel) {
         String contactNumberParameter = "";

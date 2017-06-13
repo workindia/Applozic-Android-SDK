@@ -47,10 +47,11 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/linearLayout"
         android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
         android:layout_marginBottom="156dp"
         android:layout_weight="8"
         android:hint="@string/new_channel_name_hint"
+        android:textAlignment="viewStart"
+        android:layout_gravity="start"
         android:inputType="textAutoCorrect"
         android:lines="1"
         android:maxLength="255" />

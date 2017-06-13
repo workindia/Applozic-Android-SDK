@@ -67,15 +67,17 @@ public class FullScreenImageActivity extends AppCompatActivity {
             mediaImageViewView.setMessage(message);
         }
 
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
 
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                if (visibility == 0) {
-                    getSupportActionBar().show();
+                @Override
+                public void onSystemUiVisibilityChange(int visibility) {
+                    if (visibility == 0) {
+                        getSupportActionBar().show();
+                    }
                 }
-            }
-        });
+            });
+        }
 
         connectivityReceiver = new ConnectivityReceiver();
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -86,7 +88,9 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            toggleActionBar();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                toggleActionBar();
+            }
 
         }
         return true;
@@ -125,7 +129,9 @@ public class FullScreenImageActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         } else {
-            requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+            }
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }

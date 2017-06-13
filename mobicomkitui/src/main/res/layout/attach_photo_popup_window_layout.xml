@@ -58,7 +58,7 @@
         android:id="@+id/upload_remove_image_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:background="@color/applozic_theme_color_primary"
         android:orientation="horizontal"
         android:padding="10dp">

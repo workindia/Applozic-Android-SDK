@@ -56,6 +56,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_DETAILS_LIST_POST_URL = "/rest/ws/user/detail";
     public static final String UPDATE_USER_PASSWORD = "/rest/ws/user/update/password";
     public static final String USER_LOGOUT = "/rest/ws/device/logout";
+    public static final String APPLICATION_INFO_UPDATE_URL = "/apps/customer/application/info/update";
     public static final int BATCH_SIZE = 60;
     private static final String TAG = "UserClientService";
     private HttpRequestUtils httpRequestUtils;
@@ -145,6 +146,9 @@ public class UserClientService extends MobiComKitClientService {
         return getBaseUrl() + USER_LOGOUT;
     }
 
+    public String getApplicationInfoUrl() {
+        return getBaseUrl() + APPLICATION_INFO_UPDATE_URL;
+    }
     public ApiResponse logout() {
         return logout(false);
     }
@@ -517,6 +521,18 @@ public class UserClientService extends MobiComKitClientService {
             if (apiResponse != null && apiResponse.isSuccess()) {
                 return apiResponse.getStatus();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String packageDetail(CustomerPackageDetail customerPackageDetail) {
+        String response;
+        String jsonFromObject = GsonUtils.getJsonFromObject(customerPackageDetail, CustomerPackageDetail.class);
+        try {
+            response = httpRequestUtils.postData(getApplicationInfoUrl(), "application/json", "application/json", jsonFromObject);
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
         }
