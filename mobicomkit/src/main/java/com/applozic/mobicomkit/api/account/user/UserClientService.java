@@ -470,15 +470,11 @@ public class UserClientService extends MobiComKitClientService {
 
         JSONObject jsonFromObject = new JSONObject();
         try {
-<<<<<<< HEAD
+
             ApplozicUser applozicUser = new ApplozicUser();
             if(!TextUtils.isEmpty(displayName) ){
                 jsonFromObject.put("displayName",displayName);
-=======
-            User user = new User();
-            if (!TextUtils.isEmpty(displayName)) {
-                jsonFromObject.put("displayName", displayName);
->>>>>>> master
+
             }
             if (!TextUtils.isEmpty(profileImageLink)) {
                 jsonFromObject.put("imageLink", profileImageLink);
@@ -505,11 +501,9 @@ public class UserClientService extends MobiComKitClientService {
             if (response != null) {
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             }
-<<<<<<< HEAD
+
             Log.i(TAG,"ApplozicUser read response: "+response);
-=======
-            Log.i(TAG, "User read response: " + response);
->>>>>>> master
+
         } catch (Exception e) {
             e.printStackTrace();
         }

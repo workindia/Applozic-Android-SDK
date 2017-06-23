@@ -43,7 +43,7 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
-import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
@@ -110,7 +110,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin(User.AuthenticationType.APPLOZIC);
+                    attemptLogin(ApplozicUser.AuthenticationType.APPLOZIC);
                     return true;
                 }
                 return false;
@@ -123,7 +123,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             public void onClick(View view) {
 
                 Utils.toggleSoftKeyBoard(LoginActivity.this, true);
-                attemptLogin(User.AuthenticationType.APPLOZIC);
+                attemptLogin(ApplozicUser.AuthenticationType.APPLOZIC);
             }
         });
 
@@ -203,7 +203,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    public void attemptLogin(User.AuthenticationType authenticationType) {
+    public void attemptLogin(ApplozicUser.AuthenticationType authenticationType) {
         if (mAuthTask != null) {
             return;
         }
@@ -328,7 +328,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                 }
             };
 
-            User user = new User();
+            ApplozicUser user = new ApplozicUser();
             user.setUserId(userId);
             user.setEmail(email);
             user.setPassword(password);

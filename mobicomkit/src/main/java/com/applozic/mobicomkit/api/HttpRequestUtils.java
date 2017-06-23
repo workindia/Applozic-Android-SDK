@@ -232,11 +232,9 @@ public class HttpRequestUtils {
             connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
             connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
             Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
-<<<<<<< HEAD
+
             if(ApplozicUser.AuthenticationType.APPLOZIC.getValue() == authenticationType ){
-=======
-            if (User.AuthenticationType.APPLOZIC.getValue() == authenticationType) {
->>>>>>> master
+
                 connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
             }
 

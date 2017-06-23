@@ -53,7 +53,7 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
@@ -1198,7 +1198,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            User applozicUser = new User();
+            ApplozicUser applozicUser = new ApplozicUser();
             applozicUser.setUserId(loggedInUserId);
             try {
                 registerUserClientService.updateRegisteredAccount(applozicUser);

@@ -128,7 +128,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setUserBlockSyncTime("10000");
         mobiComUserPreference.setPassword(applozicUser.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
-<<<<<<< HEAD
+
         mobiComUserPreference.setAuthenticationType(String.valueOf(applozicUser.getAuthenticationTypeId()));
         if(applozicUser.getUserTypeId() != null){
             mobiComUserPreference.setUserTypeId(String.valueOf(applozicUser.getUserTypeId()));
@@ -140,22 +140,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         contact.setContactNumber(registrationResponse.getContactNumber());
         if(applozicUser.getUserTypeId() != null){
             contact.setUserTypeId(applozicUser.getUserTypeId());
-=======
-        mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
-        if (user.getUserTypeId() != null) {
-            mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
-        }
-        if(!TextUtils.isEmpty(user.getNotificationSoundFilePath())){
-            mobiComUserPreference.setNotificationSoundFilePath(user.getNotificationSoundFilePath());
-        }
-        Contact contact = new Contact();
-        contact.setUserId(user.getUserId());
-        contact.setFullName(registrationResponse.getDisplayName());
-        contact.setImageURL(registrationResponse.getImageLink());
-        contact.setContactNumber(registrationResponse.getContactNumber());
-        if (user.getUserTypeId() != null) {
-            contact.setUserTypeId(user.getUserTypeId());
->>>>>>> master
+
         }
         contact.setStatus(registrationResponse.getStatusMessage());
         contact.processContactNumbers(context);
@@ -239,33 +224,19 @@ public class RegisterUserClientService extends MobiComKitClientService {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
-<<<<<<< HEAD
+
         applozicUser.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
         applozicUser.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         applozicUser.setApplicationId(getApplicationKey(context));
         applozicUser.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
-        if(!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())){
+        if (!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())) {
             applozicUser.setUserTypeId(Short.valueOf(mobiComUserPreference.getUserTypeId()));
         }
-        if(getAppModuleName(context) != null){
+        if (getAppModuleName(context) != null) {
             applozicUser.setAppModuleName(getAppModuleName(context));
         }
-        if(!TextUtils.isEmpty(mobiComUserPreference.getDeviceRegistrationId())){
-            applozicUser.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
-=======
-        user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
-        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
-        user.setApplicationId(getApplicationKey(context));
-        user.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
-        if (!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())) {
-            user.setUserTypeId(Short.valueOf(mobiComUserPreference.getUserTypeId()));
-        }
-        if (getAppModuleName(context) != null) {
-            user.setAppModuleName(getAppModuleName(context));
-        }
         if (!TextUtils.isEmpty(mobiComUserPreference.getDeviceRegistrationId())) {
-            user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
->>>>>>> master
+            applozicUser.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
         }
         Log.i(TAG, "Registration update json " + gson.toJson(applozicUser));
         String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(applozicUser));

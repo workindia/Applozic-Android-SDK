@@ -7,6 +7,7 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 
@@ -16,59 +17,37 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
  */
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-<<<<<<< HEAD
     public interface TaskListener {
         void onSuccess(RegistrationResponse registrationResponse, Context context);
 
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 
     }
-    private ApplozicUser applozicUser;
-=======
->>>>>>> master
+
     private final TaskListener taskListener;
     private final Context context;
-    private User user;
+    private ApplozicUser applozicUser;
     private Exception mException;
     private RegistrationResponse registrationResponse;
     private UserClientService userClientService;
     private RegisterUserClientService registerUserClientService;
     private UserService userService;
 
-<<<<<<< HEAD
-    public UserLoginTask(ApplozicUser applozicUser, TaskListener listener, Context context) {
-        mUserId = applozicUser.getUserId();
-        mEmail = applozicUser.getEmail();
-        mPassword = applozicUser.getPassword();
-        mPhoneNumber = applozicUser.getContactNumber();
-        mDisplayName = applozicUser.getDisplayName();
-        mImageLink = applozicUser.getImageLink();
+    public UserLoginTask(ApplozicUser user, TaskListener listener, Context context) {
         this.taskListener = listener;
         this.context = context;
-        this.applozicUser = applozicUser;
-=======
-    public UserLoginTask(User user, TaskListener listener, Context context) {
-        this.taskListener = listener;
-        this.context = context;
-        this.user = user;
+        this.applozicUser = user;
         this.userClientService = new UserClientService(context);
         this.registerUserClientService = new RegisterUserClientService(context);
         this.userService = UserService.getInstance(context);
->>>>>>> master
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-<<<<<<< HEAD
-            new UserClientService(context).logout();
-            //registrationResponse = new RegisterUserClientService(context).createAccount(mEmail, mUserId, mPhoneNumber,mDisplayName,mImageLink, "");
-            registrationResponse  = new RegisterUserClientService(context).createAccount(applozicUser);
-=======
             userClientService.clearDataAndPreference();
-            registrationResponse = registerUserClientService.createAccount(user);
+            registrationResponse = registerUserClientService.createAccount(applozicUser);
             userService.processPackageDetail();
->>>>>>> master
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;
@@ -87,13 +66,5 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
             this.taskListener.onFailure(registrationResponse, mException);
         }
     }
-
-    public interface TaskListener {
-        void onSuccess(RegistrationResponse registrationResponse, Context context);
-
-        void onFailure(RegistrationResponse registrationResponse, Exception exception);
-
-    }
-
 
 }

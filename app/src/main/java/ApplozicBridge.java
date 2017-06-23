@@ -8,7 +8,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
-import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -31,7 +31,7 @@ public class ApplozicBridge {
      * @param user    :User object
      */
 
-    private static void startChatActivity(Context context, User user) {
+    private static void startChatActivity(Context context, ApplozicUser user) {
         if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
             TaskListener listener = new TaskListener() {
@@ -76,7 +76,7 @@ public class ApplozicBridge {
      * @param user    :user object
      */
 
-    public static void registerUserAndLaunchChat(Context context, User user) {
+    public static void registerUserAndLaunchChat(Context context, ApplozicUser user) {
         startChatActivity(context, user);
     }
 
@@ -136,8 +136,8 @@ public class ApplozicBridge {
      * @return
      */
 
-    public static User getLoggedInUserInformation() {
-        User user = new User();
+    public static ApplozicUser getLoggedInUserInformation() {
+        ApplozicUser user = new ApplozicUser();
         user.setUserId("Applozic-test");//useIid of user
         user.setDisplayName("ApplozicChat");//displayName of user
         //user.setEmail(); optional

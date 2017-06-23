@@ -67,14 +67,10 @@ public class ApplozicSetting {
     private static final String USER_PROFILE_FRAGMENT = "PROFILE_LOGOUT_BUTTON";
     private static final String MESSAGE_SEARCH_OPTION = "MESSAGE_SEARCH_OPTION";
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
-<<<<<<< HEAD
 
     public static ApplozicSetting applozicCustomSetting;
-=======
-    public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
->>>>>>> master
 
     private ApplozicSetting(Context context) {
         this.context = context;
