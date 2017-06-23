@@ -44,7 +44,7 @@ Applozic provide easy settings to customise your ui themes color,pop-up messages
 | startNewGroup | true/false | Create group  option | 
 | inviteFriendsInContactActivity | true/false | Invite friends button in Conatct list when no contcats are there |
 | registeredUserContactListCall | true/false | Registered users contact list call |
-| createAnyContact | true/false | Launch a chat with any user in contcat list | 
+| createAnyContact | true/false | Launch a chat with any user in contact list | 
 | userProfileFragment |  true/false | Show other user profile on click of App bar|
 | messageSearchOption | true/false | Message search option |
 | hideGroupAddMembersButton | true/false | Hide the add memeber option in group |

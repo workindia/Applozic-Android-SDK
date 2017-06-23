@@ -67,15 +67,17 @@ public class FullScreenImageActivity extends AppCompatActivity {
             mediaImageViewView.setMessage(message);
         }
 
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
 
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                if (visibility == 0) {
-                    getSupportActionBar().show();
+                @Override
+                public void onSystemUiVisibilityChange(int visibility) {
+                    if (visibility == 0) {
+                        getSupportActionBar().show();
+                    }
                 }
-            }
-        });
+            });
+        }
 
         connectivityReceiver = new ConnectivityReceiver();
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -86,7 +88,9 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            toggleActionBar();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                toggleActionBar();
+            }
 
         }
         return true;
@@ -125,7 +129,9 @@ public class FullScreenImageActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         } else {
-            requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+            }
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
@@ -160,7 +166,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
 
-            Uri uri = FileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME)  + ".provider", new File(message.getFilePaths().get(0)));
+            Uri uri = FileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -203,11 +209,11 @@ public class FullScreenImageActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try{
-            if(connectivityReceiver != null){
+        try {
+            if (connectivityReceiver != null) {
                 unregisterReceiver(connectivityReceiver);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

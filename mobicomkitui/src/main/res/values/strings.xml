@@ -30,9 +30,9 @@
     <string name="zero_groups_on_app">Groups not found</string>
     <string name="delete_thread_text">Deleting....</string>
     <string name="search_title">Search</string>
-    <string name ="applozic_user_already_in_a_group">Already added to the [groupType]</string>
-    <string name ="applozic_contacts_loading_info">Loading please wait...</string>
-    <string name ="applozic_contacts_loading_error">You need to have network access for loading contacts</string>
+    <string name="applozic_user_already_in_a_group">Already added to the [groupType]</string>
+    <string name="applozic_contacts_loading_info">Loading please wait...</string>
+    <string name="applozic_contacts_loading_error">You need to have network access for loading contacts</string>
 
 
     <!--
@@ -101,6 +101,7 @@
     <string name="applozic_user_profile_heading">Profile</string>
     <string name="group_members_limit_exceeds">Limit reached, remove someone from the Group first</string>
     <string name="please_wait_creating_group_of_two">Please wait...</string>
+    <string name="send_message_to">Send to..</string>
 
 
 </resources>
