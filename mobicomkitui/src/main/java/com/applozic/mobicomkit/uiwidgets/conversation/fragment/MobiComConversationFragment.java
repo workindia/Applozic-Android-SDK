@@ -544,11 +544,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (channel.isDeleted()) {
                         return;
                     }
-                    if (!Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                    if (alCustomizationSettings.isGroupInfoScreenVisible() && !Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                         Intent channelInfo = new Intent(getActivity(), ChannelInfoActivity.class);
                         channelInfo.putExtra(ChannelInfoActivity.CHANNEL_KEY, channel.getKey());
                         startActivity(channelInfo);
-                    } else {
+                    } else if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) && alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
                         if (userProfileFragment == null) {
                             String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());

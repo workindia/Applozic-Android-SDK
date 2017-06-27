@@ -54,6 +54,7 @@ import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -374,7 +375,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (id == R.id.add_member_to_channel) {
             if (isUserPresent) {
                 Utils.toggleSoftKeyBoard(ChannelInfoActivity.this, true);
-                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(this).isRegisteredUsersContactCall())&& !userPreference.getWasContactListServerCallAlreadyDone()) {
                     processLoadRegisteredUsers();
                 } else {
                     Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);

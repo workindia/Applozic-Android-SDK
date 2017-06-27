@@ -48,6 +48,7 @@ import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.async.AlChannelCreateAsyncTask;
@@ -187,7 +188,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if (alCustomizationSettings.isRegisteredUserContactListCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
+                if ((alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(getActivity()).isRegisteredUsersContactCall()) && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
 
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;

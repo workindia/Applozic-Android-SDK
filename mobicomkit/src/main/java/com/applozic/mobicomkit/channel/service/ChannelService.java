@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
+import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -77,6 +78,25 @@ public class ChannelService {
         return channel;
     }
 
+    public Channel getChannelInfo(String clientGroupId) {
+        if (TextUtils.isEmpty(clientGroupId)) {
+            return null;
+        }
+        Channel channel = channelDatabaseService.getChannelByClientGroupId(clientGroupId);
+        if (channel == null) {
+            ChannelFeed channelFeed = channelClientService.getChannelInfo(clientGroupId);
+            if (channelFeed != null) {
+                channelFeed.setUnreadCount(0);
+                ChannelFeed[] channelFeeds = new ChannelFeed[1];
+                channelFeeds[0] = channelFeed;
+                processChannelFeedList(channelFeeds, false);
+                channel = getChannel(channelFeed);
+                return channel;
+            }
+        }
+        return channel;
+    }
+
     public void createMultipleChannels(List<ChannelInfo> channelInfo) {
         List<ChannelFeed> channelFeeds = channelClientService.createMultipleChannels(channelInfo);
         if (channelFeeds != null) {
@@ -88,7 +108,6 @@ public class ChannelService {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
                 Set<String> memberUserIds = channelFeed.getMembersName();
-                Set<String> userIds = new HashSet<>();
                 Channel channel = getChannel(channelFeed);
                 if (channelDatabaseService.isChannelPresent(channel.getKey())) {
                     channelDatabaseService.updateChannel(channel);
@@ -453,6 +472,21 @@ public class ChannelService {
             }
         }
         return null;
+    }
+
+    public List<ChannelFeed> getGroupInfoFromGroupIds(List<String> groupIds, List<String> clientGroupIds) {
+
+        ChannelFeedListResponse channelFeedList = channelClientService.getGroupInfoFromGroupIds(groupIds, clientGroupIds);
+
+        if (channelFeedList == null) {
+            return null;
+        }
+
+        if (channelFeedList != null && ChannelFeedListResponse.SUCCESS.equals(channelFeedList.getStatus())) {
+            processChannelFeedList(channelFeedList.getResponse().toArray(new ChannelFeed[channelFeedList.getResponse().size()]), false);
+        }
+
+        return channelFeedList.getResponse();
     }
 
 }

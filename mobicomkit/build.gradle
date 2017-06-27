@@ -8,7 +8,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 25
         versionCode 1
-        versionName "4.85"
+        versionName "4.87"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -42,10 +42,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.google.code.gson:gson:2.2.4'
     compile project(':mobicommons') //Note: use this for customization
-    //compile 'com.applozic.mobiframework:mobicommons:4.85' //Note: use this in case customization is not required
+    //compile 'com.applozic.mobiframework:mobicommons:4.87' //Note: use this in case customization is not required
 }
-/*
 
+/*
 
 ext {
     // Where you will see your artifact in Bintray's web interface
@@ -61,7 +61,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '4.85'
+    libraryVersion = '4.87'
 
     developerId = 'devashish'
     developerName = 'Applozic'

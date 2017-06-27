@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Process;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -210,8 +211,10 @@ public class MobiComConversationService {
                     }
                 }
             }
-
-
+            if (contact == null && channel == null) {
+                Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

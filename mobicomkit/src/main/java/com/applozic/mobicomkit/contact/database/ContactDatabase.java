@@ -383,7 +383,7 @@ public class ContactDatabase {
                             query = query + " where userId != '" + userPreferences.getUserId() + "'";
                         }
                     }
-                    query = query + " order by fullName,userId asc ";
+                    query = query + " order by fullName COLLATE NOCASE,userId COLLATE NOCASE asc ";
                     cursor = db.rawQuery(query, null);
                 }
 

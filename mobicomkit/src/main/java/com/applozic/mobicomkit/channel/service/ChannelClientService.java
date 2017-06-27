@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
+import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -38,6 +39,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String CHANNEL_DELETE_URL = "/rest/ws/group/delete";
     private static final String REMOVE_MEMBERS_FROM_MULTIPE_CHANNELS = "/rest/ws/group/remove/user";
     private static final String MUTE_CHANNEL_UPDATE = "/rest/ws/group/user/update";
+    private static final String GET_GROUP_INFO_FROM_GROUP_IDS_URL = "/rest/ws/group/details";
 
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
@@ -111,6 +113,10 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public String getRemoveMembersFromMultipChannels() {
         return getBaseUrl() + REMOVE_MEMBERS_FROM_MULTIPE_CHANNELS;
+    }
+
+    public String getGroupInfoFromGroupIdsUrl() {
+        return getBaseUrl() + GET_GROUP_INFO_FROM_GROUP_IDS_URL;
     }
 
     public ChannelFeed getChannelInfoByParameters(String parameters) {
@@ -434,6 +440,40 @@ public class ChannelClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public ChannelFeedListResponse getGroupInfoFromGroupIds(List<String> groupIds, List<String> clientGroupIds) {
+        ChannelFeedListResponse apiResponse = null;
+
+        try {
+            StringBuilder parameters = new StringBuilder("?");
+
+            for (String groupId : groupIds) {
+                if (!TextUtils.isEmpty(groupId)) {
+                    parameters.append(GROUPIDS + "=" + groupId + "&");
+                }
+            }
+
+            for (String clientGroupId : clientGroupIds) {
+                if (!TextUtils.isEmpty(clientGroupId) && groupIds != null && !groupIds.contains(clientGroupId)) {
+                    parameters.append(CLIENT_GROUPIDs + "=" + clientGroupId + "&");
+                }
+            }
+
+            if (!groupIds.isEmpty() || !clientGroupIds.isEmpty()) {
+                String url = getGroupInfoFromGroupIdsUrl() + parameters;
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                apiResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response, ChannelFeedListResponse.class);
+
+                if (apiResponse != null) {
+                    Log.d(TAG, "Group Info from groupIds/clientGroupIds response : " + apiResponse.getStatus());
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+        }
+        return apiResponse;
+
     }
 
 }

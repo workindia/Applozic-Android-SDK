@@ -406,7 +406,7 @@ public class ChannelDatabaseService {
                 if (!TextUtils.isEmpty(searchString)) {
                     stringBuffer.append(" where " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " like '%" + searchString.replaceAll("'", "''") + "%'");
                 }
-                stringBuffer.append(" order by " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " asc ");
+                stringBuffer.append(" order by " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " COLLATE NOCASE asc ");
                 cursor = db.rawQuery(stringBuffer.toString(), null);
 
                 return cursor;
