@@ -67,7 +67,9 @@ public class ApplozicSetting {
     private static final String USER_PROFILE_FRAGMENT = "PROFILE_LOGOUT_BUTTON";
     private static final String MESSAGE_SEARCH_OPTION = "MESSAGE_SEARCH_OPTION";
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
-
+    private static final String CUSTOM_BUTTON = "CUSTOM_BUTTON";
+    private static final String CUSTOM_BUTTON_ICON = "CUSTOM_BUTTON_ICON";
+    private static final String CUSTOM_BUTTON_ACTION = "CUSTOM_BUTTON_ACTION";
     public static ApplozicSetting applozicCustomSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -416,10 +418,7 @@ public class ApplozicSetting {
     public ApplozicSetting setCompressedImageSizeInMB(int size) {
         MobiComUserPreference.getInstance(context).setCompressedImageSizeInMB(size);
         return this;
-
     }
-
-
     //===== END ========================================
 
     //Default value is 5.
@@ -660,6 +659,42 @@ public class ApplozicSetting {
         return sharedPreferences.getBoolean(MESSAGE_SEARCH_OPTION, false);
     }
 
+    public ApplozicSetting enableCustomButton(Boolean enableCustomButton) {
+        sharedPreferences.edit().putBoolean(CUSTOM_BUTTON, enableCustomButton).commit();
+
+        if (!enableCustomButton) {
+            if (sharedPreferences.contains(CUSTOM_BUTTON_ICON)) {
+                sharedPreferences.edit().putString(CUSTOM_BUTTON_ICON, null).commit();
+                sharedPreferences.edit().putString(CUSTOM_BUTTON_ACTION, null).commit();
+            }
+        }
+        return this;
+    }
+
+    public boolean isCustomButtonEnabled() {
+        return sharedPreferences.getBoolean(CUSTOM_BUTTON, false);
+    }
+
+    public void setCustomButtonIcon(String iconText) {
+        if (isCustomButtonEnabled()) {
+            sharedPreferences.edit().putString(CUSTOM_BUTTON_ICON, iconText).commit();
+        }
+    }
+
+    public String getCustomButtonIcon() {
+        return sharedPreferences.getString(CUSTOM_BUTTON_ICON, null);
+    }
+
+    public void setCustomButtonActionClassName(String className) {
+        if (isCustomButtonEnabled()) {
+            sharedPreferences.edit().putString(CUSTOM_BUTTON_ACTION, className).commit();
+        }
+    }
+
+    public String getCustomButtonActionClassName() {
+        return sharedPreferences.getString(CUSTOM_BUTTON_ACTION, null);
+    }
+
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();
     }
@@ -672,7 +707,6 @@ public class ApplozicSetting {
         USER_LOOUT(Integer.valueOf("1905")),
         VIDEO_CALL(Integer.valueOf("1906")),
         AUDIO_CALL(Integer.valueOf("1907"));
-
         private Integer value;
 
         RequestCode(Integer c) {

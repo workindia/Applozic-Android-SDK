@@ -3,6 +3,14 @@
     xmlns:mobicomkit="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/custom_button"
+        android:iconifiedByDefault="true"
+        android:orderInCategory="1"
+        android:showAsAction="withText|always"
+        android:visible="false"
+        mobicomkit:showAsAction="withText|always" />
+
+    <item
         android:id="@+id/menu_search"
         android:actionViewClass="android.support.v7.widget.SearchView"
         android:icon="@drawable/applozic_ic_action_search"

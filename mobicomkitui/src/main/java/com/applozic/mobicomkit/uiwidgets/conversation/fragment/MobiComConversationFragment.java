@@ -850,6 +850,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
+        menu.findItem(R.id.custom_button).setVisible(false);
 
         if ((setting.isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2)
                 || (setting.isIPCallEnabled())) {
@@ -863,6 +864,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             menu.findItem(R.id.video_call).setVisible(false);
             menu.findItem(R.id.dial).setVisible(false);
+        }
+        if (ApplozicSetting.getInstance(getActivity()).isCustomButtonEnabled()) {
+
+            menu.findItem(R.id.custom_button).setVisible(true);
+            menu.findItem(R.id.custom_button).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            int drawableResourceId = getActivity().getResources().getIdentifier(ApplozicSetting.getInstance(getActivity()).getCustomButtonIcon(), "drawable", getActivity().getPackageName());
+            menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
+
         }
         if (channel != null) {
             menu.findItem(R.id.dial).setVisible(false);
@@ -967,6 +976,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             }
         }
+        if (id == R.id.custom_button) {
+            Class mClass;
+            try {
+                mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
+                Intent intent = new Intent(getActivity(), mClass);
+                intent.putExtra("userId", contact.getContactIds());
+                startActivity(intent);
+            } catch (ClassNotFoundException e) {
+                Log.d("reytum", e.getMessage());
+            }
+        }
+
         if (id == R.id.muteGroup) {
             muteGroupChat();
         }
