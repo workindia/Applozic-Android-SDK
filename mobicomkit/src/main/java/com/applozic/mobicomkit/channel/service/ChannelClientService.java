@@ -448,32 +448,38 @@ public class ChannelClientService extends MobiComKitClientService {
         try {
             StringBuilder parameters = new StringBuilder("?");
 
-            for (String groupId : groupIds) {
-                if (!TextUtils.isEmpty(groupId)) {
-                    parameters.append(GROUPIDS + "=" + groupId + "&");
+            if (groupIds != null) {
+                for (String groupId : groupIds) {
+                    if (!TextUtils.isEmpty(groupId)) {
+                        parameters.append(GROUPIDS + "=" + groupId + "&");
+                    }
                 }
             }
 
-            for (String clientGroupId : clientGroupIds) {
-                if (!TextUtils.isEmpty(clientGroupId) && groupIds != null && !groupIds.contains(clientGroupId)) {
-                    parameters.append(CLIENT_GROUPIDs + "=" + clientGroupId + "&");
+            if (clientGroupIds != null) {
+                for (String clientGroupId : clientGroupIds) {
+                    if (!TextUtils.isEmpty(clientGroupId)) {
+                        if (groupIds != null && groupIds.contains(clientGroupId)) {
+                            continue;
+                        } else {
+                            parameters.append(CLIENT_GROUPIDs + "=" + clientGroupId + "&");
+                        }
+                    }
                 }
             }
 
-            if (!groupIds.isEmpty() || !clientGroupIds.isEmpty()) {
-                String url = getGroupInfoFromGroupIdsUrl() + parameters;
-                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
-                apiResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response, ChannelFeedListResponse.class);
+            String url = getGroupInfoFromGroupIdsUrl() + parameters;
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+            apiResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response, ChannelFeedListResponse.class);
 
-                if (apiResponse != null) {
-                    Log.d(TAG, "Group Info from groupIds/clientGroupIds response : " + apiResponse.getStatus());
-                }
+            if (apiResponse != null) {
+                Log.i(TAG, "Group Info from groupIds/clientGroupIds response : " + apiResponse.getStatus());
             }
         } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
+            Log.i(TAG, e.getMessage());
         }
         return apiResponse;
-
     }
+
 
 }

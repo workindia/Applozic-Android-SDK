@@ -474,6 +474,14 @@ public class ChannelService {
         return null;
     }
 
+    public List<ChannelFeed> getGroupInfoFromGroupIds(List<String> groupIds) {
+        return getGroupInfoFromGroupIds(groupIds, null);
+    }
+
+    public List<ChannelFeed> getGroupInfoFromClientGroupIds(List<String> clientGroupIds) {
+        return getGroupInfoFromGroupIds(null, clientGroupIds);
+    }
+
     public List<ChannelFeed> getGroupInfoFromGroupIds(List<String> groupIds, List<String> clientGroupIds) {
 
         ChannelFeedListResponse channelFeedList = channelClientService.getGroupInfoFromGroupIds(groupIds, clientGroupIds);

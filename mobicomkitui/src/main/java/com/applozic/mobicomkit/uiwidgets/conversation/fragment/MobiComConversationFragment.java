@@ -825,7 +825,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     continue;
                 }
 
-                if (menuItems[i].equals("Reply") && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()))) {
+                if (menuItems[i].equals("Reply") && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
                 if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
@@ -1290,8 +1290,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if ((message.getStatus() == Message.Status.DELIVERED_AND_READ.getValue()) || message.isTempDateType() || message.isCustom() || !message.isTypeOutbox() || message.isChannelCustomMessage()) {
                             continue;
                         }
+                        if (messageList.get(index) != null) {
+                            messageList.get(index).setDelivered(true);
+                        }
                         message.setDelivered(true);
                         if (markRead) {
+                            if (messageList.get(index) != null) {
+                                messageList.get(index).setStatus(Message.Status.DELIVERED_AND_READ.getValue());
+                            }
                             message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
                         }
                         View view = listView.getChildAt(index -
@@ -1765,6 +1771,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageListItem.setCreatedAtTime(message.getSentMessageTimeAtServer());
                     messageListItem.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
                     messageListItem.setFileMetas(message.getFileMetas());
+                    if(messageList.get(index) != null){
+                        messageList.get(index).setKeyString(message.getKeyString());
+                        messageList.get(index).setSentToServer(true);
+                        messageList.get(index).setCreatedAtTime(message.getSentMessageTimeAtServer());
+                        messageList.get(index).setFileMetaKeyStrings(message.getFileMetaKeyStrings());
+                        messageList.get(index).setFileMetas(message.getFileMetas());
+                    }
                     View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
                     if (view != null) {
                         ProgressBar mediaUploadProgressBarIndividualMessage = (ProgressBar) view.findViewById(R.id.media_upload_progress_bar);
@@ -1791,6 +1804,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         Message smListItem = messageList.get(index);
                         smListItem.setKeyString(message.getKeyString());
                         smListItem.setFileMetaKeyStrings(message.getFileMetaKeyStrings());
+                        if(messageList.get(index) != null){
+                            messageList.get(index).setKeyString(message.getKeyString());
+                            messageList.get(index).setFileMetaKeyStrings(message.getFileMetaKeyStrings());
+                        }
                         View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
                         if (view != null) {
                             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);

@@ -66,5 +66,14 @@
         android:layout_height="1dp"
         android:background="@color/applozic_location_view_divider_color" />
 
+    <LinearLayout
+        android:id="@+id/footerAd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_gravity="top">
+    </LinearLayout>
+
 </LinearLayout>
 
