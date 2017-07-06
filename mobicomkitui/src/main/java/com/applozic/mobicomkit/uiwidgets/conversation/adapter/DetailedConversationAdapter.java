@@ -890,7 +890,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             });
 
         } catch (Exception e) {
-            Log.e("DetailedConvAdapter", "Exception in parsing", e);
+            Utils.printLog(context,"DetailedConvAdapter", "Exception in parsing");
         }
 
     }
@@ -992,7 +992,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 } catch (Exception e) {
-                    Log.i(TAG, "No application found to open this file");
+                    Utils.printLog(context,TAG, "No application found to open this file");
                 }
             }
 
@@ -1036,7 +1036,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
             }
         } catch (Exception e) {
-            Log.i(TAG, "No application found to open this file");
+            Utils.printLog(context,TAG, "No application found to open this file");
         }
 
     }

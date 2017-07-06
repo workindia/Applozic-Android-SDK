@@ -776,7 +776,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             intent.putExtra(ConversationReadService.CHANNEL, channel);
                             getActivity().startService(intent);
                         } catch (Exception e) {
-                            Log.i(TAG, "Got exception while read");
+                            Utils.printLog(getContext(), TAG, "Got exception while read");
                         }
                     }
                 }
@@ -1310,7 +1310,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     }
                 } catch (Exception ex) {
-                    Log.i(TAG, "Exception while updating delivery status in UI.");
+                    Utils.printLog(getContext(), TAG, "Exception while updating delivery status in UI.");
                 }
             }
         });
@@ -1352,7 +1352,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         conversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
-                    Log.i(TAG, "Exception while updating delivery status in UI.");
+                    Utils.printLog(getContext(), TAG, "Exception while updating delivery status in UI.");
                 }
             }
         });
@@ -1370,7 +1370,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         filePath = Uri.parse(file.getAbsolutePath()).toString();
         if (TextUtils.isEmpty(filePath)) {
-            Log.i(TAG, "Error while fetching filePath");
+            Utils.printLog(getContext(), TAG, "Error while fetching filePath");
             attachmentLayout.setVisibility(View.GONE);
             Toast.makeText(getActivity(), R.string.info_file_attachment_error, Toast.LENGTH_LONG).show();
             return;
@@ -1835,7 +1835,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                     }
                 } catch (Exception ex) {
-                    Log.i(TAG, "Exception while updating download status: " + ex.getMessage());
+                    Utils.printLog(getContext(), TAG, "Exception while updating download status: " + ex.getMessage());
                 }
             }
         });
@@ -2602,7 +2602,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     }
 
-                    Log.i(TAG, " loading conversation with  lastConversationloadTime " + lastConversationloadTime);
+  
                     nextMessageList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, channel, conversationId);
                 } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
                     loadMore = false;

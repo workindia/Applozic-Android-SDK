@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -23,6 +22,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
 import com.applozic.mobicommons.json.ArrayAdapterFactory;
@@ -110,14 +110,14 @@ public class MobiComConversationService {
         if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
                 (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
                 || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
-            Log.i(TAG, "cachedMessageList size is : " + cachedMessageList.size());
+            Utils.printLog(context,TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
         String data;
         try {
             data = messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead);
-            Log.i(TAG, "Received response from server for Messages: " + data);
+            Utils.printLog(context,TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
             return cachedMessageList;
@@ -168,7 +168,7 @@ public class MobiComConversationService {
 
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
-                    Log.i(TAG, "Both messages are same.");
+                    Utils.printLog(context,TAG, "Both messages are same.");
                     deleteMessage(cachedMessageList.get(0));
                 }
             }
@@ -332,7 +332,7 @@ public class MobiComConversationService {
         if (contact == null && channel == null) {
             return;
         }
-        Log.i(TAG, "updating server call to true");
+        Utils.printLog(context,TAG, "updating server call to true");
         sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
     }
 

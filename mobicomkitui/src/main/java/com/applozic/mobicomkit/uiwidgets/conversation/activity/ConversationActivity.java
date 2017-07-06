@@ -412,7 +412,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         //setIntent(intent);
         if (!MobiComUserPreference.getInstance(this).isLoggedIn()) {
             //user is not logged in
-            Log.i("AL", "user is not logged in yet.");
+            Utils.printLog(this,"AL", "user is not logged in yet.");
             return;
         }
 
@@ -475,7 +475,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                         }
                     }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Log.i(ConversationActivity.class.getName(),"Cropping failed:"+result.getError());
+                    Utils.printLog(this,ConversationActivity.class.getName(),"Cropping failed:"+result.getError());
                 }
             }
             if (requestCode == LOCATION_SERVICE_ENABLE) {
@@ -606,7 +606,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (alCustomizationSettings.isLocationShareViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
             Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
             startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
-            Log.i("test", "Activity for result strarted");
+            Utils.printLog(this,"test", "Activity for result strarted");
 
         } else {
             //================= START GETTING LOCATION WITHOUT LOADING MAP AND SEND LOCATION AS TEXT===============
@@ -949,7 +949,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
 
         } catch (Exception e) {
-            Log.i("ConversationActivity", "Call permission is not added in androidManifest");
+            Utils.printLog(this,"ConversationActivity", "Call permission is not added in androidManifest");
         }
     }
 

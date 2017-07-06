@@ -10,7 +10,6 @@ import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -336,7 +335,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
             }
         } catch (Exception e) {
-            Log.w("AL", "Exception while updating view .");
+            Utils.printLog(getActivity(),"AL", "Exception while updating view .");
         }
     }
 
@@ -624,7 +623,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         conversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
-                    Log.w("AL", "Exception while updating online status.");
+                    Utils.printLog(getActivity(),"AL", "Exception while updating online status.");
                 }
             }
         });
@@ -656,7 +655,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         }
                     }
                 } catch (Exception ex) {
-                    Log.w("AL", "Exception while updating Unread count...");
+                    Utils.printLog(getActivity(),"AL", "Exception while updating Unread count...");
                 }
             }
         });

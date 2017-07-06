@@ -26,7 +26,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -261,7 +260,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 handleOnActivityResult(requestCode, intent);
             }
         } catch (Exception e) {
-            Log.i(TAG, "exception in profile image");
+            Utils.printLog(this,TAG, "exception in profile image");
         }
     }
 
@@ -424,8 +423,6 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ChannelCreateActivity.class.getName(), "Exception");
-
             }
             return true;
         }

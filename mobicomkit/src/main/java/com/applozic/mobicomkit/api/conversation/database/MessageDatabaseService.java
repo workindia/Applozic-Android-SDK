@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -16,6 +15,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -587,7 +587,7 @@ public class MessageDatabaseService {
             }
             id = database.insert("sms", null, values);
         } catch (SQLiteConstraintException ex) {
-            Log.e(TAG, "Duplicate entry in sms table, sms: " + message);
+            Utils.printLog(context,TAG, "Duplicate entry in sms table, sms: " + message);
         } finally {
             dbHelper.close();
         }
@@ -744,7 +744,7 @@ public class MessageDatabaseService {
             dbHelper.close();
             return conversationCount;
         } catch (Exception ex) {
-            Log.w(TAG, "Exception while fetching unread conversation count");
+            Utils.printLog(context,TAG, "Exception while fetching unread conversation count");
         }
         return 0;
     }
@@ -762,7 +762,7 @@ public class MessageDatabaseService {
             dbHelper.close();
             return unreadMessageCount;
         } catch (Exception ex) {
-            Log.w(TAG, "Exception while fetching unread message count");
+            Utils.printLog(context,TAG, "Exception while fetching unread message count");
             return 0;
         }
     }
@@ -946,19 +946,19 @@ public class MessageDatabaseService {
         }
     }
     public void deleteConversation(String contactNumber) {
-        Log.i(TAG, "Deleting conversation for contactNumber: " + contactNumber);
+        Utils.printLog(context,TAG, "Deleting conversation for contactNumber: " + contactNumber);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=? AND channelKey = 0", new String[]{contactNumber});
         updateContactUnreadCountToZero(contactNumber);
         dbHelper.close();
-        Log.i(TAG, "Delete " + deletedRows + " messages.");
+        Utils.printLog(context,TAG, "Delete " + deletedRows + " messages.");
     }
 
     public void deleteChannelConversation(Integer channelKey) {
-        Log.i(TAG, "Deleting  Conversation for channel: " + channelKey);
+        Utils.printLog(context,TAG, "Deleting  Conversation for channel: " + channelKey);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "channelKey=?", new String[]{String.valueOf(channelKey)});
         updateChannelUnreadCountToZero(channelKey);
         dbHelper.close();
-        Log.i(TAG, "Delete " + deletedRows + " messages.");
+        Utils.printLog(context,TAG, "Delete " + deletedRows + " messages.");
     }
 
     public synchronized void updateContactUnreadCount(String userId) {

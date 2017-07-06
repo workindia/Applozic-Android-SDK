@@ -147,7 +147,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
             sendLocation.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i(TAG, "On click of send location button");
+                    Utils.printLog(MobicomLocationActivity.this,TAG, "On click of send location button");
                     if (myLocationMarker != null) {
                         Intent intent = new Intent();
                         intent.putExtra("latitude", myLocationMarker.getPosition().latitude);
@@ -158,7 +158,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
                 }
             });
         } catch (Exception e) {
-            Log.i(TAG, "Check if location permission are added");
+            Utils.printLog(MobicomLocationActivity.this,TAG, "Check if location permission are added");
         }
 
     }
@@ -232,7 +232,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.w(((Object) this).getClass().getSimpleName(),
+        Log.w(TAG,
                 "onConnectionSuspended() called.");
 
     }

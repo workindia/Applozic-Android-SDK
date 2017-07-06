@@ -20,7 +20,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 
@@ -261,14 +260,14 @@ public class ProfileFragment extends Fragment {
             super.onActivityResult(requestCode, resultCode, intent);
             File file = FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getContext(), "image", true);
             if (file == null || !file.exists()) {
-                Log.i(TAG, "file not found,exporting it from drawable");
+                Utils.printLog(getActivity(),TAG, "file not found,exporting it from drawable");
                 Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.applozic_ic_contact_picture_180_holo_light);
                 String filePath = ImageUtils.saveImageToInternalStorage(FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getActivity().getApplicationContext(), "image", true), bm);
                 file = new File(filePath);
             }
             handleProfileimageUpload(false, Uri.parse(file.getAbsolutePath()), file);
         } else {
-            Log.i(TAG, "Activity result failed with code: " + resultCode);
+            Utils.printLog(getActivity(),TAG, "Activity result failed with code: " + resultCode);
         }
     }
 
@@ -328,7 +327,7 @@ public class ProfileFragment extends Fragment {
                 userService.updateDisplayNameORImageLink(displayName, response, filePath, status);
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ProfileFragment.class.getName(), "Exception");
+                Utils.printLog(context,ProfileFragment.class.getName(), "Exception");
 
             }
             return true;

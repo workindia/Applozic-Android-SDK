@@ -27,7 +27,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -125,7 +124,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
             File file = new File(groupInfoUpdate.getLocalImagePath());
             Uri uri = Uri.parse(file.getAbsolutePath());
             if (uri != null) {
-                Log.i("ChannelNameActivity::", uri.toString());
+                Utils.printLog(this,"ChannelNameActivity::", uri.toString());
                 applozicGroupProfileIcon.setImageURI(uri);
             }
         } else {
@@ -223,7 +222,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
                     fileClientService.writeFile(imageChangeUri, profilePhotoFile);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Log.i(ChannelNameActivity.class.getName(),"Cropping failed:"+result.getError());
+                Utils.printLog(this,ChannelNameActivity.class.getName(),"Cropping failed:"+result.getError());
             }
         }
         if (resultCode == Activity.RESULT_OK) {
