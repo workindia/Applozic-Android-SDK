@@ -442,4 +442,25 @@ public class ChannelDatabaseService {
     }
 
 
+    public String[] getChannelMemberByName(String name, String type) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        List<String> userIds = new ArrayList<String>();
+        Cursor cursor = database.rawQuery("Select cu.userId from channel c JOIN channel_User_X cu on c.channelKey = cu.channelKey where c.channelName ='" + name + "' AND c.type ='" + type + "'", null);
+        cursor.moveToFirst();
+        if (cursor.getCount() > 0) {
+            do {
+                userIds.add(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        if (userIds.contains(MobiComUserPreference.getInstance(context).getUserId())) {
+            userIds.remove(MobiComUserPreference.getInstance(context).getUserId());
+        }
+        if (userIds != null && userIds.size() > 0) {
+            return userIds.toArray(new String[userIds.size()]);
+        }
+        return null;
+    }
+
 }

@@ -102,6 +102,9 @@
     <string name="group_members_limit_exceeds">Limit reached, remove someone from the Group first</string>
     <string name="please_wait_creating_group_of_two">Please wait...</string>
     <string name="send_message_to">Send to..</string>
+    <string name="processing_please_wait">Processing... Please wait</string>
+    <string name="success">success</string>
+    <string name="error">error</string>
 
 
 </resources>

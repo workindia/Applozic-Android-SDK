@@ -40,6 +40,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     public static final String CHECK_BOX = "CHECK_BOX";
     public static final String IMAGE_LINK = "IMAGE_LINK";
     public static final String GROUP_TYPE = "GROUP_TYPE";
+    public static final String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     public static boolean isSearching = false;
     protected SearchView searchView;
     Channel channel;
@@ -47,6 +48,8 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     int groupType;
     ContactDatabase contactDatabase;
     ContactSelectionFragment contactSelectionFragment;
+    String contactsGroupId;
+    AlCustomizationSettings alCustomizationSettings;
     private String name;
     private String imageUrl;
     private ActionBar mActionBar;
@@ -55,7 +58,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     private String mSearchTerm;
     private AppContactService contactService;
     private ConnectivityReceiver connectivityReceiver;
-    AlCustomizationSettings alCustomizationSettings;
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
@@ -90,7 +92,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-        if(!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())){
+        if (!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())) {
             mActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(alCustomizationSettings.getThemeColorPrimary())));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 getWindow().setStatusBarColor(Color.parseColor(alCustomizationSettings.getThemeColorPrimaryDark()));
@@ -104,6 +106,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
             mActionBar.setTitle(R.string.channel_member_title);
             name = getIntent().getStringExtra(CHANNEL);
             imageUrl = getIntent().getStringExtra(IMAGE_LINK);
+            contactsGroupId = getIntent().getStringExtra(CONTACTS_GROUP_ID);
             groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
         } else {
             mActionBar.setTitle(R.string.channel_members_title);
@@ -115,6 +118,9 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         bundle.putString(IMAGE_LINK, imageUrl);
         bundle.putInt(GROUP_TYPE, groupType);
         contactSelectionFragment.setArguments(bundle);
+        if (contactsGroupId != null) {
+            bundle.putString(CONTACTS_GROUP_ID, contactsGroupId);
+        }
         addFragment(this, contactSelectionFragment, "ContactSelectionFragment");
         connectivityReceiver = new ConnectivityReceiver();
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));

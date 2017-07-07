@@ -41,6 +41,7 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
+import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
@@ -52,6 +53,7 @@ import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.async.AlChannelCreateAsyncTask;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicGetMemberFromContactGroupTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelCreateActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
@@ -92,6 +94,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     Channel channel;
     MobiComUserPreference userPreference;
     AlCustomizationSettings alCustomizationSettings;
+    String contactsGroupId;
     private String mSearchTerm; // Stores the current search query term
     private ContactsAdapter mAdapter;
     private boolean isScrolling = false;
@@ -105,6 +108,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private String imageUrl;
     private String channelName;
     private int groupType;
+    private String[] groupContacts;
     private Bundle bundle;
     private List<String> userIdList;
 
@@ -124,6 +128,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             channelName = bundle.getString(CHANNEL);
             imageUrl = bundle.getString(IMAGE_LINK);
             groupType = bundle.getInt(GROUP_TYPE);
+            contactsGroupId = bundle.getString(ContactSelectionActivity.CONTACTS_GROUP_ID);
         }
         userPreference = MobiComUserPreference.getInstance(getActivity());
         setHasOptionsMenu(true);
@@ -149,6 +154,31 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         // Add a cache to the image loader
         mImageLoader.addImageCache(getActivity().getSupportFragmentManager(), 0.1f);
         mImageLoader.setImageFadeIn(false);
+        if (contactsGroupId != null) {
+            ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(context);
+            groupContacts = channelDatabaseService.getChannelMemberByName(contactsGroupId, String.valueOf(Channel.GroupType.CONTACT_GROUP.getValue()));
+            if (Utils.isInternetAvailable(getContext())) {
+                ApplozicGetMemberFromContactGroupTask.GroupMemberListener eventMemberListener = new ApplozicGetMemberFromContactGroupTask.GroupMemberListener() {
+                    @Override
+                    public void onSuccess(String[] userIdArray, Context context) {
+                        if (isAdded()) {
+                            groupContacts = new String[userIdArray.length];
+                            groupContacts = userIdArray;
+                            getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String response, Context context) {
+
+                    }
+                };
+                ApplozicGetMemberFromContactGroupTask applozicGetMemberFromContactGroupTask = new ApplozicGetMemberFromContactGroupTask(getActivity(), contactsGroupId, String.valueOf(Channel.GroupType.CONTACT_GROUP.getValue()), eventMemberListener);        // pass GroupId whose contact Members you want to show, contactGroupType
+                applozicGetMemberFromContactGroupTask.execute();
+            } else if (groupContacts != null) {
+                getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+            }
+        }
     }
 
     @Override
@@ -195,7 +225,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                         previousTotalItemCount = totalItemsCount;
                         if (totalItemsCount == 0) {
                             loading = true;
-                        }else {
+                        } else {
                             loading = false;
 
                         }
@@ -207,11 +237,11 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                         currentPage++;
                     }
 
-                    if(totalItemsCount - visibleItemCount == 0){
+                    if (totalItemsCount - visibleItemCount == 0) {
                         return;
                     }
 
-                    if(totalItemsCount <= 5){
+                    if (totalItemsCount <= 5) {
                         return;
                     }
 
@@ -228,7 +258,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         // If there's a previously selected search item from a saved state then don't bother
         // initializing the loader as it will be restarted later when the query is populated into
         // the action bar search view (see onQueryTextChange() in onCreateOptionsMenu()).
-        if (mPreviouslySelectedSearchItem == 0) {
+        if (mPreviouslySelectedSearchItem == 0 && contactsGroupId == null) {
             // Initialize the loader, and create a loader identified by ContactsQuery.QUERY_ID
             getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, this);
         }
@@ -260,7 +290,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                             toast.setGravity(Gravity.CENTER, 0, 0);
                             toast.show();
                         }
-                        if (registeredUsersApiResponse != null) {
+                        if (registeredUsersApiResponse != null && contactsGroupId == null) {
                             getLoaderManager().restartLoader(
                                     ContactSelectionFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
                         }
@@ -417,7 +447,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, null);
+        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
         return loader;
     }
 
@@ -451,9 +481,10 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         // Updates current filter to new filter
         mSearchTerm = newFilter;
         mAdapter.indexOfSearchQuery(newFilter);
-
-        getLoaderManager().restartLoader(
-                ContactSelectionFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+        if (contactsGroupId == null || mSearchTerm != null) {
+            getLoaderManager().restartLoader(
+                    ContactSelectionFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+        }
 
         return true;
     }
