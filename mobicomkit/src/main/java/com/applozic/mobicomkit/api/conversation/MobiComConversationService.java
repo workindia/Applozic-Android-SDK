@@ -490,22 +490,33 @@ public class MobiComConversationService {
 //        message.setFileMetas(metaFileList);
 //    }
 
-    public void sendMessage(String userID, String textMessage, String filePath) {
+    public void sendMessage(Integer groupId, String userId, String textMessage, String filePath) {
+
+        Message message = new Message();
+        List<String> filePathList = new ArrayList<>();
+
+        if ((groupId == null || groupId == 0) && TextUtils.isEmpty(userId)) {
+            return;
+        }
 
         if (filePath != null) {
-            List<String> filePaths = new ArrayList<>();
-            Message message = new Message();
-            message.setTo(userID);
-            message.setContactIds(userID);
+            filePathList.add(filePath);
             message.setContentType(Message.ContentType.ATTACHMENT.getValue());
-            filePaths.add(filePath);
-            message.setFilePaths(filePaths);
-
-            if (textMessage != null && !TextUtils.isEmpty(textMessage)) {
-                message.setMessage(textMessage);
-            }
-            sendMessage(message);
+            message.setFilePaths(filePathList);
         }
+        if (textMessage != null && !TextUtils.isEmpty(textMessage)) {
+            message.setMessage(textMessage);
+        }
+        if (groupId != null && groupId != 0) {
+            message.setGroupId(groupId);
+        } else {
+            if (userId != null) {
+                message.setContactIds(userId);
+                message.setTo(userId);
+            } else return;
+        }
+
+        sendMessage(message);
     }
 
     public void sendMessage(String userId, String textMessage) {
