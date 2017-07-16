@@ -124,7 +124,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String CAPTURED_VIDEO_URI = "capturedVideoUri";
     private static final String SHARE_TEXT = "share_text";
-    private static final String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
+    public static final String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     private static Uri capturedImageUri;
     private static String inviteMessage;
     private static int retry;
