@@ -316,7 +316,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
                     alertDialog.setTitle(getString(R.string.text_alert));
                     alertDialog.setMessage(exception.toString());
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(android.R.string.ok),
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.ok_alert),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -504,7 +504,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
             Snackbar.make(layout, R.string.contact_permission,
                     Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                    .setAction(R.string.ok_alert, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             ActivityCompat

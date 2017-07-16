@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -57,8 +56,6 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 import com.applozic.mobicommons.commons.core.utils.LocationInfo;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.commons.image.ImageUtils;
-import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -68,7 +65,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 
 public class ConversationUIService {
@@ -235,7 +231,7 @@ public class ConversationUIService {
                     }
 
                 } catch (Exception e) {
-                    Toast.makeText(fragmentActivity, "Failed to load Contact", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.applozic_failed_to_load_contact), Toast.LENGTH_SHORT).show();
                     Log.e("Exception::", "Exception", e);
                 }
             }
@@ -275,7 +271,7 @@ public class ConversationUIService {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -338,7 +334,7 @@ public class ConversationUIService {
                         applozicChannelDeleteTask.execute((Void) null);
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -373,7 +369,7 @@ public class ConversationUIService {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }

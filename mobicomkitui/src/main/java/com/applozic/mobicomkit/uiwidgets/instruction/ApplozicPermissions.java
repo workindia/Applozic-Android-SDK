@@ -111,7 +111,7 @@ public class ApplozicPermissions {
     public void showSnackBar(int resId, final String[] permissions, final int requestCode) {
         Snackbar.make(snackBarLayout, resId,
                 Snackbar.LENGTH_INDEFINITE)
-                .setAction(android.R.string.ok, new View.OnClickListener() {
+                .setAction(R.string.ok_alert, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         PermissionsUtils.requestPermissions(activity, permissions, requestCode);

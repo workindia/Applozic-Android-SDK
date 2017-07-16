@@ -198,7 +198,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         try {
             layout.setVisibility(View.VISIBLE);
             snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_LONG);
-            snackbar.setAction("OK", new View.OnClickListener() {
+            snackbar.setAction(this.getString(R.string.ok_alert), new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     snackbar.dismiss();
@@ -622,7 +622,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                                 startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
                             }
                         })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                                 Toast.makeText(ConversationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();

@@ -58,7 +58,7 @@
                     android:paddingTop="10dp"
                     android:textAlignment="gravity"
                     android:textDirection="locale"
-                    android:text="Name"
+                    android:text="@string/name"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 
@@ -102,7 +102,7 @@
                     android:textAlignment="gravity"
                     android:textDirection="locale"
                     android:paddingTop="10dp"
-                    android:text="Status"
+                    android:text="@string/status"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 
@@ -144,7 +144,7 @@
                     android:textAlignment="gravity"
                     android:textDirection="locale"
                     android:paddingTop="10dp"
-                    android:text="Email"
+                    android:text="@string/email"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 
@@ -187,7 +187,7 @@
                     android:paddingLeft="20dp"
                     android:paddingStart="20dp"
                     android:paddingTop="10dp"
-                    android:text="Phone"
+                    android:text="@string/phone"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
 

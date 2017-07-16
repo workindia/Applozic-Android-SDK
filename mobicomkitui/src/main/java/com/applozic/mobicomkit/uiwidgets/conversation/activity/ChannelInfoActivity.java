@@ -71,7 +71,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -475,7 +474,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -496,14 +495,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     public void addChannelUser(final String userId, final Channel channel) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).
-                setPositiveButton(R.string.add_member, new DialogInterface.OnClickListener() {
+                setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -529,7 +528,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         new ChannelAsync(channel, ChannelInfoActivity.this).execute();
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -549,7 +548,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }

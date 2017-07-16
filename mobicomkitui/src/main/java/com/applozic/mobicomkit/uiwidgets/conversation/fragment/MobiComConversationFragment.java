@@ -605,7 +605,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             } else {
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
-                        setPositiveButton(R.string.ok_text, new DialogInterface.OnClickListener() {
+                        setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -809,32 +809,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if (!(message.isGroupMessage() && message.isTypeOutbox() && message.isSentToServer()) && menuItems[i].equals("Info")) {
+                if (!(message.isGroupMessage() && message.isTypeOutbox() && message.isSentToServer()) && menuItems[i].equals(getResources().getString(R.string.info))) {
                     continue;
                 }
 
                 if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue() || message.isVideoOrAudioCallMessage()) &&
-                        menuItems[i].equals("Copy")) {
+                        menuItems[i].equals(getResources().getString(R.string.copy))) {
                     continue;
                 }
-                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage() || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded())) && (menuItems[i].equals("Forward") ||
-                        menuItems[i].equals("Resend"))) {
+                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded())) && (menuItems[i].equals(getResources().getString(R.string.forward)) ||
+                        menuItems[i].equals(getResources().getString(R.string.resend)))) {
                     continue;
                 }
-                if (menuItems[i].equals("Resend") && (!message.isSentViaApp() || message.isSentToServer() || message.isVideoOrAudioCallMessage())) {
+                if (menuItems[i].equals(getResources().getString(R.string.resend))  && (!message.isSentViaApp() || message.isSentToServer() || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
 
-                if (menuItems[i].equals("Reply") && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage())) {
+                if (menuItems[i].equals(getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
-                if (menuItems[i].equals("Delete") && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
+                if (menuItems[i].equals(getResources().getString(R.string.delete)) && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                     continue;
                 }
-                if (menuItems[i].equals("Info") && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage())) {
+                if (menuItems[i].equals(getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
-                if (menuItems[i].equals("Share") && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null)) {
+                if (menuItems[i].equals(getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths()== null  ||  !(new  File(message.getFilePaths().get(0)).exists())) ) {
                     continue;
                 }
 
@@ -1454,7 +1454,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 sendType.setSelection(0);
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 sendType.setSelection(0);
             }
@@ -1988,7 +1988,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, channel, currentConversationId, getActivity()).execute();
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -2018,7 +2018,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     clipboard.setText(message.getMessage());
                 } else {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied message", message.getMessage());
+                    android.content.ClipData clip = android.content.ClipData.newPlainText(getContext().getString(R.string.copied_message), message.getMessage());
                     clipboard.setPrimaryClip(clip);
                 }
                 break;
@@ -2406,13 +2406,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
-                setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         blockUserProcess(withUserContact.getUserId(), block, isFromChannel);
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -2425,7 +2425,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void muteGroupChat() {
 
-        final CharSequence[] items = {" 8 Hours ", "1 Week ", " 1 Year"};
+        final CharSequence[] items = {getString(R.string.eight_Hours), getString(R.string.one_week), getString(R.string.one_year)};
         Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
         millisecond = date.getTime();
 
@@ -2450,7 +2450,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                .setTitle("Mute Group For..")
+                .setTitle(getResources().getString(R.string.mute_group_for))
                 .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
 
                     @Override
@@ -2568,13 +2568,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (!initial && messageList.isEmpty()) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
-                        setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
 
                             }
                         });
-                alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         loadMore = false;

@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="5dp"
-            android:text="10 MB"
+            android:text="@string/mb_10"
             android:layout_marginStart="5dp"
             android:textColor="@color/white"
             android:textSize="20sp" />

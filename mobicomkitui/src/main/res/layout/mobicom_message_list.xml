@@ -169,7 +169,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@color/message_action_button"
-                android:text="Schedule"
+                android:text="@string/schedule"
                 android:textColor="@color/black" />
 
         </FrameLayout>

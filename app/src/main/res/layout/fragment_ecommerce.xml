@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:gravity="center"
-            android:text="Applozic "
+            android:text="@string/app_name"
             android:textColor="#000000"
             android:textSize="25sp" />
 
@@ -74,7 +74,7 @@
             android:layout_marginTop="10dp"
             android:background="@color/holo_blue"
             android:onClick="groupChat"
-            android:text="Group chat"
+	    android:text="@string/group_chat"
             android:textColor="@color/white"
             android:visibility="gone" />
 

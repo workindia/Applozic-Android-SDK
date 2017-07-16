@@ -54,7 +54,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="8dp"
             android:layout_toRightOf="@+id/locationIcon"
-            android:text="Send your current location"
+            android:text="@string/send_your_current_location"
             android:textColor="@color/black"
             android:layout_marginStart="8dp"
             android:layout_toEndOf="@+id/locationIcon"

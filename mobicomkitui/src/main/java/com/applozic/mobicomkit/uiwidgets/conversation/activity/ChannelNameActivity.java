@@ -222,7 +222,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
                     fileClientService.writeFile(imageChangeUri, profilePhotoFile);
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Utils.printLog(this,ChannelNameActivity.class.getName(),"Cropping failed:"+result.getError());
+                Toast.makeText(this,this.getString(R.string.applozic_Cropping_failed)+ result.getError(), Toast.LENGTH_LONG).show();
             }
         }
         if (resultCode == Activity.RESULT_OK) {

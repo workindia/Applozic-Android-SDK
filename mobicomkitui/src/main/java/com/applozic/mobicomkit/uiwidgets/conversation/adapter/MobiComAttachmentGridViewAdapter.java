@@ -151,7 +151,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
         galleryImageView.setImageResource(R.drawable.applozic_ic_action_add);
         fileName.setVisibility(View.GONE);
         attachmentImageView.setVisibility(View.GONE);
-        fileSize.setText("New Attachment");
+        fileSize.setText(R.string.New_Attachment);
     }
 
 }

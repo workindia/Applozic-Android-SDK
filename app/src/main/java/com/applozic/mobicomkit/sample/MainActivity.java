@@ -161,7 +161,7 @@ public class MainActivity extends ActionBarActivity
                 @Override
                 public void onSuccess(Context context) {
                     userLogoutTask = null;
-                    Toast.makeText(getBaseContext(), "Log out successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(),getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
@@ -174,7 +174,7 @@ public class MainActivity extends ActionBarActivity
                     AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                     alertDialog.setTitle(getString(R.string.text_alert));
                     alertDialog.setMessage(exception.toString());
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(android.R.string.ok),
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.ok_alert),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -241,8 +241,8 @@ public class MainActivity extends ActionBarActivity
                 takeOrderIntent.putExtra(TAKE_ORDER, true);
                 takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                 takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
-                takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, "Hello I am interested in your property, Can we chat?");
-                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID, conversationId);
+                takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, R.string.intrest_in_chat);
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
                 startActivity(takeOrderIntent);
 
             }
@@ -263,13 +263,13 @@ public class MainActivity extends ActionBarActivity
         conversation.setUserId("usertest2");
         conversation.setTopicId("Topic#Id#Test");
         TopicDetail topic = new TopicDetail();
-        topic.setTitle("TestTopic2");
-        topic.setSubtitle("Topic1");
+        topic.setTitle(getResources().getString(R.string.TestTopic2));
+        topic.setSubtitle(getResources().getString(R.string.Topic_1));
         topic.setLink("https://www.applozic.com/resources/sidebox/images/applozic.png");
-        topic.setKey1("Qty");
+        topic.setKey1(getResources().getString(R.string.Qty));
         topic.setValue1("1000");
-        topic.setKey2("Price");
-        topic.setValue2("20 Rs");
+        topic.setKey2(getResources().getString(R.string.Price));
+        topic.setValue2(getResources().getString(R.string.rs));
         conversation.setSenderSmsFormat(MobiComUserPreference.getInstance(this).getUserId(), "SENDER SMS  FORMAT");
         conversation.setReceiverSmsFormat("usertest2", "RECEIVER SMS FORMAT");
         conversation.setTopicDetail(topic.getJson());

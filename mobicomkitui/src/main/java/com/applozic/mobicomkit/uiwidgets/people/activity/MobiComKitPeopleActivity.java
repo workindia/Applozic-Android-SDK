@@ -390,8 +390,8 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(appContactFragment, "Contact");
-        adapter.addFrag(channelFragment, "Group");
+        adapter.addFrag(appContactFragment, getString(R.string.Contact));
+        adapter.addFrag(channelFragment, getString(R.string.Group));
         viewPager.setAdapter(adapter);
     }
 

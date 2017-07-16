@@ -90,7 +90,7 @@
                     android:layout_toRightOf="@+id/applozic_message_info_attachment_icon"
                     android:padding="10dp"
                     android:layout_toEndOf="@+id/applozic_message_info_attachment_icon"
-                    android:text="Message Text"
+                    android:text="@string/message_text"
                     android:textColor="@color/applozic_send_message_layout_background_color"
                     android:textSize="18sp" />
             </RelativeLayout>
@@ -102,7 +102,7 @@
                 android:layout_below="@+id/applozic_file_info_inner_layout"
                 android:layout_gravity="end|bottom"
                 android:padding="10dp"
-                android:text="Message Text"
+                android:text="@string/message_text"
                 android:textColor="@color/applozic_send_message_layout_background_color"
                 android:textSize="18sp" />
         </RelativeLayout>
@@ -119,7 +119,7 @@
             android:padding="10dp"
             android:layout_marginEnd="10dp"
            android:layout_marginStart="70dp"
-            android:text="Message Text"
+           android:text="@string/message_text"
             android:textColor="@color/applozic_send_message_layout_background_color"
             android:textSize="18sp" />
 
@@ -147,7 +147,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:padding="5dp"
-                    android:text="Read"
+                    android:text="@string/read"
                     android:layout_marginStart="3dp"
                     android:textColor="@color/applozic_theme_color_primary"
                     android:textSize="18sp" />
@@ -209,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:padding="5dp"
-                    android:text="Delivered"
+                    android:text="@string/delivered"
                     android:layout_marginStart="3dp"
                     android:textColor="@color/applozic_theme_color_primary"
                     android:textSize="18sp" />

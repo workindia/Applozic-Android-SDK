@@ -198,19 +198,19 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         for (int i = 0; i < menuItems.length; i++) {
 
-            if ((message.getGroupId() == null || channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) && (menuItems[i].equals("Delete group") ||
-                    menuItems[i].equals("Exit group"))) {
+            if ((message.getGroupId() == null || (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()))) && (menuItems[i].equals(getResources().getString(R.string.delete_group)) ||
+                    menuItems[i].equals(getResources().getString(R.string.exit_group)))) {
                 continue;
             }
 
-            if (menuItems[i].equals("Exit group") && (isChannelDeleted || !isUserPresentInGroup)) {
+            if (menuItems[i].equals(getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup)) {
                 continue;
             }
 
-            if (menuItems[i].equals("Delete group") && (isUserPresentInGroup || !isChannelDeleted)) {
+            if (menuItems[i].equals(getResources().getString(R.string.delete_group)) && (isUserPresentInGroup || !isChannelDeleted)) {
                 continue;
             }
-            if (menuItems[i].equals("Delete conversation") && !alCustomizationSettings.isDeleteOption()) {
+            if (menuItems[i].equals(getResources().getString(R.string.delete_conversation)) && !alCustomizationSettings.isDeleteOption()) {
                 continue;
             }
 
@@ -523,7 +523,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        toolbar.setTitle(ApplozicApplication.TITLE);
+        toolbar.setTitle(getResources().getString(R.string.chats));
         toolbar.setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();

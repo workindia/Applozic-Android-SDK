@@ -74,7 +74,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
         setContentView(R.layout.activity_applozic_location);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_map_screen);
-        toolbar.setTitle("Send Location");
+        toolbar.setTitle(getResources().getString(R.string.send_location));
         setSupportActionBar(toolbar);
         String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
         if (!TextUtils.isEmpty(jsonString)) {
@@ -190,7 +190,7 @@ public class MobicomLocationActivity extends AppCompatActivity implements OnMapR
                             startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
                         }
                     })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.cancel();
                             Toast.makeText(MobicomLocationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();

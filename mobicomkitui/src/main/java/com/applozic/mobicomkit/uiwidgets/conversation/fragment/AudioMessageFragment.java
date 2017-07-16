@@ -81,7 +81,7 @@ public class AudioMessageFragment extends DialogFragment {
                         if (audioRecorder == null) {
                             prepareMediaRecorder();
                         }
-                        audioRecordingText.setText("STOP");
+                        audioRecordingText.setText(getResources().getString(R.string.stop));
                         audioRecorder.prepare();
                         audioRecorder.start();
                         isRecordring = true;

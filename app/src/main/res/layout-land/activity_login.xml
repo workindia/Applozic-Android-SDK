@@ -138,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:background="#FFF"
-                android:hint="Display Name"
+                android:hint="@string/prompt_display_name"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:maxLines="2"
