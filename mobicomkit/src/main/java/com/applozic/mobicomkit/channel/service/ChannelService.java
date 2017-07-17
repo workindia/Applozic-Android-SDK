@@ -271,6 +271,32 @@ public class ChannelService {
         return apiResponse.getStatus();
     }
 
+    public ApiResponse addMemberToChannelProcessWithResponse(String clientGroupId, String userId) {
+        if (TextUtils.isEmpty(clientGroupId) && TextUtils.isEmpty(userId)) {
+            return null;
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToChannel(clientGroupId, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        return apiResponse;
+    }
+
+    public ApiResponse addMemberToChannelProcessWithResponse(Integer channelKey, String userId) {
+        if (channelKey == null && TextUtils.isEmpty(userId)) {
+            return null;
+        }
+        ApiResponse apiResponse = channelClientService.addMemberToChannel(channelKey, userId);
+        if (apiResponse == null) {
+            return null;
+        }
+        if (apiResponse.isSuccess()) {
+            ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelKey, userId);
+            channelDatabaseService.addChannelUserMapper(channelUserMapper);
+        }
+        return apiResponse;
+    }
+
     public String addMemberToMultipleChannelsProcess(Set<String> clientGroupIds, String userId) {
         if (clientGroupIds == null && TextUtils.isEmpty(userId)) {
             return "";

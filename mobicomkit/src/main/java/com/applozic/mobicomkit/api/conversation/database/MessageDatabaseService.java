@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
@@ -585,9 +585,9 @@ public class MessageDatabaseService {
                     values.put("blobKeyString", fileMeta.getBlobKeyString());
                 }
             }
-            id = database.insert("sms", null, values);
-        } catch (SQLiteConstraintException ex) {
-            Utils.printLog(context,TAG, "Duplicate entry in sms table, sms: " + message);
+            id = database.insertOrThrow("sms", null, values);
+        } catch (SQLException ex) {
+            Utils.printLog(context,TAG, " Ignore Duplicate entry in sms table, sms: " + message);
         } finally {
             dbHelper.close();
         }
