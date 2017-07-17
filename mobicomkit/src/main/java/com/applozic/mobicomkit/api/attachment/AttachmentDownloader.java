@@ -126,7 +126,7 @@ class AttachmentDownloader implements Runnable {
         } finally {
 
             // If the byteBuffer is null, reports that the download failed.
-            if (mPhotoTask.getMessage() != null && !mPhotoTask.getMessage().isAttachmentDownloaded()) {
+            if (mPhotoTask.getMessage() != null && !mPhotoTask.getMessage().isAttachmentDownloaded() && mPhotoTask.getMessage().isSentToServer()) {
                 mPhotoTask.handleDownloadState(HTTP_STATE_FAILED);
             } else {
                 mPhotoTask.handleDownloadState(HTTP_STATE_COMPLETED);

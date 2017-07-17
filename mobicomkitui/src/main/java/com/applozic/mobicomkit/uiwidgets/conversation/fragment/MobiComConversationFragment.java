@@ -828,7 +828,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (menuItems[i].equals(getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
-                if (menuItems[i].equals(getResources().getString(R.string.delete)) && (message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
+                if (menuItems[i].equals(getResources().getString(R.string.delete)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                     continue;
                 }
                 if (menuItems[i].equals(getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage())) {

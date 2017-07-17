@@ -636,13 +636,25 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             attachmentRetry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                                            Toast.makeText(context, context.getString(R.string.applozic_resending_attachment), Toast.LENGTH_SHORT).show();
-                    mediaUploadProgressBar.setVisibility(View.VISIBLE);
-                    attachmentRetry.setVisibility(View.GONE);
-                    //updating Cancel Flag to smListItem....
-                    message.setCanceled(false);
-                    messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
-                    conversationService.sendMessage(message, messageIntentClass);
+                    if (Utils.isInternetAvailable(context)) {
+                        File file = null;
+                        if (message != null && message.getFilePaths() != null) {
+                            file = new File(message.getFilePaths().get(0));
+                        }
+                        if (file != null && !file.exists()) {
+                            Toast.makeText(context, context.getString(R.string.file_does_not_exist), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(context, context.getString(R.string.applozic_resending_attachment), Toast.LENGTH_SHORT).show();
+                        mediaUploadProgressBar.setVisibility(View.VISIBLE);
+                        attachmentRetry.setVisibility(View.GONE);
+                        //updating Cancel Flag to smListItem....
+                        message.setCanceled(false);
+                        messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
+                        conversationService.sendMessage(message, messageIntentClass);
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.internet_connection_not_available), Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             attachmentDownloadProgressLayout.setOnClickListener(new View.OnClickListener() {
@@ -667,7 +679,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                     if (message.isAttachmentDownloaded()) {
                         showFullView(message);
-                    } else {
+                        return;
+                    } if ((message.isTypeOutbox() && message.isSentToServer()) || (!message.isTypeOutbox())) {
                         attachmentDownloadLayout.setVisibility(View.GONE);
                         attachmentView.setProressBar(mediaDownloadProgressBar);
                         attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
