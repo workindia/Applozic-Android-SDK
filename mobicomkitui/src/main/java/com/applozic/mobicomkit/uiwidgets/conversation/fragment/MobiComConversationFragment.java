@@ -870,7 +870,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.custom_button).setVisible(true);
             menu.findItem(R.id.custom_button).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             int drawableResourceId = getActivity().getResources().getIdentifier(ApplozicSetting.getInstance(getActivity()).getCustomButtonIcon(), "drawable", getActivity().getPackageName());
-            menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
+
+            Log.i(TAG, "custom button enabled and resourceId is :" + drawableResourceId);
+            if(drawableResourceId==0)
+            {
+                menu.findItem(R.id.custom_button).setIcon(R.drawable.mobicom_ic_action_send_now);
+            }else{
+                menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
+
+            }
 
         }
         if (channel != null) {
