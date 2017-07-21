@@ -1,5 +1,5 @@
 
-Applozic provide easy settings to customise your ui themes color,pop-up messages etc. You need to follow below steps to enable/change these settings:
+Applozic provide easy settings to customise your ui themes color, pop-up messages etc. You need to follow below steps to enable/change these settings:
 
  **1**.Download applozic-settings.json file from here [Json file](https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/assets/applozic-settings.json)
  
