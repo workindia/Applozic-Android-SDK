@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -24,12 +27,13 @@ import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
-import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.R;
 
+import com.applozic.mobicomkit.uiwidgets.conversation.TouchImageView;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -39,7 +43,8 @@ import java.util.List;
 /**
  * Created by devashish on 22/9/14.
  */
-public class FullScreenImageActivity extends AppCompatActivity {
+public class FullScreenImageActivity extends AppCompatActivity  {
+    TouchImageView mediaImageViewView;
 
     private Message message;
     private ConnectivityReceiver connectivityReceiver;
@@ -47,24 +52,30 @@ public class FullScreenImageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.mobicom_image_full_screen);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().show();
         showUi();
-        AttachmentView mediaImageViewView = (AttachmentView) findViewById(R.id.full_screen_image);
-        mediaImageViewView.setMCacheFlag(false);
+
+        mediaImageViewView = (TouchImageView) findViewById(R.id.full_screen_image);
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.full_screen_progress_bar);
-        mediaImageViewView.setProressBar(progressBar);
+        progressBar.setVisibility(View.VISIBLE);
         String messageJson = getIntent().getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
+
         if (!TextUtils.isEmpty(messageJson)) {
             message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
         }
 
         if (message != null && message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
-            mediaImageViewView.setMessage(message);
+            try {
+                Bitmap imageBitmap = ImageUtils.decodeSampledBitmapFromPath(message.getFilePaths().get(0));
+                mediaImageViewView.setImageBitmap(imageBitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -78,23 +89,12 @@ public class FullScreenImageActivity extends AppCompatActivity {
                 }
             });
         }
+        progressBar.setVisibility(View.GONE);
 
         connectivityReceiver = new ConnectivityReceiver();
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                toggleActionBar();
-            }
-
-        }
-        return true;
-    }
 
     private void toggleActionBar() {
 

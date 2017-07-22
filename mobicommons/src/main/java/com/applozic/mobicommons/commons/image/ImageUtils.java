@@ -11,13 +11,16 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created by devashish on 21/12/14.
@@ -162,6 +165,28 @@ public class ImageUtils {
             e.printStackTrace();
         }
         return file.getAbsolutePath();
+    }
+
+
+    public static Bitmap decodeSampledBitmapFromPath(String path) {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(path);
+            FileDescriptor fd = fileInputStream.getFD();
+            return ImageLoader.decodeSampledBitmapFromDescriptor(fd, 612,
+                    816);
+        } catch (Exception e) {
+            Log.i(TAG, "File not found : " + e.getMessage());
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 
 }

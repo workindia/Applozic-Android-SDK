@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -452,7 +453,7 @@ public class AttachmentManager {
                     // If the task is set to cache the results, put the buffer
                     // that was
                     // successfully decoded into the cache
-                    if (photoTask != null && photoTask.getImage() != null) {
+                    if (photoTask != null && photoTask.getImage() != null && !TextUtils.isEmpty(photoTask.getMessage().getKeyString())) {
                         mPhotoCache.put(photoTask.getMessage().getKeyString(), photoTask.getImage());
                     }
                 }
@@ -499,7 +500,7 @@ public class AttachmentManager {
     }
 
     public Bitmap getBitMapFromCache(String key) {
-        if (mPhotoCache != null) {
+        if (mPhotoCache != null && !TextUtils.isEmpty(key)) {
             return mPhotoCache.get(key);
         }
         return null;
