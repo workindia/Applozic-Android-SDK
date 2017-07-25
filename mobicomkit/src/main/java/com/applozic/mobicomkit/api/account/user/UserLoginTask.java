@@ -7,7 +7,6 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 
@@ -16,13 +15,6 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
  * the user.
  */
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-    public interface TaskListener {
-        void onSuccess(RegistrationResponse registrationResponse, Context context);
-
-        void onFailure(RegistrationResponse registrationResponse, Exception exception);
-
-    }
 
     private final TaskListener taskListener;
     private final Context context;
@@ -66,5 +58,13 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
             this.taskListener.onFailure(registrationResponse, mException);
         }
     }
+
+    public interface TaskListener {
+        void onSuccess(RegistrationResponse registrationResponse, Context context);
+
+        void onFailure(RegistrationResponse registrationResponse, Exception exception);
+
+    }
+
 
 }

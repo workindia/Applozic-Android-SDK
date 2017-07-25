@@ -54,6 +54,7 @@ import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -70,7 +71,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -374,7 +374,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (id == R.id.add_member_to_channel) {
             if (isUserPresent) {
                 Utils.toggleSoftKeyBoard(ChannelInfoActivity.this, true);
-                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && alCustomizationSettings.isRegisteredUserContactListCall() && !userPreference.getWasContactListServerCallAlreadyDone()) {
+                if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(this).isRegisteredUsersContactCall())&& !userPreference.getWasContactListServerCallAlreadyDone()) {
                     processLoadRegisteredUsers();
                 } else {
                     Intent addMemberIntent = new Intent(ChannelInfoActivity.this, ContactSelectionActivity.class);
@@ -474,7 +474,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -495,14 +495,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     public void addChannelUser(final String userId, final Channel channel) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).
-                setPositiveButton(R.string.add_member, new DialogInterface.OnClickListener() {
+                setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -528,7 +528,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         new ChannelAsync(channel, ChannelInfoActivity.this).execute();
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -548,7 +548,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }

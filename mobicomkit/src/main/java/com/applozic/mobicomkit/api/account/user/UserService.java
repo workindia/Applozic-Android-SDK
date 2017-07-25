@@ -2,7 +2,6 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -13,6 +12,7 @@ import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.reflect.TypeToken;
@@ -201,7 +201,7 @@ public class UserService {
             }
             baseContactService.upsert(contact);
             Contact contact1 = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
-            Log.i("UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus());
+            Utils.printLog(context,"UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus());
         }
     }
 

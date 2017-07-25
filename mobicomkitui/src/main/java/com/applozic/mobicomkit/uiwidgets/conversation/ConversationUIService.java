@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -57,8 +56,6 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 import com.applozic.mobicommons.commons.core.utils.LocationInfo;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.commons.image.ImageUtils;
-import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -68,7 +65,6 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 
 public class ConversationUIService {
@@ -203,7 +199,7 @@ public class ConversationUIService {
                             }
                         });
                 getConversationFragment().loadFile(selectedFileUri, file);
-                Log.i(TAG, "File uri: " + selectedFileUri);
+                Utils.printLog(fragmentActivity,TAG, "File uri: " + selectedFileUri);
             }
 
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
@@ -235,7 +231,7 @@ public class ConversationUIService {
                     }
 
                 } catch (Exception e) {
-                    Toast.makeText(fragmentActivity, "Failed to load Contact", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.applozic_failed_to_load_contact), Toast.LENGTH_SHORT).show();
                     Log.e("Exception::", "Exception", e);
                 }
             }
@@ -275,7 +271,7 @@ public class ConversationUIService {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -338,7 +334,7 @@ public class ConversationUIService {
                         applozicChannelDeleteTask.execute((Void) null);
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -373,7 +369,7 @@ public class ConversationUIService {
 
                     }
                 });
-        alertDialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -575,8 +571,8 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        Log.i(TAG, "Received typing status for: " + userId);
-        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null) {
+        Utils.printLog(fragmentActivity,TAG, "Received typing status for: " + userId);
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null){
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 
@@ -693,7 +689,7 @@ public class ConversationUIService {
 
     public void sendAudioMessage(String selectedFilePath) {
 
-        Log.i("ConversationUIService:", "Send audio message ...");
+        Utils.printLog(fragmentActivity,"ConversationUIService:", "Send audio message ...");
 
         getConversationFragment().sendMessage(Message.ContentType.AUDIO_MSG.getValue(), selectedFilePath);
 
@@ -859,7 +855,7 @@ public class ConversationUIService {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
-                    Log.i(TAG, "Reconnecting to mqtt.");
+                    Utils.printLog(fragmentActivity,TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);

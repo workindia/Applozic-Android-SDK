@@ -70,14 +70,14 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:text="Cancel" />
+            android:text="@string/cancel" />
 
         <Button
             android:id="@+id/channelNameOk"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:text="Ok" />
+            android:text="@string/ok_alert" />
 
     </LinearLayout>
 

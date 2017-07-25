@@ -9,7 +9,7 @@ import com.applozic.mobicommons.json.JsonMarker;
 public class CustomerPackageDetail extends JsonMarker {
     private String applicationKey;
     private String packageName;
-    private String bundleIdendifier;
+    private String bundleIdentifier;
     private String webInfo;
 
     public String getApplicationKey() {
@@ -28,12 +28,12 @@ public class CustomerPackageDetail extends JsonMarker {
         this.packageName = packageName;
     }
 
-    public String getBundleIdendifier() {
-        return bundleIdendifier;
+    public String getBundleIdentifier() {
+        return bundleIdentifier;
     }
 
-    public void setBundleIdendifier(String bundleIdendifier) {
-        this.bundleIdendifier = bundleIdendifier;
+    public void setBundleIdentifier(String bundleIdentifier) {
+        this.bundleIdentifier = bundleIdentifier;
     }
 
     public String getWebInfo() {

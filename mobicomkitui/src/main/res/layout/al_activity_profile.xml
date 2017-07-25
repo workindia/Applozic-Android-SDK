@@ -57,7 +57,7 @@
                 android:layout_below="@+id/applozic_user_profile"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
-                android:text="Display Name"
+                android:text="@string/display_name"
                 android:textSize="23sp" />
 
             <TextView
@@ -71,7 +71,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="12dp"
-                android:text="Sales Manager"
+                android:text="@string/sales_manager"
                 android:textSize="15sp"
                 android:visibility="gone" />
 
@@ -82,7 +82,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:background="@color/applozic_profile_devider_color"
-                android:text="Sales Manager" />
+                android:text="@string/sales_manager" />
 
             <RelativeLayout
                 android:id="@+id/applozic_profile_section_rl"
@@ -124,7 +124,7 @@
                     android:textDirection="locale"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="10dp"
-                    android:text="Profile Status"
+                    android:text="@string/profile_status"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -139,7 +139,7 @@
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="15dp"
-                    android:text="No Status"
+                    android:text="@string/no_status"
                     android:textColor="@color/applozic_theme_color_primary"
                     android:textSize="20sp" />
 
@@ -152,7 +152,7 @@
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="10dp"
-                    android:text="online"
+                    android:text="@string/online"
                     android:textSize="16sp"
                     android:visibility="gone" />
 
@@ -177,7 +177,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="0dp"
                 android:background="@color/applozic_profile_devider_color"
-                android:text="Sales Manager"
+                android:text="@string/sales_manager"
                 android:visibility="gone" />
 
             <RelativeLayout
@@ -209,7 +209,7 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="10dp"
-                    android:text="Notifications"
+                    android:text="@string/notifications"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -222,7 +222,7 @@
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="10dp"
-                    android:text="Push Notifications"
+                    android:text="@string/push_notifications"
                     android:textColor="@color/applozic_theme_color_primary"
                     android:textSize="20sp" />
 
@@ -246,7 +246,7 @@
                 android:layout_height="2dp"
                 android:layout_centerHorizontal="true"
                 android:background="@color/applozic_profile_devider_color"
-                android:text="Sales Manager" />
+                android:text="@string/sales_manager" />
 
             <RelativeLayout
                 android:id="@+id/applozic_datausage_section_rl"
@@ -277,7 +277,7 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="10dp"
-                    android:text="Data Usage"
+                    android:text="@string/data_usage"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -289,7 +289,7 @@
                     android:layout_marginLeft="15dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="10dp"
-                    android:text="Network Usage"
+                    android:text="@string/applozic_network_usage"
                     android:textColor="@color/applozic_theme_color_primary"
                     android:textSize="20sp" />
 
@@ -314,7 +314,7 @@
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="15dp"
                     android:background="@color/applozic_theme_color_primary"
-                    android:text="Logout"
+                    android:text="@string/logout"
                     android:layout_marginEnd="10dp"
                     android:layout_alignParentEnd="true"
                     android:textColor="@color/white"

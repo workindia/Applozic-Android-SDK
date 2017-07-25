@@ -30,7 +30,7 @@
             android:layout_marginRight="4dp"
             android:layout_marginEnd="4dp"
             android:singleLine="false"
-            android:text="name"
+            android:text="@string/name"
             android:textColor="@color/white"
             android:textSize="14dp" />
 
@@ -43,7 +43,7 @@
             android:paddingStart="8dp"
             android:paddingTop="10dp"
             android:singleLine="false"
-            android:text="mobile number"
+            android:text="@string/mobile_number"
             android:textColor="@color/whitesmoke"
             android:textSize="12dp" />
     </LinearLayout>

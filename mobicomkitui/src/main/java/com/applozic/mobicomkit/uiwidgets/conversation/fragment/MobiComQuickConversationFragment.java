@@ -10,7 +10,6 @@ import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -199,19 +198,19 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         for (int i = 0; i < menuItems.length; i++) {
 
-            if ((message.getGroupId() == null || channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) && (menuItems[i].equals("Delete group") ||
-                    menuItems[i].equals("Exit group"))) {
+            if ((message.getGroupId() == null || (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()))) && (menuItems[i].equals(getResources().getString(R.string.delete_group)) ||
+                    menuItems[i].equals(getResources().getString(R.string.exit_group)))) {
                 continue;
             }
 
-            if (menuItems[i].equals("Exit group") && (isChannelDeleted || !isUserPresentInGroup)) {
+            if (menuItems[i].equals(getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup)) {
                 continue;
             }
 
-            if (menuItems[i].equals("Delete group") && (isUserPresentInGroup || !isChannelDeleted)) {
+            if (menuItems[i].equals(getResources().getString(R.string.delete_group)) && (isUserPresentInGroup || !isChannelDeleted)) {
                 continue;
             }
-            if (menuItems[i].equals("Delete conversation") && !alCustomizationSettings.isDeleteOption()) {
+            if (menuItems[i].equals(getResources().getString(R.string.delete_conversation)) && !alCustomizationSettings.isDeleteOption()) {
                 continue;
             }
 
@@ -336,7 +335,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
             }
         } catch (Exception e) {
-            Log.w("AL", "Exception while updating view .");
+            Utils.printLog(getActivity(),"AL", "Exception while updating view .");
         }
     }
 
@@ -524,7 +523,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        toolbar.setTitle(ApplozicApplication.TITLE);
+        toolbar.setTitle(getResources().getString(R.string.chats));
         toolbar.setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
@@ -624,7 +623,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         conversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
-                    Log.w("AL", "Exception while updating online status.");
+                    Utils.printLog(getActivity(),"AL", "Exception while updating online status.");
                 }
             }
         });
@@ -656,7 +655,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         }
                     }
                 } catch (Exception ex) {
-                    Log.w("AL", "Exception while updating Unread count...");
+                    Utils.printLog(getActivity(),"AL", "Exception while updating Unread count...");
                 }
             }
         });

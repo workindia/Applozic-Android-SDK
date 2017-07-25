@@ -135,7 +135,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isAttachmentUploadInProgress() {
-        return filePaths != null && !filePaths.isEmpty() && !sentToServer;
+        return filePaths != null && !filePaths.isEmpty() && FileUtils.isFileExist(filePaths.get(0))&& !sentToServer;
     }
 
     public boolean isAttachmentDownloaded() {
@@ -762,7 +762,7 @@ public class Message extends JsonMarker {
 
     public enum ReplyMessage{
         NON_HIDDEN(0),
-        REPLY_MESSAGE(1),
+        REPLY_MESSAGE_FLAG(1),
         HIDE_MESSAGE(2);
         private Integer value;
 

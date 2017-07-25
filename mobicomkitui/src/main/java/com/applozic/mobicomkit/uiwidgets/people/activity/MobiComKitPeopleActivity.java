@@ -112,9 +112,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-        appContactFragment = new AppContactFragment(userIdArray);
-        appContactFragment.setAlCustomizationSettings(alCustomizationSettings);
-        channelFragment = new ChannelFragment();
+
         onContactsInteractionListener = this;
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -145,6 +143,9 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         } else {
             actionBar.setTitle(getString(R.string.search_title));
         }
+        appContactFragment = new AppContactFragment(userIdArray);
+        appContactFragment.setAlCustomizationSettings(alCustomizationSettings);
+        channelFragment = new ChannelFragment();
         setSearchListFragment(appContactFragment);
         if (alCustomizationSettings.isStartNewGroup()) {
             viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -389,8 +390,8 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(appContactFragment, "Contact");
-        adapter.addFrag(channelFragment, "Group");
+        adapter.addFrag(appContactFragment, getString(R.string.Contact));
+        adapter.addFrag(channelFragment, getString(R.string.Group));
         viewPager.setAdapter(adapter);
     }
 

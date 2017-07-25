@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text=" Gallery "
+            android:text="@string/gallery"
             android:textColor="@color/white"
             android:textSize="20sp" />
 
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" Camera "
+            android:text="@string/camera_option"
             android:textColor="@color/white"
             android:textSize="20sp" />
 
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text=" Remove Image "
+            android:text="@string/remove_image"
             android:textColor="@color/white"
             android:textSize="20sp" />
 

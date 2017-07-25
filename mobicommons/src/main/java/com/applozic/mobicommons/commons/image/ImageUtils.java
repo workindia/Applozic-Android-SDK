@@ -11,8 +11,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -145,7 +145,7 @@ public class ImageUtils {
                 options.inJustDecodeBounds = false;
                 return BitmapFactory.decodeFile(imageLocalPath, options);
             } catch (Exception ex) {
-                Log.e(TAG, "Image not found on local storage: " + ex.getMessage());
+                Utils.printLog(context,TAG, "Image not found on local storage: " + ex.getMessage());
             }
         }
         return null;

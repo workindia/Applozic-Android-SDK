@@ -987,19 +987,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (id == R.id.custom_button) {
             Class mClass;
             try {
-                if (ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName() != null) {
-                    mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
-                    Intent intent = new Intent(getActivity(), mClass);
-                    if (contact != null) {
-                        intent.putExtra(ConversationUIService.USER_ID, contact.getContactIds());
-                    }
-                    if (channel != null) {
-                        intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
-                    }
-                    startActivity(intent);
-                }
+                mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
+                Intent intent = new Intent(getActivity(), mClass);
+                intent.putExtra("userId", contact.getContactIds());
+                startActivity(intent);
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                Log.d("reytum", e.getMessage());
             }
         }
 

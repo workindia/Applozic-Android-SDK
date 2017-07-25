@@ -89,7 +89,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        this.title = ApplozicApplication.TITLE;
+        this.title = getResources().getString(R.string.chats);
         this.conversationService = new MobiComConversationService(getActivity());
         hideExtendedSendingOptionLayout = true;
 

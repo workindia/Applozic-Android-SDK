@@ -93,7 +93,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean replyOption = true;
     private String replyMessageLayoutSentMessageBackground = "#C0C0C0";
     private String replyMessageLayoutReceivedMessageBackground = "#F5F5F5";
-
+    private boolean groupInfoScreenVisible = true;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -468,6 +468,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public String getReplyMessageLayoutReceivedMessageBackground() {
         return replyMessageLayoutReceivedMessageBackground;
+    }
+
+    public boolean isGroupInfoScreenVisible() {
+        return groupInfoScreenVisible;
     }
 
     @Override

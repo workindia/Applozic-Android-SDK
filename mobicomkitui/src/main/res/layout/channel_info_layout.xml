@@ -103,7 +103,7 @@
                     android:layout_marginLeft="3dp"
                     android:layout_marginStart="3dp"
                     android:padding="5dp"
-                    android:text="Participants"
+	            android:text="@string/participants"
                     android:textSize="18sp" />
 
             </android.support.v7.widget.CardView>

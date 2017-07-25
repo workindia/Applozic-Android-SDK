@@ -65,14 +65,14 @@ public class MobiComPushReceiver {
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
-        Log.i(TAG, "checking for Applozic notification.");
+        Log.d(TAG, "checking for Applozic notification.");
         return isMobiComPushNotification(intent.getExtras());
     }
 
     public static boolean isMobiComPushNotification(Bundle bundle) {
         //This is to identify collapse key sent in notification..
         String payLoad = bundle.getString("collapse_key");
-        Log.i(TAG, "Received notification: " + payLoad);
+        Log.d(TAG, "Received notification");
 
         if (payLoad != null && payLoad.contains(MTCOM_PREFIX) || notificationKeyList.contains(payLoad)) {
             return true;
@@ -91,7 +91,7 @@ public class MobiComPushReceiver {
 
         //This is to identify collapse key sent in notification..
         String payLoad = data.toString();
-        Log.i(TAG, "Received notification: " + payLoad);
+        Log.d(TAG, "Received notification");
 
         if (payLoad != null && payLoad.contains(MTCOM_PREFIX) || notificationKeyList.contains(payLoad)) {
             return true;

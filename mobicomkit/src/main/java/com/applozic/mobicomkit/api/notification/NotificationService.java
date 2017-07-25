@@ -9,7 +9,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -34,7 +33,7 @@ import java.net.HttpURLConnection;
 
 /**
  * Created with IntelliJ IDEA.
- * ApplozicUser: devashish
+ * User: devashish
  * Date: 17/3/13
  * Time: 7:36 PM
  */
@@ -65,7 +64,7 @@ public class NotificationService {
 
     public void notifyUser(Contact contact, Channel channel, Message message) {
         if (ApplozicClient.getInstance(context).isNotificationDisabled()) {
-            Log.i(TAG, "Notification is disabled");
+            Utils.printLog(context,TAG, "Notification is disabled");
             return;
         }
         String title = null;

@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -203,7 +202,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     private void addUri(Uri uri) {
 
         attachmentFileList.add(uri);
-        Log.i(TAG, "attachmentFileList  :: " + attachmentFileList);
+        Utils.printLog(MobiComAttachmentSelectorActivity.this,TAG, "attachmentFileList  :: " + attachmentFileList);
 
 
     }
@@ -220,8 +219,8 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
             Uri selectedFileUri = (intent == null ? null : intent.getData());
-            Log.i(TAG, "selectedFileUri :: " + selectedFileUri);
-            if (selectedFileUri != null) {
+            Utils.printLog(MobiComAttachmentSelectorActivity.this,TAG, "selectedFileUri :: " + selectedFileUri);
+            if(selectedFileUri != null) {
                 String fileName = null;
                 try {
                     int maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;

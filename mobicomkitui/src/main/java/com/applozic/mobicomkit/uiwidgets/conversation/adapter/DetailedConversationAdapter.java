@@ -11,14 +11,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +47,6 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
@@ -201,7 +198,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             if (DateUtils.isSameDay(message.getCreatedAtTime())) {
                 dayTextView.setVisibility(View.VISIBLE);
-                dayTextView.setText("Today");
+                dayTextView.setText(R.string.today);
             } else {
                 dayTextView.setVisibility(View.VISIBLE);
                 dateView.setVisibility(View.VISIBLE);
@@ -639,13 +636,25 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             attachmentRetry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(context, "Resending attachment....", Toast.LENGTH_LONG).show();
-                    mediaUploadProgressBar.setVisibility(View.VISIBLE);
-                    attachmentRetry.setVisibility(View.GONE);
-                    //updating Cancel Flag to smListItem....
-                    message.setCanceled(false);
-                    messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
-                    conversationService.sendMessage(message, messageIntentClass);
+                    if (Utils.isInternetAvailable(context)) {
+                        File file = null;
+                        if (message != null && message.getFilePaths() != null) {
+                            file = new File(message.getFilePaths().get(0));
+                        }
+                        if (file != null && !file.exists()) {
+                            Toast.makeText(context, context.getString(R.string.file_does_not_exist), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(context, context.getString(R.string.applozic_resending_attachment), Toast.LENGTH_SHORT).show();
+                        mediaUploadProgressBar.setVisibility(View.VISIBLE);
+                        attachmentRetry.setVisibility(View.GONE);
+                        //updating Cancel Flag to smListItem....
+                        message.setCanceled(false);
+                        messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
+                        conversationService.sendMessage(message, messageIntentClass);
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.internet_connection_not_available), Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             attachmentDownloadProgressLayout.setOnClickListener(new View.OnClickListener() {
@@ -670,7 +679,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     }
                     if (message.isAttachmentDownloaded()) {
                         showFullView(message);
-                    } else {
+                        return;
+                    } if ((message.isTypeOutbox() && message.isSentToServer()) || (!message.isTypeOutbox())) {
                         attachmentDownloadLayout.setVisibility(View.GONE);
                         attachmentView.setProressBar(mediaDownloadProgressBar);
                         attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
@@ -890,7 +900,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             });
 
         } catch (Exception e) {
-            Log.e("DetailedConvAdapter", "Exception in parsing", e);
+            Utils.printLog(context,"DetailedConvAdapter", "Exception in parsing");
         }
 
     }
@@ -992,7 +1002,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 } catch (Exception e) {
-                    Log.i(TAG, "No application found to open this file");
+                    Utils.printLog(context,TAG, "No application found to open this file");
                 }
             }
 
@@ -1036,7 +1046,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
             }
         } catch (Exception e) {
-            Log.i(TAG, "No application found to open this file");
+            Utils.printLog(context,TAG, "No application found to open this file");
         }
 
     }

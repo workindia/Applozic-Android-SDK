@@ -3,12 +3,12 @@ package com.applozic.mobicomkit.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
@@ -250,7 +250,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         //Note: some user might directly upgrade from an old version to the new version, in that case it may happen that
         //schedule sms table is not present.
         if (newVersion > oldVersion) {
-            Log.i(TAG, "Upgrading database from version "
+            Utils.printLog(context,TAG, "Upgrading database from version "
                     + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
 

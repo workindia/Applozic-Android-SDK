@@ -203,7 +203,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if (alCustomizationSettings.isRegisteredUserContactListCall() && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
+                if ((alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(getActivity()).isRegisteredUsersContactCall()) && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;
                         previousTotalItemCount = totalItemsCount;
