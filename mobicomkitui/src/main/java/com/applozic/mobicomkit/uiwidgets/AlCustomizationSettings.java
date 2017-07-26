@@ -13,6 +13,7 @@ public class AlCustomizationSettings extends JsonMarker {
     public String customMessageBackgroundColor = "#FF03A9F4";
     private String sentMessageBackgroundColor = "#FF03A9F4";
     private String receivedMessageBackgroundColor = "#FFFFFFFF";
+    private String startNewFloatingButtonBackgroundColor = "#FF0000";
     private String sendButtonBackgroundColor = "#FF03A9F4";
     private String attachmentIconsBackgroundColor = "#FF03A9F4";
     private String chatBackgroundColorOrDrawable;
@@ -123,6 +124,8 @@ public class AlCustomizationSettings extends JsonMarker {
     public String getSentMessageBackgroundColor() {
         return sentMessageBackgroundColor;
     }
+
+    public String getStartNewFloatingButtonBackgroundColor() {return startNewFloatingButtonBackgroundColor;}
 
     public String getReceivedMessageBackgroundColor() {
         return receivedMessageBackgroundColor;

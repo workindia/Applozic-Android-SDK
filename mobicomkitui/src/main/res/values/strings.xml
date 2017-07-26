@@ -201,5 +201,6 @@
     <string name="file_does_not_exist">file does not Exist</string>
     <string name="copied_message">Copied message</string>
     <string name="data_usage">Data Usage</string>
-    <string name="missed">Missed</string>>
+    <string name="missed">Missed</string>
+    <string name="attch_button">Attch Button</string>
 </resources>

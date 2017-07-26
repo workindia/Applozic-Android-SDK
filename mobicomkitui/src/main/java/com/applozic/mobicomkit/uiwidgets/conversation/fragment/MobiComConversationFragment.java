@@ -872,14 +872,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             int drawableResourceId = getActivity().getResources().getIdentifier(ApplozicSetting.getInstance(getActivity()).getCustomButtonIcon(), "drawable", getActivity().getPackageName());
 
             Log.i(TAG, "custom button enabled and resourceId is :" + drawableResourceId);
-            if(drawableResourceId==0)
-            {
-                menu.findItem(R.id.custom_button).setIcon(R.drawable.mobicom_ic_action_send_now);
-            }else{
-                menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
-
-            }
-
+            menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
         }
         if (channel != null) {
             menu.findItem(R.id.dial).setVisible(false);
@@ -989,7 +982,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             try {
                 mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
                 Intent intent = new Intent(getActivity(), mClass);
-                intent.putExtra("userId", contact.getContactIds());
+                if (channel != null) {
+                    intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
+                }
+                if (contact != null) {
+                    intent.putExtra("userId", contact.getContactIds());
+                }
                 startActivity(intent);
             } catch (ClassNotFoundException e) {
                 Log.d("reytum", e.getMessage());
@@ -2184,7 +2182,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (messageMetaData != null && !messageMetaData.isEmpty()) {
                         String replyMessageKey = messageMetaData.get(Message.MetaDataType.AL_REPLY.getValue());
                         if (!TextUtils.isEmpty(replyMessageKey)) {
-                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE.getValue());
+                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE_FLAG.getValue());
                         }
                     }
                     attachReplyCancelLayout.setVisibility(View.VISIBLE);

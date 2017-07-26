@@ -3,6 +3,7 @@
   "sentMessageBackgroundColor": "#FF03A9F4",
   "receivedMessageBackgroundColor": "#FFFFFFFF",
   "sendButtonBackgroundColor": "#FF03A9F4",
+  "startNewFloatingButtonBackgroundColor": "#FF03A9F4",
   "attachmentIconsBackgroundColor": "#FF03A9F4",
   "channelCustomMessageBgColor": "#cccccc",
   "sentContactMessageTextColor:": "#5fba7d",

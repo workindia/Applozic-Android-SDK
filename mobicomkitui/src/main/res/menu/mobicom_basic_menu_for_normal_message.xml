@@ -15,7 +15,14 @@
         mobicomkit:iconifiedByDefault="true"
         mobicomkit:showAsAction="always" />
 
-
+    <item
+        android:id="@+id/custom_button"
+        android:icon="@drawable/custom_attach_icon"
+        android:orderInCategory="1"
+        android:title="@string/attch_button"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:visible="true"
+        mobicomkit:showAsAction="ifRoom|collapseActionView"/>
     <item
         android:id="@+id/conversations"
         android:icon="@drawable/applozic_ic_action_chat"
