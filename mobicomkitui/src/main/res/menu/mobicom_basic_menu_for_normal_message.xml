@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mobicomkit="http://schemas.android.com/apk/res-auto">
-
+    <item
+        android:id="@+id/custom_button"
+        android:iconifiedByDefault="true"
+        android:orderInCategory="1"
+        android:showAsAction="withText|always"
+        android:visible="false"
+        mobicomkit:showAsAction="withText|always" />
     <item
         android:id="@+id/menu_search"
         android:actionViewClass="android.support.v7.widget.SearchView"
@@ -14,15 +20,6 @@
         mobicomkit:actionViewClass="android.support.v7.widget.SearchView"
         mobicomkit:iconifiedByDefault="true"
         mobicomkit:showAsAction="always" />
-
-    <item
-        android:id="@+id/custom_button"
-        android:icon="@drawable/custom_attach_icon"
-        android:orderInCategory="1"
-        android:title="@string/attch_button"
-        android:showAsAction="ifRoom|collapseActionView"
-        android:visible="true"
-        mobicomkit:showAsAction="ifRoom|collapseActionView"/>
     <item
         android:id="@+id/conversations"
         android:icon="@drawable/applozic_ic_action_chat"

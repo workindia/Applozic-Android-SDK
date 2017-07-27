@@ -872,6 +872,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             int drawableResourceId = getActivity().getResources().getIdentifier(ApplozicSetting.getInstance(getActivity()).getCustomButtonIcon(), "drawable", getActivity().getPackageName());
 
             Log.i(TAG, "custom button enabled and resourceId is :" + drawableResourceId);
+            if(drawableResourceId == 0){
+                drawableResourceId = R.drawable.custom_attach_icon;
+            }
             menu.findItem(R.id.custom_button).setIcon(drawableResourceId);
         }
         if (channel != null) {
@@ -980,15 +983,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (id == R.id.custom_button) {
             Class mClass;
             try {
-                mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
-                Intent intent = new Intent(getActivity(), mClass);
-                if (channel != null) {
-                    intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
+                if (ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName() != null) {
+                    mClass = Class.forName(ApplozicSetting.getInstance(getActivity()).getCustomButtonActionClassName());
+                    Intent intent = new Intent(getActivity(), mClass);
+                    if (channel != null) {
+                        intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
+                    }
+                    if (contact != null) {
+                        intent.putExtra("userId", contact.getContactIds());
+                    }
+                    startActivity(intent);
                 }
-                if (contact != null) {
-                    intent.putExtra("userId", contact.getContactIds());
-                }
-                startActivity(intent);
             } catch (ClassNotFoundException e) {
                 Log.d("reytum", e.getMessage());
             }

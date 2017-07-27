@@ -694,7 +694,7 @@ public class ApplozicSetting {
     }
 
     public String getCustomButtonIcon() {
-        return sharedPreferences.getString(CUSTOM_BUTTON_ICON, "ic_attach_file_white_24dp");
+        return sharedPreferences.getString(CUSTOM_BUTTON_ICON, "custom_attach_icon");
     }
 
     public void setCustomButtonActionClassName(String className) {
