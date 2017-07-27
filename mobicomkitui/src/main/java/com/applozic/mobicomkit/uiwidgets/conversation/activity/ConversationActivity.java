@@ -262,7 +262,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
         //ApplozicMqttService.getInstance(this).unSubscribe();
         super.onPause();
     }
@@ -1163,6 +1163,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             if (accountStatusAsyncTask != null) {
                 accountStatusAsyncTask.cancel(true);
             }
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }

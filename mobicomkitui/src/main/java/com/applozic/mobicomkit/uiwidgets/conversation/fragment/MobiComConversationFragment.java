@@ -2241,7 +2241,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (SyncCallService.refreshView) {
-                messageList.clear();
+            //    messageList.clear();
                 SyncCallService.refreshView = false;
             }
 
