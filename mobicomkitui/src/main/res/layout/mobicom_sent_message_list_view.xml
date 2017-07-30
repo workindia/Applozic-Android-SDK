@@ -49,11 +49,12 @@
             <include layout="@layout/mobicom_contact_share_layout" />
 
             <include layout="@layout/mobicom_chat_location_view" />
+            <include layout="@layout/applozic_document_attachment" />
 
-            <ImageView
-                android:id="@+id/sentOrReceivedIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp" />
+        <ImageView
+            android:id="@+id/sentOrReceivedIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp" />
 
             <TextView
                 android:id="@+id/message"
@@ -93,6 +94,7 @@
         android:layout_below="@+id/messageTextLayout"
         android:orientation="horizontal"
         android:paddingBottom="6dp"
+        android:paddingStart="4dp"
         android:paddingEnd="4dp"
         android:paddingRight="4dp">
 
@@ -115,6 +117,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:paddingLeft="2dp"
             android:text="@string/created_at_time"
             android:textSize="11sp" />

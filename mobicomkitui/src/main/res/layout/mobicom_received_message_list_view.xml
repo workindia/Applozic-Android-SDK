@@ -70,6 +70,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="2dp"
+                android:paddingLeft="2dp"
+                android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 android:textSize="16sp"
                 android:visibility="gone" />
@@ -102,6 +104,7 @@
 
             <include layout="@layout/mobicom_chat_location_view" />
 
+            <include layout="@layout/applozic_document_attachment" />
             <ImageView
                 android:id="@+id/sentOrReceivedIcon"
                 android:layout_width="20dp"
@@ -170,6 +173,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingRight="2dp"
+            android:paddingStart="2dp"
             android:paddingEnd="2dp"
             android:text="@string/created_at_time"
             android:textSize="11sp" />

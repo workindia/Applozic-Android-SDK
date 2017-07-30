@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources  xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="internet_connection_not_available">कोई इंटरनेट कनेक्शन नहीं</string>
     <string name="you_need_network_access_for_delete">वार्तालाप हटाने के लिए आपको नेटवर्क एक्सेस की आवश्यकता है </string>
     <string name="applozic_server_error">ऊप्स! आपको एक त्रुटि मिली, बाद में फिर से प्रयास करें</string>
@@ -178,7 +179,6 @@
     <string name="user_logout_info">लॉगआउट सफल</string>
     <string name="participants">प्रतिभागियों</string>
     <string name="channel_exit_button">ग्रुप से बाहर निकलें</string>
-    <string name="crop_image_menu_crop">क्रॉप </string>
     <string name="chats">चैट</string>
     <string name="refresh">रीफ्रेश</string>
     <string name="start_New">नया शुरू करें</string>
@@ -276,7 +276,9 @@
     <string name="cancel">रद्द करना</string>
     <string name="data_usage">डेटा का उपयोग</string>
     <string name="missed">मिस्ड </string>>
-
+    <string name="hold_to_record_release_to_send">रिकॉर्ड करने के लिए दबाएं, भेजने के लिए रिलीज </string>
+    <string name="slide_to_cancel">रद्द करने के लिए स्लाइड करें</string>
+    <string name="tap_on_mic_button_to_record_audio">ऑडियो रिकॉर्डिंग प्रारंभ करने के लिए माइक बटन पर टैप करें</string>
 
 
     <string-array name="secret_message_timer_array">

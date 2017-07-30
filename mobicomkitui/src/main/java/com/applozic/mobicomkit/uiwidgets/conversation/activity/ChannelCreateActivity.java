@@ -258,7 +258,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                         new ProfilePictureUpload(true, profilePhotoFile, imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
                     }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, this.getString(R.string.applozic_Cropping_failed) + result.getError(), Toast.LENGTH_LONG).show();
                 }
             }
             if (resultCode == Activity.RESULT_OK) {

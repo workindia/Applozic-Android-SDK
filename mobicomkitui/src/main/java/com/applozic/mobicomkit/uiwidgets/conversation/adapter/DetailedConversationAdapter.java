@@ -50,6 +50,7 @@ import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicDocumentView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
@@ -553,6 +554,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 loadContactImage(receiverContact, contactDisplayName, message, contactImage, alphabeticTextView, onlineTextView);
             }
 
+            ApplozicDocumentView audioView =  new ApplozicDocumentView(this.context);
+            audioView.inflateViewWithMessage(customView,message);
+            audioView.hideView(true);
             if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
                 if (message.getFileMetas() != null && (message.getFileMetas().getContentType().contains("image") || message.getFileMetas().getContentType().contains("video"))) {
@@ -628,6 +632,15 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
                     //  }
 
+                }
+                if (isNormalAttachment(message)) {
+                    attachedFile.setVisibility(View.GONE);
+                    mainAttachmentLayout.setVisibility(View.GONE);
+                    mainContactShareLayout.setVisibility(View.GONE);
+                    chatLocation.setVisibility(View.GONE);
+                    audioView.hideView(false);
+                    createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                    return customView;
                 }
             }
             if (message.isCanceled()) {
@@ -1179,5 +1192,18 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             durationTextView.setVisibility(View.GONE);
         }
 
+    }
+    private boolean isNormalAttachment(Message message) {
+
+        if (message.getFileMetas() != null) {
+            return !(message.getFileMetas().getContentType().contains("image") || message.getFileMetas().getContentType().contains("video")|| message.isContactMessage());
+        }else if( message.getFilePaths() != null){
+            String filePath = message.getFilePaths().get(0);
+            final String mimeType = FileUtils.getMimeType(filePath);
+            if(mimeType!=null) {
+                return !(mimeType.contains("image") || mimeType.contains("video") || message.isContactMessage());
+            }
+        }
+        return false;
     }
 }

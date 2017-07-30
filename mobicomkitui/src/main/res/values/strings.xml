@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources  xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
 
     <string name="internet_connection_not_available">No internet connection</string>
     <string name="you_need_network_access_for_delete">You need to have network access for deleting Conversation </string>
@@ -201,5 +202,8 @@
     <string name="file_does_not_exist">file does not Exist</string>
     <string name="copied_message">Copied message</string>
     <string name="data_usage">Data Usage</string>
-    <string name="missed">Missed</string>>
+    <string name="missed">Missed</string>
+    <string name="hold_to_record_release_to_send">Hold to record , release to send</string>
+    <string name="slide_to_cancel">Slide to cancel</string>
+    <string name="tap_on_mic_button_to_record_audio">Tap on mic button to start audio recording</string>
 </resources>

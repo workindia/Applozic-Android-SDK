@@ -145,7 +145,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     touchCount = 0;
 
                 } else {
-                    Toast.makeText(getApplicationContext(), "Click more  " + Integer.toString(5 - touchCount), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getBaseContext().getString(R.string.click_more) + Integer.toString(5 - touchCount), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -419,7 +419,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         if (exit) {
             finish();
         } else {
-            Toast.makeText(this, "Press Back again to Exit.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.press_back_again_to_exit), Toast.LENGTH_SHORT).show();
             exit = true;
 
             new Handler().postDelayed(new Runnable() {
