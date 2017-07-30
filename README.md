@@ -113,6 +113,8 @@ Permissions:
 <uses-permission android:name="android.permission.CALL_PHONE" />
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.VIBRATE" />
   ```
 
 
