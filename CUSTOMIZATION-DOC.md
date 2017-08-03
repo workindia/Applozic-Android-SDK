@@ -152,9 +152,9 @@ You can add the chat fragments to any activity  below documentation links will e
 
   [Simple Strings](https://github.com/AppLozic/Applozic-Android-SDK/blob/master/mobicomkitui/src/main/res/values/strings.xml)
   
-  Ex. Change resource string (message) value to hindi locale
+  Ex. Change resource string (message) value to spanish locale
   
   
-      <string name="message">संदेश</string>
+      <string name="message">Mensaje</string>
 
 
