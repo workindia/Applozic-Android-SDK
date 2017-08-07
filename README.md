@@ -25,7 +25,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.95' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.96' `
 
 
 Add the following in gradle android target:      
@@ -323,6 +323,7 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 ```
 
 If it is a new user, new user account will get created else existing user will be logged in to the application.
+You can check if user is logged in to applozic or not by using ``` MobiComUserPreference.getInstance(this).isLoggedIn() ```
 
 
 
