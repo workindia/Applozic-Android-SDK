@@ -22,7 +22,7 @@ Add the following in your build.gradle dependency
 a) Chat SDK (Without audio/video)
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:4.95'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:4.96'
 ```
 
 b) Chat SDK with Audio/Video.
@@ -321,6 +321,8 @@ new UserLoginTask(user, listener, this).execute((Void) null);
 ```
 
 If it is a new user, new user account will get created else existing user will be logged in to the application.
+You can check if user is logged in to applozic or not by using ``` MobiComUserPreference.getInstance(this).isLoggedIn() ```
+
 
 
 #### Step 4: Push Notification Setup
