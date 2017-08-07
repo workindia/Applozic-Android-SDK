@@ -285,6 +285,8 @@ public class MobiComConversationService {
             if (!TextUtils.isEmpty(userDetail.getImageLink())) {
                 contact.setImageURL(userDetail.getImageLink());
             }
+            contact.setUserTypeId(userDetail.getUserTypeId());
+            contact.setDeletedAtTime(userDetail.getDeletedAtTime());
             if (newContact != null) {
                 if (newContact.isConnected() != contact.isConnected()) {
                     BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
@@ -450,6 +452,7 @@ public class MobiComConversationService {
                 contact.setUnreadCount(userDetail.getUnreadCount());
                 contact.setUserTypeId(userDetail.getUserTypeId());
                 contact.setImageURL(userDetail.getImageLink());
+                contact.setDeletedAtTime(userDetail.getDeletedAtTime());
                 baseContactService.upsert(contact);
             }
         }

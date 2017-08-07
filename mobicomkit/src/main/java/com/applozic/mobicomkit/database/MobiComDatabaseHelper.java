@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 26;
+    public static final int DB_VERSION = 27;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -67,6 +67,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CHANNEL_META_DATA = "channelMetadata";
     public static final String HIDDEN = "hidden";
     public static final String REPLY_MESSAGE = "replyMessage";
+
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -139,6 +140,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_FOR_CHANNEL_META_DATA = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CHANNEL_META_DATA + " VARCHAR(2000)";
     private static final String ALTER_SMS_TABLE_FOR_HIDDEN = "ALTER TABLE " + SMS + " ADD COLUMN hidden integer default 0";
     private static final String ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN replyMessage INTEGER default 0";
+    private static final String ALTER_CONTACT_TABLE_FOR_DELETED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DELETED_AT + " integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -156,7 +158,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + BLOCKED_BY + " integer default 0, "
             + STATUS + " varchar(2500) null, "
             + CONTACT_TYPE + " integer default 0,"
-            + USER_TYPE_ID + " integer default 0 "
+            + USER_TYPE_ID + " integer default 0,"
+            + DELETED_AT +" INTEGER default 0 "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -334,6 +337,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, "channel", DELETED_AT)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_DELETED_AT_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "contact", DELETED_AT)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_DELETED_AT);
             }
             if (!DBUtils.existsColumnInTable(database, CHANNEL, CHANNEL_META_DATA)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_CHANNEL_META_DATA);

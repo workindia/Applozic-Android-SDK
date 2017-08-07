@@ -648,11 +648,15 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void processUserStatus(Contact contact) {
         if (contact != null && contact.getContactIds() != null) {
-            processUserStatus(contact.getUserId());
+            processUserStatus(contact.getUserId(),false);
         }
     }
 
-    public void processUserStatus(String userId) {
+    public void processUserStatus(String userId){
+        processUserStatus(userId,false);
+    }
+
+    public void processUserStatus(String userId,boolean isProfileImageUpdated) {
         try {
             String contactNumberParameter = "";
             String response = "";
@@ -680,18 +684,22 @@ public class MessageClientService extends MobiComKitClientService {
                     contact.setContactNumber(userDetail.getPhoneNumber());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                     contact.setImageURL(userDetail.getImageLink());
-                    contact.setUserTypeId(userDetail.getUserTypeId());
                     contact.setStatus(userDetail.getStatusMessage());
+                    contact.setUserTypeId(userDetail.getUserTypeId());
+                    contact.setDeletedAtTime(userDetail.getDeletedAtTime());
                     contact.setUnreadCount(0);
                     baseContactService.upsert(contact);
                 }
-                BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId);
+                if(isProfileImageUpdated){
+                    BroadcastService.sendUpdateUserDetailBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString(), userId);
+                }else{
+                    BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context,BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), userId);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     public String getTopicId(Integer conversationId) {
         try {
             String topicId = null;

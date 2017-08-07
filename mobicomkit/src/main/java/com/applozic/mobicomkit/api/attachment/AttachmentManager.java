@@ -283,7 +283,7 @@ public class AttachmentManager {
                             super.handleMessage(inputMessage);
                     }
                 } else if (attachmentTask.getAttachmentView() != null) {
-                    AttachmentViewNew attachmentView = attachmentTask.getAttachmentView();
+                    AttachmentViewProperties attachmentView = attachmentTask.getAttachmentView();
                     switch (inputMessage.what) {
 
                         case DOWNLOAD_STARTED:
@@ -462,7 +462,7 @@ public class AttachmentManager {
     }
 
 
-    static public AttachmentTask startDownload(AttachmentViewNew attachmentViewNew,
+    static public AttachmentTask startDownload(AttachmentViewProperties attachmentViewProperties,
                                                boolean cacheFlag) {
 
         /*
@@ -476,7 +476,7 @@ public class AttachmentManager {
         }
 
         // Initializes the task
-        downloadTask.initializeDownloaderTask(AttachmentManager.sInstance, attachmentViewNew, cacheFlag);
+        downloadTask.initializeDownloaderTask(AttachmentManager.sInstance, attachmentViewProperties, cacheFlag);
 
         // If image is already downloaded ...just pass-message as download complete
         if (!downloadTask.getMessage().isAttachmentDownloaded()) {

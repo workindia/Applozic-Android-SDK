@@ -5,10 +5,10 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 10
+        minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
-        versionName "4.95"
+        versionName "4.96"
     }
     buildTypes {
         release {
@@ -49,7 +49,7 @@ ext {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '4.95'
+    libraryVersion = '4.96'
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'

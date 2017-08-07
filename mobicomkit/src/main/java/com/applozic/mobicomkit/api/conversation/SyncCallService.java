@@ -143,4 +143,8 @@ public class SyncCallService {
         messageClientService.processUserStatus(userId);
     }
 
+    public void syncUserDetail(String userId) {
+        messageClientService.processUserStatus(userId,true);
+    }
+
 }

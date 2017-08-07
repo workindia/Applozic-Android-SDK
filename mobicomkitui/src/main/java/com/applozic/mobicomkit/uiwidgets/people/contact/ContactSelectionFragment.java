@@ -3,8 +3,10 @@ package com.applozic.mobicomkit.uiwidgets.people.contact;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
@@ -14,6 +16,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.text.SpannableString;
@@ -41,6 +44,7 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -111,6 +115,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private String[] groupContacts;
     private Bundle bundle;
     private List<String> userIdList;
+    RefreshContactsScreenBroadcast refreshContactsScreenBroadcast;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,7 +137,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         }
         userPreference = MobiComUserPreference.getInstance(getActivity());
         setHasOptionsMenu(true);
-
+        refreshContactsScreenBroadcast = new RefreshContactsScreenBroadcast();
         if (savedInstanceState != null) {
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mPreviouslySelectedSearchItem =
@@ -731,6 +736,42 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         TextView alphabeticImage;
         CircleImageView circleImageView;
         TextView textView2;
+    }
+
+
+    private final class RefreshContactsScreenBroadcast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString().equals(intent.getAction())){
+                if(getLoaderManager() != null) {
+                    try {
+                        if (TextUtils.isEmpty(contactsGroupId)) {
+                            getLoaderManager().restartLoader(
+                                    AppContactFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(refreshContactsScreenBroadcast !=  null){
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(refreshContactsScreenBroadcast,new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString()));
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(refreshContactsScreenBroadcast !=  null){
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(refreshContactsScreenBroadcast);
+        }
     }
 
 }

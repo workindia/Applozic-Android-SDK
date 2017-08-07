@@ -288,6 +288,11 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.syncBlockUsers();
                             }
 
+                            if (NOTIFICATION_TYPE.USER_DETAIL_CHANGED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.USER_DELETE_NOTIFICATION.getValue().equals(mqttMessageResponse.getType())) {
+                                String userId = mqttMessageResponse.getMessage().toString();
+                                syncCallService.syncUserDetail(userId);
+                            }
+
                         }
                     });
                     thread.start();
@@ -406,7 +411,13 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         GROUP_CONVERSATION_DELETED("APPLOZIC_23"),
         APPLOZIC_TEST("APPLOZIC_24"),
         USER_ONLINE_STATUS("APPLOZIC_25"),
-        CONTACT_SYNC("APPLOZIC_26");
+        CONTACT_SYNC("APPLOZIC_26"),
+        CONVERSATION_DELETED_NEW("APPLOZIC_27"),
+        CONVERSATION_DELIVERED_AND_READ_NEW("APPLOZIC_28"),
+        CONVERSATION_READ_NEW("APPLOZIC_29"),
+        USER_DETAIL_CHANGED("APPLOZIC_30"),
+        MESSAGE_LIKE("APPLOZIC_33"),
+        USER_DELETE_NOTIFICATION("APPLOZIC_34");
         private String value;
 
         private NOTIFICATION_TYPE(String c) {

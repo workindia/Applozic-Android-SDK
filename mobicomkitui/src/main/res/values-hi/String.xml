@@ -276,9 +276,12 @@
     <string name="cancel">रद्द करना</string>
     <string name="data_usage">डेटा का उपयोग</string>
     <string name="missed">मिस्ड </string>>
-    <string name="hold_to_record_release_to_send">रिकॉर्ड करने के लिए दबाएं, भेजने के लिए रिलीज </string>
+    <string name="hold_to_record_release_to_send">रिकॉर्ड करने के लिए पकड़ो, भेजने के लिए जारी</string>
     <string name="slide_to_cancel">रद्द करने के लिए स्लाइड करें</string>
     <string name="tap_on_mic_button_to_record_audio">ऑडियो रिकॉर्डिंग प्रारंभ करने के लिए माइक बटन पर टैप करें</string>
+    <string name="profile_contact">No Contact number</string>
+    <string name="profile_contact_number">Contact Number</string>
+    <string name="user_name">User Name</string>
 
 
     <string-array name="secret_message_timer_array">
@@ -322,7 +325,6 @@
     <string-array name="channel_users_menu_option">
         <item>संदेश</item>
         <item>हटाना</item>
-        <item>समूह एडमिन बनाएं</item>
     </string-array>
 
     <!--Multimedia options -->

@@ -1193,6 +1193,13 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
         }
 
     }
+
+    public void  refreshContactData(){
+        if(contact != null){
+            contact = contactService.getContactById(contact.getContactIds());
+        }
+    }
+
     private boolean isNormalAttachment(Message message) {
 
         if (message.getFileMetas() != null) {

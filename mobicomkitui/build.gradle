@@ -5,10 +5,10 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 10
+        minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
-        versionName "4.95"
+        versionName "4.96"
     }
     buildTypes {
         release {
@@ -29,15 +29,15 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.google.code.gson:gson:2.2.4'
     //compile 'com.googlecode.libphonenumber:libphonenumber:7.0.1'
-    compile 'com.google.firebase:firebase-messaging:10.0.1'
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile 'com.google.android.gms:play-services-location:10.0.1'
+    compile 'com.google.firebase:firebase-messaging:11.0.4'
+    compile 'com.google.android.gms:play-services-maps:11.0.4'
+    compile 'com.google.android.gms:play-services-location:11.0.4'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.android.support:design:25.3.1'
     compile 'com.theartofdev.edmodo:android-image-cropper:2.4.5'
     compile 'com.android.support:cardview-v7:25.3.1'
     compile project(':mobicomkit')//Note: use this for customization
-   // compile 'com.applozic.communication.message:mobicomkit:4.95' //Note: use this in case customization is not required
+   // compile 'com.applozic.communication.message:mobicomkit:4.96' //Note: use this in case customization is not required
 }
 /*
 ext {
@@ -54,7 +54,7 @@ ext {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '4.95'
+    libraryVersion = '4.96'
 
     developerId = 'devashish'
     developerName = 'Applozic'

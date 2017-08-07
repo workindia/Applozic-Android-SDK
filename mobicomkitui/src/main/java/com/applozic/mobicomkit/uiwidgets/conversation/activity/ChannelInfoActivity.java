@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -107,6 +108,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     private Button exitChannelButton, deleteChannelButton;
     private RelativeLayout channelDeleteRelativeLayout, channelExitRelativeLayout;
     private Integer channelKey;
+    private RefreshBroadcast refreshBroadcast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +122,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
+        refreshBroadcast = new RefreshBroadcast();
         baseContactService = new AppContactService(getApplicationContext());
         channelImage = (ImageView) findViewById(R.id.channelImage);
         userPreference = MobiComUserPreference.getInstance(this);
@@ -252,6 +255,9 @@ public class ChannelInfoActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+        if(refreshBroadcast != null){
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(refreshBroadcast);
+        }
         BroadcastService.currentInfoId = null;
         contactImageLoader.setPauseWork(false);
 
@@ -261,6 +267,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(refreshBroadcast, new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString()));
         if (channel != null) {
             BroadcastService.currentInfoId = String.valueOf(channel.getKey());
             Channel newChannel = ChannelService.getInstance(this).getChannelByChannelKey(channel.getKey());
@@ -926,6 +933,15 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     channelImage.setImageURI(Uri.parse(groupInfoUpdate.getContentUri()));
                 }
             }
+        }
+    }
+
+
+    public class RefreshBroadcast extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateChannelList();
         }
     }
 

@@ -21,6 +21,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -335,8 +336,42 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
             }
         } catch (Exception e) {
-            Utils.printLog(getActivity(),"AL", "Exception while updating view .");
+            Utils.printLog(getActivity(), "AL", "Exception while updating view .");
         }
+    }
+
+
+    public void updateUserInfo(final String userId) {
+        if (!getUserVisibleHint()) {
+            return;
+        }
+        if (getActivity() == null) {
+            return;
+        }
+        if (getActivity() != null) {
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Message message = latestMessageForEachContact.get(userId);
+                        if (message != null) {
+                            int index = messageList.indexOf(message);
+                            View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
+                            Contact contact = baseContactService.getContactById(userId);
+                            if (view != null && contact != null) {
+                                ImageView contactImage = (ImageView) view.findViewById(R.id.contactImage);
+                                TextView displayNameTextView = (TextView) view.findViewById(R.id.smReceivers);
+                                displayNameTextView.setText(contact.getDisplayName());
+                                conversationAdapter.contactImageLoader.loadImage(contact, contactImage);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Utils.printLog(getActivity(),"AL", "Exception while updating view .");
+                    }
+                }
+            });
+        }
+
     }
 
     public void updateLastMessage(String keyString, String userId) {
@@ -623,7 +658,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         conversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
-                    Utils.printLog(getActivity(),"AL", "Exception while updating online status.");
+                    Utils.printLog(getActivity(), "AL", "Exception while updating online status.");
                 }
             }
         });
@@ -655,7 +690,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         }
                     }
                 } catch (Exception ex) {
-                    Utils.printLog(getActivity(),"AL", "Exception while updating Unread count...");
+                    Utils.printLog(getActivity(), "AL", "Exception while updating Unread count...");
                 }
             }
         });
@@ -708,7 +743,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (progressBar != null && loadMoreMessages) {
                 progressBar.setVisibility(View.VISIBLE);
             } else {
-                if(swipeLayout != null) {
+                if (swipeLayout != null) {
                     swipeLayout.setEnabled(true);
                     swipeLayout.post(new Runnable() {
                         @Override
@@ -742,7 +777,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected void onPostExecute(Long result) {
             if (!loadMoreMessages) {
-                if(swipeLayout != null){
+                if (swipeLayout != null) {
                     swipeLayout.setEnabled(true);
                     swipeLayout.post(new Runnable() {
                         @Override
@@ -793,11 +828,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (progressBar != null && loadMoreMessages) {
                 progressBar.setVisibility(View.GONE);
             }
-            if(conversationAdapter != null){
+            if (conversationAdapter != null) {
                 conversationAdapter.notifyDataSetChanged();
             }
             if (initial) {
-                if(emptyTextView != null){
+                if (emptyTextView != null) {
                     emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                     if (!TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
                         emptyTextView.setText(alCustomizationSettings.getNoSearchFoundForChatMessages());

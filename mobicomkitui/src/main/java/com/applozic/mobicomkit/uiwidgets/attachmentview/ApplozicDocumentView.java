@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.attachment.AttachmentManager;
 import com.applozic.mobicomkit.api.attachment.AttachmentTask;
-import com.applozic.mobicomkit.api.attachment.AttachmentViewNew;
+import com.applozic.mobicomkit.api.attachment.AttachmentViewProperties;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -50,7 +50,7 @@ public class ApplozicDocumentView {
     TextView fileText;
     Message message;
     Context context;
-    AttachmentViewNew attachmentViewNew;
+    AttachmentViewProperties attachmentViewProperties;
     ProgressBar progressBar;
     ImageView uploadDownloadImage;
     SeekBar audioseekbar;
@@ -139,7 +139,7 @@ public class ApplozicDocumentView {
         } else if (AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
 
             this.mDownloadThread = AttachmentManager.getBGThreadForAttachment(message.getKeyString());
-            this.mDownloadThread.setAttachementViewNew(attachmentViewNew);
+            this.mDownloadThread.setAttachementViewNew(attachmentViewProperties);
             showDownloadInProgress();
 
         } else if (message.isAttachmentDownloaded()) {
@@ -212,11 +212,11 @@ public class ApplozicDocumentView {
     }
 
     private void setupAttachmentView() {
-        attachmentViewNew = new AttachmentViewNew(mainLayout.getWidth(), mainLayout.getHeight(), context, message);
+        attachmentViewProperties = new AttachmentViewProperties(mainLayout.getWidth(), mainLayout.getHeight(), context, message);
         if (mDownloadThread == null && AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
             mDownloadThread = AttachmentManager.getBGThreadForAttachment(message.getKeyString());
             if (mDownloadThread != null)
-                mDownloadThread.setAttachementViewNew(attachmentViewNew);
+                mDownloadThread.setAttachementViewNew(attachmentViewProperties);
         }
     }
 
@@ -257,14 +257,14 @@ public class ApplozicDocumentView {
             public void onClick(View v) {
                 if (!AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
                     // Starts downloading this View, using the current cache setting
-                    mDownloadThread = AttachmentManager.startDownload(attachmentViewNew, mCacheFlag);
+                    mDownloadThread = AttachmentManager.startDownload(attachmentViewProperties, mCacheFlag);
                     // After successfully downloading the image, this marks that it's available.
                     showDownloadInProgress();
                 }
                 if (mDownloadThread == null) {
                     mDownloadThread = AttachmentManager.getBGThreadForAttachment(message.getKeyString());
                     if (mDownloadThread != null)
-                        mDownloadThread.setAttachementViewNew(attachmentViewNew);
+                        mDownloadThread.setAttachementViewNew(attachmentViewProperties);
                 }
             }
         });

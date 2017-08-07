@@ -150,6 +150,7 @@ public class UserClientService extends MobiComKitClientService {
     public String getApplicationInfoUrl() {
         return getBaseUrl() + APPLICATION_INFO_UPDATE_URL;
     }
+
     public ApiResponse logout() {
         return logout(false);
     }
@@ -172,7 +173,7 @@ public class UserClientService extends MobiComKitClientService {
     }
 
     public ApiResponse logout(boolean fromLogin) {
-        Utils.printLog(context,TAG, "Al Logout call !!");
+        Utils.printLog(context, TAG, "Al Logout call !!");
         ApiResponse apiResponse = userLogoutResponse();
         if (apiResponse != null && apiResponse.isSuccess()) {
             MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
@@ -215,7 +216,7 @@ public class UserClientService extends MobiComKitClientService {
             JSONObject json = new JSONObject(response);
             return json.has("code") && json.get("code").equals("200");
         } catch (Exception e) {
-            Utils.printLog(context,"Verification Code", "Got Exception while submitting verification code to server: " + e);
+            Utils.printLog(context, "Verification Code", "Got Exception while submitting verification code to server: " + e);
         }
         return false;
     }
@@ -223,7 +224,7 @@ public class UserClientService extends MobiComKitClientService {
     public void updateCodeVersion(final String deviceKeyString) {
         String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKey=" + deviceKeyString;
         String response = httpRequestUtils.getResponse(url, "text/plain", "text/plain");
-        Utils.printLog(context,TAG, "Version update response: " + response);
+        Utils.printLog(context, TAG, "Version update response: " + response);
 
     }
 
@@ -233,7 +234,7 @@ public class UserClientService extends MobiComKitClientService {
 
     public void notifyFriendsAboutJoiningThePlatform() {
         String response = httpRequestUtils.getResponse(getNotifyContactsAboutJoiningMt(), "text/plain", "text/plain");
-        Utils.printLog(context,TAG, "Response for notify contact about joining MT: " + response);
+        Utils.printLog(context, TAG, "Response for notify contact about joining MT: " + response);
     }
 
     public String sendPhoneNumberForVerification(String contactNumber, String countryCode, boolean viaSms) {
@@ -244,7 +245,7 @@ public class UserClientService extends MobiComKitClientService {
             }
             return httpRequestUtils.getResponse(getVerificationContactNumberUrl() + "?countryCode=" + countryCode + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + viaSmsParam, "application/json", "application/json");
         } catch (Exception e) {
-            Utils.printLog(context,"Verification Code", "Got Exception while submitting contact number for verification to server: " + e);
+            Utils.printLog(context, "Verification Code", "Got Exception while submitting contact number for verification to server: " + e);
         }
         return null;
     }
@@ -279,7 +280,7 @@ public class UserClientService extends MobiComKitClientService {
         }
 
         String response = httpRequestUtils.getResponse(getUserInfoUrl() + userIdParam, "application/json", "application/json");
-        Utils.printLog(context,TAG, "Response: " + response);
+        Utils.printLog(context, TAG, "Response: " + response);
 
         JSONObject jsonObject = new JSONObject(response);
 
@@ -306,7 +307,7 @@ public class UserClientService extends MobiComKitClientService {
 
                         ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                         if (apiResponse != null) {
-                            Utils.printLog(context,TAG, " Update display name Response :" + apiResponse.getStatus());
+                            Utils.printLog(context, TAG, " Update display name Response :" + apiResponse.getStatus());
                         }
                     }
                 } catch (Exception e) {
@@ -371,7 +372,7 @@ public class UserClientService extends MobiComKitClientService {
                     userIdParam += "&userIds" + "=" + URLEncoder.encode(userId, "UTF-8");
                 }
                 response = httpRequestUtils.getResponse(getUserDetailsListUrl() + userIdParam, "application/json", "application/json");
-                Utils.printLog(context,TAG, "User details response is :" + response);
+                Utils.printLog(context, TAG, "User details response is :" + response);
                 if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                     return null;
                 }
@@ -399,7 +400,7 @@ public class UserClientService extends MobiComKitClientService {
                         userDetailListFeed.setContactSync(true);
                         userDetailListFeed.setUserIdList(userDetailsList);
                         String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                        Utils.printLog(context,TAG, "Sending json:" + jsonFromObject);
+                        Utils.printLog(context, TAG, "Sending json:" + jsonFromObject);
                         response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
                         userDetailsList = new ArrayList<String>();
                         if (!TextUtils.isEmpty(response)) {
@@ -414,7 +415,7 @@ public class UserClientService extends MobiComKitClientService {
                     String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
                     response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
 
-                    Utils.printLog(context,TAG, "User details response is :" + response);
+                    Utils.printLog(context, TAG, "User details response is :" + response);
                     if (TextUtils.isEmpty(response) || response.contains("<html>")) {
                         return null;
                     }
@@ -467,11 +468,9 @@ public class UserClientService extends MobiComKitClientService {
         return response;
     }
 
-    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status) {
-
+    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status, String contactNumber) {
         JSONObject jsonFromObject = new JSONObject();
         try {
-            User user = new User();
             if (!TextUtils.isEmpty(displayName)) {
                 jsonFromObject.put("displayName", displayName);
             }
@@ -481,8 +480,11 @@ public class UserClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(status)) {
                 jsonFromObject.put("statusMessage", status);
             }
+            if (!TextUtils.isEmpty(contactNumber)) {
+                jsonFromObject.put("phoneNumber", contactNumber);
+            }
             String response = httpRequestUtils.postData(getUserProfileUpdateUrl(), "application/json", "application/json", jsonFromObject.toString());
-            Utils.printLog(context,TAG, response);
+            Utils.printLog(context, TAG, response);
             return ((ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -500,7 +502,7 @@ public class UserClientService extends MobiComKitClientService {
             if (response != null) {
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             }
-            Utils.printLog(context,TAG, "User read response: " + response);
+            Utils.printLog(context, TAG, "User read response: " + response);
         } catch (Exception e) {
             e.printStackTrace();
         }

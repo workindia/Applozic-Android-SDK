@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.CursorAdapter;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -36,6 +39,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
@@ -77,6 +81,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             "net.mobitexter.mobiframework.contact.ui.SELECTED_ITEM";
     private static String inviteMessage;
     AlCustomizationSettings alCustomizationSettings;
+    RefreshContactsScreenBroadcast refreshContactsScreenBroadcast;
     private ContactsAdapter mAdapter; // The main query adapter
     private ImageLoader mImageLoader; // Handles loading the contact image in a background thread
     private String mSearchTerm; // Stores the current search query term
@@ -131,6 +136,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                     savedInstanceState.getInt(STATE_PREVIOUSLY_SELECTED_KEY, 0);
             alCustomizationSettings = (AlCustomizationSettings) savedInstanceState.getSerializable(AL_CUSTOMIZATION_SETTINGS);
         }
+        refreshContactsScreenBroadcast = new RefreshContactsScreenBroadcast();
         final Context context = getActivity().getApplicationContext();
         mImageLoader = new ImageLoader(context, getListPreferredItemHeight()) {
             @Override
@@ -420,6 +426,23 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         usersAsyncTask.execute((Void) null);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (refreshContactsScreenBroadcast != null) {
+            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(refreshContactsScreenBroadcast, new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString()));
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (refreshContactsScreenBroadcast != null) {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(refreshContactsScreenBroadcast);
+        }
+    }
+
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
@@ -659,5 +682,22 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView contactNumberTextView;
         }
     }
+
+    private final class RefreshContactsScreenBroadcast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString().equals(intent.getAction())) {
+                try {
+                    if (getLoaderManager() != null && userIdArray == null) {
+                        getLoaderManager().restartLoader(
+                                AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+        }
+    }
+
 }
 

@@ -110,6 +110,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             String currentId = intent.getStringExtra("currentId");
             boolean isGroup = intent.getBooleanExtra("isGroup", false);
             conversationUIService.updateConversationRead(currentId, isGroup);
+        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString().equals(action)) {
+            conversationUIService.updateUserInfo(intent.getStringExtra("contactId"));
         }
     }
 }

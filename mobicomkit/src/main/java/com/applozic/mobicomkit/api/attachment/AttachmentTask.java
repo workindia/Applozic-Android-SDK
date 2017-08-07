@@ -62,7 +62,7 @@ public class AttachmentTask implements
      * ensures that the reference is more transitory in nature.
      */
     private WeakReference<AttachmentView> mImageWeakRef;
-    private WeakReference<AttachmentViewNew> mImageWeakRefNew;
+    private WeakReference<AttachmentViewProperties> mImageWeakRefNew;
     // The image's URL
     private String mImageURL;
     // The width and height of the decoded image
@@ -125,7 +125,7 @@ public class AttachmentTask implements
 
     void initializeDownloaderTask(
             AttachmentManager photoManager,
-            AttachmentViewNew photoView,
+            AttachmentViewProperties photoView,
             boolean cacheFlag) {
         // Sets this object's ThreadPool field to be the input argument
         sPhotoManager = photoManager;
@@ -151,8 +151,8 @@ public class AttachmentTask implements
         this.context = photoView.getContext();
     }
 
-    public void setAttachementViewNew(AttachmentViewNew photoView) {
-        mImageWeakRefNew = new WeakReference<AttachmentViewNew>(photoView);
+    public void setAttachementViewNew(AttachmentViewProperties photoView) {
+        mImageWeakRefNew = new WeakReference<AttachmentViewProperties>(photoView);
         this.message = photoView.getMessage();
         this.context = photoView.getContext();
     }
@@ -259,7 +259,7 @@ public class AttachmentTask implements
         return null;
     }
 
-    public AttachmentViewNew getAttachmentView() {
+    public AttachmentViewProperties getAttachmentView() {
         if (null != mImageWeakRefNew) {
             return mImageWeakRefNew.get();
         }

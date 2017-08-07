@@ -8,9 +8,9 @@ import com.applozic.mobicomkit.api.conversation.Message;
 /**
  * Created by devashish on 22/07/16.
  */
-public class AttachmentViewNew {
+public class AttachmentViewProperties {
 
-    public AttachmentViewNew(int width, int height, Context context, Message message) {
+    public AttachmentViewProperties(int width, int height, Context context, Message message) {
         this.width = width;
         this.height = height;
         this.context = context;

@@ -9,7 +9,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by Rahul-PC on 17-07-2017.
@@ -55,9 +54,7 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
                 isRecordring = true;
             }
 
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }

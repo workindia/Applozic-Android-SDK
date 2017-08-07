@@ -184,9 +184,17 @@ public class UserService {
         return null;
     }
 
-    public void updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
+    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
+        return updateDisplayNameORImageLink(displayName, profileImageLink, status, null);
+    }
 
-        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status);
+    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber) {
+
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber);
+
+        if (response == null) {
+            return null;
+        }
         if (response != null && response.isSuccess()) {
             Contact contact = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
             if (!TextUtils.isEmpty(displayName)) {
@@ -199,11 +207,16 @@ public class UserService {
             if (!TextUtils.isEmpty(status)) {
                 contact.setStatus(status);
             }
+            if (!TextUtils.isEmpty(contactNumber)) {
+                contact.setContactNumber(contactNumber);
+            }
             baseContactService.upsert(contact);
             Contact contact1 = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
-            Utils.printLog(context,"UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus());
+            Utils.printLog(context, "UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus() + "," + contact1.getStatus());
         }
+        return response.getStatus();
     }
+
 
     public void processUserDetailsResponse(String response) {
         if (!TextUtils.isEmpty(response)) {

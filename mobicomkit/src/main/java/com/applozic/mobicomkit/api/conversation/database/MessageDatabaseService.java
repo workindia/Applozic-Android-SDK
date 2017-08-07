@@ -778,6 +778,7 @@ public class MessageDatabaseService {
         return messages;
     }
 
+
     public List<Message> getLatestMessageByClientGroupId(String clientGroupId) {
         return getLatestMessageForChannel(null, clientGroupId);
     }
@@ -1047,6 +1048,30 @@ public class MessageDatabaseService {
             }
         }
         return totalCount;
+    }
+
+    public List<Message> getAttachmentMessages(String contactId, Integer groupId, boolean downloadedOnly) {
+
+        if (contactId == null && (groupId == null || groupId == 0)) {
+            return new ArrayList<>();
+        }
+
+        String query = "SELECT * FROM " + MobiComDatabaseHelper.SMS_TABLE_NAME + " WHERE ";
+        String params = "";
+
+        if (groupId != null && groupId != 0) {
+            params = MobiComDatabaseHelper.CHANNEL_KEY + " = " + groupId + " AND";
+        } else if (contactId != null) {
+            params = "contactNumbers = '" + contactId + "' AND";
+        }
+
+        String selectionArgs = (downloadedOnly ? " filePaths" : " blobKeyString") + " IS NOT NULL ORDER BY createdAt DESC";
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query + params + selectionArgs, null);
+
+        return getMessageList(cursor);
+
     }
 
 }

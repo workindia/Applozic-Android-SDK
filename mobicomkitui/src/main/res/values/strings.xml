@@ -206,4 +206,7 @@
     <string name="hold_to_record_release_to_send">Hold to record , release to send</string>
     <string name="slide_to_cancel">Slide to cancel</string>
     <string name="tap_on_mic_button_to_record_audio">Tap on mic button to start audio recording</string>
+    <string name="profile_contact">No Contact number</string>
+    <string name="profile_contact_number">Contact Number</string>
+    <string name="user_name">User Name</string>
 </resources>

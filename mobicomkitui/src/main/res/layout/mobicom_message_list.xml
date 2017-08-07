@@ -309,11 +309,10 @@
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
-
         <FrameLayout
-            android:id="@+id/audio_record_framelayout"
+            android:id="@+id/audio_record_frame_layout"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="53dp"
             android:layout_gravity="bottom"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
@@ -327,7 +326,7 @@
             <include layout="@layout/reply_message_layout" />
 
             <LinearLayout
-                android:id="@+id/slideTextLinearlayout"
+                android:id="@+id/slide_LinearLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -339,7 +338,7 @@
                 android:visibility="visible">
 
                 <ImageView
-                    android:id="@+id/slideImageView"
+                    android:id="@+id/slide_image_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -347,7 +346,7 @@
                     android:src="@drawable/slide_arrow_left" />
 
                 <TextView
-                    android:id="@+id/slideToCancelTextView"
+                    android:id="@+id/slide_to_cancel_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -368,7 +367,7 @@
                 android:paddingStart="13dp">
 
                 <ImageView
-                    android:id="@+id/audio_record_icon_imageView"
+                    android:id="@+id/audio_record_icon_image_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center"
@@ -376,7 +375,7 @@
                     android:src="@drawable/applozic_audio_record" />
 
                 <TextView
-                    android:id="@+id/recording_time_text"
+                    android:id="@+id/recording_time_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center"
@@ -394,13 +393,10 @@
         <!--emojicon:emojiconSize="28sp"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="wrap_content"/>-->
-        <!--<RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center" >-->
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:gravity="center">
 
             <ImageButton
@@ -417,7 +413,7 @@
                 android:visibility="visible" />
 
             <EditText
-                android:id="@+id/error_editextView"
+                android:id="@+id/error_edit_text_view"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

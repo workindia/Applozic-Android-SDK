@@ -53,6 +53,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MessageInfoFragme
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConversationFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
+import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicommons.commons.core.utils.LocationInfo;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -594,6 +595,30 @@ public class ConversationUIService {
         if (BroadcastService.isIndividual()) {
             getConversationFragment().updateTitleForOpenGroup();
         }
+    }
+
+    public void updateUserInfo(String userId) {
+        if (TextUtils.isEmpty(userId)) {
+            return;
+        }
+
+        if (BroadcastService.isQuick()) {
+            getQuickConversationFragment().updateUserInfo(userId);
+            return;
+        }
+        if (userId.equals(BroadcastService.currentUserProfileUserId)) {
+            UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
+            if (userProfileFragment != null  && userId.equals(BroadcastService.currentUserProfileUserId)) {
+                userProfileFragment.refreshContactData();
+            }
+        }
+        if (BroadcastService.isIndividual()) {
+            ConversationFragment conversationFragment = getConversationFragment();
+            if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null) {
+                conversationFragment.reload();
+            }
+        }
+
     }
 
 
