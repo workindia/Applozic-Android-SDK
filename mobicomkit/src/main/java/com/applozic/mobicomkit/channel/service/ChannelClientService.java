@@ -44,6 +44,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String GET_GROUP_INFO_FROM_GROUP_IDS_URL = "/rest/ws/group/details";
     private static final String ADD_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/add/members";
     private static final String GET_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/get";
+    private static final String REMOVE_MEMBERS_FROM_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/remove";
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
     private static final String GROUP_ID = "groupId";
@@ -137,6 +138,10 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public String getGroupInfoFromGroupIdsUrl() {
         return getBaseUrl() + GET_GROUP_INFO_FROM_GROUP_IDS_URL;
+    }
+
+    public String getRemoveMemberFromGroupTypeUrl() {
+        return getBaseUrl() + REMOVE_MEMBERS_FROM_CONTACT_GROUP_OF_TYPE_URL;
     }
 
     public ChannelFeed getChannelInfoByParameters(String parameters) {
@@ -574,5 +579,28 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-
+    public ApiResponse removeMemberFromContactGroupOfType(String groupName, String groupType, String userId) {
+        String response;
+        String parameters;
+        String url;
+        if (!TextUtils.isEmpty(groupName) && !TextUtils.isEmpty(userId)) {
+            if (!TextUtils.isEmpty(groupType)) {
+                parameters = "?" + USER_ID + "=" + userId + "&" + GROUPTYPE + "=" + groupType;
+            } else {
+                parameters = "?" + USER_ID + "=" + userId;
+            }
+            url = String.format(getRemoveMemberFromGroupTypeUrl() + parameters, groupName);
+            try {
+                response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                if (apiResponse != null) {
+                    Utils.printLog(context, TAG, "Remove memeber from Group of Type Response: " + apiResponse.getStatus());
+                    return apiResponse;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 }

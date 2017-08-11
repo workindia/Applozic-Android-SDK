@@ -54,7 +54,6 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.ApplozicUser;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
@@ -65,11 +64,13 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
+import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicGetMemberFromContactGroupTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -79,6 +80,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MobiComQuickConve
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
+import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
@@ -658,7 +660,41 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
-            conversationUIService.startContactActivityForResult();
+            if (!TextUtils.isEmpty(contactsGroupId)) {
+                if (Utils.isInternetAvailable(this)) {
+                    ApplozicGetMemberFromContactGroupTask.GroupMemberListener eventMemberListener = new ApplozicGetMemberFromContactGroupTask.GroupMemberListener() {
+                        @Override
+                        public void onSuccess(String[] userIdArray, Context context) {
+
+                            Intent intent = new Intent(context, MobiComKitPeopleActivity.class);
+                            conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
+                        }
+
+
+                        @Override
+                        public void onFailure(String response, Context context) {
+                            Toast.makeText(ConversationActivity.this, R.string.group_not_exist, Toast.LENGTH_SHORT).show();
+                        }
+                    };
+
+
+                    ApplozicGetMemberFromContactGroupTask applozicGetMemberFromContactGroupTask = new ApplozicGetMemberFromContactGroupTask(this, contactsGroupId,
+                            String.valueOf(Channel.GroupType.CONTACT_GROUP.getValue()), eventMemberListener);
+                    applozicGetMemberFromContactGroupTask.execute();
+
+                } else {
+
+                    Intent intent = new Intent(this, MobiComKitPeopleActivity.class);
+                    ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(this);
+                    String[] userIdArray = channelDatabaseService.getChannelMemberByName(contactsGroupId, null);
+                    if (userIdArray != null) {
+                        conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
+                    }
+                }
+
+            } else {
+                conversationUIService.startContactActivityForResult();
+            }
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
             intent.putExtra(ChannelCreateActivity.GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
