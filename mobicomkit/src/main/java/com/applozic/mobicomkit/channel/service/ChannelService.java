@@ -566,8 +566,19 @@ public class ChannelService {
             ChannelFeed[] channelFeeds = new ChannelFeed[1];
             channelFeeds[0] = channelFeed;
             processChannelFeedList(channelFeeds, false);
+            UserService.getInstance(context).processUserDetails(channelFeed.getContactGroupMembersId());
             return channelFeed;
         }
         return null;
     }
+
+    public ApiResponse removeMemberFromContactGroup(String contactGroupId, String groupType, String userId) {
+        ApiResponse apiResponse;
+        if (!TextUtils.isEmpty(contactGroupId) && !TextUtils.isEmpty(userId)) {
+            apiResponse = channelClientService.removeMemberFromContactGroupOfType(contactGroupId, groupType, userId);
+            return apiResponse;
+        }
+        return null;
+    }
+
 }
