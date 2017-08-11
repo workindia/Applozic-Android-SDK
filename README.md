@@ -1,6 +1,5 @@
 Android Chat SDK
 
-
 ### Overview         
 
 <img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
@@ -25,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.96' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.97' `
 
 
 Add the following in gradle android target:      
