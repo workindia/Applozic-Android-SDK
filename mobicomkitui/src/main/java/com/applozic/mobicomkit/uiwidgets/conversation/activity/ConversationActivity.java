@@ -331,7 +331,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (resourceId != 0) {
             getWindow().setBackgroundDrawableResource(resourceId);
         }
-        contactsGroupId = getIntent().getStringExtra(CONTACTS_GROUP_ID);
+        contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -698,9 +698,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
             intent.putExtra(ChannelCreateActivity.GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
-            if (contactsGroupId != null) {
-                intent.putExtra(ChannelCreateActivity.CONTACTS_GROUP_ID, contactsGroupId);
-            }
             startActivity(intent);
         } else if (id == R.id.broadcast) {
             Intent intent = new Intent(this, ContactSelectionActivity.class);

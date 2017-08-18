@@ -60,6 +60,7 @@ public class MobiComUserPreference {
     private static String user_type_id = "user_type_id";
     private static String application_info_call_done = "application_info_call_done";
     private static String notification_sound_fileName = "notificationSoundFileName";
+    private String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -532,5 +533,13 @@ public class MobiComUserPreference {
 
     public void setNotificationSoundFilePath(String soundUri) {
         sharedPreferences.edit().putString(notification_sound_fileName, soundUri).commit();
+    }
+
+    public String getContactsGroupId() {
+        return sharedPreferences.getString(CONTACTS_GROUP_ID, null);
+    }
+
+    public void setContactsGroupId(String contactsGroupId) {
+        sharedPreferences.edit().putString(CONTACTS_GROUP_ID, contactsGroupId).commit();
     }
 }

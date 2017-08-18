@@ -128,7 +128,8 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             channelName = bundle.getString(CHANNEL);
             imageUrl = bundle.getString(IMAGE_LINK);
             groupType = bundle.getInt(GROUP_TYPE);
-            contactsGroupId = bundle.getString(ContactSelectionActivity.CONTACTS_GROUP_ID);
+            contactsGroupId = MobiComUserPreference.getInstance(getActivity()).getContactsGroupId();
+
         }
         userPreference = MobiComUserPreference.getInstance(getActivity());
         setHasOptionsMenu(true);

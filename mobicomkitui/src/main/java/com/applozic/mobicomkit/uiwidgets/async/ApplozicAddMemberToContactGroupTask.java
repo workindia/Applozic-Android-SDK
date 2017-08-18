@@ -11,7 +11,7 @@ import java.util.List;
  * Created by Rahul-PC on 06-06-2017.
  */
 
-public class ApplozicAddMemberToContactGroupTask extends AsyncTask<Object, Object, Boolean> {
+public class ApplozicAddMemberToContactGroupTask extends AsyncTask<Void, Void, Boolean> {
     String contactGroupId;
     Context context;
     List<String> groupMemberList;
@@ -31,7 +31,7 @@ public class ApplozicAddMemberToContactGroupTask extends AsyncTask<Object, Objec
     }
 
     @Override
-    protected Boolean doInBackground(Object... params) {
+    protected Boolean doInBackground(Void... params) {
         try {
             if (contactGroupId != null && groupMemberList != null) {
                 boolean response = channelService.addMemberToContactGroup(contactGroupId, groupType, groupMemberList);
