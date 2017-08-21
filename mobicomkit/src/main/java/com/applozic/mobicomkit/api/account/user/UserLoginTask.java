@@ -14,7 +14,7 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
  * Represents an asynchronous login/registration task used to authenticate
  * the user.
  */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+public class UserLoginTask extends AsyncTask {
 
     private final TaskListener taskListener;
     private final Context context;
@@ -24,6 +24,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private UserClientService userClientService;
     private RegisterUserClientService registerUserClientService;
     private UserService userService;
+    private boolean aBoolean;
 
     public UserLoginTask(User user, TaskListener listener, Context context) {
         this.taskListener = listener;
@@ -34,8 +35,9 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         this.userService = UserService.getInstance(context);
     }
 
+
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Object doInBackground(Object[] params) {
         try {
             userClientService.clearDataAndPreference();
             registrationResponse = registerUserClientService.createAccount(user);
@@ -43,15 +45,16 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;
-            return false;
+            aBoolean =  false;
         }
-        return true;
+        aBoolean = true;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(final Boolean result) {
-        // And if it is we call the callback function on it.
-        if (result && this.taskListener != null) {
+    protected void onPostExecute(Object o) {
+        super.onPostExecute(o);
+        if (aBoolean && this.taskListener != null) {
             this.taskListener.onSuccess(registrationResponse, context);
 
         } else if (mException != null && this.taskListener != null) {
@@ -59,12 +62,12 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         }
     }
 
+
     public interface TaskListener {
         void onSuccess(RegistrationResponse registrationResponse, Context context);
 
         void onFailure(RegistrationResponse registrationResponse, Exception exception);
 
     }
-
 
 }
