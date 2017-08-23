@@ -68,7 +68,7 @@
     <string name="verification_success">Your phone number got verified successfully</string>
     <string name="launch_mobitexter_app">LAUNCH_MOBITEXTER</string>
     <string name="delete_conversation">Delete</string>
-    <string name="sync_messages_from_server">Syncing with server…</string>
+    <string name="sync_messages_from_server">Syncing with the server…</string>
 
     <string name="incoming_call">Received call</string>
     <string name="outgoing_call">Dialed call</string>
@@ -173,7 +173,7 @@
     <string name="please_wait_info">Please wait a moment…</string>
     <string name="applozic_userId_error_info_in_logs">UserId can not be null or empty and channel key should not be null</string>
     <string name="applozic_channel_error_info_in_logs">Please check group name is null or empty or it has at least one member to be added in group</string>
-    <string name="applozic_add_user_to_multiple_channel_error_info_in_logs">UserId can not be null or empty and ehannel key list should not be null</string>
+    <string name="applozic_add_user_to_multiple_channel_error_info_in_logs">UserId can not be null or empty and channel key list should not be null</string>
     <string name="user_logout_info">Logout successful</string>
     <string name="unable_share_message">Unable to share you are not a participant of this group</string>
     <string name="user_is_blocked">Unable to send user is blocked</string>
