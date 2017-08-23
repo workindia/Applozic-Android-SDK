@@ -55,7 +55,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private String restrictedWordMessage = "Restricted words are not allowed";
     private boolean locationShareViaMap = true;
     private boolean startNewFloatingButton;
-    private boolean startNewButton;
+    private boolean startNewButton = true;
     private boolean onlineStatusMasterList;
     private boolean priceWidget;
     private boolean startNewGroup = true;
@@ -94,6 +94,8 @@ public class AlCustomizationSettings extends JsonMarker {
     private String replyMessageLayoutSentMessageBackground = "#C0C0C0";
     private String replyMessageLayoutReceivedMessageBackground = "#F5F5F5";
     private boolean groupInfoScreenVisible = true;
+    private boolean forwardOption = true;
+    private boolean recordButton = true;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -472,6 +474,22 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isGroupInfoScreenVisible() {
         return groupInfoScreenVisible;
+    }
+
+    public boolean isForwardOption() {
+        return forwardOption;
+    }
+
+    public void setForwardOption(boolean forwardOption) {
+        this.forwardOption = forwardOption;
+    }
+
+    public boolean isRecordButton() {
+        return recordButton;
+    }
+
+    public void setRecordButton(boolean recordButton) {
+        this.recordButton = recordButton;
     }
 
     @Override

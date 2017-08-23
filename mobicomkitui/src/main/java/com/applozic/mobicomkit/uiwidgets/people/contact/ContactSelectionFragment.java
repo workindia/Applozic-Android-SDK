@@ -127,15 +127,15 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
+        userPreference = MobiComUserPreference.getInstance(getActivity());
         if (bundle != null) {
             channel = (Channel) bundle.getSerializable(CHANNEL_OBJECT);
             disableCheckBox = bundle.getBoolean(CHECK_BOX, false);
             channelName = bundle.getString(CHANNEL);
             imageUrl = bundle.getString(IMAGE_LINK);
             groupType = bundle.getInt(GROUP_TYPE);
-            contactsGroupId = bundle.getString(ContactSelectionActivity.CONTACTS_GROUP_ID);
+            contactsGroupId = userPreference.getContactsGroupId();
         }
-        userPreference = MobiComUserPreference.getInstance(getActivity());
         setHasOptionsMenu(true);
         refreshContactsScreenBroadcast = new RefreshContactsScreenBroadcast();
         if (savedInstanceState != null) {

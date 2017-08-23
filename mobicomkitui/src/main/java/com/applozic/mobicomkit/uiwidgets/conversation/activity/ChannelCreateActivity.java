@@ -74,8 +74,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
     private static final int REQUEST_CODE_ATTACH_PHOTO = 901;
     private static final String TAG = "ChannelCreateActivity";
     public static String GROUP_TYPE = "GroupType";
-    public static String CONTACTS_GROUP_ID = "ContactsGroupId";
-    public String contactsGroupId;
+
     MobiComUserPreference userPreference;
     AlCustomizationSettings alCustomizationSettings;
     ConnectivityReceiver connectivityReceiver;
@@ -138,7 +137,6 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         fileClientService = new FileClientService(this);
         if (getIntent() != null) {
             groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
-            contactsGroupId = getIntent().getStringExtra(CONTACTS_GROUP_ID);
         }
        /* groupType = getIntent().getIntExtra(GROUP_TYPE, Channel.GroupType.PRIVATE.getValue().intValue());
         if(groupType.equals(Channel.GroupType.BROADCAST.getValue().intValue())){
@@ -176,9 +174,6 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                     intent.putExtra(ContactSelectionActivity.CHANNEL, channelName.getText().toString());
                     if (!TextUtils.isEmpty(groupIconImageLink)) {
                         intent.putExtra(ContactSelectionActivity.IMAGE_LINK, groupIconImageLink);
-                    }
-                    if (contactsGroupId != null) {
-                        intent.putExtra(ContactSelectionActivity.CONTACTS_GROUP_ID, contactsGroupId);
                     }
                     intent.putExtra(ContactSelectionActivity.GROUP_TYPE, groupType);
                     startActivity(intent);
