@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.97' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:4.98' `
 
 
 Add the following in gradle android target:      
@@ -494,7 +494,8 @@ Intent intent = new Intent(this, ConversationActivity.class);
 intent.putExtra(ConversationUIService.USER_ID, "receiveruserid123");             
 intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //put it for displaying the title.  
 intent.putExtra(ConversationUIService.TAKE_ORDER,true); //Skip chat list for showing on back press 
-startActivity(intent);                              
+startActivity(intent);
+
 ```
 
 #### Step 6: On logout, call the following:       
