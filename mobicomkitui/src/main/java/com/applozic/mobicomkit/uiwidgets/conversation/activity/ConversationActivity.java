@@ -70,7 +70,6 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.async.ApplozicGetMemberFromContactGroupTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -179,9 +178,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 fragmentTag);
 
         if (supportFragmentManager.getBackStackEntryCount() > 1
-                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag)) {
+                && !ConversationUIService.MESSGAE_INFO_FRAGMENT.equalsIgnoreCase(fragmentTag) && !ConversationUIService.USER_PROFILE_FRAMENT.equalsIgnoreCase(fragmentTag)) {
             supportFragmentManager.popBackStackImmediate();
         }
+
         fragmentTransaction.addToBackStack(fragmentTag);
         fragmentTransaction.commitAllowingStateLoss();
         supportFragmentManager.executePendingTransactions();
@@ -600,7 +600,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.storage_permission_not_granted);
             }
-        } else {
+        } else if (requestCode == PermissionsUtils.REQUEST_CAMERA_AUDIO) {
+            if (PermissionsUtils.verifyPermissions(grantResults)) {
+                showSnackBar(R.string.phone_camera_and_audio_permission_granted);
+            } else {
+                showSnackBar(R.string.audio_or_camera_permission_not_granted);
+            }
+        }
+        else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -659,41 +666,20 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
-            if (!TextUtils.isEmpty(contactsGroupId)) {
-                if (Utils.isInternetAvailable(this)) {
-                    ApplozicGetMemberFromContactGroupTask.GroupMemberListener eventMemberListener = new ApplozicGetMemberFromContactGroupTask.GroupMemberListener() {
-                        @Override
-                        public void onSuccess(String[] userIdArray, Context context) {
-
-                            Intent intent = new Intent(context, MobiComKitPeopleActivity.class);
+                if (!TextUtils.isEmpty(contactsGroupId)) {
+                    if (Utils.isInternetAvailable(this)) {
+                        conversationUIService.startContactActivityForResult();
+                    } else {
+                        Intent intent = new Intent(this, MobiComKitPeopleActivity.class);
+                        ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(this);
+                        String[] userIdArray = channelDatabaseService.getChannelMemberByName(contactsGroupId, null);
+                        if (userIdArray != null) {
                             conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
                         }
-
-
-                        @Override
-                        public void onFailure(String response, Context context) {
-                            Toast.makeText(ConversationActivity.this, R.string.group_not_exist, Toast.LENGTH_SHORT).show();
-                        }
-                    };
-
-
-                    ApplozicGetMemberFromContactGroupTask applozicGetMemberFromContactGroupTask = new ApplozicGetMemberFromContactGroupTask(this, contactsGroupId,
-                            String.valueOf(Channel.GroupType.CONTACT_GROUP.getValue()), eventMemberListener);
-                    applozicGetMemberFromContactGroupTask.execute();
-
-                } else {
-
-                    Intent intent = new Intent(this, MobiComKitPeopleActivity.class);
-                    ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(this);
-                    String[] userIdArray = channelDatabaseService.getChannelMemberByName(contactsGroupId, null);
-                    if (userIdArray != null) {
-                        conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
                     }
+                } else {
+                    conversationUIService.startContactActivityForResult();
                 }
-
-            } else {
-                conversationUIService.startContactActivityForResult();
-            }
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
             intent.putExtra(ChannelCreateActivity.GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());
@@ -934,12 +920,36 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
+    public void processVideoCall(Contact contactObj, Integer conversationId) {
+        this.contact = baseContactService.getContactById(contactObj.getContactIds());
+        if (ApplozicClient.getInstance(getApplicationContext()).isIPCallEnabled()) {
+            try {
+                if (Utils.hasMarshmallow() && !PermissionsUtils.checkPermissionForCameraAndMicrophone(this)) {
+                    applozicPermission.checkRuntimePermissionForCameraAndAudioRecording();
+                    return;
+                }
+                String activityName = ApplozicSetting.getInstance(this).getActivityCallback(ApplozicSetting.RequestCode.VIDEO_CALL);
+                Class activityToOpen = Class.forName(activityName);
+                Intent intent = new Intent(this, activityToOpen);
+                intent.putExtra("CONTACT_ID", contact.getUserId());
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public void processCall(Contact contactObj, Integer conversationId) {
         this.contact = baseContactService.getContactById(contactObj.getContactIds());
         this.currentConversationId = conversationId;
         try {
+
             if (ApplozicClient.getInstance(getApplicationContext()).isIPCallEnabled()) {
+                if (Utils.hasMarshmallow() && !PermissionsUtils.checkPermissionForCameraAndMicrophone(this)) {
+                    applozicPermission.checkRuntimePermissionForCameraAndAudioRecording();
+                    return;
+                }
                 //Audio Call
                 String activityName = ApplozicSetting.getInstance(this).getActivityCallback(ApplozicSetting.RequestCode.AUDIO_CALL);
                 Class activityToOpen = Class.forName(activityName);

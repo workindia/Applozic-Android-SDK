@@ -687,10 +687,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View view) {
-
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
-                                              handleSendAndRecordButtonView(false);
+                                              if(contact != null && !contact.isBlocked() || channel != null){
+                                                  handleSendAndRecordButtonView(false);
+                                              }
                                           }
                                       }
         );
@@ -811,6 +812,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public void onLongPress(MotionEvent event) {
+        if(contact != null && contact.isBlocked()){
+            userBlockDialog(false, contact, false);
+            return;
+        }
         isToastVisible = true;
         errorEditTextView.requestFocus();
         errorEditTextView.setError(null);
@@ -1124,7 +1129,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     continue;
                 }
 
-                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded())) && (menuItems[i].equals(getResources().getString(R.string.forward)) ||
+                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage()) && (menuItems[i].equals(getResources().getString(R.string.forward)) ||
                         menuItems[i].equals(getResources().getString(R.string.resend)))) {
                     continue;
                 }
@@ -1271,18 +1276,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (contact != null) {
                 if (contact.isBlocked()) {
                     userBlockDialog(false, contact, false);
-                } else {
-                    try {
-                        String activityName = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.VIDEO_CALL);
-                        Class activityToOpen = Class.forName(activityName);
-                        Intent intent = new Intent(getActivity(), activityToOpen);
-                        intent.putExtra("CONTACT_ID", contact.getUserId());
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                }   else {
+                    ((ConversationActivity) getActivity()).processVideoCall(contact, currentConversationId);
                 }
-
             }
         }
         if (id == R.id.muteGroup) {

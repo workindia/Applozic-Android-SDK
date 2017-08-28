@@ -400,11 +400,10 @@ public class ChannelDatabaseService {
                         append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).append(",").
                         append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").
                         append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).
-                        append(" FROM ").append(MobiComDatabaseHelper.CHANNEL);
-
+                        append(" FROM ").append(MobiComDatabaseHelper.CHANNEL).append(" where ").append(MobiComDatabaseHelper.TYPE).append(" NOT IN ('").append(Channel.GroupType.CONTACT_GROUP.getValue()).append("')");
 
                 if (!TextUtils.isEmpty(searchString)) {
-                    stringBuffer.append(" where " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " like '%" + searchString.replaceAll("'", "''") + "%'");
+                    stringBuffer.append(" AND " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " like '%" + searchString.replaceAll("'", "''") + "%'");
                 }
                 stringBuffer.append(" order by " + MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " COLLATE NOCASE asc ");
                 cursor = db.rawQuery(stringBuffer.toString(), null);

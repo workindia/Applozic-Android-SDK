@@ -149,9 +149,8 @@ public class ApplozicDocumentView {
         }
 
         if (message.getFileMetas() != null && message.getFilePaths() == null) {
+            sizeTextView.setText(message.getFileMetas().getSizeInReadableFormat());
             if (!(message.getFileMetas().getContentType().contains("audio"))) {
-
-                sizeTextView.setText(message.getFileMetas().getSizeInReadableFormat());
                 fileText.setText(message.getFileMetas().getName());
                 audioseekbar.setVisibility(View.GONE);
             } else {

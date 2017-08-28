@@ -156,6 +156,13 @@ public class ConversationUIService {
                     conversationFragment = ConversationFragment.newInstance(contact, null, conversationId, searchString);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
+                    UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
+                    MessageInfoFragment messageInfoFragment = (MessageInfoFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.MESSGAE_INFO_FRAGMENT);
+                    if(userProfileFragment != null || messageInfoFragment != null){
+                        if(fragmentActivity.getSupportFragmentManager() != null){
+                            fragmentActivity.getSupportFragmentManager().popBackStackImmediate();
+                        }
+                    }
                     conversationFragment.loadConversation(contact, conversationId, searchString);
                 }
             }
@@ -171,6 +178,13 @@ public class ConversationUIService {
                     conversationFragment = ConversationFragment.newInstance(null, channel, conversationId, searchString);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
+                    UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
+                    MessageInfoFragment messageInfoFragment = (MessageInfoFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.MESSGAE_INFO_FRAGMENT);
+                    if(userProfileFragment != null || messageInfoFragment != null){
+                        if(fragmentActivity.getSupportFragmentManager() != null){
+                            fragmentActivity.getSupportFragmentManager().popBackStackImmediate();
+                        }
+                    }
                     conversationFragment.loadConversation(channel, conversationId, searchString);
                 }
             }

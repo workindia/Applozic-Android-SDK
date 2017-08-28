@@ -223,7 +223,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemsCount) {
-                if ((alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(getActivity()).isRegisteredUsersContactCall()) && Utils.isInternetAvailable(getActivity().getApplicationContext())) {
+                if ((alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(getActivity()).isRegisteredUsersContactCall()) && Utils.isInternetAvailable(getActivity().getApplicationContext()) && TextUtils.isEmpty(userPreference.getContactsGroupId())) {
 
                     if (totalItemsCount < previousTotalItemCount) {
                         currentPage = startingPageIndex;
@@ -486,11 +486,8 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         // Updates current filter to new filter
         mSearchTerm = newFilter;
         mAdapter.indexOfSearchQuery(newFilter);
-        if (contactsGroupId == null || mSearchTerm != null) {
-            getLoaderManager().restartLoader(
+        getLoaderManager().restartLoader(
                     ContactSelectionFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
-        }
-
         return true;
     }
 
