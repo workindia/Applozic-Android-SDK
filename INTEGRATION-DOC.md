@@ -28,7 +28,7 @@ compile 'com.applozic.communication.uiwidget:mobicomkitui:4.99'
 b) Chat SDK with Audio/Video.
 
 ```
-compile 'com.applozic.communication.uiwidget:audiovideo:1.2'
+compile 'com.applozic.communication.uiwidget:audiovideo:1.4'
 ```
 **NOTE** : To enable Audio/Video you need to follow extra steps:
 https://www.applozic.com/docs/android-chat-sdk.html#audio-video-call-setup
