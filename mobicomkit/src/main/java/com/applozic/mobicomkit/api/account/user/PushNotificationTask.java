@@ -9,7 +9,7 @@ import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 /**
  * Created by devashish on 7/22/2015.
  */
-public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
+public class PushNotificationTask extends AsyncTask {
 
     private final String pushNotificationId;
     private final TaskListener taskListener;
@@ -24,7 +24,7 @@ public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground(Object[] params) {
         try {
             registrationResponse = new RegisterUserClientService(context).updatePushNotificationId(pushNotificationId);
         } catch (Exception e) {
@@ -36,8 +36,10 @@ public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(final Boolean result) {
+    protected void onPostExecute(Object o) {
         // And if it is we call the callback function on it.
+        super.onPostExecute(o);
+        Boolean result = (Boolean)o;
         if (result && this.taskListener != null) {
             this.taskListener.onSuccess(registrationResponse);
 
