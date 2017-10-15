@@ -22,7 +22,7 @@ Add the following in your build.gradle dependency
 a) Chat SDK (Without audio/video)
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:5.0'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:5.1.2'
 ```
 
 b) Chat SDK with Audio/Video.

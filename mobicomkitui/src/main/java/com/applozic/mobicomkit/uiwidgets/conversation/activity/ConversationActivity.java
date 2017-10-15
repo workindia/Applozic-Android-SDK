@@ -666,20 +666,20 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.start_new) {
-                if (!TextUtils.isEmpty(contactsGroupId)) {
-                    if (Utils.isInternetAvailable(this)) {
-                        conversationUIService.startContactActivityForResult();
-                    } else {
-                        Intent intent = new Intent(this, MobiComKitPeopleActivity.class);
-                        ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(this);
-                        String[] userIdArray = channelDatabaseService.getChannelMemberByName(contactsGroupId, null);
-                        if (userIdArray != null) {
-                            conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
-                        }
-                    }
-                } else {
+            if (!TextUtils.isEmpty(contactsGroupId)) {
+                if (Utils.isInternetAvailable(this)) {
                     conversationUIService.startContactActivityForResult();
+                } else {
+                    Intent intent = new Intent(this, MobiComKitPeopleActivity.class);
+                    ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(this);
+                    String[] userIdArray = channelDatabaseService.getChannelMemberByName(contactsGroupId, null);
+                    if (userIdArray != null) {
+                        conversationUIService.startContactActivityForResult(intent, null, null, userIdArray);
+                    }
                 }
+            } else {
+                conversationUIService.startContactActivityForResult();
+            }
         } else if (id == R.id.conversations) {
             Intent intent = new Intent(this, ChannelCreateActivity.class);
             intent.putExtra(ChannelCreateActivity.GROUP_TYPE, Channel.GroupType.PUBLIC.getValue().intValue());

@@ -186,7 +186,6 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             searchItem.collapseActionView();
         }
         searchView.setOnQueryTextListener(this);
-        searchView.setSubmitButtonEnabled(true);
         searchView.setIconified(true);
         return super.onCreateOptionsMenu(menu);
     }
