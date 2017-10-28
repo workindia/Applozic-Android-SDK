@@ -8,6 +8,8 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ import java.util.Set;
 public class ChannelFeed extends JsonMarker {
 
     private Integer id;
+    private Integer parentKey;
     private String clientGroupId;
     private String name;
     private String adminName;
@@ -25,9 +28,12 @@ public class ChannelFeed extends JsonMarker {
     private int userCount;
     private String imageUrl;
     private short type;
+    private int subGroupCount;
     private Set<String> membersName;
     private Set<String> membersId;
     private Set<UserDetail> users;
+    private Set<Integer> childKeys = new HashSet<>();
+    private List<ChannelUsersFeed> groupUsers;
     private Conversation conversationPxy;
     private Long notificationAfterTime;
     private Long deletedAtTime;
@@ -49,6 +55,14 @@ public class ChannelFeed extends JsonMarker {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getParentKey() {
+        return parentKey;
+    }
+
+    public void setParentKey(Integer parentKey) {
+        this.parentKey = parentKey;
     }
 
     public String getClientGroupId() {
@@ -172,6 +186,22 @@ public class ChannelFeed extends JsonMarker {
         this.adminId = adminId;
     }
 
+    public Set<Integer> getChildKeys() {
+        return childKeys;
+    }
+
+    public void setChildKeys(Set<Integer> childKeys) {
+        this.childKeys = childKeys;
+    }
+
+    public int getSubGroupCount() {
+        return subGroupCount;
+    }
+
+    public void setSubGroupCount(int subGroupCount) {
+        this.subGroupCount = subGroupCount;
+    }
+
     public Map<String, String> getMetadata() {
         return metadata;
     }
@@ -180,10 +210,19 @@ public class ChannelFeed extends JsonMarker {
         this.metadata = metadata;
     }
 
+    public List<ChannelUsersFeed> getGroupUsers() {
+        return groupUsers;
+    }
+
+    public void setGroupUsers(List<ChannelUsersFeed> groupUsers) {
+        this.groupUsers = groupUsers;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
                 "id=" + id +
+                ", parentKey=" + parentKey +
                 ", clientGroupId='" + clientGroupId + '\'' +
                 ", name='" + name + '\'' +
                 ", adminName='" + adminName + '\'' +
@@ -192,12 +231,16 @@ public class ChannelFeed extends JsonMarker {
                 ", userCount=" + userCount +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", type=" + type +
+                ", subGroupCount=" + subGroupCount +
                 ", membersName=" + membersName +
                 ", membersId=" + membersId +
                 ", users=" + users +
+                ", childKeys=" + childKeys +
+                ", groupUsers=" + groupUsers +
                 ", conversationPxy=" + conversationPxy +
                 ", notificationAfterTime=" + notificationAfterTime +
                 ", deletedAtTime=" + deletedAtTime +
+                ", metadata=" + metadata +
                 '}';
     }
 }

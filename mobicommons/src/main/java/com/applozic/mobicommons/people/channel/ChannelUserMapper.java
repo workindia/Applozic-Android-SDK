@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class ChannelUserMapper extends JsonMarker {
 
     private Integer key;
+    private Integer parentKey;
     private String userKey;
     private short status;
     private int unreadCount;
@@ -59,6 +60,15 @@ public class ChannelUserMapper extends JsonMarker {
     public void setStatus(short status) {
         this.status = status;
     }
+
+    public Integer getParentKey() {
+        return parentKey;
+    }
+
+    public void setParentKey(Integer parentKey) {
+        this.parentKey = parentKey;
+    }
+
 
     @Override
     public String toString() {

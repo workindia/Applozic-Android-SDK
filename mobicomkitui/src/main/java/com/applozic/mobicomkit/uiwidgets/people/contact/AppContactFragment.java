@@ -390,7 +390,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray);
+        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         return loader;
     }
 

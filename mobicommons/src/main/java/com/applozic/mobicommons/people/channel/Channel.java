@@ -19,6 +19,7 @@ public class Channel extends JsonMarker {
 
     private Map<String, String> metadata = new HashMap<>();
     private Integer key;
+    private Integer parentKey;
     private String clientGroupId;
     private String name;
     private String adminKey;
@@ -29,6 +30,7 @@ public class Channel extends JsonMarker {
     @Expose
     private String localImageUri;
     private Conversation conversationPxy;
+    private int subGroupCount;
     private List<Contact> contacts = new ArrayList<Contact>();
     private Long notificationAfterTime;
     private Long deletedAtTime;
@@ -63,6 +65,14 @@ public class Channel extends JsonMarker {
 
     public void setKey(Integer key) {
         this.key = key;
+    }
+
+    public Integer getParentKey() {
+        return parentKey;
+    }
+
+    public void setParentKey(Integer parentKey) {
+        this.parentKey = parentKey;
     }
 
     public String getName() {
@@ -147,6 +157,14 @@ public class Channel extends JsonMarker {
 
     public boolean isBroadcastMessage() {
         return type.equals(GroupType.BROADCAST.getValue()) || type.equals(GroupType.BROADCAST_ONE_BY_ONE.getValue());
+    }
+
+    public int getSubGroupCount() {
+        return subGroupCount;
+    }
+
+    public void setSubGroupCount(int subGroupCount) {
+        this.subGroupCount = subGroupCount;
     }
 
     public Long getDeletedAtTime() {

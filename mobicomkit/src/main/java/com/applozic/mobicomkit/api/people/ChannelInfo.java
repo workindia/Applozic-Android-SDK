@@ -1,7 +1,5 @@
 package com.applozic.mobicomkit.api.people;
 
-import android.text.TextUtils;
-
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelMetadata;
@@ -19,6 +17,7 @@ public class ChannelInfo extends JsonMarker {
     private String groupName;
     private List<String> groupMemberList;
     private String imageUrl;
+    private Integer parentKey;
     private int type = Channel.GroupType.PUBLIC.getValue().intValue();
     private Map<String, String> metadata;
     private String admin;
@@ -79,14 +78,6 @@ public class ChannelInfo extends JsonMarker {
         return channelMetadata;
     }
 
-    public String getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(String admin) {
-        this.admin = admin;
-    }
-
     public void setChannelMetadata(ChannelMetadata channelMetadata) {
         this.channelMetadata = channelMetadata;
         if (channelMetadata != null) {
@@ -106,12 +97,29 @@ public class ChannelInfo extends JsonMarker {
         }
     }
 
+    public String getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(String admin) {
+        this.admin = admin;
+    }
+
     public Map<String, String> getMetadata() {
         return metadata;
     }
 
     public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
+    }
+
+
+    public Integer getParentKey() {
+        return parentKey;
+    }
+
+    public void setParentKey(Integer parentKey) {
+        this.parentKey = parentKey;
     }
 
     @Override
@@ -121,6 +129,7 @@ public class ChannelInfo extends JsonMarker {
                 ", groupName='" + groupName + '\'' +
                 ", groupMemberList=" + groupMemberList +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", parentKey=" + parentKey +
                 ", type=" + type +
                 ", metadata=" + metadata +
                 ", admin='" + admin + '\'' +

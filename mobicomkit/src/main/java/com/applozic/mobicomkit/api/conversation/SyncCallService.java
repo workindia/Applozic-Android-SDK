@@ -73,6 +73,14 @@ public class SyncCallService {
         return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt, searchString);
     }
 
+    public synchronized List<Message> getLatestMessagesGroupByPeople(String searchString,Integer parentGroupKey) {
+        return mobiComConversationService.getLatestMessagesGroupByPeople(null,searchString,parentGroupKey);
+    }
+
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt,String searchString,Integer parentGroupKey) {
+        return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt,searchString,parentGroupKey);
+    }
+
     public synchronized void syncMessages(String key) {
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
             Utils.printLog(context,TAG, "Message is already present, MQTT reached before GCM.");

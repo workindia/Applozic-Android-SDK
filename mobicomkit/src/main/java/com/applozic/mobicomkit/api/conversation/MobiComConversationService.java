@@ -78,14 +78,19 @@ public class MobiComConversationService {
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString) {
+        return getLatestMessagesGroupByPeople(createdAt, searchString, null);
+    }
+
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
         boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
 
         if (emptyTable || createdAt != null && createdAt != 0) {
             getMessages(null, createdAt, null, null, null, false);
         }
 
-        return messageDatabaseService.getMessages(createdAt, searchString);
+        return messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey);
     }
+
 
     public List<Message> getMessages(String userId, Long startTime, Long endTime) {
         return getMessages(startTime, endTime, new Contact(userId), null, null, false);
@@ -110,14 +115,14 @@ public class MobiComConversationService {
         if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
                 (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
                 || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
-            Utils.printLog(context,TAG, "cachedMessageList size is : " + cachedMessageList.size());
+            Utils.printLog(context, TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
         String data;
         try {
             data = messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead);
-            Utils.printLog(context,TAG, "Received response from server for Messages: " + data);
+            Utils.printLog(context, TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
             return cachedMessageList;
@@ -168,7 +173,7 @@ public class MobiComConversationService {
 
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
-                    Utils.printLog(context,TAG, "Both messages are same.");
+                    Utils.printLog(context, TAG, "Both messages are same.");
                     deleteMessage(cachedMessageList.get(0));
                 }
             }
@@ -334,7 +339,7 @@ public class MobiComConversationService {
         if (contact == null && channel == null) {
             return;
         }
-        Utils.printLog(context,TAG, "updating server call to true");
+        Utils.printLog(context, TAG, "updating server call to true");
         sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
     }
 

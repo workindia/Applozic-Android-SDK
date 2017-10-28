@@ -76,7 +76,9 @@ public class ConversationUIService {
     public static final String USER_PROFILE_FRAMENT = "userProfilefragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String FORWARD_MESSAGE = "forwardMessage";
+    public static final String PARENT_CLIENT_GROUP_KEY = "parentClientGroupKey";
     public static final String CLIENT_GROUP_ID = "clientGroupId";
+    public static final String PARENT_GROUP_KEY = "parentGroupKey";
     public static final String DISPLAY_NAME = "displayName";
     public static final String TAKE_ORDER = "takeOrder";
     public static final String USER_ID = "userId";
@@ -158,8 +160,8 @@ public class ConversationUIService {
                 } else {
                     UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
                     MessageInfoFragment messageInfoFragment = (MessageInfoFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.MESSGAE_INFO_FRAGMENT);
-                    if(userProfileFragment != null || messageInfoFragment != null){
-                        if(fragmentActivity.getSupportFragmentManager() != null){
+                    if (userProfileFragment != null || messageInfoFragment != null) {
+                        if (fragmentActivity.getSupportFragmentManager() != null) {
                             fragmentActivity.getSupportFragmentManager().popBackStackImmediate();
                         }
                     }
@@ -180,8 +182,8 @@ public class ConversationUIService {
                 } else {
                     UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
                     MessageInfoFragment messageInfoFragment = (MessageInfoFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.MESSGAE_INFO_FRAGMENT);
-                    if(userProfileFragment != null || messageInfoFragment != null){
-                        if(fragmentActivity.getSupportFragmentManager() != null){
+                    if (userProfileFragment != null || messageInfoFragment != null) {
+                        if (fragmentActivity.getSupportFragmentManager() != null) {
                             fragmentActivity.getSupportFragmentManager().popBackStackImmediate();
                         }
                     }
@@ -214,7 +216,7 @@ public class ConversationUIService {
                             }
                         });
                 getConversationFragment().loadFile(selectedFileUri, file);
-                Utils.printLog(fragmentActivity,TAG, "File uri: " + selectedFileUri);
+                Utils.printLog(fragmentActivity, TAG, "File uri: " + selectedFileUri);
             }
 
             if (requestCode == REQUEST_CODE_CONTACT_GROUP_SELECTION && resultCode == Activity.RESULT_OK) {
@@ -586,8 +588,8 @@ public class ConversationUIService {
             return;
         }
         ConversationFragment conversationFragment = getConversationFragment();
-        Utils.printLog(fragmentActivity,TAG, "Received typing status for: " + userId);
-        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null){
+        Utils.printLog(fragmentActivity, TAG, "Received typing status for: " + userId);
+        if (conversationFragment.getContact() != null && userId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null) {
             conversationFragment.updateUserTypingStatus(userId, isTypingStatus);
         }
 
@@ -622,7 +624,7 @@ public class ConversationUIService {
         }
         if (userId.equals(BroadcastService.currentUserProfileUserId)) {
             UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
-            if (userProfileFragment != null  && userId.equals(BroadcastService.currentUserProfileUserId)) {
+            if (userProfileFragment != null && userId.equals(BroadcastService.currentUserProfileUserId)) {
                 userProfileFragment.refreshContactData();
             }
         }
@@ -676,7 +678,7 @@ public class ConversationUIService {
         }
         if (alCustomizationSettings.getTotalOnlineUsers() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
             processLoadUsers(false, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
-        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(fragmentActivity).isRegisteredUsersContactCall())&& !userPreference.getWasContactListServerCallAlreadyDone()) {
+        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(fragmentActivity).isRegisteredUsersContactCall()) && !userPreference.getWasContactListServerCallAlreadyDone()) {
             if (Utils.isInternetAvailable(fragmentActivity)) {
                 processLoadUsers(true, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
             }
@@ -728,7 +730,7 @@ public class ConversationUIService {
 
     public void sendAudioMessage(String selectedFilePath) {
 
-        Utils.printLog(fragmentActivity,"ConversationUIService:", "Send audio message ...");
+        Utils.printLog(fragmentActivity, "ConversationUIService:", "Send audio message ...");
 
         getConversationFragment().sendMessage(Message.ContentType.AUDIO_MSG.getValue(), selectedFilePath);
 
@@ -828,6 +830,9 @@ public class ConversationUIService {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
             if (message.getGroupId() != null) {
                 channel = ChannelService.getInstance(fragmentActivity).getChannelByChannelKey(message.getGroupId());
+                if (channel.getParentKey() != null && channel.getParentKey() != 0) {
+                    MobiComUserPreference.getInstance(fragmentActivity).setParentGroupKey(channel.getParentKey());
+                }
             } else {
                 contact = baseContactService.getContactById(message.getContactIds());
             }
@@ -894,7 +899,7 @@ public class ConversationUIService {
         try {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
-                    Utils.printLog(fragmentActivity,TAG, "Reconnecting to mqtt.");
+                    Utils.printLog(fragmentActivity, TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);

@@ -366,7 +366,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                             }
                         }
                     } catch (Exception ex) {
-                        Utils.printLog(getActivity(),"AL", "Exception while updating view .");
+                        Utils.printLog(getActivity(), "AL", "Exception while updating view .");
                     }
                 }
             });
@@ -642,7 +642,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public void updateLastSeenStatus(final String userId) {
 
-        if(alCustomizationSettings == null){
+        if (alCustomizationSettings == null) {
             return;
         }
 
@@ -762,7 +762,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString);
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(context).getParentGroupKey());
                 if (!nextMessageList.isEmpty()) {
                     minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
                 }
@@ -770,7 +770,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 listIndex = firstVisibleItem;
                 Long createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString);
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(context).getParentGroupKey());
             }
 
             return 0L;

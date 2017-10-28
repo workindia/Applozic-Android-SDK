@@ -65,6 +65,7 @@ import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -118,6 +119,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     public static final String CONVERSATION_ID = "conversationId";
     public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
     public static final String ACTIVITY_TO_OPEN_ONCLICK_OF_CALL_BUTTON_META_DATA = "activity.open.on.call.button.click";
+    public static final String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     protected static final long UPDATE_INTERVAL = 500;
     protected static final long FASTEST_INTERVAL = 1;
     private static final String LOAD_FILE = "loadFile";
@@ -126,7 +128,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String CAPTURED_VIDEO_URI = "capturedVideoUri";
     private static final String SHARE_TEXT = "share_text";
-    public static final String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     private static Uri capturedImageUri;
     private static String inviteMessage;
     private static int retry;
@@ -151,6 +152,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     ConnectivityReceiver connectivityReceiver;
     File mediaFile;
     File profilePhotoFile;
+    Integer parentGroupKey;
+    String parentClientGroupKey;
     SyncAccountStatusAsyncTask accountStatusAsyncTask;
     String contactsGroupId;
     private LocationRequest locationRequest;
@@ -347,6 +350,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         profilefragment = new ProfileFragment();
         profilefragment.setAlCustomizationSettings(alCustomizationSettings);
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
+
         if (Utils.hasMarshmallow()) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
@@ -359,6 +363,20 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
+
+        if (getIntent() != null) {
+            parentClientGroupKey = getIntent().getStringExtra(ConversationUIService.PARENT_CLIENT_GROUP_KEY);
+            if (!TextUtils.isEmpty(parentClientGroupKey)) {
+                parentGroupKey = ChannelService.getInstance(this).getParentGroupKeyByClientGroupKey(parentClientGroupKey);
+            } else {
+                parentGroupKey = getIntent().getIntExtra(ConversationUIService.PARENT_GROUP_KEY, 0);
+            }
+            if (!TextUtils.isEmpty(parentClientGroupKey) || parentGroupKey != null && parentGroupKey != 0) {
+                MobiComUserPreference.getInstance(this).setParentGroupKey(parentGroupKey);
+            }
+
+        }
+
         if (savedInstanceState != null) {
             capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI) != null ?
                     Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)) : null;
@@ -421,6 +439,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         try {
             if (intent.getExtras() != null) {
+
                 BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
             }
             conversationUIService.checkForStartNewConversation(intent);
@@ -606,8 +625,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.audio_or_camera_permission_not_granted);
             }
-        }
-        else {
+        } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }

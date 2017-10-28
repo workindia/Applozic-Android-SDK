@@ -345,7 +345,12 @@ public class ContactDatabase {
         return 0;
     }
 
+
     public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray) {
+        return getSearchCursorLoader(searchString, userIdArray, null);
+    }
+
+    public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray, final Integer parentGroupKey) {
 
         return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
             @Override
@@ -355,42 +360,53 @@ public class ContactDatabase {
                     return null;
                 }
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
+
                 Cursor cursor;
-                String query = "select userId as _id, fullName, contactNO, " +
-                        "displayName,contactImageURL,contactImageLocalURI,email," +
-                        "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                        "blockedBy,status,contactType,userTypeId,deletedAtTime from " + CONTACT + " where deletedAtTime=0 ";
-
-                if (userIdArray != null && userIdArray.length > 0) {
-                    String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
+                String query = null;
+                if (parentGroupKey != null && parentGroupKey != 0) {
+                    query = "Select DISTINCT(c.userId) as _id,c.fullName,c.contactNO,c.displayName,c.contactImageURL,c.contactImageLocalURI,c.email,c.applicationId,c.connected,c.lastSeenAt,c.unreadCount,c.blocked,c.blockedBy,c.status,c.contactType,c.userTypeId,c.deletedAtTime from contact c join channel_User_X cux on cux.userId = c.userId where ( cux.channelKey = '" + parentGroupKey + "' OR cux.parentGroupKey = '" + parentGroupKey + "' ) AND c.userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
                     if (!TextUtils.isEmpty(searchString)) {
-                        query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' and  userId  IN (" + placeHolderString + ")";
-                    } else {
-                        query = query + " and userId IN (" + placeHolderString + ")";
+                        query = query + " AND c.fullName like '%" + searchString.replaceAll("'", "''") + "%'";
                     }
-                    query = query + " order by connected desc,lastSeenAt desc ";
-
-                    cursor = db.rawQuery(query, userIdArray);
-                } else {
-                    if (ApplozicClient.getInstance(context).isShowMyContacts()) {
-                        if (!TextUtils.isEmpty(searchString)) {
-                            query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' AND contactType != 0 AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
-                        } else {
-                            query = query + " and contactType != 0 AND userId != '" + userPreferences.getUserId() + "'";
-                        }
-                    } else {
-                        if (!TextUtils.isEmpty(searchString)) {
-                            query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
-                        } else {
-                            query = query + " and userId != '" + userPreferences.getUserId() + "'";
-                        }
-                    }
-                    query = query + " order by fullName COLLATE NOCASE,userId COLLATE NOCASE asc ";
+                    query = query + " order by c.fullName,c.userId asc ";
                     cursor = db.rawQuery(query, null);
+                } else {
+                    query = "select userId as _id, fullName, contactNO, " +
+                            "displayName,contactImageURL,contactImageLocalURI,email," +
+                            "applicationId,connected,lastSeenAt,unreadCount,blocked," +
+                            "blockedBy,status,contactType,userTypeId,deletedAtTime from " + CONTACT + " where deletedAtTime=0 ";
+
+                    if (userIdArray != null && userIdArray.length > 0) {
+                        String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
+                        if (!TextUtils.isEmpty(searchString)) {
+                            query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' and  userId  IN (" + placeHolderString + ")";
+                        } else {
+                            query = query + " and userId IN (" + placeHolderString + ")";
+                        }
+                        query = query + " order by connected desc,lastSeenAt desc ";
+
+                        cursor = db.rawQuery(query, userIdArray);
+                    } else {
+                        if (ApplozicClient.getInstance(context).isShowMyContacts()) {
+                            if (!TextUtils.isEmpty(searchString)) {
+                                query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' AND contactType != 0 AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
+                            } else {
+                                query = query + " and contactType != 0 AND userId != '" + userPreferences.getUserId() + "'";
+                            }
+                        } else {
+                            if (!TextUtils.isEmpty(searchString)) {
+                                query = query + " and fullName like '%" + searchString.replaceAll("'", "''") + "%' AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
+                            } else {
+                                query = query + " and userId != '" + userPreferences.getUserId() + "'";
+                            }
+                        }
+                        query = query + " order by fullName COLLATE NOCASE,userId COLLATE NOCASE asc ";
+                        cursor = db.rawQuery(query, null);
+                    }
+
+
                 }
-
                 return cursor;
-
             }
         };
     }

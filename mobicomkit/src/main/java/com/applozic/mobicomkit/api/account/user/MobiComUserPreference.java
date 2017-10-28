@@ -61,6 +61,7 @@ public class MobiComUserPreference {
     private static String application_info_call_done = "application_info_call_done";
     private static String notification_sound_fileName = "notificationSoundFileName";
     private static String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
+    private static String PARENT_GROUP_KEY = "PARENT_GROUP_KEY";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -523,8 +524,8 @@ public class MobiComUserPreference {
         return sharedPreferences.getBoolean(application_info_call_done, false);
     }
 
-    public  void setApplicationInfoCallDone(boolean customerResponse) {
-        sharedPreferences.edit().putBoolean(application_info_call_done,customerResponse).commit();
+    public void setApplicationInfoCallDone(boolean customerResponse) {
+        sharedPreferences.edit().putBoolean(application_info_call_done, customerResponse).commit();
     }
 
     public String getNotificationSoundFilePath() {
@@ -541,6 +542,14 @@ public class MobiComUserPreference {
 
     public void setContactsGroupId(String contactsGroupId) {
         sharedPreferences.edit().putString(CONTACTS_GROUP_ID, contactsGroupId).commit();
+    }
+
+    public Integer getParentGroupKey() {
+        return sharedPreferences.getInt(PARENT_GROUP_KEY, 0);
+    }
+
+    public void setParentGroupKey(Integer parentGroupKey) {
+        sharedPreferences.edit().putInt(PARENT_GROUP_KEY, parentGroupKey).commit();
     }
 
 }

@@ -145,6 +145,8 @@ public class GroupInfoUpdate extends JsonMarker {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", localImagePath='" + localImagePath + '\'' +
                 ", newlocalPath='" + newlocalPath + '\'' +
+                ", contentUri='" + contentUri + '\'' +
+                ", metadata=" + metadata +
                 '}';
     }
 }

@@ -689,7 +689,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                           public void onClick(View view) {
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
-                                              if(contact != null && !contact.isBlocked() || channel != null){
+                                              if (contact != null && !contact.isBlocked() || channel != null) {
                                                   handleSendAndRecordButtonView(false);
                                               }
                                           }
@@ -812,7 +812,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public void onLongPress(MotionEvent event) {
-        if(contact != null && contact.isBlocked()){
+        if (contact != null && contact.isBlocked()) {
             userBlockDialog(false, contact, false);
             return;
         }
@@ -1276,7 +1276,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (contact != null) {
                 if (contact.isBlocked()) {
                     userBlockDialog(false, contact, false);
-                }   else {
+                } else {
                     ((ConversationActivity) getActivity()).processVideoCall(contact, currentConversationId);
                 }
             }

@@ -145,7 +145,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
                                 processAttachButtonClick(view);
                             }
                         }
-                    }else {
+                    } else {
                         processAttachButtonClick(view);
                     }
                 } else if (contact != null) {

@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 27;
+    public static final int DB_VERSION = 28;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -67,6 +67,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CHANNEL_META_DATA = "channelMetadata";
     public static final String HIDDEN = "hidden";
     public static final String REPLY_MESSAGE = "replyMessage";
+    public static final String PARENT_GROUP_KEY = "parentGroupKey";
 
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
@@ -141,6 +142,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_SMS_TABLE_FOR_HIDDEN = "ALTER TABLE " + SMS + " ADD COLUMN hidden integer default 0";
     private static final String ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN replyMessage INTEGER default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_DELETED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DELETED_AT + " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
+    private static final String ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL_USER_X + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -159,7 +162,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + STATUS + " varchar(2500) null, "
             + CONTACT_TYPE + " integer default 0,"
             + USER_TYPE_ID + " integer default 0,"
-            + DELETED_AT +" INTEGER default 0 "
+            + DELETED_AT + " INTEGER default 0 "
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -173,6 +176,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + USER_COUNT + "integer, "
             + CHANNEL_IMAGE_URL + " VARCHAR(300), "
             + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300), "
+            + PARENT_GROUP_KEY + " integer default 0 ,"
             + NOTIFICATION_AFTER_TIME + " integer default 0, "
             + DELETED_AT + " integer,"
             + CHANNEL_META_DATA + " VARCHAR(2000)) ";
@@ -183,6 +187,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + USERID + " varchar(100), "
             + UNREAD_COUNT + " integer, "
             + STATUS + " integer, "
+            + PARENT_GROUP_KEY + " integer default 0,"
             + "UNIQUE (" + CHANNEL_KEY + ", " + USERID + "))";
 
     private static final String CREATE_CONVERSATION_TABLE = " CREATE TABLE conversation ( " +
@@ -253,7 +258,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         //Note: some user might directly upgrade from an old version to the new version, in that case it may happen that
         //schedule sms table is not present.
         if (newVersion > oldVersion) {
-            Utils.printLog(context,TAG, "Upgrading database from version "
+            Utils.printLog(context, TAG, "Upgrading database from version "
                     + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
 
@@ -350,6 +355,14 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, SMS, REPLY_MESSAGE)) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN);
             }
+
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_GROUP_KEY)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, CHANNEL_USER_X, PARENT_GROUP_KEY)) {
+                database.execSQL(ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN);
+            }
+
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);
