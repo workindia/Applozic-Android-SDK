@@ -18,6 +18,7 @@ public class ChannelInfo extends JsonMarker {
     private List<String> groupMemberList;
     private String imageUrl;
     private Integer parentKey;
+    private String parentClientGroupId;
     private int type = Channel.GroupType.PUBLIC.getValue().intValue();
     private Map<String, String> metadata;
     private String admin;
@@ -122,6 +123,14 @@ public class ChannelInfo extends JsonMarker {
         this.parentKey = parentKey;
     }
 
+    public String getParentClientGroupId() {
+        return parentClientGroupId;
+    }
+
+    public void setParentClientGroupId(String parentClientGroupId) {
+        this.parentClientGroupId = parentClientGroupId;
+    }
+
     @Override
     public String toString() {
         return "ChannelInfo{" +
@@ -130,6 +139,7 @@ public class ChannelInfo extends JsonMarker {
                 ", groupMemberList=" + groupMemberList +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", parentKey=" + parentKey +
+                ", parentClientGroupId='" + parentClientGroupId + '\'' +
                 ", type=" + type +
                 ", metadata=" + metadata +
                 ", admin='" + admin + '\'' +

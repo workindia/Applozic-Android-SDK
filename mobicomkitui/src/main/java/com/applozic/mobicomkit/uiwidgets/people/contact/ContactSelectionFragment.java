@@ -439,10 +439,10 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                         channelInfo.setImageUrl(imageUrl);
                     }
                     channelInfo.setType(groupType);
-                    AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
                     if (MobiComUserPreference.getInstance(getActivity()).getParentGroupKey() != null && MobiComUserPreference.getInstance(getActivity()).getParentGroupKey() != 0) {
-                        alChannelCreateAsyncTask.setParentGroupKey(MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+                        channelInfo.setParentKey(MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
                     }
+                    AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
                     alChannelCreateAsyncTask.execute((Void) null);
                 }
             }

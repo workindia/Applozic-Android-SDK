@@ -365,13 +365,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         retry = 0;
 
         if (getIntent() != null) {
-            parentClientGroupKey = getIntent().getStringExtra(ConversationUIService.PARENT_CLIENT_GROUP_KEY);
+            parentClientGroupKey = getIntent().getStringExtra(ConversationUIService.PARENT_CLIENT_GROUP_ID);
             if (!TextUtils.isEmpty(parentClientGroupKey)) {
                 parentGroupKey = ChannelService.getInstance(this).getParentGroupKeyByClientGroupKey(parentClientGroupKey);
             } else {
                 parentGroupKey = getIntent().getIntExtra(ConversationUIService.PARENT_GROUP_KEY, 0);
             }
-            if (!TextUtils.isEmpty(parentClientGroupKey) || parentGroupKey != null && parentGroupKey != 0) {
+            if (parentGroupKey != null && parentGroupKey != 0) {
                 MobiComUserPreference.getInstance(this).setParentGroupKey(parentGroupKey);
             }
 

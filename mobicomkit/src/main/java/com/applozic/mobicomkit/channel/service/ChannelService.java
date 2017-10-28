@@ -235,6 +235,7 @@ public class ChannelService {
         channel.setDeletedAtTime(channelFeed.getDeletedAtTime());
         channel.setMetadata(channelFeed.getMetadata());
         channel.setParentKey(channelFeed.getParentKey());
+        channel.setParentClientGroupId(channelFeed.getParentClientGroupId());
         return channel;
     }
 

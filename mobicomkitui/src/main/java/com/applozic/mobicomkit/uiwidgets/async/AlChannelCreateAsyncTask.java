@@ -17,15 +17,6 @@ public class AlChannelCreateAsyncTask extends AsyncTask<Void, Void, ChannelFeedA
     ChannelService channelService;
     ChannelInfo channelInfo;
     TaskListenerInterface taskListenerInterface;
-    Integer parentGroupKey;
-
-    public Integer getParentGroupKey() {
-        return parentGroupKey;
-    }
-
-    public void setParentGroupKey(Integer parentGroupKey) {
-        this.parentGroupKey = parentGroupKey;
-    }
 
     public AlChannelCreateAsyncTask(Context context, ChannelInfo channelInfo, TaskListenerInterface taskListenerInterface) {
         this.context = context;
@@ -37,9 +28,6 @@ public class AlChannelCreateAsyncTask extends AsyncTask<Void, Void, ChannelFeedA
     @Override
     protected ChannelFeedApiResponse doInBackground(Void... voids) {
         if (channelInfo != null) {
-            if(parentGroupKey != null){
-                channelInfo.setParentKey(parentGroupKey);
-            }
             return channelService.createChannelWithResponse(channelInfo);
         }
         return null;

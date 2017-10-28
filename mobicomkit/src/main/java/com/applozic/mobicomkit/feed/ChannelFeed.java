@@ -20,6 +20,7 @@ public class ChannelFeed extends JsonMarker {
 
     private Integer id;
     private Integer parentKey;
+    private String parentClientGroupId;
     private String clientGroupId;
     private String name;
     private String adminName;
@@ -218,11 +219,20 @@ public class ChannelFeed extends JsonMarker {
         this.groupUsers = groupUsers;
     }
 
+    public String getParentClientGroupId() {
+        return parentClientGroupId;
+    }
+
+    public void setParentClientGroupId(String parentClientGroupId) {
+        this.parentClientGroupId = parentClientGroupId;
+    }
+
     @Override
     public String toString() {
         return "ChannelFeed{" +
                 "id=" + id +
                 ", parentKey=" + parentKey +
+                ", parentClientGroupId='" + parentClientGroupId + '\'' +
                 ", clientGroupId='" + clientGroupId + '\'' +
                 ", name='" + name + '\'' +
                 ", adminName='" + adminName + '\'' +

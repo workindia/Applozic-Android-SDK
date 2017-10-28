@@ -46,6 +46,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String TYPE = "type";
     public static final String CHANNEL_KEY = "channelKey";
     public static final String CLIENT_GROUP_ID = "clientGroupId";
+    public static final String PARENT_CLIENT_GROUP_ID = "parentClientGroupId";
     public static final String USER_COUNT = "userCount";
     public static final String STATUS = "status";
     public static final String ADMIN_ID = "adminId";
@@ -142,6 +143,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_SMS_TABLE_FOR_HIDDEN = "ALTER TABLE " + SMS + " ADD COLUMN hidden integer default 0";
     private static final String ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN replyMessage INTEGER default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_DELETED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DELETED_AT + " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_CLIENT_GROUP_ID + " varchar(1000) null";
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
     private static final String ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL_USER_X + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
 
@@ -177,6 +179,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + CHANNEL_IMAGE_URL + " VARCHAR(300), "
             + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300), "
             + PARENT_GROUP_KEY + " integer default 0 ,"
+            + PARENT_CLIENT_GROUP_ID + " varchar(1000) default null,"
             + NOTIFICATION_AFTER_TIME + " integer default 0, "
             + DELETED_AT + " integer,"
             + CHANNEL_META_DATA + " VARCHAR(2000)) ";
@@ -361,6 +364,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, CHANNEL_USER_X, PARENT_GROUP_KEY)) {
                 database.execSQL(ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN);
+            }
+
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_CLIENT_GROUP_ID)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN);
             }
 
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);

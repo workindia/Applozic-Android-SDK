@@ -76,7 +76,7 @@ public class ConversationUIService {
     public static final String USER_PROFILE_FRAMENT = "userProfilefragment";
     public static final String QUICK_CONVERSATION_FRAGMENT = "QuickConversationFragment";
     public static final String FORWARD_MESSAGE = "forwardMessage";
-    public static final String PARENT_CLIENT_GROUP_KEY = "parentClientGroupKey";
+    public static final String PARENT_CLIENT_GROUP_ID = "parentClientGroupId";
     public static final String CLIENT_GROUP_ID = "clientGroupId";
     public static final String PARENT_GROUP_KEY = "parentGroupKey";
     public static final String DISPLAY_NAME = "displayName";

@@ -20,6 +20,7 @@ public class Channel extends JsonMarker {
     private Map<String, String> metadata = new HashMap<>();
     private Integer key;
     private Integer parentKey;
+    private String parentClientGroupId;
     private String clientGroupId;
     private String name;
     private String adminKey;
@@ -69,6 +70,14 @@ public class Channel extends JsonMarker {
 
     public Integer getParentKey() {
         return parentKey;
+    }
+
+    public String getParentClientGroupId() {
+        return parentClientGroupId;
+    }
+
+    public void setParentClientGroupId(String parentClientGroupId) {
+        this.parentClientGroupId = parentClientGroupId;
     }
 
     public void setParentKey(Integer parentKey) {
@@ -201,21 +210,6 @@ public class Channel extends JsonMarker {
         this.metadata = metadata;
     }
 
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "key=" + key +
-                ", name='" + name + '\'' +
-                ", adminKey='" + adminKey + '\'' +
-                ", type=" + type +
-                ", unreadCount=" + unreadCount +
-                ", userCount=" + userCount +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", localImageUri='" + localImageUri + '\'' +
-                ", conversationPxy=" + conversationPxy +
-                ", contacts=" + contacts +
-                '}';
-    }
 
     public enum GroupType {
 
@@ -240,4 +234,28 @@ public class Channel extends JsonMarker {
             return value.shortValue();
         }
     }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "metadata=" + metadata +
+                ", key=" + key +
+                ", parentKey=" + parentKey +
+                ", parentClientGroupId='" + parentClientGroupId + '\'' +
+                ", clientGroupId='" + clientGroupId + '\'' +
+                ", name='" + name + '\'' +
+                ", adminKey='" + adminKey + '\'' +
+                ", type=" + type +
+                ", unreadCount=" + unreadCount +
+                ", userCount=" + userCount +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", localImageUri='" + localImageUri + '\'' +
+                ", conversationPxy=" + conversationPxy +
+                ", subGroupCount=" + subGroupCount +
+                ", contacts=" + contacts +
+                ", notificationAfterTime=" + notificationAfterTime +
+                ", deletedAtTime=" + deletedAtTime +
+                '}';
+    }
+
 }

@@ -114,6 +114,7 @@ public class ChannelDatabaseService {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
         }
         contentValues.put(MobiComDatabaseHelper.PARENT_GROUP_KEY, channel.getParentKey());
+        contentValues.put(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID, channel.getParentClientGroupId());
         return contentValues;
     }
 
@@ -251,6 +252,7 @@ public class ChannelDatabaseService {
         Channel channel = new Channel();
         channel.setKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_KEY)));
         channel.setParentKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.PARENT_GROUP_KEY)));
+        channel.setParentClientGroupId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID)));
         channel.setClientGroupId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CLIENT_GROUP_ID)));
         channel.setName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME)));
         channel.setAdminKey(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.ADMIN_ID)));
@@ -445,7 +447,7 @@ public class ChannelDatabaseService {
                 stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
                         append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).append(",").
                         append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").
-                        append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).append(",").append(MobiComDatabaseHelper.PARENT_GROUP_KEY).
+                        append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).append(",").append(MobiComDatabaseHelper.PARENT_GROUP_KEY).append(",").append(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID).
                         append(" FROM ").append(MobiComDatabaseHelper.CHANNEL).append(" where ").append(MobiComDatabaseHelper.TYPE).append(" NOT IN ('").append(Channel.GroupType.CONTACT_GROUP.getValue()).append("')");
 
                 if (!TextUtils.isEmpty(searchString)) {
@@ -515,7 +517,7 @@ public class ChannelDatabaseService {
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String structuredNameWhere = "";
-            structuredNameWhere += "parentClientGroupKey = ?";
+            structuredNameWhere += "parentClientGroupId = ?";
             Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(parentClientGroupKey)}, null, null, null);
             if (cursor.moveToFirst()) {
                 return cursor.getInt(cursor.getColumnIndex("parentGroupKey"));
