@@ -37,6 +37,7 @@
   "maxAttachmentAllowed": 10,
   "maxAttachmentSizeAllowed": 30,
   "totalOnlineUsers": 0,
+  "defaultGroupType": 2,
   "conversationContactImageVisibility": false,
   "locationShareViaMap": true,
   "startNewFloatingButton": false,
@@ -76,11 +77,10 @@
     ":video": true,
     ":contact": true
   },
-  "editTextHintText:":"Write a Message..",
-  "replyMessageLayoutSentMessageBackground":"#C0C0C0",
-  "replyMessageLayoutReceivedMessageBackground":"#F5F5F5",
-  "groupInfoScreenVisible":true,
-  "forwardOption":true,
-  "recordButton":true
-
+  "editTextHintText:": "Write a Message..",
+  "replyMessageLayoutSentMessageBackground": "#C0C0C0",
+  "replyMessageLayoutReceivedMessageBackground": "#F5F5F5",
+  "groupInfoScreenVisible": true,
+  "forwardOption": true,
+  "recordButton": true
 }
