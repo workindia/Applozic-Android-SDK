@@ -29,7 +29,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -1383,7 +1382,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
 
         downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel, conversationId);
-        AsyncTaskCompat.executeParallel(downloadConversation);
+        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
          /*  if (contact != null && support.isSupportNumber(contact.getFormattedContactNumber())) {
             sendType.setSelection(1);
@@ -2667,7 +2666,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 downloadConversation = new DownloadConversation(listView, false, 1, 1, 1, contact, channel, currentConversationId);
-                AsyncTaskCompat.executeParallel(downloadConversation);
+                downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
         if (channel != null) {
