@@ -10,8 +10,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * @author devashish
@@ -57,6 +60,7 @@ public class Contact extends JsonMarker {
     private short contactType;
     private Short userTypeId;
     private Long deletedAtTime;
+    private Long notificationAfterTime;
 
     public Contact() {
 
@@ -296,6 +300,20 @@ public class Contact extends JsonMarker {
 
     public boolean isDeleted() {
         return (deletedAtTime != null && deletedAtTime > 0);
+    }
+
+    public Long getNotificationAfterTime() {
+        return notificationAfterTime;
+    }
+
+    public void setNotificationAfterTime(Long notificationAfterTime) {
+        this.notificationAfterTime = notificationAfterTime;
+    }
+
+    public boolean isNotificationMuted() {
+        Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        return (getNotificationAfterTime() != null) && (getNotificationAfterTime() - date.getTime() > 0);
+
     }
 
     public void processFullName(String fullName) {

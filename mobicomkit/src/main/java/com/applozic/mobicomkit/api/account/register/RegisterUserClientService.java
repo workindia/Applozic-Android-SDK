@@ -80,17 +80,17 @@ public class RegisterUserClientService extends MobiComKitClientService {
             user.setAppModuleName(getAppModuleName(context));
         }
 
-        Utils.printLog(context,TAG, "Net status" + Utils.isInternetAvailable(context.getApplicationContext()));
+        Utils.printLog(context, TAG, "Net status" + Utils.isInternetAvailable(context.getApplicationContext()));
 
         if (!Utils.isInternetAvailable(context.getApplicationContext())) {
             throw new ConnectException("No Internet Connection");
         }
 
 //        Log.i(TAG, "App Id is: " + getApplicationKey(context));
-        Utils.printLog(context,TAG, "Registration json " + gson.toJson(user));
+        Utils.printLog(context, TAG, "Registration json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
 
-        Utils.printLog(context,TAG, "Registration response is: " + response);
+        Utils.printLog(context, TAG, "Registration response is: " + response);
 
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw new Exception("503 Service Unavailable");
@@ -105,9 +105,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new UnAuthoriseException("Invalid uername/password");
 
         }
-        Utils.printLog(context,"Registration response ", "is " + registrationResponse);
+        Utils.printLog(context, "Registration response ", "is " + registrationResponse);
         if (registrationResponse.getNotificationResponse() != null) {
-            Utils.printLog(context,"Registration response ", "" + registrationResponse.getNotificationResponse());
+            Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
         }
         mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
         mobiComUserPreference.enableEncryption(user.isEnableEncryption());
@@ -121,6 +121,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setEmailIdValue(user.getEmail());
         mobiComUserPreference.setImageLink(user.getImageLink());
         mobiComUserPreference.setSuUserKeyString(registrationResponse.getUserKey());
+        mobiComUserPreference.setLastSyncTimeForMetadataUpdate(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
@@ -131,7 +132,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (user.getUserTypeId() != null) {
             mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
         }
-        if(!TextUtils.isEmpty(user.getNotificationSoundFilePath())){
+        if (!TextUtils.isEmpty(user.getNotificationSoundFilePath())) {
             mobiComUserPreference.setNotificationSoundFilePath(user.getNotificationSoundFilePath());
         }
         Contact contact = new Contact();
@@ -149,6 +150,10 @@ public class RegisterUserClientService extends MobiComKitClientService {
         Intent conversationIntentService = new Intent(context, ConversationIntentService.class);
         conversationIntentService.putExtra(ConversationIntentService.SYNC, false);
         context.startService(conversationIntentService);
+
+        Intent mutedUserListService = new Intent(context, ConversationIntentService.class);
+        mutedUserListService.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
+        context.startService(mutedUserListService);
 
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
@@ -237,7 +242,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (!TextUtils.isEmpty(mobiComUserPreference.getDeviceRegistrationId())) {
             user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
         }
-        Utils.printLog(context,TAG, "Registration update json " + gson.toJson(user));
+        Utils.printLog(context, TAG, "Registration update json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getUpdateAccountUrl(), gson.toJson(user));
 
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
@@ -253,10 +258,10 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new UnAuthoriseException("Invalid uername/password");
         }
 
-        Utils.printLog(context,TAG, "Registration update response: " + registrationResponse);
+        Utils.printLog(context, TAG, "Registration update response: " + registrationResponse);
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         if (registrationResponse.getNotificationResponse() != null) {
-            Utils.printLog(context,TAG, "Notification response: " + registrationResponse.getNotificationResponse());
+            Utils.printLog(context, TAG, "Notification response: " + registrationResponse.getNotificationResponse());
         }
 
         return registrationResponse;
@@ -279,14 +284,14 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public void syncAccountStatus() {
         try {
             String response = httpRequestUtils.getResponse(getPricingPackageUrl(), "application/json", "application/json");
-            Utils.printLog(context,TAG, "Pricing package response: " + response);
+            Utils.printLog(context, TAG, "Pricing package response: " + response);
             ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             if (apiResponse.getResponse() != null) {
                 int pricingPackage = Integer.parseInt(apiResponse.getResponse().toString());
                 MobiComUserPreference.getInstance(context).setPricingPackage(pricingPackage);
             }
         } catch (Exception e) {
-            Utils.printLog(context,TAG, "Account status sync call failed");
+            Utils.printLog(context, TAG, "Account status sync call failed");
         }
     }
 

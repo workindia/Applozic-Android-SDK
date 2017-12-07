@@ -68,6 +68,7 @@ public class ContactDatabase {
             contact.setStatus(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
             contact.setUserTypeId(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.USER_TYPE_ID)));
             contact.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
+            contact.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -252,6 +253,9 @@ public class ContactDatabase {
         if (contact.getContactType() != 0) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_TYPE, contact.getContactType());
         }
+        if (contact.getNotificationAfterTime() != null && contact.getNotificationAfterTime() != 0) {
+            contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME, contact.getNotificationAfterTime());
+        }
         contentValues.put(MobiComDatabaseHelper.USER_TYPE_ID, contact.getUserTypeId());
         contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
         return contentValues;
@@ -309,6 +313,12 @@ public class ContactDatabase {
         for (Contact contact : contacts) {
             deleteContact(contact);
         }
+    }
+
+    public void updateNotificationAfterTime(String userId, Long notificationAfterTime) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME, notificationAfterTime);
+        dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
     }
 
     public int getChatUnreadCount() {

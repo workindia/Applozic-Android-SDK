@@ -65,6 +65,7 @@ public class MobiComUserPreference {
     private static String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     private static String CONTACT_GROUP_ID_LISTS = "contactGroupIdLists";
     private static String IS_CONTACT_GROUP_NAME_LIST = "isContactGroupNameList";
+    private static String last_sync_time_for_metadata_update = "lastSyncTimeForMetadataUpdate";
 
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -382,6 +383,14 @@ public class MobiComUserPreference {
     public int getCompressedImageSizeInMB() {
         return sharedPreferences.getInt(max_compressed_image_size, 10);
 
+    }
+
+    public void setLastSyncTimeForMetadataUpdate(String lastSyncTime) {
+        sharedPreferences.edit().putString(last_sync_time_for_metadata_update, lastSyncTime).commit();
+    }
+
+    public String getLastSyncTimeForMetadataUpdate() {
+        return sharedPreferences.getString(last_sync_time_for_metadata_update, null);
     }
 
     public void setCompressedImageSizeInMB(int maxSize) {

@@ -66,6 +66,7 @@
   "deleteOption": true,
   "blockOption": true,
   "muteOption": true,
+  "muteUserChatOption": true,
   "replyOption": true,
   "logoutOption": false,
   "logoutPackageName": "",
@@ -82,5 +83,62 @@
   "replyMessageLayoutReceivedMessageBackground": "#F5F5F5",
   "groupInfoScreenVisible": true,
   "forwardOption": true,
-  "recordButton": true
+  "recordButton": true,
+  "messageTemplate": {
+    "isEnabled": true,
+    "borderColor": "#ffffff",
+    "backgroundColor": "#FF03A9F4",
+    "hideOnSend": false,
+    "sendMessageOnClick": true,
+    "cornerRadius": 20,
+    "textColor": "#ffffff",
+    "messageList": ["Hey",
+      "How can i help you?",
+      "May I know your emailId",
+      "May I know your company name?",
+      "Is this related to Android, iOS, or web?",
+      "Did you follow our doc?"],
+    "textMessageList": {
+      "showOnSenderSide": false,
+      "showOnReceiverSide": false,
+      "sendMessageOnClick": false,
+      "messageList": [
+      ]
+    },
+    "imageMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": [
+      ]
+    },
+    "videoMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": [
+      ]
+    },
+    "audioMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": [
+      ]
+    },
+    "locationMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": [
+      ]
+    },
+    "contactMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": [
+      ]
+    }
+  }
 }

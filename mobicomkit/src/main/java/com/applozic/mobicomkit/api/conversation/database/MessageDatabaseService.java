@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -1080,6 +1081,17 @@ public class MessageDatabaseService {
 
         return getMessageList(cursor);
 
+    }
+
+    public void updateMessageMetadata(String keyString, Map<String, String> metadata) {
+        ContentValues values = new ContentValues();
+
+        if (isMessagePresent(keyString)) {
+            values.put(MobiComDatabaseHelper.MESSAGE_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
+            dbHelper.getWritableDatabase().update("sms", values, "keyString='" + keyString + "'", null);
+        }
+
+        dbHelper.close();
     }
 
 }

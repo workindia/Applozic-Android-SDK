@@ -17,6 +17,8 @@ public class ConversationIntentService extends IntentService {
 
     public static final String SYNC = "AL_SYNC";
     private static final String TAG = "ConversationIntent";
+    public static final String MESSAGE_METADATA_UPDATE = "MessageMetadataUpdate";
+    public static final String MUTED_USER_LIST_SYNC = "MutedUserListSync";
     private static final int PRE_FETCH_MESSAGES_FOR = 6;
     private MobiComMessageService mobiComMessageService;
 
@@ -36,7 +38,23 @@ public class ConversationIntentService extends IntentService {
             return;
         }
         boolean sync = intent.getBooleanExtra(SYNC, false);
-        Utils.printLog(ConversationIntentService.this,TAG, "Syncing messages service started: " + sync);
+        boolean metadataSync = intent.getBooleanExtra(MESSAGE_METADATA_UPDATE, false);
+        boolean mutedUserListSync = intent.getBooleanExtra(MUTED_USER_LIST_SYNC, false);
+
+        if (mutedUserListSync) {
+            Utils.printLog(ConversationIntentService.this, TAG, "Muted user list sync started..");
+            new Thread(new MutedUserListSync()).start();
+            return;
+        }
+
+        if (metadataSync) {
+            Utils.printLog(ConversationIntentService.this, TAG, "Syncing messages service started for metadata update");
+            mobiComMessageService.syncMessageForMetadataUpdate();
+            return;
+        }
+
+        Utils.printLog(ConversationIntentService.this, TAG, "Syncing messages service started: " + sync);
+
         if (sync) {
             mobiComMessageService.syncMessages();
         } else {
@@ -68,6 +86,17 @@ public class ConversationIntentService extends IntentService {
 
                     mobiComConversationService.getMessages(1L, null, contact, channel, null, true);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class MutedUserListSync implements Runnable {
+        @Override
+        public void run() {
+            try {
+                UserService.getInstance(ConversationIntentService.this).getMutedUserList();
             } catch (Exception e) {
                 e.printStackTrace();
             }

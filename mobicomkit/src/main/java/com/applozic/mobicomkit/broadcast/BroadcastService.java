@@ -28,7 +28,7 @@ public class BroadcastService {
     public static boolean callRinging = false;
     public static int lastIndexForChats = 0;
     private static boolean contextBasedChatEnabled = false;
-    public static String currentUserProfileUserId= null;
+    public static String currentUserProfileUserId = null;
 
     public static void selectMobiComKitAll() {
         currentUserId = MOBICOMKIT_ALL;
@@ -55,7 +55,7 @@ public class BroadcastService {
     }
 
     public static void sendFirstTimeSyncCompletedBroadcast(Context context) {
-        Utils.printLog(context,TAG, "Sending " + INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString() + " broadcast");
+        Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -63,7 +63,7 @@ public class BroadcastService {
     }
 
     public static void sendLoadMoreBroadcast(Context context, boolean loadMore) {
-        Utils.printLog(context,TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
+        Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.LOAD_MORE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -72,7 +72,7 @@ public class BroadcastService {
     }
 
     public static void sendDeliveryReportForContactBroadcast(Context context, String action, String contactId) {
-        Utils.printLog(context,TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
+        Utils.printLog(context, TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -81,7 +81,7 @@ public class BroadcastService {
     }
 
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
-        Utils.printLog(context,TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
+        Utils.printLog(context, TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -90,7 +90,7 @@ public class BroadcastService {
     }
 
     public static void sendMessageDeleteBroadcast(Context context, String action, String keyString, String contactNumbers) {
-        Utils.printLog(context,TAG, "Sending message delete broadcast for " + action);
+        Utils.printLog(context, TAG, "Sending message delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("keyString", keyString);
@@ -100,7 +100,7 @@ public class BroadcastService {
     }
 
     public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, Integer channelKey, String response) {
-        Utils.printLog(context,TAG, "Sending conversation delete broadcast for " + action);
+        Utils.printLog(context, TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("channelKey", channelKey);
@@ -111,7 +111,7 @@ public class BroadcastService {
     }
 
     public static void sendNotificationBroadcast(Context context, Message message) {
-        Utils.printLog(context,TAG, "Sending notification broadcast....");
+        Utils.printLog(context, TAG, "Sending notification broadcast....");
         Intent notificationIntent = new Intent();
         notificationIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         notificationIntent.setAction(Utils.getMetaDataValue(context.getApplicationContext(), PACKAGE_NAME) + ".send.notification");
@@ -119,7 +119,7 @@ public class BroadcastService {
     }
 
     public static void sendUpdateLastSeenAtTimeBroadcast(Context context, String action, String contactId) {
-        Utils.printLog(context,TAG, "Sending lastSeenAt broadcast....");
+        Utils.printLog(context, TAG, "Sending lastSeenAt broadcast....");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
@@ -128,7 +128,7 @@ public class BroadcastService {
     }
 
     public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping) {
-        Utils.printLog(context,TAG, "Sending typing Broadcast.......");
+        Utils.printLog(context, TAG, "Sending typing Broadcast.......");
         Intent intentTyping = new Intent();
         intentTyping.setAction(action);
         intentTyping.putExtra("applicationId", applicationId);
@@ -140,16 +140,25 @@ public class BroadcastService {
 
 
     public static void sendUpdate(Context context, String action) {
-        Utils.printLog(context,TAG, action);
+        Utils.printLog(context, TAG, action);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intent);
     }
 
+    public static void updateMessageMetadata(Context context, String messageKey, String action) {
+        Utils.printLog(context, TAG, "Sending Message Metadata Update Broadcast for message key : " + messageKey);
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra("keyString", messageKey);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
 
     public static void sendConversationReadBroadcast(Context context, String action, String currentId, boolean isGroup) {
-        Utils.printLog(context,TAG, "Sending  Broadcast for conversation read ......");
+        Utils.printLog(context, TAG, "Sending  Broadcast for conversation read ......");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("currentId", currentId);
@@ -158,8 +167,18 @@ public class BroadcastService {
         sendBroadcast(context, intent);
     }
 
-    public static void sendUpdateUserDetailBroadcast(Context context, String action, String contactId){
-        Utils.printLog(context,TAG, "Sending profileImage update....");
+    public static void sendMuteUserBroadcast(Context context, String action, boolean mute, String userId) {
+        Utils.printLog(context, TAG, "Sending Mute user Broadcast for user : " + userId + ", mute : " + mute);
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra("mute", mute);
+        intent.putExtra("userId", userId);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
+    public static void sendUpdateUserDetailBroadcast(Context context, String action, String contactId) {
+        Utils.printLog(context, TAG, "Sending profileImage update....");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
@@ -190,6 +209,8 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString());
         intentFilter.addAction(INTENT_ACTIONS.CONVERSATION_READ.toString());
         intentFilter.addAction(INTENT_ACTIONS.UPDATE_USER_DETAIL.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.MUTE_USER_CHAT.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -203,6 +224,6 @@ public class BroadcastService {
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, MESSAGE_DELIVERY_FOR_CONTACT, INSTRUCTION,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         UPDATE_LAST_SEEN_AT_TIME, UPDATE_TYPING_STATUS, MESSAGE_READ_AND_DELIVERED, MESSAGE_READ_AND_DELIVERED_FOR_CONTECT, CHANNEL_SYNC,
-        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED, UPDATE_CHANNEL_NAME, UPDATE_TITLE_SUBTITLE, CONVERSATION_READ,UPDATE_USER_DETAIL
+        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED, UPDATE_CHANNEL_NAME, UPDATE_TITLE_SUBTITLE, CONVERSATION_READ, UPDATE_USER_DETAIL, MESSAGE_METADATA_UPDATE, MUTE_USER_CHAT
     }
 }

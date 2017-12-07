@@ -12,7 +12,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 27;
+    public static final int DB_VERSION = 28;
 
     public static final String _ID = "_id";
     public static final String SMS_KEY_STRING = "smsKeyString";
@@ -141,6 +141,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_SMS_TABLE_FOR_HIDDEN = "ALTER TABLE " + SMS + " ADD COLUMN hidden integer default 0";
     private static final String ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN replyMessage INTEGER default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_DELETED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DELETED_AT + " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_FOR_NOTIFICATION_AFTER_TIME = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + NOTIFICATION_AFTER_TIME + " integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -159,7 +160,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + STATUS + " varchar(2500) null, "
             + CONTACT_TYPE + " integer default 0,"
             + USER_TYPE_ID + " integer default 0,"
-            + DELETED_AT +" INTEGER default 0 "
+            + DELETED_AT + " INTEGER default 0, "
+            + NOTIFICATION_AFTER_TIME + " integer default 0"
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -253,7 +255,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         //Note: some user might directly upgrade from an old version to the new version, in that case it may happen that
         //schedule sms table is not present.
         if (newVersion > oldVersion) {
-            Utils.printLog(context,TAG, "Upgrading database from version "
+            Utils.printLog(context, TAG, "Upgrading database from version "
                     + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
 
@@ -349,6 +351,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, SMS, REPLY_MESSAGE)) {
                 database.execSQL(ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, NOTIFICATION_AFTER_TIME)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_NOTIFICATION_AFTER_TIME);
             }
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);

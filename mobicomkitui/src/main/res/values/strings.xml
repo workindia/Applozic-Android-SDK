@@ -198,6 +198,7 @@
     <string name="success">success</string>
     <string name="error">error</string>
     <string name="mute_group_for">Mute Group For..</string>
+    <string name="mute_user_for">Mute user for..</string>
     <string name="eight_Hours">8 Hours</string>
     <string name="one_week">1 Week </string>
     <string name="one_year"> 1 Year </string>
