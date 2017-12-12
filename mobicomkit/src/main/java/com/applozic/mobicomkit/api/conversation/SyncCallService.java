@@ -82,7 +82,7 @@ public class SyncCallService {
         } else {
             Intent intent = new Intent(context, ConversationIntentService.class);
             intent.putExtra(ConversationIntentService.SYNC, true);
-            context.startService(intent);
+            ConversationIntentService.enqueueWork(context,intent);
         }
     }
 

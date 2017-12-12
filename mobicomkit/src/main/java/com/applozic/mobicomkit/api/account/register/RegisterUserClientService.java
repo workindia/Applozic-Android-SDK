@@ -1,11 +1,20 @@
 package com.applozic.mobicomkit.api.account.register;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
@@ -144,12 +153,17 @@ public class RegisterUserClientService extends MobiComKitClientService {
             contact.setUserTypeId(user.getUserTypeId());
         }
         contact.setStatus(registrationResponse.getStatusMessage());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(context);
+        }
         contact.processContactNumbers(context);
         new AppContactService(context).upsert(contact);
 
+
         Intent conversationIntentService = new Intent(context, ConversationIntentService.class);
         conversationIntentService.putExtra(ConversationIntentService.SYNC, false);
-        context.startService(conversationIntentService);
+        ConversationIntentService.enqueueWork(context, conversationIntentService);
+
 
         Intent mutedUserListService = new Intent(context, ConversationIntentService.class);
         mutedUserListService.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
@@ -157,7 +171,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
+
         return registrationResponse;
     }
 
@@ -197,7 +212,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         final RegistrationResponse registrationResponse = createAccount(user);
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
         return registrationResponse;
     }
 
@@ -293,6 +308,36 @@ public class RegisterUserClientService extends MobiComKitClientService {
         } catch (Exception e) {
             Utils.printLog(context, TAG, "Account status sync call failed");
         }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    void createNotificationChannel(Context context) {
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        CharSequence name = MobiComKitConstants.PUSH_NOTIFICATION_NAME;
+        ;
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        if (mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_PUSH_NOTIFICATION) == null) {
+            NotificationChannel mChannel = new NotificationChannel(MobiComKitConstants.AL_PUSH_NOTIFICATION, name, importance);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.GREEN);
+            if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
+                mChannel.setShowBadge(true);
+            } else {
+                mChannel.setShowBadge(false);
+            }
+            if (ApplozicClient.getInstance(context).getVibrationOnNotification()) {
+                mChannel.enableVibration(true);
+                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            }
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE).build();
+            mChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), audioAttributes);
+            mNotificationManager.createNotificationChannel(mChannel);
+
+        }
+
     }
 
 }

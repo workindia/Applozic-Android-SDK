@@ -55,7 +55,7 @@ public class BroadcastService {
     }
 
     public static void sendFirstTimeSyncCompletedBroadcast(Context context) {
-        Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString() + " broadcast");
+        Utils.printLog(context,TAG, "Sending " + INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -63,7 +63,7 @@ public class BroadcastService {
     }
 
     public static void sendLoadMoreBroadcast(Context context, boolean loadMore) {
-        Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
+        Utils.printLog(context,TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.LOAD_MORE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -72,7 +72,7 @@ public class BroadcastService {
     }
 
     public static void sendDeliveryReportForContactBroadcast(Context context, String action, String contactId) {
-        Utils.printLog(context, TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
+        Utils.printLog(context,TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -81,7 +81,7 @@ public class BroadcastService {
     }
 
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
-        Utils.printLog(context, TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
+        Utils.printLog(context,TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
@@ -90,7 +90,7 @@ public class BroadcastService {
     }
 
     public static void sendMessageDeleteBroadcast(Context context, String action, String keyString, String contactNumbers) {
-        Utils.printLog(context, TAG, "Sending message delete broadcast for " + action);
+        Utils.printLog(context,TAG, "Sending message delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("keyString", keyString);
@@ -100,7 +100,7 @@ public class BroadcastService {
     }
 
     public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, Integer channelKey, String response) {
-        Utils.printLog(context, TAG, "Sending conversation delete broadcast for " + action);
+        Utils.printLog(context,TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("channelKey", channelKey);
@@ -110,16 +110,15 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
+
     public static void sendNotificationBroadcast(Context context, Message message) {
-        Utils.printLog(context, TAG, "Sending notification broadcast....");
-        Intent notificationIntent = new Intent();
-        notificationIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        notificationIntent.setAction(Utils.getMetaDataValue(context.getApplicationContext(), PACKAGE_NAME) + ".send.notification");
-        context.sendBroadcast(notificationIntent);
+        Utils.printLog(context,TAG, "Sending notification broadcast....");
+        PushNotificationDispatcher.scheduleJob(context, message);
     }
 
+
     public static void sendUpdateLastSeenAtTimeBroadcast(Context context, String action, String contactId) {
-        Utils.printLog(context, TAG, "Sending lastSeenAt broadcast....");
+        Utils.printLog(context,TAG, "Sending lastSeenAt broadcast....");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
@@ -128,7 +127,7 @@ public class BroadcastService {
     }
 
     public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping) {
-        Utils.printLog(context, TAG, "Sending typing Broadcast.......");
+        Utils.printLog(context,TAG, "Sending typing Broadcast.......");
         Intent intentTyping = new Intent();
         intentTyping.setAction(action);
         intentTyping.putExtra("applicationId", applicationId);
@@ -140,7 +139,7 @@ public class BroadcastService {
 
 
     public static void sendUpdate(Context context, String action) {
-        Utils.printLog(context, TAG, action);
+        Utils.printLog(context,TAG, action);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -158,7 +157,7 @@ public class BroadcastService {
 
 
     public static void sendConversationReadBroadcast(Context context, String action, String currentId, boolean isGroup) {
-        Utils.printLog(context, TAG, "Sending  Broadcast for conversation read ......");
+        Utils.printLog(context,TAG, "Sending  Broadcast for conversation read ......");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("currentId", currentId);

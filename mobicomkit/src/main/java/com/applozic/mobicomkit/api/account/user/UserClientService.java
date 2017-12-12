@@ -180,7 +180,7 @@ public class UserClientService extends MobiComKitClientService {
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
         intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
     }
 
     public ApiResponse logout(boolean fromLogin) {
@@ -201,7 +201,7 @@ public class UserClientService extends MobiComKitClientService {
                 Intent intent = new Intent(context, ApplozicMqttIntentService.class);
                 intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
                 intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-                context.startService(intent);
+                ApplozicMqttIntentService.enqueueWork(context, intent);
             }
         }
         return apiResponse;

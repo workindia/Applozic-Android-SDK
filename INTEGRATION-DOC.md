@@ -22,13 +22,13 @@ Add the following in your build.gradle dependency
 a) Chat SDK (Without audio/video)
 
 ```
-compile 'com.applozic.communication.uiwidget:mobicomkitui:5.1.5'
+compile 'com.applozic.communication.uiwidget:mobicomkitui:5.2.1'
 ```
 
 b) Chat SDK with Audio/Video.
 
 ```
-compile 'com.applozic.communication.uiwidget:audiovideo:1.4'
+compile 'com.applozic.communication.uiwidget:audiovideo:1.6'
 ```
 **NOTE** : To enable Audio/Video you need to follow extra steps:
 https://www.applozic.com/docs/android-chat-sdk.html#audio-video-call-setup
@@ -119,19 +119,6 @@ Permissions:
 <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 <uses-permission android:name="android.permission.VIBRATE" />
   ```
-
-
-Broadcast Registration For PushNotification:        
-
-
-   
-```
-<receiver android:name="com.applozic.mobicomkit.uiwidgets.notification.MTNotificationBroadcastReceiver">
-         <intent-filter>            
-             <action android:name="${applicationId}.send.notification"/>                    
-        </intent-filter>           
-</receiver>                  
-```
 
 **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
 
@@ -251,29 +238,40 @@ Paste the following in your androidmanifest.xml:
  
 <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
            android:theme="@style/Base.Theme.AppCompat"/>
-           
-<service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
-         android:exported="false" />
               
 <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
-         android:exported="false" />
-             
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
+<service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
+         android:permission="android.permission.BIND_JOB_SERVICE"
          android:exported="false" />
          
+<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            
+<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
+         android:permission="android.permission.BIND_JOB_SERVICE"
+         android:exported="false" />
 <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
+         android:permission="android.permission.BIND_JOB_SERVICE"
+         android:exported="false" />
+         
+ <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
+          android:permission="android.permission.BIND_JOB_SERVICE"
+          android:exported="false" />
+
+<service android:name="com.applozic.mobicomkit.uiwidgets.notification.NotificationIntentService"
+         android:permission="android.permission.BIND_JOB_SERVICE"
          android:exported="false" />
 
-<service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-         android:exported="false" />
-            
-<service android:name="com.applozic.mobicomkit.api.conversation.ConversationReadService"
-         android:exported="false" />
-         
-<service android:name="com.applozic.mobicomkit.uiwidgets.notification.NotificationIntentService"
-         android:exported="false" />
+
+<service android:exported="false"
+         android:name="com.applozic.mobicomkit.uiwidgets.notification.PushNotificationJobService">
+        <intent-filter>
+            <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+        </intent-filter>
+</service>
+        
 
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
