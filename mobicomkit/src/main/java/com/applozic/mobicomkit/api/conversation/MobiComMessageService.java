@@ -82,13 +82,13 @@ public class MobiComMessageService {
                 if (Message.MetaDataType.HIDDEN.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                     intentService.putExtra(MobiComKitConstants.MESSAGE, messageToProcess);
                     intentService.putExtra(MobiComKitConstants.HIDDEN, true);
-                    MessageIntentService.enqueueWork(context,intentService);
+                    MessageIntentService.enqueueWork(context, intentService, null);
                     return null;
                 } else if (Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                     BroadcastService.sendNotificationBroadcast(context, messageToProcess);
                     intentService.putExtra(MobiComKitConstants.MESSAGE, messageToProcess);
                     intentService.putExtra(MobiComKitConstants.PUSH_NOTIFICATION, true);
-                    MessageIntentService.enqueueWork(context,intentService);
+                    MessageIntentService.enqueueWork(context, intentService, null);
                     return null;
                 }
             }
@@ -430,7 +430,7 @@ public class MobiComMessageService {
             }
 
             try {
-                messageClientService.sendMessageToServer(mTextMessageReceived);
+                messageClientService.sendMessageToServer(mTextMessageReceived, null);
             } catch (Exception ex) {
                 Utils.printLog(context, TAG, "Received message error " + ex.getMessage());
             }

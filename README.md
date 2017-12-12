@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.2.1' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.3' `
 
 
 Add the following in gradle android target:      

@@ -85,7 +85,7 @@
   "forwardOption": true,
   "recordButton": true,
   "messageTemplate": {
-    "isEnabled": true,
+    "isEnabled": false,
     "borderColor": "#ffffff",
     "backgroundColor": "#FF03A9F4",
     "hideOnSend": false,
@@ -93,7 +93,7 @@
     "cornerRadius": 20,
     "textColor": "#ffffff",
     "messageList": ["Hey",
-      "How can i help you?",
+      "How may I help you?",
       "May I know your emailId",
       "May I know your company name?",
       "Is this related to Android, iOS, or web?",

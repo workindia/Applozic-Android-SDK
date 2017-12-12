@@ -67,6 +67,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String CHANNEL_META_DATA = "channelMetadata";
     public static final String HIDDEN = "hidden";
     public static final String REPLY_MESSAGE = "replyMessage";
+    public static final String USER_METADATA = "userMetadata";
+    public static final String USER_ROLE_TYPE = "userRoleType";
+    public static final String LAST_MESSAGED_AT = "lastMessagedAt";
 
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
@@ -142,7 +145,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_SMS_TABLE_FOR_REPLY_MESSAGE_COLUMN = "ALTER TABLE " + SMS + " ADD COLUMN replyMessage INTEGER default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_DELETED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DELETED_AT + " integer default 0";
     private static final String ALTER_CONTACT_TABLE_FOR_NOTIFICATION_AFTER_TIME = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + NOTIFICATION_AFTER_TIME + " integer default 0";
-
+    private static final String ALTER_CONTACT_TABLE_FOR_METADATA = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + USER_METADATA + " varchar(2000) null";
+    private static final String ALTER_CONTACT_TABLE_FOR_ROLE_TYPE = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + USER_ROLE_TYPE + " integer default 0";
+    private static final String ALTER_CONTACT_TABLE_FOR_LAST_MESSAGED_AT = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + LAST_MESSAGED_AT + " integer default 0";
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
             + FULL_NAME + " VARCHAR(200), "
@@ -161,7 +166,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + CONTACT_TYPE + " integer default 0,"
             + USER_TYPE_ID + " integer default 0,"
             + DELETED_AT + " INTEGER default 0, "
-            + NOTIFICATION_AFTER_TIME + " integer default 0"
+            + NOTIFICATION_AFTER_TIME + " integer default 0, "
+            + USER_ROLE_TYPE + " integer default 0, "
+            + LAST_MESSAGED_AT + " integer, "
+            + USER_METADATA + " varchar(2000) null"
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -354,6 +362,15 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             }
             if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, NOTIFICATION_AFTER_TIME)) {
                 database.execSQL(ALTER_CONTACT_TABLE_FOR_NOTIFICATION_AFTER_TIME);
+            }
+            if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, USER_METADATA)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_METADATA);
+            }
+            if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, USER_ROLE_TYPE)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_ROLE_TYPE);
+            }
+            if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, LAST_MESSAGED_AT)) {
+                database.execSQL(ALTER_CONTACT_TABLE_FOR_LAST_MESSAGED_AT);
             }
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);

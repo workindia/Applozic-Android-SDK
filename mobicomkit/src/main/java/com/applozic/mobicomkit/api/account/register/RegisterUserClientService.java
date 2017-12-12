@@ -138,6 +138,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setPassword(user.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
+        mobiComUserPreference.setUserRoleType(user.getRoleType());
         if (user.getUserTypeId() != null) {
             mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
         }
@@ -152,6 +153,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (user.getUserTypeId() != null) {
             contact.setUserTypeId(user.getUserTypeId());
         }
+        contact.setRoleType(user.getRoleType());
+        contact.setMetadata(user.getMetadata());
         contact.setStatus(registrationResponse.getStatusMessage());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context);
@@ -293,6 +296,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setContactNumber(pref.getContactNumber());
         user.setDisplayName(pref.getDisplayName());
         user.setImageLink(pref.getImageLink());
+        user.setRoleType(pref.getUserRoleType());
         return user;
     }
 

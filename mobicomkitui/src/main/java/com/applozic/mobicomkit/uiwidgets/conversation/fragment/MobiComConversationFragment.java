@@ -1288,7 +1288,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else {
                 menu.findItem(R.id.userBlock).setVisible(false);
                 menu.findItem(R.id.userUnBlock).setVisible(false);
-                if (alCustomizationSettings.isMuteOption()) {
+                if (alCustomizationSettings.isMuteOption() && !channel.getType().equals(Channel.GroupType.BROADCAST.getValue())) {
                     menu.findItem(R.id.unmuteGroup).setVisible(!channel.isDeleted() && channel.isNotificationMuted());
                     menu.findItem(R.id.muteGroup).setVisible(!channel.isDeleted() && !channel.isNotificationMuted());
                 }
@@ -3411,6 +3411,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 messageList.addAll(nextMessageList);
                 conversationAdapter.searchString = searchString;
                 emptyTextView.setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
+
+                if(TextUtils.isEmpty(searchString) && messageList.isEmpty() && channel == null){
+                   sendMessage("Your message");
+                }
+
                 if (!messageList.isEmpty()) {
                     listView.post(new Runnable() {
                         @Override

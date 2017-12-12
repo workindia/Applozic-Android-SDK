@@ -368,6 +368,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                                 TextView displayNameTextView = (TextView) view.findViewById(R.id.smReceivers);
                                 displayNameTextView.setText(contact.getDisplayName());
                                 conversationAdapter.contactImageLoader.loadImage(contact, contactImage);
+                                conversationAdapter.notifyDataSetChanged();
                             }
                         }
                     } catch (Exception ex) {

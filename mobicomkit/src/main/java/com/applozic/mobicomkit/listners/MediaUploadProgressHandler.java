@@ -3,8 +3,6 @@ package com.applozic.mobicomkit.listners;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.exception.ApplozicException;
 
-import java.io.Serializable;
-
 /**
  * Created by reytum on 27/11/17.
  */

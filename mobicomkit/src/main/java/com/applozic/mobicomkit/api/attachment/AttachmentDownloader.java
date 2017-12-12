@@ -24,6 +24,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 
@@ -109,7 +110,7 @@ class AttachmentDownloader implements Runnable {
                  */
                 mPhotoTask.handleDownloadState(HTTP_STATE_STARTED);
                 // Downloads the image and catches IO errors
-                loadAttachmentImage(mPhotoTask.getMessage(), mPhotoTask.getContext());
+                loadAttachmentImage(mPhotoTask.getMessage(), mPhotoTask.getDownloadHandler(), mPhotoTask.getContext());
             }
 
             /*
@@ -147,7 +148,7 @@ class AttachmentDownloader implements Runnable {
         }
     }
 
-    public void loadAttachmentImage(Message message, Context context) {
+    public void loadAttachmentImage(Message message, MediaDownloadProgressHandler handler, Context context) {
         File file = null;
         try {
             InputStream inputStream = null;
@@ -169,7 +170,7 @@ class AttachmentDownloader implements Runnable {
                     inputStream = connection.getInputStream();
                 } else {
                     //TODO: Error Handling...
-                    Utils.printLog(context,TAG, "Got Error response while uploading file : " + connection.getResponseCode());
+                    Utils.printLog(context, TAG, "Got Error response while uploading file : " + connection.getResponseCode());
                     return;
                 }
 
@@ -178,6 +179,7 @@ class AttachmentDownloader implements Runnable {
                 int totalSize = fileMeta.getSize();
                 int progressCount = 0;
                 int count = 0;
+                int prevPrecentage = 0;
                 while ((count = inputStream.read(data)) != -1) {
                     output.write(data, 0, count);
                     progressCount = progressCount + count;
@@ -185,6 +187,12 @@ class AttachmentDownloader implements Runnable {
                     int percentage = progressCount * 100 / totalSize;
                     //TODO: pecentage should be transfer via handler
                     //Message code 2 represents image is successfully downloaded....
+                    if (percentage != prevPrecentage) {
+                        if (handler != null) {
+                            handler.onProgressUpdate(percentage, null);
+                        }
+                        prevPrecentage = percentage;
+                    }
                     if ((percentage % 10 == 0)) {
                         msg.what = 1;
                         msg.obj = this;
@@ -215,15 +223,15 @@ class AttachmentDownloader implements Runnable {
 
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "File not found on server");
+            Utils.printLog(context, TAG, "File not found on server");
         } catch (Exception ex) {
             //If partial file got created delete it, we try to download it again
             if (file != null && file.exists()) {
-                Utils.printLog(context,TAG, " Exception occured while downloading :" + file.getAbsolutePath());
+                Utils.printLog(context, TAG, " Exception occured while downloading :" + file.getAbsolutePath());
                 file.delete();
             }
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "Exception fetching file from server");
+            Utils.printLog(context, TAG, "Exception fetching file from server");
         }
     }
 
@@ -259,6 +267,8 @@ class AttachmentDownloader implements Runnable {
         Message getMessage();
 
         Context getContext();
+
+        MediaDownloadProgressHandler getDownloadHandler();
 
         String getContentType();
     }

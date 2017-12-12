@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -117,7 +118,7 @@ public class FileClientService extends MobiComKitClientService {
                 try {
                     attachedImage = BitmapFactory.decodeFile(imageLocalPath);
                 } catch (Exception ex) {
-                    Utils.printLog(context,TAG, "File not found on local storage: " + ex.getMessage());
+                    Utils.printLog(context, TAG, "File not found on local storage: " + ex.getMessage());
                 }
             }
             if (attachedImage == null) {
@@ -129,7 +130,7 @@ public class FileClientService extends MobiComKitClientService {
                     imageLocalPath = ImageUtils.saveImageToInternalStorage(file, attachedImage);
 
                 } else {
-                    Utils.printLog(context,TAG, "Download is failed response code is ...." + connection.getResponseCode());
+                    Utils.printLog(context, TAG, "Download is failed response code is ...." + connection.getResponseCode());
                     return null;
                 }
             }
@@ -141,9 +142,9 @@ public class FileClientService extends MobiComKitClientService {
             attachedImage = BitmapFactory.decodeFile(imageLocalPath, options);
             return attachedImage;
         } catch (FileNotFoundException ex) {
-            Utils.printLog(context,TAG, "File not found on server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "File not found on server: " + ex.getMessage());
         } catch (Exception ex) {
-            Utils.printLog(context,TAG, "Exception fetching file from server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Exception fetching file from server: " + ex.getMessage());
         }
 
         return null;
@@ -168,7 +169,7 @@ public class FileClientService extends MobiComKitClientService {
                     inputStream = connection.getInputStream();
                 } else {
                     //TODO: Error Handling...
-                    Utils.printLog(context,TAG, "Got Error response while uploading file : " + connection.getResponseCode());
+                    Utils.printLog(context, TAG, "Got Error response while uploading file : " + connection.getResponseCode());
                     return;
                 }
 
@@ -191,15 +192,15 @@ public class FileClientService extends MobiComKitClientService {
 
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "File not found on server");
+            Utils.printLog(context, TAG, "File not found on server");
         } catch (Exception ex) {
             //If partial file got created delete it, we try to download it again
             if (file != null && file.exists()) {
-                Utils.printLog(context,TAG, " Exception occured while downloading :" + file.getAbsolutePath());
+                Utils.printLog(context, TAG, " Exception occured while downloading :" + file.getAbsolutePath());
                 file.delete();
             }
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "Exception fetching file from server");
+            Utils.printLog(context, TAG, "Exception fetching file from server");
         }
     }
 
@@ -217,19 +218,19 @@ public class FileClientService extends MobiComKitClientService {
             return attachedImage;
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "File not found on server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "File not found on server: " + ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "Exception fetching file from server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Exception fetching file from server: " + ex.getMessage());
         }
 
         return null;
     }
 
-    public String uploadBlobImage(String path) throws UnsupportedEncodingException {
+    public String uploadBlobImage(String path, MediaUploadProgressHandler handler) throws UnsupportedEncodingException {
         try {
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadKey(), "UTF-8", context);
-            multipart.addFilePart("files[]", new File(path));
+            multipart.addFilePart("files[]", new File(path), handler);
             return multipart.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,15 +266,15 @@ public class FileClientService extends MobiComKitClientService {
                     inputStream.allowMarksToExpire(true);
                     return attachedImage;
                 } else {
-                    Utils.printLog(context,TAG, "Download is failed response code is ...." + connection.getResponseCode());
+                    Utils.printLog(context, TAG, "Download is failed response code is ...." + connection.getResponseCode());
                 }
             }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "Image not found on server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Image not found on server: " + ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-            Utils.printLog(context,TAG, "Exception fetching file from server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Exception fetching file from server: " + ex.getMessage());
         } catch (Throwable t) {
 
         } finally {
@@ -332,7 +333,7 @@ public class FileClientService extends MobiComKitClientService {
     public String uploadProfileImage(String path) throws UnsupportedEncodingException {
         try {
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(profileImageUploadURL(), "UTF-8", context);
-            multipart.addFilePart("file", new File(path));
+            multipart.addFilePart("file", new File(path), null);
             return multipart.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
@@ -396,9 +397,9 @@ public class FileClientService extends MobiComKitClientService {
                 }
             }
         } catch (FileNotFoundException ex) {
-            Utils.printLog(context,TAG, "Image not found on server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Image not found on server: " + ex.getMessage());
         } catch (Exception ex) {
-            Utils.printLog(context,TAG, "Exception fetching file from server: " + ex.getMessage());
+            Utils.printLog(context, TAG, "Exception fetching file from server: " + ex.getMessage());
         } catch (Throwable t) {
 
         } finally {
