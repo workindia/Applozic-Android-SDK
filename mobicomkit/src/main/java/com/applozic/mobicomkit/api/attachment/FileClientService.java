@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -50,6 +51,8 @@ public class FileClientService extends MobiComKitClientService {
     public static final String FILE_UPLOAD_URL = "/rest/ws/aws/file/url";
     public static final String IMAGE_DIR = "image";
     public static final String AL_UPLOAD_FILE_URL = "/rest/ws/upload/file";
+    public static final String CUSTOM_STORAGE_SERVICE_END_POINT = "/rest/ws/upload/image";
+    public static final String THUMBNAIL_URL = "/files/";
     private static final int MARK = 1024;
     private static final String TAG = "FileClientService";
     private static final String MAIN_FOLDER_META_DATA = "main_folder_name";
@@ -100,7 +103,15 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getFileUploadUrl() {
-        return FILE_BASE_URL + FILE_UPLOAD_URL;
+        if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
+            return getBaseUrl() + CUSTOM_STORAGE_SERVICE_END_POINT;
+        }
+
+        String fileUploadUrl = Utils.getMetaDataValue(context.getApplicationContext(), FILE_UPLOAD_METADATA_KEY);
+        if (!TextUtils.isEmpty(fileUploadUrl)) {
+            return getFileBaseUrl() + fileUploadUrl;
+        }
+        return getFileBaseUrl() + FILE_UPLOAD_URL;
     }
 
     public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
@@ -164,7 +175,11 @@ public class FileClientService extends MobiComKitClientService {
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
-                connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
+                    connection = openHttpConnection(fileMeta.getUrl());
+                } else {
+                    connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                }
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {
@@ -230,7 +245,11 @@ public class FileClientService extends MobiComKitClientService {
     public String uploadBlobImage(String path, MediaUploadProgressHandler handler) throws UnsupportedEncodingException {
         try {
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadKey(), "UTF-8", context);
-            multipart.addFilePart("files[]", new File(path), handler);
+            if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
+                multipart.addFilePart("file", new File(path), handler);
+            } else {
+                multipart.addFilePart("files[]", new File(path), handler);
+            }
             return multipart.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,7 +258,12 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        return httpRequestUtils.getResponse(getFileUploadUrl() + "?" + new Date().getTime(), "text/plain", "text/plain", true);
+        if (ApplozicClient.getInstance(context).isStorageServiceEnabled() || ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() ) {
+            return getFileUploadUrl();
+        } else {
+            return httpRequestUtils.getResponse(getFileUploadUrl()
+                    + "?" + new Date().getTime(), "text/plain", "text/plain", true);
+        }
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {
@@ -441,5 +465,11 @@ public class FileClientService extends MobiComKitClientService {
 
             }
         }
+    }
+
+    public String getThumbnailUrl(String thumbnailUrl) {
+        return (ApplozicClient.getInstance(context).isStorageServiceEnabled() ?
+                (getFileBaseUrl() + THUMBNAIL_URL + thumbnailUrl) : thumbnailUrl);
+
     }
 }

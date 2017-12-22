@@ -218,7 +218,6 @@ public class AttachmentManager {
                             break;
                         case DOWNLOAD_COMPLETE:
                             attachmentTask.getMessage().setAttDownloadInProgress(false);
-                            attachmentTask.getDownloadHandler().onCompleted(null);
                             break;
                         case DECODE_STARTED:
                             break;
@@ -235,7 +234,7 @@ public class AttachmentManager {
                             //localView.setStatusResource(R.drawable.imagedownloadfailed);
                             attachmentTask.getMessage().setAttDownloadInProgress(false);
                             localView.getDownloadProgressLayout().setVisibility(View.GONE);
-                            attachmentTask.getDownloadHandler().onCompleted(new ApplozicException("Download failed"));
+                            attachmentTask.getDownloadHandler().onCompleted(null, new ApplozicException("Download failed"));
                             // Attempts to re-use the Task object
                             recycleTask(attachmentTask);
                             break;

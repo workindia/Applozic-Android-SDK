@@ -529,12 +529,24 @@ public class MobiComConversationService {
         }
     }
 
+    public void getMessageList(Long startTime, MessageListHandler handler){
+        new MessageListTask(context, null, null, startTime, null, handler, true).execute();
+    }
+
     public void getMessageListForContact(Contact contact, Long endTime, MessageListHandler handler) {
         new MessageListTask(context, contact, null, null, endTime, handler, false).execute();
     }
 
     public void getMessageListForChannel(Channel channel, Long endTime, MessageListHandler handler) {
         new MessageListTask(context, null, channel, null, endTime, handler, false).execute();
+    }
+
+    public void getMessageListForContact(String userId, Long endTime, MessageListHandler handler) {
+        new MessageListTask(context, baseContactService.getContactById(userId), null, null, endTime, handler, false).execute();
+    }
+
+    public void getMessageListForChannel(Integer channelKey, Long endTime, MessageListHandler handler) {
+        new MessageListTask(context, null, channelService.getChannel(channelKey), null, endTime, handler, false).execute();
     }
 
     public void downloadMessage(Message message, MediaDownloadProgressHandler handler) {
@@ -545,11 +557,11 @@ public class MobiComConversationService {
         if (!message.hasAttachment()) {
             e = new ApplozicException("Message does not have Attachment");
             handler.onProgressUpdate(0, e);
-            handler.onCompleted(e);
+            handler.onCompleted(null, e);
         } else if (message.isAttachmentDownloaded()) {
             e = new ApplozicException("Attachment for the message already downloaded");
             handler.onProgressUpdate(0, e);
-            handler.onCompleted(e);
+            handler.onCompleted(null, e);
         } else {
             AttachmentTask mDownloadThread = null;
             if (!AttachmentManager.isAttachmentInProgress(message.getKeyString())) {

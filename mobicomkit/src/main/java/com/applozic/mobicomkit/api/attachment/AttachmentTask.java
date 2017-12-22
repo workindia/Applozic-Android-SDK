@@ -331,16 +331,13 @@ public class AttachmentTask implements
         // Converts the download state to the overall state
         switch (state) {
             case AttachmentDownloader.HTTP_STATE_COMPLETED:
-                if (mediaDownloadProgressHandler != null) {
-                    mediaDownloadProgressHandler.onCompleted(null);
-                }
                 outState = AttachmentManager.DOWNLOAD_COMPLETE;
                 sPhotoManager.attachmentInProgress.remove(getMessage().getKeyString());
                 sPhotoManager.attachmentTaskList.remove(this);
                 break;
             case AttachmentDownloader.HTTP_STATE_FAILED:
                 if (mediaDownloadProgressHandler != null) {
-                    mediaDownloadProgressHandler.onCompleted(new ApplozicException("Download failed"));
+                    mediaDownloadProgressHandler.onCompleted(null,new ApplozicException("Download failed"));
                 }
                 outState = AttachmentManager.DOWNLOAD_FAILED;
                 sPhotoManager.attachmentInProgress.remove(getMessage().getKeyString());

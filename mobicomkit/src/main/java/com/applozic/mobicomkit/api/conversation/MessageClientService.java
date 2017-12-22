@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -359,13 +360,22 @@ public class MessageClientService extends MobiComKitClientService {
                         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                         return;
                     }
-                    JsonParser jsonParser = new JsonParser();
-                    JsonObject jsonObject = jsonParser.parse(fileMetaResponse).getAsJsonObject();
-                    if (jsonObject.has(FILE_META)) {
-                        Gson gson = new Gson();
-                        message.setFileMetas(gson.fromJson(jsonObject.get(FILE_META), FileMeta.class));
-                        if (handler != null) {
-                            handler.onCompleted(null);
+                    if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
+                        if (!TextUtils.isEmpty(fileMetaResponse)) {
+                            message.setFileMetas((FileMeta) GsonUtils.getObjectFromJson(fileMetaResponse, FileMeta.class));
+                            if(handler != null){
+                                handler.onCompleted(null);
+                            }
+                        }
+                    } else {
+                        JsonParser jsonParser = new JsonParser();
+                        JsonObject jsonObject = jsonParser.parse(fileMetaResponse).getAsJsonObject();
+                        if (jsonObject.has(FILE_META)) {
+                            Gson gson = new Gson();
+                            message.setFileMetas(gson.fromJson(jsonObject.get(FILE_META), FileMeta.class));
+                            if(handler != null){
+                                handler.onCompleted(null);
+                            }
                         }
                     }
                 } catch (Exception ex) {

@@ -100,7 +100,7 @@ public class Applozic {
 
         }
         intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE_TO_TYPING, true);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
     }
 
     public static void unSubscribeToTyping(Context context, Channel channel, Contact contact) {
@@ -111,7 +111,7 @@ public class Applozic {
 
         }
         intent.putExtra(ApplozicMqttIntentService.UN_SUBSCRIBE_TO_TYPING, true);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
     }
 
     public static void publishTypingStatus(Context context, Channel channel, Contact contact, boolean typingStarted) {
@@ -123,7 +123,7 @@ public class Applozic {
             intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
         }
         intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-        context.startService(intent);
+        ApplozicMqttIntentService.enqueueWork(context, intent);
     }
 
     public static void loginUser(Context context, User user, AlLoginHandler loginHandler) {
