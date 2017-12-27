@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.Queue;
 
 
-public class
-MobiComPushReceiver {
+public class MobiComPushReceiver {
 
     public static final String MTCOM_PREFIX = "APPLOZIC_";
     public static final List<String> notificationKeyList = new ArrayList<String>();

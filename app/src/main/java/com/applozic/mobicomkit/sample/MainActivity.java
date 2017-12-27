@@ -293,8 +293,7 @@ public class MainActivity extends AppCompatActivity
     public void groupChat(View v) {
         Intent groupChat = new Intent(this, ConversationActivity.class);
         groupChat.putExtra(TAKE_ORDER, true);
-        groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
-        groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
+        groupChat.putExtra(ConversationUIService.PARENT_GROUP_KEY, 5791024);
         startActivity(groupChat);
     }
 

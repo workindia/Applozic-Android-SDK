@@ -30,7 +30,3 @@ allprojects {
         jcenter()
     }
 }
-subprojects {
-    tasks.withType(Javadoc).all { enabled = false }
-}
-
