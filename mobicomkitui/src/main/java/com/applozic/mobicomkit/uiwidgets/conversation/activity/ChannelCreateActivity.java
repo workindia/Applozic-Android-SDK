@@ -161,6 +161,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         if (id == R.id.Next) {
             boolean check = true;
             if (channelName.getText().toString().trim().length() == 0 || TextUtils.isEmpty(channelName.getText().toString())) {
+                Toast.makeText(this, getResources().getString(R.string.applozic_enter_group_name), Toast.LENGTH_SHORT).show();
                 focus = channelName;
                 focus.requestFocus();
                 check = false;

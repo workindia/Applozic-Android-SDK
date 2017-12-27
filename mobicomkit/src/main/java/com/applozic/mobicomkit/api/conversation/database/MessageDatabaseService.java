@@ -9,7 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -120,6 +123,7 @@ public class MessageDatabaseService {
             fileMeta.setSize(cursor.getInt(cursor.getColumnIndex("size")));
             fileMeta.setName(cursor.getString(cursor.getColumnIndex("name")));
             fileMeta.setContentType(cursor.getString(cursor.getColumnIndex("contentType")));
+            fileMeta.setUrl(cursor.getString(cursor.getColumnIndex("url")));
             message.setFileMetas(fileMeta);
         }
         return message;
@@ -513,6 +517,7 @@ public class MessageDatabaseService {
                 values.put("contentType", fileMeta.getContentType());
                 values.put("metaFileKeyString", fileMeta.getKeyString());
                 values.put("blobKeyString", fileMeta.getBlobKeyString());
+                values.put("url", fileMeta.getUrl());
             }
         }
         dbHelper.getWritableDatabase().update("sms", values, "id=" + messageId, null);
@@ -636,22 +641,24 @@ public class MessageDatabaseService {
             if (message.getMetadata() != null && !message.getMetadata().isEmpty()) {
                 values.put(MobiComDatabaseHelper.MESSAGE_METADATA, GsonUtils.getJsonFromObject(message.getMetadata(), Map.class));
             }
-            values.put(MobiComDatabaseHelper.REPLY_MESSAGE, message.isReplyMessage());
+            values.put(MobiComDatabaseHelper.REPLY_MESSAGE,message.isReplyMessage());
             //TODO:Right now we are supporting single image attachment...making entry in same table
             if (message.getFileMetas() != null) {
                 FileMeta fileMeta = message.getFileMetas();
                 if (fileMeta != null) {
-                    values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
-                    values.put("size", fileMeta.getSize());
+                    String thumbnailUrl = new FileClientService(context).getThumbnailUrl(fileMeta.getThumbnailUrl());
+                    fileMeta.setThumbnailUrl(thumbnailUrl);
+                    values.put("thumbnailUrl", thumbnailUrl);
                     values.put("name", fileMeta.getName());
                     values.put("contentType", fileMeta.getContentType());
                     values.put("metaFileKeyString", fileMeta.getKeyString());
                     values.put("blobKeyString", fileMeta.getBlobKeyString());
+                    values.put("url", fileMeta.getUrl());
                 }
             }
             id = database.insertOrThrow("sms", null, values);
         } catch (SQLException ex) {
-            Utils.printLog(context, TAG, " Ignore Duplicate entry in sms table, sms: " + message);
+            Utils.printLog(context,TAG, " Ignore Duplicate entry in sms table, sms: " + message);
         } finally {
             dbHelper.close();
         }
@@ -808,7 +815,7 @@ public class MessageDatabaseService {
             dbHelper.close();
             return conversationCount;
         } catch (Exception ex) {
-            Utils.printLog(context, TAG, "Exception while fetching unread conversation count");
+            Utils.printLog(context,TAG, "Exception while fetching unread conversation count");
         }
         return 0;
     }
@@ -826,7 +833,7 @@ public class MessageDatabaseService {
             dbHelper.close();
             return unreadMessageCount;
         } catch (Exception ex) {
-            Utils.printLog(context, TAG, "Exception while fetching unread message count");
+            Utils.printLog(context,TAG, "Exception while fetching unread message count");
             return 0;
         }
     }
@@ -873,16 +880,23 @@ public class MessageDatabaseService {
 
 
     public boolean isMessagePresent(String key, Integer replyMessageType) {
+        Cursor cursor = null;
+        boolean present = false;
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.rawQuery(
-                "SELECT COUNT(*) FROM sms WHERE keyString = ? AND replyMessage = ?",
-                new String[]{key, String.valueOf(replyMessageType)});
-        cursor.moveToFirst();
-        boolean present = cursor.getInt(0) > 0;
-        if (cursor != null) {
-            cursor.close();
+        try {
+            cursor = database.rawQuery(
+                    "SELECT COUNT(*) FROM sms WHERE keyString = ? AND replyMessage = ?",
+                    new String[]{key, String.valueOf(replyMessageType)});
+            cursor.moveToFirst();
+            present = cursor.getInt(0) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
-        dbHelper.close();
         return present;
     }
 
@@ -948,13 +962,13 @@ public class MessageDatabaseService {
 
 
     public List<Message> getMessages(Long createdAt) {
-        return getMessages(createdAt, null, null);
+        return getMessages(createdAt, null);
     }
+
 
     List<Message> getMessages(Long createdAt, String searchText) {
         return getMessages(createdAt, searchText, null);
     }
-
 
     public List<Message> getMessages(Long createdAt, String searchText, Integer parentGroupKey) {
         if (parentGroupKey != null && parentGroupKey != 0) {
@@ -1000,6 +1014,7 @@ public class MessageDatabaseService {
         }
     }
 
+
     public String deleteMessage(Message message, String contactNumber) {
         if (!message.isSentToServer()) {
             deleteMessageFromDb(message);
@@ -1014,27 +1029,26 @@ public class MessageDatabaseService {
     public void deleteMessageFromDb(Message message) {
         try {
             SQLiteDatabase database = dbHelper.getWritableDatabase();
-            database.delete("sms", "keyString" + "='" + message.getKeyString() + "'", null);
+            database.delete("sms", "keyString" + "='" + message.getKeyString() + "'" , null);
             dbHelper.close();
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
-
     public void deleteConversation(String contactNumber) {
-        Utils.printLog(context, TAG, "Deleting conversation for contactNumber: " + contactNumber);
+        Utils.printLog(context,TAG, "Deleting conversation for contactNumber: " + contactNumber);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "contactNumbers=? AND channelKey = 0", new String[]{contactNumber});
         updateContactUnreadCountToZero(contactNumber);
         dbHelper.close();
-        Utils.printLog(context, TAG, "Delete " + deletedRows + " messages.");
+        Utils.printLog(context,TAG, "Delete " + deletedRows + " messages.");
     }
 
     public void deleteChannelConversation(Integer channelKey) {
-        Utils.printLog(context, TAG, "Deleting  Conversation for channel: " + channelKey);
+        Utils.printLog(context,TAG, "Deleting  Conversation for channel: " + channelKey);
         int deletedRows = dbHelper.getWritableDatabase().delete("sms", "channelKey=?", new String[]{String.valueOf(channelKey)});
         updateChannelUnreadCountToZero(channelKey);
         dbHelper.close();
-        Utils.printLog(context, TAG, "Delete " + deletedRows + " messages.");
+        Utils.printLog(context,TAG, "Delete " + deletedRows + " messages.");
     }
 
     public synchronized void updateContactUnreadCount(String userId) {
@@ -1073,17 +1087,17 @@ public class MessageDatabaseService {
         }
     }
 
-    public void updateReplyFlag(String messageKey, int isReplyMessage) {
+    public void updateReplyFlag(String messageKey,int isReplyMessage){
         ContentValues values = new ContentValues();
         values.put("replyMessage", isReplyMessage);
         int updatedMessage = dbHelper.getWritableDatabase().update("sms", values, " keyString = '" + messageKey + "'", null);
     }
 
-    public void updateMessageReplyType(String messageKey, Integer replyMessage) {
+    public void updateMessageReplyType(String messageKey,Integer replyMessage){
         try {
             ContentValues values = new ContentValues();
             values.put("replyMessage", replyMessage);
-            dbHelper.getWritableDatabase().update("sms", values, "keyString = ?", new String[]{messageKey});
+            dbHelper.getWritableDatabase().update("sms", values, "keyString = ?",new String[]{messageKey});
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -1147,6 +1161,17 @@ public class MessageDatabaseService {
 
         return getMessageList(cursor);
 
+    }
+
+    public void updateMessageMetadata(String keyString, Map<String, String> metadata) {
+        ContentValues values = new ContentValues();
+
+        if (isMessagePresent(keyString)) {
+            values.put(MobiComDatabaseHelper.MESSAGE_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
+            dbHelper.getWritableDatabase().update("sms", values, "keyString='" + keyString + "'", null);
+        }
+
+        dbHelper.close();
     }
 
 }

@@ -194,8 +194,8 @@ public class Channel extends JsonMarker {
 
     public boolean isNotificationMuted() {
         Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
-        return (getNotificationAfterTime() != null) && (getNotificationAfterTime() - date.getTime() > 0);
-
+        return (((getNotificationAfterTime() != null) && (getNotificationAfterTime() - date.getTime() > 0))
+                || ((getNotificationAfterTime() == 0 && isGroupDefaultMuted())));
     }
 
     public boolean isDeleted() {
@@ -210,6 +210,27 @@ public class Channel extends JsonMarker {
         this.metadata = metadata;
     }
 
+    public boolean isGroupDefaultMuted() {
+        return (getMetadata() != null && getMetadata().get(ChannelMetadata.MUTE) != null
+                && getMetadata().get(ChannelMetadata.MUTE).equalsIgnoreCase("true"));
+    }
+
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "key=" + key +
+                ", name='" + name + '\'' +
+                ", adminKey='" + adminKey + '\'' +
+                ", type=" + type +
+                ", unreadCount=" + unreadCount +
+                ", userCount=" + userCount +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", localImageUri='" + localImageUri + '\'' +
+                ", conversationPxy=" + conversationPxy +
+                ", contacts=" + contacts +
+                '}';
+    }
 
     public enum GroupType {
 
@@ -234,28 +255,4 @@ public class Channel extends JsonMarker {
             return value.shortValue();
         }
     }
-
-    @Override
-    public String toString() {
-        return "Channel{" +
-                "metadata=" + metadata +
-                ", key=" + key +
-                ", parentKey=" + parentKey +
-                ", parentClientGroupId='" + parentClientGroupId + '\'' +
-                ", clientGroupId='" + clientGroupId + '\'' +
-                ", name='" + name + '\'' +
-                ", adminKey='" + adminKey + '\'' +
-                ", type=" + type +
-                ", unreadCount=" + unreadCount +
-                ", userCount=" + userCount +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", localImageUri='" + localImageUri + '\'' +
-                ", conversationPxy=" + conversationPxy +
-                ", subGroupCount=" + subGroupCount +
-                ", contacts=" + contacts +
-                ", notificationAfterTime=" + notificationAfterTime +
-                ", deletedAtTime=" + deletedAtTime +
-                '}';
-    }
-
 }

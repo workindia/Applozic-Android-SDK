@@ -83,6 +83,8 @@ public class ConversationUIService {
     public static final String TAKE_ORDER = "takeOrder";
     public static final String USER_ID = "userId";
     public static final String GROUP_ID = "groupId";
+    public static final String GROUP_ID_LIST_CONTACTS = "groupIdListContacts";
+    public static final String GROUP_NAME_LIST_CONTACTS = "groupIdNameContacts";
     public static final String GROUP_NAME = "groupName";
     public static final String FIRST_TIME_MTEXTER_FRIEND = "firstTimeMTexterFriend";
     public static final String CONTACT_ID = "contactId";
@@ -736,6 +738,16 @@ public class ConversationUIService {
 
     }
 
+    public void updateMessageMetadata(String keyString) {
+        getConversationFragment().updateMessageMetadata(keyString);
+    }
+
+    public void muteUserChat(boolean mute, String userId) {
+        if (getConversationFragment() != null && getConversationFragment().getContact() != null && getConversationFragment().getContact().getUserId().equals(userId)) {
+            getConversationFragment().muteUser(mute);
+        }
+    }
+
 
     public void startMessageInfoFragment(String messageJson) {
 
@@ -903,7 +915,8 @@ public class ConversationUIService {
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-                    fragmentActivity.startService(intent);
+                    ApplozicMqttIntentService.enqueueWork(fragmentActivity,intent);
+
                 }
             }
         } catch (Exception e) {

@@ -68,9 +68,11 @@ import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.async.AlGetMembersFromContactGroupListTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -103,8 +105,11 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -248,7 +253,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         Intent intent = new Intent(this, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
         intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-        startService(intent);
+        ApplozicMqttIntentService.enqueueWork(this,intent);
     }
 
     @Override
@@ -257,7 +262,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
         subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-        startService(subscribeIntent);
+        ApplozicMqttIntentService.enqueueWork(this,subscribeIntent);
 
         if (!Utils.isInternetAvailable(getApplicationContext())) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
@@ -417,7 +422,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (!takeOrder) {
             Intent lastSeenStatusIntent = new Intent(this, UserIntentService.class);
             lastSeenStatusIntent.putExtra(UserIntentService.USER_LAST_SEEN_AT_STATUS, true);
-            startService(lastSeenStatusIntent);
+            UserIntentService.enqueueWork(this,lastSeenStatusIntent);
         }
 
         if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
@@ -425,6 +430,21 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             accountStatusAsyncTask.execute();
         }
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        if (getIntent() != null) {
+            Set<String> userIdLists = new HashSet<String>();
+            if (getIntent().getStringArrayListExtra(ConversationUIService.GROUP_NAME_LIST_CONTACTS) != null) {
+                MobiComUserPreference.getInstance(this).setIsContactGroupNameList(true);
+                userIdLists.addAll(getIntent().getStringArrayListExtra(ConversationUIService.GROUP_NAME_LIST_CONTACTS));
+            } else if (getIntent().getStringArrayListExtra(ConversationUIService.GROUP_ID_LIST_CONTACTS) != null) {
+                MobiComUserPreference.getInstance(this).setIsContactGroupNameList(false);
+                userIdLists.addAll(getIntent().getStringArrayListExtra(ConversationUIService.GROUP_ID_LIST_CONTACTS));
+            }
+
+            if (!userIdLists.isEmpty()) {
+                MobiComUserPreference.getInstance(this).setContactGroupIdList(userIdLists);
+            }
+        }
     }
 
     @Override
@@ -441,8 +461,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             if (intent.getExtras() != null) {
 
                 BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
+                if (BroadcastService.isIndividual() && intent.getExtras().getBoolean(MobiComKitConstants.QUICK_LIST)) {
+                    setSearchListFragment(quickConversationFragment);
+                    addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
+                } else {
+                    conversationUIService.checkForStartNewConversation(intent);
+                }
             }
-            conversationUIService.checkForStartNewConversation(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }
