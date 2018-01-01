@@ -77,11 +77,18 @@ public class SyncCallService {
     }
 
     public synchronized void syncMessages(String key) {
+        syncMessages(key,null);
+    }
+
+    public synchronized void syncMessages(String key,Message message) {
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
-            Utils.printLog(context, TAG, "Message is already present, MQTT reached before GCM.");
+            Utils.printLog(context,TAG, "Message is already present, MQTT reached before GCM.");
         } else {
             Intent intent = new Intent(context, ConversationIntentService.class);
             intent.putExtra(ConversationIntentService.SYNC, true);
+            if(message != null){
+                intent.putExtra(ConversationIntentService.AL_MESSAGE, message);
+            }
             ConversationIntentService.enqueueWork(context,intent);
         }
     }
@@ -91,7 +98,7 @@ public class SyncCallService {
             Utils.printLog(context, TAG, "Syncing updated message metadata from " + (isFromFcm ? "FCM" : "MQTT") + " for message key : " + key);
             Intent intent = new Intent(context, ConversationIntentService.class);
             intent.putExtra(ConversationIntentService.MESSAGE_METADATA_UPDATE, true);
-            context.startService(intent);
+            ConversationIntentService.enqueueWork(context,intent);
         }
     }
 
@@ -101,7 +108,7 @@ public class SyncCallService {
             Utils.printLog(context, TAG, "Syncing muted user list from " + (isFromFcm ? "FCM" : "MQTT"));
             Intent intent = new Intent(context, ConversationIntentService.class);
             intent.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
-            context.startService(intent);
+            ConversationIntentService.enqueueWork(context,intent);
         } else {
             Utils.printLog(context, TAG, "Unmuting userId : " + userId + " from " + (isFromFcm ? "FCM" : "MQTT"));
             new ContactDatabase(context).updateNotificationAfterTime(userId, Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime().getTime());
@@ -170,7 +177,7 @@ public class SyncCallService {
     }
 
     public void syncUserDetail(String userId) {
-        messageClientService.processUserStatus(userId, true);
+        messageClientService.processUserStatus(userId,true);
     }
 
 }

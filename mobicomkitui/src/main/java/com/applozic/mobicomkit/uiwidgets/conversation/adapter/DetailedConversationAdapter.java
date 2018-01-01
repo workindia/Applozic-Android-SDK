@@ -501,11 +501,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             if (message.isCall() || message.isDummyEmptyMessage()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-            } else if (!message.isSentToServer() && message.isTypeOutbox()) {
+            } else if (  !message.isSentToServer()  &&  message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
-            } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
+            } else if ( message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
                 Drawable statusIcon;
-                if (message.isDeliveredAndRead()) {
+                if (message.isDeliveredAndRead() && (contact != null || channel !=null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
                     statusIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
                 } else {
                     statusIcon = (message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
