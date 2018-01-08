@@ -92,53 +92,55 @@
     "sendMessageOnClick": true,
     "cornerRadius": 20,
     "textColor": "#ffffff",
-    "messageList": ["Hey",
-      "How may I help you?",
-      "May I know your emailId",
-      "May I know your company name?",
-      "Is this related to Android, iOS, or web?",
-      "Did you follow our doc?"],
+    "messageList": {
+      "Greetings": "Hey",
+      "Help?": "How may I help you?",
+      "Email-Id": "May I know your emailId",
+      "Company": "May I know your company name?",
+      "Platform?": "Is this related to Android, iOS, or web?",
+      "Doc?": "Did you follow our doc?"
+    },
     "textMessageList": {
       "showOnSenderSide": false,
       "showOnReceiverSide": false,
       "sendMessageOnClick": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     },
     "imageMessageList": {
       "showOnSenderSide": false,
       "sendMessageOnClick": false,
       "showOnReceiverSide": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     },
     "videoMessageList": {
       "showOnSenderSide": false,
       "sendMessageOnClick": false,
       "showOnReceiverSide": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     },
     "audioMessageList": {
       "showOnSenderSide": false,
       "sendMessageOnClick": false,
       "showOnReceiverSide": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     },
     "locationMessageList": {
       "showOnSenderSide": false,
       "sendMessageOnClick": false,
       "showOnReceiverSide": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     },
     "contactMessageList": {
       "showOnSenderSide": false,
       "sendMessageOnClick": false,
       "showOnReceiverSide": false,
-      "messageList": [
-      ]
+      "messageList": {
+      }
     }
   }
 }
