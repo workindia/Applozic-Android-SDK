@@ -297,7 +297,16 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             createdAtTime.setTextColor(Color.parseColor(alCustomizationSettings.getMessageTimeTextColor()));
 
             if (message.getMetadata() != null && !message.getMetadata().isEmpty() && message.getMetadata().containsKey(Message.MetaDataType.AL_REPLY.getValue())) {
-                final Message msg = messageDatabaseService.getMessage(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+                Message msg = messageDatabaseService.getMessage(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+                Message replyMsg = new Message();
+                replyMsg.setKeyString(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+
+                try {
+                    msg = messageList.get(messageList.indexOf(replyMsg));
+                } catch (Exception e) {
+                }
+
+
                 if (msg != null) {
                     String displayName;
 
@@ -411,10 +420,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         replyMessageTextView.setText(msg.getMessage());
                     }
                     replyRelativeLayout.setVisibility(View.VISIBLE);
+                    final Message finalMsg = msg;
                     replyRelativeLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            ((OnClickReplyInterface) context).onClickOnMessageReply(msg);
+                            ((OnClickReplyInterface) context).onClickOnMessageReply(finalMsg);
                         }
                     });
                 }
@@ -501,9 +511,9 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
             if (message.isCall() || message.isDummyEmptyMessage()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-            } else if (!message.isSentToServer() && message.isTypeOutbox()) {
+            } else if ((channel == null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) && !message.isSentToServer() && message.isTypeOutbox()) {
                 createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
-            } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
+            } else if ((channel == null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) && message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer()) {
                 Drawable statusIcon;
                 if (message.isDeliveredAndRead()) {
                     statusIcon = getContext().getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
@@ -554,8 +564,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 loadContactImage(receiverContact, contactDisplayName, message, contactImage, alphabeticTextView, onlineTextView);
             }
 
-            ApplozicDocumentView audioView =  new ApplozicDocumentView(this.context);
-            audioView.inflateViewWithMessage(customView,message);
+            ApplozicDocumentView audioView = new ApplozicDocumentView(this.context);
+            audioView.inflateViewWithMessage(customView, message);
             audioView.hideView(true);
             if (message.hasAttachment() && attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                 mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
@@ -693,7 +703,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                     if (message.isAttachmentDownloaded()) {
                         showFullView(message);
                         return;
-                    } if ((message.isTypeOutbox() && message.isSentToServer()) || (!message.isTypeOutbox())) {
+                    }
+                    if ((message.isTypeOutbox() && message.isSentToServer()) || (!message.isTypeOutbox())) {
                         attachmentDownloadLayout.setVisibility(View.GONE);
                         attachmentView.setProressBar(mediaDownloadProgressBar);
                         attachmentView.setDownloadProgressLayout(attachmentDownloadProgressLayout);
@@ -702,6 +713,12 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                     }
 
+                }
+            });
+            mapImageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
                 }
             });
             preview.setOnLongClickListener(new View.OnLongClickListener() {
@@ -913,7 +930,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
             });
 
         } catch (Exception e) {
-            Utils.printLog(context,"DetailedConvAdapter", "Exception in parsing");
+            Utils.printLog(context, "DetailedConvAdapter", "Exception in parsing");
         }
 
     }
@@ -1015,7 +1032,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                         }
                     }
                 } catch (Exception e) {
-                    Utils.printLog(context,TAG, "No application found to open this file");
+                    Utils.printLog(context, TAG, "No application found to open this file");
                 }
             }
 
@@ -1059,7 +1076,7 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 }
             }
         } catch (Exception e) {
-            Utils.printLog(context,TAG, "No application found to open this file");
+            Utils.printLog(context, TAG, "No application found to open this file");
         }
 
     }
@@ -1194,8 +1211,8 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
 
     }
 
-    public void  refreshContactData(){
-        if(contact != null){
+    public void refreshContactData() {
+        if (contact != null) {
             contact = contactService.getContactById(contact.getContactIds());
         }
     }
@@ -1203,11 +1220,11 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
     private boolean isNormalAttachment(Message message) {
 
         if (message.getFileMetas() != null) {
-            return !(message.getFileMetas().getContentType().contains("image") || message.getFileMetas().getContentType().contains("video")|| message.isContactMessage());
-        }else if( message.getFilePaths() != null){
+            return !(message.getFileMetas().getContentType().contains("image") || message.getFileMetas().getContentType().contains("video") || message.isContactMessage());
+        } else if (message.getFilePaths() != null) {
             String filePath = message.getFilePaths().get(0);
             final String mimeType = FileUtils.getMimeType(filePath);
-            if(mimeType!=null) {
+            if (mimeType != null) {
                 return !(mimeType.contains("image") || mimeType.contains("video") || message.isContactMessage());
             }
         }

@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -29,16 +30,28 @@ import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.people.ChannelInfo;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.uiwidgets.async.AlChannelCreateAsyncTask;
+import com.applozic.mobicomkit.uiwidgets.async.AlGroupInformationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity
@@ -101,6 +114,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        //userPreference.setChat_background("https://www.w3schools.com/w3images/lights.jpg");
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -148,6 +162,20 @@ public class MainActivity extends AppCompatActivity
         }*/
         if (position == 0) {
             mTitle = getString(R.string.ecommerce);
+
+
+          /*  new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    List<String> x = new ArrayList<String>();
+                    ChannelInfo channelInfo = new ChannelInfo("epn gr",x);
+                    channelInfo.setType(Channel.GroupType.OPEN.getValue());
+                  Channel channel =   ChannelService.getInstance(MainActivity.this).createChannel(channelInfo);
+                    Log.i("channel ch","asad"+channel);
+
+                }
+            }).start();*/
+
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.container, EcommerceFragment.newInstance("", ""))
@@ -162,7 +190,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onSuccess(Context context) {
                     userLogoutTask = null;
-                    Toast.makeText(getBaseContext(),getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
@@ -243,7 +271,7 @@ public class MainActivity extends AppCompatActivity
                 takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                 takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
                 takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, R.string.intrest_in_chat);
-                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID, conversationId);
                 startActivity(takeOrderIntent);
 
             }
@@ -288,14 +316,38 @@ public class MainActivity extends AppCompatActivity
         }
         fragmentTransaction.addToBackStack(null);
         fragment.show(fragmentTransaction, "InitiateDialogFragment");
+
     }
 
     public void groupChat(View v) {
-        Intent groupChat = new Intent(this, ConversationActivity.class);
-        groupChat.putExtra(TAKE_ORDER, true);
-        groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
-        groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
-        startActivity(groupChat);
+
+        AlGroupInformationAsyncTask.GroupMemberListener groupInformationAsyncTask = new AlGroupInformationAsyncTask.GroupMemberListener() {
+
+            @Override
+            public void onSuccess(Channel channel, Context context) {
+
+                Intent groupChat = new Intent(context, ConversationActivity.class);
+                groupChat.putExtra(TAKE_ORDER, true);
+                groupChat.putExtra(ConversationUIService.GROUP_ID,
+                        6411145);
+                groupChat.putExtra(ConversationUIService.GROUP_NAME, channel.getName());
+                startActivity(groupChat);
+            }
+
+            @Override
+            public void onFailure(Channel channel, Exception e, Context context) {
+
+            }
+        };
+
+        AlGroupInformationAsyncTask al = new AlGroupInformationAsyncTask(MainActivity.this, 6411145, groupInformationAsyncTask);
+        al.execute();
+
+    }
+
+    public void changeChatBackground(View v) {
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(this);
+        userPreference.setChat_background((((EditText) findViewById(R.id.edtImageUrl)).getText() + "").trim());
     }
 
     public void onSectionAttached(int number) {
@@ -366,6 +418,7 @@ public class MainActivity extends AppCompatActivity
             appContactService.add(contact);
         }
     }
+
 
     /**
      * A placeholder fragment containing a simple view.

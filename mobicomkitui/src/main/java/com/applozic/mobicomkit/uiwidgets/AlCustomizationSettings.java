@@ -1,7 +1,23 @@
 package com.applozic.mobicomkit.uiwidgets;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.util.Patterns;
+import android.view.Window;
+import android.widget.ImageView;
+
+import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 /**

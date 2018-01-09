@@ -66,6 +66,8 @@ public class MobiComUserPreference {
     private static String CONTACT_GROUP_ID_LISTS = "contactGroupIdLists";
     private static String IS_CONTACT_GROUP_NAME_LIST = "isContactGroupNameList";
 
+    private static String CHAT_BACKGROUND = "CHAT_BACKGROUND";
+
     public SharedPreferences sharedPreferences;
     private Context context;
     private String countryCode;
@@ -562,4 +564,13 @@ public class MobiComUserPreference {
     public void setIsContactGroupNameList(boolean isContactGroupNameList) {
         sharedPreferences.edit().putBoolean(IS_CONTACT_GROUP_NAME_LIST, isContactGroupNameList).commit();
     }
+
+    public String getChat_background() {
+        return sharedPreferences.getString(CHAT_BACKGROUND, "");
+    }
+
+    public void setChat_background(String chat_background) {
+        sharedPreferences.edit().putString(CHAT_BACKGROUND, chat_background).commit();
+    }
+
 }

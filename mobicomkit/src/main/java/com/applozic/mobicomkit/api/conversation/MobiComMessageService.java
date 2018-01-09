@@ -166,6 +166,20 @@ public class MobiComMessageService {
         return message;
     }
 
+    public synchronized void processInstantMessage(Message message) {
+
+        if(!message.hasAttachment()){
+            if (!baseContactService.isContactPresent(message.getContactIds())) {
+                userService.processUserDetails(message.getContactIds());
+            }
+            Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+            if (channel == null) {
+                return;
+            }
+            BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
+        }
+    }
+
     public Contact addMTMessage(Message message) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         Contact receiverContact = null;

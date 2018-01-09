@@ -900,7 +900,7 @@ public class ConversationUIService {
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-                    ApplozicMqttIntentService.enqueueWork(fragmentActivity,intent);
+                    ApplozicMqttIntentService.enqueueWork(fragmentActivity, intent);
 
                 }
             }
@@ -965,6 +965,5 @@ public class ConversationUIService {
         usersAsyncTask.execute((Void) null);
 
     }
-
 
 }

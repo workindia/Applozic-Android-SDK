@@ -69,4 +69,6 @@
     <string name="click_more">Click more</string>
     <string name="press_back_again_to_exit">Press Back again to Exit.</string>
     <string name="log_out_successful">Log out successful</string>
+    <string name="hint_image_url">Paste Image URL here</string>
+    <string name="change_chat_background">Change</string>
 </resources>

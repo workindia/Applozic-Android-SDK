@@ -304,11 +304,13 @@ public class MessageClientService extends MobiComKitClientService {
         Contact contact = null;
         Channel channel = null;
         boolean isBroadcastOneByOneGroupType = false;
+        boolean isOpenGroup = false;
         boolean skipMessage = false;
         if (message.getGroupId() == null) {
             contact = baseContactService.getContactById(message.getContactIds());
         } else {
             channel = ChannelService.getInstance(context).getChannel(message.getGroupId());
+            isOpenGroup =  Channel.GroupType.OPEN.getValue().equals(channel.getType());
             isBroadcastOneByOneGroupType = Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue().equals(channel.getType());
         }
         long messageId = -1;
@@ -327,14 +329,14 @@ public class MessageClientService extends MobiComKitClientService {
             skipMessage = true;
         }
 
-        if (!skipMessage) {
+        if (!skipMessage && !isOpenGroup) {
             messageId = messageDatabaseService.createMessage(message);
         }
 
-        if (isBroadcast && !skipMessage) {
+        if (isBroadcast && !skipMessage ) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
-        if (!isBroadcastOneByOneGroupType && message.isUploadRequired()) {
+        if (!isBroadcastOneByOneGroupType && message.isUploadRequired() && !isOpenGroup) {
             for (String filePath : message.getFilePaths()) {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath);
@@ -411,7 +413,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             if (!isBroadcastOneByOneGroupType) {
                 String response = sendMessage(newMessage);
-                if (message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage() && !skipMessage) {
+                if (message.hasAttachment() && TextUtils.isEmpty(response) && !message.isContactMessage() && !skipMessage  && !isOpenGroup) {
                     messageDatabaseService.updateCanceledFlag(messageId, 1);
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                 }
@@ -423,7 +425,7 @@ public class MessageClientService extends MobiComKitClientService {
                     message.setSentToServer(true);
                     message.setKeyString(keyString);
                 }
-                if (!skipMessage) {
+                if (!skipMessage &&  !isOpenGroup) {
                     messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());
                 }
             } else {
@@ -436,7 +438,7 @@ public class MessageClientService extends MobiComKitClientService {
             } else {
                 //Todo: If message type is mtext, tell user that internet is not working, else send update with db id.
             }
-            if (!skipMessage) {
+            if (!skipMessage || isOpenGroup) {
                 BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
             }
 

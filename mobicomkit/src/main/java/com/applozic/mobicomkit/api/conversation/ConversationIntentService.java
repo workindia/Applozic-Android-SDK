@@ -19,6 +19,7 @@ import java.util.List;
 public class ConversationIntentService extends JobIntentService {
 
     public static final String SYNC = "AL_SYNC";
+    public static final String AL_MESSAGE = "AL_MESSAGE";
     private static final String TAG = "ConversationIntent";
     private static final int PRE_FETCH_MESSAGES_FOR = 6;
     private MobiComMessageService mobiComMessageService;
@@ -49,11 +50,17 @@ public class ConversationIntentService extends JobIntentService {
         }
         boolean sync = intent.getBooleanExtra(SYNC, false);
         Utils.printLog(ConversationIntentService.this,TAG, "Syncing messages service started: " + sync);
-        if (sync) {
-            mobiComMessageService.syncMessages();
-        } else {
-            Thread thread = new Thread(new ConversationSync());
-            thread.start();
+
+        Message message  = (Message) intent.getSerializableExtra(AL_MESSAGE);
+        if(message !=  null){
+            mobiComMessageService.processInstantMessage(message);
+        }else {
+            if (sync) {
+                mobiComMessageService.syncMessages();
+            } else {
+                Thread thread = new Thread(new ConversationSync());
+                thread.start();
+            }
         }
     }
 

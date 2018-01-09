@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
+import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -61,6 +62,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
         args.putString(SEARCH_STRING, searchString);
         f.setArguments(args);
         return f;
+
     }
 
     @Override
@@ -205,6 +207,12 @@ public class ConversationFragment extends MobiComConversationFragment implements
     }
 
     private void populateAttachmentOptions() {
+
+        if(attachmentKey!= null && attachmentKey.size()>0){
+            attachmentKey.clear();
+            attachmentText.clear();
+            attachmentIcon.clear();
+        }
 
         String[] allKeys = getResources().getStringArray(R.array.multimediaOptions_without_price_key);
         String[] allValues = getResources().getStringArray(R.array.multimediaOptions_without_price_text);

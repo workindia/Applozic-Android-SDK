@@ -40,7 +40,7 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         if (!TextUtils.isEmpty(messageJson)) {
             message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
         }
-        Utils.printLog(context,TAG, "Received broadcast, action: " + action + ", message: " + message);
+        Utils.printLog(context, TAG, "Received broadcast, action: " + action + ", message: " + message);
 
         if (message != null && !message.isSentToMany()) {
             conversationUIService.addMessage(message);

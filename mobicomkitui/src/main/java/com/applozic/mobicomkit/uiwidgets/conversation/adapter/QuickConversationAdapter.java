@@ -162,10 +162,12 @@ public class QuickConversationAdapter extends BaseAdapter implements Filterable 
             if (message.getGroupId() == null) {
                 contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
             } else {
-                if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
-                    contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
-                } else {
-                    channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
+                if (channel != null) {
+                    if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                        contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
+                    } else {
+                        channelImageLoader.setLoadingImage(R.drawable.applozic_group_icon);
+                    }
                 }
             }
             if (channel != null && message.getGroupId() != null) {

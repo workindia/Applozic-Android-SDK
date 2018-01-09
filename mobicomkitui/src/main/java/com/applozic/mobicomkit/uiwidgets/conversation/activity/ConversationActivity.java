@@ -70,7 +70,6 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.async.AlGetMembersFromContactGroupListTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -103,7 +102,6 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -249,7 +247,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         Intent intent = new Intent(this, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
         intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-        ApplozicMqttIntentService.enqueueWork(this,intent);
+        ApplozicMqttIntentService.enqueueWork(this, intent);
     }
 
     @Override
@@ -258,7 +256,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
         Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
         subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-        ApplozicMqttIntentService.enqueueWork(this,subscribeIntent);
+        ApplozicMqttIntentService.enqueueWork(this, subscribeIntent);
 
         if (!Utils.isInternetAvailable(getApplicationContext())) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
@@ -266,12 +264,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
-        //ApplozicMqttService.getInstance(this).unSubscribe();
-        super.onPause();
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
@@ -335,6 +327,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (resourceId != 0) {
             getWindow().setBackgroundDrawableResource(resourceId);
         }
+
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -403,7 +396,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (!takeOrder) {
             Intent lastSeenStatusIntent = new Intent(this, UserIntentService.class);
             lastSeenStatusIntent.putExtra(UserIntentService.USER_LAST_SEEN_AT_STATUS, true);
-            UserIntentService.enqueueWork(this,lastSeenStatusIntent);
+            UserIntentService.enqueueWork(this, lastSeenStatusIntent);
         }
 
         if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
@@ -1225,6 +1218,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             if (connectivityReceiver != null) {
                 unregisterReceiver(connectivityReceiver);
             }
+            if (mobiComKitBroadcastReceiver != null) {
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
+            }
             if (accountStatusAsyncTask != null) {
                 accountStatusAsyncTask.cancel(true);
             }
@@ -1252,6 +1248,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             return null;
         }
     }
+
 
     public class SyncAccountStatusAsyncTask extends AsyncTask<Void, Void, Boolean> {
         Context context;
