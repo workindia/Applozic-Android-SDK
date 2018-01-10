@@ -310,9 +310,17 @@ public class DetailedConversationAdapter extends ArrayAdapter<Message> {
                 if (msg != null) {
                     String displayName;
 
-                    replyRelativeLayout.setBackgroundColor(message.isTypeOutbox() ?
+                    GradientDrawable shape = new GradientDrawable();
+                    shape.setShape(GradientDrawable.RECTANGLE);
+                    shape.setCornerRadius(20);
+                    shape.setColor(message.isTypeOutbox() ?
                             Color.parseColor(alCustomizationSettings.getReplyMessageLayoutSentMessageBackground()) : Color.parseColor(alCustomizationSettings.getReplyMessageLayoutReceivedMessageBackground()));
 
+                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                        replyRelativeLayout.setBackgroundDrawable(shape);
+                    } else {
+                        replyRelativeLayout.setBackground(shape);
+                    }
                     replyNameTextView.setTextColor(message.isTypeOutbox() ?
                             Color.parseColor(alCustomizationSettings.getSentMessageTextColor()) : Color.parseColor(alCustomizationSettings.getReceivedMessageTextColor()));
 

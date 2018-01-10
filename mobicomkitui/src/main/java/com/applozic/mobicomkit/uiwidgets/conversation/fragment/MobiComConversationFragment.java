@@ -463,6 +463,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageEditText.setTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextTextColor()));
 
         messageEditText.setHintTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextHintTextColor()));
+        if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+            messageEditText.setLongClickable(false);
+        }
 
         if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
             messageEditText.setLongClickable(false);
@@ -1189,7 +1192,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     emptyTextView.setVisibility(View.GONE);
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
-                    if (Message.MessageType.MT_INBOX.getValue().equals(message.getType()) && (channel == null || !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
+                    if (Message.MessageType.MT_INBOX.getValue().equals(message.getType()) && (channel != null)) {
                         try {
                             messageUnreadCount += 1;
                             messageUnreadCountTextView.setVisibility(VISIBLE);
@@ -3238,7 +3241,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     nextMessageList = conversationService.getMessages(lastConversationloadTime + 1L, null, contact, channel, conversationId);
                 } else if (firstVisibleItem == 1 && loadMore && !messageList.isEmpty()) {
                     loadMore = false;
-                    Log.i(TAG+"2",String.valueOf(loadMore));
+                    Log.i(TAG + "2", String.valueOf(loadMore));
                     Long endTime = null;
                     for (Message message : messageList) {
                         if (message.isTempDateType()) {
@@ -3420,7 +3423,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             }
             loadMore = !nextMessageList.isEmpty();
-            Log.i(TAG+"3",String.valueOf(loadMore));
+            Log.i(TAG + "3", String.valueOf(loadMore));
         }
 
     }
