@@ -28,10 +28,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -107,10 +111,13 @@ import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTas
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ContextMenuRecyclerView;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
+import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
@@ -192,7 +199,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected String filePath;
     protected boolean firstTimeMTexterFriend;
     protected MessageCommunicator messageCommunicator;
-    protected ConversationListView listView = null;
+    //protected ConversationListView listView = null;
     protected List<Message> messageList = new ArrayList<Message>();
     protected DetailedConversationAdapter conversationAdapter = null;
     protected Drawable sentIcon;
@@ -256,6 +263,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private EditText errorEditTextView;
     private ImageView audioRecordIconImageView;
     WeakReference<ImageButton> recordButtonWeakReference;
+    ContextMenuRecyclerView recyclerView;
+    RecyclerViewPositionHelper recyclerViewPositionHelper;
+    protected LinearLayoutManager linearLayoutManager;
+    int positionInSmsList;
+    QuickConversationAdapter recyclerQuickConversationAdapter;
+    DetailedConversationAdapter recyclerDetailConversationAdapter;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -308,9 +321,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
-        listView = (ConversationListView) list.findViewById(R.id.messageList);
+        recyclerView = (ContextMenuRecyclerView) list.findViewById(R.id.messageList);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerViewPositionHelper = new RecyclerViewPositionHelper(recyclerView, linearLayoutManager);
         ((ConversationActivity) getActivity()).setChildFragmentLayoutBGToTransparent();
-        listView.setDivider(null);
+        //listView.setDivider(null);
         messageList = new ArrayList<Message>();
         multimediaPopupGrid = (GridView) list.findViewById(R.id.mobicom_multimedia_options1);
 
@@ -361,7 +378,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if (messageList != null) {
                             messageList.clear();
                         }
-                        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel, conversation.getId());
+                        downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversation.getId());
                         downloadConversation.execute();
                     }
                 }
@@ -391,11 +408,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
         emptyTextView.setTextColor(Color.parseColor(alCustomizationSettings.getNoConversationLabelTextColor().trim()));
         emoticonsBtn.setOnClickListener(this);
-        listView.addHeaderView(spinnerLayout);
+        //listView.addHeaderView(spinnerLayout);
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
         deliveredIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
 
-        listView.setLongClickable(true);
+        //listView.setLongClickable(true);
 
         recordButton.setVisibility(alCustomizationSettings.isRecordButton() ? View.VISIBLE : View.GONE);
         sendButton.setVisibility(alCustomizationSettings.isRecordButton() ? View.GONE : View.VISIBLE);
@@ -438,7 +455,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        listView.setMessageEditText(messageEditText);
+        //listView.setMessageEditText(messageEditText);
 
         ArrayAdapter<CharSequence> sendTypeAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.send_type_options, R.layout.mobiframework_custom_spinner);
@@ -689,7 +706,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                           public void onClick(View view) {
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
-                                              if(contact != null && !contact.isBlocked() || channel != null){
+                                              if (contact != null && !contact.isBlocked() || channel != null) {
                                                   handleSendAndRecordButtonView(false);
                                               }
                                           }
@@ -708,26 +725,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-                                         @Override
-                                         public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-                                             if (conversationAdapter != null) {
-                                                 conversationAdapter.contactImageLoader.setPauseWork(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING);
-                                             }
-                                         }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (recyclerDetailConversationAdapter != null) {
+                    recyclerDetailConversationAdapter.contactImageLoader.setPauseWork(newState == ContextMenuRecyclerView.SCROLL_STATE_DRAGGING);
+                }
+            }
 
-                                         @Override
-                                         public void onScroll(AbsListView view, int firstVisibleItem, int amountVisible,
-                                                              int totalItems) {
-                                             if (loadMore) {
-                                                 int topRowVerticalPosition =
-                                                         (listView == null || listView.getChildCount() == 0) ?
-                                                                 0 : listView.getChildAt(0).getTop();
-                                                 swipeLayout.setEnabled(topRowVerticalPosition >= 0);
-                                             }
-                                         }
-                                     }
-        );
+            @Override
+            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+                //super.onScrolled(recyclerView, dx, dy);
+                if (loadMore) {
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                                    0 : recyclerView.getChildAt(0).getTop();
+                    swipeLayout.setEnabled(topRowVerticalPosition >= 0);
+                }
+            }
+        });
 
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -770,6 +786,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         });
+        recyclerView.setLongClickable(true);
         //Adding fragment for emoticons...
 //        //Fragment emojiFragment = new EmojiconsFragment(this, this);
 //        Fragment emojiFragment = new EmojiconsFragment();
@@ -812,7 +829,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public void onLongPress(MotionEvent event) {
-        if(contact != null && contact.isBlocked()){
+        if (contact != null && contact.isBlocked()) {
             userBlockDialog(false, contact, false);
             return;
         }
@@ -918,7 +935,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                             }
                         });
-                alertDialog.setTitle(alCustomizationSettings.getRestrictedWordMessage());
+                alertDialog.setTitle(!TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordMessage()) ? alCustomizationSettings.getRestrictedWordMessage() : getResources().getString(R.string.restricted_words_are_not_allowed));
                 alertDialog.setCancelable(true);
                 alertDialog.create().show();
 
@@ -968,7 +985,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         messageDatabaseService.deleteScheduledMessage(messageKeyString);
                     }
                     messageList.remove(position);
-                    conversationAdapter.notifyDataSetChanged();
+                    recyclerDetailConversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(VISIBLE);
                         ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
@@ -1037,9 +1054,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (conversationAdapter != null) {
+                if (recyclerDetailConversationAdapter != null) {
                     messageList.clear();
-                    conversationAdapter.notifyDataSetChanged();
+                    if (messageList.isEmpty()) {
+                        emptyTextView.setVisibility(View.VISIBLE);
+                    }
+                    recyclerDetailConversationAdapter.notifyDataSetChanged();
                 }
                 if (applozicContextSpinnerAdapter != null) {
                     contextFrameLayout.setVisibility(View.GONE);
@@ -1055,7 +1075,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 //Note: Removing and adding the same message again as the new sms object will contain the keyString.
                 messageList.remove(message);
                 messageList.add(message);
-                conversationAdapter.notifyDataSetChanged();
+                recyclerDetailConversationAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -1068,9 +1088,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 boolean added = updateMessageList(message, false);
                 if (added) {
                     //Todo: update unread count
-                    conversationAdapter.notifyDataSetChanged();
-                    listView.smoothScrollToPosition(messageList.size());
-                    listView.setSelection(messageList.size());
+                    linearLayoutManager.setStackFromEnd(true);
+                    recyclerDetailConversationAdapter.notifyDataSetChanged();
+                    linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                     emptyTextView.setVisibility(View.GONE);
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
@@ -1101,8 +1121,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (view.getId() == R.id.messageList) {
             menu.setHeaderTitle(R.string.messageOptions);
 
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            int positionInSmsList = info.position - 1;
+            positionInSmsList = ((ContextMenuRecyclerView.RecyclerViewContextMenuInfo) menuInfo).position;
             if (positionInSmsList < 0 || messageList.isEmpty()) {
                 return;
             }
@@ -1147,7 +1166,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (menuItems[i].equals(getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
-                if (menuItems[i].equals(getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || !(new File(message.getFilePaths().get(0)).exists()))) {
+                if (menuItems[i].equals(getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || (message.getFilePaths() != null && !(new File(message.getFilePaths().get(0)).exists())))) {
                     continue;
                 }
 
@@ -1187,6 +1206,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.video_call).setVisible(false);
             menu.findItem(R.id.dial).setVisible(false);
         }
+
         if (channel != null) {
             menu.findItem(R.id.dial).setVisible(false);
             menu.findItem(R.id.video_call).setVisible(false);
@@ -1276,7 +1296,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (contact != null) {
                 if (contact.isBlocked()) {
                     userBlockDialog(false, contact, false);
-                }   else {
+                } else {
                     ((ConversationActivity) getActivity()).processVideoCall(contact, currentConversationId);
                 }
             }
@@ -1336,7 +1356,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         setContact(contact);
         setChannel(channel);
 
-        unregisterForContextMenu(listView);
+        unregisterForContextMenu(recyclerView);
         clearList();
         updateTitle();
         swipeLayout.setEnabled(true);
@@ -1346,17 +1366,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         if (contact != null) {
-            conversationAdapter = new DetailedConversationAdapter(getActivity(),
+            recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
-            conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
+            recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
         } else if (channel != null) {
-            conversationAdapter = new DetailedConversationAdapter(getActivity(),
+            recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
-            conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
+            recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
         }
-        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        listView.setAdapter(conversationAdapter);
-        registerForContextMenu(listView);
+        //  listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        linearLayoutManager.setSmoothScrollbarEnabled(true);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                linearLayoutManager.setStackFromEnd(true);
+                //recyclerView.smoothScrollToPosition(messageList.size());
+            }
+        });
+        recyclerView.setAdapter(recyclerDetailConversationAdapter);
+        registerForContextMenu(recyclerView);
 
         processMobiTexterUserCheck();
 
@@ -1374,7 +1402,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             notificationManager.cancel(String.valueOf(channel.getKey()).hashCode());
         }
 
-        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel, conversationId);
+        downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
         AsyncTaskCompat.executeParallel(downloadConversation);
 
          /*  if (contact != null && support.isSupportNumber(contact.getFormattedContactNumber())) {
@@ -1576,7 +1604,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         int i = messageList.indexOf(message);
         if (i != -1) {
             messageList.get(i).setCanceled(true);
-            conversationAdapter.notifyDataSetChanged();
+            recyclerDetailConversationAdapter.notifyDataSetChanged();
         }
 
     }
@@ -1587,8 +1615,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void run() {
                 int index = messageList.indexOf(message);
                 if (index != -1) {
-                    View view = listView.getChildAt(index -
-                            listView.getFirstVisiblePosition() + 1);
+                    View view = recyclerView.getChildAt(index -
+                            linearLayoutManager.findFirstVisibleItemPosition());
 
                     if (view != null) {
                         final LinearLayout attachmentDownloadLayout = (LinearLayout) view.findViewById(R.id.attachment_download_layout);
@@ -1628,8 +1656,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             message.setStatus(Message.Status.DELIVERED_AND_READ.getValue());
                         }
-                        View view = listView.getChildAt(index -
-                                listView.getFirstVisiblePosition() + 1);
+                        View view = recyclerView.getChildAt(index -
+                                linearLayoutManager.findFirstVisibleItemPosition());
                         if (view != null && !message.isCustom() && !message.isChannelCustomMessage()) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             TextView status = (TextView) view.findViewById(R.id.status);
@@ -1659,8 +1687,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                         messageList.get(index).setDelivered(true);
                         messageList.get(index).setStatus(message.getStatus());
-                        View view = listView.getChildAt(index -
-                                listView.getFirstVisiblePosition() + 1);
+                        View view = recyclerView.getChildAt(index -
+                                linearLayoutManager.findFirstVisibleItemPosition());
                         if (view != null && !messageList.get(index).isCustom()) {
                             TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                             /*TextView status = (TextView) view.findViewById(R.id.status);
@@ -1674,10 +1702,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     } else if (!message.isVideoNotificationMessage() && !message.isHidden()) {
                         messageList.add(message);
-                        listView.smoothScrollToPosition(messageList.size());
-                        listView.setSelection(messageList.size());
+                        linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                         emptyTextView.setVisibility(View.GONE);
-                        conversationAdapter.notifyDataSetChanged();
+                        recyclerDetailConversationAdapter.notifyDataSetChanged();
                     }
                 } catch (Exception ex) {
                     Utils.printLog(getContext(), TAG, "Exception while updating delivery status in UI.");
@@ -1711,7 +1738,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
             Long fileSize = returnCursor.getLong(sizeIndex);
-            int maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
+            long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
             if (fileSize > maxFileSize) {
                 Toast.makeText(getActivity(), R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
                 return;
@@ -1740,6 +1767,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public synchronized boolean updateMessageList(Message message, boolean update) {
         boolean toAdd = !messageList.contains(message);
+        loadMore = true;
         if (update) {
             messageList.remove(message);
             messageList.add(message);
@@ -1813,20 +1841,24 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void onClickOnMessageReply(Message message) {
         if (message != null) {
-            if (listView != null) {
-                int height = listView.getHeight();
-                int itemHeight = listView.getChildAt(0).getHeight();
+            if (recyclerView != null) {
+                int height = recyclerView.getHeight();
+                int itemHeight = recyclerView.getChildAt(0).getHeight();
                 int index = messageList.indexOf(message);
                 if (index != -1) {
-                    listView.requestFocusFromTouch();
-                    ((ListView) listView).setSelectionFromTop(index + 1, height / 2 - itemHeight / 2);
-                    listView.postDelayed(new Runnable() {
+                    recyclerView.requestFocusFromTouch();
+                    linearLayoutManager.setStackFromEnd(true);
+                    //recyclerView.smoothScrollBy(0, height / 2 - itemHeight / 2);
+                    //recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, new RecyclerView.State(), index);
+                    linearLayoutManager.scrollToPositionWithOffset(index, height / 2 - itemHeight / 2);
+                    //((ListView) listView).setSelectionFromTop(index + 1, height / 2 - itemHeight / 2);
+                    recyclerView.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (listView != null) {
+                            if (recyclerView != null) {
                                 try {
-                                    if (listView.isFocused()) {
-                                        listView.clearFocus();
+                                    if (recyclerView.isFocused()) {
+                                        recyclerView.clearFocus();
                                     }
                                 } catch (Exception e) {
                                 }
@@ -1902,6 +1934,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         attachmentLayout.setVisibility(View.GONE);
         filePath = null;
+        this.messageMetaData = null;
     }
 
 
@@ -2107,7 +2140,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         messageList.get(index).setFileMetaKeyStrings(message.getFileMetaKeyStrings());
                         messageList.get(index).setFileMetas(message.getFileMetas());
                     }
-                    View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
+                    View view = recyclerView.getChildAt(index - linearLayoutManager.findFirstVisibleItemPosition());
                     if (view != null) {
                         ProgressBar mediaUploadProgressBarIndividualMessage = (ProgressBar) view.findViewById(R.id.media_upload_progress_bar);
                         RelativeLayout downloadInProgressLayout = (RelativeLayout) view.findViewById(R.id.applozic_doc_download_progress_rl);
@@ -2162,7 +2195,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             messageList.get(index).setKeyString(message.getKeyString());
                             messageList.get(index).setFileMetaKeyStrings(message.getFileMetaKeyStrings());
                         }
-                        View view = listView.getChildAt(index - listView.getFirstVisiblePosition() + 1);
+                        View view = recyclerView.getChildAt(index - linearLayoutManager.findFirstVisibleItemPosition());
                         if (view != null) {
                             final RelativeLayout attachmentDownloadProgressLayout = (RelativeLayout) view.findViewById(R.id.attachment_download_progress_layout);
                             final AttachmentView attachmentView = (AttachmentView) view.findViewById(R.id.main_attachment_view);
@@ -2326,8 +2359,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
         intent.putExtra(ApplozicMqttIntentService.UN_SUBSCRIBE_TO_TYPING, true);
         getActivity().startService(intent);
-        if (conversationAdapter != null) {
-            conversationAdapter.contactImageLoader.setPauseWork(false);
+        if (recyclerDetailConversationAdapter != null) {
+            recyclerDetailConversationAdapter.contactImageLoader.setPauseWork(false);
         }
     }
 
@@ -2390,8 +2423,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int position = info.position - 1;
+        int position = positionInSmsList;
         if (messageList.size() <= position) {
             return true;
         }
@@ -2641,7 +2673,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
-                downloadConversation = new DownloadConversation(listView, false, 1, 1, 1, contact, channel, currentConversationId);
+                downloadConversation = new DownloadConversation(recyclerView, false, 1, 1, 1, contact, channel, currentConversationId);
                 AsyncTaskCompat.executeParallel(downloadConversation);
             }
         });
@@ -2730,7 +2762,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void loadnewMessageOnResume(Contact contact, Channel channel, Integer conversationId) {
-        downloadConversation = new DownloadConversation(listView, true, 1, 0, 0, contact, channel, conversationId);
+        downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
         downloadConversation.execute();
     }
 
@@ -2926,7 +2958,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
-        private AbsListView view;
+        //private AbsListView view;
+        private RecyclerView recyclerView;
+        //private QuickConversationAdapter recyclerAdapter;
         private int firstVisibleItem;
         private int amountVisible;
         private int totalItems;
@@ -2937,8 +2971,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private List<Conversation> conversationList;
         private List<Message> nextMessageList = new ArrayList<Message>();
 
-        public DownloadConversation(AbsListView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel, Integer conversationId) {
-            this.view = view;
+        public DownloadConversation(RecyclerView recyclerView, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel, Integer conversationId) {
+            this.recyclerView = recyclerView;
             this.initial = initial;
             this.firstVisibleItem = firstVisibleItem;
             this.amountVisible = amountVisible;
@@ -3081,7 +3115,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             });
             if (nextMessageList.isEmpty()) {
-                listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+                linearLayoutManager.setStackFromEnd(true);
             }
             //Note: This is done to avoid duplicates with same timestamp entries
             if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
@@ -3100,28 +3134,27 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (initial) {
                 messageList.addAll(nextMessageList);
-                conversationAdapter.searchString = searchString;
+                recyclerDetailConversationAdapter.searchString = searchString;
                 emptyTextView.setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
                 if (!messageList.isEmpty()) {
-                    listView.post(new Runnable() {
+                    recyclerView.post(new Runnable() {
                         @Override
                         public void run() {
                             if (!TextUtils.isEmpty(searchString)) {
-                                int height = listView.getHeight();
-                                int itemHeight = listView.getChildAt(0).getHeight();
-                                listView.requestFocusFromTouch();
-                                ((ListView) listView).setSelectionFromTop(ScrollToFirstSearchIndex() + 1, height / 2 - itemHeight / 2);
+                                int height = recyclerView.getHeight();
+                                int itemHeight = recyclerView.getChildAt(0).getHeight();
+                                recyclerView.requestFocusFromTouch();
+                                recyclerView.scrollTo(ScrollToFirstSearchIndex() + 1, height / 2 - itemHeight / 2);
                             } else {
-                                listView.setSelection(messageList.size() - 1);
-
+                                linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                             }
                         }
                     });
                 }
             } else if (!nextMessageList.isEmpty()) {
-                listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_DISABLED);
+                linearLayoutManager.setStackFromEnd(true);
                 messageList.addAll(0, nextMessageList);
-                listView.setSelection(nextMessageList.size());
+                linearLayoutManager.scrollToPositionWithOffset(nextMessageList.size() - 1, 0);
             }
 
             conversationService.read(contact, channel);
@@ -3158,8 +3191,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     contextSpinner.setOnItemSelectedListener(adapterView);
                 }
             }
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
+            if (recyclerDetailConversationAdapter != null) {
+                recyclerDetailConversationAdapter.notifyDataSetChanged();
             }
             swipeLayout.post(new Runnable() {
                 @Override

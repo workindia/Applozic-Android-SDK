@@ -202,7 +202,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     private void addUri(Uri uri) {
 
         attachmentFileList.add(uri);
-        Utils.printLog(MobiComAttachmentSelectorActivity.this,TAG, "attachmentFileList  :: " + attachmentFileList);
+        Utils.printLog(MobiComAttachmentSelectorActivity.this, TAG, "attachmentFileList  :: " + attachmentFileList);
 
 
     }
@@ -219,11 +219,11 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
             Uri selectedFileUri = (intent == null ? null : intent.getData());
-            Utils.printLog(MobiComAttachmentSelectorActivity.this,TAG, "selectedFileUri :: " + selectedFileUri);
-            if(selectedFileUri != null) {
+            Utils.printLog(MobiComAttachmentSelectorActivity.this, TAG, "selectedFileUri :: " + selectedFileUri);
+            if (selectedFileUri != null) {
                 String fileName = null;
                 try {
-                    int maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
+                    long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
                     Cursor returnCursor =
                             getContentResolver().query(selectedFileUri, null, null, null, null);
                     if (returnCursor != null) {
