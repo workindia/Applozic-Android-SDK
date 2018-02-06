@@ -58,7 +58,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':mobicomkitui') //Note: use this for customization
-    //compile 'com.applozic.communication.uiwidget:mobicomkitui:5.4'
+    //compile 'com.applozic.communication.uiwidget:mobicomkitui:5.5'
     compile 'com.android.support:support-v4:27.0.2'
     compile 'com.android.support:appcompat-v7:27.0.2'
     //compile 'com.facebook.android:facebook-android-sdk:4.1.0'

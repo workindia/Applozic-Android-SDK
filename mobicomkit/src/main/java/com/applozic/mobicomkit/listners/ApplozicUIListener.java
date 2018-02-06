@@ -7,7 +7,9 @@ import com.applozic.mobicomkit.api.conversation.Message;
  */
 
 public interface ApplozicUIListener {
-    void onNewMessage(Message message);
+    void onMessageSent(Message message);
+
+    void onMessageReceived(Message message);
 
     void onChannelNameUpdated();
 
@@ -38,4 +40,6 @@ public interface ApplozicUIListener {
     void onConversationRead(String userId, boolean isGroup);
 
     void onUserDetailUpdated(String userId);
+
+    void onMessageMetadataUpdated(String keyString);
 }

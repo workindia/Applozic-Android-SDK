@@ -37,14 +37,20 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
         Utils.printLog(context, TAG, "Received broadcast, action: " + action + ", message: " + message);
 
         if (message != null && !message.isSentToMany()) {
-            applozicUIListener.onNewMessage(message);
+            if (!message.isTypeOutbox()) {
+                applozicUIListener.onMessageReceived(message);
+            } else {
+                applozicUIListener.onMessageSent(message);
+            }
         } else if (message != null && message.isSentToMany() && BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(intent.getAction())) {
             for (String toField : message.getTo().split(",")) {
                 Message singleMessage = new Message(message);
                 singleMessage.setKeyString(message.getKeyString());
                 singleMessage.setTo(toField);
                 singleMessage.processContactIds(context);
-                applozicUIListener.onNewMessage(message);
+                if (!message.isTypeOutbox()) {
+                    applozicUIListener.onMessageReceived(message);
+                }
             }
         }
 
@@ -106,6 +112,8 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             applozicUIListener.onConversationRead(currentId, isGroup);
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString().equals(action)) {
             applozicUIListener.onUserDetailUpdated(intent.getStringExtra("contactId"));
+        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString().equals(action)) {
+            applozicUIListener.onMessageMetadataUpdated(keyString);
         }
     }
 }
