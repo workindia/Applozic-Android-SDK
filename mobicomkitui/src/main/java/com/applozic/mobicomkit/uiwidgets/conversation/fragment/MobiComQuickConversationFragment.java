@@ -9,14 +9,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,22 +27,17 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
-import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.LinearLayoutManager;
 
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ContextMenuRecyclerView;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecoration;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.FooterItemDecoration;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
@@ -54,7 +46,6 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
-import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.lang.ref.WeakReference;
@@ -69,7 +60,7 @@ import java.util.Map;
 public class MobiComQuickConversationFragment extends Fragment implements SearchListFragment {
 
     public static final String QUICK_CONVERSATION_EVENT = "quick_conversation";
-    protected ContextMenuRecyclerView recyclerView = null;
+    protected RecyclerView recyclerView = null;
     protected ImageButton fabButton;
     protected TextView emptyTextView;
     protected Button startNewButton;
@@ -95,8 +86,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private int startingPageIndex = 0;
     private ProgressBar progressBar;
     RecyclerViewPositionHelper recyclerViewPositionHelper;
-    LinearLayoutManager linearLayoutManager;
+    AlLinearLayoutManager linearLayoutManager;
     int position;
+    boolean isAlreadyLoading = false;
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
 
 
     public RecyclerView getRecyclerView() {
@@ -113,9 +106,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             alCustomizationSettings = new AlCustomizationSettings();
         }
         syncCallService = SyncCallService.getInstance(getActivity());
-        /*conversationAdapter = new QuickConversationAdapter(getActivity(),
-                messageList, null);
-        conversationAdapter.setAlCustomizationSettings(alCustomizationSettings);*/
         conversationUIService = new ConversationUIService(getActivity());
         baseContactService = new AppContactService(getActivity());
         messageDatabaseService = new MessageDatabaseService(getActivity());
@@ -136,18 +126,18 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                              Bundle savedInstanceState) {
         View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
 
-        recyclerView = (ContextMenuRecyclerView) list.findViewById(R.id.messageList);
+        recyclerView = (RecyclerView) list.findViewById(R.id.messageList);
         recyclerView.setBackgroundColor(getResources().getColor(R.color.conversation_list_all_background));
 
         if (messageList != null && !messageList.contains(null)) {
             messageList.add(null);
         }
         recyclerAdapter = new QuickConversationAdapter(getContext(), messageList, null);
-        recyclerAdapter.setRecyclerView(recyclerView);
+        //recyclerAdapter.setRecyclerView(recyclerView);
         recyclerAdapter.setAlCustomizationSettings(alCustomizationSettings);
 
-        linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        linearLayoutManager = new AlLinearLayoutManager(getContext());
+        linearLayoutManager.setOrientation(AlLinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext());
@@ -206,91 +196,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        position = ((ContextMenuRecyclerView.RecyclerViewContextMenuInfo) menuInfo).position;
-
-        if (messageList.size() <= position) {
-            return;
-        }
-        Message message = messageList.get(position);
-        menu.setHeaderTitle(R.string.conversation_options);
-
-        String[] menuItems = getResources().getStringArray(R.array.conversation_options_menu);
-
-        boolean isUserPresentInGroup = false;
-        boolean isChannelDeleted = false;
-        Channel channel = null;
-        if (message.getGroupId() != null) {
-            channel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
-            if (channel != null) {
-                isChannelDeleted = channel.isDeleted();
-            }
-            isUserPresentInGroup = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(message.getGroupId());
-        }
-
-        for (int i = 0; i < menuItems.length; i++) {
-
-            if ((message.getGroupId() == null || (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()))) && (menuItems[i].equals(getResources().getString(R.string.delete_group)) ||
-                    menuItems[i].equals(getResources().getString(R.string.exit_group)))) {
-                continue;
-            }
-
-            if (menuItems[i].equals(getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup)) {
-                continue;
-            }
-
-            if (menuItems[i].equals(getResources().getString(R.string.delete_group)) && (isUserPresentInGroup || !isChannelDeleted)) {
-                continue;
-            }
-            if (menuItems[i].equals(getResources().getString(R.string.delete_conversation)) && !alCustomizationSettings.isDeleteOption()) {
-                continue;
-            }
-
-            menu.add(Menu.NONE, i, i, menuItems[i]);
-        }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int position = info.position;
-        if (messageList.size() <= position) {
-            return true;
-        }
-        Message message = messageList.get(position);
-
-        Channel channel = null;
-        Contact contact = null;
-        if (message.getGroupId() != null) {
-            channel = ChannelDatabaseService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
-        } else {
-            contact = baseContactService.getContactById(message.getContactIds());
-        }
-
-        switch (item.getItemId()) {
-            case 0:
-                if (channel != null && channel.isDeleted()) {
-                    conversationUIService.deleteGroupConversation(channel);
-                } else {
-                    conversationUIService.deleteConversationThread(contact, channel);
-                }
-                break;
-            case 1:
-                conversationUIService.deleteGroupConversation(channel);
-                break;
-            case 2:
-                conversationUIService.channelLeaveProcess(channel);
-                break;
-            default:
-                return super.onContextItemSelected(item);
-        }
-        return true;
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
@@ -319,9 +224,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void addMessage(final Message message) {
-        if (getActivity() == null) {
+        if (this.getActivity() == null) {
             return;
         }
+
         final Context context = getActivity();
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -363,16 +269,16 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             return;
         }
         try {
-           this.getActivity().runOnUiThread(new Runnable() {
-               @Override
-               public void run() {
-                   if (getActivity() != null) {
-                       if (recyclerAdapter != null) {
-                           recyclerAdapter.notifyDataSetChanged();
-                       }
-                   }
-               }
-           });
+            this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (getActivity() != null) {
+                        if (recyclerAdapter != null) {
+                            recyclerAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            });
 
         } catch (Exception e) {
             Utils.printLog(getActivity(), "AL", "Exception while updating view .");
@@ -395,7 +301,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         Message message = latestMessageForEachContact.get(userId);
                         if (message != null) {
                             int index = messageList.indexOf(message);
-                            View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
+                            View view = recyclerView.getChildAt(index - linearLayoutManager.findFirstVisibleItemPosition());
                             Contact contact = baseContactService.getContactById(userId);
                             if (view != null && contact != null) {
                                 ImageView contactImage = (ImageView) view.findViewById(R.id.contactImage);
@@ -406,7 +312,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                             }
                         }
                     } catch (Exception ex) {
-                        Utils.printLog(getActivity(),"AL", "Exception while updating view .");
+                        Utils.printLog(getActivity(), "AL", "Exception while updating view .");
                     }
                 }
             });
@@ -459,6 +365,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void updateChannelName() {
+        if (this.getActivity() == null) {
+            return;
+        }
+
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -498,7 +408,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     recyclerAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(View.VISIBLE);
-                        // startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
                     }
                 }
             }
@@ -602,8 +511,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         toolbar.setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
-        latestMessageForEachContact.clear();
-        messageList.clear();
         if (recyclerView != null) {
             if (recyclerView.getChildCount() > listIndex) {
                 recyclerView.scrollToPosition(listIndex);
@@ -611,8 +518,12 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 //recyclerView.scrollToPosition(0);
             }
         }
-        downloadConversations(false, searchString);
-        if(swipeLayout!= null) {
+        if (!isAlreadyLoading) {
+            latestMessageForEachContact.clear();
+            messageList.clear();
+            downloadConversations(false, searchString);
+        }
+        if (swipeLayout != null) {
             swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 public void onRefresh() {
                     SyncMessages syncMessages = new SyncMessages();
@@ -636,8 +547,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (recyclerAdapter != null) {
-                    recyclerAdapter.contactImageLoader.setPauseWork(newState == ContextMenuRecyclerView.SCROLL_STATE_DRAGGING);
-                    recyclerAdapter.channelImageLoader.setPauseWork(newState == ContextMenuRecyclerView.SCROLL_STATE_DRAGGING);
+                    recyclerAdapter.contactImageLoader.setPauseWork(newState == RecyclerView.SCROLL_STATE_DRAGGING);
+                    recyclerAdapter.channelImageLoader.setPauseWork(newState == RecyclerView.SCROLL_STATE_DRAGGING);
                 }
 
             }
@@ -700,7 +611,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public void updateLastSeenStatus(final String userId) {
 
-        if(alCustomizationSettings == null){
+        if (alCustomizationSettings == null) {
             return;
         }
 
@@ -819,6 +730,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            isAlreadyLoading = true;
             if (loadMoreMessages) {
                 if (!messageList.contains(null)) {
                     messageList.add(null);
@@ -960,6 +872,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (!nextMessageList.isEmpty()) {
                 loadMore = true;
             }
+            isAlreadyLoading = false;
         }
     }
 

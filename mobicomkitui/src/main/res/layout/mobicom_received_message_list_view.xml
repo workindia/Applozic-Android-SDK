@@ -39,15 +39,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="59dp"
         android:layout_marginRight="59dp"
+        android:layout_marginTop="8dp"
         android:layout_toEndOf="@+id/contactImage"
         android:layout_toRightOf="@+id/contactImage"
-        android:background="@drawable/chat_received_drawable"
+        android:background="@drawable/applozic_received_message"
+        android:elevation="1dp"
         android:gravity="center_vertical"
         android:minHeight="35dp"
         android:minWidth="32dp"
-        android:elevation="1dp"
         android:orientation="vertical"
-        android:layout_marginTop="8dp"
         android:padding="5dp">
 
         <LinearLayout
@@ -57,8 +57,7 @@
             android:paddingEnd="8dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp">
+            android:paddingStart="8dp">
 
             <TextView
                 android:id="@+id/onlineTextView"

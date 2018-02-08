@@ -95,6 +95,8 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         super.onCreate(savedInstanceState);
         //FacebookSdk.sdkInitialize(this);
 
+        Applozic.init(this,getString(R.string.application_key));
+
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.layout));
         layout = (LinearLayout) findViewById(R.id.footerSnack);
@@ -230,11 +232,11 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             cancel = true;
         }
         // Check for a valid password, if the user entered one.
-        if ((TextUtils.isEmpty(mPasswordView.getText().toString()) || mPasswordView.getText().toString().trim().length() == 0) && !isPasswordValid(mPasswordView.getText().toString())) {
+       /* if ((TextUtils.isEmpty(mPasswordView.getText().toString()) || mPasswordView.getText().toString().trim().length() == 0) && !isPasswordValid(mPasswordView.getText().toString())) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
-        }
+        }*/
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {

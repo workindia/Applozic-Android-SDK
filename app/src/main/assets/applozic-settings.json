@@ -86,12 +86,12 @@
   "recordButton": true,
   "messageTemplate": {
     "isEnabled": false,
-    "borderColor": "#ffffff",
-    "backgroundColor": "#FF03A9F4",
+    "borderColor": "#FF03A9F4",
+    "backgroundColor": "#FFFFFF",
     "hideOnSend": false,
     "sendMessageOnClick": true,
-    "cornerRadius": 20,
-    "textColor": "#ffffff",
+    "cornerRadius": 12,
+    "textColor": "#FF03A9F4",
     "messageList": {
       "Greetings": "Hey",
       "Help?": "How may I help you?",

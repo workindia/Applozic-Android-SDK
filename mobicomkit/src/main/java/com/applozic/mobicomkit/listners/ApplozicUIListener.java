@@ -11,8 +11,6 @@ public interface ApplozicUIListener {
 
     void onMessageReceived(Message message);
 
-    void onChannelNameUpdated();
-
     void onLoadMore(boolean loadMore);
 
     void onMessageSync(Message message, String key);
@@ -33,9 +31,7 @@ public interface ApplozicUIListener {
 
     void onMqttDisconnected();
 
-    void onChannelSync();
-
-    void onChannelTitleUpdated();
+    void onChannelUpdated();
 
     void onConversationRead(String userId, boolean isGroup);
 

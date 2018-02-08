@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:visibility="visible">
 
-            <com.applozic.mobicomkit.uiwidgets.conversation.activity.ContextMenuRecyclerView
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/messageList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -336,50 +336,6 @@
                 android:background="@drawable/input"
                 android:orientation="vertical"
                 android:visibility="gone">
-                <!--
-                        <EditText
-                            android:id="@+id/conversation_message"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="8"
-                            android:hint="@string/enter_message_hint"
-                            android:maxLines="6"
-                            android:minLines="2"
-                            android:textColor="@color/black"
-                            android:textSize="16sp" />
-                -->
-                <EditText
-                    android:id="@+id/conversation_message"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="8"
-                    android:background="@color/apploizc_transparent_color"
-                    android:cursorVisible="true"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:maxLines="6"
-                    android:minHeight="50dp"
-                    android:minLines="2"
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/edittext_hint_color"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/audio_record_frame_layout"
-            android:layout_width="0dp"
-            android:layout_height="53dp"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="2"
-            android:background="@drawable/input"
-            android:orientation="vertical"
-            android:visibility="gone">
 
                 <include layout="@layout/reply_message_layout" />
 
@@ -538,6 +494,4 @@
             android:verticalSpacing="1dp" />
 
     </LinearLayout>
-
-
 </LinearLayout>

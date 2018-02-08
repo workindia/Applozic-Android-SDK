@@ -39,20 +39,14 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
     private ApplozicAudioManager(Context context) {
         this.context = context;
         mTelephonyMgr = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-        mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     public static ApplozicAudioManager getInstance(Context context) {
-        try {
-            if (myObj == null) {
-                myObj = new ApplozicAudioManager(context.getApplicationContext());
-            }
-            return myObj;
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (myObj == null) {
+            myObj = new ApplozicAudioManager(context.getApplicationContext());
         }
-        return null;
+        return myObj;
     }
 
     void play(final Uri uri, final ApplozicDocumentView view) {
@@ -183,17 +177,19 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
     }
 
     public void audiostop() {
-        MediaPlayer temp;
-        Iterator it = pool.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-            {
-                temp = (MediaPlayer) pair.getValue();
-                temp.stop();
-                temp.release();
+        if (pool != null) {
+            MediaPlayer temp;
+            Iterator it = pool.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                {
+                    temp = (MediaPlayer) pair.getValue();
+                    temp.stop();
+                    temp.release();
+                }
             }
+            pool.clear();
         }
-        pool.clear();
     }
 
     public String refreshAudioDuration(String filePath) {

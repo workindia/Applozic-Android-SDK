@@ -13,18 +13,19 @@ import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AlphabetIndexer;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -45,12 +46,12 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicDocumentView;
@@ -59,6 +60,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
@@ -81,12 +83,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.view.View.GONE;
-import static com.applozic.mobicomkit.uiwidgets.R.id.message;
+import static android.view.View.VISIBLE;
 
 /**
  * Created by adarsh on 4/7/15.
@@ -124,9 +125,14 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
     private TextAppearanceSpan highlightTextSpan;
     private View view;
+    private ContextMenuClickListener contextMenuClickListener;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
+    }
+
+    public void setContextMenuClickListener(ContextMenuClickListener contextMenuClickListener) {
+        this.contextMenuClickListener = contextMenuClickListener;
     }
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
@@ -192,6 +198,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         deviceTimeOffset = MobiComUserPreference.getInstance(context).getDeviceTimeOffset();
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        if (layoutInflater == null) {
+            return null;
+        }
 
         if (viewType == 2) {
             View v2 = layoutInflater.inflate(R.layout.mobicom_date_layout, parent, false);
@@ -775,12 +785,12 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
                     });
 
-                   /* myHolder.preview.setOnLongClickListener(new View.OnLongClickListener() {
+                    myHolder.preview.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
                             return false;
                         }
-                    });*/
+                    });
 
                     myHolder.attachmentView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -1254,170 +1264,220 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         }
         return false;
     }
-}
 
-class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
 
-    ImageView mapImageView;
-    RelativeLayout chatLocation;
-    TextView downloadSizeTextView;
-    AttachmentView attachmentView;
-    LinearLayout attachmentDownloadLayout;
-    ImageView preview;
-    LinearLayout attachmentRetry;
-    RelativeLayout attachmentDownloadProgressLayout;
-    RelativeLayout mainAttachmentLayout;
-    LinearLayout mainContactShareLayout;
-    ImageView videoIcon;
-    ProgressBar mediaDownloadProgressBar;
-    ProgressBar mediaUploadProgressBar;
-    ImageView attachmentIcon, shareContactImage;
-    TextView alphabeticTextView;
-    CircleImageView contactImage;
-    View messageTextLayout;
-    TextView nameTextView;
-    TextView attachedFile;
-    ImageView sentOrReceived;
-    TextView messageTextView;
-    TextView createdAtTime;
-    TextView onlineTextView;
-    TextView selfDestruct;
-    TextView deliveryStatus, shareContactName, shareContactNo, shareEmailContact;
-    LinearLayout nameTextLayout;
-    View view;
-    RelativeLayout replyRelativeLayout;
-    RelativeLayout imageViewRLayout;
-    TextView replyMessageTextView;
-    ImageView imageViewPhoto;
-    TextView replyNameTextView;
-    ImageView imageViewForAttachmentType;
-    Button addContactButton;
-    int position;
+        ImageView mapImageView;
+        RelativeLayout chatLocation;
+        TextView downloadSizeTextView;
+        AttachmentView attachmentView;
+        LinearLayout attachmentDownloadLayout;
+        ImageView preview;
+        LinearLayout attachmentRetry;
+        RelativeLayout attachmentDownloadProgressLayout;
+        RelativeLayout mainAttachmentLayout;
+        LinearLayout mainContactShareLayout;
+        ImageView videoIcon;
+        ProgressBar mediaDownloadProgressBar;
+        ProgressBar mediaUploadProgressBar;
+        ImageView attachmentIcon, shareContactImage;
+        TextView alphabeticTextView;
+        CircleImageView contactImage;
+        View messageTextLayout;
+        TextView nameTextView;
+        TextView attachedFile;
+        ImageView sentOrReceived;
+        TextView messageTextView;
+        TextView createdAtTime;
+        TextView onlineTextView;
+        TextView selfDestruct;
+        TextView deliveryStatus, shareContactName, shareContactNo, shareEmailContact;
+        LinearLayout nameTextLayout;
+        View view;
+        RelativeLayout replyRelativeLayout;
+        RelativeLayout imageViewRLayout;
+        TextView replyMessageTextView;
+        ImageView imageViewPhoto;
+        TextView replyNameTextView;
+        ImageView imageViewForAttachmentType;
+        Button addContactButton;
+        int position;
 
-    public MyViewHolder(final View customView) {
-        super(customView);
+        public MyViewHolder(final View customView) {
+            super(customView);
 
-        position = getLayoutPosition();                //   getAdapterPosition();
-        this.view = customView;
-        mapImageView = (ImageView) customView.findViewById(R.id.static_mapview);
-        chatLocation = (RelativeLayout) customView.findViewById(R.id.chat_location);
-        preview = (ImageView) customView.findViewById(R.id.preview);
-        attachmentView = (AttachmentView) customView.findViewById(R.id.main_attachment_view);
-        attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
-        downloadSizeTextView = (TextView) customView.findViewById(R.id.attachment_size_text);
-        attachmentDownloadLayout = (LinearLayout) customView.findViewById(R.id.attachment_download_layout);
-        attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);
-        attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
-        mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
-        mainContactShareLayout = (LinearLayout) customView.findViewById(R.id.contact_share_layout);
-        videoIcon = (ImageView) customView.findViewById(R.id.video_icon);
-        mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
-        mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
-        messageTextLayout = customView.findViewById(R.id.messageTextLayout);
-        createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
-        messageTextView = (TextView) customView.findViewById(message);
-        contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
-        alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
-        deliveryStatus = (TextView) customView.findViewById(R.id.status);
-        selfDestruct = (TextView) customView.findViewById(R.id.selfDestruct);
-        nameTextView = (TextView) customView.findViewById(R.id.name_textView);
-        attachedFile = (TextView) customView.findViewById(R.id.attached_file);
-        onlineTextView = (TextView) customView.findViewById(R.id.onlineTextView);
-        nameTextLayout = (LinearLayout) customView.findViewById(R.id.nameTextLayout);
-        replyRelativeLayout = (RelativeLayout) customView.findViewById(R.id.reply_message_layout);
-        imageViewRLayout = (RelativeLayout) customView.findViewById(R.id.imageViewRLayout);
-        replyMessageTextView = (TextView) customView.findViewById(R.id.messageTextView);
-        imageViewPhoto = (ImageView) customView.findViewById(R.id.imageViewForPhoto);
-        replyNameTextView = (TextView) customView.findViewById(R.id.replyNameTextView);
-        imageViewForAttachmentType = (ImageView) customView.findViewById(R.id.imageViewForAttachmentType);
+            position = getLayoutPosition();                //   getAdapterPosition();
+            this.view = customView;
+            mapImageView = (ImageView) customView.findViewById(R.id.static_mapview);
+            chatLocation = (RelativeLayout) customView.findViewById(R.id.chat_location);
+            preview = (ImageView) customView.findViewById(R.id.preview);
+            attachmentView = (AttachmentView) customView.findViewById(R.id.main_attachment_view);
+            attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
+            downloadSizeTextView = (TextView) customView.findViewById(R.id.attachment_size_text);
+            attachmentDownloadLayout = (LinearLayout) customView.findViewById(R.id.attachment_download_layout);
+            attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);
+            attachmentDownloadProgressLayout = (RelativeLayout) customView.findViewById(R.id.attachment_download_progress_layout);
+            mainAttachmentLayout = (RelativeLayout) customView.findViewById(R.id.attachment_preview_layout);
+            mainContactShareLayout = (LinearLayout) customView.findViewById(R.id.contact_share_layout);
+            videoIcon = (ImageView) customView.findViewById(R.id.video_icon);
+            mediaDownloadProgressBar = (ProgressBar) customView.findViewById(R.id.media_download_progress_bar);
+            mediaUploadProgressBar = (ProgressBar) customView.findViewById(R.id.media_upload_progress_bar);
+            messageTextLayout = customView.findViewById(R.id.messageTextLayout);
+            createdAtTime = (TextView) customView.findViewById(R.id.createdAtTime);
+            messageTextView = (TextView) customView.findViewById(R.id.message);
+            contactImage = (CircleImageView) customView.findViewById(R.id.contactImage);
+            alphabeticTextView = (TextView) customView.findViewById(R.id.alphabeticImage);
+            deliveryStatus = (TextView) customView.findViewById(R.id.status);
+            selfDestruct = (TextView) customView.findViewById(R.id.selfDestruct);
+            nameTextView = (TextView) customView.findViewById(R.id.name_textView);
+            attachedFile = (TextView) customView.findViewById(R.id.attached_file);
+            onlineTextView = (TextView) customView.findViewById(R.id.onlineTextView);
+            nameTextLayout = (LinearLayout) customView.findViewById(R.id.nameTextLayout);
+            replyRelativeLayout = (RelativeLayout) customView.findViewById(R.id.reply_message_layout);
+            imageViewRLayout = (RelativeLayout) customView.findViewById(R.id.imageViewRLayout);
+            replyMessageTextView = (TextView) customView.findViewById(R.id.messageTextView);
+            imageViewPhoto = (ImageView) customView.findViewById(R.id.imageViewForPhoto);
+            replyNameTextView = (TextView) customView.findViewById(R.id.replyNameTextView);
+            imageViewForAttachmentType = (ImageView) customView.findViewById(R.id.imageViewForAttachmentType);
 
-        shareContactImage = (ImageView) mainContactShareLayout.findViewById(R.id.contact_share_image);
-        shareContactName = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
-        shareContactNo = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
-        shareEmailContact = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_emailId);
-        addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
+            shareContactImage = (ImageView) mainContactShareLayout.findViewById(R.id.contact_share_image);
+            shareContactName = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
+            shareContactNo = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
+            shareEmailContact = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_emailId);
+            addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
 
-        customView.setOnLongClickListener(this);
+            customView.setOnCreateContextMenuListener(this);
 
-        mapImageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                customView.showContextMenu();
-                return true;
+            mapImageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
+            preview.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
+
+            attachmentView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return false;
+                }
+            });
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.setHeaderTitle(R.string.messageOptions);
+            int positionInSmsList = this.getLayoutPosition();
+
+            if (positionInSmsList < 0 || messageList.isEmpty()) {
+                return;
             }
-        });
-        preview.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                customView.showContextMenu();
-                return true;
+
+            Message message = messageList.get(positionInSmsList);
+
+            if (message.isTempDateType() || message.isCustom() || message.isChannelCustomMessage()) {
+                return;
             }
-        });
 
-        attachmentView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                customView.showContextMenu();
-                return true;
+            String[] menuItems = context.getResources().getStringArray(R.array.menu);
+
+            for (int i = 0; i < menuItems.length; i++) {
+
+                if (!(message.isGroupMessage() && message.isTypeOutbox() && message.isSentToServer()) && menuItems[i].equals(context.getResources().getString(R.string.info))) {
+                    continue;
+                }
+
+                if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue() || message.isVideoOrAudioCallMessage()) &&
+                        menuItems[i].equals(context.getResources().getString(R.string.copy))) {
+                    continue;
+                }
+
+                if (menuItems[i].equals(context.getResources().getString(R.string.forward)) && !alCustomizationSettings.isForwardOption()) {
+                    continue;
+                }
+
+                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage()) && (menuItems[i].equals(context.getResources().getString(R.string.forward)) ||
+                        menuItems[i].equals(context.getResources().getString(R.string.resend)))) {
+                    continue;
+                }
+                if (menuItems[i].equals(context.getResources().getString(R.string.resend)) && (!message.isSentViaApp() || message.isSentToServer() || message.isVideoOrAudioCallMessage())) {
+                    continue;
+                }
+
+                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
+                    continue;
+                }
+
+                if (menuItems[i].equals(context.getResources().getString(R.string.delete)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
+                    continue;
+                }
+                if (menuItems[i].equals(context.getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage())) {
+                    continue;
+                }
+                if (menuItems[i].equals(context.getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || !(new File(message.getFilePaths().get(0)).exists()))) {
+                    continue;
+                }
+
+                MenuItem item = menu.add(Menu.NONE, i, i, menuItems[i]);
+                item.setOnMenuItemClickListener(onEditMenu);
             }
-        });
+        }
 
+        private final MenuItem.OnMenuItemClickListener onEditMenu = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return contextMenuClickListener == null || contextMenuClickListener.onItemClick(getLayoutPosition(), item);
+            }
+        };
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        v.getRootView().showContextMenu();
-        return false;
-    }
-}
+    class MyViewHolder2 extends RecyclerView.ViewHolder {
+        TextView dateView;
+        TextView dayTextView;
 
-class MyViewHolder2 extends RecyclerView.ViewHolder {
-    TextView dateView;
-    TextView dayTextView;
-
-    public MyViewHolder2(View itemView) {
-        super(itemView);
-        dateView = (TextView) itemView.findViewById(R.id.chat_screen_date);
-        dayTextView = (TextView) itemView.findViewById(R.id.chat_screen_day);
-    }
-}
-
-class MyViewHolder3 extends RecyclerView.ViewHolder {
-    TextView customContentTextView;
-
-    public MyViewHolder3(View itemView) {
-        super(itemView);
-        customContentTextView = (TextView) itemView.findViewById(R.id.applozic_custom_message_layout_content);
-    }
-}
-
-class MyViewHolder4 extends RecyclerView.ViewHolder implements View.OnLongClickListener {
-    TextView channelMessageTextView;
-
-    public MyViewHolder4(View itemView) {
-        super(itemView);
-        channelMessageTextView = (TextView) itemView.findViewById(R.id.channel_message);
-        itemView.setOnLongClickListener(this);
+        public MyViewHolder2(View itemView) {
+            super(itemView);
+            dateView = (TextView) itemView.findViewById(R.id.chat_screen_date);
+            dayTextView = (TextView) itemView.findViewById(R.id.chat_screen_day);
+        }
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        v.showContextMenu();
-        return true;
+    class MyViewHolder3 extends RecyclerView.ViewHolder {
+        TextView customContentTextView;
+
+        public MyViewHolder3(View itemView) {
+            super(itemView);
+            customContentTextView = (TextView) itemView.findViewById(R.id.applozic_custom_message_layout_content);
+        }
     }
-}
 
-class MyViewHolder5 extends RecyclerView.ViewHolder {
-    TextView statusTextView;
-    TextView timeTextView;
-    TextView durationTextView;
-    ImageView imageView;
+    class MyViewHolder4 extends RecyclerView.ViewHolder {
+        TextView channelMessageTextView;
 
-    public MyViewHolder5(View itemView) {
-        super(itemView);
-        statusTextView = (TextView) itemView.findViewById(R.id.applozic_call_status);
-        timeTextView = (TextView) itemView.findViewById(R.id.applozic_call_timing);
-        durationTextView = (TextView) itemView.findViewById(R.id.applozic_call_duration);
-        imageView = (ImageView) itemView.findViewById(R.id.applozic_call_image_type);
+        public MyViewHolder4(View itemView) {
+            super(itemView);
+            channelMessageTextView = (TextView) itemView.findViewById(R.id.channel_message);
+        }
+    }
+
+    class MyViewHolder5 extends RecyclerView.ViewHolder {
+        TextView statusTextView;
+        TextView timeTextView;
+        TextView durationTextView;
+        ImageView imageView;
+
+        public MyViewHolder5(View itemView) {
+            super(itemView);
+            statusTextView = (TextView) itemView.findViewById(R.id.applozic_call_status);
+            timeTextView = (TextView) itemView.findViewById(R.id.applozic_call_timing);
+            durationTextView = (TextView) itemView.findViewById(R.id.applozic_call_duration);
+            imageView = (ImageView) itemView.findViewById(R.id.applozic_call_image_type);
+        }
     }
 }
+
