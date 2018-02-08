@@ -343,7 +343,7 @@ public class ApplozicDocumentView {
                 messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
                 Intent intent = new Intent(context, MessageIntentService.class);
                 intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-                context.startService(intent);
+                MessageIntentService.enqueueWork(context,intent,null);
                 showDownloadInProgress();
 
             }

@@ -6,11 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.v4.app.Fragment;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,7 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.LinearLayout;;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,7 +80,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     protected QuickConversationAdapter recyclerAdapter = null;
     protected boolean loadMore = false;
     protected SyncCallService syncCallService;
-    int pastVisiblesItems, visibleItemCount, totalItemCount;
     ConversationUIService conversationUIService;
     AlCustomizationSettings alCustomizationSettings;
     String searchString;
@@ -366,11 +363,17 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             return;
         }
         try {
-            if (getActivity() != null) {
-                if (recyclerAdapter != null) {
-                    recyclerAdapter.notifyDataSetChanged();
-                }
-            }
+           this.getActivity().runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                   if (getActivity() != null) {
+                       if (recyclerAdapter != null) {
+                           recyclerAdapter.notifyDataSetChanged();
+                       }
+                   }
+               }
+           });
+
         } catch (Exception e) {
             Utils.printLog(getActivity(), "AL", "Exception while updating view .");
         }
@@ -392,17 +395,18 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         Message message = latestMessageForEachContact.get(userId);
                         if (message != null) {
                             int index = messageList.indexOf(message);
-                            View view = recyclerView.getChildAt(index - linearLayoutManager.findFirstVisibleItemPosition());
+                            View view = listView.getChildAt(index - listView.getFirstVisiblePosition());
                             Contact contact = baseContactService.getContactById(userId);
                             if (view != null && contact != null) {
                                 ImageView contactImage = (ImageView) view.findViewById(R.id.contactImage);
                                 TextView displayNameTextView = (TextView) view.findViewById(R.id.smReceivers);
                                 displayNameTextView.setText(contact.getDisplayName());
                                 recyclerAdapter.contactImageLoader.loadImage(contact, contactImage);
+                                recyclerAdapter.notifyDataSetChanged();
                             }
                         }
                     } catch (Exception ex) {
-                        Utils.printLog(getActivity(), "AL", "Exception while updating view .");
+                        Utils.printLog(getActivity(),"AL", "Exception while updating view .");
                     }
                 }
             });
@@ -608,12 +612,14 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             }
         }
         downloadConversations(false, searchString);
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            public void onRefresh() {
-                SyncMessages syncMessages = new SyncMessages();
-                syncMessages.execute();
-            }
-        });
+        if(swipeLayout!= null) {
+            swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                public void onRefresh() {
+                    SyncMessages syncMessages = new SyncMessages();
+                    syncMessages.execute();
+                }
+            });
+        }
     }
 
     @Override
@@ -666,12 +672,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
                         downloadConversation.setTextViewWeakReference(emptyTextView);
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-                        AsyncTaskCompat.executeParallel(downloadConversation);
+                        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         loading = true;
                         loadMore = false;
                     }
                 }
-
             }
         });
     }
@@ -687,7 +692,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
         downloadConversation.setTextViewWeakReference(emptyTextView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-        AsyncTaskCompat.executeParallel(downloadConversation);
+        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         if (recyclerAdapter != null) {
             recyclerAdapter.searchString = searchString;
         }
@@ -695,7 +700,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public void updateLastSeenStatus(final String userId) {
 
-        if (alCustomizationSettings == null) {
+        if(alCustomizationSettings == null){
             return;
         }
 
@@ -804,8 +809,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             this.totalItems = totalItems;
             this.showInstruction = showInstruction;
             this.searchString = searchString;
-
-
         }
 
         public DownloadConversation(RecyclerView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems) {
@@ -835,7 +838,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         });
                     }
                 }
-
             }
         }
 

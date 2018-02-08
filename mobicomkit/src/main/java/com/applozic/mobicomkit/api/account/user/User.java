@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.account.user;
 import com.applozic.mobicommons.json.JsonMarker;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by devashish on 22/12/14.
@@ -24,12 +25,16 @@ public class User extends JsonMarker {
     private Short deviceType;
     private String imageLink;
     private boolean enableEncryption;
+    private Short pushNotificationFormat;
     private Short authenticationTypeId = AuthenticationType.CLIENT.getValue();
     private String displayName;
     private String appModuleName;
     private Short userTypeId;
     private List<String> features;
     private String notificationSoundFilePath;
+    private Long lastMessageAtTime;
+    private Map<String, String> metadata;
+    private Short roleType = RoleType.USER_ROLE.getValue();
 
     public List<String> getFeatures() {
         return features;
@@ -199,6 +204,38 @@ public class User extends JsonMarker {
         this.notificationSoundFilePath = notificationSoundFilePath;
     }
 
+    public Short getPushNotificationFormat() {
+        return pushNotificationFormat;
+    }
+
+    public void setPushNotificationFormat(Short pushNotificationFormat) {
+        this.pushNotificationFormat = pushNotificationFormat;
+    }
+
+    public Long getLastMessageAtTime() {
+        return lastMessageAtTime;
+    }
+
+    public void setLastMessageAtTime(Long lastMessageAtTime) {
+        this.lastMessageAtTime = lastMessageAtTime;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
+
+    public void setRoleType(Short roleType) {
+        this.roleType = roleType;
+    }
+
+    public Short getRoleType() {
+        return roleType;
+    }
+
     public enum AuthenticationType {
 
         CLIENT(Short.valueOf("0")), APPLOZIC(Short.valueOf("1")), FACEBOOK(Short.valueOf("2"));
@@ -220,6 +257,48 @@ public class User extends JsonMarker {
 
         Features(String c) {
             value = c;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public enum RoleType {
+        BOT(Short.valueOf("1")),
+        APPLICATION_ADMIN(Short.valueOf("2")),
+        USER_ROLE(Short.valueOf("3")),
+        ADMIN_ROLE(Short.valueOf("4")),
+        BUSINESS(Short.valueOf("5")),
+        APPLICATION_BROADCASTER(Short.valueOf("6")),
+        SUPPORT(Short.valueOf("7")),
+        AGENT(Short.valueOf("8"));
+
+        private Short value;
+
+        RoleType(Short r) {
+            value = r;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
+    public enum RoleName {
+        BOT("BOT"),
+        APPLICATION_ADMIN("APPLICATION_ADMIN"),
+        USER("USER"),
+        ADMIN("ADMIN"),
+        BUSINESS("BUSINESS"),
+        APPLICATION_BROADCASTER("APPLICATION_BROADCASTER"),
+        SUPPORT("SUPPORT"),
+        APPLICATION_WEB_ADMIN("APPLICATION_WEB_ADMIN");
+
+        private String value;
+
+        RoleName(String r) {
+            value = r;
         }
 
         public String getValue() {

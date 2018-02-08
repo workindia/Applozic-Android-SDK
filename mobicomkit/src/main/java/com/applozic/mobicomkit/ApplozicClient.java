@@ -33,6 +33,12 @@ public class ApplozicClient {
     private static final String SHOW_MY_CONTACT_ONLY = "SHOW_MY_CONTACT_ONLY";
     private static final String START_GROUP_OF_TWO = "START_GROUP_OF_TWO";
     private static final String AL_SHOW_APP_ICON = "AL_SHOW_APP_ICON";
+    private static String NOTIFICATION_STACKING = "NOTIFICATION_STACKING";
+    private static final String BADGE_COUNT_ENABLE = "BADGE_COUNT_ENABLE";
+    private static String vibration_notification = "vibration_notification";
+    private static final String CUSTOM_STORAGE_SERVICE_ENABLED = "CUSTOM_STORAGE_SERVICE_ENABLED";
+    private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
+
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -219,6 +225,53 @@ public class ApplozicClient {
 
     public boolean isShowAppIconInNotification() {
         return sharedPreferences.getBoolean(AL_SHOW_APP_ICON, false);
+    }
+
+
+    public boolean isNotificationStacking() {
+        return sharedPreferences.getBoolean(NOTIFICATION_STACKING, false);
+    }
+
+    public void setNotificationStacking(boolean enableOrDisable) {
+        sharedPreferences.edit().putBoolean(NOTIFICATION_STACKING, enableOrDisable).commit();
+    }
+
+
+    public ApplozicClient enableShowUnreadCountBadge() {
+        sharedPreferences.edit().putBoolean(BADGE_COUNT_ENABLE, true).commit();
+        return this;
+    }
+
+    public boolean isUnreadCountBadgeEnabled() {
+        return sharedPreferences.getBoolean(BADGE_COUNT_ENABLE, false);
+
+    }
+
+    public boolean getVibrationOnNotification() {
+        return sharedPreferences.getBoolean(vibration_notification, false);
+    }
+
+    public void setVibrationOnNotification(boolean enable) {
+        sharedPreferences.edit().putBoolean(vibration_notification, enable).commit();
+    }
+
+
+    public ApplozicClient enableCustomStorageService() {
+        sharedPreferences.edit().putBoolean(CUSTOM_STORAGE_SERVICE_ENABLED, true).commit();
+        return this;
+    }
+
+    public boolean isCustomStorageServiceEnabled() {
+        return sharedPreferences.getBoolean(CUSTOM_STORAGE_SERVICE_ENABLED, false);
+    }
+
+    public ApplozicClient setStorageServiceEnabled(boolean enable) {
+        sharedPreferences.edit().putBoolean(STORAGE_SERVICE_ENABLE, enable).commit();
+        return this;
+    }
+
+    public boolean isStorageServiceEnabled() {
+        return sharedPreferences.getBoolean(STORAGE_SERVICE_ENABLE, false);
     }
 
 }

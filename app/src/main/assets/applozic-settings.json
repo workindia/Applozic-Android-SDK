@@ -37,6 +37,7 @@
   "maxAttachmentAllowed": 10,
   "maxAttachmentSizeAllowed": 30,
   "totalOnlineUsers": 0,
+  "defaultGroupType": 2,
   "conversationContactImageVisibility": false,
   "locationShareViaMap": true,
   "startNewFloatingButton": false,
@@ -65,6 +66,7 @@
   "deleteOption": true,
   "blockOption": true,
   "muteOption": true,
+  "muteUserChatOption": true,
   "replyOption": true,
   "logoutOption": false,
   "logoutPackageName": "",
@@ -76,11 +78,69 @@
     ":video": true,
     ":contact": true
   },
-  "editTextHintText:":"Write a Message..",
-  "replyMessageLayoutSentMessageBackground":"#C0C0C0",
-  "replyMessageLayoutReceivedMessageBackground":"#F5F5F5",
-  "groupInfoScreenVisible":true,
-  "forwardOption":true,
-  "recordButton":true
-
+  "editTextHintText:": "Write a Message..",
+  "replyMessageLayoutSentMessageBackground": "#C0C0C0",
+  "replyMessageLayoutReceivedMessageBackground": "#F5F5F5",
+  "groupInfoScreenVisible": true,
+  "forwardOption": true,
+  "recordButton": true,
+  "messageTemplate": {
+    "isEnabled": false,
+    "borderColor": "#ffffff",
+    "backgroundColor": "#FF03A9F4",
+    "hideOnSend": false,
+    "sendMessageOnClick": true,
+    "cornerRadius": 20,
+    "textColor": "#ffffff",
+    "messageList": {
+      "Greetings": "Hey",
+      "Help?": "How may I help you?",
+      "Email-Id": "May I know your emailId",
+      "Company": "May I know your company name?",
+      "Platform?": "Is this related to Android, iOS, or web?",
+      "Doc?": "Did you follow our doc?"
+    },
+    "textMessageList": {
+      "showOnSenderSide": false,
+      "showOnReceiverSide": false,
+      "sendMessageOnClick": false,
+      "messageList": {
+      }
+    },
+    "imageMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": {
+      }
+    },
+    "videoMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": {
+      }
+    },
+    "audioMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": {
+      }
+    },
+    "locationMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": {
+      }
+    },
+    "contactMessageList": {
+      "showOnSenderSide": false,
+      "sendMessageOnClick": false,
+      "showOnReceiverSide": false,
+      "messageList": {
+      }
+    }
+  }
 }

@@ -3,11 +3,12 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -16,11 +17,14 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
+import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ChannelFeed;
+import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -52,6 +56,12 @@ public class MobiComConversationService {
     private BaseContactService baseContactService;
     private ConversationService conversationService;
     private ChannelService channelService;
+    public static final int UPLOAD_STARTED = 1;
+    public static final int UPLOAD_PROGRESS = 2;
+    public static final int UPLOAD_CANCELLED = 3;
+    public static final int UPLOAD_COMPLETED = 4;
+    public static final int MESSAGE_SENT = 5;
+
 
     public MobiComConversationService(Context context) {
         this.context = context;
@@ -64,13 +74,46 @@ public class MobiComConversationService {
     }
 
     public void sendMessage(Message message) {
-        sendMessage(message, MessageIntentService.class);
+        sendMessage(message, null, MessageIntentService.class);
+    }
+
+    public void sendMessage(Message message, final MediaUploadProgressHandler progressHandler, Class messageIntentClass) {
+        Intent intent = new Intent(context, messageIntentClass);
+        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+
+        Handler handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(android.os.Message message) {
+                handleState(message, progressHandler);
+                return true;
+            }
+        });
+
+        MessageIntentService.enqueueWork(context, intent, handler);
     }
 
     public void sendMessage(Message message, Class messageIntentClass) {
         Intent intent = new Intent(context, messageIntentClass);
         intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        context.startService(intent);
+        MessageIntentService.enqueueWork(context, intent, null);
+    }
+
+    public void sendMessage(Message message, MediaUploadProgressHandler handler) {
+        if (message == null) {
+            return;
+        }
+
+        ApplozicException e = null;
+
+        if (!message.hasAttachment()) {
+            e = new ApplozicException("Message does not have any attachment");
+            if (handler != null) {
+                handler.onUploadStarted(e);
+                handler.onProgressUpdate(0, e);
+                handler.onCancelled(e);
+            }
+        }
+        sendMessage(message, handler, MessageIntentService.class);
     }
 
     public List<Message> getLatestMessagesGroupByPeople() {
@@ -110,14 +153,14 @@ public class MobiComConversationService {
         if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
                 (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
                 || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
-            Utils.printLog(context,TAG, "cachedMessageList size is : " + cachedMessageList.size());
+            Utils.printLog(context, TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
 
         String data;
         try {
             data = messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead);
-            Utils.printLog(context,TAG, "Received response from server for Messages: " + data);
+            Utils.printLog(context, TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
             return cachedMessageList;
@@ -168,7 +211,7 @@ public class MobiComConversationService {
 
             if (messages != null && messages.length > 0 && cachedMessageList.size() > 0 && cachedMessageList.get(0).isLocalMessage()) {
                 if (cachedMessageList.get(0).equals(messages[0])) {
-                    Utils.printLog(context,TAG, "Both messages are same.");
+                    Utils.printLog(context, TAG, "Both messages are same.");
                     deleteMessage(cachedMessageList.get(0));
                 }
             }
@@ -287,6 +330,9 @@ public class MobiComConversationService {
             }
             contact.setUserTypeId(userDetail.getUserTypeId());
             contact.setDeletedAtTime(userDetail.getDeletedAtTime());
+            contact.setRoleType(userDetail.getRoleType());
+            contact.setMetadata(userDetail.getMetadata());
+            contact.setLastMessageAtTime(userDetail.getLastMessageAtTime());
             if (newContact != null) {
                 if (newContact.isConnected() != contact.isConnected()) {
                     BroadcastService.sendUpdateLastSeenAtTimeBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_LAST_SEEN_AT_TIME.toString(), contact.getContactIds());
@@ -334,7 +380,7 @@ public class MobiComConversationService {
         if (contact == null && channel == null) {
             return;
         }
-        Utils.printLog(context,TAG, "updating server call to true");
+        Utils.printLog(context, TAG, "updating server call to true");
         sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
     }
 
@@ -453,6 +499,9 @@ public class MobiComConversationService {
                 contact.setUserTypeId(userDetail.getUserTypeId());
                 contact.setImageURL(userDetail.getImageLink());
                 contact.setDeletedAtTime(userDetail.getDeletedAtTime());
+                contact.setLastMessageAtTime(userDetail.getLastMessageAtTime());
+                contact.setMetadata(userDetail.getMetadata());
+                contact.setRoleType(userDetail.getRoleType());
                 baseContactService.upsert(contact);
             }
         }
@@ -475,15 +524,57 @@ public class MobiComConversationService {
                 messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
             }
 
-            Intent intent = new Intent(context, ConversationReadService.class);
-            intent.putExtra(ConversationReadService.CONTACT, contact);
-            intent.putExtra(ConversationReadService.CHANNEL, channel);
-            intent.putExtra(ConversationReadService.UNREAD_COUNT, unreadCount);
-            context.startService(intent);
+            Intent intent = new Intent(context, UserIntentService.class);
+            intent.putExtra(UserIntentService.CONTACT, contact);
+            intent.putExtra(UserIntentService.CHANNEL, channel);
+            intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
+            UserIntentService.enqueueWork(context, intent);
         } catch (Exception e) {
         }
     }
 
+    private void handleState(android.os.Message message, MediaUploadProgressHandler progressHandler) {
+        if (message != null) {
+            Bundle b = message.getData();
+            String e = null;
+            if (b != null) {
+                e = b.getString("error");
+            }
+            switch (message.what) {
+                case UPLOAD_STARTED:
+                    if (progressHandler != null) {
+                        progressHandler.onUploadStarted(e != null ? new ApplozicException(e) : null);
+                    }
+                    break;
+
+                case UPLOAD_PROGRESS:
+                    if (progressHandler != null) {
+                        progressHandler.onProgressUpdate(message.arg1, e != null ? new ApplozicException(e) : null);
+                    }
+                    break;
+
+                case UPLOAD_COMPLETED:
+                    if (progressHandler != null) {
+                        progressHandler.onCompleted(e != null ? new ApplozicException(e) : null);
+                    }
+                    break;
+
+                case UPLOAD_CANCELLED:
+                    if (progressHandler != null) {
+                        progressHandler.onCancelled(e != null ? new ApplozicException(e) : null);
+                    }
+                    break;
+
+                case MESSAGE_SENT:
+                    if (b != null) {
+                        if (progressHandler != null) {
+                            progressHandler.onSent(messageDatabaseService.getMessage(b.getString("message")));
+                        }
+                    }
+                    break;
+            }
+        }
+    }
 
 //    public void addFileMetaDetails(String responseString, Message message) {
 //        JsonParser jsonParser = new JsonParser();

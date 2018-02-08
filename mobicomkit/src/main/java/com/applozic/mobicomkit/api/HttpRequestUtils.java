@@ -47,7 +47,7 @@ public class HttpRequestUtils {
     }
 
     public String postData(String urlString, String contentType, String accept, String data) throws Exception {
-        Utils.printLog(context,TAG, "Calling url: " + urlString);
+        Utils.printLog(context, TAG, "Calling url: " + urlString);
         HttpURLConnection connection;
         URL url;
         try {
@@ -97,7 +97,7 @@ public class HttpRequestUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Utils.printLog(context,TAG, "Response : " + sb.toString());
+            Utils.printLog(context, TAG, "Response : " + sb.toString());
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
                     return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
@@ -109,7 +109,7 @@ public class HttpRequestUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Utils.printLog(context,TAG, "Http call failed");
+        Utils.printLog(context, TAG, "Http call failed");
         return null;
     }
 
@@ -124,6 +124,7 @@ public class HttpRequestUtils {
         }
         connection.setDoInput(true);
         connection.setDoOutput(true);
+        addGlobalHeaders(connection);
         connection.connect();
 
         byte[] dataBytes = data.getBytes("UTF-8");
@@ -136,7 +137,7 @@ public class HttpRequestUtils {
             InputStream inputStream = connection.getInputStream();
             br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         } else {
-            Utils.printLog(context,TAG, "Response code for post json is :" + connection.getResponseCode());
+            Utils.printLog(context, TAG, "Response code for post json is :" + connection.getResponseCode());
         }
         StringBuilder sb = new StringBuilder();
         try {
@@ -148,8 +149,10 @@ public class HttpRequestUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } catch (Throwable e) {
+
         }
-        Utils.printLog(context,TAG, "Response: " + sb.toString());
+        Utils.printLog(context, TAG, "Response: " + sb.toString());
         return sb.toString();
     }
 
@@ -158,7 +161,7 @@ public class HttpRequestUtils {
     }
 
     public String getResponse(String urlString, String contentType, String accept, boolean isFileUpload) {
-        Utils.printLog(context,TAG, "Calling url: " + urlString);
+        Utils.printLog(context, TAG, "Calling url: " + urlString);
 
         HttpURLConnection connection = null;
         URL url;
@@ -188,7 +191,7 @@ public class HttpRequestUtils {
                 InputStream inputStream = connection.getInputStream();
                 br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             } else {
-                Utils.printLog(context,TAG, "Response code for getResponse is  :" + connection.getResponseCode());
+                Utils.printLog(context, TAG, "Response code for getResponse is  :" + connection.getResponseCode());
             }
 
             StringBuilder sb = new StringBuilder();
@@ -202,7 +205,8 @@ public class HttpRequestUtils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Utils.printLog(context,TAG, "Response :" + sb.toString());
+
+            Utils.printLog(context, TAG, "Response :" + sb.toString());
 
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
@@ -211,9 +215,11 @@ public class HttpRequestUtils {
             }
             return sb.toString();
         } catch (ConnectException e) {
-            Utils.printLog(context,TAG, "failed to connect Internet is not working");
+            Utils.printLog(context, TAG, "failed to connect Internet is not working");
         } catch (Exception e) {
             e.printStackTrace();
+        } catch (Throwable e) {
+
         } finally {
             if (connection != null) {
                 try {
