@@ -269,7 +269,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
-        LocalBroadcastManager.getInstance(this).registerReceiver(refreshBroadcast, new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(refreshBroadcast, getIntentFilter());
         if (channel != null) {
             BroadcastService.currentInfoId = String.valueOf(channel.getKey());
             Channel newChannel = ChannelService.getInstance(this).getChannelByChannelKey(channel.getKey());
@@ -978,6 +978,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
             updateChannelList();
         }
     }
+
+    static IntentFilter getIntentFilter(){
+        IntentFilter intentFilter =  new IntentFilter();
+        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPDATE_GROUP_INFO.toString());
+        intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString());
+        return intentFilter;
+    }
+
 
     public class ChannelUserRoleAsyncTask extends AsyncTask<Void, Integer, Long> {
         private ChannelService channelService;
