@@ -220,7 +220,7 @@
             android:exported="false" />
 
         <!-- Applozic PushNotification Services -->
-        
+
         <service
             android:name="com.applozic.mobicomkit.api.notification.NotificationIntentService"
             android:permission="android.permission.BIND_JOB_SERVICE"
@@ -320,14 +320,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service
-            android:exported="false"
-            android:name="com.applozic.mobicomkit.uiwidgets.notification.PushNotificationJobService">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
-            </intent-filter>
-        </service>
 
     </application>
 
