@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onSuccess(Context context) {
                     userLogoutTask = null;
-                    Toast.makeText(getBaseContext(),getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity
                 takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
                 takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
                 takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, R.string.intrest_in_chat);
-                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID,conversationId);
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID, conversationId);
                 startActivity(takeOrderIntent);
 
             }
