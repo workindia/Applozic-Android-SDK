@@ -272,14 +272,15 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
                              int visibleItemCount, int totalItemCount) {
-            if (loading) {
-                if (totalItemCount > previousTotal) {
-                    loading = false;
-                    previousTotal = totalItemCount;
-                    currentPage++;
-                }
+            if (loading &&
+                    ((alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(getActivity()).isRegisteredUsersContactCall()) && Utils.isInternetAvailable(getActivity().getApplicationContext()) && TextUtils.isEmpty(userPreference.getContactsGroupId())) &&
+                    (totalItemCount > previousTotal)) {
+                loading = false;
+                previousTotal = totalItemCount;
+                currentPage++;
+
             }
-            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+            if ((!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) && (!MobiComKitPeopleActivity.isSearching)) {
                 // I load the next page of gigs using a background task,
                 // but you can call any function here.
                 processLoadRegisteredUsers();
