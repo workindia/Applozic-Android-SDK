@@ -738,4 +738,3 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     }
 
 }
-
