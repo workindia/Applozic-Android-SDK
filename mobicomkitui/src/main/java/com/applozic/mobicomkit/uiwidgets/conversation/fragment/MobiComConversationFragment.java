@@ -2269,6 +2269,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             messageToSend.setContentType(messageContentType);
         }
+        if (messageMetaData == null) {
+            messageMetaData = new HashMap<>();
+        }
         messageToSend.setFileMetaKeyStrings(fileMetaKeyStrings);
         messageToSend.setFileMetas(fileMetas);
         if (!TextUtils.isEmpty(ApplozicClient.getInstance(getActivity()).getMessageMetaData())) {
@@ -2277,13 +2280,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             Map<String, String> messageMetaDataMap = null;
             try {
                 messageMetaDataMap = new Gson().fromJson(ApplozicClient.getInstance(getActivity()).getMessageMetaData(), mapType);
-                messageToSend.setMetadata(messageMetaDataMap);
+                if (messageMetaDataMap != null && !messageMetaDataMap.isEmpty()) {
+                    messageMetaData.putAll(messageMetaDataMap);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else {
-            messageToSend.setMetadata(this.messageMetaData);
         }
+
+        if (this.messageMetaData != null && !this.messageMetaData.isEmpty()) {
+            messageMetaData.putAll(this.messageMetaData);
+        }
+
+        messageToSend.setMetadata(messageMetaData);
+
 
         conversationService.sendMessage(messageToSend, messageIntentClass);
         if (replayRelativeLayout != null) {
@@ -2641,7 +2651,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         BroadcastService.currentUserId = null;
         BroadcastService.currentConversationId = null;
         if (typingStarted) {
-            if (contact != null | channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
+            if (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
                 Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
                 intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
                 intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
