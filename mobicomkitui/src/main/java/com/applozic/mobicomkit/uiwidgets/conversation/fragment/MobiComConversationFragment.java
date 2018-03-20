@@ -761,8 +761,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 if (channel != null) {
 
-                    if(Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())
-                            && User.RoleType.USER_ROLE.getValue().equals(MobiComUserPreference.getInstance(getContext()).getUserRoleType())){
+                    if (Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())
+                            && User.RoleType.USER_ROLE.getValue().equals(MobiComUserPreference.getInstance(getContext()).getUserRoleType())) {
                         return;
                     }
                     if (channel.isDeleted()) {
@@ -810,7 +810,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageTemplate = alCustomizationSettings.getMessageTemplate();
 
         if (messageTemplate != null && messageTemplate.isEnabled()) {
-            templateAdapter = new MobicomMessageTemplateAdapter(messageTemplate);
+            templateAdapter = new MobicomMessageTemplateAdapter(getContext(), messageTemplate);
             MobicomMessageTemplateAdapter.MessageTemplateDataListener listener = new MobicomMessageTemplateAdapter.MessageTemplateDataListener() {
                 @Override
                 public void onItemSelected(String message) {
@@ -831,8 +831,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         AlMessageMetadataUpdateTask.MessageMetadataListener listener1 = new AlMessageMetadataUpdateTask.MessageMetadataListener() {
                             @Override
                             public void onSuccess(Context context, String message) {
-                                templateAdapter.setMessageList(new HashMap<String, String>());
-                                templateAdapter.notifyDataSetChanged();
+                                templateAdapter.removeTemplates();
                             }
 
                             @Override
@@ -1179,10 +1178,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         if (i != -1) {
             messageList.get(i).setMetadata(messageDatabaseService.getMessage(keyString).getMetadata());
-            conversationAdapter.notifyDataSetChanged();
+            if (conversationAdapter != null) {
+                conversationAdapter.notifyDataSetChanged();
+            }
             if (messageList.get(messageList.size() - 1).getMetadata().containsKey("isDoneWithClicking")) {
-                templateAdapter.setMessageList(new HashMap<String, String>());
-                templateAdapter.notifyDataSetChanged();
+                if (templateAdapter != null) {
+                    templateAdapter.notifyDataSetChanged();
+                }
             }
         }
     }
@@ -1836,8 +1838,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.channel = channel;
         if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), MobiComUserPreference.getInstance(getContext()).getUserId())
                 && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
-            templateAdapter.setMessageList(new HashMap<String, String>());
-            templateAdapter.notifyDataSetChanged();
+            templateAdapter.removeTemplates();
         }
     }
 
@@ -3020,8 +3021,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
                 if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), MobiComUserPreference.getInstance(getContext()).getUserId())
                         && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
-                    templateAdapter.setMessageList(new HashMap<String, String>());
-                    templateAdapter.notifyDataSetChanged();
+                    templateAdapter.removeTemplates();
                 }
             } else {
                 if ((!ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
@@ -3031,8 +3031,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     individualMessageSendLayout.setVisibility(View.GONE);
                     userNotAbleToChatLayout.setVisibility(VISIBLE);
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
-                        templateAdapter.setMessageList(new HashMap<String, String>());
-                        templateAdapter.notifyDataSetChanged();
+                        templateAdapter.removeTemplates();
                     }
                 } else if (ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && userNotAbleToChatLayout != null
