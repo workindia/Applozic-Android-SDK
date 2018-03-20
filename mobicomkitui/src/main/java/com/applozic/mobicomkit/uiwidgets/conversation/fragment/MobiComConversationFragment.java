@@ -71,6 +71,7 @@ import android.widget.Toast;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserBlockTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -759,6 +760,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void onClick(View v) {
 
                 if (channel != null) {
+
+                    if(Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())
+                            && User.RoleType.USER_ROLE.getValue().equals(MobiComUserPreference.getInstance(getContext()).getUserRoleType())){
+                        return;
+                    }
                     if (channel.isDeleted()) {
                         return;
                     }
