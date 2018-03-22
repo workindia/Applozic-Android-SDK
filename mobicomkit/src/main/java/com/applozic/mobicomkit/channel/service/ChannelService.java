@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.channel.service;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -109,6 +110,41 @@ public class ChannelService {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
                 processChannelFeed(channelFeed,isUserDetails);
+                Set<String> memberUserIds = channelFeed.getMembersName();
+                Set<String> userIds = new HashSet<>();
+                Channel channel = getChannel(channelFeed);
+                if (channelDatabaseService.isChannelPresent(channel.getKey())) {
+                    channelDatabaseService.updateChannel(channel);
+                } else {
+                    channelDatabaseService.addChannel(channel);
+                }
+                if (channelFeed.getConversationPxy() != null) {
+                    channelFeed.getConversationPxy().setGroupId(channelFeed.getId());
+                    ConversationService.getInstance(context).addConversation(channelFeed.getConversationPxy());
+                }
+                if (memberUserIds != null && memberUserIds.size() > 0) {
+                    for (String userId : memberUserIds) {
+                        ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
+                        if (channelDatabaseService.isChannelUserPresent(channelFeed.getId(), userId)) {
+                            channelDatabaseService.updateChannelUserMapper(channelUserMapper);
+                        } else {
+                            channelDatabaseService.addChannelUserMapper(channelUserMapper);
+                        }
+                    }
+                }
+
+                if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
+                    for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
+                        if (channelUsers.getRole() != null) {
+                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
+                        }
+                    }
+                }
+
+
+                if (isUserDetails) {
+                    userService.processUserDetail(channelFeed.getUsers());
+                }
             }
         }
     }
@@ -382,6 +418,35 @@ public class ChannelService {
     public synchronized void processChannelList(List<ChannelFeed> channelFeedList) {
         if (channelFeedList != null && channelFeedList.size() > 0) {
             for (ChannelFeed channelFeed : channelFeedList) {
+                Set<String> memberUserIds = channelFeed.getMembersName();
+                Set<String> userIds = new HashSet<>();
+                Channel channel = getChannel(channelFeed);
+                if (channelDatabaseService.isChannelPresent(channel.getKey())) {
+                    channelDatabaseService.updateChannel(channel);
+                    channelDatabaseService.deleteChannelUserMappers(channel.getKey());
+                } else {
+                    channelDatabaseService.addChannel(channel);
+                }
+                if (memberUserIds != null && memberUserIds.size() > 0) {
+                    for (String userId : memberUserIds) {
+                        ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
+                        channelDatabaseService.addChannelUserMapper(channelUserMapper);
+                        if (!baseContactService.isContactExists(userId)) {
+                            userIds.add(userId);
+                        }
+                    }
+                    if (userIds != null && userIds.size() > 0) {
+                        userService.processUserDetailsByUserIds(userIds);
+                    }
+                }
+
+                if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
+                    for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
+                        if (channelUsers.getRole() != null) {
+                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
+                        }
+                    }
+                }
                 processChannelFeedForSync(channelFeed);
             }
         }
@@ -494,7 +559,12 @@ public class ChannelService {
         if (!TextUtils.isEmpty(channelInfo.getClientGroupId())) {
             Channel channel = channelDatabaseService.getChannelByClientGroupId(channelInfo.getClientGroupId());
             if (channel != null) {
-                return channel;
+                String updateChannelResponse = updateChannel(new GroupInfoUpdate(channelInfo));
+                if (!TextUtils.isEmpty(updateChannelResponse) && MobiComKitConstants.SUCCESS.equals(updateChannelResponse)) {
+                    return channelDatabaseService.getChannelByClientGroupId(channelInfo.getClientGroupId());
+                } else {
+                    return channel;
+                }
             } else {
                 ChannelFeedApiResponse channelFeedApiResponse = channelClientService.createChannelWithResponse(channelInfo);
                 if (channelFeedApiResponse == null) {
