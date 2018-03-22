@@ -274,6 +274,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
+                    MobiComUserPreference.getInstance(context).setUserRoleType(registrationResponse.getRoleType());
 
                     //Set activity callbacks
                     /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
