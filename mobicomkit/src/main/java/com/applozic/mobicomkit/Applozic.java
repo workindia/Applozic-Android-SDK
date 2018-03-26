@@ -30,7 +30,7 @@ public class Applozic {
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
-    public static Applozic applozic;
+    public static Applozic applozicInstance;
     public SharedPreferences sharedPreferences;
     private Context context;
     private ApplozicBroadcastReceiver applozicBroadcastReceiver;
@@ -41,16 +41,16 @@ public class Applozic {
     }
 
     public static Applozic init(Context context, String applicationKey) {
-        applozic = getInstance(context);
-        applozic.setApplicationKey(applicationKey);
-        return applozic;
+        applozicInstance = getInstance(context);
+        applozicInstance.setApplicationKey(applicationKey);
+        return applozicInstance;
     }
 
     public static Applozic getInstance(Context context) {
-        if (applozic == null) {
-            applozic = new Applozic(context.getApplicationContext());
+        if (applozicInstance == null) {
+            applozicInstance = new Applozic(context.getApplicationContext());
         }
-        return applozic;
+        return applozicInstance;
     }
 
     public String getApplicationKey() {

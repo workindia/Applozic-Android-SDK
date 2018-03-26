@@ -810,13 +810,13 @@ public class Message extends JsonMarker {
         }
     }
 
-    public enum ReplyMessage {
+    public enum ReplyMessageEnum {
         NON_HIDDEN(0),
         REPLY_MESSAGE(1),
         HIDE_MESSAGE(2);
         private Integer value;
 
-        ReplyMessage(Integer value) {
+        ReplyMessageEnum(Integer value) {
             this.value = value;
         }
 

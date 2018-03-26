@@ -39,7 +39,7 @@ public class ApplozicClient {
     private static final String CUSTOM_STORAGE_SERVICE_ENABLED = "CUSTOM_STORAGE_SERVICE_ENABLED";
     private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
 
-    public static ApplozicClient applozicClient;
+    public static ApplozicClient applozicClientIntance;
     public SharedPreferences sharedPreferences;
     private Context context;
 
@@ -49,11 +49,11 @@ public class ApplozicClient {
     }
 
     public static ApplozicClient getInstance(Context context) {
-        if (applozicClient == null) {
-            applozicClient = new ApplozicClient(context.getApplicationContext());
+        if (applozicClientIntance == null) {
+            applozicClientIntance = new ApplozicClient(context.getApplicationContext());
         }
 
-        return applozicClient;
+        return applozicClientIntance;
     }
 
     public boolean isHandleDisplayName() {

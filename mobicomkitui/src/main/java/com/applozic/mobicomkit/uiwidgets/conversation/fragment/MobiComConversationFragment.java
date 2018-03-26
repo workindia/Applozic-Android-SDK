@@ -40,7 +40,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -1543,7 +1542,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (messageMetaData != null && !messageMetaData.isEmpty()) {
                         String replyMessageKey = messageMetaData.get(Message.MetaDataType.AL_REPLY.getValue());
                         if (!TextUtils.isEmpty(replyMessageKey)) {
-                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE.getValue());
+                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessageEnum.REPLY_MESSAGE.getValue());
                         }
                     }
                     attachReplyCancelLayout.setVisibility(VISIBLE);
@@ -2881,7 +2880,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (messageMetaData != null && !messageMetaData.isEmpty()) {
                         String replyMessageKey = messageMetaData.get(Message.MetaDataType.AL_REPLY.getValue());
                         if (!TextUtils.isEmpty(replyMessageKey)) {
-                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE.getValue());
+                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessageEnum.REPLY_MESSAGE.getValue());
                         }
                     }
                     attachReplyCancelLayout.setVisibility(VISIBLE);

@@ -38,7 +38,7 @@ import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.Scroller;
 
-public class TouchImageView extends ImageView {
+public class TouchImgView extends ImageView {
 
     private static final String DEBUG = "DEBUG";
 
@@ -100,17 +100,17 @@ public class TouchImageView extends ImageView {
     private OnTouchListener userTouchListener = null;
     private OnTouchImageViewListener touchImageViewListener = null;
 
-    public TouchImageView(Context context) {
+    public TouchImgView(Context context) {
         super(context);
         sharedConstructing(context);
     }
 
-    public TouchImageView(Context context, AttributeSet attrs) {
+    public TouchImgView(Context context, AttributeSet attrs) {
         super(context, attrs);
         sharedConstructing(context);
     }
 
-    public TouchImageView(Context context, AttributeSet attrs, int defStyle) {
+    public TouchImgView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         sharedConstructing(context);
     }
@@ -416,7 +416,7 @@ public class TouchImageView extends ImageView {
      *
      *
      */
-    public void setZoom(TouchImageView img) {
+    public void setZoom(TouchImgView img) {
         PointF center = img.getScrollPosition();
         setZoom(img.getCurrentZoom(), center.x, center.y, img.getScaleType());
     }

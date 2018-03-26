@@ -237,8 +237,8 @@ public class MobiComConversationService {
                     if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                         continue;
                     }
-                    if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
-                        messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
+                    if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessageEnum.HIDE_MESSAGE.getValue())) {
+                        messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessageEnum.NON_HIDDEN.getValue());
                     } else {
                         if (isServerCallNotRequired || contact == null && channel == null) {
                             messageDatabaseService.createMessage(message);
@@ -309,7 +309,7 @@ public class MobiComConversationService {
                         FileClientService fileClientService = new FileClientService(context);
                         fileClientService.loadContactsvCard(replyMessage);
                     }
-                    replyMessage.setReplyMessage(Message.ReplyMessage.HIDE_MESSAGE.getValue());
+                    replyMessage.setReplyMessage(Message.ReplyMessageEnum.HIDE_MESSAGE.getValue());
                     if (isServerCallNotRequired || contact == null && channel == null) {
                         messageDatabaseService.createMessage(replyMessage);
                     }

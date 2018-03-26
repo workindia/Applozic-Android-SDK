@@ -20,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,7 +30,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.R;
 
-import com.applozic.mobicomkit.uiwidgets.conversation.TouchImageView;
+import com.applozic.mobicomkit.uiwidgets.conversation.TouchImgView;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -44,7 +43,7 @@ import java.util.List;
  * Created by devashish on 22/9/14.
  */
 public class FullScreenImageActivity extends AppCompatActivity  {
-    TouchImageView mediaImageViewView;
+    TouchImgView mediaImageViewView;
 
     private Message message;
     private ConnectivityReceiver connectivityReceiver;
@@ -60,7 +59,7 @@ public class FullScreenImageActivity extends AppCompatActivity  {
         getSupportActionBar().show();
         showUi();
 
-        mediaImageViewView = (TouchImageView) findViewById(R.id.full_screen_image);
+        mediaImageViewView = (TouchImgView) findViewById(R.id.full_screen_image);
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.full_screen_progress_bar);
         progressBar.setVisibility(View.VISIBLE);
         String messageJson = getIntent().getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);

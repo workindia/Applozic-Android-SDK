@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
@@ -236,7 +235,7 @@ public class MessageDatabaseService {
         structuredNameWhere += "hidden = ? AND ";
         structuredNameParamsList.add("0");
         structuredNameWhere += "replyMessage != ? AND ";
-        structuredNameParamsList.add(String.valueOf(Message.ReplyMessage.HIDE_MESSAGE.getValue()));
+        structuredNameParamsList.add(String.valueOf(Message.ReplyMessageEnum.HIDE_MESSAGE.getValue()));
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isDisplayCallRecordEnable()) {
@@ -922,7 +921,7 @@ public class MessageDatabaseService {
         }
 
         String hiddenType = " and m1.messageContentType not in (" + Message.ContentType.HIDDEN.getValue()
-                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue() + ")";
+                + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessageEnum.HIDE_MESSAGE.getValue() + ")";
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
@@ -943,9 +942,9 @@ public class MessageDatabaseService {
     public String deleteMessage(Message message, String contactNumber) {
         if (!message.isSentToServer()) {
             deleteMessageFromDb(message);
-        } else if (isMessagePresent(message.getKeyString(), Message.ReplyMessage.REPLY_MESSAGE.getValue())) {
-            updateReplyFlag(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue());
-        } else if (!isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
+        } else if (isMessagePresent(message.getKeyString(), Message.ReplyMessageEnum.REPLY_MESSAGE.getValue())) {
+            updateReplyFlag(message.getKeyString(), Message.ReplyMessageEnum.HIDE_MESSAGE.getValue());
+        } else if (!isMessagePresent(message.getKeyString(), Message.ReplyMessageEnum.HIDE_MESSAGE.getValue())) {
             deleteMessageFromDb(message);
         }
         return null;

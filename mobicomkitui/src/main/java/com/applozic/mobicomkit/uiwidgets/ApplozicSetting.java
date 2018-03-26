@@ -67,7 +67,7 @@ public class ApplozicSetting {
     private static final String USER_PROFILE_FRAGMENT = "PROFILE_LOGOUT_BUTTON";
     private static final String MESSAGE_SEARCH_OPTION = "MESSAGE_SEARCH_OPTION";
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
-    public static ApplozicSetting applozicSetting;
+    public static ApplozicSetting applozicSettingInstance;
     public SharedPreferences sharedPreferences;
     private Context context;
 
@@ -77,11 +77,11 @@ public class ApplozicSetting {
     }
 
     public static ApplozicSetting getInstance(Context context) {
-        if (applozicSetting == null) {
-            applozicSetting = new ApplozicSetting(context.getApplicationContext());
+        if (applozicSettingInstance == null) {
+            applozicSettingInstance = new ApplozicSetting(context.getApplicationContext());
         }
 
-        return applozicSetting;
+        return applozicSettingInstance;
     }
 
     public ApplozicSetting setActivityCallbacks(Map<RequestCode, String> activityCallbacks) {

@@ -121,7 +121,7 @@ public class MobiComMessageService {
                         if (replyMessage.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
                             fileClientService.loadContactsvCard(replyMessage);
                         }
-                        replyMessage.setReplyMessage(Message.ReplyMessage.HIDE_MESSAGE.getValue());
+                        replyMessage.setReplyMessage(Message.ReplyMessageEnum.HIDE_MESSAGE.getValue());
                         messageDatabaseService.createMessage(replyMessage);
                     }
                 }
