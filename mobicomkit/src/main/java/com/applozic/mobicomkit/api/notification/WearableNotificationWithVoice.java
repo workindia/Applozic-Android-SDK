@@ -13,7 +13,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.view.View;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.kit.ApplozicClient;
 
 /**
  * @author adarsh

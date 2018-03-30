@@ -1,10 +1,11 @@
-package com.applozic.mobicomkit.uiwidgets;
+package com.applozic.mobicomkit.uiwidgets.kitui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.uiwidgets.R;
 
 import java.util.Map;
 

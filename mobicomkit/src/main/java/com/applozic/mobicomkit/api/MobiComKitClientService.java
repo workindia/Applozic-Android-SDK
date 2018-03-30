@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.api;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.Applozic;
+import com.applozic.mobicomkit.kit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;

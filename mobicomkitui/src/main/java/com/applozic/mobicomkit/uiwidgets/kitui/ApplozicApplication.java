@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets;
+package com.applozic.mobicomkit.uiwidgets.kitui;
 
 import android.app.Application;
 import android.content.Context;

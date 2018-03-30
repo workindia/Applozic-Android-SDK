@@ -2,7 +2,7 @@ package com.applozic.mobicomkit.sample.pushnotification;
 
 import android.util.Log;
 
-import com.applozic.mobicomkit.Applozic;
+import com.applozic.mobicomkit.kit.Applozic;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;

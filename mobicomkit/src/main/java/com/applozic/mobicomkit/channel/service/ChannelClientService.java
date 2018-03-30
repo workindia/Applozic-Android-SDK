@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.channel.service;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.MultipleChannelFeedApiResponse;
+import com.applozic.mobicomkit.kit.MultipleChannelFeedApiResponse;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;

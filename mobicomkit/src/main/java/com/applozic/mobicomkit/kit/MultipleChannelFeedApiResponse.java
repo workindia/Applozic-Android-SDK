@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit;
+package com.applozic.mobicomkit.kit;
 
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.feed.ChannelFeed;

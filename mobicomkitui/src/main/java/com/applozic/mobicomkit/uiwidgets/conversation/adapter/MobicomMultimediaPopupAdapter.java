@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.kitui.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import java.util.List;

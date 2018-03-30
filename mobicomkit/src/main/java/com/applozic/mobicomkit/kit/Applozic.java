@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit;
+package com.applozic.mobicomkit.kit;
 
 import android.content.Context;
 import android.content.Intent;

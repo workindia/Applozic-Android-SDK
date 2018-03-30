@@ -29,8 +29,8 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.kitui.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.kitui.ApplozicSetting;
 
 import android.support.v7.widget.RecyclerView;
 

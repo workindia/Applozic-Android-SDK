@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit;
+package com.applozic.mobicomkit.kit;
 
 import android.os.Build;
 

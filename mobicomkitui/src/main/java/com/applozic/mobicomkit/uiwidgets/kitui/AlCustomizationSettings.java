@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets;
+package com.applozic.mobicomkit.uiwidgets.kitui;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.MobicomMessageTemplate;
 import com.applozic.mobicommons.json.JsonMarker;

@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets;
+package com.applozic.mobicomkit.uiwidgets.kitui;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
