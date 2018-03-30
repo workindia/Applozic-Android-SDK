@@ -352,6 +352,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             }
         }
+
+        if (ApplozicClient.getInstance(getContext()).isPoweredByApplozic()) {
+            list.findViewById(R.id.txtPoweredByApplozic).setVisibility(VISIBLE);
+        }
+
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
 
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);

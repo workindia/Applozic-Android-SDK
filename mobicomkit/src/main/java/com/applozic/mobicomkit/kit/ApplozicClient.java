@@ -38,6 +38,7 @@ public class ApplozicClient {
     private static String vibration_notification = "vibration_notification";
     private static final String CUSTOM_STORAGE_SERVICE_ENABLED = "CUSTOM_STORAGE_SERVICE_ENABLED";
     private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
+    private static final String POWERED_BY_APPLOZIC = "POWERED_BY_APPLOZIC";
 
     public static ApplozicClient applozicClientIntance;
     public SharedPreferences sharedPreferences;
@@ -274,4 +275,12 @@ public class ApplozicClient {
         return sharedPreferences.getBoolean(STORAGE_SERVICE_ENABLE, false);
     }
 
+    public ApplozicClient disablePoweredByApplozic() {
+        sharedPreferences.edit().putBoolean(POWERED_BY_APPLOZIC, false).commit();
+        return this;
+    }
+
+    public boolean isPoweredByApplozic() {
+        return sharedPreferences.getBoolean(POWERED_BY_APPLOZIC, true);
+    }
 }
