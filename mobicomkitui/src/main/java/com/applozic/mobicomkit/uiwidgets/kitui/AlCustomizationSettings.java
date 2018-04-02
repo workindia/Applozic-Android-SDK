@@ -101,6 +101,12 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean forwardOption = true;
     private boolean recordButton = true;
 
+    public boolean isPoweredByApplozic() {
+        return poweredByApplozic;
+    }
+
+    private boolean poweredByApplozic = false;
+
     private boolean launchChatFromProfilePicOrName;
 
     private Map<String, Boolean> attachmentOptions;

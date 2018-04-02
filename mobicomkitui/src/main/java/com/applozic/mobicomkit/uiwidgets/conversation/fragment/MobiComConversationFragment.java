@@ -353,7 +353,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
-        if (ApplozicClient.getInstance(getContext()).isPoweredByApplozic()) {
+        if (alCustomizationSettings.isPoweredByApplozic()) {
             list.findViewById(R.id.txtPoweredByApplozic).setVisibility(VISIBLE);
         }
 
