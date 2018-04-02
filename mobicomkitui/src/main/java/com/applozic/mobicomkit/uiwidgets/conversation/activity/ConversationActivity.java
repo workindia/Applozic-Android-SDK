@@ -67,11 +67,10 @@ import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
+import com.applozic.mobicomkit.uiwidgets.ContactsChangeObserver;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.async.AlGetMembersFromContactGroupListTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobiComKitBroadcastReceiver;
@@ -104,7 +103,6 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -168,6 +166,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchView searchView;
     private String searchTerm;
     private SearchListFragment searchListFragment;
+    ContactsChangeObserver observer;
 
     public ConversationActivity() {
 
@@ -425,7 +424,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 MobiComUserPreference.getInstance(this).setContactGroupIdList(userIdLists);
             }
         }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
+
+        if (ApplozicClient.getInstance(this).isDeviceContactSync()) {
+            observer = new ContactsChangeObserver(null, this);
+            getApplicationContext().getContentResolver().registerContentObserver(
+                    ContactsContract.Contacts.CONTENT_URI, true, observer);
+        }
     }
 
     @Override
@@ -1231,6 +1237,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             if (accountStatusAsyncTask != null) {
                 accountStatusAsyncTask.cancel(true);
+            }
+            if (observer != null) {
+                getApplicationContext().getContentResolver().unregisterContentObserver(observer);
             }
         } catch (Exception e) {
             e.printStackTrace();

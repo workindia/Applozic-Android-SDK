@@ -478,8 +478,11 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
-        return loader;
+        if (ApplozicClient.getInstance(getContext()).isDeviceContactSync()) {
+            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
+        } else {
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
+        }
     }
 
     @Override

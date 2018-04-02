@@ -69,6 +69,7 @@
   "muteUserChatOption": true,
   "replyOption": true,
   "logoutOption": false,
+  "showAllDeviceContacts": true,
   "logoutPackageName": "",
   "attachmentOptions": {
     ":location": true,

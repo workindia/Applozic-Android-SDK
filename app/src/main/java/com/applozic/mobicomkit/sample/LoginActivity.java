@@ -49,9 +49,11 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.people.contact.DeviceContactSyncService;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,6 +90,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
     private Spinner mSpinnerView;
     private int touchCount = 0;
     private MobiComUserPreference mobiComUserPreference;
+    private boolean isDeviceContactSync = false;
     //private LoginButton loginButton;
 
     @Override
@@ -95,7 +98,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         super.onCreate(savedInstanceState);
         //FacebookSdk.sdkInitialize(this);
 
-        Applozic.init(this,getString(R.string.application_key));
+        Applozic.init(this, getString(R.string.application_key));
 
         setContentView(R.layout.activity_login);
         setupUI(findViewById(R.id.layout));
@@ -103,6 +106,15 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+
+        if (Utils.hasMarshmallow()) {
+            showRunTimePermission();
+        } else {
+            if (isDeviceContactSync) {
+                Intent intent = new Intent(this, DeviceContactSyncService.class);
+                DeviceContactSyncService.enqueueWork(this, intent);
+            }
+        }
 
         mPhoneNumberView = (EditText) findViewById(R.id.phoneNumber);
         mUserIdView = (EditText) findViewById(R.id.userId);
@@ -275,6 +287,13 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
                     MobiComUserPreference.getInstance(context).setUserRoleType(registrationResponse.getRoleType());
+
+                    if (isDeviceContactSync) {
+                        Intent intent = new Intent(context, DeviceContactSyncService.class);
+                        DeviceContactSyncService.enqueueWork(context, intent);
+                    }
+
+                    ApplozicClient.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
 
                     //Set activity callbacks
                     /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
@@ -494,7 +513,10 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             requestContactsPermissions();
 
         } else {
-
+            if (isDeviceContactSync) {
+                Intent intent = new Intent(this, DeviceContactSyncService.class);
+                DeviceContactSyncService.enqueueWork(this, intent);
+            }
             new SetupEmailAutoCompleteTask().execute(null, null);
         }
     }
@@ -527,6 +549,12 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         if (requestCode == REQUEST_CONTACTS) {
             if (PermissionsUtils.verifyPermissions(grantResults)) {
                 showSnackBar(R.string.contact_permission_granted);
+
+                if (isDeviceContactSync) {
+                    Intent intent = new Intent(this, DeviceContactSyncService.class);
+                    DeviceContactSyncService.enqueueWork(this, intent);
+                }
+
                 new SetupEmailAutoCompleteTask().execute(null, null);
 
             } else {

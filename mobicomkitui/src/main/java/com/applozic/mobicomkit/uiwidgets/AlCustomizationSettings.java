@@ -100,6 +100,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean groupInfoScreenVisible = true;
     private boolean forwardOption = true;
     private boolean recordButton = true;
+    private boolean showAllDeviceContacts = true;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -518,6 +519,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public MobicomMessageTemplate getMessageTemplate() {
         return messageTemplate;
+    }
+
+    public boolean isShowAllDeviceContacts() {
+        return showAllDeviceContacts;
+    }
+
+    public void setShowAllDeviceContacts(boolean showAllDeviceContacts) {
+        this.showAllDeviceContacts = showAllDeviceContacts;
     }
 
     @Override
