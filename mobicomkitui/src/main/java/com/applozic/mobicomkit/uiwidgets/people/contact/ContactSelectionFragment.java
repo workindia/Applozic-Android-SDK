@@ -185,7 +185,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             } else if (groupContacts != null) {
                 getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
             }
-        }else if (MobiComUserPreference.getInstance(getContext()).getContactGroupIdList() != null && !MobiComUserPreference.getInstance(getContext()).getContactGroupIdList().isEmpty()) {
+        } else if (MobiComUserPreference.getInstance(getContext()).getContactGroupIdList() != null && !MobiComUserPreference.getInstance(getContext()).getContactGroupIdList().isEmpty()) {
             List<String> groupList = new ArrayList<String>();
             groupList.addAll(MobiComUserPreference.getInstance(getContext()).getContactGroupIdList());
 
@@ -489,8 +489,11 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Loader<Cursor> loader = contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
-        return loader;
+        if (ApplozicClient.getInstance(getContext()).isDeviceContactSync()) {
+            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
+        } else {
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
+        }
     }
 
     @Override

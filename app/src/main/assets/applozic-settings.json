@@ -69,6 +69,7 @@
   "muteUserChatOption": true,
   "replyOption": true,
   "logoutOption": false,
+  "showAllDeviceContacts": true,
   "logoutPackageName": "",
   "attachmentOptions": {
     ":location": true,
@@ -85,7 +86,7 @@
   "forwardOption": true,
   "recordButton": true,
   "messageTemplate": {
-    "isEnabled": false,
+    "isEnabled": true,
     "borderColor": "#FF03A9F4",
     "backgroundColor": "#FFFFFF",
     "hideOnSend": false,
