@@ -57,8 +57,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-     implementation project(':mobicomkitui') //Note: use this for customization
-   //implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.6.7'
+    implementation project(':mobicomkitui') //Note: use this for customization
+    //implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.8'
     implementation 'com.android.support:support-v4:27.1.0'
     implementation 'com.android.support:appcompat-v7:27.1.0'
     //implementation 'com.facebook.android:facebook-android-sdk:4.1.0'
