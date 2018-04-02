@@ -73,8 +73,6 @@ public class ConversationIntentService extends JobIntentService {
             return;
         }
 
-        Utils.printLog(ConversationIntentService.this, TAG, "Syncing messages service started: " + sync);
-
         Message message = (Message) intent.getSerializableExtra(AL_MESSAGE);
 
         if (message != null) {

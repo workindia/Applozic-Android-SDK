@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ConversationRunnables;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -85,6 +86,9 @@ public class SyncCallService {
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
             Utils.printLog(context, TAG, "Message is already present, MQTT reached before GCM.");
         } else {
+            if (Utils.isDeviceInIdleState(context)) {
+                new ConversationRunnables(context, message, false, true, false);
+            } else {
                 Intent intent = new Intent(context, ConversationIntentService.class);
                 intent.putExtra(ConversationIntentService.SYNC, true);
                 if (message != null) {
@@ -93,15 +97,20 @@ public class SyncCallService {
                 ConversationIntentService.enqueueWork(context, intent);
             }
         }
+    }
 
     public synchronized void syncMessageMetadataUpdate(String key, boolean isFromFcm) {
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
+            if (Utils.isDeviceInIdleState(context)) {
+                new ConversationRunnables(context, null, false, false, true);
+            } else {
                 Utils.printLog(context, TAG, "Syncing updated message metadata from " + (isFromFcm ? "FCM" : "MQTT") + " for message key : " + key);
                 Intent intent = new Intent(context, ConversationIntentService.class);
                 intent.putExtra(ConversationIntentService.MESSAGE_METADATA_UPDATE, true);
                 ConversationIntentService.enqueueWork(context, intent);
             }
         }
+    }
 
     public synchronized void syncMutedUserList(boolean isFromFcm, String userId) {
 
