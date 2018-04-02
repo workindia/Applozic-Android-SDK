@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -113,6 +114,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     private RelativeLayout channelDeleteRelativeLayout, channelExitRelativeLayout;
     private Integer channelKey;
     private RefreshBroadcast refreshBroadcast;
+    private NestedScrollView nestedScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +139,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         channelDeleteRelativeLayout = (RelativeLayout) findViewById(R.id.channel_delete_relativeLayout);
         channelExitRelativeLayout = (RelativeLayout) findViewById(R.id.channel_exit_relativeLayout);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        nestedScrollView = findViewById(R.id.nestedScrollView);
+
         collapsingToolbarLayout.setContentScrimColor(Color.parseColor(alCustomizationSettings.getCollapsingToolbarLayoutColor()));
         groupParticipantsTexView.setTextColor(Color.parseColor(alCustomizationSettings.getGroupParticipantsTextColor()));
         deleteChannelButton.setBackgroundColor(Color.parseColor((alCustomizationSettings.getGroupDeleteButtonBackgroundColor())));
@@ -152,6 +156,12 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (Utils.hasLollipop()) {
             mainListView.setNestedScrollingEnabled(true);
         }
+        nestedScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                nestedScrollView.scrollTo(nestedScrollView.getLeft(), groupParticipantsTexView.getTop());
+            }
+        });
         connectivityReceiver = new ConnectivityReceiver();
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
 
@@ -500,6 +510,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             channelUserMapperList.clear();
             channelUserMapperList = ChannelService.getInstance(this).getListOfUsersFromChannelUserMapper(channel.getKey());
             contactsAdapter.notifyDataSetChanged();
+            Helper.getListViewSize(mainListView);
             String oldChannelName = channel.getName();
             channel = ChannelService.getInstance(this).getChannelByChannelKey(channel.getKey());
             if (!oldChannelName.equals(channel.getName())) {
@@ -729,17 +740,16 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 //do nothing return null
                 return;
             }
-            //set listAdapter in loop for getting final size
             int totalHeight = 0;
-            for (int size = 0; size < myListAdapter.getCount(); size++) {
-                View listItem = myListAdapter.getView(size, null, myListView);
+            if (myListAdapter.getCount() > 0) {
+                View listItem = myListAdapter.getView(0, null, myListView);
                 listItem.measure(0, 0);
-                totalHeight += listItem.getMeasuredHeight();
+                totalHeight = listItem.getMeasuredHeight() * myListAdapter.getCount();
+
+                ViewGroup.LayoutParams params = myListView.getLayoutParams();
+                params.height = totalHeight + (myListView.getDividerHeight() * (myListAdapter.getCount() - 1));
+                myListView.setLayoutParams(params);
             }
-            //setting listview item in adapter
-            ViewGroup.LayoutParams params = myListView.getLayoutParams();
-            params.height = totalHeight + (myListView.getDividerHeight() * (myListAdapter.getCount() - 1));
-            myListView.setLayoutParams(params);
         }
     }
 
@@ -791,6 +801,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
                     channelUserMapperList.remove(channelUserMapper);
                     contactsAdapter.notifyDataSetChanged();
+                    Helper.getListViewSize(mainListView);
                 }
             }
         }
@@ -868,6 +879,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     ChannelUserMapper channelUserMapper = new ChannelUserMapper(channel.getKey(), userId);
                     channelUserMapperList.add(channelUserMapper);
                     contactsAdapter.notifyDataSetChanged();
+                    Helper.getListViewSize(mainListView);
                 } else {
                     List<ErrorResponseFeed> error = apiResponse.getErrorResponse();
                     if (error != null && error.size() > 0) {
@@ -1062,6 +1074,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         channelUserMapperList.remove(channelUserMapper);
                         channelUserMapperList.add(index, channelUserMapper);
                         contactsAdapter.notifyDataSetChanged();
+                        Helper.getListViewSize(mainListView);
                     } catch (Exception e) {
 
                     }
