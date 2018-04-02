@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -35,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -220,6 +222,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
         contactsAdapter = new ContactsAdapter(this);
         mainListView.setAdapter(contactsAdapter);
+        Helper.getListViewSize(mainListView);
 
         mainListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -718,6 +721,28 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     }
 
+
+    public static class Helper {
+        public static void getListViewSize(ListView myListView) {
+            ListAdapter myListAdapter = myListView.getAdapter();
+            if (myListAdapter == null) {
+                //do nothing return null
+                return;
+            }
+            //set listAdapter in loop for getting final size
+            int totalHeight = 0;
+            for (int size = 0; size < myListAdapter.getCount(); size++) {
+                View listItem = myListAdapter.getView(size, null, myListView);
+                listItem.measure(0, 0);
+                totalHeight += listItem.getMeasuredHeight();
+            }
+            //setting listview item in adapter
+            ViewGroup.LayoutParams params = myListView.getLayoutParams();
+            params.height = totalHeight + (myListView.getDividerHeight() * (myListAdapter.getCount() - 1));
+            myListView.setLayoutParams(params);
+        }
+    }
+
     public class ChannelMember extends AsyncTask<Void, Integer, Long> {
         String responseForRemove;
         private ChannelUserMapper channelUserMapper;
@@ -979,8 +1004,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
     }
 
-    static IntentFilter getIntentFilter(){
-        IntentFilter intentFilter =  new IntentFilter();
+    static IntentFilter getIntentFilter() {
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPDATE_GROUP_INFO.toString());
         intentFilter.addAction(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString());
         return intentFilter;
