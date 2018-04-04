@@ -120,8 +120,12 @@ public class BroadcastService {
 
 
     public static void sendNotificationBroadcast(Context context, Message message) {
-        Utils.printLog(context, TAG, "Sending notification broadcast....");
         if (message != null) {
+
+            if (message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {
+                return;
+            }
+
             int notificationId = Utils.getLauncherIcon(context.getApplicationContext());
             final NotificationService notificationService =
                     new NotificationService(notificationId, context, 0, 0, 0);
