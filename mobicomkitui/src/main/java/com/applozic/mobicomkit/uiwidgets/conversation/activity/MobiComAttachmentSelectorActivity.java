@@ -25,6 +25,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentGridViewAdapter;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -33,6 +34,7 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.io.File;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -293,7 +295,12 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            String format = URLConnection.guessContentTypeFromName(file.getName());
             fileClientService.writeFile(uri, file);
+
+            if (format.contains("image")) {
+                boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, context);
+            }
             return true;
         }
 
