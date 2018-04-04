@@ -2016,13 +2016,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
 
-        AttachmentAsyncTask attachmentAsyncTask = new AttachmentAsyncTask(uri, file, getActivity());
-        attachmentAsyncTask.setImageViewLayoutWeakReference(mediaContainer);
-        attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
-        attachmentAsyncTask.setTextViewWeakReference(attachedFile);
-        attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
-        attachmentAsyncTask.execute();
-
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+        if (mimeType != null && (mimeType.startsWith("image"))) {
+            AttachmentAsyncTask attachmentAsyncTask = new AttachmentAsyncTask(uri, file, getActivity());
+            attachmentAsyncTask.setImageViewLayoutWeakReference(mediaContainer);
+            attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
+            attachmentAsyncTask.setTextViewWeakReference(attachedFile);
+            attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
+            attachmentAsyncTask.execute();
+        } else {
+            filePath = Uri.parse(file.getAbsolutePath()).toString();
+        }
 
     }
 
