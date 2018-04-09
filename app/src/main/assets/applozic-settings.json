@@ -71,6 +71,7 @@
   "logoutOption": false,
   "showAllDeviceContacts": true,
   "logoutPackageName": "",
+  "groupDeletePackageName": "",
   "attachmentOptions": {
     ":location": true,
     ":camera": true,
