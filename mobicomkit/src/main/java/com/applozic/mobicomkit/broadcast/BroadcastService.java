@@ -29,6 +29,7 @@ public class BroadcastService {
     private static final String MOBICOMKIT_ALL = "MOBICOMKIT_ALL";
 
     public static String currentUserId = null;
+    public static Integer parentGroupKey = null;
     public static Integer currentConversationId = null;
     public static boolean mobiTexterBroadcastReceiverActivated;
     public static String currentInfoId = null;

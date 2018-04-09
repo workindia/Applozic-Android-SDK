@@ -13,7 +13,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 
 public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DB_VERSION = 31;
+    public static final int DB_VERSION = 32;
 
     public static final String _ID = "_id";
     public static final String DB_NAME = "APPLOZIC_LOCAL_DATABASE";
@@ -77,7 +77,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String APPLOZIC_TYPE = "applozicType";
     public static final String PHONE_CONTACT_DISPLAY_NAME = "phoneContactDisplayName";
     public static final String DEVICE_CONTACT_TYPE = "deviceContactType";
-
+    public static final String PARENT_GROUP_KEY = "parentGroupKey";
+    public static final String PARENT_CLIENT_GROUP_ID = "parentClientGroupId";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -161,6 +162,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CONTACT_TABLE_FOR_PHONE_CONTACT_DISPLAY_NAME = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + PHONE_CONTACT_DISPLAY_NAME + " varchar(100) ";
     private static final String ALTER_CONTACT_TABLE_FOR_APPLOZIC_TYPE = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + APPLOZIC_TYPE + " integer default 1";
     private static final String ALTER_CONTACT_TABLE_FOR_DEVICE_CONTACT_TYPE = "ALTER TABLE " + CONTACT_TABLE_NAME + " ADD COLUMN " + DEVICE_CONTACT_TYPE + " integer default 1";
+    private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
+    private static final String ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL_USER_X + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_CLIENT_GROUP_ID + " varchar(1000) null";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -202,6 +206,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + CHANNEL_IMAGE_LOCAL_URI + " VARCHAR(300), "
             + NOTIFICATION_AFTER_TIME + " integer default 0, "
             + DELETED_AT + " integer,"
+            + PARENT_GROUP_KEY + " integer default 0 ,"
+            + PARENT_CLIENT_GROUP_ID + " varchar(1000) default null,"
             + CHANNEL_META_DATA + " VARCHAR(2000)) ";
 
     private static final String CREATE_CHANNEL_USER_X_TABLE = " CREATE TABLE channel_User_X ( " +
@@ -211,6 +217,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + UNREAD_COUNT + " integer, "
             + STATUS + " integer, "
             + ROLE + " integer default 0,"
+            + PARENT_GROUP_KEY + " integer default 0,"
             + "UNIQUE (" + CHANNEL_KEY + ", " + USERID + "))";
 
     private static final String CREATE_CONVERSATION_TABLE = " CREATE TABLE conversation ( " +
@@ -405,6 +412,17 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             if (!DBUtils.existsColumnInTable(database, CONTACT_TABLE_NAME, DEVICE_CONTACT_TYPE)) {
                 database.execSQL(ALTER_CONTACT_TABLE_FOR_DEVICE_CONTACT_TYPE);
             }
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_GROUP_KEY)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, CHANNEL_USER_X, PARENT_GROUP_KEY)) {
+                database.execSQL(ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN);
+            }
+
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_CLIENT_GROUP_ID)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN);
+            }
+
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
             database.execSQL(CREATE_INDEX_SMS_TYPE);
             database.execSQL(ALTER_SMS_TABLE);

@@ -430,7 +430,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         if (isDeviceContactSync) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, userIdArray, alCustomizationSettings != null && alCustomizationSettings.isShowAllDeviceContacts());
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray);
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 
