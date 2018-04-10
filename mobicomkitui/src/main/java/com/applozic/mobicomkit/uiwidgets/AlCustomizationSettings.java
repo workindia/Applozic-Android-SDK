@@ -83,6 +83,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean muteOption = true;
     private MobicomMessageTemplate messageTemplate;
     private String logoutPackageName;
+    private String groupDeletePackageName;
     private boolean logoutOption = false;
     private int defaultGroupType = 2;
     private boolean muteUserChatOption = false;
@@ -101,6 +102,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean forwardOption = true;
     private boolean recordButton = true;
     private boolean showAllDeviceContacts = true;
+    private boolean poweredByApplozic = false;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -449,6 +451,10 @@ public class AlCustomizationSettings extends JsonMarker {
         this.logoutPackageName = logoutPackageName;
     }
 
+    public String getGroupDeletePackageName() {
+        return groupDeletePackageName;
+    }
+
     public String getThemeColorPrimary() {
         return themeColorPrimary;
     }
@@ -527,6 +533,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setShowAllDeviceContacts(boolean showAllDeviceContacts) {
         this.showAllDeviceContacts = showAllDeviceContacts;
+    }
+
+    public boolean isPoweredByApplozic() {
+        return poweredByApplozic;
     }
 
     @Override
