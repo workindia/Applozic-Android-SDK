@@ -190,7 +190,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + USER_ROLE_TYPE + " integer default 0, "
             + LAST_MESSAGED_AT + " integer, "
             + USER_METADATA + " varchar(2000) null, "
-            + DEVICE_CONTACT_TYPE + " integer default 1"
+            + DEVICE_CONTACT_TYPE + " integer default 0"
             + " ) ";
 
     private static final String CREATE_CHANNEL_TABLE = " CREATE TABLE channel ( " +
@@ -459,7 +459,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("delete from " + SMS_TABLE_NAME);
 
-        db.execSQL("delete from " + CONTACT_TABLE_NAME + (ApplozicClient.getInstance(context).isDeviceContactSync() ? " where " + DEVICE_CONTACT_TYPE + " = 0" : ""));
+        db.execSQL("delete from " + CONTACT_TABLE_NAME);
 
         db.execSQL("delete from " + CHANNEL);
 

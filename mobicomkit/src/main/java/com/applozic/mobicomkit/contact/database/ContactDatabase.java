@@ -255,10 +255,12 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
         if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+
             if (contact.getDeviceContactType() != null) {
                 contentValues.put(MobiComDatabaseHelper.DEVICE_CONTACT_TYPE, contact.getDeviceContactType());
                 contentValues.put(MobiComDatabaseHelper.APPLOZIC_TYPE, contact.isApplozicType() ? 1 : 0);
             }
+
             if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
                 contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getFormattedContactNumber());
             }
@@ -316,7 +318,9 @@ public class ContactDatabase {
         contentValues.put(MobiComDatabaseHelper.USER_ROLE_TYPE, contact.getRoleType());
         contentValues.put(MobiComDatabaseHelper.LAST_MESSAGED_AT, contact.getLastMessageAtTime());
         contentValues.put(MobiComDatabaseHelper.USER_TYPE_ID, contact.getUserTypeId());
-        contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
+        if (contact.getDeletedAtTime() != null && contact.getDeletedAtTime() != 0) {
+            contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
+        }
         return contentValues;
     }
 
@@ -520,7 +524,7 @@ public class ContactDatabase {
                             query = query + " AND " + (isLoadAllContact ? "deviceContactType != 0" : "deviceContactType = 2") + " AND userId != '" + userPreferences.getUserId() + "'";
                         }
                     }
-                    query = query + " order by deviceContactType desc, phoneContactDisplayName COLLATE NOCASE,userId COLLATE NOCASE asc ";
+                    query = query + " order by applozicType desc, phoneContactDisplayName COLLATE NOCASE,userId COLLATE NOCASE asc ";
                     cursor = db.rawQuery(query, null);
                 }
 
@@ -640,7 +644,9 @@ public class ContactDatabase {
         if (existingContact == null) {
             addContact(contact);
         } else {
-            if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())) {
+            if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(existingContact.getDeviceContactType())) {
+                contact.setDeviceContactType(existingContact.getDeviceContactType());
+            }else if(Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())){
                 contact.setDeviceContactType(existingContact.getDeviceContactType());
             }
             updateContact(contact);
