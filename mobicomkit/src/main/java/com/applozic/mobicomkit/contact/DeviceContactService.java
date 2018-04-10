@@ -175,28 +175,19 @@ public class DeviceContactService implements BaseContactService {
         Contact contact = contactDatabase.getContactByPhoneNo(formattedPhoneNumber);
         Contact contactByLookupKey = contactDatabase.getContactById(lookupKey);
 
-        /*if (contactDatabase.isContactPresent(formattedPhoneNumber, Contact.ContactType.DEVICE_AND_APPLOZIC)) {
+        if (contactDatabase.isContactPresent(formattedPhoneNumber, Contact.ContactType.DEVICE_AND_APPLOZIC)) {
+            if (!displayName.equals(contact.getPhoneDisplayName())) {
+                contactDatabase.updatePhoneContactDisplayName(formattedPhoneNumber, displayName, Contact.ContactType.DEVICE_AND_APPLOZIC.getValue());
+            }
             return null;
-        }*/
+        }
 
         if (contact != null) {
             //Log.d(TAG, "Contact is present with the same phone number: " + formattedPhoneNumber);
             lookupKey = contact.getUserId();
-            if (!displayName.equals(contact.getPhoneDisplayName())) {
-                contactDatabase.updatePhoneContactDisplayName(formattedPhoneNumber, displayName, contact.getDeviceContactType());
-                return contact;
-            }
         } else if (contactByLookupKey != null) {
             //Log.d(TAG, "Contact is present with the same lookupkey: " + lookupKey);
             lookupKey = lookupKey + "-" + formattedPhoneNumber;
-            if (!displayName.equals(contactByLookupKey.getPhoneDisplayName())) {
-                contactDatabase.updateContact(contactByLookupKey);
-                return contactByLookupKey;
-            }
-        }
-
-        if (contactDatabase.isContactPresent(formattedPhoneNumber, Contact.ContactType.DEVICE_AND_APPLOZIC)) {
-            return null;
         }
 
         Contact newContact = new Contact();
