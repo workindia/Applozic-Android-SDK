@@ -70,7 +70,7 @@
   "replyOption": true,
   "logoutOption": false,
   "showAllDeviceContacts": true,
-  "poweredByApplozic": true,
+  "poweredByApplozic": false,
   "logoutPackageName": "",
   "attachmentOptions": {
     ":location": true,
