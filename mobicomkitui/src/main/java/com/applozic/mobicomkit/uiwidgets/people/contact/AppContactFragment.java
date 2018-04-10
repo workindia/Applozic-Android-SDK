@@ -430,7 +430,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         if (isDeviceContactSync) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, userIdArray, alCustomizationSettings != null && alCustomizationSettings.isShowAllDeviceContacts());
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray);
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 
@@ -667,9 +667,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
 
             if (!TextUtils.isEmpty(contact.getContactNumber()) || isDeviceContactSync) {
-                layoutParams = (RelativeLayout.LayoutParams) holder.text1.getLayoutParams();
-                layoutParams.setMargins(0, 20, 0, 0);
-                holder.text1.setLayoutParams(layoutParams);
                 holder.contactNumberTextView.setVisibility(View.VISIBLE);
 
                 if (isDeviceContactSync) {
@@ -681,9 +678,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             } else {
                 holder.text2.setVisibility(View.GONE);
                 holder.contactNumberTextView.setVisibility(View.GONE);
-                layoutParams = (RelativeLayout.LayoutParams) holder.text1.getLayoutParams();
-                layoutParams.setMargins(0, 50, 0, 0);
-                holder.text1.setLayoutParams(layoutParams);
             }
             // Returns the item layout view
 

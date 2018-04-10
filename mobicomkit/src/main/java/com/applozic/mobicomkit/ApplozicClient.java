@@ -41,6 +41,7 @@ public class ApplozicClient {
     private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
     private static final String CUSTOM_MESSAGE_TEMPLATE = "CUSTOM_MESSAGE_TEMPLATE";
     private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
+    private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -292,6 +293,15 @@ public class ApplozicClient {
 
     public ApplozicClient enableDeviceContactSync(boolean isDeviceContactSync) {
         sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, isDeviceContactSync).commit();
+        return this;
+    }
+
+    public boolean isSubGroupEnabled() {
+        return sharedPreferences.getBoolean(AL_SUBGROUP_SUPPORT, false);
+    }
+
+    public ApplozicClient setSubGroupSupport(boolean subgroup) {
+        sharedPreferences.edit().putBoolean(AL_SUBGROUP_SUPPORT, subgroup).commit();
         return this;
     }
 
