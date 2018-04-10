@@ -437,7 +437,7 @@ public class ContactDatabase {
 
                 String query = null;
                 if (parentGroupKey != null && parentGroupKey != 0) {
-                    query = "Select DISTINCT(c.userId) as _id,c.fullName,c.contactNO,c.displayName,c.contactImageURL,c.contactImageLocalURI,c.email,c.applicationId,c.connected,c.lastSeenAt,c.unreadCount,c.blocked,c.blockedBy,c.status,c.contactType,c.userTypeId,c.deletedAtTime from contact c join channel_User_X cux on cux.userId = c.userId where ( cux.channelKey = '" + parentGroupKey + "' OR cux.parentGroupKey = '" + parentGroupKey + "' ) AND c.userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
+                    query = "Select DISTINCT(c.userId) as _id,c.fullName,c.contactNO,c.displayName,c.contactImageURL,c.contactImageLocalURI,c.email,c.applicationId,c.connected,c.lastSeenAt,c.unreadCount,c.blocked,c.blockedBy,c.status,c.contactType,c.userTypeId,c.deletedAtTime,c.notificationAfterTime,c.userRoleType,c.lastMessagedAt,c.userMetadata from contact c join channel_User_X cux on cux.userId = c.userId where ( cux.channelKey = '" + parentGroupKey + "' OR cux.parentGroupKey = '" + parentGroupKey + "' ) AND c.userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " AND c.fullName like '%" + searchString.replaceAll("'", "''") + "%'";
                     }
