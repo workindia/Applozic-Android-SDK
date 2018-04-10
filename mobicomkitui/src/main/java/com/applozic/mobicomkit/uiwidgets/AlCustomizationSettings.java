@@ -102,6 +102,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean forwardOption = true;
     private boolean recordButton = true;
     private boolean showAllDeviceContacts = true;
+    private boolean poweredByApplozic = false;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -532,6 +533,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setShowAllDeviceContacts(boolean showAllDeviceContacts) {
         this.showAllDeviceContacts = showAllDeviceContacts;
+    }
+
+    public boolean isPoweredByApplozic() {
+        return poweredByApplozic;
     }
 
     @Override
