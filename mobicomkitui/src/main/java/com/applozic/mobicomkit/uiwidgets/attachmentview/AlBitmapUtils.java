@@ -62,7 +62,7 @@ public class AlBitmapUtils {
                 scaledBitMap.compress(Bitmap.CompressFormat.JPEG, MAX_COMPRESSION_QUALITY, baos);
                 bytes = baos.toByteArray();
 
-                File sizeOfFile = new File(uri.getPath());
+                File sizeOfFile = new File(file.getAbsolutePath());
 
                 String path = sizeOfFile.getAbsolutePath();
 
