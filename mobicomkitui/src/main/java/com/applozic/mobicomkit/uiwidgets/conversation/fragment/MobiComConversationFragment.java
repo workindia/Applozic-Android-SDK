@@ -26,6 +26,7 @@ import android.os.Vibrator;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -99,6 +100,7 @@ import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
+import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicAudioManager;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicAudioRecordManager;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicDocumentView;
@@ -141,6 +143,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2011,45 +2014,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         handleSendAndRecordButtonView(true);
         errorEditTextView.setVisibility(View.GONE);
-        filePath = Uri.parse(file.getAbsolutePath()).toString();
-        if (TextUtils.isEmpty(filePath)) {
-            Utils.printLog(getContext(), TAG, "Error while fetching filePath");
-            attachmentLayout.setVisibility(View.GONE);
-            Toast.makeText(getActivity(), R.string.info_file_attachment_error, Toast.LENGTH_LONG).show();
+        long fileSize = file.length() / 1024;
+        long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
+        if (fileSize > maxFileSize) {
+            Toast.makeText(getActivity(), R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
             return;
         }
-        String mimeType = getActivity().getContentResolver().getType(uri);
-        Cursor returnCursor =
-                getActivity().getContentResolver().query(uri, null, null, null, null);
-        if (returnCursor != null) {
-            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            returnCursor.moveToFirst();
-            Long fileSize = returnCursor.getLong(sizeIndex);
-            long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
-            if (fileSize > maxFileSize) {
-                Toast.makeText(getActivity(), R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
-                return;
-            }
-            attachedFile.setText(returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
-            returnCursor.close();
-        }
-        attachmentLayout.setVisibility(VISIBLE);
-        if (mimeType != null && (mimeType.startsWith("image") || mimeType.startsWith("video"))) {
-            attachedFile.setVisibility(View.GONE);
-            int reqWidth = mediaContainer.getWidth();
-            int reqHeight = mediaContainer.getHeight();
-            if (reqWidth == 0 || reqHeight == 0) {
-                DisplayMetrics displaymetrics = new DisplayMetrics();
-                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-                reqHeight = displaymetrics.heightPixels;
-                reqWidth = displaymetrics.widthPixels;
-            }
-            previewThumbnail = FileUtils.getPreview(filePath, reqWidth, reqHeight, alCustomizationSettings.isImageCompression(), mimeType);
-            mediaContainer.setImageBitmap(previewThumbnail);
+
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+        if (mimeType != null && (mimeType.startsWith("image"))) {
+            AttachmentAsyncTask attachmentAsyncTask = new AttachmentAsyncTask(uri, file, getActivity());
+            attachmentAsyncTask.setImageViewLayoutWeakReference(mediaContainer);
+            attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
+            attachmentAsyncTask.setTextViewWeakReference(attachedFile);
+            attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
+            attachmentAsyncTask.execute();
         } else {
-            attachedFile.setVisibility(VISIBLE);
-            mediaContainer.setImageBitmap(null);
+            filePath = Uri.parse(file.getAbsolutePath()).toString();
         }
+
     }
 
     public synchronized boolean updateMessageList(Message message, boolean update) {
@@ -3748,4 +3731,94 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
     }
+
+    public class AttachmentAsyncTask extends AsyncTask<Void, Integer, Long> {
+
+        File file;
+        Uri uri;
+        String mimeType;
+        WeakReference<FragmentActivity> activityWeakReference;
+        WeakReference<TextView> textViewWeakReference;
+        WeakReference<RelativeLayout> relativeLayoutWeakReference;
+        WeakReference<ImageView> imageViewLayoutWeakReference;
+        WeakReference<AlCustomizationSettings> alCustomizationSettingsLayoutWeakReference;
+
+        public AttachmentAsyncTask(Uri uri, File file, FragmentActivity activity) {
+            this.file = file;
+            this.uri = uri;
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        public void setTextViewWeakReference(TextView textView) {
+            this.textViewWeakReference = new WeakReference<>(textView);
+        }
+
+        public void setRelativeLayoutWeakReference(RelativeLayout relativeLayout) {
+            this.relativeLayoutWeakReference = new WeakReference<>(relativeLayout);
+
+        }
+
+        public void setImageViewLayoutWeakReference(ImageView imageViewLayoutWeakReference) {
+            this.imageViewLayoutWeakReference = new WeakReference<>(imageViewLayoutWeakReference);
+        }
+
+        public void setAlCustomizationSettingsLayoutWeakReference(AlCustomizationSettings alCustomizationSettings) {
+            this.alCustomizationSettingsLayoutWeakReference = new WeakReference<>(alCustomizationSettings);
+        }
+
+        @Override
+        protected Long doInBackground(Void... params) {
+
+            mimeType = URLConnection.guessContentTypeFromName(file.getName());
+            if (mimeType != null && (mimeType.startsWith("image"))) {
+                FragmentActivity fragmentActivity = activityWeakReference.get();
+                boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, fragmentActivity);
+            }
+            filePath = Uri.parse(file.getAbsolutePath()).toString();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            ImageView container;
+            TextView fileNameTextView = null;
+            RelativeLayout attachmentRelativeLayout;
+
+            if (imageViewLayoutWeakReference != null && textViewWeakReference != null && relativeLayoutWeakReference != null) {
+                container = imageViewLayoutWeakReference.get();
+                fileNameTextView = textViewWeakReference.get();
+                fileNameTextView.setText(file.getName());
+
+                attachmentRelativeLayout = relativeLayoutWeakReference.get();
+                attachmentRelativeLayout.setVisibility(VISIBLE);
+
+                if (mimeType != null && (mimeType.startsWith("image") || mimeType.startsWith("video"))) {
+                    fileNameTextView.setVisibility(View.GONE);
+                    int reqWidth = mediaContainer.getWidth();
+                    int reqHeight = mediaContainer.getHeight();
+                    if (reqWidth == 0 || reqHeight == 0) {
+                        DisplayMetrics displaymetrics = new DisplayMetrics();
+                        FragmentActivity activityRef = activityWeakReference.get();
+                        if (activityRef != null) {
+                            activityRef.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+                        }
+                        reqHeight = displaymetrics.heightPixels;
+                        reqWidth = displaymetrics.widthPixels;
+                    }
+                    if (alCustomizationSettingsLayoutWeakReference != null) {
+                        AlCustomizationSettings customizationSettings = alCustomizationSettingsLayoutWeakReference.get();
+                        Bitmap previewThumbnail = FileUtils.getPreview(file.getAbsolutePath(), reqWidth, reqHeight, customizationSettings.isImageCompression(), mimeType);
+                        container.setImageBitmap(previewThumbnail);
+                    }
+                } else {
+                    fileNameTextView.setVisibility(VISIBLE);
+                    container.setImageBitmap(null);
+                }
+            }
+
+        }
+
+    }
+
 }
