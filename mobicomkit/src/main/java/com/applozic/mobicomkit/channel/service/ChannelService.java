@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.channel.service;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
