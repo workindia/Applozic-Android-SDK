@@ -33,6 +33,8 @@ import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.async.AlCreateGroupOfTwoTask;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelMetaDataUpdateTask;
+import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelNameUpdateTask;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -238,9 +240,9 @@ public class MainActivity extends AppCompatActivity
 
     public void takeOrder(View v) {
         List<String> channelMembersList = new ArrayList<String>();
-        String userReceiver = "userDevice"; // userID for receiving end
+        String userReceiver = "userEmulator"; // userID for receiving end
         channelMembersList.add(userReceiver);
-        String itemId = "item1"; // ID for item on which you want to initiate chat
+        String itemId = "i9898"; // ID for item on which you want to initiate chat
         ChannelInfo channelInfo = new ChannelInfo("Context Based Group of Two", channelMembersList);
         channelInfo.setType(Channel.GroupType.GROUPOFTWO.getValue().intValue()); //group type
         channelInfo.setClientGroupId(buildClientGroupID(itemId, userReceiver)); //Optional if you have your own groupId then you can pass here
@@ -295,7 +297,39 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void initiateChatClick(View v) {
-        FragmentManager supportFragmentManager = getSupportFragmentManager();
+
+        ApplozicChannelMetaDataUpdateTask.ChannelMetaDataUpdateListener channelMetaDataUpdateListener = new ApplozicChannelMetaDataUpdateTask.ChannelMetaDataUpdateListener() {
+            @Override
+            public void onUpdateSuccess(String response, Context context) {
+                Toast.makeText(MainActivity.this, response, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(String response, Exception e, Context context) {
+                Toast.makeText(MainActivity.this, response, Toast.LENGTH_LONG).show();
+            }
+        };
+
+        ApplozicChannelNameUpdateTask.ChannelNameUpdateListener channelNameUpdateListener = new ApplozicChannelNameUpdateTask.ChannelNameUpdateListener() {
+            @Override
+            public void onSuccess(String response, Context context) {
+
+            }
+
+            @Override
+            public void onFailure(String response, Exception e, Context context) {
+
+            }
+        };
+
+        Map<String, String> metaData = new HashMap<>();
+        metaData.put(Channel.GroupMetaDataType.TITLE.getValue(), "FORD FIESTA PETROL ZXI 1.2 (2018)");
+        metaData.put(Channel.GroupMetaDataType.PRICE.getValue(), "$5999");
+        metaData.put(Channel.GroupMetaDataType.LINK.getValue(), "https://imguct1.aeplcdn.com/img/300x225/lis/201709/1188774_6855_1_1506405541170.jpeg");
+
+        new ApplozicChannelMetaDataUpdateTask(this, 8523489, metaData, channelMetaDataUpdateListener).execute();
+
+/*        FragmentManager supportFragmentManager = getSupportFragmentManager();
         DialogFragment fragment = new InitiateDialogFragment();
         FragmentTransaction fragmentTransaction = supportFragmentManager
                 .beginTransaction();
@@ -304,7 +338,7 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.remove(prev);
         }
         fragmentTransaction.addToBackStack(null);
-        fragment.show(fragmentTransaction, "InitiateDialogFragment");
+        fragment.show(fragmentTransaction, "InitiateDialogFragment");*/
     }
 
     public void groupChat(View v) {

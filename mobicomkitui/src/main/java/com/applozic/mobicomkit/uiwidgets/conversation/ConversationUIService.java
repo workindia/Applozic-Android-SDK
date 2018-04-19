@@ -598,13 +598,21 @@ public class ConversationUIService {
 
     }
 
-    public void updateChannelSync() {
+    public void updateChannelSync(boolean isMetaDataUpdate) {
         if (BroadcastService.isChannelInfo()) {
             BroadcastService.sendUpdateGroupInfoBroadcast(fragmentActivity, BroadcastService.INTENT_ACTIONS.UPDATE_GROUP_INFO.toString());
         }
         if (BroadcastService.isIndividual()) {
-            getConversationFragment().updateChannelTitleAndSubTitle();
+            if (!isMetaDataUpdate) {
+                getConversationFragment().updateChannelTitleAndSubTitle();
+            } else {
+                getConversationFragment().updateContextBasedGroup();
+            }
         }
+    }
+
+    public void updateChannelSync() {
+        updateChannelSync(false);
     }
 
     public void updateTitleAndSubtitle() {
@@ -844,7 +852,7 @@ public class ConversationUIService {
             if (message.getGroupId() != null) {
                 channel = ChannelService.getInstance(fragmentActivity).getChannelByChannelKey(message.getGroupId());
                 if (channel.getParentKey() != null && channel.getParentKey() != 0) {
-                    BroadcastService.parentGroupKey =  channel.getParentKey();
+                    BroadcastService.parentGroupKey = channel.getParentKey();
                     MobiComUserPreference.getInstance(fragmentActivity).setParentGroupKey(channel.getParentKey());
                 }
             } else {
@@ -917,7 +925,7 @@ public class ConversationUIService {
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
                     Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-                    ApplozicMqttIntentService.enqueueWork(fragmentActivity,intent);
+                    ApplozicMqttIntentService.enqueueWork(fragmentActivity, intent);
 
                 }
             }
