@@ -224,7 +224,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 Message message = messageResponse.getMessage();
                                 if (message.getGroupId() != null) {
                                     try {
-                                        if (message.getContentType() == 10 && message.getMessage() != null && message.getMetadata().containsKey("action") && message.getMetadata().get("action").contains("9")) {
+                                        if (message.isGroupMetaDataUpdated()) {
                                             ChannelService.getInstance(context).syncChannels(true);
                                         }
                                     } catch (Exception e) {

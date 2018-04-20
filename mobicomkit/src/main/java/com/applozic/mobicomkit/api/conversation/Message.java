@@ -662,6 +662,10 @@ public class Message extends JsonMarker {
         return GroupMessageMetaData.TRUE.getValue().equals(getMetaDataValueForKey(GroupMessageMetaData.HIDE_KEY.getValue())) || Message.ContentType.HIDDEN.getValue().equals(getContentType());
     }
 
+    public boolean isGroupMetaDataUpdated() {
+        return this.getContentType() == 10 && this.getMetadata() != null && this.getMetadata().containsKey("action") && "9".equals(this.getMetadata().get("action"));
+    }
+
     public void setHidden(boolean hidden) {
         hidden = hidden;
     }
