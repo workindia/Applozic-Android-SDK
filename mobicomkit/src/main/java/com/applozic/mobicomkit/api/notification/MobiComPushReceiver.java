@@ -307,7 +307,7 @@ MobiComPushReceiver {
                 Message messageObj = syncMessageResponse.getMessage();
 
                 try {
-                    if (messageObj.getContentType() == 10 && messageObj.getMessage() != null && messageObj.getMessage().contains("updated group metadata")) {
+                    if (messageObj.getContentType() == 10 && messageObj.getMessage() != null && messageObj.getMetadata().containsKey("action") && messageObj.getMetadata().get("action").contains("9")) {
                         ChannelService.getInstance(context).syncChannels(true);
                     }
                 } catch (Exception e) {
