@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -409,7 +410,7 @@ MobiComPushReceiver {
                 syncCallService.syncMessageMetadataUpdate(keyString, true);
             }
 
-            if (ApplozicClient.getInstance(context).isDeviceContactSync() && !TextUtils.isEmpty(contactSync)) {
+            if (Applozic.getInstance(context).isDeviceContactSync() && !TextUtils.isEmpty(contactSync)) {
                 MqttMessageResponse mqttMessageResponse = (MqttMessageResponse) GsonUtils.getObjectFromJson(contactSync, MqttMessageResponse.class);
                 if (processPushNotificationId(mqttMessageResponse.getId())) {
                     return;

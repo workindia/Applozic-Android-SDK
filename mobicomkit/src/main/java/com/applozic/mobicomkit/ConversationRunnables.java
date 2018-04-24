@@ -90,7 +90,7 @@ public class ConversationRunnables {
                 List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
                 UserService.getInstance(context).processSyncUserBlock();
 
-                if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+                if (Applozic.getInstance(context).isDeviceContactSync()) {
                     Set<String> contactNoSet = new HashSet<String>();
                     List<Contact> contacts = new AppContactService(context).getContacts(Contact.ContactType.DEVICE);
                     for (Contact contact : contacts) {

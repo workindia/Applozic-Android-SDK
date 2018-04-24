@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
@@ -23,6 +24,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import com.applozic.mobicommons.ALSpecificSettings;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 /**
@@ -357,10 +365,46 @@ public class Utils {
                 boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
                 if (isDebuggable) {
                     Log.i(tag, message);
+
+                    if (ALSpecificSettings.getInstance(context).isTextLoggingEnabled()) {
+                        writeToFile(context, tag + " (" + DateUtils.getDateAndTimeInDefaultFormat(System.currentTimeMillis()) + ") : " + message);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(Context context, String log) {
+        try {
+            String fileName = "/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt";
+            BufferedWriter bufferedWriter = null;
+            try {
+                String folder = "/" + Utils.getMetaDataValue(context, "main_folder_name");
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, fileName);
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+
+                FileWriter writer = new FileWriter(file, true);
+                bufferedWriter = new BufferedWriter(writer);
+                bufferedWriter.append(log);
+                bufferedWriter.append("\r\n\n");
+
+                bufferedWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (bufferedWriter != null) {
+                    bufferedWriter.close();
+                }
+            }
+        } catch (Exception e) {
         }
     }
 

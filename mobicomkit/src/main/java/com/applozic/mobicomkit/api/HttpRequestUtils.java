@@ -80,7 +80,7 @@ public class HttpRequestUtils {
                 os.close();
             }
             BufferedReader br = null;
-            if (connection.getResponseCode() == 200) {
+            if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 InputStream inputStream = connection.getInputStream();
                 br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             }

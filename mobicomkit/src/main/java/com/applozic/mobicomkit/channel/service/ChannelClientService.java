@@ -18,6 +18,9 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +48,7 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String ADD_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/add/members";
     private static final String GET_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/get";
     private static final String GET_MEMBERS_FROM_CONTACT_GROUP_LIST_URL = "/rest/ws/group/favourite/list/get";
+    private static final String CREATE_CONVERSATION_URL = "/conversations";
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
     private static final String GROUP_ID = "groupId";
@@ -148,6 +152,10 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public String getRemoveMemberFromGroupTypeUrl() {
         return getBaseUrl() + REMOVE_MEMBERS_FROM_CONTACT_GROUP_OF_TYPE_URL;
+    }
+
+    private String getCreateConversationUrl() {
+        return getKmBaseUrl() + CREATE_CONVERSATION_URL;
     }
 
     public ChannelFeed getChannelInfoByParameters(String parameters) {
@@ -624,6 +632,30 @@ public class ChannelClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return channelFeedListResponse;
+    }
+
+    public String createConversation(Integer groupId, String userId, String agentId, String applicationId) {
+
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("groupId", groupId);
+            jsonObject.put("participentUserId", userId);
+            jsonObject.put("createdBy", userId);
+            jsonObject.put("defaultAgentId", agentId);
+            jsonObject.put("applicationId", applicationId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String response = httpRequestUtils.postData(getCreateConversationUrl(), "application/json", "application/json", jsonObject.toString());
+            Utils.printLog(context, TAG, "Response : " + response);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public ApiResponse removeMemberFromContactGroupOfType(String groupName, String groupType, String userId) {

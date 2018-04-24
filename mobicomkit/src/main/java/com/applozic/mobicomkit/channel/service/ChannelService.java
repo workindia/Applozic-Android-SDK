@@ -378,6 +378,9 @@ public class ChannelService {
         return apiResponse.getStatus();
     }
 
+    public synchronized String createConversation(Integer groupId, String userId, String agentId, String applicationId) {
+        return channelClientService.createConversation(groupId, userId, agentId, applicationId);
+    }
 
     public synchronized void processChannelList(List<ChannelFeed> channelFeedList) {
         if (channelFeedList != null && channelFeedList.size() > 0) {

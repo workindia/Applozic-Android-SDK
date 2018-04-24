@@ -39,6 +39,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -483,7 +484,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if (ApplozicClient.getInstance(getContext()).isDeviceContactSync()) {
+        if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
         } else {
             return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());

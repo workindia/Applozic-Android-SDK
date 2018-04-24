@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Process;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -313,7 +314,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 syncCallService.syncUserDetail(userId);
                             }
 
-                            if (ApplozicClient.getInstance(context).isDeviceContactSync() && NOTIFICATION_TYPE.CONTACT_SYNC.getValue().equals(mqttMessageResponse.getType())) {
+                            if (Applozic.getInstance(context).isDeviceContactSync() && NOTIFICATION_TYPE.CONTACT_SYNC.getValue().equals(mqttMessageResponse.getType())) {
                                 syncCallService.processContactSync(mqttMessageResponse.getMessage().toString());
                             }
 

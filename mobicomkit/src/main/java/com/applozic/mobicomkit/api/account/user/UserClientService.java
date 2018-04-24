@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -194,6 +195,7 @@ public class UserClientService extends MobiComKitClientService {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();
             mobiComUserPreference.clearAll();
+            ALSpecificSettings.getInstance(context).clearAll();
             MessageDatabaseService.recentlyAddedMessage.clear();
             MobiComDatabaseHelper.getInstance(context).delDatabase();
             mobiComUserPreference.setUrl(url);
@@ -599,25 +601,25 @@ public class UserClientService extends MobiComKitClientService {
                 for (String phoneNo : phoneNos) {
                     count++;
                     phoneNumberList.add(phoneNo);
-                    if( count% BATCH_SIZE==0){
+                    if (count % BATCH_SIZE == 0) {
                         UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
                         userDetailListFeed.setContactSync(true);
                         userDetailListFeed.setPhoneNumberList(phoneNumberList);
                         String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                        Log.i(TAG,"Sending json:" + jsonFromObject);
-                        response = httpRequestUtils.postData( getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
-                        phoneNumberList =  new ArrayList<String>();
-                        if(!TextUtils.isEmpty(response)){
+                        Log.i(TAG, "Sending json:" + jsonFromObject);
+                        response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+                        phoneNumberList = new ArrayList<String>();
+                        if (!TextUtils.isEmpty(response)) {
                             UserService.getInstance(context).processUserDetailsResponse(response);
                         }
                     }
                 }
-                if(!phoneNumberList.isEmpty()&& phoneNumberList.size()>0) {
+                if (!phoneNumberList.isEmpty() && phoneNumberList.size() > 0) {
                     UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
                     userDetailListFeed.setContactSync(true);
                     userDetailListFeed.setPhoneNumberList(phoneNumberList);
                     String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                    response = httpRequestUtils.postData( getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+                    response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
 
                     Log.i(TAG, "User details response is :" + response);
                     if (TextUtils.isEmpty(response) || response.contains("<html>")) {

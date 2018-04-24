@@ -40,7 +40,6 @@ public class ApplozicClient {
     private static final String CUSTOM_STORAGE_SERVICE_ENABLED = "CUSTOM_STORAGE_SERVICE_ENABLED";
     private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
     private static final String CUSTOM_MESSAGE_TEMPLATE = "CUSTOM_MESSAGE_TEMPLATE";
-    private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
 
     public static ApplozicClient applozicClient;
@@ -284,15 +283,6 @@ public class ApplozicClient {
 
     public ApplozicClient setMessageTemplates(Map<String, String> messageTemplates) {
         sharedPreferences.edit().putString(CUSTOM_MESSAGE_TEMPLATE, GsonUtils.getJsonFromObject(messageTemplates, Map.class)).commit();
-        return this;
-    }
-
-    public boolean isDeviceContactSync() {
-        return sharedPreferences.getBoolean(ENABLE_DEVICE_CONTACT_SYNC, false);
-    }
-
-    public ApplozicClient enableDeviceContactSync(boolean isDeviceContactSync) {
-        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, isDeviceContactSync).commit();
         return this;
     }
 

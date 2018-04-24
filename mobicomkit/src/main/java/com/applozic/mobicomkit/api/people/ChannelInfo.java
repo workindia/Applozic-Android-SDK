@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.api.people;
 
-import android.text.TextUtils;
 
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -17,6 +16,7 @@ public class ChannelInfo extends JsonMarker {
 
     private String clientGroupId;
     private String groupName;
+    List<GroupUser> users;
     private List<String> groupMemberList;
     private String imageUrl;
     private int type = Channel.GroupType.PUBLIC.getValue().intValue();
@@ -89,6 +89,14 @@ public class ChannelInfo extends JsonMarker {
         this.admin = admin;
     }
 
+    public List<GroupUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<GroupUser> users) {
+        this.users = users;
+    }
+
     public Integer getParentKey() {
         return parentKey;
     }
@@ -132,11 +140,43 @@ public class ChannelInfo extends JsonMarker {
         this.metadata = metadata;
     }
 
+    public class GroupUser {
+        String userId;
+        int groupRole;
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public GroupUser setUserId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public int getGroupRole() {
+            return groupRole;
+        }
+
+        public GroupUser setGroupRole(int groupRole) {
+            this.groupRole = groupRole;
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "GroupUser{" +
+                    "userId='" + userId + '\'' +
+                    ", groupRole=" + groupRole +
+                    '}';
+        }
+    }
+
     @Override
     public String toString() {
         return "ChannelInfo{" +
                 "clientGroupId='" + clientGroupId + '\'' +
                 ", groupName='" + groupName + '\'' +
+                ", users=" + users +
                 ", groupMemberList=" + groupMemberList +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", type=" + type +

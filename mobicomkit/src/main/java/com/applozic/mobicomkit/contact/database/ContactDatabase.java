@@ -10,6 +10,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
@@ -52,6 +53,7 @@ public class ContactDatabase {
      */
     public Contact getContact(Cursor cursor, String primaryKeyAliash) {
         Contact contact = new Contact();
+
         try {
             contact.setFullName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.FULL_NAME)));
             contact.setUserId(cursor.getString(cursor.getColumnIndex(primaryKeyAliash == null ? MobiComDatabaseHelper.USERID : primaryKeyAliash)));
@@ -76,7 +78,7 @@ public class ContactDatabase {
             contact.setRoleType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.USER_ROLE_TYPE)));
             contact.setLastMessageAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_MESSAGED_AT)));
 
-            if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+            if (Applozic.getInstance(context).isDeviceContactSync()) {
                 contact.setDeviceContactType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.DEVICE_CONTACT_TYPE)));
                 contact.setPhoneDisplayName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.PHONE_CONTACT_DISPLAY_NAME)));
             }
@@ -234,7 +236,7 @@ public class ContactDatabase {
 
     public void addContact(Contact contact) {
         try {
-            if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+            if (Applozic.getInstance(context).isDeviceContactSync()) {
                 contact.processContactNumbers(context);
                 if (contact.getDeviceContactType() == null) {
                     contact.setDeviceContactType(Contact.ContactType.APPLOZIC.getValue());
@@ -254,7 +256,7 @@ public class ContactDatabase {
         Contact contactImage = null;
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
-        if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+        if (Applozic.getInstance(context).isDeviceContactSync()) {
 
             if (contact.getDeviceContactType() != null) {
                 contentValues.put(MobiComDatabaseHelper.DEVICE_CONTACT_TYPE, contact.getDeviceContactType());
@@ -326,7 +328,7 @@ public class ContactDatabase {
 
     /**
      * This method will return full name of contact to be updated.
-     * This is require to avoid updating fullname back to userId in case fullname is not set while updating contact.
+     * This is require to avoid updating full name back to userId in case fullname is not set while updating contact.
      *
      * @param contact
      * @return

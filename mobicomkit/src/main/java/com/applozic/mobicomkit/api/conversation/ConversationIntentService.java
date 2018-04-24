@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -99,7 +99,7 @@ public class ConversationIntentService extends JobIntentService {
                 List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
                 UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
 
-                if (ApplozicClient.getInstance(ConversationIntentService.this).isDeviceContactSync()) {
+                if (Applozic.getInstance(ConversationIntentService.this).isDeviceContactSync()) {
                     Set<String> contactNoSet = new HashSet<String>();
                     List<Contact> contacts = new AppContactService(ConversationIntentService.this).getContacts(Contact.ContactType.DEVICE);
                     for (Contact contact : contacts) {

@@ -298,7 +298,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
             String format = URLConnection.guessContentTypeFromName(file.getName());
             fileClientService.writeFile(uri, file);
 
-            if (format.contains("image")) {
+            if (alCustomizationSettings != null && alCustomizationSettings.isImageCompressionEnabled() && format.contains("image")) {
                 boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, context);
             }
             return true;
