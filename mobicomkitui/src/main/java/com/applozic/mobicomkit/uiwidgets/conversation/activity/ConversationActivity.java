@@ -49,6 +49,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
@@ -427,7 +428,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
 
-        if (ApplozicClient.getInstance(this).isDeviceContactSync()) {
+        if (Applozic.getInstance(this).isDeviceContactSync()) {
             observer = new ContactsChangeObserver(null, this);
             getApplicationContext().getContentResolver().registerContentObserver(
                     ContactsContract.Contacts.CONTENT_URI, true, observer);

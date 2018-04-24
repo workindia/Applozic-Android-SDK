@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -177,7 +178,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
       /*  if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             mContactsListFragment.onQueryTextChange(searchQuery);
         }*/
-        if (ApplozicClient.getInstance(this).isDeviceContactSync()) {
+        if (Applozic.getInstance(this).isDeviceContactSync()) {
             observer = new ContactsChangeObserver(null, this);
             getApplicationContext().getContentResolver().registerContentObserver(
                     ContactsContract.Contacts.CONTENT_URI, true, observer);

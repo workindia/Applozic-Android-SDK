@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.SyncClientService;
@@ -74,7 +74,7 @@ public class UserService {
                                     baseContactService.updateUserBlocked(syncUserBlockedFeed.getBlockedTo(), syncUserBlockedFeed.getUserBlocked());
                                 } else {
                                     contact.setBlocked(syncUserBlockedFeed.getUserBlocked());
-                                    if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+                                    if (Applozic.getInstance(context).isDeviceContactSync()) {
                                         contact.setDeviceContactType(Contact.ContactType.APPLOZIC.getValue());
                                     }
                                     contact.setUserId(syncUserBlockedFeed.getBlockedTo());
@@ -92,7 +92,7 @@ public class UserService {
                                     baseContactService.updateUserBlockedBy(syncUserBlockByFeed.getBlockedBy(), syncUserBlockByFeed.getUserBlocked());
                                 } else {
                                     contact.setBlockedBy(syncUserBlockByFeed.getUserBlocked());
-                                    if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+                                    if (Applozic.getInstance(context).isDeviceContactSync()) {
                                         contact.setDeviceContactType(Contact.ContactType.APPLOZIC.getValue());
                                     }
                                     contact.setUserId(syncUserBlockByFeed.getBlockedBy());
@@ -166,10 +166,11 @@ public class UserService {
         contact.setLastMessageAtTime(userDetail.getLastMessageAtTime());
         contact.setMetadata(userDetail.getMetadata());
         contact.setRoleType(userDetail.getRoleType());
+        contact.setDeletedAtTime(userDetail.getDeletedAtTime());
         if (!TextUtils.isEmpty(userDetail.getImageLink())) {
             contact.setImageURL(userDetail.getImageLink());
         }
-        if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+        if (Applozic.getInstance(context).isDeviceContactSync()) {
             contact.setDeviceContactType(contactType.getValue());
         } else {
             contact.setContactType(contactType.getValue());
@@ -270,6 +271,9 @@ public class UserService {
         if (response != null && response.isSuccess()) {
             Contact contact = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
             if (!TextUtils.isEmpty(displayName)) {
+                if (Applozic.getInstance(context).isDeviceContactSync()) {
+                    contact.setPhoneDisplayName(displayName);
+                }
                 contact.setFullName(displayName);
             }
             if (!TextUtils.isEmpty(profileImageLink)) {

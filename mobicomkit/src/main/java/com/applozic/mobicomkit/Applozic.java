@@ -30,6 +30,7 @@ public class Applozic {
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
+    private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
     public static Applozic applozic;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -51,6 +52,15 @@ public class Applozic {
             applozic = new Applozic(context.getApplicationContext());
         }
         return applozic;
+    }
+
+    public Applozic enableDeviceContactSync(boolean enable) {
+        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable);
+        return this;
+    }
+
+    public boolean isDeviceContactSync() {
+        return sharedPreferences.getBoolean(ENABLE_DEVICE_CONTACT_SYNC, false);
     }
 
     public String getApplicationKey() {
@@ -78,6 +88,10 @@ public class Applozic {
             intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
             ApplozicMqttIntentService.enqueueWork(context, intent);
         }
+    }
+
+    public static boolean isLoggedIn(Context context) {
+        return MobiComUserPreference.getInstance(context).isLoggedIn();
     }
 
     public static void disconnectPublish(Context context) {

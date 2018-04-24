@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -67,7 +67,7 @@ public class AppContactService implements BaseContactService {
             contact.processContactNumbers(context);
         } else {
             contact = new Contact(context, contactId);
-            if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+            if (Applozic.getInstance(context).isDeviceContactSync()) {
                 upsert(contact);
             } else {
                 add(contact);
@@ -78,7 +78,7 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateContact(Contact contact) {
-        if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+        if (Applozic.getInstance(context).isDeviceContactSync()) {
             contact.processContactNumbers(context);
         }
         contactDatabase.updateContact(contact);
@@ -86,7 +86,7 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void upsert(Contact contact) {
-        if (ApplozicClient.getInstance(context).isDeviceContactSync()) {
+        if (Applozic.getInstance(context).isDeviceContactSync()) {
             contact.processContactNumbers(context);
             if (contact.getDeviceContactType() == null || TextUtils.isEmpty(contact.getFormattedContactNumber())) {
                 if (contactDatabase.getContactById(contact.getUserId()) == null) {

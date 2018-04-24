@@ -34,6 +34,8 @@ public class MobiComKitClientService {
     public static String  FILE_BASE_URL_METADATA_KEY= "com.applozic.attachment.url";
     public static String  FILE_UPLOAD_METADATA_KEY= "com.applozic.attachment.upload.endpoint";
     public static String  FILE_DOWNLOAD_METADATA_KEY= "com.applozic.attachment.download.endpoint";
+    private static final String KM_PROD_BASE_URL = "https://api.kommunicate.io";
+    private static final String KM_TEST_BASE_URL = "https://api-test.kommunicate.io";
 
     public MobiComKitClientService() {
 
@@ -69,6 +71,13 @@ public class MobiComKitClientService {
         }
 
         return DEFAULT_URL;
+    }
+
+    protected String getKmBaseUrl() {
+        if (getBaseUrl().contains("apps.applozic")) {
+            return KM_PROD_BASE_URL;
+        }
+        return KM_TEST_BASE_URL;
     }
 
     protected String getMqttBaseUrl() {

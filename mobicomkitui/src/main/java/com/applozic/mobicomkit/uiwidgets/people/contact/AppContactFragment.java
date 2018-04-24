@@ -39,7 +39,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserBlockTask;
@@ -134,7 +134,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         userPreference = MobiComUserPreference.getInstance(getContext());
         inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(), SHARE_TEXT);
-        isDeviceContactSync = ApplozicClient.getInstance(getContext()).isDeviceContactSync();
+        isDeviceContactSync = Applozic.getInstance(getContext()).isDeviceContactSync();
         if (savedInstanceState != null) {
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mPreviouslySelectedSearchItem =

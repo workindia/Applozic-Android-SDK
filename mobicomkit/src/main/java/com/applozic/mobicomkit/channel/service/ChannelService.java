@@ -133,8 +133,8 @@ public class ChannelService {
 
                 if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
                     for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
-                        if(channelUsers.getRole() != null){
-                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(),channelUsers.getUserId(),channelUsers.getRole());
+                        if (channelUsers.getRole() != null) {
+                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
                         }
                     }
                 }
@@ -397,6 +397,9 @@ public class ChannelService {
         return apiResponse.getStatus();
     }
 
+    public synchronized String createConversation(Integer groupId, String userId, String agentId, String applicationId) {
+        return channelClientService.createConversation(groupId, userId, agentId, applicationId);
+    }
 
     public synchronized void processChannelList(List<ChannelFeed> channelFeedList) {
         if (channelFeedList != null && channelFeedList.size() > 0) {
@@ -414,19 +417,19 @@ public class ChannelService {
                     for (String userId : memberUserIds) {
                         ChannelUserMapper channelUserMapper = new ChannelUserMapper(channelFeed.getId(), userId);
                         channelDatabaseService.addChannelUserMapper(channelUserMapper);
-                        if (!baseContactService.isContactExists(userId)){
+                        if (!baseContactService.isContactExists(userId)) {
                             userIds.add(userId);
                         }
                     }
-                    if(userIds != null && userIds.size()>0){
+                    if (userIds != null && userIds.size() > 0) {
                         userService.processUserDetailsByUserIds(userIds);
                     }
                 }
 
                 if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
                     for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
-                        if(channelUsers.getRole() != null){
-                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(),channelUsers.getUserId(),channelUsers.getRole());
+                        if (channelUsers.getRole() != null) {
+                            channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
                         }
                     }
                 }
@@ -434,17 +437,17 @@ public class ChannelService {
         }
     }
 
-    public ChannelUserMapper getChannelUserMapper(Integer channelKey){
+    public ChannelUserMapper getChannelUserMapper(Integer channelKey) {
         return channelDatabaseService.getChannelUserByChannelKey(channelKey);
     }
 
 
-    public  void updateRoleInChannelUserMapper(Integer channelKey,String userId,Integer role){
-        channelDatabaseService.updateRoleInChannelUserMapper(channelKey,userId,role);
+    public void updateRoleInChannelUserMapper(Integer channelKey, String userId, Integer role) {
+        channelDatabaseService.updateRoleInChannelUserMapper(channelKey, userId, role);
     }
 
-    public ChannelUserMapper getChannelUserMapperByUserId(Integer channelKey,String userId){
-        return channelDatabaseService.getChannelUserByChannelKeyAndUserId(channelKey,userId);
+    public ChannelUserMapper getChannelUserMapperByUserId(Integer channelKey, String userId) {
+        return channelDatabaseService.getChannelUserByChannelKeyAndUserId(channelKey, userId);
     }
 
     public synchronized boolean processIsUserPresentInChannel(Integer channelKey) {
