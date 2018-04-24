@@ -293,8 +293,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                         DeviceContactSyncService.enqueueWork(context, intent);
                     }
 
-                    ApplozicClient.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
-
+                    Applozic.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
                     //Set activity callbacks
                     /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.MESSAGE_TAP, MainActivity.class.getName());
