@@ -52,7 +52,7 @@ public class ALSpecificSettings {
     }
 
     public String getTextLogFileName() {
-        return sharedPreferences.getString(TEXT_LOG_FILE_NAME, null);
+        return sharedPreferences.getString(TEXT_LOG_FILE_NAME, "applozic_text_logs");
     }
 
     public boolean clearAll() {

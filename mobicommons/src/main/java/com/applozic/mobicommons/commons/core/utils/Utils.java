@@ -378,7 +378,7 @@ public class Utils {
 
     public static void writeToFile(Context context, String log) {
         try {
-            String fileName = TextUtils.isEmpty(ALSpecificSettings.getInstance(context).getTextLogFileName()) ? "/applozic_text_logs.txt" : ("/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt");
+            String fileName = "/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt";
             BufferedWriter bufferedWriter = null;
             try {
                 String folder = "/" + Utils.getMetaDataValue(context, "main_folder_name");
