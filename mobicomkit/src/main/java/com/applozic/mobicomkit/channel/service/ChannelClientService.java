@@ -649,7 +649,7 @@ public class ChannelClientService extends MobiComKitClientService {
         }
 
         try {
-            String response = httpRequestUtils.postDataWithCreate(getCreateConversationUrl(), "application/json", "application/json", jsonObject.toString());
+            String response = httpRequestUtils.postData(getCreateConversationUrl(), "application/json", "application/json", jsonObject.toString());
             Utils.printLog(context, TAG, "Response : " + response);
             return response;
         } catch (Exception e) {

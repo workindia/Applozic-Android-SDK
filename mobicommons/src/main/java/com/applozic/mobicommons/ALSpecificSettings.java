@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit;
+package com.applozic.mobicommons;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,6 +14,8 @@ public class ALSpecificSettings {
     private SharedPreferences sharedPreferences;
     public static ALSpecificSettings applozicSettings;
     private static final String DATABASE_NAME = "DATABASE_NAME";
+    private static final String ENABLE_TEXT_LOGGING = "ENABLE_TEXT_LOGGING";
+    private static final String TEXT_LOG_FILE_NAME = "TEXT_LOG_FILE_NAME";
 
     private ALSpecificSettings(Context context) {
         this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, context.MODE_PRIVATE);
@@ -33,6 +35,24 @@ public class ALSpecificSettings {
 
     public String getDatabaseName() {
         return sharedPreferences.getString(DATABASE_NAME, null);
+    }
+
+    public ALSpecificSettings enableTextLogging(boolean enable) {
+        sharedPreferences.edit().putBoolean(ENABLE_TEXT_LOGGING, enable).apply();
+        return this;
+    }
+
+    public boolean isTextLoggingEnabled() {
+        return sharedPreferences.getBoolean(ENABLE_TEXT_LOGGING, false);
+    }
+
+    public ALSpecificSettings setTextLogFileName(String textLogFileName) {
+        sharedPreferences.edit().putString(TEXT_LOG_FILE_NAME, textLogFileName).apply();
+        return this;
+    }
+
+    public String getTextLogFileName() {
+        return sharedPreferences.getString(TEXT_LOG_FILE_NAME, null);
     }
 
     public boolean clearAll() {

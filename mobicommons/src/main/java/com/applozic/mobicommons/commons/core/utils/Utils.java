@@ -25,6 +25,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.applozic.mobicommons.ALSpecificSettings;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -363,6 +365,10 @@ public class Utils {
                 boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
                 if (isDebuggable) {
                     Log.i(tag, message);
+
+                    if (ALSpecificSettings.getInstance(context).isTextLoggingEnabled()) {
+                        writeToFile(context, tag + " (" + DateUtils.getDateAndTimeInDefaultFormat(System.currentTimeMillis()) + ") : " + message);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -372,6 +378,7 @@ public class Utils {
 
     public static void writeToFile(Context context, String log) {
         try {
+            String fileName = TextUtils.isEmpty(ALSpecificSettings.getInstance(context).getTextLogFileName()) ? "/applozic_text_logs.txt" : ("/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt");
             BufferedWriter bufferedWriter = null;
             try {
                 String folder = "/" + Utils.getMetaDataValue(context, "main_folder_name");
@@ -379,7 +386,7 @@ public class Utils {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                File file = new File(dir, "/applozic_text_logs.txt");
+                File file = new File(dir, fileName);
                 if (!file.exists()) {
                     file.createNewFile();
                 }

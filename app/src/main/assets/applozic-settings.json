@@ -73,6 +73,7 @@
   "poweredByApplozic": false,
   "logoutPackageName": "",
   "groupDeletePackageName": "",
+  "enableImageCompression": false,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

@@ -361,7 +361,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (alCustomizationSettings.isPoweredByApplozic()) {
             list.findViewById(R.id.txtPoweredByApplozic).setVisibility(VISIBLE);
         }
-        
+
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
 
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);
@@ -3770,7 +3770,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         protected Long doInBackground(Void... params) {
 
             mimeType = URLConnection.guessContentTypeFromName(file.getName());
-            if (mimeType != null && (mimeType.startsWith("image"))) {
+            if (alCustomizationSettingsLayoutWeakReference.get().isImageCompressionEnabled() && mimeType != null && (mimeType.startsWith("image"))) {
                 FragmentActivity fragmentActivity = activityWeakReference.get();
                 boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, fragmentActivity);
             }

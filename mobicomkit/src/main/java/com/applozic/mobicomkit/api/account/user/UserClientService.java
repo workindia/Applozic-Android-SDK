@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.ALSpecificSettings;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;

@@ -80,73 +80,6 @@ public class HttpRequestUtils {
                 os.close();
             }
             BufferedReader br = null;
-            if (connection.getResponseCode() == 200) {
-                InputStream inputStream = connection.getInputStream();
-                br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            }
-            StringBuilder sb = new StringBuilder();
-            try {
-                String line;
-                if (br != null) {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Utils.printLog(context, TAG, "Response : " + sb.toString());
-            if (!TextUtils.isEmpty(sb.toString())) {
-                if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
-                }
-            }
-            return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Utils.printLog(context, TAG, "Http call failed");
-        return null;
-    }
-
-    public String postDataWithCreate(String urlString, String contentType, String accept, String data) throws Exception {
-        Utils.printLog(context, TAG, "Calling url: " + urlString);
-        HttpURLConnection connection;
-        URL url;
-        try {
-            if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), data);
-            }
-            url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            addGlobalHeaders(connection);
-
-            if (!TextUtils.isEmpty(contentType)) {
-                connection.setRequestProperty("Content-Type", contentType);
-            }
-            if (!TextUtils.isEmpty(accept)) {
-                connection.setRequestProperty("Accept", accept);
-            }
-            connection.connect();
-
-            if (connection == null) {
-                return null;
-            }
-            if (data != null) {
-                byte[] dataBytes = data.getBytes("UTF-8");
-                DataOutputStream os = new DataOutputStream(connection.getOutputStream());
-                os.write(dataBytes);
-                os.flush();
-                os.close();
-            }
-            BufferedReader br = null;
             if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
                 InputStream inputStream = connection.getInputStream();
                 br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
@@ -167,14 +100,8 @@ public class HttpRequestUtils {
             Utils.printLog(context, TAG, "Response : " + sb.toString());
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
                     return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
                 }
-            }
-            if (connection != null) {
-                connection.disconnect();
             }
             return sb.toString();
         } catch (IOException e) {
@@ -182,7 +109,6 @@ public class HttpRequestUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         Utils.printLog(context, TAG, "Http call failed");
         return null;
     }
