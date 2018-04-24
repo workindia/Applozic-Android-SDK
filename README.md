@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.6.7' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.8.2' `
 
 
 Add the following in gradle android target:      
@@ -251,19 +251,6 @@ Paste the following in your androidmanifest.xml:
  <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
           android:permission="android.permission.BIND_JOB_SERVICE"
           android:exported="false" />
-
-<service
-            android:name="com.applozic.mobicomkit.api.notification.NotificationIntentService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false" />
-
-
-<service android:exported="false"
-         android:name="com.applozic.mobicomkit.uiwidgets.notification.PushNotificationJobService">
-        <intent-filter>
-            <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
-        </intent-filter>
-</service>
         
 <receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
          <intent-filter>
@@ -438,7 +425,8 @@ In case, if you don't have the existing FCM related code, then copy the push not
 And add below code in your androidmanifest.xml file
 
 ``` 
-<service android:name="<CLASS_PACKAGE>.FcmListenerService">
+<service android:name="<CLASS_PACKAGE>.FcmListenerService"
+android:stopWithTask="false">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
         </intent-filter>

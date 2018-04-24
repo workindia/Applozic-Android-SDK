@@ -70,7 +70,9 @@
   "replyOption": true,
   "logoutOption": false,
   "showAllDeviceContacts": true,
+  "poweredByApplozic": false,
   "logoutPackageName": "",
+  "groupDeletePackageName": "",
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

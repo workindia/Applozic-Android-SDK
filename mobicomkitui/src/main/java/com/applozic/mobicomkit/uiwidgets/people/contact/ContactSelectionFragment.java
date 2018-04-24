@@ -466,6 +466,11 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     } else {
                         channelInfo.setType(groupType);
                     }
+
+                    if (MobiComUserPreference.getInstance(getActivity()).getParentGroupKey() != null && MobiComUserPreference.getInstance(getActivity()).getParentGroupKey() != 0) {
+                        channelInfo.setParentKey(MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+                    }
+
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
                     alChannelCreateAsyncTask.execute((Void) null);
                 }
@@ -482,7 +487,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts);
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 

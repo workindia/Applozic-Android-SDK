@@ -66,6 +66,7 @@ import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -135,6 +136,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private static String inviteMessage;
     private static int retry;
     public Contact contact;
+    Integer parentGroupKey;
+    String parentClientGroupKey;
     public LinearLayout layout;
     public boolean isTakePhoto;
     public boolean isAttachment;
@@ -362,6 +365,19 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         inviteMessage = Utils.getMetaDataValue(getApplicationContext(), SHARE_TEXT);
         retry = 0;
+        if (getIntent() != null) {
+            parentClientGroupKey = getIntent().getStringExtra(ConversationUIService.PARENT_CLIENT_GROUP_ID);
+            if (!TextUtils.isEmpty(parentClientGroupKey)) {
+                parentGroupKey = ChannelService.getInstance(this).getParentGroupKeyByClientGroupKey(parentClientGroupKey);
+            } else {
+                parentGroupKey = getIntent().getIntExtra(ConversationUIService.PARENT_GROUP_KEY, 0);
+            }
+            if (parentGroupKey != null && parentGroupKey != 0) {
+                BroadcastService.parentGroupKey = parentGroupKey;
+                MobiComUserPreference.getInstance(this).setParentGroupKey(parentGroupKey);
+            }
+        }
+
         if (savedInstanceState != null) {
             capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI) != null ?
                     Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)) : null;
