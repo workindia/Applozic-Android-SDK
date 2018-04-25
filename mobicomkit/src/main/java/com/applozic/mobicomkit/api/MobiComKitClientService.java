@@ -31,9 +31,9 @@ public class MobiComKitClientService {
     protected String DEFAULT_URL = "https://apps.applozic.com";
     protected String FILE_BASE_URL = "https://applozic.appspot.com";
     protected String DEFAULT_MQTT_URL = "tcp://apps.applozic.com:1883";
-    public static String  FILE_BASE_URL_METADATA_KEY= "com.applozic.attachment.url";
-    public static String  FILE_UPLOAD_METADATA_KEY= "com.applozic.attachment.upload.endpoint";
-    public static String  FILE_DOWNLOAD_METADATA_KEY= "com.applozic.attachment.download.endpoint";
+    public static String FILE_BASE_URL_METADATA_KEY = "com.applozic.attachment.url";
+    public static String FILE_UPLOAD_METADATA_KEY = "com.applozic.attachment.upload.endpoint";
+    public static String FILE_DOWNLOAD_METADATA_KEY = "com.applozic.attachment.download.endpoint";
     private static final String KM_PROD_BASE_URL = "https://api.kommunicate.io";
     private static final String KM_TEST_BASE_URL = "https://api-test.kommunicate.io";
 
@@ -140,7 +140,7 @@ public class MobiComKitClientService {
 
     public String getFileUrl() {
         String fileDownloadURL = Utils.getMetaDataValue(context.getApplicationContext(), FILE_DOWNLOAD_METADATA_KEY);
-        if(!TextUtils.isEmpty(fileDownloadURL)){
+        if (!TextUtils.isEmpty(fileDownloadURL)) {
             return getFileBaseUrl() + fileDownloadURL;
         }
         return getFileBaseUrl() + FILE_URL;
@@ -148,6 +148,11 @@ public class MobiComKitClientService {
 
     public String getFileBaseUrl() {
         String fileURL = Utils.getMetaDataValue(context.getApplicationContext(), FILE_BASE_URL_METADATA_KEY);
+        return (TextUtils.isEmpty(fileURL) ? FILE_BASE_URL : fileURL);
+    }
+
+    public String getFileAuthBaseUrl(String blobKey) {
+        String fileURL = Utils.getMetaDataValue(context.getApplicationContext(), FILE_BASE_URL_METADATA_KEY) + "/files/url?key=" + blobKey;
         return (TextUtils.isEmpty(fileURL) ? FILE_BASE_URL : fileURL);
     }
 

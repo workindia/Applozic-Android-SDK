@@ -58,10 +58,12 @@ public class FileClientService extends MobiComKitClientService {
     private static final String TAG = "FileClientService";
     private static final String MAIN_FOLDER_META_DATA = "main_folder_name";
     private HttpRequestUtils httpRequestUtils;
+    private MobiComKitClientService mobiComKitClientService;
 
     public FileClientService(Context context) {
         super(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
+        this.mobiComKitClientService = new MobiComKitClientService(context);
     }
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
@@ -119,7 +121,10 @@ public class FileClientService extends MobiComKitClientService {
         try {
             Bitmap attachedImage = null;
             FileMeta fileMeta = message.getFileMetas();
-            String thumbnailUrl = fileMeta.getThumbnailUrl();
+            String thumbnailUrl = httpRequestUtils.getResponse(mobiComKitClientService.getFileAuthBaseUrl(message.getFileMetas().getThumbnailBlobKey()), "application/json", "application/json");
+            if (TextUtils.isEmpty(thumbnailUrl)) {
+                return null;
+            }
             String contentType = fileMeta.getContentType();
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -179,7 +184,7 @@ public class FileClientService extends MobiComKitClientService {
                 if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
                     connection = openHttpConnection(fileMeta.getUrl());
                 } else {
-                    connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                    connection = openHttpConnection(mobiComKitClientService.getFileUrl() + fileMeta.getBlobKeyString());
                 }
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
@@ -259,7 +264,7 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public String getUploadKey() {
-        if (ApplozicClient.getInstance(context).isStorageServiceEnabled() || ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() ) {
+        if (ApplozicClient.getInstance(context).isStorageServiceEnabled() || ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
             return getFileUploadUrl();
         } else {
             return httpRequestUtils.getResponse(getFileUploadUrl()

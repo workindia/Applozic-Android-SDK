@@ -118,6 +118,7 @@ public class MessageDatabaseService {
             FileMeta fileMeta = new FileMeta();
             fileMeta.setKeyString(cursor.getString(cursor.getColumnIndex("metaFileKeyString")));
             fileMeta.setBlobKeyString(cursor.getString(cursor.getColumnIndex("blobKeyString")));
+            fileMeta.setThumbnailBlobKey(cursor.getString(cursor.getColumnIndex("thumbnailBlobKey")));
             fileMeta.setThumbnailUrl(cursor.getString(cursor.getColumnIndex("thumbnailUrl")));
             fileMeta.setSize(cursor.getInt(cursor.getColumnIndex("size")));
             fileMeta.setName(cursor.getString(cursor.getColumnIndex("name")));
@@ -453,6 +454,7 @@ public class MessageDatabaseService {
                 values.put("contentType", fileMeta.getContentType());
                 values.put("metaFileKeyString", fileMeta.getKeyString());
                 values.put("blobKeyString", fileMeta.getBlobKeyString());
+                values.put("thumbnailBlobKey", fileMeta.getThumbnailBlobKey());
                 values.put("url", fileMeta.getUrl());
             }
         }
@@ -590,6 +592,7 @@ public class MessageDatabaseService {
                     values.put("contentType", fileMeta.getContentType());
                     values.put("metaFileKeyString", fileMeta.getKeyString());
                     values.put("blobKeyString", fileMeta.getBlobKeyString());
+                    values.put("thumbnailBlobKey", fileMeta.getThumbnailBlobKey());
                     values.put("url", fileMeta.getUrl());
                 }
             }

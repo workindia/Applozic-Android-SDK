@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -64,6 +65,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
     private static final String LOG_TAG = "PhotoDownloadRunnable";
     // Defines a field that contains the calling object of type PhotoTask.
     final TaskRunnableDownloadMethods mPhotoTask;
+    private HttpRequestUtils httpRequestUtils;
 
     /**
      * This constructor creates an instance of PhotoDownloadRunnable and stores in it a reference
@@ -153,6 +155,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
 
     public void loadAttachmentImage(Message message, Context context) {
         File file = null;
+        httpRequestUtils = new HttpRequestUtils(context);
         try {
             InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas();
@@ -172,7 +175,12 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
                 if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
                     connection = openHttpConnection(fileMeta.getUrl());
                 } else {
-                    connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
+                    String response = httpRequestUtils.getResponse(new MobiComKitClientService(context).getFileAuthBaseUrl(message.getFileMetas().getBlobKeyString()), "application/json", "application/json");
+                    if (TextUtils.isEmpty(response)) {
+                        return;
+                    } else {
+                        connection = openHttpConnection(response);
+                    }
                 }
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -192,7 +200,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
                 while ((count = inputStream.read(data)) != -1) {
                     output.write(data, 0, count);
                     progressCount = progressCount + count;
-                    long percentage =  progressCount * 100 / totalSize;
+                    long percentage = progressCount * 100 / totalSize;
                     android.os.Message msg = new android.os.Message();
                     //TODO: pecentage should be transfer via handler
                     //Message code 2 represents image is successfully downloaded....

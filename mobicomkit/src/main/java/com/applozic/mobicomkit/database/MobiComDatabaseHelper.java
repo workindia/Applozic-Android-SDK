@@ -80,6 +80,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String DEVICE_CONTACT_TYPE = "deviceContactType";
     public static final String PARENT_GROUP_KEY = "parentGroupKey";
     public static final String PARENT_CLIENT_GROUP_ID = "parentClientGroupId";
+    public static final String THUMBNAIL_BLOB_KEY = "thumbnailBlobKey";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -109,6 +110,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + "contentType varchar(200), "
             + "metaFileKeyString varchar(2000), "
             + "blobKeyString varchar(2000), "
+            + "thumbnailBlobKey varchar(2000), "
             + "canceled integer default 0, "
             + "deleted integer default 0,"
             + "applicationId varchar(2000) null,"
@@ -166,6 +168,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
     private static final String ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL_USER_X + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_CLIENT_GROUP_ID + " varchar(1000) null";
+    private static final String ALTER_CREATE_SMS_TABLE_FOR_THUMBNAIL_BLOB_KEY = "ALTER TABLE " + SMS + " ADD COLUMN " + THUMBNAIL_BLOB_KEY + " varchar(2000)";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -422,6 +425,9 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
             if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_CLIENT_GROUP_ID)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN);
+            }
+            if (!DBUtils.existsColumnInTable(database, "sms", THUMBNAIL_BLOB_KEY)) {
+                database.execSQL(ALTER_CREATE_SMS_TABLE_FOR_THUMBNAIL_BLOB_KEY);
             }
 
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);
