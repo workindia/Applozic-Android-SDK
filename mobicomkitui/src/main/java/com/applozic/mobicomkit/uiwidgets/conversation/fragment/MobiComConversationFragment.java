@@ -1252,6 +1252,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (added) {
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
+                    if (messageDdropDownActionButton.getVisibility() == View.INVISIBLE) {
+                        linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
+                    }
                     emptyTextView.setVisibility(View.GONE);
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
