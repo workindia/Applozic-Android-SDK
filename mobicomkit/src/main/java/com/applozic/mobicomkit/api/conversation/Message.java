@@ -663,7 +663,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isGroupMetaDataUpdated() {
-        return this.getContentType() == 10 && this.getMetadata() != null && this.getMetadata().containsKey("action") && "9".equals(this.getMetadata().get("action"));
+        return ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(this.getContentType()) && this.getMetadata() != null && this.getMetadata().containsKey("action") && GroupAction.GROUP_META_DATA_UPDATED.getValue().toString().equals(this.getMetadata().get("action"));
     }
 
     public void setHidden(boolean hidden) {
@@ -826,6 +826,28 @@ public class Message extends JsonMarker {
 
         public Integer getValue() {
             return value;
+        }
+    }
+
+    public enum GroupAction {
+        CREATE(0),
+        ADD_MEMBER(1),
+        REMOVE_MEMBER(2),
+        LEFT(3),
+        DELETE_GROUP(4),
+        CHANGE_GROUP_NAME(5),
+        CHANGE_IMAGE_URL(6),
+        JOIN(7),
+        GROUP_USER_ROLE_UPDATED(8),
+        GROUP_META_DATA_UPDATED(9);
+        private Integer value;
+
+        GroupAction(Integer value) {
+            this.value = value;
+        }
+
+        public Short getValue() {
+            return value.shortValue();
         }
     }
 
