@@ -34,6 +34,7 @@ import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicomkit.uiwidgets.uikit.SampleActivity;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -296,6 +297,11 @@ public class MainActivity extends AppCompatActivity
         groupChat.putExtra(ConversationUIService.GROUP_ID, 21276);
         groupChat.putExtra(ConversationUIService.GROUP_NAME, "sdlkfmsd:supplier2");
         startActivity(groupChat);
+    }
+
+    public void startSample(View v){
+        Intent intent = new Intent(this, SampleActivity.class);
+        startActivity(intent);
     }
 
     public void onSectionAttached(int number) {
