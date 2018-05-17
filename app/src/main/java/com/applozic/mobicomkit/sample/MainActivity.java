@@ -29,23 +29,15 @@ import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
-import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.uiwidgets.async.AlCreateGroupOfTwoTask;
-import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelMetaDataUpdateTask;
-import com.applozic.mobicomkit.uiwidgets.async.ApplozicChannelNameUpdateTask;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.people.channel.ChannelMetadata;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -239,42 +231,31 @@ public class MainActivity extends AppCompatActivity
 //    }
 
     public void takeOrder(View v) {
-        List<String> channelMembersList = new ArrayList<String>();
-        String userReceiver = "userEmulator"; // userID for receiving end
-        channelMembersList.add(userReceiver);
-        String itemId = "i9898"; // ID for item on which you want to initiate chat
-        ChannelInfo channelInfo = new ChannelInfo("Context Based Group of Two", channelMembersList);
-        channelInfo.setType(Channel.GroupType.GROUPOFTWO.getValue().intValue()); //group type
-        channelInfo.setClientGroupId(buildClientGroupID(itemId, userReceiver)); //Optional if you have your own groupId then you can pass here
-        Map<String, String> metaData = new HashMap<>();
-        metaData.put(Channel.GroupMetaDataType.TITLE.getValue(), "FORD FIGO DURATEC PETROL ZXI 1.2 (2014)");
-        metaData.put(Channel.GroupMetaDataType.PRICE.getValue(), "$1000");
-        metaData.put(Channel.GroupMetaDataType.LINK.getValue(), "https://imguct1.aeplcdn.com/img/300x225/lis/201709/1188774_6855_1_1506405541170.jpeg");
-        channelInfo.setMetadata(metaData);
+        Conversation conversation = buildConversation();
+        ApplozicConversationCreateTask applozicConversationCreateTask;
 
-        AlCreateGroupOfTwoTask.TaskListenerInterface createGroupOfTwoTaskListener = new AlCreateGroupOfTwoTask.TaskListenerInterface() {
+        ApplozicConversationCreateTask.ConversationCreateListener conversationCreateListener = new ApplozicConversationCreateTask.ConversationCreateListener() {
             @Override
-            public void onSuccess(Channel channel, Context context) {
-                if (channel != null) {
-                    Intent intent = new Intent(MainActivity.this, ConversationActivity.class);
-                    intent.putExtra(ConversationUIService.GROUP_ID, channel.getKey());
-                    intent.putExtra(ConversationUIService.GROUP_NAME, channel.getName());
-                    startActivity(intent);
-                }
+            public void onSuccess(Integer conversationId, Context context) {
+                Log.i(TAG, "ConversationID is:" + conversationId);
+                Intent takeOrderIntent = new Intent(context, ConversationActivity.class);
+                takeOrderIntent.putExtra(TAKE_ORDER, true);
+                takeOrderIntent.putExtra(ConversationUIService.CONTEXT_BASED_CHAT, true);
+                takeOrderIntent.putExtra(ConversationUIService.USER_ID, "usertest2");
+                takeOrderIntent.putExtra(ConversationUIService.DEFAULT_TEXT, R.string.intrest_in_chat);
+                takeOrderIntent.putExtra(ConversationUIService.CONVERSATION_ID, conversationId);
+                startActivity(takeOrderIntent);
+
             }
 
             @Override
-            public void onFailure(String error, Context context) {
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+            public void onFailure(Exception e, Context context) {
+
             }
         };
-        AlCreateGroupOfTwoTask alCreateGroupOfTwoTask = new AlCreateGroupOfTwoTask(this, channelInfo, createGroupOfTwoTaskListener);
-        alCreateGroupOfTwoTask.execute((Void) null);
+        applozicConversationCreateTask = new ApplozicConversationCreateTask(MainActivity.this, conversationCreateListener, conversation);
+        applozicConversationCreateTask.execute((Void) null);
 
-    }
-
-    private String buildClientGroupID(String itemID, String receiverID) {
-        return (MobiComUserPreference.getInstance(this).getUserId() + itemID + receiverID);
     }
 
     private Conversation buildConversation() {
@@ -297,39 +278,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void initiateChatClick(View v) {
-
-        ApplozicChannelMetaDataUpdateTask.ChannelMetaDataUpdateListener channelMetaDataUpdateListener = new ApplozicChannelMetaDataUpdateTask.ChannelMetaDataUpdateListener() {
-            @Override
-            public void onUpdateSuccess(String response, Context context) {
-                Toast.makeText(MainActivity.this, response, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onFailure(String response, Exception e, Context context) {
-                Toast.makeText(MainActivity.this, response, Toast.LENGTH_LONG).show();
-            }
-        };
-
-        ApplozicChannelNameUpdateTask.ChannelNameUpdateListener channelNameUpdateListener = new ApplozicChannelNameUpdateTask.ChannelNameUpdateListener() {
-            @Override
-            public void onSuccess(String response, Context context) {
-
-            }
-
-            @Override
-            public void onFailure(String response, Exception e, Context context) {
-
-            }
-        };
-
-        Map<String, String> metaData = new HashMap<>();
-        metaData.put(Channel.GroupMetaDataType.TITLE.getValue(), "FORD FIESTA PETROL ZXI 1.2 (2018)");
-        metaData.put(Channel.GroupMetaDataType.PRICE.getValue(), "$5999");
-        metaData.put(Channel.GroupMetaDataType.LINK.getValue(), "https://imguct1.aeplcdn.com/img/300x225/lis/201709/1188774_6855_1_1506405541170.jpeg");
-
-        new ApplozicChannelMetaDataUpdateTask(this, 8523489, metaData, channelMetaDataUpdateListener).execute();
-
-/*        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
         DialogFragment fragment = new InitiateDialogFragment();
         FragmentTransaction fragmentTransaction = supportFragmentManager
                 .beginTransaction();
@@ -338,7 +287,7 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.remove(prev);
         }
         fragmentTransaction.addToBackStack(null);
-        fragment.show(fragmentTransaction, "InitiateDialogFragment");*/
+        fragment.show(fragmentTransaction, "InitiateDialogFragment");
     }
 
     public void groupChat(View v) {
