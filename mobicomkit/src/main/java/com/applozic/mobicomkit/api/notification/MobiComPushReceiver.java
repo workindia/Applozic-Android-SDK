@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
@@ -305,6 +306,14 @@ MobiComPushReceiver {
                 }
                 addPushNotificationId(syncMessageResponse.getId());
                 Message messageObj = syncMessageResponse.getMessage();
+
+                try {
+                    if (messageObj.isGroupMetaDataUpdated()) {
+                        ChannelService.getInstance(context).syncChannels(true);
+                    }
+                } catch (Exception e) {
+                }
+
                 if (!TextUtils.isEmpty(messageObj.getKeyString())) {
                     syncCallService.syncMessages(messageObj.getKeyString());
                 } else {

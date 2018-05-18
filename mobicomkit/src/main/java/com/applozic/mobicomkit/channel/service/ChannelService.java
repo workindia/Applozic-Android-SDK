@@ -108,7 +108,7 @@ public class ChannelService {
     public void processChannelFeedList(ChannelFeed[] channelFeeds, boolean isUserDetails) {
         if (channelFeeds != null && channelFeeds.length > 0) {
             for (ChannelFeed channelFeed : channelFeeds) {
-                processChannelFeed(channelFeed,isUserDetails);
+                processChannelFeed(channelFeed, isUserDetails);
             }
         }
     }
@@ -151,8 +151,8 @@ public class ChannelService {
 
             if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
                 for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
-                    if(channelUsers.getRole() != null){
-                        channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(),channelUsers.getUserId(),channelUsers.getRole());
+                    if (channelUsers.getRole() != null) {
+                        channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
                     }
                 }
             }
@@ -195,7 +195,7 @@ public class ChannelService {
         return channelDatabaseService.getAllChannels();
     }
 
-    public synchronized void syncChannels() {
+    public synchronized void syncChannels(boolean isMetadataUpdate) {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(userpref.getChannelSyncTime());
         if (syncChannelFeed == null) {
@@ -203,10 +203,15 @@ public class ChannelService {
         }
         if (syncChannelFeed.isSuccess()) {
             processChannelList(syncChannelFeed.getResponse());
-            BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
+
+            BroadcastService.sendUpdate(context, isMetadataUpdate, BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString());
         }
         userpref.setChannelSyncTime(syncChannelFeed.getGeneratedAt());
 
+    }
+
+    public synchronized void syncChannels() {
+        syncChannels(false);
     }
 
     public synchronized Channel createChannel(final ChannelInfo channelInfo) {
@@ -390,17 +395,17 @@ public class ChannelService {
         }
     }
 
-    public ChannelUserMapper getChannelUserMapper(Integer channelKey){
+    public ChannelUserMapper getChannelUserMapper(Integer channelKey) {
         return channelDatabaseService.getChannelUserByChannelKey(channelKey);
     }
 
 
-    public  void updateRoleInChannelUserMapper(Integer channelKey,String userId,Integer role){
-        channelDatabaseService.updateRoleInChannelUserMapper(channelKey,userId,role);
+    public void updateRoleInChannelUserMapper(Integer channelKey, String userId, Integer role) {
+        channelDatabaseService.updateRoleInChannelUserMapper(channelKey, userId, role);
     }
 
-    public ChannelUserMapper getChannelUserMapperByUserId(Integer channelKey,String userId){
-        return channelDatabaseService.getChannelUserByChannelKeyAndUserId(channelKey,userId);
+    public ChannelUserMapper getChannelUserMapperByUserId(Integer channelKey, String userId) {
+        return channelDatabaseService.getChannelUserByChannelKeyAndUserId(channelKey, userId);
     }
 
     public synchronized boolean processIsUserPresentInChannel(Integer channelKey) {
@@ -639,8 +644,8 @@ public class ChannelService {
 
             if (channelFeed.getGroupUsers() != null && channelFeed.getGroupUsers().size() > 0) {
                 for (ChannelUsersFeed channelUsers : channelFeed.getGroupUsers()) {
-                    if(channelUsers.getRole() != null){
-                        channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(),channelUsers.getUserId(),channelUsers.getRole());
+                    if (channelUsers.getRole() != null) {
+                        channelDatabaseService.updateRoleInChannelUserMapper(channelFeed.getId(), channelUsers.getUserId(), channelUsers.getRole());
                     }
                 }
             }

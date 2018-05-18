@@ -240,6 +240,23 @@ public class Channel extends JsonMarker {
         }
     }
 
+    public enum GroupMetaDataType {
+
+        TITLE("title"),
+        PRICE("price"),
+        LINK("link");
+
+        private String value;
+
+        GroupMetaDataType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     @Override
     public String toString() {
         return "Channel{" +

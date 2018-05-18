@@ -14,6 +14,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
@@ -97,6 +98,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
@@ -211,6 +213,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected boolean hideExtendedSendingOptionLayout;
     protected SyncCallService syncCallService;
     protected ApplozicContextSpinnerAdapter applozicContextSpinnerAdapter;
+    private List<Conversation> conversationList;
     protected Message messageToForward;
     protected String searchString;
     protected AlCustomizationSettings alCustomizationSettings;
@@ -3044,6 +3047,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
+    public void updateContextBasedGroup() {
+        Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
+
+        if ((Channel.GroupType.GROUPOFTWO.getValue().equals(channelInfo.getType())) && (channelInfo.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue()))) {
+            Conversation conversation = new Conversation();
+            TopicDetail topic = new TopicDetail();
+            topic.setTitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
+            topic.setSubtitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
+            topic.setLink(channelInfo.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
+            conversation.setTopicDetail(topic.getJson());
+            conversationList.get(0).setTopicDetail(topic.getJson());
+            applozicContextSpinnerAdapter.notifyDataSetChanged();
+        }
+    }
 
     public void updateChannelTitle() {
         if (!Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
@@ -3470,7 +3487,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private Contact contact;
         private Channel channel;
         private Integer conversationId;
-        private List<Conversation> conversationList;
         private List<Message> nextMessageList = new ArrayList<Message>();
 
         public DownloadConversation(RecyclerView recyclerView, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel, Integer conversationId) {
@@ -3680,6 +3696,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (conversations != null && conversations.size() > 0) {
                 conversationList = conversations;
             }
+            if (channel != null && !channel.getMetadata().isEmpty()) {
+                if (channel.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue())) {
+                    Conversation conversation = new Conversation();
+                    TopicDetail topic = new TopicDetail();
+                    topic.setTitle(channel.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
+                    topic.setSubtitle(channel.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
+                    topic.setLink(channel.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
+                    conversation.setTopicDetail(topic.getJson());
+                    conversationList = new ArrayList<>();
+                    conversationList.add(conversation);
+                }
+            }
             if (conversationList != null && conversationList.size() > 0 && !onSelected) {
                 onSelected = true;
                 applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
@@ -3689,7 +3717,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     int i = 0;
                     for (Conversation c : conversationList) {
                         i++;
-                        if (c.getId().equals(conversationId)) {
+                        if (c.getId() != null && c.getId().equals(conversationId)) {
                             break;
                         }
                     }

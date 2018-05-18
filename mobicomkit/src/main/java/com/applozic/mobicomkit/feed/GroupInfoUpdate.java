@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.feed;
 
+import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicommons.json.Exclude;
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -45,6 +46,21 @@ public class GroupInfoUpdate extends JsonMarker {
         this.clientGroupId = channel.getClientGroupId();
         this.imageUrl = channel.getImageUrl();
         this.localImagePath = channel.getLocalImageUri();
+    }
+
+    public GroupInfoUpdate(ChannelInfo channel) {
+        this.metadata = channel.getMetadata();
+    }
+
+
+    public GroupInfoUpdate(Map<String, String> metadata, int groupId) {
+        this.metadata = metadata;
+        this.groupId = groupId;
+    }
+
+    public GroupInfoUpdate(Map<String, String> metadata, String clientGroupId) {
+        this.metadata = metadata;
+        this.clientGroupId = clientGroupId;
     }
 
     public GroupInfoUpdate(String newName, int groupId) {
