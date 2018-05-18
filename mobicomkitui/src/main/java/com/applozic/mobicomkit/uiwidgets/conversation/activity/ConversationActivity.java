@@ -314,7 +314,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             Utils.toggleSoftKeyBoard(this, true);
             return true;
-        }else{
+        } else {
             super.onSupportNavigateUp();
         }
         return false;
@@ -378,7 +378,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         }
 
-        if (isServiceDisconnected(this)) {
+        if (ApplozicClient.getInstance(this).isServiceDisconnected()) {
             serviceDisconnectionLayout.setVisibility(View.VISIBLE);
         } else {
             if (savedInstanceState != null) {
@@ -466,7 +466,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         try {
-            if (isServiceDisconnected(this)) {
+            if (ApplozicClient.getInstance(this).isServiceDisconnected()) {
                 serviceDisconnectionLayout.setVisibility(View.VISIBLE);
             } else {
                 if (intent.getExtras() != null) {
@@ -825,19 +825,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             super.onBackPressed();
         }
 
-    }
-
-    public static boolean isServiceDisconnected(Context context) {
-        int pricingPackage = MobiComUserPreference.getInstance(context).getPricingPackage();
-
-        switch (pricingPackage) {
-            case -1:
-                return true;
-            case 0:
-                boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-                return !isDebuggable;
-        }
-        return false;
     }
 
     @Override
