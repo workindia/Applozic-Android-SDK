@@ -55,7 +55,7 @@ public class Applozic {
     }
 
     public Applozic enableDeviceContactSync(boolean enable) {
-        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable);
+        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable).apply();
         return this;
     }
 
@@ -111,7 +111,7 @@ public class Applozic {
         if (channel != null) {
             intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
         } else if (contact != null) {
-
+            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
         }
         intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE_TO_TYPING, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);
@@ -122,7 +122,7 @@ public class Applozic {
         if (channel != null) {
             intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
         } else if (contact != null) {
-
+            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
         }
         intent.putExtra(ApplozicMqttIntentService.UN_SUBSCRIBE_TO_TYPING, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);

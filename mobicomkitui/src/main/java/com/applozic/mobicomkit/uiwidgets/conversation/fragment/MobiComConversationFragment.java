@@ -69,6 +69,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -249,7 +250,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     ImageView slideImageView;
     private EmojiconHandler emojiIconHandler;
     private Bitmap previewThumbnail;
-    protected TextView isTyping, bottomlayoutTextView;
+    protected TextView bottomlayoutTextView;
+    TextView isTyping;
     private String defaultText;
     private boolean typingStarted;
     private Integer channelKey;
@@ -272,6 +274,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     MobicomMessageTemplate messageTemplate;
     MobicomMessageTemplateAdapter templateAdapter;
     boolean isAlreadyLoading;
+    TextView applozicLabel;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -346,6 +349,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         mainEditTextLinearLayout = (LinearLayout) list.findViewById(R.id.main_edit_text_linear_layout);
         audioRecordFrameLayout = (FrameLayout) list.findViewById(R.id.audio_record_frame_layout);
         messageTemplateView = (RecyclerView) list.findViewById(R.id.mobicomMessageTemplateView);
+        applozicLabel = list.findViewById(R.id.applozicLabel);
         Configuration config = getResources().getConfiguration();
         recordButtonWeakReference = new WeakReference<ImageButton>(recordButton);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -358,6 +362,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
+        if(MobiComUserPreference.getInstance(getContext()).getPricingPackage() == 1){
+            applozicLabel.setVisibility(VISIBLE);
+        }
+
         if (alCustomizationSettings.isPoweredByApplozic()) {
             list.findViewById(R.id.txtPoweredByApplozic).setVisibility(VISIBLE);
         }
@@ -365,7 +373,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
 
         attachmentLayout = (RelativeLayout) list.findViewById(R.id.attachment_layout);
-        isTyping = (TextView) list.findViewById(R.id.isTyping);
+        isTyping = list.findViewById(R.id.isTyping);
 
         contextFrameLayout = (FrameLayout) list.findViewById(R.id.contextFrameLayout);
 
@@ -600,26 +608,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void afterTextChanged(Editable s) {
                 try {
                     if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() > 0 && !typingStarted) {
-                        //Log.i(TAG, "typing started event...");
                         typingStarted = true;
                         handleSendAndRecordButtonView(true);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
-                            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-                            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-                            intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-                            ApplozicMqttIntentService.enqueueWork(getActivity(), intent);
+                            Applozic.publishTypingStatus(getContext(),channel,contact,typingStarted);
                         }
                     } else if (s.toString().trim().length() == 0 && typingStarted) {
-                        //Log.i(TAG, "typing stopped event...");
                         typingStarted = false;
                         handleSendAndRecordButtonView(false);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
-                            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-                            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-                            intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-                            ApplozicMqttIntentService.enqueueWork(getActivity(), intent);
+                            Applozic.publishTypingStatus(getContext(),channel,contact,typingStarted);
                         }
                     }
 
