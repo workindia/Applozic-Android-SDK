@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.provider.OpenableColumns;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -275,6 +276,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     MobicomMessageTemplate messageTemplate;
     MobicomMessageTemplateAdapter templateAdapter;
     boolean isAlreadyLoading;
+    FloatingActionButton messageDdropDownActionButton;
+    TextView messageUnreadCountTextView;
+    int messageUnreadCount = 0;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -411,6 +415,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         galleryImageView = (ImageView) list.findViewById(R.id.imageViewForPhoto);
         nameTextView = (TextView) list.findViewById(R.id.replyNameTextView);
         attachReplyCancelLayout = (ImageButton) list.findViewById(R.id.imageCancel);
+        messageDdropDownActionButton = (FloatingActionButton) list.findViewById(R.id.message_drop_down);
+        messageUnreadCountTextView = (TextView) list.findViewById(R.id.message_unread_count_textView);
         imageViewRLayout = (RelativeLayout) list.findViewById(R.id.imageViewRLayout);
         imageViewForAttachmentType = (ImageView) list.findViewById(R.id.imageViewForAttachmentType);
         spinnerLayout = inflater.inflate(R.layout.mobicom_message_list_header_footer, null);
@@ -637,6 +643,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        linearLayoutManager.setStackFromEnd(true);
+                        linearLayoutManager.setReverseLayout(true);
+                    }
+                });
                 emoticonsFrameLayout.setVisibility(View.GONE);
             }
         });
@@ -725,6 +738,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View view) {
+                                              getActivity().runOnUiThread(new Runnable() {
+                                                  @Override
+                                                  public void run() {
+                                                      recyclerView.smoothScrollToPosition(messageList.size());
+                                                      recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                                                  }
+                                              });
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
                                               if (contact != null && !contact.isBlocked() || channel != null) {
@@ -758,6 +778,28 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
                 //super.onScrolled(recyclerView, dx, dy);
                 if (loadMore) {
+                    int totalItemCount = linearLayoutManager.getItemCount();
+                    int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+
+                    if (totalItemCount - lastVisible != 1) {
+                        messageDdropDownActionButton.setVisibility(VISIBLE);
+                    } else {
+                        messageUnreadCountTextView.setVisibility(View.INVISIBLE);
+                        messageDdropDownActionButton.setVisibility(View.INVISIBLE);
+                        messageUnreadCount = 0;
+                    }
+                    messageDdropDownActionButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recyclerView.smoothScrollToPosition(messageList.size());
+                                    recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                                }
+                            });
+                        }
+                    });
                     int topRowVerticalPosition =
                             (recyclerView == null || recyclerView.getChildCount() == 0) ?
                                     0 : recyclerView.getChildAt(0).getTop();
@@ -1211,15 +1253,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 //Todo: Handle disappearing messages.
                 boolean added = updateMessageList(message, false);
                 if (added) {
-                    //Todo: update unread count
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
-                    linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
+                    if (messageDdropDownActionButton.getVisibility() == View.INVISIBLE) {
+                        linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
+                    }
                     emptyTextView.setVisibility(View.GONE);
                     currentConversationId = message.getConversationId();
                     channelKey = message.getGroupId();
                     if (Message.MessageType.MT_INBOX.getValue().equals(message.getType()) && (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                         try {
+                            messageUnreadCount += 1;
+                            messageUnreadCountTextView.setVisibility(VISIBLE);
+                            messageUnreadCountTextView.setText(String.valueOf(messageUnreadCount));
                             messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
                             Intent intent = new Intent(getActivity(), UserIntentService.class);
                             intent.putExtra(UserIntentService.SINGLE_MESSAGE_READ, true);
@@ -1660,7 +1706,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
             recyclerDetailConversationAdapter.setContextMenuClickListener(this);
         }
-        //  listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         linearLayoutManager.setSmoothScrollbarEnabled(true);
 
         getActivity().runOnUiThread(new Runnable() {
@@ -1703,6 +1748,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(messageList.size());
+                recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+            }
+        });
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }
 
