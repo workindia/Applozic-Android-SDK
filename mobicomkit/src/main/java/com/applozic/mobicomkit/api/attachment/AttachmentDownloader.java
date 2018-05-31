@@ -65,7 +65,6 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
     private static final String LOG_TAG = "PhotoDownloadRunnable";
     // Defines a field that contains the calling object of type PhotoTask.
     final TaskRunnableDownloadMethods mPhotoTask;
-    private HttpRequestUtils httpRequestUtils;
 
     /**
      * This constructor creates an instance of PhotoDownloadRunnable and stores in it a reference
@@ -155,12 +154,10 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
 
     public void loadAttachmentImage(Message message, Context context) {
         File file = null;
-        httpRequestUtils = new HttpRequestUtils(context);
         try {
             InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
-            String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
             String fileName = null;
             if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
@@ -172,16 +169,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
 
-                if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
-                    connection = openHttpConnection(fileMeta.getUrl());
-                } else {
-                    String response = httpRequestUtils.getResponse(new MobiComKitClientService(context).getFileAuthBaseUrl(message.getFileMetas().getBlobKeyString()), "application/json", "application/json");
-                    if (TextUtils.isEmpty(response)) {
-                        return;
-                    } else {
-                        connection = openHttpConnection(response);
-                    }
-                }
+                connection = new URLConnections().getDownloadConnection(context, message);
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
