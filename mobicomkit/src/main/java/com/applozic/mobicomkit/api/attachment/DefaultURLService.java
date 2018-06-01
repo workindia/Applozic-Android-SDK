@@ -18,7 +18,12 @@ public class DefaultURLService implements URLService {
     }
 
     @Override
-    public HttpURLConnection getAttachmentURL(Context context, Message message) throws IOException {
+    public HttpURLConnection getAttachmentConnection(Context context, Message message) throws IOException {
         return mobiComKitClientService.openHttpConnection(new MobiComKitClientService(context).getFileUrl() + message.getFileMetas().getBlobKeyString());
+    }
+
+    @Override
+    public String getThumbnailURL(Context context, Message message) throws IOException {
+        return message.getFileMetas().getThumbnailUrl();
     }
 }

@@ -15,18 +15,23 @@ public class S3URLService implements URLService {
     private MobiComKitClientService mobiComKitClientService;
     private HttpRequestUtils httpRequestUtils;
 
-    public S3URLService(Context context) {
+    S3URLService(Context context) {
         mobiComKitClientService = new MobiComKitClientService(context);
         httpRequestUtils = new HttpRequestUtils(context);
     }
 
     @Override
-    public HttpURLConnection getAttachmentURL(Context context, Message message) throws IOException {
+    public HttpURLConnection getAttachmentConnection(Context context, Message message) throws IOException {
         String response = httpRequestUtils.getResponse(mobiComKitClientService.getFileAuthBaseUrl(message.getFileMetas().getBlobKeyString()), "application/json", "application/json");
         if (TextUtils.isEmpty(response)) {
             return null;
         } else {
             return mobiComKitClientService.openHttpConnection(response);
         }
+    }
+
+    @Override
+    public String getThumbnailURL(Context context, Message message) throws IOException {
+        return httpRequestUtils.getResponse(mobiComKitClientService.getFileAuthBaseUrl(message.getFileMetas().getThumbnailBlobKey()), "application/json", "application/json");
     }
 }
