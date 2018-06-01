@@ -9,7 +9,9 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class GoogleCloudURLService implements URLService {
+import static com.applozic.mobicomkit.api.attachment.FileClientService.CUSTOM_STORAGE_SERVICE_END_POINT;
+
+public class GoogleCloudURLService extends MobiComKitClientService implements URLService {
 
     private MobiComKitClientService mobiComKitClientService;
     private HttpRequestUtils httpRequestUtils;
@@ -28,5 +30,10 @@ public class GoogleCloudURLService implements URLService {
     @Override
     public String getThumbnailURL(Context context, Message message) throws IOException {
         return httpRequestUtils.getResponse(mobiComKitClientService.getFileAuthBaseUrl(message.getFileMetas().getThumbnailBlobKey()), "application/json", "application/json");
+    }
+
+    @Override
+    public String getFileUploadUrl() {
+        return getBaseUrl() + CUSTOM_STORAGE_SERVICE_END_POINT;
     }
 }

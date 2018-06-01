@@ -10,7 +10,9 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class S3URLService implements URLService {
+import static com.applozic.mobicomkit.api.attachment.FileClientService.S3_SIGNED_URL_END_POINT;
+
+public class S3URLService extends MobiComKitClientService implements URLService {
 
     private MobiComKitClientService mobiComKitClientService;
     private HttpRequestUtils httpRequestUtils;
@@ -33,5 +35,10 @@ public class S3URLService implements URLService {
     @Override
     public String getThumbnailURL(Context context, Message message) throws IOException {
         return httpRequestUtils.getResponse(mobiComKitClientService.getFileAuthBaseUrl(message.getFileMetas().getThumbnailBlobKey()), "application/json", "application/json");
+    }
+
+    @Override
+    public String getFileUploadUrl() {
+        return getBaseUrl() + S3_SIGNED_URL_END_POINT;
     }
 }

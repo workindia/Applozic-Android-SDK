@@ -9,5 +9,8 @@ import java.net.HttpURLConnection;
 
 public interface URLService {
     HttpURLConnection getAttachmentConnection(Context context, Message message) throws IOException;
+
     String getThumbnailURL(Context context, Message message) throws IOException;
+
+    String getFileUploadUrl();
 }
