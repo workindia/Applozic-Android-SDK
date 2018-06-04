@@ -200,6 +200,8 @@ public class AttachmentView extends ImageView {
         }
         if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
             return message.getFileMetas().getUrl();
+        } else if (ApplozicClient.getInstance(context).isS3SignedURLsEnabled() && !TextUtils.isEmpty(message.getFileMetas().getBlobKeyString())) {
+            return message.getFileMetas().getBlobKeyString();
         } else {
             return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().getBlobKeyString();
         }
