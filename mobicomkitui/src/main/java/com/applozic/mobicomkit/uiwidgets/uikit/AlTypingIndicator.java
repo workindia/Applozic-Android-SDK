@@ -78,7 +78,7 @@ public class AlTypingIndicator extends LinearLayout {
     public void subscribe(Channel channel, Contact contact) {
         Applozic.subscribeToTyping(getContext(), channel, contact);
         if (mReceiver == null) {
-            mReceiver = new ALTypingReceiver(null);
+            mReceiver = new ALTypingReceiver();
         }
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(mReceiver, new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString()));
     }
@@ -92,12 +92,6 @@ public class AlTypingIndicator extends LinearLayout {
     }
 
     private class ALTypingReceiver extends BroadcastReceiver {
-        Handler handler;
-
-        public ALTypingReceiver(Handler handler) {
-            this.handler = handler;
-        }
-
         @Override
         public void onReceive(Context context, Intent intent) {
             typerUserId = intent.getStringExtra("userId");

@@ -22,32 +22,32 @@ import java.util.List;
 
 public class ApplozicConversation {
 
-    public static void getLatestMessageList(Context context, boolean isScroll, MessageListHandler handler) {
+    public static void getLatestMessageList(Context context, String searchString, boolean isScroll, MessageListHandler handler) {
         if (!isScroll) {
-            new MessageListTask(context, null, null, null, null, handler, true).execute();
+            new MessageListTask(context, searchString, null, null, null, null, handler, true).execute();
         } else {
-            new MessageListTask(context, null, null, MobiComUserPreference.getInstance(context).getStartTimeForPagination(), null, handler, true).execute();
+            new MessageListTask(context, searchString, null, null, MobiComUserPreference.getInstance(context).getStartTimeForPagination(), null, handler, true).execute();
         }
     }
 
-    public static void getLatestMessageList(Context context, Long startTime, MessageListHandler handler) {
-        new MessageListTask(context, null, null, startTime, null, handler, true).execute();
+    public static void getLatestMessageList(Context context, String searchString, Long startTime, MessageListHandler handler) {
+        new MessageListTask(context, searchString, null, null, startTime, null, handler, true).execute();
     }
 
     public static void getMessageListForContact(Context context, Contact contact, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, contact, null, null, endTime, handler, false).execute();
+        new MessageListTask(context, null, contact, null, null, endTime, handler, false).execute();
     }
 
     public static void getMessageListForChannel(Context context, Channel channel, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, channel, null, endTime, handler, false).execute();
+        new MessageListTask(context, null, null, channel, null, endTime, handler, false).execute();
     }
 
     public static void getMessageListForContact(Context context, String userId, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, new AppContactService(context).getContactById(userId), null, null, endTime, handler, false).execute();
+        new MessageListTask(context, null, new AppContactService(context).getContactById(userId), null, null, endTime, handler, false).execute();
     }
 
     public static void getMessageListForChannel(Context context, Integer channelKey, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, ChannelService.getInstance(context).getChannel(channelKey), null, endTime, handler, false).execute();
+        new MessageListTask(context, null, null, ChannelService.getInstance(context).getChannel(channelKey), null, endTime, handler, false).execute();
     }
 
     public static void downloadMessage(Context context, Message message, MediaDownloadProgressHandler handler) {
@@ -87,8 +87,9 @@ public class ApplozicConversation {
             Message currentMessage = iterator.next();
 
             if ((message.getGroupId() != null && currentMessage.getGroupId() != null && message.getGroupId().equals(currentMessage.getGroupId())) ||
-                    (message.getContactIds() != null && currentMessage.getContactIds() != null && message.getContactIds().equals(currentMessage.getContactIds()))) {
-
+                    (message.getGroupId() == null && currentMessage.getGroupId() == null && message.getContactIds() != null && currentMessage.getContactIds() != null &&
+                            message.getContactIds().equals(currentMessage.getContactIds()))) {
+                  //do nothing
             } else {
                 currentMessage = null;
             }
@@ -104,8 +105,25 @@ public class ApplozicConversation {
             shouldAdd = true;
         }
 
-        if(shouldAdd){
+        if (shouldAdd) {
             messageList.add(0, message);
+        }
+    }
+
+    public static synchronized void removeLatestMessage(String userId, Integer groupId, List<Message> messageList) {
+        Message tempMessage = null;
+
+        for (Message message : messageList) {
+            if (message.getGroupId() != null) {
+                if (message.getGroupId() != 0 && message.getGroupId().equals(groupId)) {
+                    tempMessage = message;
+                }
+            } else if (message.getContactIds() != null && message.getContactIds().equals(userId)) {
+                tempMessage = message;
+            }
+        }
+        if (tempMessage != null) {
+            messageList.remove(tempMessage);
         }
     }
 

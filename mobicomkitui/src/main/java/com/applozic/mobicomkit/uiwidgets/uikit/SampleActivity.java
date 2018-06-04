@@ -7,20 +7,24 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicomkit.uiwidgets.R;
 
-public class SampleActivity extends AppCompatActivity implements AlMessageSenderView.AlMessageViewEvents {
+public class SampleActivity extends AppCompatActivity implements AlMessageSenderView.AlMessageViewEvents, ApplozicUIListener {
 
     AlTypingIndicator typingIndicator;
     AlMessageSenderView messageSenderView;
     AlAttachmentView attachmentView;
     LinearLayout snackBarLayout;
+    FrameLayout frameLayout;
+    AlConversationFragment conversationFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +35,20 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
         messageSenderView = findViewById(R.id.alMessageSenderView);
         attachmentView = findViewById(R.id.alAttachmentView);
         snackBarLayout = findViewById(R.id.snackbarLayout);
+        conversationFragment = (AlConversationFragment) getSupportFragmentManager().findFragmentById(R.id.conversationFragment);
 
         messageSenderView.createView(new AppContactService(this).getContactById("reytum6"), null, this);
         attachmentView.createView();
+        Applozic.getInstance(this).registerUIListener(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (attachmentView.getVisibility() == View.VISIBLE) {
+            attachmentView.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -66,7 +81,7 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
     public void onSendButtonClicked(EditText editText) {
         if (editText != null) {
             if (!TextUtils.isEmpty(editText.getText().toString())) {
-                new MessageBuilder(this).setTo("reytum6").setContentType(Message.ContentType.DEFAULT.getValue()).setMessage(editText.getText().toString()).send();
+                new MessageBuilder(this).setTo("reytum7").setContentType(Message.ContentType.DEFAULT.getValue()).setMessage(editText.getText().toString()).send();
                 editText.setText("");
             }
         }
@@ -92,9 +107,14 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
     }
 
     @Override
+    protected void onDestroy() {
+        Applozic.getInstance(this).unregisterUIListener();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        AlAttachmentOptions.handleAttachmentOptionsResult(requestCode, resultCode, data,this,"reytum6",null);
-        //super.onActivityResult(requestCode, resultCode, data);
+        AlAttachmentOptions.handleAttachmentOptionsResult(requestCode, resultCode, data, this, "reytum6", null);
     }
 
     @Override
@@ -103,6 +123,104 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
             AlAttachmentOptions.onRequestPermissionsResult(requestCode, permissions, grantResults, snackBarLayout, this);
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    public void onMessageSent(Message message) {
+        if (conversationFragment != null) {
+            conversationFragment.addMessage(message);
+        }
+    }
+
+    @Override
+    public void onMessageReceived(Message message) {
+        if (conversationFragment != null) {
+            conversationFragment.addMessage(message);
+        }
+    }
+
+    @Override
+    public void onLoadMore(boolean loadMore) {
+
+    }
+
+    @Override
+    public void onMessageSync(Message message, String key) {
+        if (conversationFragment != null) {
+            conversationFragment.addMessage(message);
+        }
+    }
+
+    @Override
+    public void onMessageDeleted(String messageKey, String userId) {
+        if (conversationFragment != null) {
+            conversationFragment.notifyAdapter();
+        }
+    }
+
+    @Override
+    public void onMessageDelivered(Message message, String userId) {
+
+    }
+
+    @Override
+    public void onAllMessagesDelivered(String userId) {
+
+    }
+
+    @Override
+    public void onAllMessagesRead(String userId) {
+
+    }
+
+    @Override
+    public void onConversationDeleted(String userId, Integer channelKey, String response) {
+        if (conversationFragment != null) {
+            if ("success".equals(response)) {
+                conversationFragment.removeMessage(userId, channelKey);
+            }
+        }
+    }
+
+    @Override
+    public void onUpdateTypingStatus(String userId, String isTyping) {
+
+    }
+
+    @Override
+    public void onUpdateLastSeen(String userId) {
+
+    }
+
+    @Override
+    public void onMqttDisconnected() {
+
+    }
+
+    @Override
+    public void onChannelUpdated() {
+        if (conversationFragment != null) {
+            conversationFragment.notifyAdapter();
+        }
+    }
+
+    @Override
+    public void onConversationRead(String userId, boolean isGroup) {
+
+    }
+
+    @Override
+    public void onUserDetailUpdated(String userId) {
+        if (conversationFragment != null) {
+            conversationFragment.notifyAdapter();
+        }
+    }
+
+    @Override
+    public void onMessageMetadataUpdated(String keyString) {
+        if (conversationFragment != null) {
+            conversationFragment.notifyAdapter();
         }
     }
 }
