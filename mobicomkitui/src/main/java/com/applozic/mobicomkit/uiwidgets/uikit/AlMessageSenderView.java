@@ -128,15 +128,11 @@ public class AlMessageSenderView extends LinearLayout {
                         typingStarted = true;
                         if (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
                             Applozic.publishTypingStatus(getContext(), channel, contact, true);
-                            //audioRecordButton.setVisibility(GONE);
-                            //sendMessageButton.setVisibility(VISIBLE);
                         }
                     } else if (s.toString().trim().length() == 0 && typingStarted) {
                         typingStarted = false;
                         if (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
                             Applozic.publishTypingStatus(getContext(), channel, contact, false);
-                            //audioRecordButton.setVisibility(VISIBLE);
-                            //sendMessageButton.setVisibility(GONE);
                         }
                     }
 

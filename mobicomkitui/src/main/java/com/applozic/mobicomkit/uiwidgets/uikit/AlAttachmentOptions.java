@@ -482,24 +482,5 @@ public class AlAttachmentOptions {
         }
 
         return Uri.parse(file.getAbsolutePath()).toString();
-
-       /* String mimeType = URLConnection.guessContentTypeFromName(file.getName());
-        if (mimeType != null && (mimeType.startsWith("image"))) {
-            MobiComConversationFragment.AttachmentAsyncTask attachmentAsyncTask = new MobiComConversationFragment.AttachmentAsyncTask(uri, file, context);
-            attachmentAsyncTask.setImageViewLayoutWeakReference(mediaContainer);
-            attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
-            attachmentAsyncTask.setTextViewWeakReference(attachedFile);
-            attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
-            attachmentAsyncTask.execute();
-        } else {
-            filePath = Uri.parse(file.getAbsolutePath()).toString();
-        }*/
-    }
-
-    public static void sendMessage(Context context, String message, Integer groupId, String contactId, String filePath) {
-        /*String a = "237647124697124";
-        for (int i = 0; i < a.length(); i++) {
-            for(int j= 0;j<)
-        }*/
     }
 }
