@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.attachment;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -33,12 +34,22 @@ public class DefaultURLService extends MobiComKitClientService implements URLSer
     }
 
     @Override
-    public String getFileUploadUrl() {
-        String fileUploadUrl = Utils.getMetaDataValue(context.getApplicationContext(), FILE_UPLOAD_METADATA_KEY);
-        if (!TextUtils.isEmpty(fileUploadUrl)) {
-            return getFileBaseUrl() + fileUploadUrl;
-        }
-        return getFileBaseUrl() + FILE_UPLOAD_URL;
+    public ApplozicMultipartUtility getMultipartFile(String path, Handler handler) {
+        return null;
     }
+
+    @Override
+    public String getFileUploadUrl() {
+        return null;
+    }
+
+//    @Override
+//    public String getFileUploadUrl() {
+//        String fileUploadUrl = Utils.getMetaDataValue(context.getApplicationContext(), FILE_UPLOAD_METADATA_KEY);
+//        if (!TextUtils.isEmpty(fileUploadUrl)) {
+//            return getFileBaseUrl() + fileUploadUrl;
+//        }
+//        return getFileBaseUrl() + FILE_UPLOAD_URL;
+//    }
 
 }

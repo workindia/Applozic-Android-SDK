@@ -52,7 +52,9 @@ public class FileClientService extends MobiComKitClientService {
     public static final String IMAGE_DIR = "image";
     public static final String AL_UPLOAD_FILE_URL = "/rest/ws/upload/file";
     public static final String CUSTOM_STORAGE_SERVICE_END_POINT = "/rest/ws/upload/image";
-    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/file";
+//    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/file";
+    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/image";
+    public static final String S3_SIGNED_URL_PARAM = "aclsPrivate";
     public static final String THUMBNAIL_URL = "/files/";
     private static final int MARK = 1024;
     private static final String TAG = "FileClientService";
@@ -104,7 +106,7 @@ public class FileClientService extends MobiComKitClientService {
     public String profileImageUploadURL() {
         return getBaseUrl() + AL_UPLOAD_FILE_URL;
     }
-    
+
     public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
         try {
             Bitmap attachedImage = null;
@@ -246,6 +248,7 @@ public class FileClientService extends MobiComKitClientService {
                 multipart.addFilePart("files[]", new File(path), handler);
             }
             return multipart.getResponse();
+//            return new URLConnections(context).getMultipartFile(path, handler).getResponse();
         } catch (Exception e) {
             e.printStackTrace();
         }

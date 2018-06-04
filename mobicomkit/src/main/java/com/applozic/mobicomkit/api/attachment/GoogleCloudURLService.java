@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.attachment;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -33,7 +34,17 @@ public class GoogleCloudURLService extends MobiComKitClientService implements UR
     }
 
     @Override
-    public String getFileUploadUrl() {
-        return getBaseUrl() + CUSTOM_STORAGE_SERVICE_END_POINT;
+    public ApplozicMultipartUtility getMultipartFile(String path, Handler handler) {
+        return null;
     }
+
+    @Override
+    public String getFileUploadUrl() {
+        return null;
+    }
+
+//    @Override
+//    public String getFileUploadUrl() {
+//        return getBaseUrl() + CUSTOM_STORAGE_SERVICE_END_POINT;
+//    }
 }

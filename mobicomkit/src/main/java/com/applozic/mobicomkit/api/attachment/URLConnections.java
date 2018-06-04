@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.attachment;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -58,6 +59,10 @@ public class URLConnections {
             return httpRequestUtils.getResponse(getFileUploadUrl()
                     + "?" + new Date().getTime(), "text/plain", "text/plain", true);
         }
+    }
+
+    public ApplozicMultipartUtility getMultipartFile(String path, Handler handler) {
+        return new S3URLService(context).getMultipartFile(path, handler);
     }
 
     private String getFileUploadUrl() {

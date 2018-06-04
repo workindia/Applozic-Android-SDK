@@ -59,7 +59,7 @@ public class MobiComKitClientService {
 
     }
 
-    protected String getBaseUrl() {
+    public String getBaseUrl() {
         String SELECTED_BASE_URL = MobiComUserPreference.getInstance(context).getUrl();
 
         if (!TextUtils.isEmpty(SELECTED_BASE_URL)) {

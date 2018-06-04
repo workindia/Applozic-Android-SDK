@@ -1,16 +1,19 @@
 package com.applozic.mobicomkit.api.attachment;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import static com.applozic.mobicomkit.api.attachment.FileClientService.S3_SIGNED_URL_END_POINT;
+import static com.applozic.mobicomkit.api.attachment.FileClientService.S3_SIGNED_URL_PARAM;
 
 public class S3URLService extends MobiComKitClientService implements URLService {
 
@@ -38,7 +41,22 @@ public class S3URLService extends MobiComKitClientService implements URLService 
     }
 
     @Override
+    public ApplozicMultipartUtility getMultipartFile(String path, Handler handler) {
+        try {
+            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(mobiComKitClientService.getBaseUrl()
+                    + S3_SIGNED_URL_END_POINT
+                    + "?" + S3_SIGNED_URL_PARAM
+                    + "=" + true, "UTF-8", context);
+            multipart.addFilePart("file", new File(path), handler);
+            return multipart;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public String getFileUploadUrl() {
-        return getBaseUrl() + S3_SIGNED_URL_END_POINT;
+        return mobiComKitClientService.getBaseUrl() + S3_SIGNED_URL_END_POINT + "?" + S3_SIGNED_URL_PARAM + "=" + true;
     }
 }
