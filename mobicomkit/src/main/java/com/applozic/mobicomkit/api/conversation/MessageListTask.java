@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.exception.ApplozicException;
@@ -27,8 +28,9 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
     private MessageListHandler handler;
     private boolean isForMessageList;
     private ApplozicException exception;
+    private String searchString;
 
-    public MessageListTask(Context context, Contact contact, Channel channel, Long startTime, Long endTime, MessageListHandler handler, boolean isForMessageList) {
+    public MessageListTask(Context context, String searchString, Contact contact, Channel channel, Long startTime, Long endTime, MessageListHandler handler, boolean isForMessageList) {
         this.context = new WeakReference<Context>(context);
         this.contact = contact;
         this.channel = channel;
@@ -36,6 +38,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
         this.endTime = endTime;
         this.handler = handler;
         this.isForMessageList = isForMessageList;
+        this.searchString = searchString;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
         List<Message> messageList = null;
         try {
             if (isForMessageList) {
-                messageList = new MobiComConversationService(context.get()).getLatestMessagesGroupByPeople(startTime, null);
+                messageList = new MobiComConversationService(context.get()).getLatestMessagesGroupByPeople(startTime, TextUtils.isEmpty(searchString) ? null : searchString);
             } else {
                 messageList = new MobiComConversationService(context.get()).getMessages(startTime, endTime, contact, channel, null);
             }
@@ -81,7 +84,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
         if (handler != null) {
             if (isForMessageList) {
                 handler.onResult(messages, exception);
-            } else if (messageList != null) {
+            } else {
                 handler.onResult(messageList, exception);
             }
         }

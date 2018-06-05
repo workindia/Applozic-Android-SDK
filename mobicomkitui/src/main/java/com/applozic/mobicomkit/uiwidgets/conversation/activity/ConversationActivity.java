@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -86,6 +85,8 @@ import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -116,7 +117,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -174,6 +175,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchListFragment searchListFragment;
     ContactsChangeObserver observer;
     private LinearLayout serviceDisconnectionLayout;
+    private ALStoragePermission alStoragePermission;
 
     public ConversationActivity() {
 
@@ -268,6 +270,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onPause() {
         //ApplozicMqttService.getInstance(this).unSubscribe();
+
+
         super.onPause();
     }
 
@@ -353,7 +357,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
 
-        if (Utils.hasMarshmallow()) {
+        if (Utils.hasMarshmallow() && !alCustomizationSettings.isGlobalStoagePermissionDisabled()) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
@@ -583,6 +587,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            alStoragePermission.onAction(PermissionsUtils.verifyPermissions(grantResults));
             if (PermissionsUtils.verifyPermissions(grantResults)) {
                 showSnackBar(R.string.storage_permission_granted);
                 if (isAttachment) {
@@ -1277,6 +1282,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
+    @Override
+    public boolean isPermissionGranted() {
+        return !PermissionsUtils.checkSelfForStoragePermission(this);
+    }
+
+    @Override
+    public void checkPermission(ALStoragePermission storagePermission) {
+        PermissionsUtils.requestPermissions(this, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
+        this.alStoragePermission = storagePermission;
+    }
+
     private class SyncMessagesAsyncTask extends AsyncTask<Boolean, Void, Void> {
         MobiComMessageService messageService;
 
@@ -1341,5 +1357,4 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         }
     }
-
 }

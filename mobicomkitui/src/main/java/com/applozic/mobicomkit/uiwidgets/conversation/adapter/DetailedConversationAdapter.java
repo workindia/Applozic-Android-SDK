@@ -60,6 +60,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -126,6 +129,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private TextAppearanceSpan highlightTextSpan;
     private View view;
     private ContextMenuClickListener contextMenuClickListener;
+    private ALStoragePermissionListener storagePermissionListener;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
@@ -133,6 +137,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
     public void setContextMenuClickListener(ContextMenuClickListener contextMenuClickListener) {
         this.contextMenuClickListener = contextMenuClickListener;
+    }
+
+    public void setStoragePermissionListener(ALStoragePermissionListener storagePermissionListener) {
+        this.storagePermissionListener = storagePermissionListener;
     }
 
     public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
@@ -595,7 +603,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         loadContactImage(receiverContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
                     }
 
-                    ApplozicDocumentView audioView = new ApplozicDocumentView(this.context);
+                    ApplozicDocumentView audioView = new ApplozicDocumentView(this.context, storagePermissionListener);
                     audioView.inflateViewWithMessage(myHolder.view, message);
                     audioView.hideView(true);
 
@@ -769,18 +777,43 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 return;
                             }
                             if (message.isAttachmentDownloaded()) {
-                                showFullView(message);
-                                //return;
+                                if (storagePermissionListener.isPermissionGranted()) {
+                                    showFullView(message);
+                                } else {
+                                    storagePermissionListener.checkPermission(new ALStoragePermission() {
+                                        @Override
+                                        public void onAction(boolean didGrant) {
+                                            if (didGrant) {
+                                                showFullView(message);
+                                            }
+                                        }
+                                    });
+                                }
                             } else {
-
-                                //if (message.isTypeOutbox() || message.isSentToServer()) {
-                                myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
-                                myHolder.mediaDownloadProgressBar.setVisibility(View.VISIBLE);
-                                myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
-                                myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
-                                myHolder.attachmentView.setMessage(message);
-                                myHolder.attachmentView.setVisibility(View.VISIBLE);
-                                myHolder.attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
+                                if (storagePermissionListener.isPermissionGranted()) {
+                                    myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
+                                    myHolder.mediaDownloadProgressBar.setVisibility(View.VISIBLE);
+                                    myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
+                                    myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
+                                    myHolder.attachmentView.setMessage(message);
+                                    myHolder.attachmentView.setVisibility(View.VISIBLE);
+                                    myHolder.attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
+                                } else {
+                                    storagePermissionListener.checkPermission(new ALStoragePermission() {
+                                        @Override
+                                        public void onAction(boolean didGrant) {
+                                            if (didGrant) {
+                                                myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
+                                                myHolder.mediaDownloadProgressBar.setVisibility(View.VISIBLE);
+                                                myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
+                                                myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
+                                                myHolder.attachmentView.setMessage(message);
+                                                myHolder.attachmentView.setVisibility(View.VISIBLE);
+                                                myHolder.attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
@@ -795,7 +828,18 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     myHolder.attachmentView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            showFullView(message);
+                            if (storagePermissionListener.isPermissionGranted()) {
+                                showFullView(message);
+                            } else {
+                                storagePermissionListener.checkPermission(new ALStoragePermission() {
+                                    @Override
+                                    public void onAction(boolean didGrant) {
+                                        if (didGrant) {
+                                            showFullView(message);
+                                        }
+                                    }
+                                });
+                            }
                         }
                     });
 
@@ -976,20 +1020,43 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             myViewHolder.addContactButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_VIEW);
-                    Uri outputUri = null;
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    if (Utils.hasNougat()) {
-                        outputUri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+                    if (storagePermissionListener.isPermissionGranted()) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        Uri outputUri = null;
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        if (Utils.hasNougat()) {
+                            outputUri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+                        } else {
+                            outputUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
+                        }
+                        if (intent.resolveActivity(context.getPackageManager()) != null) {
+                            intent.setDataAndType(outputUri, "text/x-vcard");
+                            context.startActivity(intent);
+                        } else {
+                            Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                        }
                     } else {
-                        outputUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
-                    }
-                    if (intent.resolveActivity(context.getPackageManager()) != null) {
-                        intent.setDataAndType(outputUri, "text/x-vcard");
-                        context.startActivity(intent);
-                    } else {
-                        Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                        storagePermissionListener.checkPermission(new ALStoragePermission() {
+                            @Override
+                            public void onAction(boolean didGrant) {
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                Uri outputUri = null;
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                if (Utils.hasNougat()) {
+                                    outputUri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+                                } else {
+                                    outputUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
+                                }
+                                if (intent.resolveActivity(context.getPackageManager()) != null) {
+                                    intent.setDataAndType(outputUri, "text/x-vcard");
+                                    context.startActivity(intent);
+                                } else {
+                                    Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -1361,6 +1428,23 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 }
             });
 
+            if (contactImage != null) {
+                contactImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sendCallback(messageList, getLayoutPosition());
+                    }
+                });
+            }
+            if (alphabeticTextView != null) {
+                alphabeticTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sendCallback(messageList, getLayoutPosition());
+                    }
+                });
+            }
+
             attachmentView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -1477,6 +1561,15 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             timeTextView = (TextView) itemView.findViewById(R.id.applozic_call_timing);
             durationTextView = (TextView) itemView.findViewById(R.id.applozic_call_duration);
             imageView = (ImageView) itemView.findViewById(R.id.applozic_call_image_type);
+        }
+    }
+
+    public void sendCallback(List<Message> messageList, int pos) {
+        Message message = messageList.get(pos);
+        if (message != null) {
+            if (context.getApplicationContext() instanceof ALProfileClickListener) {
+                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, contactService.getContactById(message.getTo()), channel, false);
+            }
         }
     }
 }

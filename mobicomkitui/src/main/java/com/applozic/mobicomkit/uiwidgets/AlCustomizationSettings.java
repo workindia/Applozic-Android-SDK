@@ -104,6 +104,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean showAllDeviceContacts = true;
     private boolean poweredByApplozic = false;
     private boolean enableImageCompression = false;
+    private boolean disableGlobalStoragePermission = false;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -542,6 +543,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isImageCompressionEnabled() {
         return enableImageCompression;
+    }
+
+    public boolean isGlobalStoagePermissionDisabled() {
+        return disableGlobalStoragePermission;
     }
 
     @Override

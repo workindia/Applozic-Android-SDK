@@ -122,6 +122,9 @@ import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -293,7 +296,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-        applozicDocumentView = new ApplozicDocumentView(getContext());
+        //applozicDocumentView = new ApplozicDocumentView(getContext());
         restrictedWords = FileUtils.loadRestrictedWordsFile(getContext());
         conversationUIService = new ConversationUIService(getActivity());
         syncCallService = SyncCallService.getInstance(getActivity());
@@ -362,7 +365,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
-        if(MobiComUserPreference.getInstance(getContext()).getPricingPackage() == 1){
+        if (MobiComUserPreference.getInstance(getContext()).getPricingPackage() == 1) {
             applozicLabel.setVisibility(VISIBLE);
         }
 
@@ -611,13 +614,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         typingStarted = true;
                         handleSendAndRecordButtonView(true);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Applozic.publishTypingStatus(getContext(),channel,contact,typingStarted);
+                            Applozic.publishTypingStatus(getContext(), channel, contact, typingStarted);
                         }
                     } else if (s.toString().trim().length() == 0 && typingStarted) {
                         typingStarted = false;
                         handleSendAndRecordButtonView(false);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Applozic.publishTypingStatus(getContext(),channel,contact,typingStarted);
+                            Applozic.publishTypingStatus(getContext(), channel, contact, typingStarted);
                         }
                     }
 
@@ -765,6 +768,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
 
+                if (getContext() != null && getContext().getApplicationContext() instanceof ALProfileClickListener) {
+                    ((ALProfileClickListener) getContext().getApplicationContext()).onClick(getActivity(), contact, channel, true);
+                }
+
                 if (channel != null) {
 
                     if (Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())
@@ -911,6 +918,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             userBlockDialog(false, contact, false);
             return;
         }
+        if (getActivity() instanceof ALStoragePermissionListener) {
+            if (((ALStoragePermissionListener) getActivity()).isPermissionGranted()) {
+                startRecording();
+            } else {
+                ((ALStoragePermissionListener) getActivity()).checkPermission(new ALStoragePermission() {
+                    @Override
+                    public void onAction(boolean didGrant) {
+                    }
+                });
+            }
+        }
+    }
+
+    private void startRecording() {
         isToastVisible = true;
         errorEditTextView.requestFocus();
         errorEditTextView.setError(null);
@@ -1649,11 +1670,41 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
             recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
             recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+            if (getActivity() instanceof ALStoragePermissionListener) {
+                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+            }else{
+                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                    @Override
+                    public boolean isPermissionGranted() {
+                        return false;
+                    }
+
+                    @Override
+                    public void checkPermission(ALStoragePermission storagePermission) {
+
+                    }
+                });
+            }
         } else if (channel != null) {
             recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
             recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
             recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+            if (getActivity() instanceof ALStoragePermissionListener) {
+                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+            }else{
+                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                    @Override
+                    public boolean isPermissionGranted() {
+                        return false;
+                    }
+
+                    @Override
+                    public void checkPermission(ALStoragePermission storagePermission) {
+
+                    }
+                });
+            }
         }
         //  listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         linearLayoutManager.setSmoothScrollbarEnabled(true);
@@ -1669,7 +1720,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         registerForContextMenu(recyclerView);
 
         processMobiTexterUserCheck();
-
 
         downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
         downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

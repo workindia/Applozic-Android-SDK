@@ -133,7 +133,7 @@ public class MobiComConversationService {
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString) {
-      return getLatestMessagesGroupByPeople(createdAt,searchString,null);
+        return getLatestMessagesGroupByPeople(createdAt, searchString, null);
     }
 
     public List<Message> getMessages(String userId, Long startTime, Long endTime) {
@@ -342,7 +342,9 @@ public class MobiComConversationService {
             contact.setStatus(userDetail.getStatusMessage());
             //contact.setApplicationId(); Todo: set the application id
             contact.setConnected(userDetail.isConnected());
-            contact.setFullName(userDetail.getDisplayName());
+            if (!TextUtils.isEmpty(userDetail.getDisplayName())) {
+                contact.setFullName(userDetail.getDisplayName());
+            }
             contact.setLastSeenAt(userDetail.getLastSeenAtTime());
             if (userDetail.getUnreadCount() != null) {
                 contact.setUnreadCount(userDetail.getUnreadCount());
@@ -514,7 +516,9 @@ public class MobiComConversationService {
                 contact.setUserId(userDetail.getUserId());
                 contact.setContactNumber(userDetail.getPhoneNumber());
                 contact.setConnected(userDetail.isConnected());
-                contact.setFullName(userDetail.getDisplayName());
+                if (!TextUtils.isEmpty(userDetail.getDisplayName())) {
+                    contact.setFullName(userDetail.getDisplayName());
+                }
                 contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                 contact.setStatus(userDetail.getStatusMessage());
                 contact.setUnreadCount(userDetail.getUnreadCount());
