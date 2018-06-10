@@ -113,6 +113,9 @@ public class ChannelDatabaseService {
         }
         if (channel.getMetadata() != null) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
+            if(channel.getMetadata().containsKey(Channel.AL_CATEGORY)){
+                contentValues.put(MobiComDatabaseHelper.AL_CATEGORY, channel.getMetadata().get(Channel.AL_CATEGORY));
+            }
         }
         contentValues.put(MobiComDatabaseHelper.PARENT_GROUP_KEY, channel.getParentKey());
         contentValues.put(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID, channel.getParentClientGroupId());
