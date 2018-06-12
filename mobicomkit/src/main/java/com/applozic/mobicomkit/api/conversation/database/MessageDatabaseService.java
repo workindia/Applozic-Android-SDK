@@ -1002,8 +1002,6 @@ public class MessageDatabaseService {
                     + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue() + ")";
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-        /*final Cursor cursor = db.rawQuery("select * from sms where createdAt in " +
-                "(select max(createdAt) from sms group by contactNumbers) order by createdAt desc", null);*/
             String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
                     + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) ";
 
@@ -1016,20 +1014,13 @@ public class MessageDatabaseService {
 
             if (!TextUtils.isEmpty(categoryName)) {
 
-                rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName +"'";
+                rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName + "'";
 
             }
 
             rowQuery = rowQuery + createdAtClause + searchCaluse + hiddenType + messageTypeClause + " order by m1.createdAt desc";
 
-            Log.i(TAG, "####" +rowQuery);
-
             final Cursor cursor = db.rawQuery(rowQuery, null);
-
-
-        /*final Cursor cursor = db.rawQuery("SELECT t1.* FROM sms t1" +
-                "  JOIN (SELECT contactNumbers, MAX(createdAt) createdAt FROM sms GROUP BY contactNumbers) t2" +
-                "  ON t1.contactNumbers = t2.contactNumbers AND t1.createdAt = t2.createdAt order by createdAt desc", null);*/
             List<Message> messageList = getLatestMessageList(cursor);
 
             dbHelper.close();
