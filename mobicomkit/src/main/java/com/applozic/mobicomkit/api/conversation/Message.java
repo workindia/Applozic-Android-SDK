@@ -3,12 +3,15 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -676,6 +679,17 @@ public class Message extends JsonMarker {
 
     public void setReplyMessage(int replyMessage) {
         this.replyMessage = replyMessage;
+    }
+
+
+    public boolean isIgnoreMessageAdding(Context context) {
+        if(ApplozicClient.getInstance(context).isSubGroupEnabled() && MobiComUserPreference.getInstance(context).getParentGroupKey() != null  || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())){
+            Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(getGroupId());
+            boolean subGroupFlag = channel != null && channel.getParentKey() != null && MobiComUserPreference.getInstance(context).getParentGroupKey().equals(channel.getParentKey());
+            boolean categoryFlag = channel != null  && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
+            return  (subGroupFlag || categoryFlag ||  ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
+        }
+        return false;
     }
 
     @Override

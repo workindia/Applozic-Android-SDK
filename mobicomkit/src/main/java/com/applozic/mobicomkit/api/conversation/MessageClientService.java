@@ -638,15 +638,10 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime, Integer conversationId) throws UnsupportedEncodingException {
-        return getMessages(contact, channel, startTime, endTime, conversationId, false);
+        return getMessages(contact, channel, startTime, endTime, conversationId,false);
     }
 
-    public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime, Integer conversationId,boolean isSkipRead) throws UnsupportedEncodingException {
-        return getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead,null);
-    }
-
-    public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime, Integer conversationId, boolean isSkipRead,String category) throws UnsupportedEncodingException {
-        String contactNumber = (contact != null ? contact.getFormattedContactNumber() : "");
+     public String getMessages(Contact contact, Channel channel, Long startTime, Long endTime, Integer conversationId, boolean isSkipRead) throws UnsupportedEncodingException {
         String params = "";
         if (contact != null || channel != null) {
             params = isSkipRead ? "skipRead=" + isSkipRead + "&startIndex=0&pageSize=50" + "&" : "startIndex=0&pageSize=50&";
@@ -671,8 +666,8 @@ public class MessageClientService extends MobiComKitClientService {
         }
         params = params + "&" + "deletedGroupIncluded=true";
 
-        if(!TextUtils.isEmpty(category)){
-            params = params + "&category=" + category;
+        if(!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())){
+            params = params + "&category=" + MobiComUserPreference.getInstance(context).getCategoryName();
         }
 
         return httpRequestUtils.getResponse(getMessageListUrl() + "?" + params

@@ -168,6 +168,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
     private static final String ALTER_CHANNEL_USER_MAPPER_TABLE_FOR_PARENT_GROUP_KEY_COLUMN = "ALTER TABLE " + CHANNEL_USER_X + " ADD COLUMN " + PARENT_GROUP_KEY + " integer default 0";
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_CLIENT_GROUP_ID + " varchar(1000) null";
+    private static final String ALTER_CHANNEL_TABLE_FOR_AL_CATEGORY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + AL_CATEGORY + " VARCHAR(2000))";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -425,6 +426,10 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
 
             if (!DBUtils.existsColumnInTable(database, CHANNEL, PARENT_CLIENT_GROUP_ID)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN);
+            }
+
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, AL_CATEGORY)) {
+                database.execSQL(ALTER_CHANNEL_TABLE_FOR_AL_CATEGORY_COLUMN);
             }
 
             database.execSQL(CREATE_INDEX_ON_CREATED_AT);

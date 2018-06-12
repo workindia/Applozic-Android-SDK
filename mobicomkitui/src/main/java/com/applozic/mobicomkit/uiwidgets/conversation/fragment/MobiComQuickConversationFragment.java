@@ -231,12 +231,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             return;
         }
 
-        // TODO : Real time update..
-        if(ApplozicClient.getInstance(getActivity()).isSubGroupEnabled() && MobiComUserPreference.getInstance(getActivity()).getParentGroupKey() != null ){
-            Channel  channel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(message.getGroupId());
-            if(channel != null && channel.getParentKey() != null && !MobiComUserPreference.getInstance(getActivity()).getParentGroupKey().equals(channel.getParentKey())){
-                return;
-            }
+        if(message.isIgnoreMessageAdding(getActivity())){
+            return;
         }
 
         final Context context = getActivity();
