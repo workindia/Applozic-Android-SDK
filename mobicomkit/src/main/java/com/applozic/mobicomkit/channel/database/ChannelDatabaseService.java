@@ -113,6 +113,9 @@ public class ChannelDatabaseService {
         }
         if (channel.getMetadata() != null) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
+            if(channel.getMetadata().containsKey(Channel.AL_CATEGORY)){
+                contentValues.put(MobiComDatabaseHelper.AL_CATEGORY, channel.getMetadata().get(Channel.AL_CATEGORY));
+            }
         }
         contentValues.put(MobiComDatabaseHelper.PARENT_GROUP_KEY, channel.getParentKey());
         contentValues.put(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID, channel.getParentClientGroupId());
@@ -419,7 +422,7 @@ public class ChannelDatabaseService {
 
                 stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
                         append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).append(",").
-                        append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").
+                        append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").append(MobiComDatabaseHelper.AL_CATEGORY).append(",").
                         append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).append(",").append(MobiComDatabaseHelper.PARENT_GROUP_KEY).append(",").append(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID).
                         append(" FROM ").append(MobiComDatabaseHelper.CHANNEL).append(" where ").append(MobiComDatabaseHelper.TYPE).append(" NOT IN ('").append(Channel.GroupType.CONTACT_GROUP.getValue()).append("')");
 

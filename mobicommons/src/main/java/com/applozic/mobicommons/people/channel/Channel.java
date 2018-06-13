@@ -35,6 +35,7 @@ public class Channel extends JsonMarker {
     private List<Contact> contacts = new ArrayList<Contact>();
     private Long notificationAfterTime;
     private Long deletedAtTime;
+    public static final String AL_CATEGORY= "AL_CATEGORY";
 
 
     public Channel() {
@@ -213,6 +214,13 @@ public class Channel extends JsonMarker {
 
     public void setSubGroupCount(int subGroupCount) {
         this.subGroupCount = subGroupCount;
+    }
+
+    public boolean isPartOfCategory(String category){
+
+        return (this.metadata!=null && this.metadata.containsKey(AL_CATEGORY)
+                && this.metadata.get(AL_CATEGORY).equals(category));
+
     }
 
     public enum GroupType {
