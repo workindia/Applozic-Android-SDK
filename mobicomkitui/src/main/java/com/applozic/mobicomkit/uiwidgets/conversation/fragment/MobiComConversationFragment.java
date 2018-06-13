@@ -3174,17 +3174,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void updateContextBasedGroup() {
-        Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
+        if (channel != null) {
+            Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
 
-        if ((Channel.GroupType.GROUPOFTWO.getValue().equals(channelInfo.getType())) && (channelInfo.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue()))) {
-            Conversation conversation = new Conversation();
-            TopicDetail topic = new TopicDetail();
-            topic.setTitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
-            topic.setSubtitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
-            topic.setLink(channelInfo.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
-            conversation.setTopicDetail(topic.getJson());
-            conversationList.get(0).setTopicDetail(topic.getJson());
-            applozicContextSpinnerAdapter.notifyDataSetChanged();
+            if ((Channel.GroupType.GROUPOFTWO.getValue().equals(channelInfo.getType())) && (channelInfo.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue()))) {
+                Conversation conversation = new Conversation();
+                TopicDetail topic = new TopicDetail();
+                topic.setTitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
+                topic.setSubtitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
+                topic.setLink(channelInfo.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
+                conversation.setTopicDetail(topic.getJson());
+                conversationList.get(0).setTopicDetail(topic.getJson());
+                applozicContextSpinnerAdapter.notifyDataSetChanged();
+            }
         }
     }
 
