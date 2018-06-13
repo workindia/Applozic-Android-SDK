@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.8.2' `
+`compile 'com.applozic.communication.uiwidget:mobicomkitui:5.8.4' `
 
 
 Add the following in gradle android target:      
@@ -73,13 +73,15 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
 <meta-data android:name="com.package.name" 
            android:value="${applicationId}" /> <!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->
            
- <provider android:name="android.support.v4.content.FileProvider"
-           android:authorities="${applicationId}.provider"
-           android:exported="false"
-           android:grantUriPermissions="true">
-<meta-data android:name="android.support.FILE_PROVIDER_PATHS"
-           android:resource="@xml/applozic_provider_paths"/>
- </provider>           
+  <provider
+            android:name="com.applozic.mobicomkit.uiwidgets.ALFileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/applozic_provider_paths" />
+        </provider>           
          
 ```
    **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name

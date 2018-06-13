@@ -103,7 +103,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
             conversationUIService.reconnectMQTT();
         } else if (BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
-            conversationUIService.updateChannelSync();
+            boolean isMetaDataUpdate = intent.getBooleanExtra("isMetadataUpdate", false);
+            conversationUIService.updateChannelSync(isMetaDataUpdate);
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString().equals(action)) {
             conversationUIService.updateTitleAndSubtitle();
         } else if (BroadcastService.INTENT_ACTIONS.CONVERSATION_READ.toString().equals(action)) {

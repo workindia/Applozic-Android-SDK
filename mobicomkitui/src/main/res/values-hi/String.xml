@@ -283,7 +283,6 @@
     <string name="profile_contact_number">Contact Number</string>
     <string name="user_name">User Name</string>
 
-
     <string-array name="secret_message_timer_array">
         <item>आत्म विनाश</item>
         <item>ऑफ</item>
