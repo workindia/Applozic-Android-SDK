@@ -60,6 +60,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -130,6 +132,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private View view;
     private ContextMenuClickListener contextMenuClickListener;
     private ALStoragePermissionListener storagePermissionListener;
+    private ALRichMessageListener listener;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
@@ -137,6 +140,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
     public void setContextMenuClickListener(ContextMenuClickListener contextMenuClickListener) {
         this.contextMenuClickListener = contextMenuClickListener;
+    }
+
+    public void setRichMessageCallbackListener(ALRichMessageListener listener) {
+        this.listener = listener;
     }
 
     public void setStoragePermissionListener(ALStoragePermissionListener storagePermissionListener) {
@@ -957,6 +964,14 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.attachedFile.setVisibility(View.GONE);
                         myHolder.mainContactShareLayout.setVisibility(View.GONE);
                     }
+
+                    if (message.getMetadata() != null && "300".equals(message.getMetadata().get("contentType"))) {
+                        myHolder.richMessageLayout.setVisibility(View.VISIBLE);
+                        new AlRichMessage(context, myHolder.richMessageContainer, myHolder.richMessageLayout, message, listener);
+                    } else {
+                        myHolder.richMessageLayout.setVisibility(View.GONE);
+                    }
+
                     //Handling contact share
                     if (message.isContactMessage()) {
                         myHolder.attachedFile.setVisibility(View.GONE);
@@ -1369,6 +1384,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         ImageView imageViewForAttachmentType;
         Button addContactButton;
         int position;
+        LinearLayout richMessageLayout;
+        RecyclerView richMessageContainer;
 
         public MyViewHolder(final View customView) {
             super(customView);
@@ -1412,6 +1429,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             shareContactNo = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_no);
             shareEmailContact = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_emailId);
             addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
+
+            richMessageLayout = (LinearLayout) customView.findViewById(R.id.alRichMessageView);
+            richMessageContainer = (RecyclerView) customView.findViewById(R.id.alRichMessageContainer);
 
             customView.setOnCreateContextMenuListener(this);
 

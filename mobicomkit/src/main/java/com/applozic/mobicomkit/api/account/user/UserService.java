@@ -260,7 +260,7 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, status, null,null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status,null);
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber) {

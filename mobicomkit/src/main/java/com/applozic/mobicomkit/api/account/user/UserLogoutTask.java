@@ -46,8 +46,13 @@ public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
         // And if it is we call the callback function on it.
         if (result && this.taskListener != null) {
             this.taskListener.onSuccess(context.get());
-        } else if (this.taskListener != null) {
+
+        } else if (mException != null && this.taskListener != null) {
             this.taskListener.onFailure(mException);
+        } else if (result && this.logoutHandler != null) {
+            this.logoutHandler.onSuccess(context.get());
+        } else if (mException != null && this.logoutHandler != null) {
+            this.logoutHandler.onFailure(mException);
         }
     }
 

@@ -150,6 +150,16 @@ public class Applozic {
         }
     }
 
+    public static void loginUser(Context context, User user, boolean withLoggedInCheck, AlLoginHandler loginHandler) {
+        if (withLoggedInCheck && MobiComUserPreference.getInstance(context).isLoggedIn()) {
+            RegistrationResponse registrationResponse = new RegistrationResponse();
+            registrationResponse.setMessage("User already Logged in");
+            loginHandler.onSuccess(registrationResponse, context);
+        } else {
+            new UserLoginTask(user, loginHandler, context).execute();
+        }
+    }
+
     public static void logoutUser(Context context, AlLogoutHandler logoutHandler) {
         new UserLogoutTask(logoutHandler, context).execute();
     }

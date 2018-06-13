@@ -30,6 +30,10 @@ public class ApplozicConversation {
         }
     }
 
+    public static void getLatestMessageList(Context context, boolean isScroll, MessageListHandler handler) {
+        getLatestMessageList(context, null, isScroll, handler);
+    }
+
     public static void getLatestMessageList(Context context, String searchString, Long startTime, MessageListHandler handler) {
         new MessageListTask(context, searchString, null, null, startTime, null, handler, true).execute();
     }
@@ -89,7 +93,7 @@ public class ApplozicConversation {
             if ((message.getGroupId() != null && currentMessage.getGroupId() != null && message.getGroupId().equals(currentMessage.getGroupId())) ||
                     (message.getGroupId() == null && currentMessage.getGroupId() == null && message.getContactIds() != null && currentMessage.getContactIds() != null &&
                             message.getContactIds().equals(currentMessage.getContactIds()))) {
-                  //do nothing
+                //do nothing
             } else {
                 currentMessage = null;
             }

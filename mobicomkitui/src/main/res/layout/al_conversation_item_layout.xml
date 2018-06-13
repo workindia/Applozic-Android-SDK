@@ -13,9 +13,9 @@
         android:layout_height="46dp"
         android:layout_margin="16dp"
         android:background="@drawable/mobiframework_circular_text_view"
+        android:gravity="center"
         android:text="A"
         android:textAlignment="center"
-        android:gravity="center"
         android:textColor="#ffffff"
         android:textSize="20sp"
         android:visibility="gone"
@@ -80,15 +80,14 @@
 
     <ImageView
         android:id="@+id/attachmentIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="18dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginEnd="5dp"
-        android:layout_marginLeft="7dp"
+        android:layout_marginLeft="12dp"
         android:layout_marginRight="5dp"
-        android:layout_marginStart="7dp"
+        android:layout_marginStart="12dp"
         android:src="@drawable/applozic_ic_action_attachment"
         android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@id/message"
         app:layout_constraintStart_toEndOf="@id/profileImageBarrier"
         app:layout_constraintTop_toBottomOf="@id/smReceivers" />
 
@@ -96,10 +95,10 @@
         android:id="@+id/message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
         android:ellipsize="end"
         android:gravity="start"
+        app:layout_goneMarginLeft="12dp"
+        app:layout_goneMarginStart="12dp"
         android:maxLines="1"
         android:paddingEnd="30dp"
         android:paddingRight="30dp"
@@ -109,7 +108,7 @@
         android:textDirection="locale"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@id/unreadSmsCount"
-        app:layout_constraintStart_toEndOf="@+id/profileImageBarrier"
+        app:layout_constraintStart_toEndOf="@+id/attachmentIcon"
         app:layout_constraintTop_toBottomOf="@id/smReceivers" />
 
     <TextView

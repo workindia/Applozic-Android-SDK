@@ -56,8 +56,8 @@ public class AlConversationAdapter extends AlFooterAdapter implements AdapterVie
             ConversationViewHolder mHolder = (ConversationViewHolder) holder;
 
             mHolder.receiverName.setText(messageProperties.getReceiver());
-            mHolder.messageTv.setText(messageProperties.getMessage());
             mHolder.createdAtTime.setText(messageProperties.getCreatedAtTime());
+            messageProperties.setMessageAndAttchmentIcon(mHolder.messageTv, mHolder.attachmentIcon);
             messageProperties.setUnreadCount(mHolder.unreadCount);
             messageProperties.loadProfileImage(mHolder.profileImage, mHolder.alphabeticImage);
         }

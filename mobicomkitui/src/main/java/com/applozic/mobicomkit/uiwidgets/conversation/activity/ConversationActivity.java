@@ -587,7 +587,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
-            alStoragePermission.onAction(PermissionsUtils.verifyPermissions(grantResults));
+            if (alStoragePermission != null) {
+                alStoragePermission.onAction(PermissionsUtils.verifyPermissions(grantResults));
+            }
             if (PermissionsUtils.verifyPermissions(grantResults)) {
                 showSnackBar(R.string.storage_permission_granted);
                 if (isAttachment) {

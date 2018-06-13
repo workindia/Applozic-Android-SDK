@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.applozic.mobicomkit.Applozic;
@@ -49,6 +50,7 @@ public class AlMessageProperties {
 
     /**
      * This constructor should be initialised only once. You can do this in the constructor of your Adapter.
+     *
      * @param context pass the calling Context
      */
     public AlMessageProperties(final Context context) {
@@ -62,6 +64,7 @@ public class AlMessageProperties {
      * This method is used to set message to this object. This will save you headache passing message object into every method.
      * This has to called in your bindView/getView method of your adapter.
      * This method creates a contact object, if message is from a user and a channel object if the message is from a group.
+     *
      * @param message Pass the current Message object from the position.
      * @return Instance of this.
      */
@@ -79,6 +82,7 @@ public class AlMessageProperties {
 
     /**
      * This method returns the receiver's name from the message object that this instance holds currently.
+     *
      * @return If the message belongs to group it will return group's name and if it belongs to user, the display name of the user will be returned.
      */
     public String getReceiver() {
@@ -101,28 +105,46 @@ public class AlMessageProperties {
 
     /**
      * Returns the Message string that needs to be displayed in the conversation list item.
+     *
      * @return Message string if the message is of type text.
-     *         File's name if the message has attachment.
-     *         "Location" if the message is of type location etc
+     * File's name if the message has attachment.
+     * "Location" if the message is of type location etc
      */
-    public String getMessage() {
+    public void setMessageAndAttchmentIcon(TextView messageTv, ImageView attachmentIcon) {
         if (message.hasAttachment() && !Message.ContentType.TEXT_URL.getValue().equals(message.getContentType())) {
-            return message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
-                    message.getFileMetas() != null ? message.getFileMetas().getName() : "";
+            messageTv.setText(message.getFileMetas() == null && message.getFilePaths() != null ? message.getFilePaths().get(0).substring(message.getFilePaths().get(0).lastIndexOf("/") + 1) :
+                    message.getFileMetas() != null ? message.getFileMetas().getName() : "");
+            if (attachmentIcon != null) {
+                attachmentIcon.setVisibility(View.VISIBLE);
+                attachmentIcon.setImageResource(R.drawable.applozic_ic_action_attachment);
+            }
         } else if (Message.ContentType.LOCATION.getValue().equals(message.getContentType())) {
-            return context.getString(R.string.Location);
+            messageTv.setText(context.getString(R.string.Location));
+            if (attachmentIcon != null) {
+                attachmentIcon.setVisibility(View.VISIBLE);
+                attachmentIcon.setImageResource(R.drawable.mobicom_notification_location_icon);
+            }
         } else if (Message.ContentType.TEXT_HTML.getValue().equals(message.getContentType())) {
-            return message.getMessage();
+            messageTv.setText(message.getMessage());
+            if (attachmentIcon != null) {
+                attachmentIcon.setVisibility(View.GONE);
+            }
         } else if (Message.ContentType.PRICE.getValue().equals(message.getContentType())) {
+            if (attachmentIcon != null) {
+                attachmentIcon.setVisibility(View.GONE);
+            }
             //return EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT + message.getMessage(), emojiconHandler)
         } else {
-            return (!TextUtils.isEmpty(message.getMessage()) ? message.getMessage().substring(0, Math.min(message.getMessage().length(), 50)) : "");
+            messageTv.setText((!TextUtils.isEmpty(message.getMessage()) ? message.getMessage().substring(0, Math.min(message.getMessage().length(), 50)) : ""));
+            if (attachmentIcon != null) {
+                attachmentIcon.setVisibility(View.GONE);
+            }
         }
-        return "";
     }
 
     /**
      * Sets the unread count to a textView for the current conversation.
+     *
      * @param textView The TextView to display the unread count.
      */
     public void setUnreadCount(TextView textView) {
@@ -143,6 +165,7 @@ public class AlMessageProperties {
 
     /**
      * Returns the formatted time for the conversation.
+     *
      * @return Formatted time as String.
      */
     public String getCreatedAtTime() {
@@ -152,6 +175,7 @@ public class AlMessageProperties {
     /**
      * This method loads the image for a Contact into the ImageView. If the user does not have image url set, it will create an alphabeticText image.
      * This will automatically check if the image is set and handle the views visibility by itself.
+     *
      * @param imageView CircularImageView which loads the image for the user.
      * @param textView  TextView which will display the alphabeticText image.
      * @param contact   The Contact object whose image is to be displayed.
@@ -194,22 +218,23 @@ public class AlMessageProperties {
     /**
      * @return Returns the channel object if the message is from channel, null otherwise.
      */
-    public Channel getChannel(){
+    public Channel getChannel() {
         return channel;
     }
 
     /**
      * @return Returns the Contact object if the message is from a user, null otherwise.
      */
-    public Contact getContact(){
+    public Contact getContact() {
         return contact;
     }
 
     /**
      * This method loads the channel's image into the ImageView
+     *
      * @param imageView CircularImageView in which the image is to be loaded
-     * @param textView Although we do not display alphabeticImage for a group, but this is needed to handle the visibility for recycler view.
-     * @param channel Channel object whose image is to be loaded
+     * @param textView  Although we do not display alphabeticImage for a group, but this is needed to handle the visibility for recycler view.
+     * @param channel   Channel object whose image is to be loaded
      */
     public void loadChannelImage(CircleImageView imageView, TextView textView, Channel channel) {
         textView.setVisibility(View.GONE);
@@ -224,8 +249,9 @@ public class AlMessageProperties {
 
     /**
      * This methods saves you a lot of work by check. Use this method in your bindView/getView.
+     *
      * @param imageView CircularImageView to load the image
-     * @param textView TextView to display AlphabeticImage
+     * @param textView  TextView to display AlphabeticImage
      */
     public void loadProfileImage(CircleImageView imageView, TextView textView) {
         if (channel != null) {
@@ -237,9 +263,10 @@ public class AlMessageProperties {
 
     /**
      * This method loads the image into ImageView using Glide.
-     * @param imageView CircularImageView
-     * @param textImage TextView
-     * @param imageUrl Image Url
+     *
+     * @param imageView        CircularImageView
+     * @param textImage        TextView
+     * @param imageUrl         Image Url
      * @param placeholderImage The res id for the placeholder image
      */
     private void loadImage(final CircleImageView imageView, final TextView textImage, String imageUrl, int placeholderImage) {
@@ -268,10 +295,12 @@ public class AlMessageProperties {
 
     /**
      * This method launches the Message thread from conversation click.
+     *
      * @param message
      */
     public void handleConversationClick(Message message) {
         Intent intent = new Intent(context, ConversationActivity.class);
+        intent.putExtra("takeOrder", true);
         if (message.getGroupId() == null) {
             intent.putExtra("userId", message.getContactIds());
         } else {

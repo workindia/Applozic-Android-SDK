@@ -120,6 +120,8 @@
 
     </LinearLayout>
 
+    <include layout="@layout/al_rich_message_layout" />
+
     <!--
     <ImageView
         android:id="@+id/contactImage"

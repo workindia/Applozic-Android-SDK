@@ -298,6 +298,11 @@ public class MainActivity extends AppCompatActivity
         startActivity(groupChat);
     }
 
+    public void startSample(View v){
+        Intent intent = new Intent(this, SampleActivity.class);
+        startActivity(intent);
+    }
+
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:

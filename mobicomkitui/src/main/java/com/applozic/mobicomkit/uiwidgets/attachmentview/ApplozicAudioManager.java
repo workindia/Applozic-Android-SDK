@@ -4,8 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,15 +15,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static android.content.Context.TELEPHONY_SERVICE;
-
 /**
  * Created by Rahul-PC on 28-02-2017.
  */
 
 public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeListener {
     private static ApplozicAudioManager myObj;
-    private final TelephonyManager mTelephonyMgr;
+    //private final TelephonyManager mTelephonyMgr;
     public ApplozicDocumentView currentView;
     Map<String, MediaPlayer> pool = new HashMap<>();
     Context context;
@@ -34,12 +30,15 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
     String TAG = "ApplozicAudioManager";
     String audio_duration;
     int hours, minute, second, duration;
-    PhoneStateListener mPhoneStateListener;
+    //PhoneStateListener mPhoneStateListener;
 
     private ApplozicAudioManager(Context context) {
         this.context = context;
-        mTelephonyMgr = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
+        //mTelephonyMgr = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        }
     }
 
     public static ApplozicAudioManager getInstance(Context context) {
@@ -104,6 +103,7 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
                 updateAudioDuration(view.audio_duration_textView, uri.getPath());
             }
         });
+
         currentView.audioseekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -129,7 +129,7 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
                 }
             }
         });
-        mPhoneStateListener = new PhoneStateListener() {
+        /*mPhoneStateListener = new PhoneStateListener() {
             @Override
             public void onCallStateChanged(int state, String incomingNumber) {
                 super.onCallStateChanged(state, incomingNumber);
@@ -141,10 +141,25 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
                 }
             }
         };
-        mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
+        mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);*/
     }
 
     public void pauseOthersifPlaying() {
+        MediaPlayer m;
+        Iterator it = pool.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            {
+                m = (MediaPlayer) pair.getValue();
+                if (m.isPlaying()) {
+                    m.pause();
+                }
+            }
+        }
+    }
+
+    private void pauseIfPlaying() {
         MediaPlayer m;
         Iterator it = pool.entrySet().iterator();
         while (it.hasNext()) {
@@ -239,16 +254,28 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
 
     @Override
     public void onAudioFocusChange(int i) {
-       /* switch (i) {
+        switch (i) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                pauseIfPlaying();
+                if (currentView != null) {
+                    currentView.setAudioIcons();
+                }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
+                pauseIfPlaying();
+                if (currentView != null) {
+                    currentView.setAudioIcons();
+                }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                pauseIfPlaying();
+                if (currentView != null) {
+                    currentView.setAudioIcons();
+                }
                 break;
-        }*/
+        }
     }
 
     private boolean requestAudioFocus() {

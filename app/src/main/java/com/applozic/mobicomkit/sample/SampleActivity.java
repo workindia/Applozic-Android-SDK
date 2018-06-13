@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets.uikit;
+package com.applozic.mobicomkit.sample;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -16,6 +16,11 @@ import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.uikit.AlAttachmentOptions;
+import com.applozic.mobicomkit.uiwidgets.uikit.AlAttachmentView;
+import com.applozic.mobicomkit.uiwidgets.uikit.AlConversationFragment;
+import com.applozic.mobicomkit.uiwidgets.uikit.AlMessageSenderView;
+import com.applozic.mobicomkit.uiwidgets.uikit.AlTypingIndicator;
 
 public class SampleActivity extends AppCompatActivity implements AlMessageSenderView.AlMessageViewEvents, ApplozicUIListener {
 
