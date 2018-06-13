@@ -72,6 +72,7 @@ public class MobiComUserPreference {
     private static String contact_sync_time = "contact_sync_time";
     private static String device_contact_sync_time = "device_contact_sync_time";
     private static String PARENT_GROUP_KEY = "PARENT_GROUP_KEY";
+    private static String user_encryption_Key = "user_encryption_Key";
 
     private static SharedPreferences sharedPreferences;
     private Context context;
@@ -815,5 +816,18 @@ public class MobiComUserPreference {
 
     public void setParentGroupKey(Integer parentGroupKey) {
         sharedPreferences.edit().putInt(PARENT_GROUP_KEY, parentGroupKey).commit();
+    }
+
+    public String getUserEncryptionKey() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getString(user_encryption_Key, null);
+        }
+        return null;
+    }
+
+    public void setUserEncryptionKey(String userEncryptionKey) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString(user_encryption_Key, userEncryptionKey).commit();
+        }
     }
 }
