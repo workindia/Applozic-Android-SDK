@@ -399,10 +399,7 @@ public class ChannelClientService extends MobiComKitClientService {
     public synchronized ApiResponse updateChannel(GroupInfoUpdate groupInfoUpdate) {
         ApiResponse apiResponse = null;
         try {
-            if (groupInfoUpdate != null
-                    && (!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId()) || groupInfoUpdate.getGroupId() != null)
-                    && (!groupInfoUpdate.getMetadata().isEmpty())
-                    && (!TextUtils.isEmpty(groupInfoUpdate.getNewName()) || TextUtils.isEmpty(groupInfoUpdate.getImageUrl()) || !TextUtils.isEmpty(groupInfoUpdate.getImageUrl()))) {
+            if (groupInfoUpdate != null) {
                 String channelNameUpdateJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
                 String response = httpRequestUtils.postData(getChannelUpdateUrl(), "application/json", "application/json", channelNameUpdateJson);
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);

@@ -119,7 +119,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
-//import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter.TemplateCallbackListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALBookingDetailsModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALGuestCountModel;
@@ -784,39 +783,43 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
 
-            @Override
-            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
-                //super.onScrolled(recyclerView, dx, dy);
-                if (loadMore) {
-                    if (alCustomizationSettings.isMessageFastScrollEnabled()) {
-                        int totalItemCount = linearLayoutManager.getItemCount();
-                        int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+           @Override
+           public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+               //super.onScrolled(recyclerView, dx, dy);
 
-                        if (totalItemCount - lastVisible != 1) {
-                            messageDropDownActionButton.setVisibility(VISIBLE);
-                        } else {
-                            messageUnreadCountTextView.setVisibility(View.INVISIBLE);
-                            messageDropDownActionButton.setVisibility(View.INVISIBLE);
-                            messageUnreadCount = 0;
-                        }
-                        messageDropDownActionButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        recyclerView.smoothScrollToPosition(messageList.size());
-                                        recyclerView.getLayoutManager().scrollToPosition(messageList.size());
-                                    }
-                                });
-                            }
-                        });
+               if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                   int totalItemCount = linearLayoutManager.getItemCount();
+                   int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+
+                   if (totalItemCount - lastVisible != 1) {
+                       messageDropDownActionButton.setVisibility(VISIBLE);
+                   } else {
+                       messageUnreadCountTextView.setVisibility(View.INVISIBLE);
+                       messageDropDownActionButton.setVisibility(View.INVISIBLE);
+                       messageUnreadCount = 0;
+                   }
+               }
+
+               if (loadMore) {
+                   int topRowVerticalPosition =
+                           (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                                   0 : recyclerView.getChildAt(0).getTop();
+                   swipeLayout.setEnabled(topRowVerticalPosition >= 0);
+               }
+
+           }
+       });
+
+        messageDropDownActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.smoothScrollToPosition(messageList.size());
+                        recyclerView.getLayoutManager().scrollToPosition(messageList.size());
                     }
-                    int topRowVerticalPosition =
-                            (recyclerView == null || recyclerView.getChildCount() == 0) ?
-                                    0 : recyclerView.getChildAt(0).getTop();
-                    swipeLayout.setEnabled(topRowVerticalPosition >= 0);
-                }
+                });
             }
         });
 
@@ -1286,6 +1289,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     //Todo: update unread count
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
+                  
                     if (alCustomizationSettings.isMessageFastScrollEnabled()) {
                         if (messageDropDownActionButton.getVisibility() == View.INVISIBLE) {
                             linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
@@ -4071,3 +4075,4 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         getContext().startActivity(intent);
     }
 }
+

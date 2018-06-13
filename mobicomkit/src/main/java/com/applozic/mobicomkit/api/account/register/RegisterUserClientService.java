@@ -41,7 +41,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
     public static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
     public static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
-    public static final Short MOBICOMKIT_VERSION_CODE = 109;
+    public static final Short MOBICOMKIT_VERSION_CODE = 111;
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     private HttpRequestUtils httpRequestUtils;
@@ -136,6 +136,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setUserBlockSyncTime("10000");
+        if(!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())){
+            mobiComUserPreference.setUserEncryptionKey(registrationResponse.getUserEncryptionKey());
+        }
         mobiComUserPreference.setPassword(user.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));

@@ -22,6 +22,7 @@ public class RegistrationResponse extends JsonMarker {
     private String imageLink;
     private String statusMessage;
     private String encryptionKey;
+    private String userEncryptionKey;
     private boolean enableEncryption;
     private Short roleType;
     private Short pricingPackage = PricingType.STARTER.getValue();
@@ -158,6 +159,29 @@ public class RegistrationResponse extends JsonMarker {
         this.roleType = roleType;
     }
 
+    public String getUserEncryptionKey() {
+        return userEncryptionKey;
+    }
+
+    public void setUserEncryptionKey(String userEncryptionKey) {
+        this.userEncryptionKey = userEncryptionKey;
+    }
+  
+    public static enum PricingType {
+
+        CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
+                Short.valueOf("4")),UNSUBSCRIBED(Short.valueOf("6"));
+        private final Short value;
+
+        private PricingType(Short c) {
+            value = c;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
     @Override
     public String toString() {
         return "RegistrationResponse{" +
@@ -174,23 +198,11 @@ public class RegistrationResponse extends JsonMarker {
                 ", imageLink='" + imageLink + '\'' +
                 ", statusMessage='" + statusMessage + '\'' +
                 ", encryptionKey='" + encryptionKey + '\'' +
+                ", userEncryptionKey='" + userEncryptionKey + '\'' +
                 ", enableEncryption=" + enableEncryption +
+                ", roleType=" + roleType +
                 ", pricingPackage=" + pricingPackage +
                 '}';
     }
 
-    public static enum PricingType {
-
-        CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
-                Short.valueOf("4")),UNSUBSCRIBED(Short.valueOf("6"));
-        private final Short value;
-
-        private PricingType(Short c) {
-            value = c;
-        }
-
-        public Short getValue() {
-            return value;
-        }
-    }
 }
