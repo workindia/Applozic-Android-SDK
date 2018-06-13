@@ -43,6 +43,8 @@ android {
 
     }
 
+
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/DEPENDENCIES'
@@ -56,8 +58,9 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':mobicomkitui') //Note: use this for customization
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':mobicomkitui')
+    //Note: use this for customization
     //implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.8.5'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'

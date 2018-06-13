@@ -64,15 +64,20 @@ public class MessageBuilder {
         return this;
     }
 
+    public MessageBuilder setMessageObject(Message message) {
+        this.message = message;
+        return this;
+    }
+
+    public Message getMessageObject() {
+        return message;
+    }
+
     public void send() {
         new MobiComConversationService(context).sendMessage(message);
     }
 
     public void send(MediaUploadProgressHandler handler) {
-        if (handler == null || !message.hasAttachment()) {
-            new MobiComConversationService(context).sendMessage(message);
-        } else if (message.hasAttachment()) {
-            new MobiComConversationService(context).sendMessage(message, handler, MessageIntentService.class);
-        }
+        new MobiComConversationService(context).sendMessage(message, handler, MessageIntentService.class);
     }
 }

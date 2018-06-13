@@ -71,6 +71,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -118,12 +119,20 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
-//import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter.TemplateCallbackListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALBookingDetailsModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALGuestCountModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlHotelBookingModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.payment.PaymentActivity;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -166,7 +175,7 @@ import static java.util.Collections.disjoint;
  * reg
  * Created by devashish on 10/2/15.
  */
-abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener {
+abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener,ALRichMessageListener {
 
     //Todo: Increase the file size limit
     public static final int MAX_ALLOWED_FILE_SIZE = 10 * 1024 * 1024;
@@ -279,6 +288,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     FloatingActionButton messageDropDownActionButton;
     TextView messageUnreadCountTextView;
     int messageUnreadCount = 0;
+    TextView applozicLabel;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -297,7 +307,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-        applozicDocumentView = new ApplozicDocumentView(getContext());
+        //applozicDocumentView = new ApplozicDocumentView(getContext());
         restrictedWords = FileUtils.loadRestrictedWordsFile(getContext());
         conversationUIService = new ConversationUIService(getActivity());
         syncCallService = SyncCallService.getInstance(getActivity());
@@ -353,6 +363,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         mainEditTextLinearLayout = (LinearLayout) list.findViewById(R.id.main_edit_text_linear_layout);
         audioRecordFrameLayout = (FrameLayout) list.findViewById(R.id.audio_record_frame_layout);
         messageTemplateView = (RecyclerView) list.findViewById(R.id.mobicomMessageTemplateView);
+        applozicLabel = list.findViewById(R.id.applozicLabel);
         Configuration config = getResources().getConfiguration();
         recordButtonWeakReference = new WeakReference<ImageButton>(recordButton);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -363,6 +374,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 slideImageView.setImageResource(R.drawable.slide_arrow_right);
 
             }
+        }
+
+        if (MobiComUserPreference.getInstance(getContext()).getPricingPackage() == 1) {
+            applozicLabel.setVisibility(VISIBLE);
         }
 
         if (alCustomizationSettings.isPoweredByApplozic()) {
@@ -609,26 +624,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void afterTextChanged(Editable s) {
                 try {
                     if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() > 0 && !typingStarted) {
-                        //Log.i(TAG, "typing started event...");
                         typingStarted = true;
                         handleSendAndRecordButtonView(true);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
-                            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-                            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-                            intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-                            ApplozicMqttIntentService.enqueueWork(getActivity(), intent);
+                            Applozic.publishTypingStatus(getContext(), channel, contact, typingStarted);
                         }
                     } else if (s.toString().trim().length() == 0 && typingStarted) {
-                        //Log.i(TAG, "typing stopped event...");
                         typingStarted = false;
                         handleSendAndRecordButtonView(false);
                         if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
-                            Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
-                            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-                            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-                            intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-                            ApplozicMqttIntentService.enqueueWork(getActivity(), intent);
+                            Applozic.publishTypingStatus(getContext(), channel, contact, typingStarted);
                         }
                     }
 
@@ -643,13 +648,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        linearLayoutManager.setStackFromEnd(true);
-                        linearLayoutManager.setReverseLayout(true);
-                    }
-                });
+                if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            linearLayoutManager.setStackFromEnd(true);
+                            linearLayoutManager.setReverseLayout(true);
+                        }
+                    });
+                }
                 emoticonsFrameLayout.setVisibility(View.GONE);
             }
         });
@@ -738,13 +745,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View view) {
-                                              getActivity().runOnUiThread(new Runnable() {
-                                                  @Override
-                                                  public void run() {
-                                                      recyclerView.smoothScrollToPosition(messageList.size());
-                                                      recyclerView.getLayoutManager().scrollToPosition(messageList.size());
-                                                  }
-                                              });
+                                              if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                                                  getActivity().runOnUiThread(new Runnable() {
+                                                      @Override
+                                                      public void run() {
+                                                          recyclerView.smoothScrollToPosition(messageList.size());
+                                                          recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                                                      }
+                                                  });
+                                              }
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
                                               if (contact != null && !contact.isBlocked() || channel != null) {
@@ -774,27 +783,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
 
-            @Override
-            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
-                //super.onScrolled(recyclerView, dx, dy);
-                int totalItemCount = linearLayoutManager.getItemCount();
-                int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+           @Override
+           public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+               //super.onScrolled(recyclerView, dx, dy);
 
-                if (totalItemCount - lastVisible != 1) {
-                    messageDropDownActionButton.setVisibility(VISIBLE);
-                } else {
-                    messageUnreadCountTextView.setVisibility(View.INVISIBLE);
-                    messageDropDownActionButton.setVisibility(View.INVISIBLE);
-                    messageUnreadCount = 0;
-                }
-                if (loadMore) {
-                    int topRowVerticalPosition =
-                            (recyclerView == null || recyclerView.getChildCount() == 0) ?
-                                    0 : recyclerView.getChildAt(0).getTop();
-                    swipeLayout.setEnabled(topRowVerticalPosition >= 0);
-                }
-            }
-        });
+               if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                   int totalItemCount = linearLayoutManager.getItemCount();
+                   int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+
+                   if (totalItemCount - lastVisible != 1) {
+                       messageDropDownActionButton.setVisibility(VISIBLE);
+                   } else {
+                       messageUnreadCountTextView.setVisibility(View.INVISIBLE);
+                       messageDropDownActionButton.setVisibility(View.INVISIBLE);
+                       messageUnreadCount = 0;
+                   }
+               }
+
+               if (loadMore) {
+                   int topRowVerticalPosition =
+                           (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                                   0 : recyclerView.getChildAt(0).getTop();
+                   swipeLayout.setEnabled(topRowVerticalPosition >= 0);
+               }
+
+           }
+       });
 
         messageDropDownActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -812,6 +826,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (getContext() != null && getContext().getApplicationContext() instanceof ALProfileClickListener) {
+                    ((ALProfileClickListener) getContext().getApplicationContext()).onClick(getActivity(), contact, channel, true);
+                }
 
                 if (channel != null) {
 
@@ -959,6 +977,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             userBlockDialog(false, contact, false);
             return;
         }
+        if (getActivity() instanceof ALStoragePermissionListener) {
+            if (((ALStoragePermissionListener) getActivity()).isPermissionGranted()) {
+                startRecording();
+            } else {
+                ((ALStoragePermissionListener) getActivity()).checkPermission(new ALStoragePermission() {
+                    @Override
+                    public void onAction(boolean didGrant) {
+                    }
+                });
+            }
+        }
+    }
+
+    private void startRecording() {
         isToastVisible = true;
         errorEditTextView.requestFocus();
         errorEditTextView.setError(null);
@@ -1254,9 +1286,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 //Todo: Handle disappearing messages.
                 boolean added = updateMessageList(message, false);
                 if (added) {
+                    //Todo: update unread count
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
-                    if (messageDropDownActionButton.getVisibility() == View.INVISIBLE) {
+                  
+                    if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                        if (messageDropDownActionButton.getVisibility() == View.INVISIBLE) {
+                            linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
+                        }
+                    } else {
                         linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                     }
                     emptyTextView.setVisibility(View.GONE);
@@ -1264,9 +1302,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     channelKey = message.getGroupId();
                     if (Message.MessageType.MT_INBOX.getValue().equals(message.getType()) && (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                         try {
-                            messageUnreadCount += 1;
-                            messageUnreadCountTextView.setVisibility(VISIBLE);
-                            messageUnreadCountTextView.setText(String.valueOf(messageUnreadCount));
+                            if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                                messageUnreadCount += 1;
+                                messageUnreadCountTextView.setVisibility(VISIBLE);
+                                messageUnreadCountTextView.setText(String.valueOf(messageUnreadCount));
+                            }
                             messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
                             Intent intent = new Intent(getActivity(), UserIntentService.class);
                             intent.putExtra(UserIntentService.SINGLE_MESSAGE_READ, true);
@@ -1700,12 +1740,44 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
             recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
+            recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
             recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+            if (getActivity() instanceof ALStoragePermissionListener) {
+                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+            } else {
+                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                    @Override
+                    public boolean isPermissionGranted() {
+                        return false;
+                    }
+
+                    @Override
+                    public void checkPermission(ALStoragePermission storagePermission) {
+
+                    }
+                });
+            }
         } else if (channel != null) {
             recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
                     R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
             recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
             recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+            recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+            if (getActivity() instanceof ALStoragePermissionListener) {
+                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+            } else {
+                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                    @Override
+                    public boolean isPermissionGranted() {
+                        return false;
+                    }
+
+                    @Override
+                    public void checkPermission(ALStoragePermission storagePermission) {
+
+                    }
+                });
+            }
         }
         linearLayoutManager.setSmoothScrollbarEnabled(true);
 
@@ -1720,7 +1792,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         registerForContextMenu(recyclerView);
 
         processMobiTexterUserCheck();
-
 
         downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
         downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -1749,13 +1820,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                recyclerView.smoothScrollToPosition(messageList.size());
-                recyclerView.getLayoutManager().scrollToPosition(messageList.size());
-            }
-        });
+        if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerView.smoothScrollToPosition(messageList.size());
+                    recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                }
+            });
+        }
         InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }
 
@@ -3902,4 +3975,104 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
+    @Override
+    public void onAction(Context context, String action, Message message, Object object) {
+        switch (action) {
+            case "sendGuestList":
+                List<ALGuestCountModel> guestCountModels = (List<ALGuestCountModel>) object;
+                sendGuestListMessage(guestCountModels);
+                break;
+
+            case "sendHotelRating":
+                sendMessage((String) object);
+                break;
+
+            case "sendHotelDetails":
+                sendHotelDetailMessage((AlHotelBookingModel) object);
+                break;
+
+            case "sendRoomDetailsMessage":
+                sendRoomDetailsMessage((AlHotelBookingModel) object);
+                break;
+
+            case "sendBookingDetails":
+                sendBookingDetailsMessage((ALBookingDetailsModel) object);
+                break;
+
+            case "makePayment":
+                makePaymentForBooking((ALRichMessageModel) object);
+                break;
+
+            case "listItemClick":
+                sendMessage((String) object);
+                break;
+        }
+    }
+
+    public void sendGuestListMessage(List<ALGuestCountModel> guestList) {
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("guestTypeId", "ADULTS");
+        metadata.put("isRoomGuestJSON", "true");
+        metadata.put("roomGuestJson", GsonUtils.getJsonFromObject(guestList, List.class));
+
+        StringBuilder message = new StringBuilder("");
+        int count = 0;
+
+        for (ALGuestCountModel guestModel : guestList) {
+            message.append("Room ");
+            message.append(count + 1);
+            message.append(" Guest ");
+            message.append(guestModel.getNoOfAdults());
+            message.append(" Children ");
+            message.append(guestModel.getNoOfChild());
+            message.append(", ");
+        }
+
+        sendMessage(message.toString(), metadata, Message.ContentType.DEFAULT.getValue());
+    }
+
+    public void sendHotelDetailMessage(AlHotelBookingModel hotel) {
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("hotelSelected", "true");
+        metadata.put("resultIndex", String.valueOf(hotel.getResultIndex()));
+        metadata.put("sessionId", hotel.getSessionId());
+        metadata.put("skipBot", "true");
+
+        String message = "Get room detail of " + hotel.getHotelName();
+
+        sendMessage(message, metadata, Message.ContentType.DEFAULT.getValue());
+    }
+
+    public void sendRoomDetailsMessage(AlHotelBookingModel hotel) {
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("HotelResultIndex", String.valueOf(hotel.getHotelResultIndex()));
+        metadata.put("NoOfRooms", String.valueOf(hotel.getNoOfRooms()));
+        metadata.put("RoomIndex", String.valueOf(hotel.getRoomIndex()));
+        metadata.put("blockHotelRoom", "true");
+        metadata.put("sessionId", hotel.getSessionId());
+        metadata.put("skipBot", "true");
+
+        String message = "Book Hotel " + hotel.getHotelName() + ", Room " + hotel.getRoomTypeName();
+
+        sendMessage(message, metadata, Message.ContentType.DEFAULT.getValue());
+    }
+
+    public void sendBookingDetailsMessage(ALBookingDetailsModel model) {
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("guestDetail", "true");
+        metadata.put("personInfo", GsonUtils.getJsonFromObject(model.getPersonInfo(), ALBookingDetailsModel.ALBookingDetails.class));
+        metadata.put("sessionId", model.getSessionId());
+        metadata.put("skipBot", "true");
+
+        sendMessage("Your details have been submitted", metadata, Message.ContentType.DEFAULT.getValue());
+    }
+
+    public void makePaymentForBooking(ALRichMessageModel model) {
+        Intent intent = new Intent(getActivity(), PaymentActivity.class);
+        intent.putExtra("formData", model.getFormData());
+        intent.putExtra("formAction", model.getFormAction());
+        getContext().startActivity(intent);
+    }
 }
+

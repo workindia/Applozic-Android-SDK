@@ -166,11 +166,11 @@ public class RegistrationResponse extends JsonMarker {
     public void setUserEncryptionKey(String userEncryptionKey) {
         this.userEncryptionKey = userEncryptionKey;
     }
-
+  
     public static enum PricingType {
 
         CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
-                Short.valueOf("4"));
+                Short.valueOf("4")),UNSUBSCRIBED(Short.valueOf("6"));
         private final Short value;
 
         private PricingType(Short c) {
@@ -204,4 +204,5 @@ public class RegistrationResponse extends JsonMarker {
                 ", pricingPackage=" + pricingPackage +
                 '}';
     }
+
 }

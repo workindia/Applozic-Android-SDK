@@ -748,7 +748,9 @@ public class MessageClientService extends MobiComKitClientService {
                 for (UserDetail userDetail : userDetails) {
                     Contact contact = new Contact();
                     contact.setUserId(userDetail.getUserId());
-                    contact.setFullName(userDetail.getDisplayName());
+                    if (!TextUtils.isEmpty(userDetail.getDisplayName())) {
+                        contact.setFullName(userDetail.getDisplayName());
+                    }
                     contact.setConnected(userDetail.isConnected());
                     contact.setContactNumber(userDetail.getPhoneNumber());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
