@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
-        versionName "5.8.5"
+        versionName "5.8.6"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.0'
     api project(':mobicommons')
     //Note: use this for customization
-    //implementation 'com.applozic.mobiframework:mobicommons:5.8.5' //Note: use this in case customization is not required
+    //implementation 'com.applozic.mobiframework:mobicommons:5.8.6' //Note: use this in case customization is not required
 }
 
 
@@ -67,7 +67,7 @@ dependencies {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '5.8.5'
+    libraryVersion = '5.8.6'
 
     developerId = 'devashish'
     developerName = 'Applozic'
