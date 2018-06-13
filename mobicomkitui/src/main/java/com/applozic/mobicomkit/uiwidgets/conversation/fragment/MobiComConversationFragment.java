@@ -175,7 +175,7 @@ import static java.util.Collections.disjoint;
  * reg
  * Created by devashish on 10/2/15.
  */
-abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener,ALRichMessageListener {
+abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener, ALRichMessageListener {
 
     //Todo: Increase the file size limit
     public static final int MAX_ALLOWED_FILE_SIZE = 10 * 1024 * 1024;
@@ -783,32 +783,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
 
-           @Override
-           public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
-               //super.onScrolled(recyclerView, dx, dy);
+            @Override
+            public void onScrolled(final RecyclerView recyclerView, int dx, int dy) {
+                //super.onScrolled(recyclerView, dx, dy);
 
-               if (alCustomizationSettings.isMessageFastScrollEnabled()) {
-                   int totalItemCount = linearLayoutManager.getItemCount();
-                   int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
+                if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                    int totalItemCount = linearLayoutManager.getItemCount();
+                    int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
 
-                   if (totalItemCount - lastVisible != 1) {
-                       messageDropDownActionButton.setVisibility(VISIBLE);
-                   } else {
-                       messageUnreadCountTextView.setVisibility(View.INVISIBLE);
-                       messageDropDownActionButton.setVisibility(View.INVISIBLE);
-                       messageUnreadCount = 0;
-                   }
-               }
+                    if (totalItemCount - lastVisible != 1) {
+                        messageDropDownActionButton.setVisibility(VISIBLE);
+                    } else {
+                        messageUnreadCountTextView.setVisibility(View.INVISIBLE);
+                        messageDropDownActionButton.setVisibility(View.INVISIBLE);
+                        messageUnreadCount = 0;
+                    }
+                }
 
-               if (loadMore) {
-                   int topRowVerticalPosition =
-                           (recyclerView == null || recyclerView.getChildCount() == 0) ?
-                                   0 : recyclerView.getChildAt(0).getTop();
-                   swipeLayout.setEnabled(topRowVerticalPosition >= 0);
-               }
+                if (loadMore) {
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ?
+                                    0 : recyclerView.getChildAt(0).getTop();
+                    swipeLayout.setEnabled(topRowVerticalPosition >= 0);
+                }
 
-           }
-       });
+            }
+        });
 
         messageDropDownActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1289,7 +1289,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     //Todo: update unread count
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
-                  
+
                     if (alCustomizationSettings.isMessageFastScrollEnabled()) {
                         if (messageDropDownActionButton.getVisibility() == View.INVISIBLE) {
                             linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
@@ -3822,7 +3822,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (conversations != null && conversations.size() > 0) {
                 conversationList = conversations;
             }
-            if (channel != null && !channel.getMetadata().isEmpty()) {
+            if (channel != null && channel.getMetadata() != null && !channel.getMetadata().isEmpty()) {
                 if (channel.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue())) {
                     Conversation conversation = new Conversation();
                     TopicDetail topic = new TopicDetail();

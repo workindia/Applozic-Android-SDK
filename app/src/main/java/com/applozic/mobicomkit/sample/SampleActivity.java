@@ -15,7 +15,6 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
-import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.uikit.AlAttachmentOptions;
 import com.applozic.mobicomkit.uiwidgets.uikit.AlAttachmentView;
 import com.applozic.mobicomkit.uiwidgets.uikit.AlConversationFragment;

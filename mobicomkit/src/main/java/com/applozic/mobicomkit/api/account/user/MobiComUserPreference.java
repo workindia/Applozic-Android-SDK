@@ -831,7 +831,7 @@ public class MobiComUserPreference {
             sharedPreferences.edit().putString(user_encryption_Key, userEncryptionKey).commit();
         }
     }
-}
+
     public String getCategoryName() {
         return sharedPreferences.getString(CATEGORY_NAME_KEY,null);
     }
