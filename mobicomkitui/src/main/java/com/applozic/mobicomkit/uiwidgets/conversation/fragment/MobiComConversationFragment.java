@@ -276,7 +276,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     MobicomMessageTemplate messageTemplate;
     MobicomMessageTemplateAdapter templateAdapter;
     boolean isAlreadyLoading;
-    FloatingActionButton messageDdropDownActionButton;
+    FloatingActionButton messageDropDownActionButton;
     TextView messageUnreadCountTextView;
     int messageUnreadCount = 0;
 
@@ -415,7 +415,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         galleryImageView = (ImageView) list.findViewById(R.id.imageViewForPhoto);
         nameTextView = (TextView) list.findViewById(R.id.replyNameTextView);
         attachReplyCancelLayout = (ImageButton) list.findViewById(R.id.imageCancel);
-        messageDdropDownActionButton = (FloatingActionButton) list.findViewById(R.id.message_drop_down);
+        messageDropDownActionButton = (FloatingActionButton) list.findViewById(R.id.message_drop_down);
         messageUnreadCountTextView = (TextView) list.findViewById(R.id.message_unread_count_textView);
         imageViewRLayout = (RelativeLayout) list.findViewById(R.id.imageViewRLayout);
         imageViewForAttachmentType = (ImageView) list.findViewById(R.id.imageViewForAttachmentType);
@@ -781,10 +781,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 int lastVisible = linearLayoutManager.findLastVisibleItemPosition();
 
                 if (totalItemCount - lastVisible != 1) {
-                    messageDdropDownActionButton.setVisibility(VISIBLE);
+                    messageDropDownActionButton.setVisibility(VISIBLE);
                 } else {
                     messageUnreadCountTextView.setVisibility(View.INVISIBLE);
-                    messageDdropDownActionButton.setVisibility(View.INVISIBLE);
+                    messageDropDownActionButton.setVisibility(View.INVISIBLE);
                     messageUnreadCount = 0;
                 }
                 if (loadMore) {
@@ -796,7 +796,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
-        messageDdropDownActionButton.setOnClickListener(new View.OnClickListener() {
+        messageDropDownActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -1256,7 +1256,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (added) {
                     linearLayoutManager.setStackFromEnd(true);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
-                    if (messageDdropDownActionButton.getVisibility() == View.INVISIBLE) {
+                    if (messageDropDownActionButton.getVisibility() == View.INVISIBLE) {
                         linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                     }
                     emptyTextView.setVisibility(View.GONE);
