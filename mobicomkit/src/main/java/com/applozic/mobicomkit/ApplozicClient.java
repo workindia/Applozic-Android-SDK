@@ -37,9 +37,9 @@ public class ApplozicClient {
     private static String NOTIFICATION_STACKING = "NOTIFICATION_STACKING";
     private static final String BADGE_COUNT_ENABLE = "BADGE_COUNT_ENABLE";
     private static String vibration_notification = "vibration_notification";
-    private static final String CUSTOM_STORAGE_SERVICE_ENABLED = "CUSTOM_STORAGE_SERVICE_ENABLED";
+    private static final String S3_STORAGE_SERVICE_ENABLED = "S3_STORAGE_SERVICE_ENABLED";
     private static final String STORAGE_SERVICE_ENABLE = "STORAGE_SERVICE_ENABLE";
-    private static final String S3_SIGNED_URLS_ENABLE = "S3_SIGNED_URLS_ENABLE";
+    private static final String GOOGLE_CLOUD_SERVICE_ENABLE = "GOOGLE_CLOUD_SERVICE_ENABLE";
     private static final String CUSTOM_MESSAGE_TEMPLATE = "CUSTOM_MESSAGE_TEMPLATE";
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
 
@@ -260,22 +260,22 @@ public class ApplozicClient {
     }
 
 
-    public ApplozicClient enableCustomStorageService() {
-        sharedPreferences.edit().putBoolean(CUSTOM_STORAGE_SERVICE_ENABLED, true).commit();
+    public ApplozicClient enableS3StorageService() {
+        sharedPreferences.edit().putBoolean(S3_STORAGE_SERVICE_ENABLED, true).commit();
         return this;
     }
 
-    public boolean isCustomStorageServiceEnabled() {
-        return sharedPreferences.getBoolean(CUSTOM_STORAGE_SERVICE_ENABLED, false);
+    public boolean isS3StorageServiceEnabled() {
+        return sharedPreferences.getBoolean(S3_STORAGE_SERVICE_ENABLED, false);
     }
 
-    public ApplozicClient enableS3SignedURLs() {
-        sharedPreferences.edit().putBoolean(S3_SIGNED_URLS_ENABLE, true).commit();
+    public ApplozicClient enableGoogleCloudService() {
+        sharedPreferences.edit().putBoolean(GOOGLE_CLOUD_SERVICE_ENABLE, true).commit();
         return this;
     }
 
-    public boolean isS3SignedURLsEnabled() {
-        return sharedPreferences.getBoolean(S3_SIGNED_URLS_ENABLE, false);
+    public boolean isGoogleCloudServiceEnabled() {
+        return sharedPreferences.getBoolean(GOOGLE_CLOUD_SERVICE_ENABLE, false);
     }
 
     public ApplozicClient setStorageServiceEnabled(boolean enable) {

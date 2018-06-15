@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.attachment.urlservice.URLServiceProvider;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
@@ -35,7 +36,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by devashish on 26/12/14.
@@ -111,7 +111,7 @@ public class FileClientService extends MobiComKitClientService {
         try {
             Bitmap attachedImage = null;
 
-            String thumbnailUrl = new URLConnections(context).getThumbnailURL(message);
+            String thumbnailUrl = new URLServiceProvider(context).getThumbnailURL(message);
 
             if (TextUtils.isEmpty(thumbnailUrl)) {
                 return null;
@@ -172,7 +172,7 @@ public class FileClientService extends MobiComKitClientService {
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
-                if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
+                if (ApplozicClient.getInstance(context).isS3StorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
                     connection = openHttpConnection(fileMeta.getUrl());
                 } else {
                     connection = openHttpConnection(mobiComKitClientService.getFileUrl() + fileMeta.getBlobKeyString());
@@ -241,22 +241,24 @@ public class FileClientService extends MobiComKitClientService {
 
     public String uploadBlobImage(String path, Handler handler) throws UnsupportedEncodingException {
         try {
-            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadKey(), "UTF-8", context);
-            if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() || ApplozicClient.getInstance(context).isS3SignedURLsEnabled()) {
+
+            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadURL(), "UTF-8", context);
+            if ( ApplozicClient.getInstance(context).isS3StorageServiceEnabled() ) {
                 multipart.addFilePart("file", new File(path), handler);
             } else {
                 multipart.addFilePart("files[]", new File(path), handler);
             }
             return multipart.getResponse();
-//            return new URLConnections(context).getMultipartFile(path, handler).getResponse();
+//            return new URLServiceProvider(context).getMultipartFile(path, handler).getResponse();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public String getUploadKey() {
-        return new URLConnections(context).getUploadKey();
+    public String getUploadURL() {
+        String fileUrl = new URLServiceProvider(context).getFileUploadUrl();
+        return fileUrl;
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {

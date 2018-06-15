@@ -150,10 +150,4 @@ public class MobiComKitClientService {
         String fileURL = Utils.getMetaDataValue(context.getApplicationContext(), FILE_BASE_URL_METADATA_KEY);
         return (TextUtils.isEmpty(fileURL) ? FILE_BASE_URL : fileURL);
     }
-
-    public String getFileAuthBaseUrl(String blobKey) {
-        String fileURL = Utils.getMetaDataValue(context.getApplicationContext(), FILE_BASE_URL_METADATA_KEY) + "/files/url?key=" + blobKey;
-        return (TextUtils.isEmpty(fileURL) ? FILE_BASE_URL : fileURL);
-    }
-
 }

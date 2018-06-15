@@ -363,7 +363,7 @@ public class MessageClientService extends MobiComKitClientService {
                         BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString(), message);
                         return;
                     }
-                    if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
+                    if (ApplozicClient.getInstance(context).isS3StorageServiceEnabled()) {
                         if (!TextUtils.isEmpty(fileMetaResponse)) {
                             message.setFileMetas((FileMeta) GsonUtils.getObjectFromJson(fileMetaResponse, FileMeta.class));
                             if (handler != null) {

@@ -19,15 +19,12 @@ package com.applozic.mobicomkit.api.attachment;
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.attachment.urlservice.URLServiceProvider;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
-import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -169,7 +166,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
 
-                connection = new URLConnections(context).getDownloadConnection(message);
+                connection = new URLServiceProvider(context).getDownloadConnection(message);
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
