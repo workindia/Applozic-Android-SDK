@@ -584,9 +584,7 @@ public class MessageDatabaseService {
             if (message.getFileMetas() != null) {
                 FileMeta fileMeta = message.getFileMetas();
                 if (fileMeta != null) {
-                    String thumbnailUrl = new FileClientService(context).getThumbnailUrl(fileMeta.getThumbnailUrl());
-                    fileMeta.setThumbnailUrl(thumbnailUrl);
-                    values.put("thumbnailUrl", thumbnailUrl);
+                    values.put("thumbnailUrl", fileMeta.getThumbnailUrl());
                     values.put("size", fileMeta.getSize());
                     values.put("name", fileMeta.getName());
                     values.put("contentType", fileMeta.getContentType());

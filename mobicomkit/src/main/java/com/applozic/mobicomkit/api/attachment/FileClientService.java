@@ -172,11 +172,8 @@ public class FileClientService extends MobiComKitClientService {
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
-                if (ApplozicClient.getInstance(context).isS3StorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
-                    connection = openHttpConnection(fileMeta.getUrl());
-                } else {
-                    connection = openHttpConnection(mobiComKitClientService.getFileUrl() + fileMeta.getBlobKeyString());
-                }
+
+                connection = new URLServiceProvider(context).getDownloadConnection(message);
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {
@@ -462,9 +459,4 @@ public class FileClientService extends MobiComKitClientService {
         }
     }
 
-    public String getThumbnailUrl(String thumbnailUrl) {
-        return (ApplozicClient.getInstance(context).isStorageServiceEnabled() ?
-                (getFileBaseUrl() + THUMBNAIL_URL + thumbnailUrl) : thumbnailUrl);
-
-    }
 }

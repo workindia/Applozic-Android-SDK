@@ -16,6 +16,10 @@ public class ApplozicMongoStorageService implements URLService {
     private MobiComKitClientService mobiComKitClientService;
     private Context context;
 
+    private static final String UPLOAD_URL ="/files/v2/upload";
+    private static final String DOWNLOAD_URL ="/files/get/";
+
+
     public ApplozicMongoStorageService(Context context) {
 
         mobiComKitClientService = new MobiComKitClientService(context);
@@ -25,24 +29,20 @@ public class ApplozicMongoStorageService implements URLService {
     @Override
     public HttpURLConnection getAttachmentConnection(Message message) throws IOException {
 
-        return mobiComKitClientService.openHttpConnection(new MobiComKitClientService(context).getFileUrl() + message.getFileMetas().getBlobKeyString());
+        return mobiComKitClientService.openHttpConnection( mobiComKitClientService.getFileBaseUrl()
+                + DOWNLOAD_URL
+                + message.getFileMetas().getBlobKeyString());
+
     }
 
     @Override
     public String getThumbnailURL(Message message) throws IOException {
-        return mobiComKitClientService.getFileBaseUrl() +
-                FileClientService.THUMBNAIL_URL + message.getFileMetas().getThumbnailUrl();
+        return message.getFileMetas().getThumbnailUrl();
     }
 
     @Override
     public String getFileUploadUrl() {
-
-        String fileUploadUrl = Utils.getMetaDataValue(context.getApplicationContext(), MobiComKitClientService.FILE_UPLOAD_METADATA_KEY);
-
-        if (!TextUtils.isEmpty(fileUploadUrl)) {
-            return mobiComKitClientService.getFileBaseUrl() + fileUploadUrl;
-        }
-        return null;
+        return mobiComKitClientService.getFileBaseUrl() + UPLOAD_URL;
     }
 
     @Override
