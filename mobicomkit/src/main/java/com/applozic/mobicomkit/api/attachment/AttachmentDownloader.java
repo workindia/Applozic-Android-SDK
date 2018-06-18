@@ -19,14 +19,12 @@ package com.applozic.mobicomkit.api.attachment;
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.attachment.urlservice.URLServiceProvider;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
-import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -157,7 +155,6 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
             InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
-            String fileKey = fileMeta.getKeyString();
             HttpURLConnection connection = null;
             String fileName = null;
             if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
@@ -169,11 +166,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
 
-                if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
-                    connection = openHttpConnection(fileMeta.getUrl());
-                } else {
-                    connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
-                }
+                connection = new URLServiceProvider(context).getDownloadConnection(message);
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
@@ -192,7 +185,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
                 while ((count = inputStream.read(data)) != -1) {
                     output.write(data, 0, count);
                     progressCount = progressCount + count;
-                    long percentage =  progressCount * 100 / totalSize;
+                    long percentage = progressCount * 100 / totalSize;
                     android.os.Message msg = new android.os.Message();
                     //TODO: pecentage should be transfer via handler
                     //Message code 2 represents image is successfully downloaded....

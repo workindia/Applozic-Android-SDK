@@ -184,6 +184,12 @@
         <meta-data
             android:name="com.package.name"
             android:value="${applicationId}" />
+
+        <meta-data android:name="com.applozic.attachment.upload.endpoint"
+            android:value="files/upload"/>
+        <meta-data
+            android:name="com.applozic.attachment.url"
+            android:value="http://apps-test.applozic.com:8083" />
         <meta-data
             android:name="share_text"
             android:value="@string/invite_message" />

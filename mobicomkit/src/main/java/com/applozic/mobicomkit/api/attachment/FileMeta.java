@@ -10,6 +10,7 @@ public class FileMeta extends JsonMarker {
     private String key;
     private String userKey;
     private String blobKey;
+    private String thumbnailBlobKey;
     private String name;
     private String url;
     private int size;
@@ -35,6 +36,14 @@ public class FileMeta extends JsonMarker {
 
     public String getBlobKeyString() {
         return blobKey;
+    }
+
+    public String getThumbnailBlobKey() {
+        return thumbnailBlobKey;
+    }
+
+    public void setThumbnailBlobKey(String thumbnailBlobKey) {
+        this.thumbnailBlobKey = thumbnailBlobKey;
     }
 
     public void setBlobKeyString(String blobKeyString) {
@@ -105,6 +114,7 @@ public class FileMeta extends JsonMarker {
                 "key='" + key + '\'' +
                 ", userKey='" + userKey + '\'' +
                 ", blobKey='" + blobKey + '\'' +
+                ", thumbnailBlobKey='" + thumbnailBlobKey + '\'' +
                 ", url=" + url +
                 ", name='" + name + '\'' +
                 ", size=" + size +

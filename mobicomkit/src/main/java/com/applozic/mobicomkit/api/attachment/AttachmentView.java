@@ -21,15 +21,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.attachment.urlservice.URLServiceProvider;
 import com.applozic.mobicomkit.api.conversation.Message;
 
 /**
@@ -198,11 +196,7 @@ public class AttachmentView extends ImageView {
         if (message == null || message.getFileMetas() == null) {
             return null;
         }
-        if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
-            return message.getFileMetas().getUrl();
-        } else {
-            return new MobiComKitClientService(getContext().getApplicationContext()).getFileUrl() + message.getFileMetas().getBlobKeyString();
-        }
+        return new URLServiceProvider(context).getImageURL(message);
     }
 
     public String getLocalPath() {

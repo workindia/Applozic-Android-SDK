@@ -204,21 +204,11 @@ public class NotificationService {
                 InputStream in;
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
-                if (fileMeta.getThumbnailUrl() != null) {
-                    httpConn = new MobiComKitClientService(context).openHttpConnection(fileMeta.getThumbnailUrl());
-                    int response = httpConn.getResponseCode();
-                    if (response == HttpURLConnection.HTTP_OK) {
-                        in = httpConn.getInputStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(in);
-                        String imageName = FileUtils.getName(fileMeta.getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(fileMeta.getName());
-                        File file = FileClientService.getFilePath(imageName, context, "image", true);
-                        ImageUtils.saveImageToInternalStorage(file, bitmap);
-                        if (unReadMessageList != null && unReadMessageList.size() < 2) {
-                            mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
-                        }
-                    }
+                if (fileMeta.getThumbnailBlobKey() != null) {
+                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 ex.printStackTrace();
             }
         }
@@ -395,16 +385,9 @@ public class NotificationService {
             try {
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
-                if (fileMeta.getThumbnailUrl() != null) {
-                    httpConn = new MobiComKitClientService(context).openHttpConnection(fileMeta.getThumbnailUrl());
-                    int response = httpConn.getResponseCode();
-                    if (response == HttpURLConnection.HTTP_OK) {
-                        Bitmap bitmap = BitmapFactory.decodeStream(httpConn.getInputStream());
-                        String imageName = FileUtils.getName(fileMeta.getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(fileMeta.getName());
-                        File file = FileClientService.getFilePath(imageName, context, "image", true);
-                        ImageUtils.saveImageToInternalStorage(file, bitmap);
-                        mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
-                    }
+                if (fileMeta.getThumbnailBlobKey() != null) {
+                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -14,11 +14,11 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.attachment.urlservice.URLServiceProvider;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -36,7 +36,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by devashish on 26/12/14.
@@ -53,15 +52,20 @@ public class FileClientService extends MobiComKitClientService {
     public static final String IMAGE_DIR = "image";
     public static final String AL_UPLOAD_FILE_URL = "/rest/ws/upload/file";
     public static final String CUSTOM_STORAGE_SERVICE_END_POINT = "/rest/ws/upload/image";
+//    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/file";
+    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/image";
+    public static final String S3_SIGNED_URL_PARAM = "aclsPrivate";
     public static final String THUMBNAIL_URL = "/files/";
     private static final int MARK = 1024;
     private static final String TAG = "FileClientService";
     private static final String MAIN_FOLDER_META_DATA = "main_folder_name";
     private HttpRequestUtils httpRequestUtils;
+    private MobiComKitClientService mobiComKitClientService;
 
     public FileClientService(Context context) {
         super(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
+        this.mobiComKitClientService = new MobiComKitClientService(context);
     }
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
@@ -103,29 +107,21 @@ public class FileClientService extends MobiComKitClientService {
         return getBaseUrl() + AL_UPLOAD_FILE_URL;
     }
 
-    public String getFileUploadUrl() {
-        if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
-            return getBaseUrl() + CUSTOM_STORAGE_SERVICE_END_POINT;
-        }
-
-        String fileUploadUrl = Utils.getMetaDataValue(context.getApplicationContext(), FILE_UPLOAD_METADATA_KEY);
-        if (!TextUtils.isEmpty(fileUploadUrl)) {
-            return getFileBaseUrl() + fileUploadUrl;
-        }
-        return getFileBaseUrl() + FILE_UPLOAD_URL;
-    }
-
     public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
         try {
             Bitmap attachedImage = null;
-            FileMeta fileMeta = message.getFileMetas();
-            String thumbnailUrl = fileMeta.getThumbnailUrl();
-            String contentType = fileMeta.getContentType();
+
+            String thumbnailUrl = new URLServiceProvider(context).getThumbnailURL(message);
+
+            if (TextUtils.isEmpty(thumbnailUrl)) {
+                return null;
+            }
+            String contentType = message.getFileMetas().getContentType();
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             // Todo get the file format from server and append
-            String imageName = FileUtils.getName(fileMeta.getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(fileMeta.getName());
-            String imageLocalPath = getFilePath(imageName, context, fileMeta.getContentType(), true).getAbsolutePath();
+            String imageName = FileUtils.getName(message.getFileMetas().getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(message.getFileMetas().getName());
+            String imageLocalPath = getFilePath(imageName, context, message.getFileMetas().getContentType(), true).getAbsolutePath();
             if (imageLocalPath != null) {
                 try {
                     attachedImage = BitmapFactory.decodeFile(imageLocalPath);
@@ -176,11 +172,8 @@ public class FileClientService extends MobiComKitClientService {
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
-                if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() && !TextUtils.isEmpty(message.getFileMetas().getUrl())) {
-                    connection = openHttpConnection(fileMeta.getUrl());
-                } else {
-                    connection = openHttpConnection(new MobiComKitClientService(context).getFileUrl() + fileMeta.getBlobKeyString());
-                }
+
+                connection = new URLServiceProvider(context).getDownloadConnection(message);
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     inputStream = connection.getInputStream();
                 } else {
@@ -245,26 +238,24 @@ public class FileClientService extends MobiComKitClientService {
 
     public String uploadBlobImage(String path, Handler handler) throws UnsupportedEncodingException {
         try {
-            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadKey(), "UTF-8", context);
-            if (ApplozicClient.getInstance(context).isCustomStorageServiceEnabled()) {
+
+            ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadURL(), "UTF-8", context);
+            if ( ApplozicClient.getInstance(context).isS3StorageServiceEnabled() ) {
                 multipart.addFilePart("file", new File(path), handler);
             } else {
                 multipart.addFilePart("files[]", new File(path), handler);
             }
             return multipart.getResponse();
+//            return new URLServiceProvider(context).getMultipartFile(path, handler).getResponse();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public String getUploadKey() {
-        if (ApplozicClient.getInstance(context).isStorageServiceEnabled() || ApplozicClient.getInstance(context).isCustomStorageServiceEnabled() ) {
-            return getFileUploadUrl();
-        } else {
-            return httpRequestUtils.getResponse(getFileUploadUrl()
-                    + "?" + new Date().getTime(), "text/plain", "text/plain", true);
-        }
+    public String getUploadURL() {
+        String fileUrl = new URLServiceProvider(context).getFileUploadUrl();
+        return fileUrl;
     }
 
     public Bitmap downloadBitmap(Contact contact, Channel channel) {
@@ -468,9 +459,4 @@ public class FileClientService extends MobiComKitClientService {
         }
     }
 
-    public String getThumbnailUrl(String thumbnailUrl) {
-        return (ApplozicClient.getInstance(context).isStorageServiceEnabled() ?
-                (getFileBaseUrl() + THUMBNAIL_URL + thumbnailUrl) : thumbnailUrl);
-
-    }
 }
