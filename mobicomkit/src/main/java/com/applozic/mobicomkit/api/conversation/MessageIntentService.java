@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.api.conversation;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -9,7 +8,6 @@ import android.support.v4.app.JobIntentService;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduleMessageService;
-import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.HashMap;
@@ -36,7 +34,7 @@ public class MessageIntentService extends JobIntentService {
         enqueueWork(context, MessageIntentService.class, JOB_ID, work);
         if (work != null) {
             final Message message = (Message) GsonUtils.getObjectFromJson(work.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
-            if (uploadQueueMap != null && message.isUploadRequired()) {
+            if (uploadQueueMap != null && handler != null) {
                 uploadQueueMap.put(message.getCreatedAtTime(), handler);
             }
         }

@@ -112,6 +112,12 @@ public class ApplozicClient {
                 || pref.getPricingPackage() == RegistrationResponse.PricingType.BETA.getValue());
     }
 
+    public boolean isServiceDisconnected() {
+        int pricingPackage = MobiComUserPreference.getInstance(context).getPricingPackage();
+        boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        return (pricingPackage == -1 || pricingPackage == 6 || (pricingPackage == 0 && !isDebuggable));
+    }
+
     public boolean isAccountClosed() {
         return MobiComUserPreference.getInstance(context).getPricingPackage() == RegistrationResponse.PricingType.CLOSED.getValue();
     }

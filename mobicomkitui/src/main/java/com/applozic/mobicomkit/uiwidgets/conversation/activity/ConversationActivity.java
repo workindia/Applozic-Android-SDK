@@ -53,6 +53,7 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
+import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
@@ -84,6 +85,8 @@ import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
+import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -114,7 +117,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -171,6 +174,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private String searchTerm;
     private SearchListFragment searchListFragment;
     ContactsChangeObserver observer;
+    private LinearLayout serviceDisconnectionLayout;
+    private ALStoragePermission alStoragePermission;
 
     public ConversationActivity() {
 
@@ -248,20 +253,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onStop() {
         super.onStop();
-        final String deviceKeyString = MobiComUserPreference.getInstance(this).getDeviceKeyString();
-        final String userKeyString = MobiComUserPreference.getInstance(this).getSuUserKeyString();
-        Intent intent = new Intent(this, ApplozicMqttIntentService.class);
-        intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
-        intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-        ApplozicMqttIntentService.enqueueWork(this, intent);
+        Applozic.disconnectPublish(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Intent subscribeIntent = new Intent(this, ApplozicMqttIntentService.class);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-        ApplozicMqttIntentService.enqueueWork(this, subscribeIntent);
+        Applozic.connectPublish(this);
 
         if (!Utils.isInternetAvailable(getApplicationContext())) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
@@ -272,6 +270,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onPause() {
         //ApplozicMqttService.getInstance(this).unSubscribe();
+
+
         super.onPause();
     }
 
@@ -318,6 +318,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             Utils.toggleSoftKeyBoard(this, true);
             return true;
+        } else {
+            super.onSupportNavigateUp();
         }
         return false;
     }
@@ -353,7 +355,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         profilefragment = new ProfileFragment();
         profilefragment.setAlCustomizationSettings(alCustomizationSettings);
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
-        if (Utils.hasMarshmallow()) {
+        serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
+
+        if (Utils.hasMarshmallow() && !alCustomizationSettings.isGlobalStoagePermissionDisabled()) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
@@ -378,27 +382,31 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         }
 
-        if (savedInstanceState != null) {
-            capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI) != null ?
-                    Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)) : null;
-            videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI) != null ?
-                    Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)) : null;
-            mediaFile = savedInstanceState.getSerializable(LOAD_FILE) != null ? (File) savedInstanceState.getSerializable(LOAD_FILE) : null;
-
-            contact = (Contact) savedInstanceState.getSerializable(CONTACT);
-            channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
-            currentConversationId = savedInstanceState.getInt(CONVERSATION_ID);
-            if (contact != null || channel != null) {
-                if (channel != null) {
-                    conversation = ConversationFragment.newInstance(null, channel, currentConversationId, null);
-                } else {
-                    conversation = ConversationFragment.newInstance(contact, null, currentConversationId, null);
-                }
-                addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
-            }
+        if (ApplozicClient.getInstance(this).isServiceDisconnected()) {
+            serviceDisconnectionLayout.setVisibility(View.VISIBLE);
         } else {
-            setSearchListFragment(quickConversationFragment);
-            addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
+            if (savedInstanceState != null) {
+                capturedImageUri = savedInstanceState.getString(CAPTURED_IMAGE_URI) != null ?
+                        Uri.parse(savedInstanceState.getString(CAPTURED_IMAGE_URI)) : null;
+                videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI) != null ?
+                        Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)) : null;
+                mediaFile = savedInstanceState.getSerializable(LOAD_FILE) != null ? (File) savedInstanceState.getSerializable(LOAD_FILE) : null;
+
+                contact = (Contact) savedInstanceState.getSerializable(CONTACT);
+                channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
+                currentConversationId = savedInstanceState.getInt(CONVERSATION_ID);
+                if (contact != null || channel != null) {
+                    if (channel != null) {
+                        conversation = ConversationFragment.newInstance(null, channel, currentConversationId, null);
+                    } else {
+                        conversation = ConversationFragment.newInstance(contact, null, currentConversationId, null);
+                    }
+                    addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
+                }
+            } else {
+                setSearchListFragment(quickConversationFragment);
+                addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
+            }
         }
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
@@ -462,13 +470,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         try {
-            if (intent.getExtras() != null) {
-                BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
-                if (BroadcastService.isIndividual() && intent.getExtras().getBoolean(MobiComKitConstants.QUICK_LIST)) {
-                    setSearchListFragment(quickConversationFragment);
-                    addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
-                } else {
-                    conversationUIService.checkForStartNewConversation(intent);
+            if (ApplozicClient.getInstance(this).isServiceDisconnected()) {
+                serviceDisconnectionLayout.setVisibility(View.VISIBLE);
+            } else {
+                if (intent.getExtras() != null) {
+                    BroadcastService.setContextBasedChat(intent.getExtras().getBoolean(ConversationUIService.CONTEXT_BASED_CHAT));
+                    if (BroadcastService.isIndividual() && intent.getExtras().getBoolean(MobiComKitConstants.QUICK_LIST)) {
+                        setSearchListFragment(quickConversationFragment);
+                        addFragment(this, quickConversationFragment, ConversationUIService.QUICK_CONVERSATION_FRAGMENT);
+                    } else {
+                        conversationUIService.checkForStartNewConversation(intent);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -575,6 +587,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PermissionsUtils.REQUEST_STORAGE) {
+            if (alStoragePermission != null) {
+                alStoragePermission.onAction(PermissionsUtils.verifyPermissions(grantResults));
+            }
             if (PermissionsUtils.verifyPermissions(grantResults)) {
                 showSnackBar(R.string.storage_permission_granted);
                 if (isAttachment) {
@@ -691,7 +706,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 googleApiClient.connect();
             }
 
-            //=================  END ===============
+            //================= END ===============
 
         }
 
@@ -953,7 +968,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commitAllowingStateLoss();
-
         } else {
 
             if (alCustomizationSettings.getAudioPermissionNotFoundMsg() == null) {
@@ -1270,6 +1284,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
+    @Override
+    public boolean isPermissionGranted() {
+        return !PermissionsUtils.checkSelfForStoragePermission(this);
+    }
+
+    @Override
+    public void checkPermission(ALStoragePermission storagePermission) {
+        PermissionsUtils.requestPermissions(this, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
+        this.alStoragePermission = storagePermission;
+    }
+
     private class SyncMessagesAsyncTask extends AsyncTask<Boolean, Void, Void> {
         MobiComMessageService messageService;
 
@@ -1334,5 +1359,4 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         }
     }
-
 }

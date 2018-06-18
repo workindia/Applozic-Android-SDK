@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
-        versionName "5.8.3"
+        versionName "5.8.6"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -42,17 +42,15 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.google.code.gson:gson:2.8.0'
-    api project(':mobicommons') //Note: use this for customization
-    //implementation 'com.applozic.mobiframework:mobicommons:5.8.3' //Note: use this in case customization is not required
+    api project(':mobicommons')
+    //Note: use this for customization
+    //implementation 'com.applozic.mobiframework:mobicommons:5.8.6' //Note: use this in case customization is not required
 }
-
-
-
 
 
 /*ext {
@@ -69,7 +67,7 @@ dependencies {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '5.8.3'
+    libraryVersion = '5.8.6'
 
     developerId = 'devashish'
     developerName = 'Applozic'

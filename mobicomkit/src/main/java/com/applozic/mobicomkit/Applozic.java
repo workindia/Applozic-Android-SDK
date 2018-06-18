@@ -55,7 +55,7 @@ public class Applozic {
     }
 
     public Applozic enableDeviceContactSync(boolean enable) {
-        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable);
+        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable).apply();
         return this;
     }
 
@@ -111,7 +111,7 @@ public class Applozic {
         if (channel != null) {
             intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
         } else if (contact != null) {
-
+            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
         }
         intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE_TO_TYPING, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);
@@ -122,7 +122,7 @@ public class Applozic {
         if (channel != null) {
             intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
         } else if (contact != null) {
-
+            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
         }
         intent.putExtra(ApplozicMqttIntentService.UN_SUBSCRIBE_TO_TYPING, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);
@@ -142,6 +142,16 @@ public class Applozic {
 
     public static void loginUser(Context context, User user, AlLoginHandler loginHandler) {
         if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
+            RegistrationResponse registrationResponse = new RegistrationResponse();
+            registrationResponse.setMessage("User already Logged in");
+            loginHandler.onSuccess(registrationResponse, context);
+        } else {
+            new UserLoginTask(user, loginHandler, context).execute();
+        }
+    }
+
+    public static void loginUser(Context context, User user, boolean withLoggedInCheck, AlLoginHandler loginHandler) {
+        if (withLoggedInCheck && MobiComUserPreference.getInstance(context).isLoggedIn()) {
             RegistrationResponse registrationResponse = new RegistrationResponse();
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);

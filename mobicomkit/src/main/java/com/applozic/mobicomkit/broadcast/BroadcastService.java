@@ -171,12 +171,17 @@ public class BroadcastService {
     }
 
 
-    public static void sendUpdate(Context context, String action) {
+    public static void sendUpdate(Context context, boolean isMetadataUpdate, String action) {
         Utils.printLog(context, TAG, action);
         Intent intent = new Intent();
         intent.setAction(action);
+        intent.putExtra("isMetadataUpdate", isMetadataUpdate);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intent);
+    }
+
+    public static void sendUpdate(Context context, String action) {
+        sendUpdate(context, false, action);
     }
 
     public static void updateMessageMetadata(Context context, String messageKey, String action) {

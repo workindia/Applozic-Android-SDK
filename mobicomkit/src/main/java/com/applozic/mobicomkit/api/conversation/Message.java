@@ -3,12 +3,15 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -662,6 +665,10 @@ public class Message extends JsonMarker {
         return GroupMessageMetaData.TRUE.getValue().equals(getMetaDataValueForKey(GroupMessageMetaData.HIDE_KEY.getValue())) || Message.ContentType.HIDDEN.getValue().equals(getContentType());
     }
 
+    public boolean isGroupMetaDataUpdated() {
+        return ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(this.getContentType()) && this.getMetadata() != null && this.getMetadata().containsKey("action") && GroupAction.GROUP_META_DATA_UPDATED.getValue().toString().equals(this.getMetadata().get("action"));
+    }
+
     public void setHidden(boolean hidden) {
         hidden = hidden;
     }
@@ -672,6 +679,17 @@ public class Message extends JsonMarker {
 
     public void setReplyMessage(int replyMessage) {
         this.replyMessage = replyMessage;
+    }
+
+
+    public boolean isIgnoreMessageAdding(Context context) {
+        if(ApplozicClient.getInstance(context).isSubGroupEnabled() && MobiComUserPreference.getInstance(context).getParentGroupKey() != null  || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())){
+            Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(getGroupId());
+            boolean subGroupFlag = channel != null && channel.getParentKey() != null && MobiComUserPreference.getInstance(context).getParentGroupKey().equals(channel.getParentKey());
+            boolean categoryFlag = channel != null  && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
+            return  (subGroupFlag || categoryFlag ||  ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
+        }
+        return false;
     }
 
     @Override
@@ -822,6 +840,28 @@ public class Message extends JsonMarker {
 
         public Integer getValue() {
             return value;
+        }
+    }
+
+    public enum GroupAction {
+        CREATE(0),
+        ADD_MEMBER(1),
+        REMOVE_MEMBER(2),
+        LEFT(3),
+        DELETE_GROUP(4),
+        CHANGE_GROUP_NAME(5),
+        CHANGE_IMAGE_URL(6),
+        JOIN(7),
+        GROUP_USER_ROLE_UPDATED(8),
+        GROUP_META_DATA_UPDATED(9);
+        private Integer value;
+
+        GroupAction(Integer value) {
+            this.value = value;
+        }
+
+        public Short getValue() {
+            return value.shortValue();
         }
     }
 

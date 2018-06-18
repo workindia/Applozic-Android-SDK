@@ -22,11 +22,13 @@ public class MobicomMultimediaPopupAdapter extends BaseAdapter {
     List<String> multimediaIcons;
     List<String> multimediaText;
     AlCustomizationSettings alCustomizationSettings;
+    Typeface iconTypeface;
 
     public MobicomMultimediaPopupAdapter(Context context, List<String> multimediaIcons, List<String> multimediaText) {
         this.context = context;
         this.multimediaIcons = multimediaIcons;
         this.multimediaText = multimediaText;
+        iconTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf");
     }
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
@@ -54,10 +56,13 @@ public class MobicomMultimediaPopupAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.mobicom_individual_multimedia_option_item, null);
 
         TextView icon = (TextView) convertView.findViewById(R.id.mobicom_multimedia_icon);
-        Typeface iconTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/fontawesome-webfont.ttf");
         icon.setTypeface(iconTypeface);
         TextView text = (TextView) convertView.findViewById(R.id.mobicom_multimedia_text);
-        icon.setTextColor(Color.parseColor(alCustomizationSettings.getAttachmentIconsBackgroundColor()));
+        if (alCustomizationSettings != null) {
+            icon.setTextColor(Color.parseColor(alCustomizationSettings.getAttachmentIconsBackgroundColor()));
+        }else{
+            icon.setTextColor(context.getResources().getColor(R.color.applozic_theme_color_primary));
+        }
         icon.setText(multimediaIcons.get(position));
         text.setText(multimediaText.get(position));
         return convertView;

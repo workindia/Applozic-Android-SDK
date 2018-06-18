@@ -159,7 +159,9 @@ public class UserService {
         contact.setContactNumber(userDetail.getPhoneNumber());
         contact.setConnected(userDetail.isConnected());
         contact.setStatus(userDetail.getStatusMessage());
-        contact.setFullName(userDetail.getDisplayName());
+        if (!TextUtils.isEmpty(userDetail.getDisplayName())) {
+            contact.setFullName(userDetail.getDisplayName());
+        }
         contact.setLastSeenAt(userDetail.getLastSeenAtTime());
         contact.setUserTypeId(userDetail.getUserTypeId());
         contact.setUnreadCount(0);
@@ -258,7 +260,7 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, status, null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status,null);
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber) {

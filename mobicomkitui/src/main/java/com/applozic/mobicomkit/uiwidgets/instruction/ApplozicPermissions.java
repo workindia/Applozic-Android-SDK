@@ -23,6 +23,10 @@ public class ApplozicPermissions {
         this.snackBarLayout = linearLayout;
     }
 
+    public ApplozicPermissions(Activity activity) {
+        this(activity, null);
+    }
+
     public void checkRuntimePermissionForStorage() {
         if (PermissionsUtils.checkSelfForStoragePermission(activity)) {
             requestStoragePermissions();
@@ -103,9 +107,9 @@ public class ApplozicPermissions {
 
     public void requestCameraAndRecordPermission() {
         if (PermissionsUtils.shouldShowRequestForContactPermission(activity)) {
-            showSnackBar(!PermissionsUtils.checkPermissionForCameraAndMicrophone(activity)?R.string.camera_audio_permission:!PermissionsUtils.isAudioRecordingPermissionGranted(activity)?R.string.record_audio:!PermissionsUtils.isCameraPermissionGranted(activity)?R.string.phone_camera_permission:R.string.camera_audio_permission, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, PermissionsUtils.REQUEST_CAMERA_AUDIO);
+            showSnackBar(!PermissionsUtils.checkPermissionForCameraAndMicrophone(activity) ? R.string.camera_audio_permission : !PermissionsUtils.isAudioRecordingPermissionGranted(activity) ? R.string.record_audio : !PermissionsUtils.isCameraPermissionGranted(activity) ? R.string.phone_camera_permission : R.string.camera_audio_permission, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, PermissionsUtils.REQUEST_CAMERA_AUDIO);
         } else {
-            PermissionsUtils.requestPermissions(activity,new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, PermissionsUtils.REQUEST_CAMERA_AUDIO);
+            PermissionsUtils.requestPermissions(activity, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, PermissionsUtils.REQUEST_CAMERA_AUDIO);
         }
     }
 
@@ -124,14 +128,16 @@ public class ApplozicPermissions {
     }
 
     public void showSnackBar(int resId, final String[] permissions, final int requestCode) {
-        Snackbar.make(snackBarLayout, resId,
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.ok_alert, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        PermissionsUtils.requestPermissions(activity, permissions, requestCode);
-                    }
-                }).show();
+        if (snackBarLayout != null) {
+            Snackbar.make(snackBarLayout, resId,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.ok_alert, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            PermissionsUtils.requestPermissions(activity, permissions, requestCode);
+                        }
+                    }).show();
+        }
     }
 
 }

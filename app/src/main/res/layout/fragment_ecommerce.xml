@@ -64,17 +64,31 @@
             android:textColor="@color/white" />
 
         <Button
+            android:id="@+id/button_start_sample"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_order"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/holo_blue"
+            android:onClick="startSample"
+            android:text="Start Sample"
+            android:textColor="@color/white" />
+
+        <Button
             android:id="@+id/launch_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/button_order"
+            android:layout_below="@id/button_start_sample"
             android:layout_centerInParent="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:background="@color/holo_blue"
             android:onClick="groupChat"
-	    android:text="@string/group_chat"
+	        android:text="@string/group_chat"
             android:textColor="@color/white"
             android:visibility="gone" />
 

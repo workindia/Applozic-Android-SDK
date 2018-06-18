@@ -19,6 +19,7 @@ import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Conversation;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -86,7 +87,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
                 if (!TextUtils.isEmpty(topicDetailJson)) {
                     TopicDetail topicDetail = (TopicDetail) GsonUtils.getObjectFromJson(topicDetailJson, TopicDetail.class);
                     if (!TextUtils.isEmpty(topicDetail.getLink())) {
-                        productImageLoader.loadImage(conversation, viewHolder.productImage);
+                        Glide.with(context).load(topicDetail.getLink()).into(viewHolder.productImage);
                     }
                     if (!TextUtils.isEmpty(topicDetail.getTitle())) {
                         viewHolder.titleTextView.setText(topicDetail.getTitle());

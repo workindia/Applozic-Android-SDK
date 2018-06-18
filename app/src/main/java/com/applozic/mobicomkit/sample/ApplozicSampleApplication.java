@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import com.crashlytics.android.Crashlytics;
+
 import io.fabric.sdk.android.Fabric;
 
 /**
@@ -14,7 +15,7 @@ public class ApplozicSampleApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-       Fabric.with(this, new Crashlytics());
+        Fabric.with(this, new Crashlytics());
     }
 
     @Override
