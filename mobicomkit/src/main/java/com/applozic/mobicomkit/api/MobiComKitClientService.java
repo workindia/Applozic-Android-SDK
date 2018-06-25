@@ -73,11 +73,11 @@ public class MobiComKitClientService {
         return DEFAULT_URL;
     }
 
-    protected String getKmBaseUrl() {
-        if (getBaseUrl().contains("apps.applozic")) {
-            return KM_PROD_BASE_URL;
+    public String getKmBaseUrl() {
+        if (getBaseUrl().contains("apps-test")) {
+            return KM_TEST_BASE_URL;
         }
-        return KM_TEST_BASE_URL;
+        return KM_PROD_BASE_URL;
     }
 
     protected String getMqttBaseUrl() {
