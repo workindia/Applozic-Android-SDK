@@ -276,7 +276,10 @@
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="image/*" />
+                <data android:mimeType="image/png" />
+                <data android:mimeType="image/jpeg" />
+                <data android:mimeType="image/webp" />
+                <data android:mimeType="image/bmp" />
                 <data android:mimeType="audio/*" />
                 <data android:mimeType="video/*" />
                 <data android:mimeType="text/plain" />

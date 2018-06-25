@@ -259,7 +259,12 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                         return;
                     }
                     if (FileUtils.isContentScheme(fileUri)) {
-                        new ShareAsyncTask(this, fileUri, null, channel).execute();
+                        String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
+                        if (TextUtils.isEmpty(mimeType)) {
+                             this.finish();
+                        }else{
+                            new ShareAsyncTask(this, fileUri, null, channel,mimeType).execute();
+                        }
                     } else {
                         Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
                         intentImage.putExtra(MobiComAttachmentSelectorActivity.GROUP_ID, channel.getKey());
@@ -303,7 +308,13 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                     return;
                 }
                 if (FileUtils.isContentScheme(fileUri)) {
-                    new ShareAsyncTask(this, fileUri, contact, null).execute();
+                    String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
+                    if (TextUtils.isEmpty(mimeType)) {
+                        this.finish();
+                    }else{
+                        new ShareAsyncTask(this, fileUri, contact, null,mimeType).execute();
+                    }
+
                 } else {
                     Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
                     intentImage.putExtra(MobiComAttachmentSelectorActivity.USER_ID, contact.getUserId());
@@ -491,12 +502,14 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         FileClientService fileClientService;
         Contact contact;
         Channel channel;
+        String mimeType;
 
-        public ShareAsyncTask(Context context, Uri uri, Contact contact, Channel channel) {
+        public ShareAsyncTask(Context context, Uri uri, Contact contact, Channel channel,String mimType) {
             this.contextWeakReference = new WeakReference<Context>(context);
             this.uri = uri;
             this.contact = contact;
             this.channel = channel;
+            this.mimeType = mimType;
             this.fileClientService = new FileClientService(context);
         }
 
@@ -505,21 +518,22 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
             if (contextWeakReference != null) {
                 Context context = contextWeakReference.get();
-                if (context != null) {
-                    String mimeType = FileUtils.getMimeTypeByContentUriOrOther(context, uri);
-                    if (TextUtils.isEmpty(mimeType)) {
-                        return null;
-                    }
+                if (context != null && !TextUtils.isEmpty(mimeType)) {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                    String fileName = FileUtils.getFileName(context, uri);
-                    String fileFormat = FileUtils.getFileFormat(fileName);
-                    if (TextUtils.isEmpty(fileFormat)) {
-                        return null;
-                    }
-                    String fileNameToWrite = timeStamp + "." + fileFormat;
-                    File mediaFile = FileClientService.getFilePath(fileNameToWrite, context, mimeType);
-                    fileClientService.writeFile(uri, mediaFile);
-                    return mediaFile;
+                    String array[]= mimeType.split("/");
+                    String fileFormat = null;
+                        if(array.length>1){
+                            fileFormat =  array[1];
+                        }
+
+                        if (TextUtils.isEmpty(fileFormat)) {
+                            return null;
+                        }
+
+                        String fileNameToWrite = timeStamp + "." + fileFormat;
+                        File mediaFile = FileClientService.getFilePath(fileNameToWrite, context, mimeType);
+                        fileClientService.writeFile(uri, mediaFile);
+                        return mediaFile;
                 }
             }
             return null;

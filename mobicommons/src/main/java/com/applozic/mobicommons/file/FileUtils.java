@@ -212,8 +212,12 @@ public class FileUtils {
      * @return The MIME type for the give Uri.
      */
     public static String getMimeType(Context context, Uri uri) {
-        File file = new File(getPath(context, uri));
-        return getMimeType(file);
+        String filePath = getPath(context, uri);
+        if(!TextUtils.isEmpty(filePath)){
+            File file = new File(filePath);
+          return getMimeType(file);
+        }
+        return null;
     }
 
     /**
