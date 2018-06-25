@@ -29,11 +29,11 @@ import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentGridViewAdapter;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.file.FilePathFinder;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -272,34 +272,41 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     }
 
     public class FileTaskAsync extends AsyncTask<Void, Integer, Boolean> {
-        Context context;
+        WeakReference<Context> context;
         FileClientService fileClientService;
         File file;
         Uri uri;
         ProgressDialog progressDialog;
 
         public FileTaskAsync(File file, Uri uri, Context context) {
-            this.context = context;
+            this.context = new WeakReference<Context>(context);
             this.file = file;
             this.uri = uri;
-            this.fileClientService = new FileClientService(context);
+            this.fileClientService = new FileClientService(this.context.get());
 
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = ProgressDialog.show(context, "",
-                    context.getString(R.string.applozic_contacts_loading_info), true);
+            progressDialog = ProgressDialog.show(context.get(), "",
+                    context.get().getString(R.string.applozic_contacts_loading_info), true);
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             String format = URLConnection.guessContentTypeFromName(file.getName());
-            fileClientService.writeFile(uri, file);
+
+            if (fileClientService != null) {
+                fileClientService.writeFile(uri, file);
+            }
+
+            if (format == null) {
+                return true;
+            }
 
             if (alCustomizationSettings != null && alCustomizationSettings.isImageCompressionEnabled() && format.contains("image")) {
-                boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, context);
+                boolean isCompressionSuccess = AlBitmapUtils.compress(uri, file, context.get());
             }
             return true;
         }
@@ -317,6 +324,5 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
             addUri(uri);
             imagesAdapter.notifyDataSetChanged();
         }
-
     }
 }

@@ -88,7 +88,7 @@ public class DateUtils {
     public static String getDateAndTimeForLastSeen(Long timestamp) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd,yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
 
         try {
             if (sameDay) {
@@ -155,7 +155,7 @@ public class DateUtils {
 
     public static String getDateAndTimeInDefaultFormat(long timestamp) {
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd,yyyy hh:mm aa");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy hh:mm aa");
         return simpleDateFormat.format(date);
     }
 
