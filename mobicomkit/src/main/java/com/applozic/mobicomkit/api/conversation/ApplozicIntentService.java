@@ -1,14 +1,15 @@
 package com.applozic.mobicomkit.api.conversation;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
-import android.text.TextUtils;
 
+
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 
 /**
  * Created by sunil on 26/12/15.
@@ -24,6 +25,7 @@ public class ApplozicIntentService extends JobIntentService {
     private static final String TAG = "ApplozicIntentService";
     private MessageClientService messageClientService;
     public static final String AL_SYNC_ON_CONNECTIVITY = "AL_SYNC_ON_CONNECTIVITY";
+    public static final String AL_TIME_CHANGE_RECEIVER = "AL_TIME_CHANGE_RECEIVER";
     MobiComConversationService conversationService;
 
     /**
@@ -48,12 +50,20 @@ public class ApplozicIntentService extends JobIntentService {
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         boolean connectivityChange = intent.getBooleanExtra(AL_SYNC_ON_CONNECTIVITY, false);
+        boolean timeChangeReceiver = intent.getBooleanExtra(AL_TIME_CHANGE_RECEIVER, false);
+
         if (connectivityChange) {
             SyncCallService.getInstance(ApplozicIntentService.this).syncMessages(null);
             messageClientService.syncPendingMessages(true);
             messageClientService.syncDeleteMessages(true);
             conversationService.processLastSeenAtStatus();
             UserService.getInstance(ApplozicIntentService.this).processSyncUserBlock();
+        }
+
+        if (timeChangeReceiver) {
+            Utils.printLog(this, "TimeChange", "This service has been called on date change");
+            long diff = DateUtils.getTimeDiffFromUtc();
+            MobiComUserPreference.getInstance(this).setDeviceTimeOffset(diff);
         }
     }
 }
