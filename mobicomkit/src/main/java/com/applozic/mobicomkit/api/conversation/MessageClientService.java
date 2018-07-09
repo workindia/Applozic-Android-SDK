@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
-
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -300,7 +299,6 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void processMessage(Message message, Handler handler) throws Exception {
-
         boolean isBroadcast = (message.getMessageId() == null);
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
@@ -324,8 +322,10 @@ public class MessageClientService extends MobiComKitClientService {
 
         List<String> fileKeys = new ArrayList<String>();
         String keyString = null;
+        String oldMessageKey = null;
         if (!isBroadcastOneByOneGroupType) {
             keyString = UUID.randomUUID().toString();
+            oldMessageKey = keyString;
             message.setKeyString(keyString);
             message.setSentToServer(false);
         } else {
@@ -481,6 +481,9 @@ public class MessageClientService extends MobiComKitClientService {
                     android.os.Message msg = handler.obtainMessage();
                     msg.what = MobiComConversationService.MESSAGE_SENT;
                     msg.getData().putString("message", message.getKeyString());
+                    String messageJson =    GsonUtils.getJsonFromObject(message,Message.class);
+                    msg.getData().putString("messageJson", messageJson);
+                    msg.getData().putString("oldMessageKey", oldMessageKey);
                     msg.sendToTarget();
                 }
             }

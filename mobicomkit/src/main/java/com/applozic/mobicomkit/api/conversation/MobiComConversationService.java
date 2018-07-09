@@ -594,7 +594,20 @@ public class MobiComConversationService {
                 case MESSAGE_SENT:
                     if (b != null) {
                         if (progressHandler != null) {
-                            progressHandler.onSent(messageDatabaseService.getMessage(b.getString("message")));
+
+                          Message messageObject =  messageDatabaseService.getMessage(b.getString("message"));
+                          if(messageObject == null){
+                              String messageJson =   b.getString("messageJson");
+                              String oldMessageKey = b.getString("oldMessageKey");
+
+                             Message messageJsonObject = (Message) GsonUtils.getObjectFromJson(messageJson,Message.class);
+                             if(messageJsonObject != null){
+                                 progressHandler.onSent(messageJsonObject, oldMessageKey);
+                             }
+                          }else{
+                              progressHandler.onSent(messageObject);
+                          }
+
                         }
                     }
                     break;
