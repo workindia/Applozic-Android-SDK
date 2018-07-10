@@ -561,10 +561,10 @@ public class MobiComConversationService {
 
     private void handleState(android.os.Message message, MediaUploadProgressHandler progressHandler) {
         if (message != null) {
-            Bundle b = message.getData();
+            Bundle bundle = message.getData();
             String e = null;
-            if (b != null) {
-                e = b.getString("error");
+            if (bundle != null) {
+                e = bundle.getString("error");
             }
             switch (message.what) {
                 case UPLOAD_STARTED:
@@ -592,12 +592,12 @@ public class MobiComConversationService {
                     break;
 
                 case MESSAGE_SENT:
-                    if (b != null) {
+                    if (bundle != null) {
                         if (progressHandler != null) {
 
-                            Message messageObject =  messageDatabaseService.getMessage(b.getString("message"));
-                            String messageJson =   b.getString("messageJson");
-                            String oldMessageKey = b.getString("oldMessageKey");
+                            Message messageObject =  messageDatabaseService.getMessage(bundle.getString("message"));
+                            String messageJson =   bundle.getString("messageJson");
+                            String oldMessageKey = bundle.getString("oldMessageKey");
                             if(messageObject == null) {
                                 messageObject = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
                             }
