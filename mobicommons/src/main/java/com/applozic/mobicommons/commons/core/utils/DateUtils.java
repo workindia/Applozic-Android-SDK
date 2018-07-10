@@ -1,5 +1,6 @@
 package com.applozic.mobicommons.commons.core.utils;
 
+import android.content.Context;
 import android.os.SystemClock;
 
 import java.text.SimpleDateFormat;
@@ -12,12 +13,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtils {
 
-    private static final String JUST_NOW = "Just now";
+    /*private static final String JUST_NOW = "Just now";
     private static final String MINUTES = " mins";
     private static final String HOURS = " hrs";
     private static final String H = "h";
     private static final String AGO = " ago";
-    private static final String YESTERDAY = "Yesterday";
+    private static final String YESTERDAY = "Yesterday";*/
 
     public static boolean isSameDay(Long timestamp) {
         Calendar calendarForCurrent = Calendar.getInstance();
@@ -54,7 +55,7 @@ public class DateUtils {
         return diff;
     }
 
-    public static String getFormattedDateAndTime(Long timestamp) {
+    public static String getFormattedDateAndTime(Context context, Long timestamp, int justNow, int min, int hr) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
@@ -67,13 +68,14 @@ public class DateUtils {
                 long diffMinutes = TimeUnit.MILLISECONDS.toMinutes(currentTime);
                 long diffHours = TimeUnit.MILLISECONDS.toHours(currentTime);
                 if (diffMinutes <= 1 && diffHours == 0) {
-                    return JUST_NOW;
+                    return context.getString(justNow);
                 }
                 if (diffMinutes <= 59 && diffHours == 0) {
-                    return String.valueOf(diffMinutes) + MINUTES;
+                    return context.getResources().getQuantityString(min, (int) diffMinutes, diffMinutes);
                 }
-                if (diffHours <= 2) {
-                    return String.valueOf(diffHours) + H;
+
+                if (diffMinutes > 59 && diffHours <= 2) {
+                    return context.getResources().getQuantityString(hr, (int) diffHours, diffHours);
                 }
                 return simpleDateFormat.format(date);
             }
@@ -85,7 +87,7 @@ public class DateUtils {
         return null;
     }
 
-    public static String getDateAndTimeForLastSeen(Long timestamp) {
+    public static String getDateAndTimeForLastSeen(Context context, Long timestamp, int justNow, int minAgo, int hrAgo, int yesterday) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
@@ -97,17 +99,17 @@ public class DateUtils {
                 long diffMinutes = TimeUnit.MILLISECONDS.toMinutes(currentTime);
                 long diffHours = TimeUnit.MILLISECONDS.toHours(currentTime);
                 if (diffMinutes <= 1 && diffHours == 0) {
-                    return JUST_NOW;
+                    return context.getString(justNow);
                 }
                 if (diffMinutes <= 59 && diffHours == 0) {
-                    return String.valueOf(diffMinutes) + MINUTES + AGO;
+                    return context.getResources().getQuantityString(minAgo, (int) diffMinutes, diffMinutes);
                 }
-                if (diffHours < 24) {
-                    return String.valueOf(diffHours) + HOURS + AGO;
+                if (diffMinutes > 59 && diffHours < 24) {
+                    return context.getResources().getQuantityString(hrAgo, (int) diffHours, diffHours);
                 }
             }
             if (isYesterday(timestamp)) {
-                return YESTERDAY;
+                return context.getString(yesterday);
             }
             return simpleDateFormat.format(date);
         } catch (Exception e) {
