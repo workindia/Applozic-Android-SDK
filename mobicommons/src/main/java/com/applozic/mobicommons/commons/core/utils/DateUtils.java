@@ -13,13 +13,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtils {
 
-    /*private static final String JUST_NOW = "Just now";
-    private static final String MINUTES = " mins";
-    private static final String HOURS = " hrs";
-    private static final String H = "h";
-    private static final String AGO = " ago";
-    private static final String YESTERDAY = "Yesterday";*/
-
     public static boolean isSameDay(Long timestamp) {
         Calendar calendarForCurrent = Calendar.getInstance();
         Calendar calendarForScheduled = Calendar.getInstance();

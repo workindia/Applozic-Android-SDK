@@ -12,7 +12,6 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -21,15 +20,13 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.AlConstantsHandler;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.commons.image.ImageUtils;
-import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -57,6 +54,7 @@ public class NotificationService {
     private AppContactService appContactService;
     private ApplozicClient applozicClient;
     private String activityToOpen;
+    private String[] constArray = {MobiComKitConstants.LOCATION, MobiComKitConstants.AUDIO, MobiComKitConstants.VIDEO, MobiComKitConstants.ATTACHMENT};
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
         this.context = context;
@@ -263,13 +261,13 @@ public class NotificationService {
     public CharSequence getMessageBody(Message message, int count, Channel channel, Contact contact) {
         String notificationText;
         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
-            notificationText = MobiComKitConstants.LOCATION;
+            notificationText = getText(0);
         } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
-            notificationText = MobiComKitConstants.AUDIO;
+            notificationText = getText(1);
         } else if (message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) {
-            notificationText = MobiComKitConstants.VIDEO;
+            notificationText = getText(2);
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
-            notificationText = MobiComKitConstants.ATTACHMENT;
+            notificationText = getText(3);
         } else {
             notificationText = message.getMessage();
         }
@@ -330,13 +328,13 @@ public class NotificationService {
         }
 
         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
-            notificationText = MobiComKitConstants.LOCATION;
+            notificationText = getText(0);
         } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
-            notificationText = MobiComKitConstants.AUDIO;
+            notificationText = getText(1);
         } else if (message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) {
-            notificationText = MobiComKitConstants.VIDEO;
+            notificationText = getText(2);
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
-            notificationText = MobiComKitConstants.ATTACHMENT;
+            notificationText = getText(3);
         } else {
             notificationText = message.getMessage();
         }
@@ -404,6 +402,21 @@ public class NotificationService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String getText(int index) {
+        if (context.getApplicationContext() instanceof AlConstantsHandler) {
+            return getTextFromIndex(((AlConstantsHandler) context.getApplicationContext()).getNotificationTexts(), index);
+        }
+
+        return constArray[0];
+    }
+
+    public String getTextFromIndex(String[] texts, int index) {
+        if (texts != null && texts.length == 4) {
+            return texts[index];
+        }
+        return null;
     }
 
 }
