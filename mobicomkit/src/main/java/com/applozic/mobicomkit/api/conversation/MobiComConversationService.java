@@ -595,19 +595,13 @@ public class MobiComConversationService {
                     if (b != null) {
                         if (progressHandler != null) {
 
-                          Message messageObject =  messageDatabaseService.getMessage(b.getString("message"));
-                          if(messageObject == null){
-                              String messageJson =   b.getString("messageJson");
-                              String oldMessageKey = b.getString("oldMessageKey");
-
-                             Message messageJsonObject = (Message) GsonUtils.getObjectFromJson(messageJson,Message.class);
-                             if(messageJsonObject != null){
-                                 progressHandler.onSent(messageJsonObject, oldMessageKey);
-                             }
-                          }else{
-                              progressHandler.onSent(messageObject);
-                          }
-
+                            Message messageObject =  messageDatabaseService.getMessage(b.getString("message"));
+                            String messageJson =   b.getString("messageJson");
+                            String oldMessageKey = b.getString("oldMessageKey");
+                            if(messageObject == null) {
+                                messageObject = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
+                            }
+                            progressHandler.onSent(messageObject, oldMessageKey);
                         }
                     }
                     break;

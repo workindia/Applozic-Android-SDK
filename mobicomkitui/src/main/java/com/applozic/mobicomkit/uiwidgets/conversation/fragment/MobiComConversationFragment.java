@@ -1106,11 +1106,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             @Override
-            public void onSent(Message message) {
-
-            }
-
-            @Override
             public void onSent(Message message, String oldMessageKey) {
                 Message messageToBeReplied = new Message();
                 messageToBeReplied.setKeyString(oldMessageKey);

@@ -16,8 +16,6 @@ public interface MediaUploadProgressHandler {
 
     void onCompleted(ApplozicException e);
 
-    void onSent(Message message);
-
     void onSent(Message message, String oldMessageKey);
 
 
