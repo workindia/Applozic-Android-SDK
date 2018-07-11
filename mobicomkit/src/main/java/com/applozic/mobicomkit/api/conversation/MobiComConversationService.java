@@ -595,9 +595,9 @@ public class MobiComConversationService {
                     if (bundle != null) {
                         if (progressHandler != null) {
 
-                            Message messageObject =  messageDatabaseService.getMessage(bundle.getString("message"));
-                            String messageJson =   bundle.getString("messageJson");
-                            String oldMessageKey = bundle.getString("oldMessageKey");
+                            Message messageObject =  messageDatabaseService.getMessage(bundle.getString(MobiComKitConstants.MESSAGE_INTENT_EXTRA));
+                            String messageJson =   bundle.getString(MobiComKitConstants.MESSAGE_JSON_INTENT_EXTRA);
+                            String oldMessageKey = bundle.getString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA);
                             if(messageObject == null) {
                                 messageObject = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
                             }

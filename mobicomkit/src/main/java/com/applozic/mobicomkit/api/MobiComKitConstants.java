@@ -36,5 +36,7 @@ public class MobiComKitConstants {
     public static final String PUSH_NOTIFICATION_DISPATCHER = "PUSH_NOTIFICATION_DISPATCHER";
     public static final String PUSH_NOTIFICATION_NAME = "Push Notification";
 
-
+    public static final String MESSAGE_JSON_INTENT_EXTRA = "messageJson";
+    public static final String MESSAGE_INTENT_EXTRA = "message";
+    public static final String OLD_MESSAGE_KEY_INTENT_EXTRA = "oldMessageKey";
 }

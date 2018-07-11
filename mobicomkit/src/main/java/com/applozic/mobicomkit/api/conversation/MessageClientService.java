@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -480,10 +481,10 @@ public class MessageClientService extends MobiComKitClientService {
                 if (handler != null) {
                     android.os.Message msg = handler.obtainMessage();
                     msg.what = MobiComConversationService.MESSAGE_SENT;
-                    msg.getData().putString("message", message.getKeyString());
+                    msg.getData().putString(MobiComKitConstants.MESSAGE_INTENT_EXTRA, message.getKeyString());
                     String messageJson =    GsonUtils.getJsonFromObject(message,Message.class);
-                    msg.getData().putString("messageJson", messageJson);
-                    msg.getData().putString("oldMessageKey", oldMessageKey);
+                    msg.getData().putString(MobiComKitConstants.MESSAGE_JSON_INTENT_EXTRA, messageJson);
+                    msg.getData().putString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA, oldMessageKey);
                     msg.sendToTarget();
                 }
             }
