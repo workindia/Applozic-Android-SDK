@@ -1860,31 +1860,28 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
 
-        if (userNotAbleToChatLayout != null && individualMessageSendLayout != null) {
-            userNotAbleToChatLayout.setVisibility(withUserContact.isDeleted() ? VISIBLE : View.GONE);
-            individualMessageSendLayout.setVisibility(withUserContact.isDeleted() ? View.GONE : VISIBLE);
-            bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
-        }
-
-        if (menu != null) {
-            menu.findItem(R.id.userBlock).setVisible(alCustomizationSettings.isBlockOption() ? !withUserContact.isDeleted() && !withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
-            menu.findItem(R.id.userUnBlock).setVisible(alCustomizationSettings.isBlockOption() ? !withUserContact.isDeleted() && withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
-            menu.findItem(R.id.refresh).setVisible(alCustomizationSettings.isRefreshOption() ? !withUserContact.isDeleted() : alCustomizationSettings.isRefreshOption());
-
-        }
-
-        if (withUserContact.isBlocked() || withUserContact.isBlockedBy() || withUserContact.isDeleted()) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
-            return;
-        }
-
         if (this.getActivity() == null) {
             return;
         }
-
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (userNotAbleToChatLayout != null && individualMessageSendLayout != null) {
+                    userNotAbleToChatLayout.setVisibility(withUserContact.isDeleted() ? VISIBLE : View.GONE);
+                    individualMessageSendLayout.setVisibility(withUserContact.isDeleted() ? View.GONE : VISIBLE);
+                    bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
+                }
+
+                if (menu != null) {
+                    menu.findItem(R.id.userBlock).setVisible(alCustomizationSettings.isBlockOption() ? !withUserContact.isDeleted() && !withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
+                    menu.findItem(R.id.userUnBlock).setVisible(alCustomizationSettings.isBlockOption() ? !withUserContact.isDeleted() && withUserContact.isBlocked() : alCustomizationSettings.isBlockOption());
+                    menu.findItem(R.id.refresh).setVisible(alCustomizationSettings.isRefreshOption() ? !withUserContact.isDeleted() : alCustomizationSettings.isRefreshOption());
+                }
+
+                if (withUserContact.isBlocked() || withUserContact.isBlockedBy() || withUserContact.isDeleted()) {
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+                    return;
+                }
                 if (withUserContact != null) {
                     if (withUserContact.isConnected()) {
                         typingStarted = false;
@@ -3068,20 +3065,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            if (contact != null) {
-                if (contact.isDeleted()) {
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                } else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (appContactService != null && contact != null) {
+                            updateLastSeenStatus();
+                        }
+                    }catch(Exception e){
+
+                    }
                 }
-                contact = appContactService.getContactById(contact.getContactIds());
-                if (contact.isBlocked() || contact.isBlockedBy()) {
-                    ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
-                } else {
-                    updateLastSeenStatus();
-                }
-            }
+            });
+            thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
 
             if (SyncCallService.refreshView) {
                 SyncCallService.refreshView = false;
