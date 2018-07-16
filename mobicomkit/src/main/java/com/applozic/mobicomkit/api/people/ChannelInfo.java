@@ -128,8 +128,39 @@ public class ChannelInfo extends JsonMarker {
             metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, channelMetadata.getDeletedGroupMessage());
             metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, channelMetadata.getRemoveMemberMessage());
             metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, channelMetadata.getHideMetaDataNotification() + "");
+            metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, channelMetadata.getAlertMetaDataNotfication()+"");
             metadata.put(ChannelMetadata.MUTE, channelMetadata.isDefaultMute() + "");
         }
+    }
+
+    public void setMetadataToHideNotification(){
+        if (metadata == null) {
+            metadata = new HashMap<String, String>();
+        }
+        metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, "");
+        metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_ICON_CHANGE_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_LEFT_MESSAGE, "");
+        metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, "");
+        metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, true + "");
+    }
+
+    public void setMetadataToDisableAlertNotification(){
+        if (metadata == null) {
+            metadata = new HashMap<String, String>();
+        }
+        metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, "");
+        metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_ICON_CHANGE_MESSAGE, "");
+        metadata.put(ChannelMetadata.GROUP_LEFT_MESSAGE, "");
+        metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, "");
+        metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, "");
+        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, false+"");
     }
 
     public Map<String, String> getMetadata() {
