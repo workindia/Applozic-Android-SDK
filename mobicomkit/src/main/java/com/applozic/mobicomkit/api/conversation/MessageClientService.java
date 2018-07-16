@@ -3,10 +3,10 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
-
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
@@ -300,7 +300,6 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void processMessage(Message message, Handler handler) throws Exception {
-
         boolean isBroadcast = (message.getMessageId() == null);
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
@@ -324,8 +323,10 @@ public class MessageClientService extends MobiComKitClientService {
 
         List<String> fileKeys = new ArrayList<String>();
         String keyString = null;
+        String oldMessageKey = null;
         if (!isBroadcastOneByOneGroupType) {
             keyString = UUID.randomUUID().toString();
+            oldMessageKey = keyString;
             message.setKeyString(keyString);
             message.setSentToServer(false);
         } else {
@@ -480,7 +481,10 @@ public class MessageClientService extends MobiComKitClientService {
                 if (handler != null) {
                     android.os.Message msg = handler.obtainMessage();
                     msg.what = MobiComConversationService.MESSAGE_SENT;
-                    msg.getData().putString("message", message.getKeyString());
+                    msg.getData().putString(MobiComKitConstants.MESSAGE_INTENT_EXTRA, message.getKeyString());
+                    String messageJson =    GsonUtils.getJsonFromObject(message,Message.class);
+                    msg.getData().putString(MobiComKitConstants.MESSAGE_JSON_INTENT_EXTRA, messageJson);
+                    msg.getData().putString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA, oldMessageKey);
                     msg.sendToTarget();
                 }
             }

@@ -337,7 +337,17 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     }
                     Configuration config = context.getResources().getConfiguration();
                     if (message.getMetadata() != null && !message.getMetadata().isEmpty() && message.getMetadata().containsKey(Message.MetaDataType.AL_REPLY.getValue())) {
-                        final Message msg = messageDatabaseService.getMessage(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+                        String keyString = message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue());
+
+                        Message messageToBeReplied = new Message();
+                        messageToBeReplied.setKeyString(keyString);
+                        int indexOfObject =   messageList.indexOf(messageToBeReplied);
+                        if(indexOfObject != -1){
+                            messageToBeReplied = messageList.get(indexOfObject);
+                        }else{
+                            messageToBeReplied = messageDatabaseService.getMessage(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+                        }
+                        final Message msg = messageToBeReplied;
                         if (msg != null) {
                             String displayName;
 
@@ -1513,7 +1523,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || (message.hasAttachment() && !message.isAttachmentDownloaded()) || channel != null && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey()) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted() || channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted() )) {
                     continue;
                 }
 

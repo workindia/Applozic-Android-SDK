@@ -82,6 +82,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -99,8 +100,10 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
@@ -1070,6 +1073,56 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
+    public void sendOpenGroupMessage(String messageText){
+
+        attachReplyCancelLayout.setVisibility(View.GONE);
+        replayRelativeLayout.setVisibility(View.GONE);
+
+        Map<String, String> messageMetaData = new HashMap<>();
+        if (this.messageMetaData != null && !this.messageMetaData.isEmpty()) {
+            messageMetaData.putAll(this.messageMetaData);
+        }
+
+
+        new MessageBuilder(getActivity()).setMessage(messageText).setMetadata(messageMetaData).setGroupId(channel.getKey()).send(new MediaUploadProgressHandler() {
+            @Override
+            public void onUploadStarted(ApplozicException e) {
+
+            }
+
+            @Override
+            public void onProgressUpdate(int percentage, ApplozicException e) {
+
+            }
+
+            @Override
+            public void onCancelled(ApplozicException e) {
+
+            }
+
+            @Override
+            public void onCompleted(ApplozicException e) {
+
+            }
+
+            @Override
+            public void onSent(Message message, String oldMessageKey) {
+                Message messageToBeReplied = new Message();
+                messageToBeReplied.setKeyString(oldMessageKey);
+                int indexOfObject =   messageList.indexOf(messageToBeReplied);
+                if(indexOfObject != -1){
+                    messageList.set(indexOfObject, message);
+                    recyclerDetailConversationAdapter.notifyDataSetChanged();
+                }
+
+            }
+        });
+
+        this.messageMetaData = null;
+    }
+
+
+
     protected void processSendMessage() {
         if (!TextUtils.isEmpty(messageEditText.getText().toString().trim()) || !TextUtils.isEmpty(filePath)) {
             String inputMessage = messageEditText.getText().toString();
@@ -1080,7 +1133,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (disjointResult) {
 
-                sendMessage(messageEditText.getText().toString().trim());
+                if(channel!=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())){
+                    sendOpenGroupMessage(messageEditText.getText().toString().trim());
+                }else {
+                    sendMessage(messageEditText.getText().toString().trim());
+                }
                 messageEditText.setText("");
                 scheduleOption.setText(R.string.ScheduleText);
                 if (scheduledTimeHolder.getTimestamp() != null) {
@@ -1648,7 +1705,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageMetaData.put(Message.MetaDataType.AL_REPLY.getValue(), message.getKeyString());
                     if (messageMetaData != null && !messageMetaData.isEmpty()) {
                         String replyMessageKey = messageMetaData.get(Message.MetaDataType.AL_REPLY.getValue());
-                        if (!TextUtils.isEmpty(replyMessageKey)) {
+                        if (!TextUtils.isEmpty(replyMessageKey) && (contact != null || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                             messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE.getValue());
                         }
                     }
@@ -2584,8 +2641,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                         }
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
-                        if (createdAtTime != null && messageListItem.getKeyString() != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && !messageListItem.isChannelCustomMessage() && messageListItem.getScheduledAt() == null) {
-                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
+                        if (createdAtTime != null && messageListItem.getKeyString() != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && !messageListItem.isChannelCustomMessage() && messageListItem.getScheduledAt() == null
+                                && (!(channel!=null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || contact != null)){
+                                    createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
                         }
                     }
                 }
