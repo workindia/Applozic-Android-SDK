@@ -103,7 +103,7 @@ public class ChannelMetadata extends JsonMarker {
         this.deletedGroupMessage = deletedGroupMessage;
     }
 
-    public boolean getHideMetaDataNotification() {
+    public boolean isHideMetaDataNotification() {
         return hideMetaDataNotification;
     }
 
@@ -111,7 +111,7 @@ public class ChannelMetadata extends JsonMarker {
         this.hideMetaDataNotification = hideMetaDataNotification;
     }
 
-    public boolean getAlertMetaDataNotfication() {
+    public boolean isAlertMetaDataNotfication() {
         return alertMetaDataNotfication;
     }
 
@@ -137,8 +137,8 @@ public class ChannelMetadata extends JsonMarker {
         metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, this.getJoinMemberMessage());
         metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, this.getDeletedGroupMessage());
         metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, this.getRemoveMemberMessage());
-        metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.getHideMetaDataNotification() + "");
-        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.getAlertMetaDataNotfication()+"");
+        metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.isHideMetaDataNotification() + "");
+        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.isAlertMetaDataNotfication()+"");
         metadata.put(ChannelMetadata.MUTE, this.isDefaultMute()+"");
         return metadata;
     }
