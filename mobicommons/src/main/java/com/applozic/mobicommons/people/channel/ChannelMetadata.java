@@ -2,6 +2,9 @@ package com.applozic.mobicommons.people.channel;
 
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by sunil on 3/9/16.
  */
@@ -123,4 +126,21 @@ public class ChannelMetadata extends JsonMarker {
     public void setDefaultMute(boolean defaultMute) {
         this.defaultMute = defaultMute;
     }
+
+    public Map<String,String> getMetadata() {
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, this.getCreateGroupMessage());
+        metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, this.getAddMemberMessage());
+        metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, this.getGroupNameChangeMessage());
+        metadata.put(ChannelMetadata.GROUP_ICON_CHANGE_MESSAGE, this.getGroupIconChangeMessage());
+        metadata.put(ChannelMetadata.GROUP_LEFT_MESSAGE, this.getGroupLeftMessage());
+        metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, this.getJoinMemberMessage());
+        metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, this.getDeletedGroupMessage());
+        metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, this.getRemoveMemberMessage());
+        metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.getHideMetaDataNotification() + "");
+        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.getAlertMetaDataNotfication()+"");
+        metadata.put(ChannelMetadata.MUTE, this.isDefaultMute()+"");
+        return metadata;
+    }
+
 }
