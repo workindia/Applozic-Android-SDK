@@ -129,6 +129,9 @@ public class ChannelInfo extends JsonMarker {
             metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, channelMetadata.getRemoveMemberMessage());
             metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, channelMetadata.getHideMetaDataNotification() + "");
             metadata.put(ChannelMetadata.MUTE, channelMetadata.isDefaultMute() + "");
+            if(channelMetadata.isContextBasedChat()) {
+                metadata.put(ChannelMetadata.AL_CONTEXT_BASED_CHAT, channelMetadata.isContextBasedChat() + "");
+            }
         }
     }
 

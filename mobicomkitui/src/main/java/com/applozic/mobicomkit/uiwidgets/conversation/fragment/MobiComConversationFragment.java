@@ -3235,7 +3235,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (channel != null) {
             Channel channelInfo = ChannelService.getInstance(getActivity()).getChannelInfo(channel.getKey());
 
-            if ((Channel.GroupType.GROUPOFTWO.getValue().equals(channelInfo.getType())) && (channelInfo.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue()))) {
+            if ((Channel.GroupType.GROUPOFTWO.getValue().equals(channelInfo.getType())) && channel.isContextBasedChat()) {
                 Conversation conversation = new Conversation();
                 TopicDetail topic = new TopicDetail();
                 topic.setTitle(channelInfo.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
@@ -3883,7 +3883,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 conversationList = conversations;
             }
             if (channel != null && channel.getMetadata() != null && !channel.getMetadata().isEmpty()) {
-                if (channel.getMetadata().containsKey(Channel.GroupMetaDataType.TITLE.getValue())) {
+                if (channel.isContextBasedChat()) {
                     Conversation conversation = new Conversation();
                     TopicDetail topic = new TopicDetail();
                     topic.setTitle(channel.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
