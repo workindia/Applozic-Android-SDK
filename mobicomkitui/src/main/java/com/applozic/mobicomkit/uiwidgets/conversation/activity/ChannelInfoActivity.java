@@ -196,6 +196,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (Channel.GroupType.BROADCAST.getValue().equals(channel.getType())) {
                 deleteChannelButton.setText(R.string.broadcast_delete_button);
                 exitChannelButton.setText(R.string.broadcast_exit_button);
+                channelExitRelativeLayout.setVisibility(View.GONE);
+                channelDeleteRelativeLayout.setVisibility(View.VISIBLE);
             } else {
                 deleteChannelButton.setText(R.string.channel_delete_group_button);
                 exitChannelButton.setText(R.string.channel_exit_button);
@@ -406,7 +408,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             if (menuItems[i].equals(getString(R.string.remove_member)) && (isHideRemove || !isUserPresent || !ChannelUtils.isAdminUserId(userPreference.getUserId(), channel) && loggedInUserMapper != null && Integer.valueOf(0).equals(loggedInUserMapper.getRole()) || loggedInUserMapper != null && ChannelUserMapper.UserRole.MEMBER.getValue().equals(loggedInUserMapper.getRole()))) {
                 continue;
             }
-            if (menuItems[i].equals(getString(R.string.make_admin_text_info)) && (!isUserPresent || ChannelUserMapper.UserRole.ADMIN.getValue().equals(channelUserMapper.getRole()))) {
+            if (menuItems[i].equals(getString(R.string.make_admin_text_info)) && (!isUserPresent || ChannelUserMapper.UserRole.ADMIN.getValue().equals(channelUserMapper.getRole()) || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
                 continue;
             }
             if (menuItems[i].equals(getString(R.string.make_admin_text_info))) {

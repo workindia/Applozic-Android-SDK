@@ -488,7 +488,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup)) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
                     continue;
                 }
 
