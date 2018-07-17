@@ -225,7 +225,7 @@ public class Channel extends JsonMarker {
 
     public boolean isContextBasedChat(){
         return (this.metadata != null && this.metadata.containsKey(ChannelMetadata.AL_CONTEXT_BASED_CHAT)
-                && this.metadata.get(ChannelMetadata.AL_CONTEXT_BASED_CHAT).equals("true"));
+                && "true".equals(this.metadata.get(ChannelMetadata.AL_CONTEXT_BASED_CHAT)));
     }
 
     public enum GroupType {
