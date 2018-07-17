@@ -3072,7 +3072,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if (appContactService != null && contact != null) {
                             updateLastSeenStatus();
                         }
-                    }catch(Exception e){
+                    } catch (Exception e) {
 
                     }
                 }

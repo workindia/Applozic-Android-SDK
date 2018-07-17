@@ -409,7 +409,7 @@ public class NotificationService {
             return getTextFromIndex(((AlConstantsHandler) context.getApplicationContext()).getNotificationTexts(), index);
         }
 
-        return constArray[0];
+        return constArray[index];
     }
 
     public String getTextFromIndex(String[] texts, int index) {
