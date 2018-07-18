@@ -2,6 +2,9 @@ package com.applozic.mobicommons.people.channel;
 
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by sunil on 3/9/16.
  */
@@ -16,6 +19,7 @@ public class ChannelMetadata extends JsonMarker {
     public final static String GROUP_LEFT_MESSAGE = "GROUP_LEFT_MESSAGE";
     public final static String DELETED_GROUP_MESSAGE = "DELETED_GROUP_MESSAGE";
     public final static String HIDE_METADATA_NOTIFICATION = "HIDE";
+    public final static String ALERT_METADATA_NOTIFICATION = "ALERT";
     public final static String MUTE = "MUTE";
     public final static String AL_CONTEXT_BASED_CHAT = "AL_CONTEXT_BASED_CHAT";
 
@@ -32,6 +36,7 @@ public class ChannelMetadata extends JsonMarker {
     private String groupLeftMessage;
     private String deletedGroupMessage;
     private boolean hideMetaDataNotification;
+    private boolean alertMetaDataNotfication;
     private boolean defaultMute;
     private boolean contextBasedChat;
 
@@ -99,12 +104,40 @@ public class ChannelMetadata extends JsonMarker {
         this.deletedGroupMessage = deletedGroupMessage;
     }
 
-    public boolean getHideMetaDataNotification() {
+    public boolean isHideMetaDataNotification() {
         return hideMetaDataNotification;
     }
 
     public void setHideMetaDataNotification(boolean hideMetaDataNotification) {
         this.hideMetaDataNotification = hideMetaDataNotification;
+    }
+
+    private void buildEmptyMetadata(){
+        this.createGroupMessage = "";
+        this.removeMemberMessage = "";
+        this.addMemberMessage = "";
+        this.JoinMemberMessage = "";
+        this.groupIconChangeMessage = "";
+        this.groupNameChangeMessage = "";
+        this.groupLeftMessage = "";
+        this.deletedGroupMessage = "";
+    }
+
+    public void hideAllMetadataMessages(){
+        buildEmptyMetadata();
+        this.hideMetaDataNotification = true;
+        this.alertMetaDataNotfication = false;
+    }
+
+    public boolean isAlertMetaDataNotfication() {
+        return alertMetaDataNotfication;
+    }
+
+    public void setAlertMetaDataNotfication(boolean alertMetaDataNotfication) {
+        if(!alertMetaDataNotfication) {
+            buildEmptyMetadata();
+        }
+        this.alertMetaDataNotfication = alertMetaDataNotfication;
     }
 
     public boolean isDefaultMute() {
@@ -115,6 +148,22 @@ public class ChannelMetadata extends JsonMarker {
         this.defaultMute = defaultMute;
     }
 
+    public Map<String,String> getMetadata() {
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, this.getCreateGroupMessage());
+        metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, this.getAddMemberMessage());
+        metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, this.getGroupNameChangeMessage());
+        metadata.put(ChannelMetadata.GROUP_ICON_CHANGE_MESSAGE, this.getGroupIconChangeMessage());
+        metadata.put(ChannelMetadata.GROUP_LEFT_MESSAGE, this.getGroupLeftMessage());
+        metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, this.getJoinMemberMessage());
+        metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, this.getDeletedGroupMessage());
+        metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, this.getRemoveMemberMessage());
+        metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.isHideMetaDataNotification() + "");
+        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.isAlertMetaDataNotfication()+"");
+        metadata.put(ChannelMetadata.MUTE, this.isDefaultMute()+"");
+        return metadata;
+    }
+  
     public boolean isContextBasedChat() {
         return contextBasedChat;
     }

@@ -26,14 +26,18 @@ public class ChannelInfo extends JsonMarker {
     private String parentClientGroupId;
     private ChannelMetadata channelMetadata;
 
+    public ChannelInfo() {
+        this.metadata = new HashMap<>();
+    }
+
     public ChannelInfo(String groupName, List<String> groupMemberList) {
+        this();
         this.groupName = groupName;
         this.groupMemberList = groupMemberList;
     }
 
     public ChannelInfo(String groupName, List<String> groupMemberList, String imageLink) {
-        this.groupName = groupName;
-        this.groupMemberList = groupMemberList;
+        this(groupName, groupMemberList);
         this.imageUrl = imageLink;
     }
 
@@ -113,26 +117,9 @@ public class ChannelInfo extends JsonMarker {
         this.parentClientGroupId = parentClientGroupId;
     }
 
-    public void setChannelMetadata(ChannelMetadata channelMetadata) {
+    public void setChannelMetadata(ChannelMetadata channelMetadata){
         this.channelMetadata = channelMetadata;
-        if (channelMetadata != null) {
-            if (metadata == null) {
-                metadata = new HashMap<String, String>();
-            }
-            metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, channelMetadata.getCreateGroupMessage());
-            metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, channelMetadata.getAddMemberMessage());
-            metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, channelMetadata.getGroupNameChangeMessage());
-            metadata.put(ChannelMetadata.GROUP_ICON_CHANGE_MESSAGE, channelMetadata.getGroupIconChangeMessage());
-            metadata.put(ChannelMetadata.GROUP_LEFT_MESSAGE, channelMetadata.getGroupLeftMessage());
-            metadata.put(ChannelMetadata.JOIN_MEMBER_MESSAGE, channelMetadata.getJoinMemberMessage());
-            metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, channelMetadata.getDeletedGroupMessage());
-            metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, channelMetadata.getRemoveMemberMessage());
-            metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, channelMetadata.getHideMetaDataNotification() + "");
-            metadata.put(ChannelMetadata.MUTE, channelMetadata.isDefaultMute() + "");
-            if(channelMetadata.isContextBasedChat()) {
-                metadata.put(ChannelMetadata.AL_CONTEXT_BASED_CHAT, channelMetadata.isContextBasedChat() + "");
-            }
-        }
+        this.metadata = channelMetadata.getMetadata();
     }
 
     public Map<String, String> getMetadata() {
