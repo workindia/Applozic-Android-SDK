@@ -26,9 +26,6 @@ public class ChannelInfo extends JsonMarker {
     private String parentClientGroupId;
     private ChannelMetadata channelMetadata;
 
-    private boolean hideMetadataNotification;
-    private boolean alertMetadataNotification;
-
     public ChannelInfo() {
         this.metadata = new HashMap<>();
     }
@@ -118,24 +115,6 @@ public class ChannelInfo extends JsonMarker {
 
     public void setParentClientGroupId(String parentClientGroupId) {
         this.parentClientGroupId = parentClientGroupId;
-    }
-
-    public boolean isHideMetadataNotification() {
-        return hideMetadataNotification;
-    }
-
-    public void setHideMetadataNotification(boolean hideMetadataNotification) {
-        this.hideMetadataNotification = hideMetadataNotification;
-        this.metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, String.valueOf(hideMetadataNotification));
-    }
-
-    public boolean isAlertMetadataNotification() {
-        return alertMetadataNotification;
-    }
-
-    public void setAlertMetadataNotification(boolean alertMetadataNotification) {
-        this.alertMetadataNotification = alertMetadataNotification;
-        this.metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, String.valueOf(alertMetadataNotification));
     }
 
     public void setChannelMetadata(ChannelMetadata channelMetadata){

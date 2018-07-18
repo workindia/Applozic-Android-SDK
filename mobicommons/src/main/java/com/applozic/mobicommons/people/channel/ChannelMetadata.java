@@ -111,11 +111,30 @@ public class ChannelMetadata extends JsonMarker {
         this.hideMetaDataNotification = hideMetaDataNotification;
     }
 
+    private void buildEmptyMetadata(){
+        this.createGroupMessage = "";
+        this.removeMemberMessage = "";
+        this.addMemberMessage = "";
+        this.JoinMemberMessage = "";
+        this.groupIconChangeMessage = "";
+        this.groupNameChangeMessage = "";
+        this.groupLeftMessage = "";
+        this.deletedGroupMessage = "";
+    }
+
+    public void hideAllMetadataMessages(){
+        buildEmptyMetadata();
+        this.hideMetaDataNotification = true;
+        this.alertMetaDataNotfication = false;
+    }
+
     public boolean isAlertMetaDataNotfication() {
         return alertMetaDataNotfication;
     }
 
     public void setAlertMetaDataNotfication(boolean alertMetaDataNotfication) {
+        if(!alertMetaDataNotfication)
+            buildEmptyMetadata();
         this.alertMetaDataNotfication = alertMetaDataNotfication;
     }
 
