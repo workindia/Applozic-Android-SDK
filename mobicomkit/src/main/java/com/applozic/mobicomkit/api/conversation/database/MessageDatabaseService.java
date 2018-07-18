@@ -142,8 +142,8 @@ public class MessageDatabaseService {
                             messageList.add(message);
                         }
                     } else {
-                        messageList.add(message);
-                    }
+                            messageList.add(message);
+                        }
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -613,38 +613,47 @@ public class MessageDatabaseService {
     }
 
     public int updateMessageDeliveryReportForContact(String contactId, boolean markRead) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        String whereClause = "contactNumbers= '" + contactId + "' and ";
-        values.put("delivered", "1");
-        if (markRead) {
-            whereClause = whereClause + "status not in (5)";
-            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
-        } else {
-            whereClause = whereClause + "status not in (4,5)";
-            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        try {
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            String whereClause = "contactNumbers= '" + contactId + "' and ";
+            values.put("delivered", "1");
+            if (markRead) {
+                whereClause = whereClause + "status not in (5)";
+                values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+            } else {
+                whereClause = whereClause + "status not in (4,5)";
+                values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+            }
+            whereClause = whereClause + " and type=5 ";
+            int rows = database.update("sms", values, whereClause, null);
+            dbHelper.close();
+            return rows;
+        } catch (Throwable t) {
+
         }
-        whereClause = whereClause + " and type=5 ";
-        int rows = database.update("sms", values, whereClause, null);
-        dbHelper.close();
-        return rows;
+        return 0;
     }
 
     public void updateMessageDeliveryReportForContact(String messageKeyString, String contactNumber, boolean markRead) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        if (markRead) {
-            values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
-        } else {
-            values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+        try {
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            if (markRead) {
+                values.put("status", String.valueOf(Message.Status.DELIVERED_AND_READ.getValue()));
+            } else {
+                values.put("status", String.valueOf(Message.Status.DELIVERED.getValue()));
+            }
+            values.put("delivered", "1");
+            if (TextUtils.isEmpty(contactNumber)) {
+                database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);
+            } else {
+                database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "' and type = 5", null);
+            }
+            dbHelper.close();
+        } catch (Throwable t) {
+
         }
-        values.put("delivered", "1");
-        if (TextUtils.isEmpty(contactNumber)) {
-            database.update("sms", values, "keyString='" + messageKeyString + "' and type = 5", null);
-        } else {
-            database.update("sms", values, "keyString='" + messageKeyString + "' and contactNumbers='" + contactNumber + "' and type = 5", null);
-        }
-        dbHelper.close();
     }
 
     public void updateMessageSyncStatus(Message message, String keyString) {
@@ -1007,7 +1016,6 @@ public class MessageDatabaseService {
                     + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) ";
 
             if (!TextUtils.isEmpty(categoryName)) {
-
                 rowQuery = rowQuery + categoryClause;
             }
 

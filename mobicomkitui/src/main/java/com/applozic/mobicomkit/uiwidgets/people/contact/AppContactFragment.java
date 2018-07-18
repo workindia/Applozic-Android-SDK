@@ -108,6 +108,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private MobiComUserPreference userPreference;
     private ContactDatabase contactDatabase;
     private boolean isDeviceContactSync;
+    View footerView;
     static int CONSTANT_TIME = 60 * 1000;
 
     /**
@@ -197,7 +198,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 @Override
                 public void onFailure(Context context, String response, Exception e) {
                     progressBar.dismiss();
-                    Toast.makeText(getContext(), "Failed to load contacts : Response : " + response + "\nException : " + e, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.failed_to_load_contact + response + "\nException : " + e, Toast.LENGTH_SHORT).show();
                 }
             };
 
@@ -218,6 +219,10 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         shareButton = (Button) view.findViewById(R.id.actionButton);
         shareButton.setVisibility(alCustomizationSettings.isInviteFriendsInContactActivity() ? View.VISIBLE : View.GONE);
         resultTextView = (TextView) view.findViewById(R.id.result);
+        footerView = inflater.inflate(R.layout.mobicom_message_list_header_footer, null, false);
+        if(footerView != null){
+            footerView.setVisibility(View.GONE);
+        }
         return view;
     }
 
@@ -254,10 +259,12 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 openInvite();
             }
         });
-
         setListAdapter(mAdapter);
         getListView().setOnItemClickListener(this);
         getListView().setFastScrollEnabled(true);
+        if (footerView != null) {
+            getListView().addFooterView(footerView);
+        }
         getListView().setOnScrollListener(new EndlessScrollListener());
 
         // If there's a previously selected search item from a saved state then don't bother
@@ -430,7 +437,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         if (isDeviceContactSync) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, userIdArray, alCustomizationSettings != null && alCustomizationSettings.isShowAllDeviceContacts());
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 
@@ -453,15 +460,14 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     }
 
     public void processLoadRegisteredUsers() {
-
-        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
-                getActivity().getString(R.string.applozic_contacts_loading_info), true);
-
+        if (footerView != null) {
+            footerView.setVisibility(View.VISIBLE);
+        }
         RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
             @Override
             public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
+                if (footerView != null) {
+                    footerView.setVisibility(View.GONE);
                 }
                 try {
                     if (registeredUsersApiResponse != null) {
@@ -476,8 +482,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
             @Override
             public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
+                if (footerView != null) {
+                    footerView.setVisibility(View.GONE);
                 }
                 String error = getString(Utils.isInternetAvailable(getActivity()) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
                 Toast toast = Toast.makeText(getActivity(), error, Toast.LENGTH_LONG);
@@ -801,6 +807,13 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
                 }
             }
+        }
+    }
+
+    public void restartLoader() {
+        if (getLoaderManager() != null) {
+            getLoaderManager().restartLoader(
+                    ContactsQuery.QUERY_ID, null, AppContactFragment.this);
         }
     }
 

@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.account.user.AlUserSearchTask;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
@@ -261,9 +262,9 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                     if (FileUtils.isContentScheme(fileUri)) {
                         String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
                         if (TextUtils.isEmpty(mimeType)) {
-                             this.finish();
-                        }else{
-                            new ShareAsyncTask(this, fileUri, null, channel,mimeType).execute();
+                            this.finish();
+                        } else {
+                            new ShareAsyncTask(this, fileUri, null, channel, mimeType).execute();
                         }
                     } else {
                         Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
@@ -311,8 +312,8 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                     String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
                     if (TextUtils.isEmpty(mimeType)) {
                         this.finish();
-                    }else{
-                        new ShareAsyncTask(this, fileUri, contact, null,mimeType).execute();
+                    } else {
+                        new ShareAsyncTask(this, fileUri, contact, null, mimeType).execute();
                     }
 
                 } else {
@@ -392,6 +393,11 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             startNewConversation(query);
             isSearching = false;
         }
+
+        if (alCustomizationSettings.isContactSearchFromServer()) {
+            processSearchCall(query);
+        }
+
         return false;
     }
 
@@ -407,6 +413,33 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             }
         }
         return true;
+    }
+
+    public void processSearchCall(String query) {
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
+        dialog.setMessage(getResources().getString(R.string.applozic_contacts_loading_info));
+        dialog.show();
+
+        new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
+            @Override
+            public void onSuccess(List<Contact> contacts, Context context) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                if (!contacts.isEmpty() && appContactFragment != null) {
+                    appContactFragment.restartLoader();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, Context context) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                Toast.makeText(context, R.string.applozic_server_error, Toast.LENGTH_SHORT).show();
+            }
+        }).execute();
     }
 
     public SearchListFragment getSearchListFragment() {
@@ -504,7 +537,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         Channel channel;
         String mimeType;
 
-        public ShareAsyncTask(Context context, Uri uri, Contact contact, Channel channel,String mimType) {
+        public ShareAsyncTask(Context context, Uri uri, Contact contact, Channel channel, String mimType) {
             this.contextWeakReference = new WeakReference<Context>(context);
             this.uri = uri;
             this.contact = contact;
@@ -520,20 +553,20 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                 Context context = contextWeakReference.get();
                 if (context != null && !TextUtils.isEmpty(mimeType)) {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                    String array[]= mimeType.split("/");
+                    String array[] = mimeType.split("/");
                     String fileFormat = null;
-                        if(array.length>1){
-                            fileFormat =  array[1];
-                        }
+                    if (array.length > 1) {
+                        fileFormat = array[1];
+                    }
 
-                        if (TextUtils.isEmpty(fileFormat)) {
-                            return null;
-                        }
+                    if (TextUtils.isEmpty(fileFormat)) {
+                        return null;
+                    }
 
-                        String fileNameToWrite = timeStamp + "." + fileFormat;
-                        File mediaFile = FileClientService.getFilePath(fileNameToWrite, context, mimeType);
-                        fileClientService.writeFile(uri, mediaFile);
-                        return mediaFile;
+                    String fileNameToWrite = timeStamp + "." + fileFormat;
+                    File mediaFile = FileClientService.getFilePath(fileNameToWrite, context, mimeType);
+                    fileClientService.writeFile(uri, mediaFile);
+                    return mediaFile;
                 }
             }
             return null;

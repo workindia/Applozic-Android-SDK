@@ -169,7 +169,7 @@ public class AlMessageProperties {
      * @return Formatted time as String.
      */
     public String getCreatedAtTime() {
-        return DateUtils.getFormattedDateAndTime(message.getCreatedAtTime());
+        return DateUtils.getFormattedDateAndTime(context, message.getCreatedAtTime(), R.string.JUST_NOW, R.plurals.MINUTES, R.plurals.HOURS);
     }
 
     /**

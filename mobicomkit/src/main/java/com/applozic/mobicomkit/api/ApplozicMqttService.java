@@ -399,6 +399,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                     }
                 });
+                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 thread.start();
             }
 

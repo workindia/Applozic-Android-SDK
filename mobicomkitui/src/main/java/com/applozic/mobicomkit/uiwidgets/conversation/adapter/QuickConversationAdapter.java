@@ -256,7 +256,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     }
                 }
                 if (myholder.createdAtTime != null) {
-                    myholder.createdAtTime.setText(DateUtils.getFormattedDateAndTime(message.getCreatedAtTime()));
+                    myholder.createdAtTime.setText(DateUtils.getFormattedDateAndTime(context, message.getCreatedAtTime(), R.string.JUST_NOW, R.plurals.MINUTES, R.plurals.HOURS));
                 }
                 int messageUnReadCount = 0;
                 if (message.getGroupId() == null && contactReceiver != null && !TextUtils.isEmpty(contactReceiver.getContactIds())) {

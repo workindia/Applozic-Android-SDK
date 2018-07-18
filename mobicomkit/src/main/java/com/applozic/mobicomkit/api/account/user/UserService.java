@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.SyncApiResponse;
@@ -24,6 +25,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -152,6 +154,37 @@ public class UserService {
         processUser(userDetail, Contact.ContactType.APPLOZIC);
     }
 
+    public synchronized Contact getContactFromUserDetail(UserDetail userDetail) {
+        return getContactFromUserDetail(userDetail, Contact.ContactType.APPLOZIC);
+    }
+
+    public synchronized Contact getContactFromUserDetail(UserDetail userDetail, Contact.ContactType contactType) {
+        Contact contact = new Contact();
+        contact.setUserId(userDetail.getUserId());
+        contact.setContactNumber(userDetail.getPhoneNumber());
+        contact.setConnected(userDetail.isConnected());
+        contact.setStatus(userDetail.getStatusMessage());
+        if (!TextUtils.isEmpty(userDetail.getDisplayName())) {
+            contact.setFullName(userDetail.getDisplayName());
+        }
+        contact.setLastSeenAt(userDetail.getLastSeenAtTime());
+        contact.setUserTypeId(userDetail.getUserTypeId());
+        contact.setUnreadCount(0);
+        contact.setLastMessageAtTime(userDetail.getLastMessageAtTime());
+        contact.setMetadata(userDetail.getMetadata());
+        contact.setRoleType(userDetail.getRoleType());
+        contact.setDeletedAtTime(userDetail.getDeletedAtTime());
+        if (!TextUtils.isEmpty(userDetail.getImageLink())) {
+            contact.setImageURL(userDetail.getImageLink());
+        }
+        if (Applozic.getInstance(context).isDeviceContactSync()) {
+            contact.setDeviceContactType(contactType.getValue());
+        } else {
+            contact.setContactType(contactType.getValue());
+        }
+        baseContactService.upsert(contact);
+        return contact;
+    }
 
     public synchronized void processUser(UserDetail userDetail, Contact.ContactType contactType) {
         Contact contact = new Contact();
@@ -260,7 +293,7 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status,null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null);
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber) {
@@ -320,6 +353,33 @@ public class UserService {
             userPreference.setPassword(newPassword);
         }
         return response;
+    }
+
+    public List<Contact> getUserListBySearch(String searchString) throws ApplozicException {
+        try {
+            ApiResponse response = userClientService.getUsersBySearchString(searchString);
+
+            if (response == null) {
+                return null;
+            }
+
+            if (response.isSuccess()) {
+                UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(GsonUtils.getJsonFromObject(response.getResponse(), List.class), UserDetail[].class);
+                List<Contact> contactList = new ArrayList<>();
+
+                for (UserDetail userDetail : userDetails) {
+                    contactList.add(getContactFromUserDetail(userDetail));
+                }
+                return contactList;
+            } else {
+                if (response.getErrorResponse() != null && !response.getErrorResponse().isEmpty()) {
+                    throw new ApplozicException(GsonUtils.getJsonFromObject(response.getErrorResponse(), List.class));
+                }
+            }
+        } catch (Exception e) {
+            throw new ApplozicException(e.getMessage());
+        }
+        return null;
     }
 
 
