@@ -133,8 +133,9 @@ public class ChannelMetadata extends JsonMarker {
     }
 
     public void setAlertMetaDataNotfication(boolean alertMetaDataNotfication) {
-        if(!alertMetaDataNotfication)
+        if(!alertMetaDataNotfication) {
             buildEmptyMetadata();
+        }
         this.alertMetaDataNotfication = alertMetaDataNotfication;
     }
 
