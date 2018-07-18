@@ -36,6 +36,14 @@ public class ApplozicChannelMetaDataUpdateTask extends AsyncTask<Void, Void, Boo
         this.channelService = ChannelService.getInstance(context);
     }
 
+    public ApplozicChannelMetaDataUpdateTask(Context context, String clientGroupId, Map<String, String> metadata, ChannelMetaDataUpdateListener channelMetaDataUpdateListener) {
+        this.clientGroupId = clientGroupId;
+        this.metadata = metadata;
+        this.channelMetaDataUpdateListener = channelMetaDataUpdateListener;
+        this.context = context;
+        this.channelService = ChannelService.getInstance(context);
+    }
+
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
