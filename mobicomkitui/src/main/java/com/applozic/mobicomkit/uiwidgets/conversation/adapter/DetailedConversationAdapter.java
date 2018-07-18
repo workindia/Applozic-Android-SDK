@@ -1535,7 +1535,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         private final MenuItem.OnMenuItemClickListener onEditMenu = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                return contextMenuClickListener == null || contextMenuClickListener.onItemClick(getLayoutPosition(), item);
+                int position = getLayoutPosition();
+                if (position < 0 || messageList.isEmpty()) {
+                    return true;
+                }
+                return contextMenuClickListener == null || contextMenuClickListener.onItemClick(position, item);
             }
         };
     }

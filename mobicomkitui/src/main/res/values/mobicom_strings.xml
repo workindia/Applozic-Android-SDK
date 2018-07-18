@@ -192,4 +192,27 @@
     <string name="al_location_string">Location</string>
     <string name="restricted_words_are_not_allowed">Restricted words are not allowed</string>
     <string name="ok_alert">OK</string>
+
+    <string name="JUST_NOW">Just now</string>
+    <string name="YESTERDAY">Yesterday</string>
+
+    <plurals name="HOURS">
+        <item quantity="one">%d hr</item>
+        <item quantity="other">%d hrs</item>
+    </plurals>
+
+    <plurals name="MINUTES">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d mins</item>
+    </plurals>
+
+    <plurals name="MINUTES_AGO">
+        <item quantity="one">%d min ago</item>
+        <item quantity="other">%d mins ago</item>
+    </plurals>
+
+    <plurals name="HOURS_AGO">
+        <item quantity="one">%d hr ago</item>
+        <item quantity="other">%d hrs ago</item>
+    </plurals>
 </resources>

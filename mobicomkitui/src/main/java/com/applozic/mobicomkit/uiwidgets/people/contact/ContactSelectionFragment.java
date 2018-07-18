@@ -118,6 +118,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     private String[] groupContacts;
     private Bundle bundle;
     private List<String> userIdList;
+    private View footerView;
     RefreshContactsScreenBroadcast refreshContactsScreenBroadcast;
 
     @Override
@@ -240,7 +241,11 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         super.onActivityCreated(savedInstanceState);
         setListAdapter(mAdapter);
         getListView().setOnItemClickListener(this);
+        getListView().setFastScrollEnabled(true);
         getListView().setOnScrollListener(new EndlessScrollListener());
+        if(footerView != null){
+            getListView().addFooterView(footerView);
+        }
 
         // If there's a previously selected search item from a saved state then don't bother
         // initializing the loader as it will be restarted later when the query is populated into
@@ -299,14 +304,15 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     public void processDownloadRegisteredUsers() {
 
-        final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
-                getActivity().getString(R.string.applozic_contacts_loading_info), true);
+        if (footerView != null) {
+            footerView.setVisibility(View.VISIBLE);
+        }
 
         RegisteredUsersAsyncTask.TaskListener usersAsyncTaskTaskListener = new RegisteredUsersAsyncTask.TaskListener() {
             @Override
             public void onSuccess(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
+                if (footerView != null) {
+                    footerView.setVisibility(View.GONE);
                 }
                 if (registeredUsersApiResponse != null) {
                     try {
@@ -329,8 +335,8 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             @Override
             public void onFailure(RegisteredUsersApiResponse registeredUsersApiResponse, String[] userIdArray, Exception exception) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
+                if (footerView != null) {
+                    footerView.setVisibility(View.GONE);
                 }
                 String error = getString(Utils.isInternetAvailable(getActivity()) ? R.string.applozic_server_error : R.string.you_need_network_access_for_block_or_unblock);
                 Toast toast = Toast.makeText(getActivity(), error, Toast.LENGTH_LONG);
@@ -374,6 +380,10 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         Button shareButton = (Button) view.findViewById(R.id.actionButton);
         shareButton.setVisibility(alCustomizationSettings.isInviteFriendsInContactActivity() ? View.VISIBLE : View.GONE);
         TextView resultTextView = (TextView) view.findViewById(R.id.result);
+        footerView = inflater.inflate(R.layout.mobicom_message_list_header_footer, null, false);
+        if (footerView != null) {
+            footerView.setVisibility(View.GONE);
+        }
         return view;
     }
 

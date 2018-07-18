@@ -44,30 +44,13 @@ public class MessageIntentService extends JobIntentService {
     protected void onHandleWork(@NonNull Intent intent) {
         messageClientService = new MessageClientService(MessageIntentService.this);
         final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
-        Thread thread = new Thread(new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime())));
-        thread.start();
-    }
 
-
-    private class MessageSender implements Runnable {
-        private Message message;
-        private Handler handler;
-
-        public MessageSender(Message message, Handler handler) {
-            this.message = message;
-            this.handler = handler;
-        }
-
-        @Override
-        public void run() {
-            try {
-                messageClientService.sendMessageToServer(message, handler, ScheduleMessageService.class);
-                messageClientService.syncPendingMessages(true);
-                uploadQueueMap.remove(message.getCreatedAtTime());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            messageClientService.sendMessageToServer(message, uploadQueueMap.get(message.getCreatedAtTime()), ScheduleMessageService.class);
+            messageClientService.syncPendingMessages(true);
+            uploadQueueMap.remove(message.getCreatedAtTime());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
 }

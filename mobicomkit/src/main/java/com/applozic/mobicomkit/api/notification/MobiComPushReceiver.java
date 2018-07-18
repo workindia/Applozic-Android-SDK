@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.notification;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -460,12 +461,14 @@ MobiComPushReceiver {
     public static void processMessageAsync(final Context context, final Bundle bundle) {
         if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
-            new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     processMessage(context, bundle);
                 }
-            }).start();
+            });
+            t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            t.start();
         }
     }
 
@@ -476,12 +479,14 @@ MobiComPushReceiver {
     public static void processMessageAsync(final Context context, final Map<String, String> data) {
         if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
-            new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     processMessage(context, data);
                 }
-            }).start();
+            });
+            t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            t.start();
         }
     }
 

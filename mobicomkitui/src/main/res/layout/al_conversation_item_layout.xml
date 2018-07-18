@@ -57,8 +57,8 @@
         android:textDirection="locale"
         android:textIsSelectable="false"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@id/createdAtTime"
-        app:layout_constraintStart_toStartOf="@id/profileImageBarrier"
+        app:layout_constraintEnd_toStartOf="@+id/createdAtTime"
+        app:layout_constraintStart_toStartOf="@+id/profileImageBarrier"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -73,9 +73,9 @@
         android:text="Now"
         android:textColor="@color/message_details_text_color"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="@id/smReceivers"
+        app:layout_constraintBottom_toBottomOf="@+id/smReceivers"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/smReceivers" />
+        app:layout_constraintTop_toTopOf="@+id/smReceivers" />
 
 
     <ImageView
@@ -88,8 +88,8 @@
         android:layout_marginStart="12dp"
         android:src="@drawable/applozic_ic_action_attachment"
         android:visibility="gone"
-        app:layout_constraintStart_toEndOf="@id/profileImageBarrier"
-        app:layout_constraintTop_toBottomOf="@id/smReceivers" />
+        app:layout_constraintStart_toEndOf="@+id/profileImageBarrier"
+        app:layout_constraintTop_toBottomOf="@+id/smReceivers" />
 
     <TextView
         android:id="@+id/message"
@@ -107,9 +107,9 @@
         android:textColor="#999"
         android:textDirection="locale"
         android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="@id/unreadSmsCount"
+        app:layout_constraintEnd_toStartOf="@+id/unreadSmsCount"
         app:layout_constraintStart_toEndOf="@+id/attachmentIcon"
-        app:layout_constraintTop_toBottomOf="@id/smReceivers" />
+        app:layout_constraintTop_toBottomOf="@+id/smReceivers" />
 
     <TextView
         android:id="@+id/unreadSmsCount"
@@ -127,8 +127,8 @@
         android:textSize="9sp"
         android:textStyle="bold"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/message"
+        app:layout_constraintBottom_toBottomOf="@+id/message"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/message"
-        app:layout_constraintTop_toTopOf="@id/message" />
+        app:layout_constraintStart_toEndOf="@+id/message"
+        app:layout_constraintTop_toTopOf="@+id/message" />
 </android.support.constraint.ConstraintLayout>
