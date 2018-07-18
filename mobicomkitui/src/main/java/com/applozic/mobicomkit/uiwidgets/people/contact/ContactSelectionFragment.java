@@ -487,7 +487,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 
@@ -760,6 +760,13 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             return mAlphabetIndexer.getSectionForPosition(i);
         }
 
+    }
+
+    public void restartLoader() {
+        if (getLoaderManager() != null) {
+            getLoaderManager().restartLoader(
+                    ContactSelectionFragment.ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
+        }
     }
 
     private class ContactViewHolder {

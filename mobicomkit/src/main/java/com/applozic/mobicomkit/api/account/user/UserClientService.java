@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -61,6 +62,7 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_LOGOUT = "/rest/ws/device/logout";
     public static final String APPLICATION_INFO_UPDATE_URL = "/apps/customer/application/info/update";
     private static final String MUTE_USER_URL = "/rest/ws/user/chat/mute";
+    private static final String USER_SEARCH_URL = "/rest/ws/user/search/contact";
     private static final String GET_MUTED_USER_LIST = "/rest/ws/user/chat/mute/list";
     public static final int BATCH_SIZE = 60;
     private static final String TAG = "UserClientService";
@@ -161,6 +163,10 @@ public class UserClientService extends MobiComKitClientService {
 
     private String getMutedUserListUrl() {
         return getBaseUrl() + GET_MUTED_USER_LIST;
+    }
+
+    private String getUserSearchUrl() {
+        return getBaseUrl() + USER_SEARCH_URL;
     }
 
     public ApiResponse logout() {
@@ -578,6 +584,27 @@ public class UserClientService extends MobiComKitClientService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public ApiResponse getUsersBySearchString(String searchString) throws ApplozicException {
+        if (TextUtils.isEmpty(searchString)) {
+            return null;
+        }
+        String response;
+        ApiResponse apiResponse;
+
+        try {
+            response = httpRequestUtils.getResponse(getUserSearchUrl() + "?name=" + URLEncoder.encode(searchString, "UTF-8"), "application/json", "application/json");
+            if (TextUtils.isEmpty(response)) {
+                return null;
+            }
+            Utils.printLog(context, TAG, "Search user response : " + response);
+            apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+        } catch (Exception e) {
+            throw new ApplozicException(e.getMessage());
+        }
+
+        return apiResponse;
     }
 
     public String packageDetail(CustomerPackageDetail customerPackageDetail) {

@@ -106,6 +106,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean enableImageCompression = false;
     private boolean disableGlobalStoragePermission = false;
     private boolean enableMessageFastScroll = false;
+    private boolean isContactSearchFromServer = false;
 
     private boolean launchChatFromProfilePicOrName;
 
@@ -552,6 +553,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isMessageFastScrollEnabled() {
         return enableMessageFastScroll;
+    }
+
+    public boolean isContactSearchFromServer() {
+        return isContactSearchFromServer;
     }
 
     @Override

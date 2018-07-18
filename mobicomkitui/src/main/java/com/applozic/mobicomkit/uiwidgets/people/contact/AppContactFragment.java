@@ -430,7 +430,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         if (isDeviceContactSync) {
             return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, userIdArray, alCustomizationSettings != null && alCustomizationSettings.isShowAllDeviceContacts());
         } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray,MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
         }
     }
 
@@ -801,6 +801,13 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
                 }
             }
+        }
+    }
+
+    public void restartLoader() {
+        if (getLoaderManager() != null) {
+            getLoaderManager().restartLoader(
+                    ContactsQuery.QUERY_ID, null, AppContactFragment.this);
         }
     }
 
