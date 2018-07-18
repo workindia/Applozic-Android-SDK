@@ -108,7 +108,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean enableMessageFastScroll = false;
     private boolean isContactSearchFromServer = false;
 
-    private boolean launchChatFromProfilePicOrName;
+    private boolean launchChatFromProfilePicOrName = false;
 
     private Map<String, Boolean> attachmentOptions;
 

@@ -76,7 +76,7 @@
   "logoutPackageName": "",
   "groupDeletePackageName": "",
   "enableImageCompression": false,
-  "isContactSearchFromServer": true,
+  "isContactSearchFromServer": false,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,
