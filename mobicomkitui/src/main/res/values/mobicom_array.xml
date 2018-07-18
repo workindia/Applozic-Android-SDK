@@ -109,10 +109,10 @@
     </string-array>
 
     <string-array name="notification_texts">
-        <item>Location1</item>
-        <item>Audio1</item>
-        <item>Video1</item>
-        <item>Attachment1</item>
+        <item>Location</item>
+        <item>Audio</item>
+        <item>Video</item>
+        <item>Attachment</item>
     </string-array>
 
 </resources>
