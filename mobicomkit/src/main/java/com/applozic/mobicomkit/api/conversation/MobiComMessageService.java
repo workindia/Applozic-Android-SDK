@@ -266,7 +266,7 @@ public class MobiComMessageService {
 
             for (final Message message : messageList) {
                 if (Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
-                    ChannelService.getInstance(context).syncChannels();
+                    ChannelService.getInstance(context).syncChannels(message.isGroupMetaDataUpdated());
                     //Todo: fix this, what if there are mulitple messages.
                     ChannelService.isUpdateTitle = true;
                 }

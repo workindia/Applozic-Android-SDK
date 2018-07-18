@@ -21,6 +21,7 @@ public class ChannelMetadata extends JsonMarker {
     public final static String HIDE_METADATA_NOTIFICATION = "HIDE";
     public final static String ALERT_METADATA_NOTIFICATION = "ALERT";
     public final static String MUTE = "MUTE";
+    public final static String AL_CONTEXT_BASED_CHAT = "AL_CONTEXT_BASED_CHAT";
 
     public static final String ADMIN_NAME = ":adminName";
     public static final String GROUP_NAME = ":groupName";
@@ -37,7 +38,7 @@ public class ChannelMetadata extends JsonMarker {
     private boolean hideMetaDataNotification;
     private boolean alertMetaDataNotfication;
     private boolean defaultMute;
-
+    private boolean contextBasedChat;
 
     public String getCreateGroupMessage() {
         return createGroupMessage;
@@ -162,5 +163,12 @@ public class ChannelMetadata extends JsonMarker {
         metadata.put(ChannelMetadata.MUTE, this.isDefaultMute()+"");
         return metadata;
     }
+  
+    public boolean isContextBasedChat() {
+        return contextBasedChat;
+    }
 
+    public void setContextBasedChat(boolean contextBasedChat) {
+        this.contextBasedChat = contextBasedChat;
+    }
 }

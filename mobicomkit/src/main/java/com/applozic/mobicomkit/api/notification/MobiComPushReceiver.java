@@ -307,13 +307,6 @@ MobiComPushReceiver {
                 addPushNotificationId(syncMessageResponse.getId());
                 Message messageObj = syncMessageResponse.getMessage();
 
-                try {
-                    if (messageObj.isGroupMetaDataUpdated()) {
-                        ChannelService.getInstance(context).syncChannels(true);
-                    }
-                } catch (Exception e) {
-                }
-
                 if (!TextUtils.isEmpty(messageObj.getKeyString())) {
                     syncCallService.syncMessages(messageObj.getKeyString());
                 } else {
