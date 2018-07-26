@@ -686,6 +686,19 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
             // If the selected items contains the current item, set the checkbox to be checked
 
+            holder.checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AppCompatCheckBox checkBox = (AppCompatCheckBox) v;
+
+                    if (checkBox.isChecked()) {
+                        userIdList.add(contact.getContactIds());
+                    } else if (!checkBox.isChecked()) {
+                        userIdList.remove(contact.getContactIds());
+                    }
+                }
+            });
+
             holder.checkBox.setChecked(userIdList.contains(contact.getContactIds()));
 
 

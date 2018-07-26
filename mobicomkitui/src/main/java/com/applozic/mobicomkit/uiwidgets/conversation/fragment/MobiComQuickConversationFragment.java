@@ -688,6 +688,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         return true;
     }
 
+    public String getSearchString(){
+        return searchString;
+    }
+
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
         private RecyclerView view;

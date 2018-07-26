@@ -107,6 +107,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean disableGlobalStoragePermission = false;
     private boolean enableMessageFastScroll = false;
     private boolean isContactSearchFromServer = false;
+    private String messageSearchTextColor = "#5fba7d";
 
     private boolean launchChatFromProfilePicOrName = false;
 
@@ -557,6 +558,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isContactSearchFromServer() {
         return isContactSearchFromServer;
+    }
+
+    public String getMessageSearchTextColor() {
+        return messageSearchTextColor;
     }
 
     @Override

@@ -23,7 +23,7 @@
         android:showAsAction="ifRoom"
         android:title="@string/conversation"
         android:visible="false"
-        mobicomkit:showAsAction="ifRoom" />
+        mobicomkit:showAsAction="always" />
 
     <item
         android:id="@+id/start_new"
@@ -32,7 +32,7 @@
         android:showAsAction="ifRoom|collapseActionView"
         android:title="@string/start_New"
         android:visible="false"
-        mobicomkit:showAsAction="ifRoom|collapseActionView" />
+        mobicomkit:showAsAction="always" />
 
     <item
         android:id="@+id/dial"

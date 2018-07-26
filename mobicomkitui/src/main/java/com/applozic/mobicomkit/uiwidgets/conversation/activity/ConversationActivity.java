@@ -509,6 +509,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         searchView.setSubmitButtonEnabled(true);
         searchView.setIconified(true);
 
+        if (quickConversationFragment != null && !TextUtils.isEmpty(quickConversationFragment.getSearchString())) {
+            searchView.setIconified(false);
+            searchView.setQuery(quickConversationFragment.getSearchString(), false);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 

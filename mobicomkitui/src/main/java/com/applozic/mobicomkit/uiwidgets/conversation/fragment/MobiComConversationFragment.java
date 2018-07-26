@@ -3307,11 +3307,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         downloadConversation.execute();
     }
 
-    public int ScrollToFirstSearchIndex() {
+    public int scrollToFirstSearchIndex() {
 
         int position = 0;
         if (searchString != null) {
-
             for (position = messageList.size() - 1; position >= 0; position--) {
                 Message message = messageList.get(position);
                 if (!TextUtils.isEmpty(message.getMessage()) && message.getMessage().toLowerCase(Locale.getDefault()).indexOf(
@@ -3873,10 +3872,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         @Override
                         public void run() {
                             if (!TextUtils.isEmpty(searchString)) {
-                                int height = recyclerView.getHeight();
-                                int itemHeight = recyclerView.getChildAt(0).getHeight();
-                                recyclerView.requestFocusFromTouch();
-                                recyclerView.scrollTo(ScrollToFirstSearchIndex() + 1, height / 2 - itemHeight / 2);
+                                linearLayoutManager.scrollToPositionWithOffset(scrollToFirstSearchIndex(), 0);
                             } else {
                                 linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
                             }
@@ -3886,7 +3882,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else if (!nextMessageList.isEmpty()) {
                 linearLayoutManager.setStackFromEnd(true);
                 messageList.addAll(0, nextMessageList);
-                linearLayoutManager.scrollToPositionWithOffset(nextMessageList.size() - 1, 0);
+                linearLayoutManager.scrollToPosition(nextMessageList.size() - 1);
             }
 
             conversationService.read(contact, channel);
