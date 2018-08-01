@@ -39,6 +39,7 @@ import android.support.v7.widget.RecyclerView;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecoration;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
@@ -185,7 +186,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         recyclerView.setLongClickable(true);
         registerForContextMenu(recyclerView);
-
+        if(getActivity() instanceof ConversationActivity){
+            ((ConversationActivity)getActivity()).setToolbarTitle(getString(R.string.conversation));
+        }
         return list;
     }
 

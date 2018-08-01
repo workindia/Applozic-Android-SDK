@@ -71,6 +71,8 @@ public class ApplozicSetting {
     public SharedPreferences sharedPreferences;
     private Context context;
 
+    private static final String SHOW_IMAGE_ON_TOOLBAR = "SHOW_IMAGE_ON_TOOLBAR";
+
     private ApplozicSetting(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
@@ -657,6 +659,20 @@ public class ApplozicSetting {
 
     public boolean isMessageSearchEnabled() {
         return sharedPreferences.getBoolean(MESSAGE_SEARCH_OPTION, false);
+    }
+
+    public ApplozicSetting enableShowImageOnToolbar(){
+        sharedPreferences.edit().putBoolean(SHOW_IMAGE_ON_TOOLBAR, true).commit();
+        return this;
+    }
+
+    public ApplozicSetting disableShowImageOnToolbar(){
+        sharedPreferences.edit().putBoolean(SHOW_IMAGE_ON_TOOLBAR, false).commit();
+        return this;
+    }
+
+    public boolean isShowImageOnToolbar(){
+        return sharedPreferences.getBoolean(SHOW_IMAGE_ON_TOOLBAR, false);
     }
 
     public boolean clearAll() {

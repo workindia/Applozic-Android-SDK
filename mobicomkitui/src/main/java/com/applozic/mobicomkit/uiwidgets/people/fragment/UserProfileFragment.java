@@ -20,6 +20,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -74,8 +75,11 @@ public class UserProfileFragment extends Fragment {
         if (bundle != null) {
             contact = (Contact) bundle.getSerializable(ConversationUIService.CONTACT);
             contact = baseContactService.getContactById(contact.getContactIds());
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(contact.getDisplayName());
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+//            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(contact.getDisplayName());
+//            ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
+            if(getActivity() instanceof ConversationActivity){
+                ((ConversationActivity)getActivity()).setToolbarTitle(contact.getDisplayName());
+            }
             name.setText(contact.getDisplayName());
             char firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
             String contactNumber = contact.getDisplayName().toUpperCase();
@@ -164,7 +168,10 @@ public class UserProfileFragment extends Fragment {
             }
         }
         if (stringBufferTitle != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(stringBufferTitle.toString());
+//            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(stringBufferTitle.toString());
+            if(getActivity() instanceof ConversationActivity){
+                ((ConversationActivity)getActivity()).setToolbarTitle(contact.getDisplayName());
+            }
         }
     }
 
