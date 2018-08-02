@@ -113,16 +113,16 @@ public class ProfileFragment extends Fragment {
         setupDeviderView(view, R.id.applozic_notification_section_rl, R.id.applozic_notification_verticalline_rl);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
-        if(getActivity() instanceof ConversationActivity) {
+
             toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
             toolbarTitle.setText(R.string.applozic_user_profile_heading);
             ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
             animation.setDuration(10);
             animation.start();
-        }
+
         toolbar.setClickable(false);
-        toolbar.setTitle(getString(R.string.applozic_user_profile_heading));
-        toolbar.setSubtitle("");
+//        toolbar.setTitle(getString(R.string.applozic_user_profile_heading));
+//        toolbar.setSubtitle("");
         setHasOptionsMenu(true);
 
         contactService = new AppContactService(getActivity());

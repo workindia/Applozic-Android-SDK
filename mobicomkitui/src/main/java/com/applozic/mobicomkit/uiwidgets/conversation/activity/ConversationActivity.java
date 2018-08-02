@@ -515,10 +515,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         toolbarSubtitle.setVisibility(View.VISIBLE);
         toolbarSubtitle.setText(subtitle);
         ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", -20f);
-        animation.setDuration(100);
+        animation.setDuration(10);
         animation.start();
         ObjectAnimator animationSub = ObjectAnimator.ofFloat(toolbarSubtitle, "translationY", -20f);
-        animationSub.setDuration(100);
+        animationSub.setDuration(10);
         animationSub.start();
     }
 

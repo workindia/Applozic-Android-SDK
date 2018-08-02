@@ -947,6 +947,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         return list;
     }
+    
+    private void setToolbarTitle(String title){
+        ((CustomToolbarListener)getActivity()).setToolbarTitle(title);
+    }
+    
+    private void setToolbarSubtitle(String subtitle){
+        ((CustomToolbarListener)getActivity()).setToolbarSubtitle(subtitle);
+    }
+    
+    private void setToolbarImage(Contact contact, Channel channel){
+        ((CustomToolbarListener)getActivity()).setToolbarImage(contact, channel);
+    }
 
     public void handleSendAndRecordButtonView(boolean isSendButtonVisible) {
         sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
@@ -1746,8 +1758,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (contact != null && this.channel != null) {
             if (getActivity() != null) {
-                    ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
-                    ((CustomToolbarListener) getActivity()).setToolbarImage(contact, channel);
+                    setToolbarSubtitle("");
+                    setToolbarImage(contact, channel);
             }
             if (menu != null) {
                 menu.findItem(R.id.unmuteGroup).setVisible(false);
@@ -1945,7 +1957,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 if (withUserContact.isBlocked() || withUserContact.isBlockedBy() || withUserContact.isDeleted()) {
                     if (getActivity() != null) {
-                        ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
+                        setToolbarSubtitle("");
                     }
                     return;
                 }
@@ -1953,18 +1965,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (withUserContact.isConnected()) {
                         typingStarted = false;
                         if (getActivity() != null) {
-                            ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.user_online));
-                            ((CustomToolbarListener) getActivity()).setToolbarImage(withUserContact, null);
+                            setToolbarSubtitle(getActivity().getString(R.string.user_online));
+                            setToolbarImage(withUserContact, null);
                         }
                     } else if (withUserContact.getLastSeenAt() != 0) {
                         if (getActivity() != null) {
-                            ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
-                            ((CustomToolbarListener) getActivity()).setToolbarImage(withUserContact, null);
+                            setToolbarSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
+                            setToolbarImage(withUserContact, null);
                         }
                     } else {
                         if (getActivity() != null) {
-                            ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
-                            ((CustomToolbarListener) getActivity()).setToolbarImage(withUserContact, null);
+                            setToolbarSubtitle("");
+                            setToolbarImage(withUserContact, null);
                         }
                     }
                 }
@@ -1983,18 +1995,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (withUserContact != null) {
                         if (withUserContact.isBlocked()) {
                             if (getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
+                                setToolbarSubtitle("");
                             }
                         } else {
                             if (withUserContact.isConnected() && getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.user_online));
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle(getActivity().getString(R.string.user_online));
+                                setToolbarImage(null, channel);
                             } else if (withUserContact.getLastSeenAt() != 0 && getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle(getActivity().getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
+                                setToolbarImage(null, channel);
                             } else if (getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle("");
+                                setToolbarImage(null, channel);
                             }
                         }
                     }
@@ -2026,19 +2038,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         int lastIndex = stringBuffer.lastIndexOf(",");
                         String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
                         if (getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle(userIds);
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle(userIds);
+                                setToolbarImage(null, channel);
                         }
                     } else {
                         if (getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle(stringBuffer.toString());
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle(stringBuffer.toString());
+                                setToolbarImage(null, channel);
                         }
                     }
                 } else {
                     if (getActivity() != null) {
-                            ((CustomToolbarListener) getActivity()).setToolbarSubtitle(youString);
-                            ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                            setToolbarSubtitle(youString);
+                            setToolbarImage(null, channel);
                     }
                 }
             }
@@ -2789,20 +2801,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                                 if (getActivity() != null) {
-                                        ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.is_typing));
-                                        ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                        setToolbarSubtitle(getActivity().getString(R.string.is_typing));
+                                        setToolbarImage(null, channel);
                                 }
                             } else {
                                 if (getActivity() != null) {
-                                        ((CustomToolbarListener) getActivity()).setToolbarSubtitle(displayNameContact.getDisplayName() + " " + getActivity().getString(R.string.is_typing));
-                                        ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                        setToolbarSubtitle(displayNameContact.getDisplayName() + " " + getActivity().getString(R.string.is_typing));
+                                        setToolbarImage(null, channel);
                                 }
                             }
                         }
                     } else {
                         if (getActivity() != null) {
-                                ((CustomToolbarListener) getActivity()).setToolbarSubtitle(getActivity().getString(R.string.is_typing));
-                                ((CustomToolbarListener) getActivity()).setToolbarImage(null, channel);
+                                setToolbarSubtitle(getActivity().getString(R.string.is_typing));
+                                setToolbarImage(null, channel);
                         }
                     }
                 } else {
@@ -2899,7 +2911,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (stringBufferTitle != null && getActivity() != null) {
-                ((CustomToolbarListener) getActivity()).setToolbarTitle(stringBufferTitle.toString());
+                setToolbarTitle(stringBufferTitle.toString());
         }
 
     }
@@ -3294,7 +3306,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
                 channel = newChannel;
                 if (getActivity() != null) {
-                        ((CustomToolbarListener) getActivity()).setToolbarTitle(title);
+                        setToolbarTitle(title);
                 }
             }
         }
@@ -3305,7 +3317,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (channel != null) {
                 Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
                 if (getActivity() != null) {
-                        ((CustomToolbarListener) getActivity()).setToolbarTitle(newChannel.getName());
+                        setToolbarTitle(newChannel.getName());
                 }
             }
             updateChannelSubTitle();
@@ -3355,7 +3367,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void onSuccess(ApiResponse apiResponse) {
                 if (block && typingStarted) {
                         if(getActivity() != null) {
-                            ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
+                            setToolbarSubtitle("");
                         }
                     Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);

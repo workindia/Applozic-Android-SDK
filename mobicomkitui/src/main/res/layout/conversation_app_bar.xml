@@ -13,7 +13,7 @@
         android:visibility="gone"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -23,13 +23,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_marginStart="6dp"
         android:layout_marginLeft="6dp"
-        android:layout_weight="0.6"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:text="text"
-        app:layout_constraintLeft_toRightOf="@id/conversation_contact_photo"
+        app:layout_constraintStart_toEndOf="@id/conversation_contact_photo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
@@ -38,14 +38,13 @@
         style="@style/ToolbarSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginBottom="6dp"
-        android:layout_marginLeft="6dp"
-        android:layout_weight="0.4"
         android:ellipsize="end"
+        android:layout_marginStart="6dp"
+        android:layout_marginLeft="6dp"
         android:maxLines="1"
         android:text="text"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/toolbar_title"
-        app:layout_constraintLeft_toRightOf="@id/conversation_contact_photo" />
+        app:layout_constraintStart_toEndOf="@id/conversation_contact_photo" />
 
 </android.support.constraint.ConstraintLayout>
