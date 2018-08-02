@@ -44,6 +44,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecora
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
+import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -186,9 +187,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         recyclerView.setLongClickable(true);
         registerForContextMenu(recyclerView);
-        if(getActivity() instanceof ConversationActivity){
-            ((ConversationActivity)getActivity()).setToolbarTitle(getString(R.string.conversation));
-        }
+            ((CustomToolbarListener)getActivity()).setToolbarTitle(getString(R.string.conversation));
+
         return list;
     }
 

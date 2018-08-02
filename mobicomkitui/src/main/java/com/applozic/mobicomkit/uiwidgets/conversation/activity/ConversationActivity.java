@@ -90,6 +90,7 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -122,7 +123,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -422,8 +423,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
 
-//        toolbarTitle.setText(R.string.conversations);
-        setToolbarTitle(getString(R.string.conversation));
+        setToolbarTitle(getString(R.string.conversations));
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
 
@@ -500,6 +500,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
+    @Override
     public void setToolbarTitle(String title){
         toolbarSubtitle.setVisibility(View.GONE);
         conversationContactPhoto.setVisibility(View.GONE);
@@ -509,34 +510,19 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         animation.start();
     }
 
+    @Override
     public void setToolbarSubtitle(String subtitle){
-
-        /*final float startSize = 40; // Size in pixels
-        final float endSize = 20;
-        long animationDuration = 600; // Animation duration in ms
-        ValueAnimator animator = ValueAnimator.ofFloat(startSize, endSize);
-        animator.setDuration(animationDuration);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedValue = (float) valueAnimator.getAnimatedValue();
-                toolbarTitle.setTextSize(animatedValue);
-            }
-        });
-        animator.start();*/
-
         toolbarSubtitle.setVisibility(View.VISIBLE);
         toolbarSubtitle.setText(subtitle);
-
         ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", -20f);
         animation.setDuration(100);
         animation.start();
-
         ObjectAnimator animationSub = ObjectAnimator.ofFloat(toolbarSubtitle, "translationY", -20f);
         animationSub.setDuration(100);
         animationSub.start();
     }
 
+    @Override
     public void setToolbarImage(Contact contact, Channel channel){
         if(ApplozicSetting.getInstance(this).isShowImageOnToolbar()) {
             conversationContactPhoto.setVisibility(View.VISIBLE);
