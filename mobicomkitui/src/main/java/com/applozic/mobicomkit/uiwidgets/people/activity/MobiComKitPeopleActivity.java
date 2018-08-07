@@ -40,6 +40,7 @@ import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.ContactsChangeObserver;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -156,7 +157,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         appContactFragment.setAlCustomizationSettings(alCustomizationSettings);
         channelFragment = new ChannelFragment();
         setSearchListFragment(appContactFragment);
-        if (alCustomizationSettings.isStartNewGroup()) {
+        if (alCustomizationSettings.isStartNewGroup() || ApplozicSetting.getInstance(this).isStartNewGroupButtonVisible()) {
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             viewPager.setVisibility(View.VISIBLE);
             setupViewPager(viewPager);

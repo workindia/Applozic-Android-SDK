@@ -296,6 +296,12 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public boolean onSupportNavigateUp() {
+        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+            quickConversationFragment.stopSearching();
+            searchView.onActionViewCollapsed();
+            return true;
+        }
+
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
@@ -507,7 +513,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         searchView.setOnQueryTextListener(this);
         searchView.setSubmitButtonEnabled(true);
-        searchView.setIconified(true);
+        searchView.setIconifiedByDefault(true);
 
         if (quickConversationFragment != null && !TextUtils.isEmpty(quickConversationFragment.getSearchString())) {
             searchView.setIconified(false);
@@ -809,6 +815,12 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void onBackPressed() {
+        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+            quickConversationFragment.stopSearching();
+            searchView.onActionViewCollapsed();
+            return;
+        }
+
         if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             try {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
