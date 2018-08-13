@@ -159,7 +159,10 @@ public class MessageInfoFragment extends Fragment {
             contactImageLoader = new ImageLoader(getContext(), getListPreferredItemHeight()) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    return contactService.downloadContactImage(getContext(), (Contact) data);
+                    if(getContext() != null) {
+                        return contactService.downloadContactImage(getContext(), (Contact) data);
+                    }
+                    return null;
                 }
             };
             contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
@@ -170,7 +173,10 @@ public class MessageInfoFragment extends Fragment {
             locationImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    return fileClientService.loadMessageImage(getContext(), (String) data);
+                    if(getContext() != null) {
+                        return fileClientService.loadMessageImage(getContext(), (String) data);
+                    }
+                    return null;
                 }
             };
             locationImageLoader.setImageFadeIn(false);
