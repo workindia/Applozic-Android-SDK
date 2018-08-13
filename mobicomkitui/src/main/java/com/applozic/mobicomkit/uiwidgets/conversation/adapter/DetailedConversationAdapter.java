@@ -122,7 +122,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private FileClientService fileClientService;
     private MessageDatabaseService messageDatabaseService;
     private BaseContactService contactService;
-    private Contact senderContact;
     private long deviceTimeOffset = 0;
     private Class<?> messageIntentClass;
     private List<Message> messageList;
@@ -173,7 +172,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
         this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
-        this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
         this.messageList = messageList;
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
@@ -616,9 +614,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         });
                     }
 
-                    if (message.isTypeOutbox()) {
-                        loadContactImage(senderContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
-                    } else {
+                    if (!message.isTypeOutbox()) {
                         loadContactImage(receiverContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
                     }
 
@@ -1604,7 +1600,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         Message message = messageList.get(pos);
         if (message != null) {
             if (context.getApplicationContext() instanceof ALProfileClickListener) {
-                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, contactService.getContactById(message.getTo()), channel, false);
+                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, message.getTo(), channel, false);
             }
         }
     }

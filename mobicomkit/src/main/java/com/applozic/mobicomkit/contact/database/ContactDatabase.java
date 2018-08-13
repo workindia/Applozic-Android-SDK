@@ -152,23 +152,27 @@ public class ContactDatabase {
     }
 
     public Contact getContactById(String id) {
-        if (TextUtils.isEmpty(id)) {
-            return null;
-        }
-        String structuredNameWhere = MobiComDatabaseHelper.USERID + " =?";
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{id}, null, null, null);
-        Contact contact = null;
-        if (cursor != null) {
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                contact = getContact(cursor);
+        try {
+            if (TextUtils.isEmpty(id)) {
+                return null;
             }
-            cursor.close();
-        }
-        dbHelper.close();
-        return contact;
+            String structuredNameWhere = MobiComDatabaseHelper.USERID + " =?";
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{id}, null, null, null);
+            Contact contact = null;
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    contact = getContact(cursor);
+                }
+                cursor.close();
+            }
+            dbHelper.close();
+            return contact;
+        } catch (Exception e) {
 
+        }
+        return null;
     }
 
     public void updateContact(Contact contact) {
@@ -648,7 +652,7 @@ public class ContactDatabase {
         } else {
             if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(existingContact.getDeviceContactType())) {
                 contact.setDeviceContactType(existingContact.getDeviceContactType());
-            }else if(Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())){
+            } else if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())) {
                 contact.setDeviceContactType(existingContact.getDeviceContactType());
             }
             updateContact(contact);

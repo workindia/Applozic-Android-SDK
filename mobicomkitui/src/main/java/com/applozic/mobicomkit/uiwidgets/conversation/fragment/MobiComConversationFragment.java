@@ -831,7 +831,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void onClick(View v) {
 
                 if (getContext() != null && getContext().getApplicationContext() instanceof ALProfileClickListener) {
-                    ((ALProfileClickListener) getContext().getApplicationContext()).onClick(getActivity(), contact, channel, true);
+                    ((ALProfileClickListener) getContext().getApplicationContext()).onClick(getActivity(), (contact != null ? contact.getUserId() : null), channel, true);
                 }
 
                 if (channel != null) {

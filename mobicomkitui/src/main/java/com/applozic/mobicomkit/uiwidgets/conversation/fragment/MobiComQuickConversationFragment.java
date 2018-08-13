@@ -812,8 +812,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
             }
 
-            messageList.clear();
-            latestMessageForEachContact.clear();
+            if (!loadMoreMessages) {
+                messageList.clear();
+                latestMessageForEachContact.clear();
+            }
 
             if (!TextUtils.isEmpty(searchString)) {
                 messageList.addAll(nextMessageList);
