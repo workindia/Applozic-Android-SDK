@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.people.fragment;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -41,6 +42,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.PictureUploadPopUpFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
@@ -80,6 +82,8 @@ public class ProfileFragment extends Fragment {
     private ApplozicPermissions applozicPermissions;
     private RelativeLayout applozicProfileContactLayout;
 
+    private TextView toolbarTitle;
+
     public void setApplozicPermissions(ApplozicPermissions applozicPermissions) {
         this.applozicPermissions = applozicPermissions;
     }
@@ -109,9 +113,16 @@ public class ProfileFragment extends Fragment {
         setupDeviderView(view, R.id.applozic_notification_section_rl, R.id.applozic_notification_verticalline_rl);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
+
+            toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
+            toolbarTitle.setText(R.string.applozic_user_profile_heading);
+            ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
+            animation.setDuration(10);
+            animation.start();
+
         toolbar.setClickable(false);
-        toolbar.setTitle(getString(R.string.applozic_user_profile_heading));
-        toolbar.setSubtitle("");
+//        toolbar.setTitle(getString(R.string.applozic_user_profile_heading));
+//        toolbar.setSubtitle("");
         setHasOptionsMenu(true);
 
         contactService = new AppContactService(getActivity());

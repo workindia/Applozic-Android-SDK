@@ -1,5 +1,7 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -44,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -87,6 +90,7 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -96,6 +100,8 @@ import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -117,7 +123,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -176,6 +182,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     ContactsChangeObserver observer;
     private LinearLayout serviceDisconnectionLayout;
     private ALStoragePermission alStoragePermission;
+
+    private ImageView conversationContactPhoto;
+    private TextView toolbarTitle;
+    private TextView toolbarSubtitle;
 
     public ConversationActivity() {
 
@@ -260,7 +270,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     protected void onResume() {
         super.onResume();
         Applozic.connectPublish(this);
-
         if (!Utils.isInternetAvailable(getApplicationContext())) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
             showErrorMessageView(errorMessage);
@@ -341,6 +350,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        conversationContactPhoto = myToolbar.findViewById(R.id.conversation_contact_photo);
+        toolbarTitle = myToolbar.findViewById(R.id.toolbar_title);
+        toolbarSubtitle = myToolbar.findViewById(R.id.toolbar_subtitle);
         setSupportActionBar(myToolbar);
         baseContactService = new AppContactService(this);
         conversationUIService = new ConversationUIService(this);
@@ -411,7 +423,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
 
-        mActionBar.setTitle(R.string.conversations);
+        setToolbarTitle(getString(R.string.conversations));
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
 
@@ -485,6 +497,48 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setToolbarTitle(String title){
+        toolbarSubtitle.setVisibility(View.GONE);
+        conversationContactPhoto.setVisibility(View.GONE);
+        toolbarTitle.setText(title);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
+        animation.setDuration(10);
+        animation.start();
+    }
+
+    @Override
+    public void setToolbarSubtitle(String subtitle){
+        toolbarSubtitle.setVisibility(View.VISIBLE);
+        toolbarSubtitle.setText(subtitle);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", -20f);
+        animation.setDuration(10);
+        animation.start();
+        ObjectAnimator animationSub = ObjectAnimator.ofFloat(toolbarSubtitle, "translationY", -20f);
+        animationSub.setDuration(10);
+        animationSub.start();
+    }
+
+    @Override
+    public void setToolbarImage(Contact contact, Channel channel){
+        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar()) {
+            conversationContactPhoto.setVisibility(View.VISIBLE);
+            if (contact != null) {
+                Glide.with(this)
+                        .load(contact.getImageURL())
+                        .apply(new RequestOptions().placeholder(R.drawable.applozic_ic_contact_picture_holo_light))
+                        .into(conversationContactPhoto);
+            } else if (channel != null) {
+                Glide.with(this)
+                        .load(channel.getImageUrl())
+                        .apply(new RequestOptions().placeholder(R.drawable.applozic_group_icon))
+                        .into(conversationContactPhoto);
+            } else {
+                conversationContactPhoto.setImageResource(R.drawable.applozic_ic_contact_picture_holo_light);
+            }
         }
     }
 
