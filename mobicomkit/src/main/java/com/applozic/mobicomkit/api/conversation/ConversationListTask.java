@@ -5,8 +5,11 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.channel.service.ChannelService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.exception.ApplozicException;
-import com.applozic.mobicomkit.listners.MessageListHandler;
+import com.applozic.mobicomkit.listners.ConversationListHandler;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -14,36 +17,39 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by reytum on 27/11/17.
- */
-
-public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
+public class ConversationListTask extends AsyncTask<Void, Void, List<AlConversation>> {
 
     private WeakReference<Context> context;
+    private String searchString;
     private Contact contact;
     private Channel channel;
     private Long startTime;
     private Long endTime;
-    private MessageListHandler handler;
     private boolean isForMessageList;
+    private ConversationListHandler handler;
     private ApplozicException exception;
-    private String searchString;
+    private AppContactService appContactService;
+    private ChannelService channelService;
+    private MessageDatabaseService messageDatabaseService;
 
-    public MessageListTask(Context context, String searchString, Contact contact, Channel channel, Long startTime, Long endTime, MessageListHandler handler, boolean isForMessageList) {
+    public ConversationListTask(Context context, String searchString, Contact contact, Channel channel, Long startTime, Long endTime, ConversationListHandler handler, boolean isForMessageList) {
         this.context = new WeakReference<Context>(context);
+        this.searchString = searchString;
         this.contact = contact;
         this.channel = channel;
         this.startTime = startTime;
         this.endTime = endTime;
         this.handler = handler;
         this.isForMessageList = isForMessageList;
-        this.searchString = searchString;
+        channelService = ChannelService.getInstance(this.context.get());
+        appContactService = new AppContactService(this.context.get());
+        messageDatabaseService = new MessageDatabaseService(this.context.get());
     }
 
     @Override
-    protected List<Message> doInBackground(Void... voids) {
+    protected List<AlConversation> doInBackground(Void... voids) {
         List<Message> messageList = null;
+
         try {
             if (isForMessageList) {
                 messageList = new MobiComConversationService(context.get()).getLatestMessagesGroupByPeople(startTime, TextUtils.isEmpty(searchString) ? null : searchString);
@@ -56,37 +62,47 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
             }
 
             List<String> recList = new ArrayList<String>();
-            List<Message> messages = new ArrayList<Message>();
+            List<AlConversation> conversationList = new ArrayList<AlConversation>();
 
             if (isForMessageList) {
                 if (messageList != null) {
                     for (Message message : messageList) {
+                        AlConversation conversation = new AlConversation();
+
                         if ((message.getGroupId() == null || message.getGroupId() == 0) && !recList.contains(message.getContactIds())) {
                             recList.add(message.getContactIds());
-                            messages.add(message);
+
+                            conversation.setMessage(message);
+                            conversation.setContact(appContactService.getContactById(message.getContactIds()));
+                            conversation.setChannel(null);
+                            conversation.setUnreadCount(messageDatabaseService.getUnreadMessageCountForContact(message.getContactIds()));
+                            conversationList.add(conversation);
                         } else if (message.getGroupId() != null && !recList.contains("group" + message.getGroupId())) {
                             recList.add("group" + message.getGroupId());
-                            messages.add(message);
+
+                            conversation.setMessage(message);
+                            conversation.setContact(null);
+                            conversation.setChannel(channelService.getChannel(message.getGroupId()));
+                            conversation.setUnreadCount(messageDatabaseService.getUnreadMessageCountForChannel(message.getGroupId()));
+                            conversationList.add(conversation);
                         }
                     }
                     if (!messageList.isEmpty()) {
                         MobiComUserPreference.getInstance(context.get()).setStartTimeForPagination(messageList.get(messageList.size() - 1).getCreatedAtTime());
                     }
-                    return messages;
+                    return conversationList;
                 }
             }
         } catch (Exception e) {
             exception = new ApplozicException(e.getMessage());
         }
-        return messageList;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(List<Message> messageList) {
-        super.onPostExecute(messageList);
+    protected void onPostExecute(List<AlConversation> conversationList) {
+        super.onPostExecute(conversationList);
 
-        if (handler != null) {
-            handler.onResult(messageList, exception);
-        }
+        handler.onResult(context.get(), conversationList, exception);
     }
 }

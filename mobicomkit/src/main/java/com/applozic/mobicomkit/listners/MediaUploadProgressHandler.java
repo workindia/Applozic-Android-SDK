@@ -8,15 +8,13 @@ import com.applozic.mobicomkit.exception.ApplozicException;
  */
 
 public interface MediaUploadProgressHandler {
-    void onUploadStarted(ApplozicException e);
+    void onUploadStarted(ApplozicException e, String oldMessageKey);
 
-    void onProgressUpdate(int percentage, ApplozicException e);
+    void onProgressUpdate(int percentage, ApplozicException e, String oldMessageKey);
 
-    void onCancelled(ApplozicException e);
+    void onCancelled(ApplozicException e, String oldMessageKey);
 
-    void onCompleted(ApplozicException e);
+    void onCompleted(ApplozicException e, String oldMessageKey);
 
     void onSent(Message message, String oldMessageKey);
-
-
 }

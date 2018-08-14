@@ -568,7 +568,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (dy > 0) {
+
+                if (dy > 0 && TextUtils.isEmpty(searchString)) {
                     visibleItemCount = linearLayoutManager.getChildCount();
                     totalItemCount = linearLayoutManager.getItemCount();
                     pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();

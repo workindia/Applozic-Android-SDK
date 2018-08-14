@@ -1085,23 +1085,24 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
 
         new MessageBuilder(getActivity()).setMessage(messageText).setMetadata(messageMetaData).setGroupId(channel.getKey()).send(new MediaUploadProgressHandler() {
+
             @Override
-            public void onUploadStarted(ApplozicException e) {
+            public void onUploadStarted(ApplozicException e, String oldMessageKey) {
 
             }
 
             @Override
-            public void onProgressUpdate(int percentage, ApplozicException e) {
+            public void onProgressUpdate(int percentage, ApplozicException e, String oldMessageKey) {
 
             }
 
             @Override
-            public void onCancelled(ApplozicException e) {
+            public void onCancelled(ApplozicException e, String oldMessageKey) {
 
             }
 
             @Override
-            public void onCompleted(ApplozicException e) {
+            public void onCompleted(ApplozicException e, String oldMessageKey) {
 
             }
 
@@ -1114,7 +1115,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageList.set(indexOfObject, message);
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
                 }
-
             }
         });
 

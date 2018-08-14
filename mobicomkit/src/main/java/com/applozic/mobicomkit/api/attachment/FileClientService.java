@@ -52,7 +52,7 @@ public class FileClientService extends MobiComKitClientService {
     public static final String IMAGE_DIR = "image";
     public static final String AL_UPLOAD_FILE_URL = "/rest/ws/upload/file";
     public static final String CUSTOM_STORAGE_SERVICE_END_POINT = "/rest/ws/upload/image";
-//    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/file";
+    //    public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/file";
     public static final String S3_SIGNED_URL_END_POINT = "/rest/ws/upload/image";
     public static final String S3_SIGNED_URL_PARAM = "aclsPrivate";
     public static final String THUMBNAIL_URL = "/files/";
@@ -236,14 +236,14 @@ public class FileClientService extends MobiComKitClientService {
         return null;
     }
 
-    public String uploadBlobImage(String path, Handler handler) throws UnsupportedEncodingException {
+    public String uploadBlobImage(String path, Handler handler, String oldMessageKey) throws UnsupportedEncodingException {
         try {
 
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadURL(), "UTF-8", context);
-            if ( ApplozicClient.getInstance(context).isS3StorageServiceEnabled() ) {
-                multipart.addFilePart("file", new File(path), handler);
+            if (ApplozicClient.getInstance(context).isS3StorageServiceEnabled()) {
+                multipart.addFilePart("file", new File(path), handler, oldMessageKey);
             } else {
-                multipart.addFilePart("files[]", new File(path), handler);
+                multipart.addFilePart("files[]", new File(path), handler, oldMessageKey);
             }
             return multipart.getResponse();
 //            return new URLServiceProvider(context).getMultipartFile(path, handler).getResponse();
@@ -349,7 +349,7 @@ public class FileClientService extends MobiComKitClientService {
     public String uploadProfileImage(String path) throws UnsupportedEncodingException {
         try {
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(profileImageUploadURL(), "UTF-8", context);
-            multipart.addFilePart("file", new File(path), null);
+            multipart.addFilePart("file", new File(path), null, null);
             return multipart.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
