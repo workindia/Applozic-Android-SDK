@@ -53,12 +53,10 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
-import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
@@ -312,7 +310,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 return true;
             }
             Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
-            if (takeOrder) {
+            if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 if (upIntent != null && isTaskRoot()) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
@@ -833,18 +831,22 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             this.finish();
             return;
         }
+
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
         ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
         if (conversationFragment != null && conversationFragment.isVisible() && (conversationFragment.multimediaPopupGrid.getVisibility() == View.VISIBLE)) {
             conversationFragment.hideMultimediaOptionGrid();
             return;
         }
-        if (takeOrder) {
+
+        if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             if (upIntent != null && isTaskRoot()) {
                 TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
             }
             ConversationActivity.this.finish();
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }
