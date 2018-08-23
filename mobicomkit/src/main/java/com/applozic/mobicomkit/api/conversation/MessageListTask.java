@@ -7,11 +7,13 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.MessageListHandler;
+import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,10 +57,10 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
                 exception = new ApplozicException("Some internal error occurred");
             }
 
-            List<String> recList = new ArrayList<String>();
-            List<Message> messages = new ArrayList<Message>();
-
             if (isForMessageList) {
+                List<String> recList = new ArrayList<String>();
+                List<Message> messages = new ArrayList<Message>();
+
                 if (messageList != null) {
                     for (Message message : messageList) {
                         if ((message.getGroupId() == null || message.getGroupId() == 0) && !recList.contains(message.getContactIds())) {
@@ -73,6 +75,40 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
                         MobiComUserPreference.getInstance(context.get()).setStartTimeForPagination(messageList.get(messageList.size() - 1).getCreatedAtTime());
                     }
                     return messages;
+                }
+            } else {
+                List<Message> mergedList = new ArrayList<>();
+
+                if (messageList != null && !messageList.isEmpty()) {
+
+                    Message firstDateMessage = new Message();
+                    firstDateMessage.setTempDateType(Short.valueOf("100"));
+                    firstDateMessage.setCreatedAtTime(messageList.get(0).getCreatedAtTime());
+                    mergedList.add(firstDateMessage);
+
+                    for (int i = 0; i < messageList.size(); i++) {
+                        if (i == 0) {
+                            mergedList.add(messageList.get(0));
+                            continue;
+                        }
+
+                        long dayDifference = DateUtils.daysBetween(new Date(messageList.get(i - 1).getCreatedAtTime()), new Date(messageList.get(i).getCreatedAtTime()));
+
+                        if (dayDifference >= 1) {
+                            Message message = new Message();
+                            message.setTempDateType(Short.valueOf("100"));
+                            message.setCreatedAtTime(messageList.get(i).getCreatedAtTime());
+
+                            if (!mergedList.contains(message)) {
+                                mergedList.add(message);
+                            }
+                        }
+
+                        if (!mergedList.contains(messageList.get(i))) {
+                            mergedList.add(messageList.get(i));
+                        }
+                    }
+                    return mergedList;
                 }
             }
         } catch (Exception e) {
