@@ -9,6 +9,7 @@ import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -63,6 +64,7 @@ public class MobiComConversationService {
     public static final int UPLOAD_CANCELLED = 3;
     public static final int UPLOAD_COMPLETED = 4;
     public static final int MESSAGE_SENT = 5;
+    private boolean isHideActionMessage = false;
 
 
     public MobiComConversationService(Context context) {
@@ -72,6 +74,7 @@ public class MobiComConversationService {
         this.baseContactService = new AppContactService(context);
         this.conversationService = ConversationService.getInstance(context);
         this.channelService = ChannelService.getInstance(context);
+        this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
         this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
@@ -240,6 +243,9 @@ public class MobiComConversationService {
                     }
                     if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                         continue;
+                    }
+                    if (isHideActionMessage && message.isActionMessage()) {
+                        message.setHidden(true);
                     }
                     if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
                         messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());

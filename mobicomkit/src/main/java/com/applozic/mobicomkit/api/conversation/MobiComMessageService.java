@@ -60,6 +60,7 @@ public class MobiComMessageService {
     protected BaseContactService baseContactService;
     protected UserService userService;
     protected FileClientService fileClientService;
+    private boolean isHideActionMessage;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
         this.context = context;
@@ -71,6 +72,7 @@ public class MobiComMessageService {
         this.baseContactService = new AppContactService(context);
         fileClientService = new FileClientService(context);
         this.userService = UserService.getInstance(context);
+        isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
     }
 
     public Message processMessage(final Message messageToProcess, String tofield) {
@@ -142,7 +144,6 @@ public class MobiComMessageService {
                 Utils.printLog(context, TAG, "Got notifications for Video call...");
                 VideoCallNotificationHelper helper = new VideoCallNotificationHelper(context);
                 helper.handleVideoCallNotificationMessages(message);
-
             }
         }
         Utils.printLog(context, TAG, "processing message: " + message);
@@ -181,6 +182,10 @@ public class MobiComMessageService {
             message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), receiverContact));
         }
 
+        if (isHideActionMessage && message.isActionMessage()) {
+            message.setHidden(true);
+        }
+
         messageDatabaseService.createMessage(message);
 
         //Check if we are........container is already opened...don't send broadcast
@@ -204,8 +209,8 @@ public class MobiComMessageService {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             VideoCallNotificationHelper.buildVideoCallNotification(context, message);
         } else if (!isContainerOpened) {
-            if (message.isConsideredForCount()) {
-                if (message.getTo() != null && message.getGroupId() == null) {
+            if (message.isConsideredForCount() && !message.isHidden()) {
+                if (message.getTo() != null && message.getGroupId() == null && !(isHideActionMessage && message.isActionMessage())) {
                     messageDatabaseService.updateContactUnreadCount(message.getTo());
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Contact contact = new ContactDatabase(context).getContactById(message.getTo());
@@ -214,7 +219,7 @@ public class MobiComMessageService {
                     }
                 }
                 if (message.getGroupId() != null && !Message.GroupMessageMetaData.FALSE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.KEY.getValue()))) {
-                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
+                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType()) && !(isHideActionMessage && message.isActionMessage())) {
                         messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
@@ -237,6 +242,10 @@ public class MobiComMessageService {
     }
 
     public void sendNotification(Message message) {
+        if (isHideActionMessage && message.isActionMessage()) {
+            return;
+        }
+
         BroadcastService.sendNotificationBroadcast(context, message);
         Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

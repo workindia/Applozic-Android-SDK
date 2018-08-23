@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -45,11 +46,13 @@ public class MessageDatabaseService {
     Context context = null;
     private MobiComUserPreference userPreferences;
     private MobiComDatabaseHelper dbHelper;
+    private boolean hideActionMessages = false;
 
     public MessageDatabaseService(Context context) {
         this.context = context.getApplicationContext();
         this.userPreferences = MobiComUserPreference.getInstance(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
+        hideActionMessages = ApplozicClient.getInstance(context).isActionMessagesHidden();
     }
 
     public static Message getMessage(Cursor cursor) {
@@ -565,6 +568,8 @@ public class MessageDatabaseService {
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
             values.put(MobiComDatabaseHelper.HIDDEN, message.isHidden());
+            boolean hidden = (hideActionMessages && message.isActionMessage()) || message.isHidden();
+            values.put(MobiComDatabaseHelper.HIDDEN, hidden);
             if (message.getGroupId() != null) {
                 values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
             }
@@ -1019,7 +1024,7 @@ public class MessageDatabaseService {
                         + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue() + ")";
 
                 String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                        + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) ";
+                        + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType and m1.hidden = m2.hidden " + messageTypeJoinClause + " ) ";
 
                 if (!TextUtils.isEmpty(categoryName)) {
                     rowQuery = rowQuery + categoryClause;

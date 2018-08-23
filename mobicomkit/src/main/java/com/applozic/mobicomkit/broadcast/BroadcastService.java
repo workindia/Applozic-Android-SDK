@@ -90,6 +90,10 @@ public class BroadcastService {
     }
 
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
+        if (message.isActionMessage() && INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(action) && ApplozicClient.getInstance(context).isActionMessagesHidden()) {
+            return;
+        }
+
         Utils.printLog(context, TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);

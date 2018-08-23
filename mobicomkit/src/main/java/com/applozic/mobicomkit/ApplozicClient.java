@@ -42,6 +42,7 @@ public class ApplozicClient {
     private static final String GOOGLE_CLOUD_SERVICE_ENABLE = "GOOGLE_CLOUD_SERVICE_ENABLE";
     private static final String CUSTOM_MESSAGE_TEMPLATE = "CUSTOM_MESSAGE_TEMPLATE";
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
+    private static final String HIDE_ACTION_MESSAGES = "HIDE_ACTION_MESSAGES";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -308,6 +309,15 @@ public class ApplozicClient {
 
     public ApplozicClient setSubGroupSupport(boolean subgroup) {
         sharedPreferences.edit().putBoolean(AL_SUBGROUP_SUPPORT, subgroup).commit();
+        return this;
+    }
+
+    public boolean isActionMessagesHidden() {
+        return sharedPreferences.getBoolean(HIDE_ACTION_MESSAGES, false);
+    }
+
+    public ApplozicClient hideActionMessages(boolean hide) {
+        sharedPreferences.edit().putBoolean(HIDE_ACTION_MESSAGES, hide).commit();
         return this;
     }
 
