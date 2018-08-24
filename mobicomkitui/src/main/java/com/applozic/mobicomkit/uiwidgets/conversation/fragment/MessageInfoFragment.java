@@ -64,6 +64,8 @@ public class MessageInfoFragment extends Fragment {
     private ImageLoader contactImageLoader, locationImageLoader;
     private RecyclerView readListView;
     private RecyclerView deliveredListView;
+    private BaseContactService contactService;
+    private FileClientService fileClientService;
 
     public MessageInfoFragment() {
     }
@@ -72,13 +74,12 @@ public class MessageInfoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        contactService = new AppContactService(getContext());
+        fileClientService = new FileClientService(getContext());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        init();
-
         View view = inflater.inflate(R.layout.applozic_message_info, container, false);
         Bundle bundle = getArguments();
         String messageJson = bundle.getString(MESSAGE_ARGUMENT_KEY);
@@ -104,6 +105,7 @@ public class MessageInfoFragment extends Fragment {
         deliveredListView.setLayoutManager(mLayoutManagerForDev);
         deliveredListView.setClickable(true);
 
+        init();
 
         ImageView locationImageView = (ImageView) view.findViewById(R.id.static_mapview);
         final LinearLayout mainContactShareLayout = (LinearLayout) view.findViewById(R.id.contact_share_layout);
@@ -157,8 +159,10 @@ public class MessageInfoFragment extends Fragment {
             contactImageLoader = new ImageLoader(getContext(), getListPreferredItemHeight()) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    BaseContactService contactService = new AppContactService(getContext());
-                    return contactService.downloadContactImage(getContext(), (Contact) data);
+                    if(getContext() != null) {
+                        return contactService.downloadContactImage(getContext(), (Contact) data);
+                    }
+                    return null;
                 }
             };
             contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_holo_light);
@@ -169,8 +173,10 @@ public class MessageInfoFragment extends Fragment {
             locationImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    FileClientService fileClientService = new FileClientService(getContext());
-                    return fileClientService.loadMessageImage(getContext(), (String) data);
+                    if(getContext() != null) {
+                        return fileClientService.loadMessageImage(getContext(), (String) data);
+                    }
+                    return null;
                 }
             };
             locationImageLoader.setImageFadeIn(false);
