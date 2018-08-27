@@ -294,9 +294,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public boolean onSupportNavigateUp() {
-        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
-            quickConversationFragment.stopSearching();
-            searchView.onActionViewCollapsed();
+        if (isFromSearch()) {
             return true;
         }
 
@@ -813,9 +811,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void onBackPressed() {
-        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
-            quickConversationFragment.stopSearching();
-            searchView.onActionViewCollapsed();
+        if (isFromSearch()) {
             return;
         }
 
@@ -851,6 +847,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             super.onBackPressed();
         }
 
+    }
+
+    public boolean isFromSearch() {
+        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+            quickConversationFragment.stopSearching();
+            searchView.onActionViewCollapsed();
+            return true;
+        }
+        return false;
     }
 
     @Override

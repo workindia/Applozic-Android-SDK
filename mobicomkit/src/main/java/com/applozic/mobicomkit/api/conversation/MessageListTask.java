@@ -81,10 +81,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
 
                 if (messageList != null && !messageList.isEmpty()) {
 
-                    Message firstDateMessage = new Message();
-                    firstDateMessage.setTempDateType(Short.valueOf("100"));
-                    firstDateMessage.setCreatedAtTime(messageList.get(0).getCreatedAtTime());
-                    mergedList.add(firstDateMessage);
+                    mergedList.add(getDateMessage(messageList.get(0)));
 
                     for (int i = 0; i < messageList.size(); i++) {
                         if (i == 0) {
@@ -95,9 +92,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
                         long dayDifference = DateUtils.daysBetween(new Date(messageList.get(i - 1).getCreatedAtTime()), new Date(messageList.get(i).getCreatedAtTime()));
 
                         if (dayDifference >= 1) {
-                            Message message = new Message();
-                            message.setTempDateType(Short.valueOf("100"));
-                            message.setCreatedAtTime(messageList.get(i).getCreatedAtTime());
+                            Message message = getDateMessage(messageList.get(i));
 
                             if (!mergedList.contains(message)) {
                                 mergedList.add(message);
@@ -124,5 +119,12 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
         if (handler != null) {
             handler.onResult(messageList, exception);
         }
+    }
+
+    private Message getDateMessage(Message message) {
+        Message firstDateMessage = new Message();
+        firstDateMessage.setTempDateType(Short.valueOf("100"));
+        firstDateMessage.setCreatedAtTime(message.getCreatedAtTime());
+        return firstDateMessage;
     }
 }
