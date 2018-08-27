@@ -43,6 +43,7 @@ public class ApplozicClient {
     private static final String CUSTOM_MESSAGE_TEMPLATE = "CUSTOM_MESSAGE_TEMPLATE";
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
     private static final String HIDE_ACTION_MESSAGES = "HIDE_ACTION_MESSAGES";
+    private static final String NOTIFICATION_MUTE_THRESHOLD = "NOTIFICATION_MUTE_THRESHOLD";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -50,7 +51,7 @@ public class ApplozicClient {
 
     private ApplozicClient(Context context) {
         this.context = context;
-        sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
     }
 
     public static ApplozicClient getInstance(Context context) {
@@ -319,6 +320,15 @@ public class ApplozicClient {
     public ApplozicClient hideActionMessages(boolean hide) {
         sharedPreferences.edit().putBoolean(HIDE_ACTION_MESSAGES, hide).commit();
         return this;
+    }
+
+    public ApplozicClient setNotificationMuteThreashold(int threshold) {
+        sharedPreferences.edit().putInt(NOTIFICATION_MUTE_THRESHOLD, threshold).commit();
+        return this;
+    }
+
+    public int getNotificationMuteThreshold() {
+        return sharedPreferences.getInt(NOTIFICATION_MUTE_THRESHOLD, 0);
     }
 
 }

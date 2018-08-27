@@ -85,14 +85,14 @@ public class VideoCallNotificationHelper {
         return Boolean.parseBoolean(message.getMetaDataValueForKey(CALL_AUDIO_ONLY));
     }
 
-    public static void buildVideoCallNotification(Context context, Message message) {
+    public static void buildVideoCallNotification(Context context, Message message, int index) {
         Map<String, String> metaDataMap = message.getMetadata();
         Contact contact = new AppContactService(context).getContactById(message.getContactIds());
         String audioORVideoCallPrefix = Boolean.valueOf(metaDataMap.get(CALL_AUDIO_ONLY)) ? "audio call " : "video call ";
         if (metaDataMap.get(VideoCallNotificationHelper.MSG_TYPE).equals(VideoCallNotificationHelper.CALL_MISSED)) {
             Message message1 = new Message(message);
             message1.setMessage("You missed " + audioORVideoCallPrefix + " from " + contact.getDisplayName());
-            BroadcastService.sendNotificationBroadcast(context, message1);
+            BroadcastService.sendNotificationBroadcast(context, message1, index);
         }
     }
 

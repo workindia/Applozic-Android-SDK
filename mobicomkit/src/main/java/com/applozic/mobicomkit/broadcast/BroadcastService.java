@@ -124,7 +124,7 @@ public class BroadcastService {
     }
 
 
-    public static void sendNotificationBroadcast(Context context, Message message) {
+    public static void sendNotificationBroadcast(Context context, Message message, int index) {
         if (message != null) {
 
             if (message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {
@@ -145,9 +145,9 @@ public class BroadcastService {
                     contact = new AppContactService(context).getContactById(message.getContactIds());
                 }
                 if (ApplozicClient.getInstance(context).isNotificationStacking()) {
-                    notificationService.notifyUser(contact, channel, message);
+                    notificationService.notifyUser(contact, channel, message, index);
                 } else {
-                    notificationService.notifyUserForNormalMessage(contact, channel, message);
+                    notificationService.notifyUserForNormalMessage(contact, channel, message, index);
                 }
             }
         }

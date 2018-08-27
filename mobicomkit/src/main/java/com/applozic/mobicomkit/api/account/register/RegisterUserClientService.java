@@ -136,7 +136,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
         mobiComUserPreference.setUserBlockSyncTime("10000");
-        if(!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())){
+        if (!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())) {
             mobiComUserPreference.setUserEncryptionKey(registrationResponse.getUserEncryptionKey());
         }
         mobiComUserPreference.setPassword(user.getPassword());
@@ -162,6 +162,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         contact.setStatus(registrationResponse.getStatusMessage());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context);
+            createSilentNotificationChannel(context);
         }
         contact.processContactNumbers(context);
         new AppContactService(context).upsert(contact);
@@ -344,7 +345,25 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mNotificationManager.createNotificationChannel(mChannel);
 
         }
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    void createSilentNotificationChannel(Context context) {
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        CharSequence name = MobiComKitConstants.PUSH_NOTIFICATION_NAME;
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        if (mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_SILENT_NOTIFICATION) == null) {
+            NotificationChannel mChannel = new NotificationChannel(MobiComKitConstants.AL_SILENT_NOTIFICATION, name, importance);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.GREEN);
+            if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
+                mChannel.setShowBadge(true);
+            } else {
+                mChannel.setShowBadge(false);
+            }
+
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
     }
 
 }
