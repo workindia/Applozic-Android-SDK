@@ -231,11 +231,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             return;
         }
 
-        if (message.isIgnoreMessageAdding(getActivity())) {
-            return;
-        }
-
-        if (!TextUtils.isEmpty(searchString)) {
+        if (message.isIgnoreMessageAdding(getActivity()) || !TextUtils.isEmpty(searchString)) {
             return;
         }
 
