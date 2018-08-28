@@ -67,6 +67,8 @@ public class Message extends JsonMarker {
     public static final String CONTACT = "contact";
     public static final String LOCATION = "location";
     public static final String OTHER = "other";
+    public static final String KM_ASSIGN = "KM_ASSIGN";
+    public static final String KM_STATUS = "KM_STATUS";
 
     public Message() {
 
@@ -105,6 +107,7 @@ public class Message extends JsonMarker {
         this.setConversationId(message.getConversationId());
         this.setTopicId(message.getTopicId());
         this.setMetadata(message.getMetadata());
+        this.setHidden(message.isHidden());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -681,15 +684,19 @@ public class Message extends JsonMarker {
         this.replyMessage = replyMessage;
     }
 
+    public boolean isActionMessage() {
+        return getMetadata() != null && (getMetadata().containsKey(KM_ASSIGN) || getMetadata().containsKey(KM_STATUS));
+    }
+
 
     public boolean isIgnoreMessageAdding(Context context) {
-        if(ApplozicClient.getInstance(context).isSubGroupEnabled() && MobiComUserPreference.getInstance(context).getParentGroupKey() != null  || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())){
+        if (ApplozicClient.getInstance(context).isSubGroupEnabled() && MobiComUserPreference.getInstance(context).getParentGroupKey() != null || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())) {
             Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(getGroupId());
             boolean subGroupFlag = channel != null && channel.getParentKey() != null && MobiComUserPreference.getInstance(context).getParentGroupKey().equals(channel.getParentKey());
-            boolean categoryFlag = channel != null  && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
-            return  (subGroupFlag || categoryFlag ||  ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
+            boolean categoryFlag = channel != null && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
+            return (subGroupFlag || categoryFlag || ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()) || hidden);
         }
-        return false;
+        return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || isHidden());
     }
 
     @Override

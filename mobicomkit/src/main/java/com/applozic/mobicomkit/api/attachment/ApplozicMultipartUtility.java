@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 
 import java.io.BufferedReader;
@@ -46,7 +47,7 @@ public class ApplozicMultipartUtility {
     }
 
 
-    public void addFilePart(String fieldName, File uploadFile, Handler handler)
+    public void addFilePart(String fieldName, File uploadFile, Handler handler, String oldMessageKey)
             throws IOException, InterruptedException {
         String fileName = uploadFile.getName();
         writer.append("--" + boundary).append(LINE_FEED);
@@ -71,6 +72,7 @@ public class ApplozicMultipartUtility {
         if (handler != null) {
             android.os.Message msg = handler.obtainMessage();
             msg.what = MobiComConversationService.UPLOAD_STARTED;
+            msg.getData().putString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA, oldMessageKey);
             msg.getData().putString("error", null);
             msg.sendToTarget();
             //handler.onUploadStarted(null);
@@ -88,6 +90,7 @@ public class ApplozicMultipartUtility {
                     if (handler != null) {
                         android.os.Message msg = handler.obtainMessage();
                         msg.what = MobiComConversationService.UPLOAD_PROGRESS;
+                        msg.getData().putString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA, oldMessageKey);
                         msg.arg1 = percentage;
                         msg.sendToTarget();
                         //handler.onProgressUpdate(percentage, null);
@@ -98,6 +101,7 @@ public class ApplozicMultipartUtility {
                 if (handler != null) {
                     android.os.Message msg = handler.obtainMessage();
                     msg.what = MobiComConversationService.UPLOAD_COMPLETED;
+                    msg.getData().putString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA, oldMessageKey);
                     msg.getData().putString("error", e.getMessage());
                     msg.sendToTarget();
                     //handler.onCompleted(new ApplozicException(e.getMessage()));

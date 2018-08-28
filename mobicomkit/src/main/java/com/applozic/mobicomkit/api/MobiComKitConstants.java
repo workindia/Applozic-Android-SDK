@@ -15,6 +15,7 @@ public class MobiComKitConstants {
     public static final String HIDDEN = "HIDDEN";
     public static final String PUSH_NOTIFICATION = "PUSH_NOTIFICATION";
     public static final String AL_PUSH_NOTIFICATION = "AL_PUSH_NOTIFICATION";
+    public static final String AL_SILENT_NOTIFICATION = "AL_SILENT_NOTIFICATION";
 
     public static final String ACTIVITY_TO_OPEN = "ACTIVITY_TO_OPEN";
     public static final String LOCATION = "Location";

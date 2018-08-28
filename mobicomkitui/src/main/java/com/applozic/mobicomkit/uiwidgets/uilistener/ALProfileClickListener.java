@@ -11,5 +11,5 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 public interface ALProfileClickListener {
 
-    void onClick(Context context, Contact contact, Channel channel, boolean isToolbar);
+    void onClick(Context context, String userId, Channel channel, boolean isToolbar);
 }
