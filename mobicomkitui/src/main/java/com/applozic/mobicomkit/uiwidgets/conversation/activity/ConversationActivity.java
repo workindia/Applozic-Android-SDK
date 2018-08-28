@@ -526,7 +526,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void setToolbarImage(Contact contact, Channel channel){
-        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar()) {
+        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
             conversationContactPhoto.setVisibility(View.VISIBLE);
             if (contact != null) {
                 Glide.with(this)

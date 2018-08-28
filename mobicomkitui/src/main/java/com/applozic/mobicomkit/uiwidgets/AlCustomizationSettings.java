@@ -113,6 +113,8 @@ public class AlCustomizationSettings extends JsonMarker {
 
     private boolean launchChatFromProfilePicOrName = false;
 
+    private boolean showImageOnToolbar = false;
+
     private Map<String, Boolean> attachmentOptions;
 
     public boolean isBroadcastOption() {
@@ -572,6 +574,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isHideGroupDeleteButton() {
         return hideGroupDeleteButton;
+    }
+
+    public boolean isShowImageOnToolbar() {
+        return showImageOnToolbar;
     }
 
     @Override
