@@ -80,6 +80,7 @@
   "messageSearchTextColor": "#ff0000",
   "notificationDisableThreshold": 10,
   "hideGroupDeleteButton": false,
+  "showImageOnToolbar":false,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,
