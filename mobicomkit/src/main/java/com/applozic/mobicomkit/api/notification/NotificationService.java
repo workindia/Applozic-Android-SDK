@@ -428,7 +428,7 @@ public class NotificationService {
     }
 
     public boolean muteNotifications(int index) {
-        return !(notificationDisableThreshold > 0 && index < notificationDisableThreshold);
+          return !(notificationDisableThreshold == 0 || (notificationDisableThreshold > 0 && index < notificationDisableThreshold));
     }
 
 }
