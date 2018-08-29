@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.text.TextUtils;
@@ -64,7 +65,9 @@ public class ConversationIntentService extends JobIntentService {
         if (mutedUserListSync) {
             Utils.printLog(ConversationIntentService.this, TAG, "Muted user list sync started..");
             try {
-                UserService.getInstance(ConversationIntentService.this).getMutedUserList();
+                Thread thread = new Thread(new MutedUserListSync());
+                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                thread.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -85,47 +88,68 @@ public class ConversationIntentService extends JobIntentService {
             if (sync) {
                 mobiComMessageService.syncMessages();
             } else {
-                syncConversation();
+                Thread thread = new Thread(new ConversationSync());
+                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                thread.start();
             }
         }
     }
 
-    private void syncConversation() {
-        try {
-            MobiComConversationService mobiComConversationService = new MobiComConversationService(ConversationIntentService.this);
-            List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
-            UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
+    private class ConversationSync implements Runnable {
 
-            if (Applozic.getInstance(ConversationIntentService.this).isDeviceContactSync()) {
-                Set<String> contactNoSet = new HashSet<String>();
-                List<Contact> contacts = new AppContactService(ConversationIntentService.this).getContacts(Contact.ContactType.DEVICE);
-                for (Contact contact : contacts) {
-                    if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                        contactNoSet.add(contact.getFormattedContactNumber());
+        public ConversationSync() {
+        }
+
+        @Override
+        public void run() {
+            try {
+                MobiComConversationService mobiComConversationService = new MobiComConversationService(ConversationIntentService.this);
+                List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
+                UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
+
+                if (Applozic.getInstance(ConversationIntentService.this).isDeviceContactSync()) {
+                    Set<String> contactNoSet = new HashSet<String>();
+                    List<Contact> contacts = new AppContactService(ConversationIntentService.this).getContacts(Contact.ContactType.DEVICE);
+                    for (Contact contact : contacts) {
+                        if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
+                            contactNoSet.add(contact.getFormattedContactNumber());
+                        }
                     }
+
+                    if (!contactNoSet.isEmpty()) {
+                        UserService userService = UserService.getInstance(getApplicationContext());
+                        userService.processUserDetailsByContactNos(contactNoSet);
+                    }
+                    MobiComUserPreference.getInstance(ConversationIntentService.this).setDeviceContactSyncTime(new Date().getTime());
                 }
 
-                if (!contactNoSet.isEmpty()) {
-                    UserService userService = UserService.getInstance(getApplicationContext());
-                    userService.processUserDetailsByContactNos(contactNoSet);
+                for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
+                    Contact contact = null;
+                    Channel channel = null;
+
+                    if (message.getGroupId() != null) {
+                        channel = new Channel(message.getGroupId());
+                    } else {
+                        contact = new Contact(message.getContactIds());
+                    }
+
+                    mobiComConversationService.getMessages(1L, null, contact, channel, null, true);
                 }
-                MobiComUserPreference.getInstance(ConversationIntentService.this).setDeviceContactSyncTime(new Date().getTime());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
+    }
 
-            for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
-                Contact contact = null;
-                Channel channel = null;
-
-                if (message.getGroupId() != null) {
-                    channel = new Channel(message.getGroupId());
-                } else {
-                    contact = new Contact(message.getContactIds());
-                }
-
-                mobiComConversationService.getMessages(1L, null, contact, channel, null, true);
+    private class MutedUserListSync implements Runnable {
+        @Override
+        public void run() {
+            try {
+                UserService.getInstance(ConversationIntentService.this).getMutedUserList();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
+
