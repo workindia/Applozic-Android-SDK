@@ -170,6 +170,10 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (alCustomizationSettings.isHideGroupExitButton()) {
             channelExitRelativeLayout.setVisibility(View.GONE);
         }
+        if (alCustomizationSettings.isHideGroupDeleteButton()) {
+            channelDeleteRelativeLayout.setVisibility(View.GONE);
+        }
+
         if (getIntent().getExtras() != null) {
             channelKey = getIntent().getIntExtra(CHANNEL_KEY, 0);
             channel = ChannelService.getInstance(this).getChannelByChannelKey(channelKey);

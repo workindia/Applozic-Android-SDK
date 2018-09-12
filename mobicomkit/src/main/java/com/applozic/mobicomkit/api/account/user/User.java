@@ -285,6 +285,24 @@ public class User extends JsonMarker {
         }
     }
 
+    public enum PushNotificationFormat {
+        NATIVE(Short.valueOf("0")),
+        PHONEGAP(Short.valueOf("1")),
+        IONIC(Short.valueOf("2")),
+        NATIVESCRIPT(Short.valueOf("3")),
+        PUSHY_ME(Short.valueOf("4"));
+
+        private Short value;
+
+        PushNotificationFormat(Short p) {
+            value = p;
+        }
+
+        public Short getValue() {
+            return value;
+        }
+    }
+
     public enum RoleName {
         BOT("BOT"),
         APPLICATION_ADMIN("APPLICATION_ADMIN"),

@@ -1,5 +1,7 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -44,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,12 +56,10 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
-import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
@@ -87,6 +88,7 @@ import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivit
 import com.applozic.mobicomkit.uiwidgets.people.fragment.ProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
+import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -96,6 +98,8 @@ import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -117,7 +121,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -176,6 +180,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     ContactsChangeObserver observer;
     private LinearLayout serviceDisconnectionLayout;
     private ALStoragePermission alStoragePermission;
+
+    private ImageView conversationContactPhoto;
+    private TextView toolbarTitle;
+    private TextView toolbarSubtitle;
 
     public ConversationActivity() {
 
@@ -260,7 +268,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     protected void onResume() {
         super.onResume();
         Applozic.connectPublish(this);
-
         if (!Utils.isInternetAvailable(getApplicationContext())) {
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
             showErrorMessageView(errorMessage);
@@ -296,6 +303,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public boolean onSupportNavigateUp() {
+        if (isFromSearch()) {
+            return true;
+        }
+
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
@@ -306,7 +317,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 return true;
             }
             Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
-            if (takeOrder) {
+            if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
                 if (upIntent != null && isTaskRoot()) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
@@ -341,6 +352,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         setContentView(R.layout.quickconversion_activity);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        conversationContactPhoto = myToolbar.findViewById(R.id.conversation_contact_photo);
+        toolbarTitle = myToolbar.findViewById(R.id.toolbar_title);
+        toolbarSubtitle = myToolbar.findViewById(R.id.toolbar_subtitle);
         setSupportActionBar(myToolbar);
         baseContactService = new AppContactService(this);
         conversationUIService = new ConversationUIService(this);
@@ -411,7 +425,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         mobiComKitBroadcastReceiver = new MobiComKitBroadcastReceiver(this);
         InstructionUtil.showInfo(this, R.string.info_message_sync, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
 
-        mActionBar.setTitle(R.string.conversations);
+        setToolbarTitle(getString(R.string.conversations));
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
 
@@ -488,6 +502,48 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
+    @Override
+    public void setToolbarTitle(String title){
+        toolbarSubtitle.setVisibility(View.GONE);
+        conversationContactPhoto.setVisibility(View.GONE);
+        toolbarTitle.setText(title);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
+        animation.setDuration(0);
+        animation.start();
+    }
+
+    @Override
+    public void setToolbarSubtitle(String subtitle){
+        toolbarSubtitle.setVisibility(View.VISIBLE);
+        toolbarSubtitle.setText(subtitle);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", -20f);
+        animation.setDuration(0);
+        animation.start();
+        ObjectAnimator animationSub = ObjectAnimator.ofFloat(toolbarSubtitle, "translationY", -20f);
+        animationSub.setDuration(0);
+        animationSub.start();
+    }
+
+    @Override
+    public void setToolbarImage(Contact contact, Channel channel){
+        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
+            conversationContactPhoto.setVisibility(View.VISIBLE);
+            if (contact != null) {
+                Glide.with(this)
+                        .load(contact.getImageURL())
+                        .apply(new RequestOptions().placeholder(R.drawable.applozic_ic_contact_picture_holo_light))
+                        .into(conversationContactPhoto);
+            } else if (channel != null) {
+                Glide.with(this)
+                        .load(channel.getImageUrl())
+                        .apply(new RequestOptions().placeholder(R.drawable.applozic_group_icon))
+                        .into(conversationContactPhoto);
+            } else {
+                conversationContactPhoto.setImageResource(R.drawable.applozic_ic_contact_picture_holo_light);
+            }
+        }
+    }
+
     private void showActionBar() {
         mActionBar.setDisplayShowTitleEnabled(true);
     }
@@ -507,7 +563,12 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
         searchView.setOnQueryTextListener(this);
         searchView.setSubmitButtonEnabled(true);
-        searchView.setIconified(true);
+        searchView.setIconifiedByDefault(true);
+
+        if (quickConversationFragment != null && !TextUtils.isEmpty(quickConversationFragment.getSearchString())) {
+            searchView.setIconified(false);
+            searchView.setQuery(quickConversationFragment.getSearchString(), false);
+        }
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -804,6 +865,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void onBackPressed() {
+        if (isFromSearch()) {
+            return;
+        }
+
         if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             try {
                 Intent upIntent = NavUtils.getParentActivityIntent(this);
@@ -816,22 +881,35 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             this.finish();
             return;
         }
+
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
         ConversationFragment conversationFragment = (ConversationFragment) getSupportFragmentManager().findFragmentByTag(ConversationUIService.CONVERSATION_FRAGMENT);
         if (conversationFragment != null && conversationFragment.isVisible() && (conversationFragment.multimediaPopupGrid.getVisibility() == View.VISIBLE)) {
             conversationFragment.hideMultimediaOptionGrid();
             return;
         }
-        if (takeOrder) {
+
+        if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
             Intent upIntent = NavUtils.getParentActivityIntent(this);
             if (upIntent != null && isTaskRoot()) {
                 TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
             }
             ConversationActivity.this.finish();
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }
 
+    }
+
+    public boolean isFromSearch() {
+        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+            quickConversationFragment.stopSearching();
+            searchView.onActionViewCollapsed();
+            return true;
+        }
+        return false;
     }
 
     @Override

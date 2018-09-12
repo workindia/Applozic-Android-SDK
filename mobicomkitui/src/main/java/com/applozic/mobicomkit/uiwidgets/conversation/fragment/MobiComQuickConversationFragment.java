@@ -39,10 +39,12 @@ import android.support.v7.widget.RecyclerView;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecoration;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
+import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -185,6 +187,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         recyclerView.setLongClickable(true);
         registerForContextMenu(recyclerView);
+            ((CustomToolbarListener)getActivity()).setToolbarTitle(getString(R.string.conversation));
 
         return list;
     }
@@ -231,7 +234,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             return;
         }
 
-        if(message.isIgnoreMessageAdding(getActivity())){
+        if (message.isIgnoreMessageAdding(getActivity()) || !TextUtils.isEmpty(searchString)) {
             return;
         }
 
@@ -564,7 +567,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if (dy > 0) {
+
+                if (dy > 0 && TextUtils.isEmpty(searchString)) {
                     visibleItemCount = linearLayoutManager.getChildCount();
                     totalItemCount = linearLayoutManager.getItemCount();
                     pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
@@ -680,12 +684,21 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public boolean onQueryTextChange(String newText) {
         this.searchString = newText;
-        if (TextUtils.isEmpty(newText)) {
-            downloadConversations(false, null);
-        } else {
-            downloadConversations(false, newText);
-        }
+        downloadConversations(false, newText);
         return true;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void stopSearching() {
+        searchString = null;
+        if (!isAlreadyLoading) {
+            latestMessageForEachContact.clear();
+            messageList.clear();
+            downloadConversations(false, searchString);
+        }
     }
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
@@ -799,43 +812,47 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
             }
 
-            if (!TextUtils.isEmpty(searchString)) {
+            if (!loadMoreMessages) {
                 messageList.clear();
                 latestMessageForEachContact.clear();
-
             }
 
-            for (Message currentMessage : nextMessageList) {
-                if (currentMessage.isSentToMany()) {
-                    continue;
-                }
-                Message recentSms;
-                if (currentMessage.getGroupId() != null) {
-                    recentSms = latestMessageForEachContact.get(ConversationUIService.GROUP + currentMessage.getGroupId());
-                } else {
-                    recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
-                }
+            if (!TextUtils.isEmpty(searchString)) {
+                messageList.addAll(nextMessageList);
+            } else {
+                for (Message currentMessage : nextMessageList) {
+                    if (currentMessage.isSentToMany()) {
+                        continue;
+                    }
+                    Message recentSms;
+                    if (currentMessage.getGroupId() != null) {
+                        recentSms = latestMessageForEachContact.get(ConversationUIService.GROUP + currentMessage.getGroupId());
+                    } else {
+                        recentSms = latestMessageForEachContact.get(currentMessage.getContactIds());
+                    }
 
-                if (recentSms != null) {
-                    if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
+                    if (recentSms != null) {
+                        if (currentMessage.getCreatedAtTime() >= recentSms.getCreatedAtTime()) {
+                            if (currentMessage.getGroupId() != null) {
+                                latestMessageForEachContact.put(ConversationUIService.GROUP + currentMessage.getGroupId(), currentMessage);
+                            } else {
+                                latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
+                            }
+                            messageList.remove(recentSms);
+                            messageList.add(currentMessage);
+                        }
+                    } else {
                         if (currentMessage.getGroupId() != null) {
                             latestMessageForEachContact.put(ConversationUIService.GROUP + currentMessage.getGroupId(), currentMessage);
                         } else {
                             latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
                         }
-                        messageList.remove(recentSms);
+
                         messageList.add(currentMessage);
                     }
-                } else {
-                    if (currentMessage.getGroupId() != null) {
-                        latestMessageForEachContact.put(ConversationUIService.GROUP + currentMessage.getGroupId(), currentMessage);
-                    } else {
-                        latestMessageForEachContact.put(currentMessage.getContactIds(), currentMessage);
-                    }
-
-                    messageList.add(currentMessage);
                 }
             }
+
             if (loadMoreMessages) {
                 if (messageList.contains(null)) {
                     messageList.remove(null);

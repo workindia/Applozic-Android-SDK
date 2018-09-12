@@ -13,10 +13,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="6dp"
-        android:paddingLeft="@dimen/listview_item_padding"
-        android:paddingStart="@dimen/listview_item_padding"
-        android:paddingRight="0dp"
         android:paddingEnd="0dp"
+        android:paddingLeft="@dimen/listview_item_padding"
+        android:paddingRight="0dp"
+        android:paddingStart="@dimen/listview_item_padding"
         android:paddingTop="8dp">
 
         <TextView
@@ -37,10 +37,10 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
+            android:layout_toEndOf="@+id/alphabeticImage"
             android:layout_toRightOf="@+id/alphabeticImage"
             android:src="@drawable/applozic_ic_contact_picture_holo_light"
-            android:visibility="visible"
-            android:layout_toEndOf="@+id/alphabeticImage" />
+            android:visibility="visible" />
 
     </RelativeLayout>
 
@@ -66,16 +66,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="5dp"
-        android:layout_toRightOf="@+id/profile_image_relative_layout"
-        android:paddingLeft="@dimen/listview_item_padding"
-        android:paddingStart="@dimen/listview_item_padding"
-        android:paddingRight="@dimen/listview_item_padding"
-        android:paddingEnd="@dimen/listview_item_padding"
-        android:layout_toEndOf="@+id/profile_image_relative_layout"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="5dp">
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_toEndOf="@+id/profile_image_relative_layout"
+        android:layout_toRightOf="@+id/profile_image_relative_layout"
+        android:paddingEnd="@dimen/listview_item_padding"
+        android:paddingLeft="@dimen/listview_item_padding"
+        android:paddingRight="@dimen/listview_item_padding"
+        android:paddingStart="@dimen/listview_item_padding">
 
         <TextView
             android:id="@+id/applozic_group_member_info"
@@ -95,7 +95,6 @@
             android:id="@+id/contactNumberTextView"
             android:layout_width="match_parent"
             android:layout_height="26dp"
-            android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:singleLine="true"
             android:text=""
@@ -105,6 +104,21 @@
 
     </RelativeLayout>
 
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginStart="5dp"
+        android:focusable="false"
+        android:padding="10dp"
+        app:buttonTint="#b2b2b2" />
+
     <TextView
         android:id="@+id/displayName"
         android:layout_width="match_parent"
@@ -112,35 +126,18 @@
         android:layout_above="@id/displayNameLayout"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_marginRight="30dp"
+        android:layout_toEndOf="@id/profile_image_relative_layout"
+        android:layout_toLeftOf="@+id/checkbox"
         android:layout_toRightOf="@id/profile_image_relative_layout"
+        android:layout_toStartOf="@+id/checkbox"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:textDirection="locale"
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingStart="@dimen/listview_item_padding"
         android:singleLine="true"
+        android:text=""
         android:textColor="@color/message_details_text_color"
-        android:textSize="18sp"
-        android:layout_marginEnd="30dp"
-        android:layout_toEndOf="@id/profile_image_relative_layout" />
-
-
-    <android.support.v7.widget.AppCompatCheckBox
-        android:id="@+id/checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/displayName"
-        android:layout_alignParentRight="true"
-        android:layout_alignRight="@+id/displayName"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:focusable="false"
-        android:padding="10dp"
-        app:buttonTint="#b2b2b2"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp" />
+        android:textDirection="locale"
+        android:textSize="18sp" />
 
 </RelativeLayout>

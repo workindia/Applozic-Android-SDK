@@ -14,7 +14,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -120,7 +122,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private FileClientService fileClientService;
     private MessageDatabaseService messageDatabaseService;
     private BaseContactService contactService;
-    private Contact senderContact;
     private long deviceTimeOffset = 0;
     private Class<?> messageIntentClass;
     private List<Message> messageList;
@@ -171,7 +172,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
         this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
-        this.senderContact = contactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
         this.messageList = messageList;
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
@@ -341,10 +341,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                         Message messageToBeReplied = new Message();
                         messageToBeReplied.setKeyString(keyString);
-                        int indexOfObject =   messageList.indexOf(messageToBeReplied);
-                        if(indexOfObject != -1){
+                        int indexOfObject = messageList.indexOf(messageToBeReplied);
+                        if (indexOfObject != -1) {
                             messageToBeReplied = messageList.get(indexOfObject);
-                        }else{
+                        } else {
                             messageToBeReplied = messageDatabaseService.getMessage(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
                         }
                         final Message msg = messageToBeReplied;
@@ -614,9 +614,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         });
                     }
 
-                    if (message.isTypeOutbox()) {
-                        loadContactImage(senderContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
-                    } else {
+                    if (!message.isTypeOutbox()) {
                         loadContactImage(receiverContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
                     }
 
@@ -997,8 +995,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                         // Sets the span to start at the starting point of the match and end at "length"
                         // characters beyond the starting point
-                        highlightedName.setSpan(highlightTextSpan, startIndex,
-                                startIndex + searchString.toString().length(), 0);
+                        highlightedName.setSpan(new ForegroundColorSpan(Color.parseColor(alCustomizationSettings.getMessageSearchTextColor())), startIndex,
+                                startIndex + searchString.toString().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                         myHolder.messageTextView.setText(highlightedName);
                     }
@@ -1523,7 +1521,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted() )) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
                     continue;
                 }
 
@@ -1602,7 +1600,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         Message message = messageList.get(pos);
         if (message != null) {
             if (context.getApplicationContext() instanceof ALProfileClickListener) {
-                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, contactService.getContactById(message.getTo()), channel, false);
+                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, message.getTo(), channel, false);
             }
         }
     }

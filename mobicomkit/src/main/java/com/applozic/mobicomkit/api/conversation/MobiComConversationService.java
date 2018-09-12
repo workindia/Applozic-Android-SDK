@@ -9,6 +9,7 @@ import android.os.Process;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -63,6 +64,7 @@ public class MobiComConversationService {
     public static final int UPLOAD_CANCELLED = 3;
     public static final int UPLOAD_COMPLETED = 4;
     public static final int MESSAGE_SENT = 5;
+    private boolean isHideActionMessage = false;
 
 
     public MobiComConversationService(Context context) {
@@ -72,6 +74,7 @@ public class MobiComConversationService {
         this.baseContactService = new AppContactService(context);
         this.conversationService = ConversationService.getInstance(context);
         this.channelService = ChannelService.getInstance(context);
+        this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
         this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
     }
 
@@ -110,9 +113,9 @@ public class MobiComConversationService {
         if (!message.hasAttachment()) {
             e = new ApplozicException("Message does not have any attachment");
             if (handler != null) {
-                handler.onUploadStarted(e);
-                handler.onProgressUpdate(0, e);
-                handler.onCancelled(e);
+                handler.onUploadStarted(e, null);
+                handler.onProgressUpdate(0, e, null);
+                handler.onCancelled(e, null);
             }
         }
         sendMessage(message, handler, MessageIntentService.class);
@@ -240,6 +243,9 @@ public class MobiComConversationService {
                     }
                     if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                         continue;
+                    }
+                    if (isHideActionMessage && message.isActionMessage()) {
+                        message.setHidden(true);
                     }
                     if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
                         messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
@@ -563,42 +569,43 @@ public class MobiComConversationService {
         if (message != null) {
             Bundle bundle = message.getData();
             String e = null;
+            String oldMessageKey = null;
             if (bundle != null) {
                 e = bundle.getString("error");
+                oldMessageKey = bundle.getString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA);
             }
+
             switch (message.what) {
                 case UPLOAD_STARTED:
                     if (progressHandler != null) {
-                        progressHandler.onUploadStarted(e != null ? new ApplozicException(e) : null);
+                        progressHandler.onUploadStarted(e != null ? new ApplozicException(e) : null, oldMessageKey);
                     }
                     break;
 
                 case UPLOAD_PROGRESS:
                     if (progressHandler != null) {
-                        progressHandler.onProgressUpdate(message.arg1, e != null ? new ApplozicException(e) : null);
+                        progressHandler.onProgressUpdate(message.arg1, e != null ? new ApplozicException(e) : null, oldMessageKey);
                     }
                     break;
 
                 case UPLOAD_COMPLETED:
                     if (progressHandler != null) {
-                        progressHandler.onCompleted(e != null ? new ApplozicException(e) : null);
+                        progressHandler.onCompleted(e != null ? new ApplozicException(e) : null, oldMessageKey);
                     }
                     break;
 
                 case UPLOAD_CANCELLED:
                     if (progressHandler != null) {
-                        progressHandler.onCancelled(e != null ? new ApplozicException(e) : null);
+                        progressHandler.onCancelled(e != null ? new ApplozicException(e) : null, oldMessageKey);
                     }
                     break;
 
                 case MESSAGE_SENT:
                     if (bundle != null) {
                         if (progressHandler != null) {
-
-                            Message messageObject =  messageDatabaseService.getMessage(bundle.getString(MobiComKitConstants.MESSAGE_INTENT_EXTRA));
-                            String messageJson =   bundle.getString(MobiComKitConstants.MESSAGE_JSON_INTENT_EXTRA);
-                            String oldMessageKey = bundle.getString(MobiComKitConstants.OLD_MESSAGE_KEY_INTENT_EXTRA);
-                            if(messageObject == null) {
+                            Message messageObject = messageDatabaseService.getMessage(bundle.getString(MobiComKitConstants.MESSAGE_INTENT_EXTRA));
+                            String messageJson = bundle.getString(MobiComKitConstants.MESSAGE_JSON_INTENT_EXTRA);
+                            if (messageObject == null) {
                                 messageObject = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
                             }
                             progressHandler.onSent(messageObject, oldMessageKey);

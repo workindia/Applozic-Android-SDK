@@ -3,6 +3,7 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 
@@ -46,11 +47,32 @@ public class MessageIntentService extends JobIntentService {
         final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
 
         try {
-            messageClientService.sendMessageToServer(message, uploadQueueMap.get(message.getCreatedAtTime()), ScheduleMessageService.class);
-            messageClientService.syncPendingMessages(true);
-            uploadQueueMap.remove(message.getCreatedAtTime());
+            Thread thread = new Thread(new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime())));
+            thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private class MessageSender implements Runnable {
+        private Message message;
+        private Handler handler;
+
+        public MessageSender(Message message, Handler handler) {
+            this.message = message;
+            this.handler = handler;
+        }
+
+        @Override
+        public void run() {
+            try {
+                messageClientService.sendMessageToServer(message, handler, ScheduleMessageService.class);
+                messageClientService.syncPendingMessages(true);
+                uploadQueueMap.remove(message.getCreatedAtTime());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

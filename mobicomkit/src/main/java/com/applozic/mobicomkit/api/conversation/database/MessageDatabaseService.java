@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -45,11 +46,13 @@ public class MessageDatabaseService {
     Context context = null;
     private MobiComUserPreference userPreferences;
     private MobiComDatabaseHelper dbHelper;
+    private boolean hideActionMessages = false;
 
     public MessageDatabaseService(Context context) {
         this.context = context.getApplicationContext();
         this.userPreferences = MobiComUserPreference.getInstance(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
+        hideActionMessages = ApplozicClient.getInstance(context).isActionMessagesHidden();
     }
 
     public static Message getMessage(Cursor cursor) {
@@ -142,8 +145,8 @@ public class MessageDatabaseService {
                             messageList.add(message);
                         }
                     } else {
-                            messageList.add(message);
-                        }
+                        messageList.add(message);
+                    }
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -565,6 +568,8 @@ public class MessageDatabaseService {
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
             values.put(MobiComDatabaseHelper.HIDDEN, message.isHidden());
+            boolean hidden = (hideActionMessages && message.isActionMessage()) || message.isHidden();
+            values.put(MobiComDatabaseHelper.HIDDEN, hidden);
             if (message.getGroupId() != null) {
                 values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
             }
@@ -985,53 +990,59 @@ public class MessageDatabaseService {
         if (parentGroupKey != null && parentGroupKey != 0) {
             return getLatestGroupMessages(createdAt, searchText, parentGroupKey);
         } else {
-            String createdAtClause = "";
-            if (createdAt != null && createdAt > 0) {
-                createdAtClause = " and m1.createdAt < " + createdAt;
-            }
-            createdAtClause += " and m1.deleted = 0 ";
-
-            String messageTypeClause = "";
-            String messageTypeJoinClause = "";
-            String searchCaluse = "";
-            String categoryClause = " left join channel ch on ch.channelKey = m1.channelKey ";
-
-            MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-            String categoryName = userPreferences.getCategoryName();
-
-            if (!userPreferences.isDisplayCallRecordEnable()) {
-                messageTypeClause = " and m1.type != " + Message.MessageType.CALL_INCOMING.getValue() + " and m1.type != " + Message.MessageType.CALL_OUTGOING.getValue();
-                messageTypeJoinClause = " and m1.type = m2.type";
-            }
+            Cursor cursor = null;
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             if (!TextUtils.isEmpty(searchText)) {
-                searchCaluse += " and m1.message like '%" + searchText.replaceAll("'", "''") + "%' ";
+                String searchQuery = "select * from sms where deleted = 0 and messageContentType not in (10,11,102,103) and replyMessage not in (2) and type not in (6,7) and hidden = 0 and message like +'%" + searchText.replaceAll("'", "''") + "%' order by createdAt DESC";
+                cursor = db.rawQuery(searchQuery, null);
+            } else {
+                String createdAtClause = "";
+                if (createdAt != null && createdAt > 0) {
+                    createdAtClause = " and m1.createdAt < " + createdAt;
+                }
+                createdAtClause += " and m1.deleted = 0 ";
+
+                String messageTypeClause = "";
+                String messageTypeJoinClause = "";
+                String searchCaluse = "";
+                String categoryClause = " left join channel ch on ch.channelKey = m1.channelKey ";
+
+                MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+                String categoryName = userPreferences.getCategoryName();
+
+                if (!userPreferences.isDisplayCallRecordEnable()) {
+                    messageTypeClause = " and m1.type != " + Message.MessageType.CALL_INCOMING.getValue() + " and m1.type != " + Message.MessageType.CALL_OUTGOING.getValue();
+                    messageTypeJoinClause = " and m1.type = m2.type";
+                }
+
+                if (!TextUtils.isEmpty(searchText)) {
+                    searchCaluse += " and m1.message like '%" + searchText.replaceAll("'", "''") + "%' ";
+                }
+
+                String hiddenType = " and m1.messageContentType not in (" + Message.ContentType.HIDDEN.getValue()
+                        + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue() + ")";
+
+                String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
+                        + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType and m1.hidden = m2.hidden " + messageTypeJoinClause + " ) ";
+
+                if (!TextUtils.isEmpty(categoryName)) {
+                    rowQuery = rowQuery + categoryClause;
+                }
+
+                rowQuery = rowQuery + "where m2.createdAt is null  ";
+
+                if (!TextUtils.isEmpty(categoryName)) {
+
+                    rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName + "'";
+
+                }
+
+                rowQuery = rowQuery + createdAtClause + searchCaluse + hiddenType + messageTypeClause + " order by m1.createdAt desc";
+                cursor = db.rawQuery(rowQuery, null);
             }
 
-            String hiddenType = " and m1.messageContentType not in (" + Message.ContentType.HIDDEN.getValue()
-                    + "," + Message.ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue() + ") AND m1.hidden = 0 AND m1.replyMessage not in (" + Message.ReplyMessage.HIDE_MESSAGE.getValue() + ")";
-
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
-                    + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType" + messageTypeJoinClause + " ) ";
-
-            if (!TextUtils.isEmpty(categoryName)) {
-                rowQuery = rowQuery + categoryClause;
-            }
-
-            rowQuery = rowQuery + "where m2.createdAt is null  ";
-
-            if (!TextUtils.isEmpty(categoryName)) {
-
-                rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName + "'";
-
-            }
-
-            rowQuery = rowQuery + createdAtClause + searchCaluse + hiddenType + messageTypeClause + " order by m1.createdAt desc";
-
-            final Cursor cursor = db.rawQuery(rowQuery, null);
             List<Message> messageList = getLatestMessageList(cursor);
-
             dbHelper.close();
             return messageList;
         }

@@ -309,9 +309,15 @@ public class AttachmentManager {
                         // The download failed, sets the background color to dark red
                         case DOWNLOAD_FAILED:
                             //localView.setStatusResource(R.drawable.imagedownloadfailed);
-                            localView.getProressBar().setProgress(0);
-                            localView.getMessage().setAttDownloadInProgress(false);
-                            localView.getDownloadProgressLayout().setVisibility(View.GONE);
+                            if (localView.getProressBar() != null) {
+                                localView.getProressBar().setProgress(0);
+                            }
+                            if(localView.getMessage() != null){
+                                localView.getMessage().setAttDownloadInProgress(false);
+                            }
+                            if(localView.getDownloadProgressLayout() != null){
+                                localView.getDownloadProgressLayout().setVisibility(View.GONE);
+                            }
                             localView.setVisibility(View.INVISIBLE);
                             localView.cancelDownload();
                             BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString(), localView.getMessage());
