@@ -45,11 +45,9 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String ADD_MEMBERS_TO_CONTACT_GROUP_URL = "/rest/ws/group/%s/add";
     private static final String GET_MEMBERS_FROM_CONTACT_GROUP_URL = "/rest/ws/group/%s/get";
     private static final String GET_GROUP_INFO_FROM_GROUP_IDS_URL = "/rest/ws/group/details";
-    private static final String ADD_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL =
-            "/rest/ws/group/%s/add/members";
+    private static final String ADD_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/add/members";
     private static final String GET_MEMBERS_TO_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/get";
-    private static final String GET_MEMBERS_FROM_CONTACT_GROUP_LIST_URL =
-            "/rest/ws/group/favourite/list/get";
+    private static final String GET_MEMBERS_FROM_CONTACT_GROUP_LIST_URL = "/rest/ws/group/favourite/list/get";
     private static final String CREATE_CONVERSATION_URL = "/conversations";
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
@@ -61,9 +59,9 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String GROUPTYPE = "groupType";
     private static final String TAG = "ChannelClientService";
     private static ChannelClientService channelClientService;
-    private static final String REMOVE_MEMBERS_FROM_CONTACT_GROUP_OF_TYPE_URL =
-            "/rest/ws/group/%s/remove";
+    private static final String REMOVE_MEMBERS_FROM_CONTACT_GROUP_OF_TYPE_URL = "/rest/ws/group/%s/remove";
     private HttpRequestUtils httpRequestUtils;
+
 
     private ChannelClientService(Context context) {
         super(context);
@@ -163,10 +161,8 @@ public class ChannelClientService extends MobiComKitClientService {
     public ChannelFeed getChannelInfoByParameters(String parameters) {
         String response = "";
         try {
-            response = httpRequestUtils.getResponse(getChannelInfoUrl() + "?" + parameters,
-                    "application/json", "application/json");
-            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils
-                    .getObjectFromJson(response, ChannelFeedApiResponse.class);
+            response = httpRequestUtils.getResponse(getChannelInfoUrl() + "?" + parameters, "application/json", "application/json");
+            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(response, ChannelFeedApiResponse.class);
             Utils.printLog(context, TAG, "Channel info response  is :" + response);
 
             if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
@@ -194,16 +190,12 @@ public class ChannelClientService extends MobiComKitClientService {
 
         try {
             if (muteNotificationRequest.isRequestValid()) {
-                String requestJson = GsonUtils.getJsonFromObject(muteNotificationRequest,
-                        MuteNotificationRequest.class);
-                String response = httpRequestUtils.postData(getMuteChannelUrl(),
-                        "application/json", "application/json", requestJson);
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String requestJson = GsonUtils.getJsonFromObject(muteNotificationRequest, MuteNotificationRequest.class);
+                String response = httpRequestUtils.postData(getMuteChannelUrl(), "application/json", "application/json", requestJson);
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
 
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Mute notification response: " + apiResponse
-                            .getStatus());
+                    Utils.printLog(context, TAG, "Mute notification response: " + apiResponse.getStatus());
                 }
             }
 
@@ -219,8 +211,7 @@ public class ChannelClientService extends MobiComKitClientService {
                 UPDATED_AT
                 + "=" + lastChannelSyncTime;
         try {
-            String response = httpRequestUtils.getResponse(url, "application/json",
-                    "application/json");
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
             Utils.printLog(context, TAG, "Channel sync call response: " + response);
             return (SyncChannelFeed) GsonUtils.getObjectFromJson(response, SyncChannelFeed.class);
         } catch (Exception e) {
@@ -228,17 +219,13 @@ public class ChannelClientService extends MobiComKitClientService {
         }
     }
 
-    @Deprecated
     public ChannelFeed createChannel(ChannelInfo channelInfo) {
         ChannelFeed channelFeed = null;
         try {
-            String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass
-            ());
-            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(),
-            "application/json", "application/json", jsonFromObject);
+            String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass());
+            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(), "application/json", "application/json", jsonFromObject);
             Utils.printLog(context, TAG, "Create channel Response :" + createChannelResponse);
-            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils
-            .getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
+            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
 
             if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 channelFeed = channelFeedApiResponse.getResponse();
@@ -251,28 +238,14 @@ public class ChannelClientService extends MobiComKitClientService {
         return channelFeed;
     }
 
-    public ChannelFeedApiResponse createChannelWithReponse(ChannelInfo channelInfo) throws Exception {
-        String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass());
-        String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(),
-                "application/json", "application/json", jsonFromObject);
-        Utils.printLog(context, TAG, "Create channel Response :" + createChannelResponse);
-        return (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse,
-                ChannelFeedApiResponse.class);
-    }
-
     public List<ChannelFeed> createMultipleChannels(List<ChannelInfo> channels) {
         List<ChannelFeed> channelFeeds = null;
         try {
-            String jsonFromObject = GsonUtils.getJsonFromObject(channels, new
-                    TypeToken<List<ChannelInfo>>() {
-                    }.getType());
-            String createChannelResponse = httpRequestUtils.postData(getCreateMultipleChannelUrl
-                    (), "application/json", "application/json", jsonFromObject);
-            Utils.printLog(context, TAG, "Create Multiple channel Response :" +
-                    createChannelResponse);
-            MultipleChannelFeedApiResponse channelFeedApiResponse =
-                    (MultipleChannelFeedApiResponse) GsonUtils.getObjectFromJson
-                            (createChannelResponse, MultipleChannelFeedApiResponse.class);
+            String jsonFromObject = GsonUtils.getJsonFromObject(channels, new TypeToken<List<ChannelInfo>>() {
+            }.getType());
+            String createChannelResponse = httpRequestUtils.postData(getCreateMultipleChannelUrl(), "application/json", "application/json", jsonFromObject);
+            Utils.printLog(context, TAG, "Create Multiple channel Response :" + createChannelResponse);
+            MultipleChannelFeedApiResponse channelFeedApiResponse = (MultipleChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, MultipleChannelFeedApiResponse.class);
 
             if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 channelFeeds = channelFeedApiResponse.getResponse();
@@ -285,28 +258,22 @@ public class ChannelClientService extends MobiComKitClientService {
         return channelFeeds;
     }
 
-    public ApiResponse removeMembersFromMultipleChannelsByChannelKeys(Set<Integer> channelKeys,
-                                                                      Set<String> userIds) {
+    public ApiResponse removeMembersFromMultipleChannelsByChannelKeys(Set<Integer> channelKeys, Set<String> userIds) {
         return removeMembersFromMultipleChannels(null, channelKeys, userIds);
     }
 
-    public ApiResponse removeMembersFromMultipleChannelsByClientGroupIds(Set<String>
-                                                                                 clientGroupIds,
-                                                                         Set<String> userIds) {
+    public ApiResponse removeMembersFromMultipleChannelsByClientGroupIds(Set<String> clientGroupIds, Set<String> userIds) {
         return removeMembersFromMultipleChannels(clientGroupIds, null, userIds);
     }
 
-    private ApiResponse removeMembersFromMultipleChannels(Set<String> clientGroupIds,
-                                                          Set<Integer> channelKeys, Set<String>
-                                                                  userIds) {
+    private ApiResponse removeMembersFromMultipleChannels(Set<String> clientGroupIds, Set<Integer> channelKeys, Set<String> userIds) {
         ApiResponse apiResponse = null;
         try {
             if (userIds != null && userIds.size() > 0) {
                 String parameters = "";
                 if (clientGroupIds != null && clientGroupIds.size() > 0) {
                     for (String clientGroupId : clientGroupIds) {
-                        parameters += CLIENT_GROUPIDs + "=" + URLEncoder.encode(clientGroupId,
-                                "UTF-8") + "&";
+                        parameters += CLIENT_GROUPIDs + "=" + URLEncoder.encode(clientGroupId, "UTF-8") + "&";
                     }
                 } else if (channelKeys != null && channelKeys.size() > 0) {
                     for (Integer channelKey : channelKeys) {
@@ -317,13 +284,10 @@ public class ChannelClientService extends MobiComKitClientService {
                     parameters += USER_ID + "=" + URLEncoder.encode(userId, "UTF-8") + "&";
                 }
                 String url = getRemoveMembersFromMultipChannels() + "?" + parameters;
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel remove members from channels response: " +
-                            "" + apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Channel remove members from channels response: " + apiResponse.getStatus());
                 }
             }
         } catch (Exception e) {
@@ -333,32 +297,25 @@ public class ChannelClientService extends MobiComKitClientService {
     }
 
 
-    public synchronized ApiResponse addMemberToMultipleChannels(Set<String> clientGroupIds,
-                                                                Set<Integer> channelKeys, String
-                                                                        userId) {
+    public synchronized ApiResponse addMemberToMultipleChannels(Set<String> clientGroupIds, Set<Integer> channelKeys, String userId) {
         ApiResponse apiResponse = null;
         try {
             if (!TextUtils.isEmpty(userId)) {
                 String parameters = "";
                 if (clientGroupIds != null && clientGroupIds.size() > 0) {
                     for (String clientGroupId : clientGroupIds) {
-                        parameters += CLIENT_GROUPIDs + "=" + URLEncoder.encode(clientGroupId,
-                                "UTF-8") + "&";
+                        parameters += CLIENT_GROUPIDs + "=" + URLEncoder.encode(clientGroupId, "UTF-8") + "&";
                     }
                 } else {
                     for (Integer channelKey : channelKeys) {
                         parameters += GROUPIDS + "=" + channelKey + "&";
                     }
                 }
-                String url = getAddMemberToMultipleChannelsUrl() + "?" + parameters + USER_ID +
-                        "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String url = getAddMemberToMultipleChannelsUrl() + "?" + parameters + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel add member call response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Channel add member call response: " + apiResponse.getStatus());
                 }
             }
         } catch (Exception e) {
@@ -367,18 +324,15 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-    public ApiResponse addMemberToMultipleChannelsByChannelKey(Set<Integer> channelKeys, String
-            userId) {
+    public ApiResponse addMemberToMultipleChannelsByChannelKey(Set<Integer> channelKeys, String userId) {
         return addMemberToMultipleChannels(null, channelKeys, userId);
     }
 
-    public ApiResponse addMemberToMultipleChannelsByClientGroupIds(Set<String> clientGroupIds,
-                                                                   String userId) {
+    public ApiResponse addMemberToMultipleChannelsByClientGroupIds(Set<String> clientGroupIds, String userId) {
         return addMemberToMultipleChannels(clientGroupIds, null, userId);
     }
 
-    public synchronized ApiResponse addMemberToChannel(String clientGroupId, Integer channelKey,
-                                                       String userId) {
+    public synchronized ApiResponse addMemberToChannel(String clientGroupId, Integer channelKey, String userId) {
         try {
             String parameters = "";
             if (!TextUtils.isEmpty(clientGroupId)) {
@@ -389,13 +343,10 @@ public class ChannelClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(parameters) && !TextUtils.isEmpty(userId)) {
                 String url = getAddMemberToGroup() + "?" +
                         parameters + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
-                        ApiResponse.class);
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel add member call response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Channel add member call response: " + apiResponse.getStatus());
                 }
                 return apiResponse;
             }
@@ -413,8 +364,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return addMemberToChannel(clientGroupId, null, userId);
     }
 
-    public synchronized ApiResponse removeMemberFromChannel(String clientGroupId, Integer
-            channelKey, String userId) {
+    public synchronized ApiResponse removeMemberFromChannel(String clientGroupId, Integer channelKey, String userId) {
         ApiResponse apiResponse = null;
         try {
             String parameters = "";
@@ -426,13 +376,10 @@ public class ChannelClientService extends MobiComKitClientService {
             if (!TextUtils.isEmpty(parameters) && !TextUtils.isEmpty(userId)) {
                 String url = getRemoveMemberUrl() + "?" +
                         parameters + "&" + USER_ID + "=" + URLEncoder.encode(userId, "UTF-8");
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel remove member response: " + apiResponse
-                            .getStatus());
+                    Utils.printLog(context, TAG, "Channel remove member response: " + apiResponse.getStatus());
                 }
             }
         } catch (Exception e) {
@@ -453,15 +400,11 @@ public class ChannelClientService extends MobiComKitClientService {
         ApiResponse apiResponse = null;
         try {
             if (groupInfoUpdate != null) {
-                String channelNameUpdateJson = GsonUtils.getJsonFromObject(groupInfoUpdate,
-                        GroupInfoUpdate.class);
-                String response = httpRequestUtils.postData(getChannelUpdateUrl(),
-                        "application/json", "application/json", channelNameUpdateJson);
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String channelNameUpdateJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
+                String response = httpRequestUtils.postData(getChannelUpdateUrl(), "application/json", "application/json", channelNameUpdateJson);
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Update Channel response: " + apiResponse
-                            .getStatus());
+                    Utils.printLog(context, TAG, "Update Channel response: " + apiResponse.getStatus());
                 }
             }
         } catch (Exception e) {
@@ -478,8 +421,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return leaveMemberFromChannel(clientGroupId, null);
     }
 
-    public synchronized ApiResponse leaveMemberFromChannel(String clientGroupId, Integer
-            channelKey) {
+    public synchronized ApiResponse leaveMemberFromChannel(String clientGroupId, Integer channelKey) {
         ApiResponse apiResponse = null;
         try {
             String parameters = "";
@@ -491,13 +433,10 @@ public class ChannelClientService extends MobiComKitClientService {
 
             if (!TextUtils.isEmpty(clientGroupId) || (channelKey != null && channelKey != 0)) {
                 String url = getChannelLeftUrl() + "?" + parameters;
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse
-                        .class);
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel leave member call response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Channel leave member call response: " + apiResponse.getStatus());
                 }
             }
         } catch (Exception e) {
@@ -512,13 +451,10 @@ public class ChannelClientService extends MobiComKitClientService {
                 String url = getChannelDeleteUrl() + "?" +
                         GROUP_ID
                         + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
-                String response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
-                        ApiResponse.class);
+                String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Channel delete call response: " + apiResponse
-                            .getStatus());
+                    Utils.printLog(context, TAG, "Channel delete call response: " + apiResponse.getStatus());
                 }
                 return apiResponse;
             }
@@ -531,24 +467,20 @@ public class ChannelClientService extends MobiComKitClientService {
 
     public ChannelFeedApiResponse createChannelWithResponse(ChannelInfo channelInfo) {
         try {
-            String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass
-                    ());
-            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(),
-                    "application/json", "application/json", jsonFromObject);
+            String jsonFromObject = GsonUtils.getJsonFromObject(channelInfo, channelInfo.getClass());
+            String createChannelResponse = httpRequestUtils.postData(getCreateChannelUrl(), "application/json", "application/json", jsonFromObject);
             Utils.printLog(context, TAG, "Create channel Response :" + createChannelResponse);
             if (TextUtils.isEmpty(createChannelResponse)) {
                 return null;
             }
-            return (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse,
-                    ChannelFeedApiResponse.class);
+            return (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(createChannelResponse, ChannelFeedApiResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public ApiResponse addMemberToContactGroup(String contactGroupId, List<String>
-            contactGroupMemberList) {
+    public ApiResponse addMemberToContactGroup(String contactGroupId, List<String> contactGroupMemberList) {
         String response;
         if (!TextUtils.isEmpty(contactGroupId) && contactGroupMemberList != null) {
             String url = String.format(addMembersToContactGroupUrl(), contactGroupId);
@@ -556,14 +488,11 @@ public class ChannelClientService extends MobiComKitClientService {
             String jsonFromObject = GsonUtils.getJsonFromObject(contactGroupMemberList, List.class);
             Utils.printLog(context, TAG, "Sending json:" + jsonFromObject);
             try {
-                response = httpRequestUtils.postData(url, "application/json", "application/json",
-                        jsonFromObject);
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
-                        ApiResponse.class);
+                response = httpRequestUtils.postData(url, "application/json", "application/json", jsonFromObject);
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
 
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Add Member To Contact Group Response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Add Member To Contact Group Response: " + apiResponse.getStatus());
                     return apiResponse;
                 }
             } catch (Exception e) {
@@ -573,28 +502,21 @@ public class ChannelClientService extends MobiComKitClientService {
         return null;
     }
 
-    public ApiResponse addMemberToContactGroupOfType(String contactGroupId, String groupType,
-                                                     List<String> contactGroupMemberList) {
+    public ApiResponse addMemberToContactGroupOfType(String contactGroupId, String groupType, List<String> contactGroupMemberList) {
         String response;
-        if (!TextUtils.isEmpty(contactGroupId) && !TextUtils.isEmpty(groupType) &&
-                contactGroupMemberList != null) {
+        if (!TextUtils.isEmpty(contactGroupId) && !TextUtils.isEmpty(groupType) && contactGroupMemberList != null) {
             String url = String.format(addMembersToContactGroupOfTypeUrl(), contactGroupId);
-            ApplozicAddMemberOfGroupType applozicAddMemberOfGroupType = new
-                    ApplozicAddMemberOfGroupType();
+            ApplozicAddMemberOfGroupType applozicAddMemberOfGroupType = new ApplozicAddMemberOfGroupType();
             applozicAddMemberOfGroupType.setGroupMemberList(contactGroupMemberList);
             applozicAddMemberOfGroupType.setType(groupType);
-            String jsonFromObject = GsonUtils.getJsonFromObject(applozicAddMemberOfGroupType,
-                    ApplozicAddMemberOfGroupType.class);
+            String jsonFromObject = GsonUtils.getJsonFromObject(applozicAddMemberOfGroupType, ApplozicAddMemberOfGroupType.class);
             Utils.printLog(context, TAG, "Sending json:" + jsonFromObject);
             try {
-                response = httpRequestUtils.postData(url, "application/json", "application/json",
-                        jsonFromObject);
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
-                        ApiResponse.class);
+                response = httpRequestUtils.postData(url, "application/json", "application/json", jsonFromObject);
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
 
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Add Member To Contact Group Response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Add Member To Contact Group Response: " + apiResponse.getStatus());
                     return apiResponse;
                 }
             } catch (Exception e) {
@@ -609,8 +531,7 @@ public class ChannelClientService extends MobiComKitClientService {
         if (!TextUtils.isEmpty(contactGroupId)) {
             String url = String.format(getMembersFromContactGroupUrl(), contactGroupId);
             response = httpRequestUtils.getResponse(url, "application/json", "application/json");
-            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils
-                    .getObjectFromJson(response, ChannelFeedApiResponse.class);
+            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(response, ChannelFeedApiResponse.class);
             if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 ChannelFeed channelFeed = channelFeedApiResponse.getResponse();
                 return channelFeed;
@@ -622,11 +543,9 @@ public class ChannelClientService extends MobiComKitClientService {
     public ChannelFeed getMembersFromContactGroupOfType(String contactGroupId, String groupType) {
         String response;
         if (!TextUtils.isEmpty(contactGroupId) && !TextUtils.isEmpty(groupType)) {
-            String url = String.format(getMembersFromContactGroupOfTypeUrl() + "?" + GROUPTYPE +
-                    "=" + groupType, contactGroupId);
+            String url = String.format(getMembersFromContactGroupOfTypeUrl() + "?" + GROUPTYPE + "=" + groupType, contactGroupId);
             response = httpRequestUtils.getResponse(url, "application/json", "application/json");
-            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils
-                    .getObjectFromJson(response, ChannelFeedApiResponse.class);
+            ChannelFeedApiResponse channelFeedApiResponse = (ChannelFeedApiResponse) GsonUtils.getObjectFromJson(response, ChannelFeedApiResponse.class);
             if (channelFeedApiResponse != null && channelFeedApiResponse.isSuccess()) {
                 ChannelFeed channelFeed = channelFeedApiResponse.getResponse();
                 return channelFeed;
@@ -635,8 +554,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return null;
     }
 
-    public ChannelFeedListResponse getGroupInfoFromGroupIds(List<String> groupIds, List<String>
-            clientGroupIds) {
+    public ChannelFeedListResponse getGroupInfoFromGroupIds(List<String> groupIds, List<String> clientGroupIds) {
         ChannelFeedListResponse apiResponse = null;
 
         try {
@@ -663,14 +581,11 @@ public class ChannelClientService extends MobiComKitClientService {
             }
 
             String url = getGroupInfoFromGroupIdsUrl() + parameters;
-            String response = httpRequestUtils.getResponse(url, "application/json",
-                    "application/json");
-            apiResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response,
-                    ChannelFeedListResponse.class);
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+            apiResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response, ChannelFeedListResponse.class);
 
             if (apiResponse != null) {
-                Utils.printLog(context, TAG, "Group Info from groupIds/clientGroupIds response : " +
-                        "" + apiResponse.getStatus());
+                Utils.printLog(context, TAG, "Group Info from groupIds/clientGroupIds response : " + apiResponse.getStatus());
             }
         } catch (Exception e) {
             Utils.printLog(context, TAG, e.getMessage());
@@ -678,9 +593,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-    public ChannelFeedListResponse getMemebersFromContactGroupIds(List<String> groupIds,
-                                                                  List<String> groupNames, String
-                                                                          groupType) {
+    public ChannelFeedListResponse getMemebersFromContactGroupIds(List<String> groupIds, List<String> groupNames, String groupType) {
         ChannelFeedListResponse channelFeedListResponse = null;
 
         try {
@@ -709,14 +622,11 @@ public class ChannelClientService extends MobiComKitClientService {
 
             String url = getMembersFromContactGroupListUrl() + parameters;
 
-            String response = httpRequestUtils.getResponse(url, "application/json",
-                    "application/json");
-            channelFeedListResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson
-                    (response, ChannelFeedListResponse.class);
+            String response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+            channelFeedListResponse = (ChannelFeedListResponse) GsonUtils.getObjectFromJson(response, ChannelFeedListResponse.class);
 
             if (channelFeedListResponse != null) {
-                Utils.printLog(context, TAG, "Get Memebers from Contact Group List of Type " +
-                        "Response : " + channelFeedListResponse.getStatus());
+                Utils.printLog(context, TAG, "Get Memebers from Contact Group List of Type Response : " + channelFeedListResponse.getStatus());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -724,8 +634,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return channelFeedListResponse;
     }
 
-    public String createConversation(Integer groupId, String userId, String agentId, String
-            applicationId) {
+    public String createConversation(Integer groupId, String userId, String agentId, String applicationId) {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -740,8 +649,7 @@ public class ChannelClientService extends MobiComKitClientService {
         }
 
         try {
-            String response = httpRequestUtils.postData(getCreateConversationUrl(),
-                    "application/json", "application/json", jsonObject.toString());
+            String response = httpRequestUtils.postData(getCreateConversationUrl(), "application/json", "application/json", jsonObject.toString());
             Utils.printLog(context, TAG, "Response : " + response);
             return response;
         } catch (Exception e) {
@@ -750,8 +658,7 @@ public class ChannelClientService extends MobiComKitClientService {
         return null;
     }
 
-    public ApiResponse removeMemberFromContactGroupOfType(String groupName, String groupType,
-                                                          String userId) {
+    public ApiResponse removeMemberFromContactGroupOfType(String groupName, String groupType, String userId) {
         String response;
         String parameters;
         String url;
@@ -763,13 +670,10 @@ public class ChannelClientService extends MobiComKitClientService {
             }
             url = String.format(getRemoveMemberFromGroupTypeUrl() + parameters, groupName);
             try {
-                response = httpRequestUtils.getResponse(url, "application/json",
-                        "application/json");
-                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
-                        ApiResponse.class);
+                response = httpRequestUtils.getResponse(url, "application/json", "application/json");
+                ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (apiResponse != null) {
-                    Utils.printLog(context, TAG, "Remove memeber from Group of Type Response: " +
-                            apiResponse.getStatus());
+                    Utils.printLog(context, TAG, "Remove memeber from Group of Type Response: " + apiResponse.getStatus());
                     return apiResponse;
                 }
             } catch (Exception e) {
