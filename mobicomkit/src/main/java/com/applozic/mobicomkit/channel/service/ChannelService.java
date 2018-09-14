@@ -29,8 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
-
 /**
  * Created by sunil on 1/1/16.
  */
@@ -95,8 +93,6 @@ public class ChannelService {
                 ChannelFeed[] channelFeeds = new ChannelFeed[1];
                 channelFeeds[0] = channelFeed;
                 processChannelFeedList(channelFeeds, false);
-                //BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS
-                // .UPDATE_CHANNEL_NAME.toString());
                 channel = getChannel(channelFeed);
                 return channel;
             }

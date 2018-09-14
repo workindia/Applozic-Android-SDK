@@ -163,36 +163,4 @@ public class ChannelServiceTest {
     public void createGroupOfTwo_withNullArgs() {
         assertEquals(null, channelService.createGroupOfTwoWithResponse(null));
     }
-
-    @Test
-    public void createGroupOfTwo_inServer_withSuccess() {
-        ChannelFeedApiResponse apiResponse = (ChannelFeedApiResponse) GsonUtils
-                .getObjectFromJson(MockConstants
-                        .channelSuccessResponse, ChannelFeedApiResponse.class);
-
-        when(channelClientService.createChannelWithResponse(new ChannelInfo())).thenReturn
-                (apiResponse);
-
-        when(channelDatabaseService.getChannelByClientGroupId("8956743")).thenReturn(null);
-
-        AlResponse response = channelService.createGroupOfTwoWithResponse(new ChannelInfo());
-
-        assertTrue(response.isSuccess() && response.getResponse() instanceof Channel);
-    }
-
-    @Test
-    public void createGroupOfTwo_foundInLocal(){
-        ChannelFeedApiResponse apiResponse = (ChannelFeedApiResponse) GsonUtils
-                .getObjectFromJson(MockConstants
-                        .channelErrorResponse, ChannelFeedApiResponse.class);
-
-        when(channelClientService.createChannelWithResponse(new ChannelInfo())).thenReturn
-                (apiResponse);
-
-        when(channelDatabaseService.getChannelByClientGroupId("8956743")).thenReturn(null);
-
-        AlResponse response = channelService.createGroupOfTwoWithResponse(new ChannelInfo());
-
-        assertFalse(response.isSuccess());
-    }
 }
