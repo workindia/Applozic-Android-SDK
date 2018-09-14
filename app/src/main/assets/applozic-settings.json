@@ -53,7 +53,6 @@
   "showActionDialWithOutCalling": false,
   "profileLogoutButton": false,
   "userProfileFragment": true,
-  "messageSearchOption": true,
   "hideGroupAddMembersButton": false,
   "hideGroupNameUpdateButton": false,
   "hideGroupExitButton": false,
