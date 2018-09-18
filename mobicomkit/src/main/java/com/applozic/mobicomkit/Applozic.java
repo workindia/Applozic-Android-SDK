@@ -90,6 +90,7 @@ public class Applozic {
         }
     }
 
+    @Deprecated
     public static boolean isLoggedIn(Context context) {
         return MobiComUserPreference.getInstance(context).isLoggedIn();
     }
@@ -140,6 +141,7 @@ public class Applozic {
         ApplozicMqttIntentService.enqueueWork(context, intent);
     }
 
+    @Deprecated
     public static void loginUser(Context context, User user, AlLoginHandler loginHandler) {
         if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
             RegistrationResponse registrationResponse = new RegistrationResponse();
@@ -150,6 +152,25 @@ public class Applozic {
         }
     }
 
+    public static void connectUser(Context context, User user, AlLoginHandler loginHandler) {
+        new UserLoginTask(user, loginHandler, context).execute();
+    }
+
+    public static void connectUserWithCheck(Context context, User user, AlLoginHandler loginHandler) {
+        if (isConnected(context)) {
+            RegistrationResponse registrationResponse = new RegistrationResponse();
+            registrationResponse.setMessage("User already Logged in");
+            loginHandler.onSuccess(registrationResponse, context);
+        } else {
+            new UserLoginTask(user, loginHandler, context).execute();
+        }
+    }
+
+    public static boolean isConnected(Context context) {
+        return MobiComUserPreference.getInstance(context).isLoggedIn();
+    }
+
+    @Deprecated
     public static void loginUser(Context context, User user, boolean withLoggedInCheck, AlLoginHandler loginHandler) {
         if (withLoggedInCheck && MobiComUserPreference.getInstance(context).isLoggedIn()) {
             RegistrationResponse registrationResponse = new RegistrationResponse();
