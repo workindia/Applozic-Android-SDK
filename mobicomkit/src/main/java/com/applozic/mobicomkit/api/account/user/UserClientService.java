@@ -3,9 +3,12 @@ package com.applozic.mobicomkit.api.account.user;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.applozic.mobicomkit.Applozic;
+import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -198,6 +201,10 @@ public class UserClientService extends MobiComKitClientService {
             final String deviceKeyString = mobiComUserPreference.getDeviceKeyString();
             final String userKeyString = mobiComUserPreference.getSuUserKeyString();
             String url = mobiComUserPreference.getUrl();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Applozic.getInstance(context).setCustomNotificationSound(null);
+                new NotificationChannels(context).deleteAllChannels();
+            }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();
             mobiComUserPreference.clearAll();

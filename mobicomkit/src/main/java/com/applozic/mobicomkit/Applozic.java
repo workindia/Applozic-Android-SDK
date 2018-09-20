@@ -1,5 +1,6 @@
 package com.applozic.mobicomkit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.broadcast.ApplozicBroadcastReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.listners.AlLoginHandler;
@@ -31,14 +33,16 @@ public class Applozic {
     private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
     private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
+    private static final String NOTIFICATION_CHANNEL_VERSION_STATE = "NOTIFICATION_CHANNEL_VERSION_STATE";
+    private static final String CUSTOM_NOTIFICATION_SOUND = "CUSTOM_NOTIFICATION_SOUND";
     public static Applozic applozic;
-    public SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private Context context;
     private ApplozicBroadcastReceiver applozicBroadcastReceiver;
 
     private Applozic(Context context) {
         this.context = context;
-        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, context.MODE_PRIVATE);
+        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
     }
 
     public static Applozic init(Context context, String applicationKey) {
@@ -76,9 +80,27 @@ public class Applozic {
         return sharedPreferences.getString(DEVICE_REGISTRATION_ID, null);
     }
 
+    @SuppressLint("NewApi")
+    public int getNotificationChannelVersion() {
+        return sharedPreferences.getInt(NOTIFICATION_CHANNEL_VERSION_STATE, NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
+    }
+
+    public void setNotificationChannelVersion(int version) {
+        sharedPreferences.edit().putInt(NOTIFICATION_CHANNEL_VERSION_STATE, version).commit();
+    }
+
     public Applozic setDeviceRegistrationId(String registrationId) {
         sharedPreferences.edit().putString(DEVICE_REGISTRATION_ID, registrationId).commit();
         return this;
+    }
+
+    public Applozic setCustomNotificationSound(String filePath) {
+        sharedPreferences.edit().putString(CUSTOM_NOTIFICATION_SOUND, filePath).commit();
+        return this;
+    }
+
+    public String getCustomNotificationSound() {
+        return sharedPreferences.getString(CUSTOM_NOTIFICATION_SOUND, null);
     }
 
     public static void disconnectPublish(Context context, String deviceKeyString, String userKeyString) {

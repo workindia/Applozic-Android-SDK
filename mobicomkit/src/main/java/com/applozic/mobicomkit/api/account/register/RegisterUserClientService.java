@@ -1,26 +1,18 @@
 package com.applozic.mobicomkit.api.account.register;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.AudioAttributes;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
-import com.applozic.mobicomkit.api.conversation.SyncCallService;
+import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.exception.InvalidApplicationException;
 import com.applozic.mobicomkit.exception.UnAuthoriseException;
@@ -63,14 +55,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return getBaseUrl() + UPDATE_ACCOUNT_URL;
     }
 
-
-//    final RegistrationResponse registrationResponse = createAccount(user);
-//    Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-//    intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH,true);
-//    ApplozicMqttIntentService.enqueueWork(context, intent);
-//    return registrationResponse;
-
-
     public RegistrationResponse createAccount(User user) throws Exception {
 
         user.setDeviceType(Short.valueOf("1"));
@@ -96,7 +80,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new ConnectException("No Internet Connection");
         }
 
-//        Log.i(TAG, "App Id is: " + getApplicationKey(context));
         Utils.printLog(context, TAG, "Registration json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
 
@@ -104,7 +87,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw new Exception("503 Service Unavailable");
-//            return null;
         }
         if (response.contains(INVALID_APP_ID)) {
             throw new InvalidApplicationException("Invalid Application Id");
@@ -147,7 +129,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
         }
         if (!TextUtils.isEmpty(user.getNotificationSoundFilePath())) {
-            mobiComUserPreference.setNotificationSoundFilePath(user.getNotificationSoundFilePath());
+            Applozic.getInstance(context).setCustomNotificationSound(user.getNotificationSoundFilePath());
         }
         Contact contact = new Contact();
         contact.setUserId(user.getUserId());
@@ -161,8 +143,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
         contact.setMetadata(user.getMetadata());
         contact.setStatus(registrationResponse.getStatusMessage());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(context);
-            createSilentNotificationChannel(context);
+            Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
+            new NotificationChannels(context).prepareNotificationChannels();
         }
         contact.processContactNumbers(context);
         new AppContactService(context).upsert(contact);
@@ -203,18 +185,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setImageLink(imageLink);
         user.setRegistrationId(pushNotificationId);
         user.setDisplayName(displayName);
-
-        //user.setCountryCode(mobiComUserPreference.getCountryCode());
-       /*if (!TextUtils.isEmpty(phoneNumber)) {
-            try {
-
-                    user.setCountryCode(PhoneNumberUtil.getInstance().getRegionCodeForNumber(PhoneNumberUtil.getInstance().parse(phoneNumber, "")));
-                    mobiComUserPreference.setCountryCode(user.getCountryCode());
-
-            } catch (NumberParseException e) {
-                e.printStackTrace();
-            }
-        }*/
         user.setContactNumber(phoneNumber);
 
         final RegistrationResponse registrationResponse = createAccount(user);
@@ -318,52 +288,4 @@ public class RegisterUserClientService extends MobiComKitClientService {
             Utils.printLog(context, TAG, "Account status sync call failed");
         }
     }
-
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    void createNotificationChannel(Context context) {
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        CharSequence name = MobiComKitConstants.PUSH_NOTIFICATION_NAME;
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        if (mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_PUSH_NOTIFICATION) == null) {
-            NotificationChannel mChannel = new NotificationChannel(MobiComKitConstants.AL_PUSH_NOTIFICATION, name, importance);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.GREEN);
-            if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
-                mChannel.setShowBadge(true);
-            } else {
-                mChannel.setShowBadge(false);
-            }
-            if (ApplozicClient.getInstance(context).getVibrationOnNotification()) {
-                mChannel.enableVibration(true);
-                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            }
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE).build();
-            mChannel.setSound(TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getNotificationSoundFilePath()) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(MobiComUserPreference.getInstance(context).getNotificationSoundFilePath()), audioAttributes);
-            mNotificationManager.createNotificationChannel(mChannel);
-
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    void createSilentNotificationChannel(Context context) {
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        CharSequence name = MobiComKitConstants.PUSH_NOTIFICATION_NAME;
-        int importance = NotificationManager.IMPORTANCE_LOW;
-        if (mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_SILENT_NOTIFICATION) == null) {
-            NotificationChannel mChannel = new NotificationChannel(MobiComKitConstants.AL_SILENT_NOTIFICATION, name, importance);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.GREEN);
-            if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
-                mChannel.setShowBadge(true);
-            } else {
-                mChannel.setShowBadge(false);
-            }
-
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
-    }
-
 }

@@ -16,6 +16,7 @@ public class MobiComKitConstants {
     public static final String PUSH_NOTIFICATION = "PUSH_NOTIFICATION";
     public static final String AL_PUSH_NOTIFICATION = "AL_PUSH_NOTIFICATION";
     public static final String AL_SILENT_NOTIFICATION = "AL_SILENT_NOTIFICATION";
+    public static final String AL_APP_NOTIFICATION = "AL_APP_NOTIFICATION";
 
     public static final String ACTIVITY_TO_OPEN = "ACTIVITY_TO_OPEN";
     public static final String LOCATION = "Location";
@@ -32,10 +33,12 @@ public class MobiComKitConstants {
     public static String APPLICATION_LOGIN_ACTIVITY = "com.applozic.loginActivity";
     public static String GROUP_USER_LIMIT_EXCEED = "GROUP_USER_LIMIT_EXCEED";
     public static final String TEMPLATE_MESSAGE_LIST = "alMessageTemplates";
-    public static final String APPLICATION_INFO_RESPONSE  = "\"success\"";
+    public static final String APPLICATION_INFO_RESPONSE = "\"success\"";
     public static final String AL_MESSAGE_KEY = "AL_MESSAGE_KEY";
     public static final String PUSH_NOTIFICATION_DISPATCHER = "PUSH_NOTIFICATION_DISPATCHER";
     public static final String PUSH_NOTIFICATION_NAME = "Push Notification";
+    public static final String APP_NOTIFICATION_NAME = "App Notification";
+    public static final String SILENT_PUSH_NOTIFICATION = "Silent Notification";
 
     public static final String MESSAGE_JSON_INTENT_EXTRA = "messageJson";
     public static final String MESSAGE_INTENT_EXTRA = "message";

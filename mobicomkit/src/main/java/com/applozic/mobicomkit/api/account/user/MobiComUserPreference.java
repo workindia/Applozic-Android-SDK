@@ -61,7 +61,6 @@ public class MobiComUserPreference {
     private static String video_call_token = "video_call_token";
     private static String user_type_id = "user_type_id";
     private static String application_info_call_done = "application_info_call_done";
-    private static String notification_sound_fileName = "notificationSoundFileName";
     private static String CONTACTS_GROUP_ID = "CONTACTS_GROUP_ID";
     private static String CONTACT_GROUP_ID_LISTS = "contactGroupIdLists";
     private static String IS_CONTACT_GROUP_NAME_LIST = "isContactGroupNameList";
@@ -73,7 +72,7 @@ public class MobiComUserPreference {
     private static String device_contact_sync_time = "device_contact_sync_time";
     private static String PARENT_GROUP_KEY = "PARENT_GROUP_KEY";
     private static String user_encryption_Key = "user_encryption_Key";
-    private static String CATEGORY_NAME_KEY =  "CATEGORY_KEY";
+    private static String CATEGORY_NAME_KEY = "CATEGORY_KEY";
 
     private static SharedPreferences sharedPreferences;
     private Context context;
@@ -714,14 +713,6 @@ public class MobiComUserPreference {
         sharedPreferences.edit().putBoolean(application_info_call_done, customerResponse).commit();
     }
 
-    public String getNotificationSoundFilePath() {
-        return sharedPreferences.getString(notification_sound_fileName, null);
-    }
-
-    public void setNotificationSoundFilePath(String soundUri) {
-        sharedPreferences.edit().putString(notification_sound_fileName, soundUri).commit();
-    }
-
     public String getContactsGroupId() {
         return sharedPreferences.getString(CONTACTS_GROUP_ID, null);
     }
@@ -833,10 +824,10 @@ public class MobiComUserPreference {
     }
 
     public String getCategoryName() {
-        return sharedPreferences.getString(CATEGORY_NAME_KEY,null);
+        return sharedPreferences.getString(CATEGORY_NAME_KEY, null);
     }
 
-    public void setCategoryName(String category ) {
+    public void setCategoryName(String category) {
         sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
     }
 }
