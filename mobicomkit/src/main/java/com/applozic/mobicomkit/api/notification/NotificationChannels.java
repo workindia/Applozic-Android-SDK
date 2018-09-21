@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 /**
@@ -51,7 +52,11 @@ public class NotificationChannels {
             if (TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound())) {
                 createNotificationChannel();
             } else {
-                createAppNotificationChannel();
+                try {
+                    createAppNotificationChannel();
+                } catch (ApplozicException e) {
+                    e.printStackTrace();
+                }
             }
             createSilentNotificationChannel();
 
@@ -112,7 +117,7 @@ public class NotificationChannels {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private synchronized void createAppNotificationChannel() {
+    private synchronized void createAppNotificationChannel() throws ApplozicException {
         CharSequence name = MobiComKitConstants.APP_NOTIFICATION_NAME;
         int importance = NotificationManager.IMPORTANCE_HIGH;
 
@@ -131,8 +136,12 @@ public class NotificationChannels {
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
 
+            String soundPath = Applozic.getInstance(context).getCustomNotificationSound();
+            if (TextUtils.isEmpty(soundPath)) {
+                throw new ApplozicException("Custom sound path is required to create App notification channel. " +
+                        "Please set a sound path using Applozic.getInstance(context).setCustomNotificationSound(your-sound-file-path)");
+            }
             mChannel.setSound(Uri.parse(Applozic.getInstance(context).getCustomNotificationSound()), audioAttributes);
-            Utils.printLog(context, TAG, mChannel.getSound().getPath());
             mNotificationManager.createNotificationChannel(mChannel);
             Utils.printLog(context, TAG, "Created app notification channel");
         }
