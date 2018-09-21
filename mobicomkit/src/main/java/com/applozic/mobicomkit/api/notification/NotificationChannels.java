@@ -29,11 +29,13 @@ public class NotificationChannels {
 
     private Context context;
     private NotificationManager mNotificationManager;
+    private String soundFilePath;
     private String TAG = getClass().getSimpleName();
 
-    public NotificationChannels(Context context) {
+    public NotificationChannels(Context context, String soundFilePath) {
         this.context = context;
-        mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.soundFilePath = soundFilePath;
+        this.mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -47,9 +49,10 @@ public class NotificationChannels {
             }
             if (isAppChannelCreated()) {
                 Applozic.getInstance(context).setCustomNotificationSound(null);
+                soundFilePath = null;
                 deleteAppNotificationChannel();
             }
-            if (TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound())) {
+            if (TextUtils.isEmpty(soundFilePath)) {
                 createNotificationChannel();
             } else {
                 try {
@@ -83,7 +86,7 @@ public class NotificationChannels {
         if (mute) {
             return MobiComKitConstants.AL_SILENT_NOTIFICATION;
         } else {
-            if (TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound())) {
+            if (TextUtils.isEmpty(soundFilePath)) {
                 return MobiComKitConstants.AL_PUSH_NOTIFICATION;
             }
         }
@@ -109,8 +112,7 @@ public class NotificationChannels {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
-            mChannel.setSound(TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound()) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(Applozic.getInstance(context).getCustomNotificationSound()), audioAttributes);
-            Utils.printLog(context, TAG, mChannel.getSound().getPath());
+            mChannel.setSound(TextUtils.isEmpty(soundFilePath) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(soundFilePath), audioAttributes);
             mNotificationManager.createNotificationChannel(mChannel);
             Utils.printLog(context, TAG, "Created notification channel");
         }
@@ -136,12 +138,11 @@ public class NotificationChannels {
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
 
-            String soundPath = Applozic.getInstance(context).getCustomNotificationSound();
-            if (TextUtils.isEmpty(soundPath)) {
+            if (TextUtils.isEmpty(soundFilePath)) {
                 throw new ApplozicException("Custom sound path is required to create App notification channel. " +
                         "Please set a sound path using Applozic.getInstance(context).setCustomNotificationSound(your-sound-file-path)");
             }
-            mChannel.setSound(Uri.parse(Applozic.getInstance(context).getCustomNotificationSound()), audioAttributes);
+            mChannel.setSound(Uri.parse(soundFilePath), audioAttributes);
             mNotificationManager.createNotificationChannel(mChannel);
             Utils.printLog(context, TAG, "Created app notification channel");
         }

@@ -203,7 +203,7 @@ public class UserClientService extends MobiComKitClientService {
             String url = mobiComUserPreference.getUrl();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Applozic.getInstance(context).setCustomNotificationSound(null);
-                new NotificationChannels(context).deleteAllChannels();
+                new NotificationChannels(context, null).deleteAllChannels();
             }
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancelAll();

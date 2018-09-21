@@ -58,6 +58,7 @@ public class NotificationService {
     private int notificationDisableThreshold = 0;
     private NotificationChannels notificationChannels;
     private String[] constArray = {MobiComKitConstants.LOCATION, MobiComKitConstants.AUDIO, MobiComKitConstants.VIDEO, MobiComKitConstants.ATTACHMENT};
+    private String notificationFilePath;
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
         this.context = context;
@@ -69,9 +70,10 @@ public class NotificationService {
         this.appContactService = new AppContactService(context);
         this.activityToOpen = Utils.getMetaDataValue(context, "activity.open.on.notification");
         this.messageDatabaseService = new MessageDatabaseService(context);
-        notificationDisableThreshold = applozicClient.getNotificationMuteThreshold();
+        this.notificationDisableThreshold = applozicClient.getNotificationMuteThreshold();
+        this.notificationFilePath = Applozic.getInstance(context).getCustomNotificationSound();
 
-        notificationChannels = new NotificationChannels(context);
+        notificationChannels = new NotificationChannels(context, notificationFilePath);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationChannels.prepareNotificationChannels();
@@ -157,7 +159,7 @@ public class NotificationService {
             mBuilder.setVibrate(pattern);
         }
         if (!muteNotifications(index)) {
-            mBuilder.setSound(TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound()) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(Applozic.getInstance(context).getCustomNotificationSound()));
+            mBuilder.setSound(TextUtils.isEmpty(notificationFilePath) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(notificationFilePath));
         }
 
         NotificationCompat.InboxStyle inboxStyle =
@@ -392,7 +394,7 @@ public class NotificationService {
             }
         }
         if (!muteNotifications(index)) {
-            mBuilder.setSound(TextUtils.isEmpty(Applozic.getInstance(context).getCustomNotificationSound()) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(Applozic.getInstance(context).getCustomNotificationSound()));
+            mBuilder.setSound(TextUtils.isEmpty(notificationFilePath) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(notificationFilePath));
         }
         if (message.hasAttachment()) {
             try {

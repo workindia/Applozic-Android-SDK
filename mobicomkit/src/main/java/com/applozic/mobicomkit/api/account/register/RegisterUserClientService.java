@@ -144,7 +144,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         contact.setStatus(registrationResponse.getStatusMessage());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
-            new NotificationChannels(context).prepareNotificationChannels();
+            new NotificationChannels(context, Applozic.getInstance(context).getCustomNotificationSound()).prepareNotificationChannels();
         }
         contact.processContactNumbers(context);
         new AppContactService(context).upsert(contact);
