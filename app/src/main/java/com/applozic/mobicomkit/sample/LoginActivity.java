@@ -336,7 +336,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     mEmailSignInButton.setVisibility(View.VISIBLE);
                     AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
                     alertDialog.setTitle(getString(R.string.text_alert));
-                    alertDialog.setMessage(exception.toString());
+                    alertDialog.setMessage(exception == null ? registrationResponse.getMessage() : exception.getMessage());
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.ok_alert),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {

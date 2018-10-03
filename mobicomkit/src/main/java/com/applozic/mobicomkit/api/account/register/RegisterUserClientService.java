@@ -56,7 +56,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
     }
 
     public RegistrationResponse createAccount(User user) throws Exception {
-
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
@@ -88,15 +87,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw new Exception("503 Service Unavailable");
         }
-        if (response.contains(INVALID_APP_ID)) {
-            throw new InvalidApplicationException("Invalid Application Id");
-        }
+
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
 
-        if (registrationResponse.isPasswordInvalid()) {
-            throw new UnAuthoriseException("Invalid uername/password");
-
-        }
         Utils.printLog(context, "Registration response ", "is " + registrationResponse);
         if (registrationResponse.getNotificationResponse() != null) {
             Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
@@ -162,7 +155,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);
-
         return registrationResponse;
     }
 
@@ -241,15 +233,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
         if (TextUtils.isEmpty(response) || response.contains("<html")) {
             throw null;
         }
-        if (response.contains(INVALID_APP_ID)) {
-            throw new InvalidApplicationException("Invalid Application Id");
-        }
 
         registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-
-        if (registrationResponse.isPasswordInvalid()) {
-            throw new UnAuthoriseException("Invalid uername/password");
-        }
 
         Utils.printLog(context, TAG, "Registration update response: " + registrationResponse);
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
