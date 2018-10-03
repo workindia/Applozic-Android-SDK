@@ -166,11 +166,11 @@ public class RegistrationResponse extends JsonMarker {
     public void setUserEncryptionKey(String userEncryptionKey) {
         this.userEncryptionKey = userEncryptionKey;
     }
-  
+
     public static enum PricingType {
 
         CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
-                Short.valueOf("4")),UNSUBSCRIBED(Short.valueOf("6"));
+                Short.valueOf("4")), UNSUBSCRIBED(Short.valueOf("6"));
         private final Short value;
 
         private PricingType(Short c) {
@@ -178,6 +178,23 @@ public class RegistrationResponse extends JsonMarker {
         }
 
         public Short getValue() {
+            return value;
+        }
+    }
+
+    public boolean isRegistrationSuccess() {
+        return (!TextUtils.isEmpty(message) && (SuccessResponse.UPDATED.getValue().equals(message) || SuccessResponse.REGISTERED.getValue().equals(message) || SuccessResponse.REGISTERED_WITHOUTREGISTRATIONID.getValue().equals(message)));
+    }
+
+    public static enum SuccessResponse {
+        UPDATED("UPDATED"), REGISTERED("REGISTERED"), REGISTERED_WITHOUTREGISTRATIONID("REGISTERED.WITHOUTREGISTRATIONID");
+        private final String value;
+
+        private SuccessResponse(String c) {
+            value = c;
+        }
+
+        public String getValue() {
             return value;
         }
     }

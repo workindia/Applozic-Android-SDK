@@ -48,14 +48,28 @@ public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean result) {
         // And if it is we call the callback function on it.
-        if (result && this.taskListener != null) {
-            this.taskListener.onSuccess(registrationResponse);
-        } else if (mException != null && this.taskListener != null) {
-            this.taskListener.onFailure(registrationResponse, mException);
-        } else if (result && this.pushNotificationHandler != null) {
-            this.pushNotificationHandler.onSuccess(registrationResponse);
-        } else if (mException != null && this.pushNotificationHandler != null) {
-            this.pushNotificationHandler.onFailure(registrationResponse, mException);
+        if (taskListener != null) {
+            if (registrationResponse != null) {
+                if (registrationResponse.isRegistrationSuccess()) {
+                    taskListener.onSuccess(registrationResponse);
+                } else {
+                    taskListener.onFailure(registrationResponse, mException);
+                }
+            } else {
+                taskListener.onFailure(null, mException);
+            }
+        }
+
+        if (pushNotificationHandler != null) {
+            if (registrationResponse != null) {
+                if (registrationResponse.isRegistrationSuccess()) {
+                    pushNotificationHandler.onSuccess(registrationResponse);
+                } else {
+                    pushNotificationHandler.onFailure(registrationResponse, mException);
+                }
+            } else {
+                pushNotificationHandler.onFailure(null, mException);
+            }
         }
     }
 

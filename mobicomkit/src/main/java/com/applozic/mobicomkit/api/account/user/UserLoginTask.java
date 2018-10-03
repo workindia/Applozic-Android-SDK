@@ -64,14 +64,28 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean result) {
         // And if it is we call the callback function on it.
-        if (result && this.taskListener != null) {
-            this.taskListener.onSuccess(registrationResponse, context.get());
-        } else if (mException != null && this.taskListener != null) {
-            this.taskListener.onFailure(registrationResponse, mException);
-        } else if (result && this.loginHandler != null) {
-            this.loginHandler.onSuccess(registrationResponse, context.get());
-        } else if (mException != null && this.loginHandler != null) {
-            this.loginHandler.onFailure(registrationResponse, mException);
+        if (taskListener != null) {
+            if (registrationResponse != null) {
+                if (registrationResponse.isRegistrationSuccess()) {
+                    taskListener.onSuccess(registrationResponse, context.get());
+                } else {
+                    taskListener.onFailure(registrationResponse, mException);
+                }
+            } else {
+                taskListener.onFailure(null, mException);
+            }
+        }
+
+        if (loginHandler != null) {
+            if (registrationResponse != null) {
+                if (registrationResponse.isRegistrationSuccess()) {
+                    loginHandler.onSuccess(registrationResponse, context.get());
+                } else {
+                    loginHandler.onFailure(registrationResponse, mException);
+                }
+            } else {
+                loginHandler.onFailure(null, mException);
+            }
         }
     }
 
