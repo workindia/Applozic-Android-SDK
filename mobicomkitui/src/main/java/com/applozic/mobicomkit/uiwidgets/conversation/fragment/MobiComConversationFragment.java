@@ -110,6 +110,7 @@ import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
@@ -1478,7 +1479,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 menu.findItem(R.id.deleteConversation).setVisible(false);
             } else {
-                menu.findItem(R.id.deleteConversation).setVisible(alCustomizationSettings.isDeleteOption());
+                menu.findItem(R.id.deleteConversation).setVisible(alCustomizationSettings.isDeleteOption() || ApplozicSetting.getInstance(getContext()).isDeleteConversationOption());
             }
         }
 
