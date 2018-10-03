@@ -658,6 +658,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 holder.circleImageView = (CircleImageView) convertView.findViewById(R.id.contactImage);
                 holder.adminTextView = (TextView) convertView.findViewById(R.id.adminTextView);
                 holder.lastSeenAtTextView = (TextView) convertView.findViewById(R.id.lastSeenAtTextView);
+                holder.displayName.setSelected(true);
+                holder.displayName.requestFocus();
                 convertView.setTag(holder);
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
