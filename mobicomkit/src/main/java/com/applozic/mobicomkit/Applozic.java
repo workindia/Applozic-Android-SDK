@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.broadcast.ApplozicBroadcastReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -23,6 +24,8 @@ import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import java.util.Map;
 
 /**
  * Created by sunil on 29/8/16.
@@ -190,6 +193,18 @@ public class Applozic {
 
     public static boolean isConnected(Context context) {
         return MobiComUserPreference.getInstance(context).isLoggedIn();
+    }
+
+    public static boolean isRegistered(Context context) {
+        return MobiComUserPreference.getInstance(context).isRegistered();
+    }
+
+    public static boolean isApplozicNotification(Context context, Map<String, String> data) {
+        if (MobiComPushReceiver.isMobiComPushNotification(data)) {
+            MobiComPushReceiver.processMessageAsync(context, data);
+            return true;
+        }
+        return false;
     }
 
     @Deprecated
