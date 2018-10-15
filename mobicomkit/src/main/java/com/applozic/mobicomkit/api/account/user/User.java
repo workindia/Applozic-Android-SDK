@@ -34,6 +34,8 @@ public class User extends JsonMarker {
     private String notificationSoundFilePath;
     private Long lastMessageAtTime;
     private Map<String, String> metadata;
+    private String alBaseUrl;
+    private String kmBaseUrl;
     private Short roleType = RoleType.USER_ROLE.getValue();
 
     public List<String> getFeatures() {
@@ -234,6 +236,22 @@ public class User extends JsonMarker {
 
     public Short getRoleType() {
         return roleType;
+    }
+
+    public String getAlBaseUrl() {
+        return alBaseUrl;
+    }
+
+    public void setAlBaseUrl(String alBaseUrl) {
+        this.alBaseUrl = alBaseUrl;
+    }
+
+    public String getKmBaseUrl() {
+        return kmBaseUrl;
+    }
+
+    public void setKmBaseUrl(String kmBaseUrl) {
+        this.kmBaseUrl = kmBaseUrl;
     }
 
     public enum AuthenticationType {

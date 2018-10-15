@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 
@@ -21,6 +22,7 @@ import java.net.URLConnection;
 public class MobiComKitClientService {
 
     public static final String BASE_URL_METADATA = "com.applozic.server.url";
+    public static final String KM_BASE_URL_METADATA = "io.kommunicate.server.url";
     public static final String MQTT_BASE_URL_METADATA = "com.applozic.mqtt.server.url";
     public static final String FILE_URL = "/rest/ws/aws/file/";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
@@ -64,7 +66,13 @@ public class MobiComKitClientService {
 
         if (!TextUtils.isEmpty(SELECTED_BASE_URL)) {
             return SELECTED_BASE_URL;
+        } else {
+            String alCustomUrl = ALSpecificSettings.getInstance(context).getAlBaseUrl();
+            if (!TextUtils.isEmpty(alCustomUrl)) {
+                return alCustomUrl;
+            }
         }
+
         String BASE_URL = Utils.getMetaDataValue(context.getApplicationContext(), BASE_URL_METADATA);
         if (!TextUtils.isEmpty(BASE_URL)) {
             return BASE_URL;
@@ -74,9 +82,17 @@ public class MobiComKitClientService {
     }
 
     public String getKmBaseUrl() {
-        if (getBaseUrl().contains("apps-test")) {
-            return KM_TEST_BASE_URL;
+        String kmCustomUrl = ALSpecificSettings.getInstance(context).getKmBaseUrl();
+
+        if (!TextUtils.isEmpty(kmCustomUrl)) {
+            return kmCustomUrl;
         }
+
+        String KM_BASE_URL = Utils.getMetaDataValue(context.getApplicationContext(), KM_BASE_URL_METADATA);
+        if (!TextUtils.isEmpty(KM_BASE_URL)) {
+            return KM_BASE_URL;
+        }
+
         return KM_PROD_BASE_URL;
     }
 
@@ -114,24 +130,7 @@ public class MobiComKitClientService {
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            /*String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
-            String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
-            httpConn.setRequestProperty("Authorization", basicAuth);
-            httpConn.setRequestProperty(APPLICATION_KEY_HEADER, getApplicationKey(context));
-
-            if( getAppModuleName(context)!=null ){
-                httpConn.setRequestProperty(APP_MOUDLE_NAME_KEY_HEADER, getApplicationKey(context));
-            }
-
-            httpConn.setRequestProperty(HttpRequestUtils.USERID_HEADER, HttpRequestUtils.USERID_HEADER_VALUE);*/
             httpConn.connect();
-            //Shifting this Code to individual class..this is needed so that caller can decide ..what should be done with the error
-//            response = httpConn.getResponseCode();
-//            if (response == HttpURLConnection.HTTP_OK) {
-//                in = httpConn.getInputStream();
-//
-//            }
-
         } catch (Exception ex) {
             throw new IOException("Error connecting");
         }

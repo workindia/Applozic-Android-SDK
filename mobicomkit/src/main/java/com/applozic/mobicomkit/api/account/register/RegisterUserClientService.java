@@ -14,9 +14,8 @@ import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.exception.InvalidApplicationException;
-import com.applozic.mobicomkit.exception.UnAuthoriseException;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -61,6 +60,13 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setTimezone(TimeZone.getDefault().getID());
         user.setEnableEncryption(user.isEnableEncryption());
 
+        if (!TextUtils.isEmpty(user.getAlBaseUrl())) {
+            ALSpecificSettings.getInstance(context).setAlBaseUrl(user.getAlBaseUrl());
+        }
+
+        if (!TextUtils.isEmpty(user.getKmBaseUrl())) {
+            ALSpecificSettings.getInstance(context).setKmBaseUrl(user.getKmBaseUrl());
+        }
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
@@ -210,6 +216,14 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
+
+        if (!TextUtils.isEmpty(user.getAlBaseUrl())) {
+            ALSpecificSettings.getInstance(context).setAlBaseUrl(user.getAlBaseUrl());
+        }
+
+        if (!TextUtils.isEmpty(user.getKmBaseUrl())) {
+            ALSpecificSettings.getInstance(context).setKmBaseUrl(user.getKmBaseUrl());
+        }
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
