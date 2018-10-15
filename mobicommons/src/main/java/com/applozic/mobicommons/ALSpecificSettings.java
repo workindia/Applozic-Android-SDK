@@ -12,13 +12,15 @@ import android.content.SharedPreferences;
 public class ALSpecificSettings {
     private static final String MY_PREFERENCE = "applozic_internal_preference_key";
     private SharedPreferences sharedPreferences;
-    public static ALSpecificSettings applozicSettings;
+    private static ALSpecificSettings applozicSettings;
     private static final String DATABASE_NAME = "DATABASE_NAME";
     private static final String ENABLE_TEXT_LOGGING = "ENABLE_TEXT_LOGGING";
     private static final String TEXT_LOG_FILE_NAME = "TEXT_LOG_FILE_NAME";
+    private static final String AL_BASE_URL = "AL_BASE_URL";
+    private static final String KM_BASE_URL = "KM_BASE_URL";
 
     private ALSpecificSettings(Context context) {
-        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, context.MODE_PRIVATE);
+        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
     }
 
     public static ALSpecificSettings getInstance(Context context) {
@@ -53,6 +55,24 @@ public class ALSpecificSettings {
 
     public String getTextLogFileName() {
         return sharedPreferences.getString(TEXT_LOG_FILE_NAME, "applozic_text_logs");
+    }
+
+    public String getAlBaseUrl() {
+        return sharedPreferences.getString(AL_BASE_URL, null);
+    }
+
+    public ALSpecificSettings setAlBaseUrl(String url) {
+        sharedPreferences.edit().putString(AL_BASE_URL, url).commit();
+        return this;
+    }
+
+    public String getKmBaseUrl() {
+        return sharedPreferences.getString(KM_BASE_URL, null);
+    }
+
+    public ALSpecificSettings setKmBaseUrl(String url) {
+        sharedPreferences.edit().putString(KM_BASE_URL, url).commit();
+        return this;
     }
 
     public boolean clearAll() {
