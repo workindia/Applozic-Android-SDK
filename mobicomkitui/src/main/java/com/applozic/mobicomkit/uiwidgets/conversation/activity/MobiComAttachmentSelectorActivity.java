@@ -245,10 +245,17 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
                     fileName = FileUtils.getFileName(this, selectedFileUri);
                     String fileFormat = FileUtils.getFileFormat(fileName);
+                    String fileNameToWrite;
                     if (TextUtils.isEmpty(fileFormat)) {
-                        return;
+                        String format = FileUtils.getFileFormat(FileUtils.getFile(this, selectedFileUri).getAbsolutePath());
+                        if (TextUtils.isEmpty(format)) {
+                            return;
+                        }
+                        fileNameToWrite = timeStamp + "." + format;
+                    } else {
+                        fileNameToWrite = timeStamp + "." + fileFormat;
                     }
-                    String fileNameToWrite = timeStamp + "." + fileFormat;
+
                     File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
                     new FileTaskAsync(mediaFile, selectedFileUri, this).execute((Void) null);
                 } catch (Exception e) {
