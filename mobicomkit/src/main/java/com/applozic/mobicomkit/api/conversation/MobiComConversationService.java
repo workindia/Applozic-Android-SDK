@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
@@ -76,6 +77,26 @@ public class MobiComConversationService {
         this.channelService = ChannelService.getInstance(context);
         this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
         this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
+    }
+
+    @VisibleForTesting
+    public void setMessageClientService(MessageClientService messageClientService) {
+        this.messageClientService = messageClientService;
+    }
+
+    @VisibleForTesting
+    public void setMessageDatabaseService(MessageDatabaseService messageDatabaseService) {
+        this.messageDatabaseService = messageDatabaseService;
+    }
+
+    @VisibleForTesting
+    public void setConversationService(ConversationService conversationService) {
+        this.conversationService = conversationService;
+    }
+
+    @VisibleForTesting
+    public void setContactService(AppContactService appContactService) {
+        this.baseContactService = appContactService;
     }
 
     public void sendMessage(Message message) {
