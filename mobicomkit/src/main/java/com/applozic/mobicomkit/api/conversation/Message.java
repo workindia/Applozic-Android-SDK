@@ -673,7 +673,7 @@ public class Message extends JsonMarker {
     }
 
     public void setHidden(boolean hidden) {
-        hidden = hidden;
+        this.hidden = hidden;
     }
 
     public int isReplyMessage() {
