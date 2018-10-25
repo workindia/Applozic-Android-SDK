@@ -11,13 +11,13 @@ import java.net.HttpURLConnection;
 public class URLServiceProvider {
 
     private Context context;
-    private static URLService urlService;
+    private URLService urlService;
 
     public URLServiceProvider(Context context) {
         this.context = context;
     }
 
-    private static URLService getUrlService(Context context) {
+    private URLService getUrlService(Context context) {
 
         if (urlService != null) {
             return urlService;
