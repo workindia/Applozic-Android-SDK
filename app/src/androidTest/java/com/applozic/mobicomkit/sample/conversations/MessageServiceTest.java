@@ -289,7 +289,7 @@ public class MessageServiceTest {
 
             mobiComConversationService.deleteMessage(message, new Contact());
 
-            Mockito.verify(messageDatabaseService, Mockito.times(1)).deleteMessage(any(Message.class), anyString());
+            Mockito.verify(messageDatabaseService, Mockito.times(1)).deleteMessage(any(Message.class), nullable(String.class));
         } catch (Exception e) {
             e.printStackTrace();
         }
