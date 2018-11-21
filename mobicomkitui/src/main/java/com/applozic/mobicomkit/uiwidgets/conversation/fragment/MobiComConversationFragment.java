@@ -3732,6 +3732,73 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         private Integer conversationId;
         private List<Message> nextMessageList = new ArrayList<Message>();
 
+        private WeakReference<TextView> emptyTextViewWeakReference;
+        private WeakReference<ImageButton> sendButtonWeakReference;
+        private WeakReference<EditText> messageEditTextWeakReference;
+        private WeakReference<SwipeRefreshLayout> swipeLayoutWeakReference;
+        private WeakReference<LinearLayoutManager> layoutManagerWeakReference;
+        private WeakReference<Spinner> contextSpinnerWeakReference;
+        private WeakReference<FrameLayout> contextFrameLayoutWeakReference;
+
+        private void setWeakReferences() {
+            emptyTextViewWeakReference = new WeakReference<TextView>(emptyTextView);
+            sendButtonWeakReference = new WeakReference<ImageButton>(sendButton);
+            messageEditTextWeakReference = new WeakReference<EditText>(messageEditText);
+            swipeLayoutWeakReference = new WeakReference<SwipeRefreshLayout>(swipeLayout);
+            layoutManagerWeakReference = new WeakReference<LinearLayoutManager>(linearLayoutManager);
+            contextSpinnerWeakReference = new WeakReference<Spinner>(contextSpinner);
+            contextFrameLayoutWeakReference = new WeakReference<FrameLayout>(contextFrameLayout);
+        }
+
+        private TextView emptyTextView() {
+            if (emptyTextViewWeakReference != null) {
+                return emptyTextViewWeakReference.get();
+            }
+            return null;
+        }
+
+        private ImageButton sendButton() {
+            if (sendButtonWeakReference != null) {
+                return sendButtonWeakReference.get();
+            }
+            return null;
+        }
+
+        private EditText messageEditText() {
+            if (messageEditTextWeakReference != null) {
+                return messageEditTextWeakReference.get();
+            }
+            return  null;
+        }
+
+        private SwipeRefreshLayout swipeLayout() {
+            if (swipeLayoutWeakReference != null) {
+                return swipeLayoutWeakReference.get();
+            }
+            return null;
+        }
+
+        private LinearLayoutManager linearLayoutManager() {
+            if (layoutManagerWeakReference != null) {
+                return layoutManagerWeakReference.get();
+            }
+            return null;
+        }
+
+        private Spinner contextSpinner() {
+            if (contextSpinnerWeakReference != null) {
+                return contextSpinnerWeakReference.get();
+            }
+            return null;
+        }
+
+        private FrameLayout contextFrameLayout() {
+            if (contextFrameLayoutWeakReference != null) {
+                return contextFrameLayoutWeakReference.get();
+            }
+            return null;
+        }
+
         public DownloadConversation(RecyclerView recyclerView, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, Contact contact, Channel channel, Integer conversationId) {
             this.recyclerView = recyclerView;
             this.initial = initial;
@@ -3746,14 +3813,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            emptyTextView.setVisibility(View.GONE);
+            if (emptyTextView() != null) {
+                emptyTextView().setVisibility(View.GONE);
+            }
             isAlreadyLoading = true;
-            swipeLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeLayout.setRefreshing(true);
-                }
-            });
+            if (swipeLayout() != null) {
+                swipeLayout().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (swipeLayout() != null) {
+                            swipeLayout().setRefreshing(true);
+                        }
+                    }
+                });
+            }
             if (initial) {
                 if (recordButtonWeakReference != null) {
                     ImageButton recordButton = recordButtonWeakReference.get();
@@ -3761,8 +3834,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         recordButton.setEnabled(false);
                     }
                 }
-                sendButton.setEnabled(false);
-                messageEditText.setEnabled(false);
+                if (sendButton() != null) {
+                    sendButton().setEnabled(false);
+                }
+                if (messageEditText() != null) {
+                    messageEditText().setEnabled(false);
+                }
             }
 
             if (!initial && messageList.isEmpty()) {
@@ -3870,14 +3947,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         protected void onPostExecute(Long result) {
             super.onPostExecute(result);
             //TODO: FIX ME
-            swipeLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeLayout.setRefreshing(true);
-                }
-            });
+            if (swipeLayout() != null) {
+                swipeLayout().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (swipeLayout() != null) {
+                            swipeLayout().setRefreshing(true);
+                        }
+                    }
+                });
+            }
             if (nextMessageList.isEmpty()) {
-                linearLayoutManager.setStackFromEnd(true);
+                if (linearLayoutManager() != null) {
+                    linearLayoutManager().setStackFromEnd(true);
+                }
             }
             //Note: This is done to avoid duplicates with same timestamp entries
             if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
@@ -3897,24 +3980,33 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (initial) {
                 messageList.addAll(nextMessageList);
                 recyclerDetailConversationAdapter.searchString = searchString;
-                emptyTextView.setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
-
+                if (emptyTextView() != null) {
+                    emptyTextView().setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
+                }
                 if (!messageList.isEmpty()) {
                     recyclerView.post(new Runnable() {
                         @Override
                         public void run() {
                             if (!TextUtils.isEmpty(searchString)) {
-                                linearLayoutManager.scrollToPositionWithOffset(scrollToFirstSearchIndex(), 0);
+                                if (linearLayoutManager() != null) {
+                                    linearLayoutManager().scrollToPositionWithOffset(scrollToFirstSearchIndex(), 0);
+                                }
                             } else {
-                                linearLayoutManager.scrollToPositionWithOffset(messageList.size() - 1, 0);
+                                if (linearLayoutManager() != null) {
+                                    linearLayoutManager().scrollToPositionWithOffset(messageList.size() - 1, 0);
+                                }
                             }
                         }
                     });
                 }
             } else if (!nextMessageList.isEmpty()) {
-                linearLayoutManager.setStackFromEnd(true);
+                if (linearLayoutManager() != null) {
+                    linearLayoutManager().setStackFromEnd(true);
+                }
                 messageList.addAll(0, nextMessageList);
-                linearLayoutManager.scrollToPosition(nextMessageList.size() - 1);
+                if (linearLayoutManager() != null) {
+                    linearLayoutManager().scrollToPosition(nextMessageList.size() - 1);
+                }
             }
 
             conversationService.read(contact, channel);
@@ -3952,8 +4044,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 onSelected = true;
                 applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
                 if (applozicContextSpinnerAdapter != null) {
-                    contextSpinner.setAdapter(applozicContextSpinnerAdapter);
-                    contextFrameLayout.setVisibility(VISIBLE);
+                    if (contextSpinner() != null) {
+                        contextSpinner().setAdapter(applozicContextSpinnerAdapter);
+                    }
+                    if (contextFrameLayout() != null) {
+                        contextFrameLayout().setVisibility(VISIBLE);
+                    }
                     int i = 0;
                     for (Conversation c : conversationList) {
                         i++;
@@ -3961,19 +4057,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             break;
                         }
                     }
-                    contextSpinner.setSelection(i - 1, false);
-                    contextSpinner.setOnItemSelectedListener(adapterView);
+                    if (contextSpinner() != null) {
+                        contextSpinner().setSelection(i - 1, false);
+                        contextSpinner().setOnItemSelectedListener(adapterView);
+                    }
                 }
             }
             if (recyclerDetailConversationAdapter != null) {
                 recyclerDetailConversationAdapter.notifyDataSetChanged();
             }
-            swipeLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeLayout.setRefreshing(false);
-                }
-            });
+            if (swipeLayout() != null) {
+                swipeLayout().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (swipeLayout() != null) {
+                            swipeLayout().setRefreshing(false);
+                        }
+                    }
+                });
+            }
 
             if (messageToForward != null) {
                 sendForwardMessage(messageToForward);
@@ -3990,8 +4092,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         recordButton.setEnabled(true);
                     }
                 }
-                sendButton.setEnabled(true);
-                messageEditText.setEnabled(true);
+                if (sendButton() != null) {
+                    sendButton().setEnabled(true);
+                }
+                if (messageEditText() != null) {
+                    messageEditText().setEnabled(true);
+                }
             }
             loadMore = !nextMessageList.isEmpty();
             createTemplateMessages();

@@ -69,6 +69,8 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     private ArrayList<Uri> attachmentFileList = new ArrayList<Uri>();
     private MobiComAttachmentGridViewAdapter imagesAdapter;
 
+    private boolean isActivityDestroyed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -269,6 +271,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isActivityDestroyed = true;
         try {
             if (connectivityReceiver != null) {
                 unregisterReceiver(connectivityReceiver);
@@ -321,6 +324,9 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean b) {
             super.onPostExecute(b);
+            if(MobiComAttachmentSelectorActivity.this.isFinishing() || isActivityDestroyed || context == null || context.get() == null) {
+                return;
+            }
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
