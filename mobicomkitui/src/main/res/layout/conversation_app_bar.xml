@@ -29,7 +29,7 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:text="text"
-        app:layout_constraintStart_toEndOf="@id/conversation_contact_photo"
+        app:layout_constraintStart_toEndOf="@+id/conversation_contact_photo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
@@ -44,7 +44,7 @@
         android:maxLines="1"
         android:text="text"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_title"
-        app:layout_constraintStart_toEndOf="@id/conversation_contact_photo" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_title"
+        app:layout_constraintStart_toEndOf="@+id/conversation_contact_photo" />
 
 </android.support.constraint.ConstraintLayout>
