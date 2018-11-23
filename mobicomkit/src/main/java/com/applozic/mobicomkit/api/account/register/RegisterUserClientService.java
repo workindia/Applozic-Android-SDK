@@ -123,7 +123,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setPassword(user.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
-        mobiComUserPreference.setUserRoleType(user.getRoleType());
+        mobiComUserPreference.setUserRoleType(registrationResponse.getRoleType());
         if (user.getUserTypeId() != null) {
             mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
         }
