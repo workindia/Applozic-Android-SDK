@@ -275,9 +275,9 @@ public class MobiComMessageService {
         if (syncMessageFeed != null && syncMessageFeed.getMessages() != null) {
             List<Message> messageList = syncMessageFeed.getMessages();
 
-            for (final Message message : messageList) {
-                if (Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
-                    if (message.isGroupMetaDataUpdated()) {
+            for (int i = messageList.size() - 1; i >= 0; i--) {
+                if (Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(messageList.get(i).getContentType())) {
+                    if (messageList.get(i).isGroupMetaDataUpdated()) {
                         syncChannelForMetadata = true;
                     } else {
                         syncChannel = true;
@@ -285,8 +285,8 @@ public class MobiComMessageService {
                     //Todo: fix this, what if there are mulitple messages.
                     ChannelService.isUpdateTitle = true;
                 }
-                processMessage(message, message.getTo(), messageList.indexOf(message));
-                MobiComUserPreference.getInstance(context).setLastInboxSyncTime(message.getCreatedAtTime());
+                processMessage(messageList.get(i), messageList.get(i).getTo(), i);
+                MobiComUserPreference.getInstance(context).setLastInboxSyncTime(messageList.get(i).getCreatedAtTime());
             }
 
             if (syncChannel) {
