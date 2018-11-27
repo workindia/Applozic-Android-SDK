@@ -285,7 +285,7 @@ public class MobiComMessageService {
                     //Todo: fix this, what if there are mulitple messages.
                     ChannelService.isUpdateTitle = true;
                 }
-                processMessage(messageList.get(i), messageList.get(i).getTo(), i);
+                processMessage(messageList.get(i), messageList.get(i).getTo(), ((messageList.size() - 1) - i));
                 MobiComUserPreference.getInstance(context).setLastInboxSyncTime(messageList.get(i).getCreatedAtTime());
             }
 
