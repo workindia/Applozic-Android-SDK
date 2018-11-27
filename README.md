@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.9.4' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.11' `
 
 
 Add the following in gradle android target:      
@@ -282,18 +282,6 @@ Replace APP_PARENT_ACTIVITY with your app's parent activity.
 
      
 ```
-UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {                  
-
-@Override          
-public void onSuccess(RegistrationResponse registrationResponse, Context context) {           
-   // After successful registration with Applozic server the callback will come here 
-}                       
-
-@Override             
-public void onFailure(RegistrationResponse registrationResponse, Exception exception) {  
-    // If any failure in registration the callback  will come here 
-}};                      
-
 User user = new User();          
 user.setUserId(userId); //userId it can be any unique user identifier
 user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
@@ -301,11 +289,22 @@ user.setEmail(email); //optional
 user.setAuthenticationTypeId(User.AuthenticationType.APPLOZIC.getValue());  //User.AuthenticationType.APPLOZIC.getValue() for password verification from Applozic server and User.AuthenticationType.CLIENT.getValue() for access Token verification from your server set access token as password
 user.setPassword(""); //optional, leave it blank for testing purpose, read this if you want to add additional security by verifying password from your server https://www.applozic.com/docs/configuration.html#access-token-url
 user.setImageLink("");//optional,pass your image link
-new UserLoginTask(user, listener, this).execute((Void) null);                                       
+
+ Applozic.connectUser(context, user, new AlLoginHandler() {
+                @Override
+                public void onSuccess(RegistrationResponse registrationResponse, Context context) {
+                    // After successful registration with Applozic server the callback will come here 
+                }
+
+                @Override
+                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+                    // If any failure in registration the callback  will come here 
+             }
+   });                                      
 ```
 
 If it is a new user, new user account will get created else existing user will be logged in to the application.
-You can check if user is logged in to applozic or not by using ``` MobiComUserPreference.getInstance(this).isLoggedIn() ```
+You can check if user is logged in to applozic or not by using ``` Applozic.isConnected(context) ```
 
 
 
@@ -322,22 +321,17 @@ You can check if user is logged in to applozic or not by using ``` MobiComUserPr
 
 ```
 if(MobiComUserPreference.getInstance(context).isRegistered()) {
+  Applozic.registerForPushNotification(context, registrationToken, new AlPushNotificationHandler() {
+                @Override
+                public void onSuccess(RegistrationResponse registrationResponse) {
+                   
+                }
 
-PushNotificationTask pushNotificationTask = null;         
-PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {                  
-@Override           
-public void onSuccess(RegistrationResponse registrationResponse) {   
+                @Override
+                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
 
-}            
-@Override          
-public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
-
-} 
-
-};                    
-
-pushNotificationTask = new PushNotificationTask(registrationToken, listener, mActivity);            
-pushNotificationTask.execute((Void) null);  
+                }
+    });
 }
 ```
 
@@ -371,22 +365,17 @@ If you already have GCM enabled in your app, add the below code and pass the GCM
 
 ```
 if(MobiComUserPreference.getInstance(context).isRegistered()) {
+  Applozic.registerForPushNotification(context, registrationToken, new AlPushNotificationHandler() {
+                @Override
+                public void onSuccess(RegistrationResponse registrationResponse) {
+                   
+                }
 
-PushNotificationTask pushNotificationTask = null;         
-PushNotificationTask.TaskListener listener = new PushNotificationTask.TaskListener() {                  
-@Override           
-public void onSuccess(RegistrationResponse registrationResponse) {   
+                @Override
+                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
 
-}            
-@Override          
-public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
-
-} 
-
-};                    
-
-pushNotificationTask = new PushNotificationTask(registrationToken, listener, mActivity);            
-pushNotificationTask.execute((Void) null);  
+                }
+     });
 }
 ```
 
@@ -444,20 +433,17 @@ android:stopWithTask="false">
 #### Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
 
 ```
- PushNotificationTask pushNotificationTask = null;
- PushNotificationTask.TaskListener listener=  new PushNotificationTask.TaskListener() {
- @Override
- public void onSuccess(RegistrationResponse registrationResponse) {
+Applozic.registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), new   AlPushNotificationHandler() {
+                @Override
+                public void onSuccess(RegistrationResponse registrationResponse) {
+                   
+                }
 
- }
- @Override
- public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+                @Override
+                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
 
- }
-  
- };
- pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(),listener,context);
- pushNotificationTask.execute((Void)null);
+                }
+    });
 ```
 
 
@@ -487,32 +473,17 @@ startActivity(intent);
 
 
 ```
-1)Async task call for logout:
+Applozic.logoutUser(context, new AlLogoutHandler() {
+                @Override
+                public void onSuccess(Context context) {
+                    
+                }
 
- UserLogoutTask.TaskListener userLogoutTaskListener = new UserLogoutTask.TaskListener() {
- @Override
- public void onSuccess(Context context) {
-   //Logout success
- } 
-  @Override
- public void onFailure(Exception exception) {
-  //Logout failure
- }
- };
+                @Override
+                public void onFailure(Exception exception) {
 
- UserLogoutTask userLogoutTask = new UserLogoutTask(userLogoutTaskListener, context);
- userLogoutTask.execute((Void) null);     
- 
- 2)Logout Method call  
- 
- ApiResponse apiResponse =  new UserClientService(this).logout();
- 
- if(apiResponse != null && apiResponse.isSuccess()){
-      //Logout success
-    }else {
-       //Logout failure 
-  }
-Note :Use async task or thread to call this logout method       
+                }
+        });     
  ```
  
  
