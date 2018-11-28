@@ -42,11 +42,14 @@ import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.List;
@@ -66,6 +69,7 @@ public class MessageInfoFragment extends Fragment {
     private RecyclerView deliveredListView;
     private BaseContactService contactService;
     private FileClientService fileClientService;
+    private String geoApiKey;
 
     public MessageInfoFragment() {
     }
@@ -76,6 +80,7 @@ public class MessageInfoFragment extends Fragment {
         setHasOptionsMenu(true);
         contactService = new AppContactService(getContext());
         fileClientService = new FileClientService(getContext());
+        geoApiKey = Utils.getMetaDataValue(getContext().getApplicationContext(), ConversationActivity.GOOGLE_API_KEY_META_DATA);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -132,7 +137,7 @@ public class MessageInfoFragment extends Fragment {
             chatLocation.setVisibility(View.VISIBLE);
             locationImageLoader.setImageFadeIn(false);
             locationImageLoader.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-            locationImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage()), locationImageView);
+            locationImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage(), geoApiKey), locationImageView);
             textView.setVisibility(View.GONE);
         } else {
             chatLocation.setVisibility(View.GONE);
