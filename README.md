@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.20' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.30' `
 
 
 Add the following in gradle android target:      
@@ -335,7 +335,7 @@ if(MobiComUserPreference.getInstance(context).isRegistered()) {
 }
 ```
 
- **2.** In your FcmInstanceIDListenerService  onTokenRefresh() method
+ **2.** In your FcmListenerService  onNewToken(Token registrationToken) method
 
  ```
  if (MobiComUserPreference.getInstance(this).isRegistered()) {
@@ -421,13 +421,6 @@ android:stopWithTask="false">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
         </intent-filter>
-</service>
-
-<service android:name="<CLASS_PACKAGE>.FcmInstanceIDListenerService"
-       android:exported="false">
-       <intent-filter>
-           <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-       </intent-filter>
 </service>
   ``` 
 #### Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
