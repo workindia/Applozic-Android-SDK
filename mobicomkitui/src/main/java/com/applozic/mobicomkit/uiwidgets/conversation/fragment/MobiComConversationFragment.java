@@ -299,6 +299,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     TextView messageUnreadCountTextView;
     int messageUnreadCount = 0;
     TextView applozicLabel;
+    private String geoApiKey;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -311,6 +312,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        geoApiKey = Utils.getMetaDataValue(getContext().getApplicationContext(), ConversationActivity.GOOGLE_API_KEY_META_DATA);
         String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
@@ -1713,7 +1715,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_location_on_white_24dp);
                         imageViewForAttachmentType.setColorFilter(ContextCompat.getColor(getActivity(), R.color.apploizc_lite_gray_color));
                         messageImageLoader.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-                        messageImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage()), galleryImageView);
+                        messageImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage(), geoApiKey), galleryImageView);
                     } else {
                         imageViewForAttachmentType.setVisibility(View.GONE);
                         imageViewRLayout.setVisibility(View.GONE);
@@ -3114,7 +3116,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_location_on_white_24dp);
                         imageViewForAttachmentType.setColorFilter(ContextCompat.getColor(getActivity(), R.color.apploizc_lite_gray_color));
                         messageImageLoader.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-                        messageImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage()), galleryImageView);
+                        messageImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage(), geoApiKey), galleryImageView);
                     } else {
                         imageViewForAttachmentType.setVisibility(View.GONE);
                         imageViewRLayout.setVisibility(View.GONE);
@@ -3808,6 +3810,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             this.contact = contact;
             this.channel = channel;
             this.conversationId = conversationId;
+            setWeakReferences();
         }
 
         @Override

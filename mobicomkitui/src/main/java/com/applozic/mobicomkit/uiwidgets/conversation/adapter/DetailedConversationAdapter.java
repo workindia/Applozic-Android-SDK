@@ -80,6 +80,7 @@ import com.applozic.mobicommons.emoticon.EmoticonUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.bumptech.glide.Glide;
 
@@ -134,6 +135,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private ContextMenuClickListener contextMenuClickListener;
     private ALStoragePermissionListener storagePermissionListener;
     private ALRichMessageListener listener;
+    private String geoApiKey;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
@@ -173,6 +175,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.contactService = new AppContactService(context);
         this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.messageList = messageList;
+        geoApiKey = Utils.getMetaDataValue(context.getApplicationContext(), ConversationActivity.GOOGLE_API_KEY_META_DATA);
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -453,7 +456,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 myHolder.imageViewForAttachmentType.setColorFilter(Color.parseColor(message.isTypeOutbox() ? alCustomizationSettings.getSentMessageTextColor() : alCustomizationSettings.getReceivedMessageTextColor()));
                                 myHolder.imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_location_on_white_24dp);
                                 loadImage.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-                                loadImage.loadImage(LocationUtils.loadStaticMap(msg.getMessage()), myHolder.imageViewPhoto);
+                                loadImage.loadImage(LocationUtils.loadStaticMap(msg.getMessage(), geoApiKey), myHolder.imageViewPhoto);
                             } else {
                                 myHolder.imageViewForAttachmentType.setVisibility(View.GONE);
                                 myHolder.imageViewRLayout.setVisibility(View.GONE);
@@ -917,7 +920,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             //Default image while loading image.
                             myHolder.mapImageView.setVisibility(View.VISIBLE);
                             loadImage.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-                            loadImage.loadImage(LocationUtils.loadStaticMap(message.getMessage()), myHolder.mapImageView);
+                            loadImage.loadImage(LocationUtils.loadStaticMap(message.getMessage(), geoApiKey), myHolder.mapImageView);
                             myHolder.messageTextView.setVisibility(View.GONE);
                             myHolder.preview.setVisibility(View.GONE);
 
