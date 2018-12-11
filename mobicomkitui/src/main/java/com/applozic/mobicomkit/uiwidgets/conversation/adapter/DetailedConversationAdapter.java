@@ -1495,14 +1495,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             });
         }
 
-        public void setMessageText(TextView messageTextView, Message message) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                messageTextView.setText(Html.fromHtml(message.getMessage(), Html.FROM_HTML_MODE_COMPACT));
-            } else {
-                messageTextView.setText(Html.fromHtml(message.getMessage()));
-            }
-        }
-
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             menu.setHeaderTitle(R.string.messageOptions);
