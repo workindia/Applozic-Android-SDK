@@ -293,17 +293,17 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null);
     }
 
-    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber) {
+    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, Map<String, String> metadata) {
 
-        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber);
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, metadata);
 
         if (response == null) {
             return null;
         }
-        if (response != null && response.isSuccess()) {
+        if (response.isSuccess()) {
             Contact contact = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
             if (!TextUtils.isEmpty(displayName)) {
                 if (Applozic.getInstance(context).isDeviceContactSync()) {
@@ -321,11 +321,18 @@ public class UserService {
             if (!TextUtils.isEmpty(contactNumber)) {
                 contact.setContactNumber(contactNumber);
             }
+            if (metadata != null && !metadata.isEmpty()) {
+                contact.setMetadata(metadata);
+            }
             baseContactService.upsert(contact);
             Contact contact1 = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
-            Utils.printLog(context, "UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus() + "," + contact1.getStatus());
+            Utils.printLog(context, "UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus() + "," + contact1.getStatus() + "," + contact1.getMetadata());
         }
         return response.getStatus();
+    }
+
+    public String updateLoggedInUser(User user) {
+        return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getMetadata());
     }
 
 
