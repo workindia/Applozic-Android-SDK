@@ -168,7 +168,7 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
 
                 connection = new URLServiceProvider(context).getDownloadConnection(message);
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK || connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
                     inputStream = connection.getInputStream();
                 } else {
                     //TODO: Error Handling...

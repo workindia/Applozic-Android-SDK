@@ -9,6 +9,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
@@ -184,7 +186,7 @@ public class NotificationService {
                             continue;
                         }
                     }
-                    inboxStyle.addLine(getMessageBody(messageString, count, channel, contact));
+                    inboxStyle.addLine(getSpannedText(getMessageBody(messageString, count, channel, contact)));
                 }
             }
             // Moves the expanded layout object into the notification object.
@@ -196,7 +198,7 @@ public class NotificationService {
         if (count < 1) {
             summaryText = "";
             mBuilder.setLargeIcon(notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(message.getGroupId() != null ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())));
-            mBuilder.setContentText(getMessageBody(message, count, channel, contact));
+            mBuilder.setContentText(getSpannedText(getMessageBody(message, count, channel, contact)));
         } else if (count >= 1 && count < 2) {
             summaryText = totalCount < 2 ? totalCount + " new message " : totalCount + " new messages ";
             mBuilder.setLargeIcon(notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(message.getGroupId() != null ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())));
@@ -384,7 +386,7 @@ public class NotificationService {
                 .setPriority(muteNotifications(index) ? NotificationCompat.PRIORITY_LOW : NotificationCompat.PRIORITY_MAX)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(title)
-                .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? displayNameContact.getDisplayName() + ": " + notificationText : notificationText);
+                .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? ((displayNameContact != null ? (displayNameContact.getDisplayName() + ": ") : "" + getSpannedText(notificationText))) : getSpannedText(notificationText));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
         if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
@@ -418,6 +420,14 @@ public class NotificationService {
             notificationWithVoice.sendNotification();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public Spanned getSpannedText(CharSequence message) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Html.fromHtml(message.toString(), Html.FROM_HTML_MODE_COMPACT);
+        } else {
+            return Html.fromHtml(message.toString());
         }
     }
 
