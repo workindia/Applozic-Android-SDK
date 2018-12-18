@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.file.FileUtils;
 
 import java.util.Map;
 
@@ -68,6 +69,7 @@ public class ApplozicSetting {
     private static final String MESSAGE_SEARCH_OPTION = "MESSAGE_SEARCH_OPTION";
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
     private static final String DELETE_CONVERSATION_OPTION = "DELETE_CONVERSATION_OPTION";
+    private static final String GALLERY_FILTER_OPTIONS = "GALLERY_FILTER_OPTIONS_";
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -682,6 +684,17 @@ public class ApplozicSetting {
 
     public void setDeleteConversationOption(boolean enable) {
         sharedPreferences.edit().putBoolean(DELETE_CONVERSATION_OPTION, enable).commit();
+    }
+
+    public ApplozicSetting setGalleryFilterOptions(Map<FileUtils.GalleryFilterOptions, Boolean> options) {
+        for (Map.Entry<FileUtils.GalleryFilterOptions, Boolean> entry : options.entrySet()) {
+            sharedPreferences.edit().putBoolean(GALLERY_FILTER_OPTIONS + entry.getKey().name(), entry.getValue()).commit();
+        }
+        return this;
+    }
+
+    public Boolean getGalleryFilterOptions(String optionName) {
+        return sharedPreferences.getBoolean(GALLERY_FILTER_OPTIONS + optionName, false);
     }
 
     public boolean clearAll() {

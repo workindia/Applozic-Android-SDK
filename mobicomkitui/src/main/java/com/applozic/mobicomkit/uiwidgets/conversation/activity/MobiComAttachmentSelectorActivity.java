@@ -24,6 +24,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -38,7 +39,9 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -71,6 +74,18 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
 
     private boolean isActivityDestroyed;
 
+    private Map<String, Boolean> getFilterOptions() {
+        if(alCustomizationSettings.getFilterGallery() != null) {
+            return alCustomizationSettings.getFilterGallery();
+        }
+        Map<String, Boolean> filterOptions = new HashMap<>();
+        for (FileUtils.GalleryFilterOptions option : FileUtils.GalleryFilterOptions.values()) {
+            Boolean value = ApplozicSetting.getInstance(this).getGalleryFilterOptions(option.name());
+            filterOptions.put(option.name(), value);
+        }
+        return filterOptions;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,10 +114,9 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         setUpGridView();
         fileClientService = new FileClientService(this);
         if (imageUri == null) {
-            Intent getContentIntent = FileUtils.createGetContentIntent();
+            Intent getContentIntent = FileUtils.createGetContentIntent(getFilterOptions());
             getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-            Intent intentPick = Intent.createChooser(getContentIntent, getString(R.string.select_file));
-            startActivityForResult(intentPick, REQUEST_CODE_ATTACH_PHOTO);
+            startActivityForResult(getContentIntent, REQUEST_CODE_ATTACH_PHOTO);
         }
         connectivityReceiver = new ConnectivityReceiver();
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -215,7 +229,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
      *
      */
     private void setUpGridView() {
-        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList, alCustomizationSettings, imageUri != null);
+        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList, alCustomizationSettings, imageUri != null, getFilterOptions());
         galleryImagesGridView.setAdapter(imagesAdapter);
     }
 

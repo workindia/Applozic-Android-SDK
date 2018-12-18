@@ -50,6 +50,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -67,6 +68,13 @@ public class FileUtils {
     public static final String MIME_TYPE_APP = "application/*";
     public static final String HIDDEN_PREFIX = ".";
 
+    public enum GalleryFilterOptions {
+        ALL_FILES,
+        IMAGE_VIDEO,
+        IMAGE_ONLY,
+        AUDIO_ONLY,
+        VIDEO_ONLY;
+    }
 
     /**
      * TAG for log messages.
@@ -595,14 +603,43 @@ public class FileUtils {
      * @return The intent for opening a file with Intent.createChooser()
      * @author paulburke
      */
-    public static Intent createGetContentIntent() {
-        // Implicitly allow the user to select a particular kind of data
-        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // The MIME data type filter
-        intent.setType("*/*");
-        // Only return URIs that can be opened with ContentResolver
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        return intent;
+    public static Intent createGetContentIntent(Map<String, Boolean> filterGallery) {
+        GalleryFilterOptions choosenOption = GalleryFilterOptions.ALL_FILES;
+        if (filterGallery != null) {
+            for (GalleryFilterOptions option : GalleryFilterOptions.values()) {
+                if (filterGallery.get(option.name())) {
+                    choosenOption = option;
+                    break;
+                }
+            }
+        }
+        Intent intent;
+        switch (choosenOption) {
+            case ALL_FILES:
+                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                return intent;
+            case IMAGE_VIDEO:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                intent.setType("image/* video/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+                return intent;
+            case IMAGE_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("image/*");
+                return intent;
+            case AUDIO_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("audio/*");
+                return intent;
+            case VIDEO_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("video/*");
+                return intent;
+        }
+        //Return default.
+        return new Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE);
     }
 
     public static String getMimeType(String url) {
