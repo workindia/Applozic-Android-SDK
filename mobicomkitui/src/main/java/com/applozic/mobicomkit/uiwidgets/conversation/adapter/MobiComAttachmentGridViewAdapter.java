@@ -36,10 +36,10 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     boolean disableNewAttachment;
     private Context context;
     private ArrayList<Uri> uris;
-    private Map<String, Boolean> filterOptions;
+    private FileUtils.GalleryFilterOptions filterOptions;
 
 
-    public MobiComAttachmentGridViewAdapter(Context context, ArrayList<Uri> uris, AlCustomizationSettings alCustomizationSettings, boolean disableNewAttachment, Map<String, Boolean> filterOptions) {
+    public MobiComAttachmentGridViewAdapter(Context context, ArrayList<Uri> uris, AlCustomizationSettings alCustomizationSettings, boolean disableNewAttachment, FileUtils.GalleryFilterOptions filterOptions) {
         this.context = context;
         this.alCustomizationSettings = alCustomizationSettings;
         this.uris = uris;
@@ -89,7 +89,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
                     return;
                 }
 
-                Intent getContentIntent = FileUtils.createGetContentIntent(filterOptions);
+                Intent getContentIntent = FileUtils.createGetContentIntent(filterOptions, context.getPackageManager());
                 getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
                 Intent intentPick = Intent.createChooser(getContentIntent, context.getString(R.string.select_file));
                 ((Activity) context).startActivityForResult(intentPick, REQUEST_CODE);

@@ -7,6 +7,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicommons.file.FileUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -693,8 +694,13 @@ public class ApplozicSetting {
         return this;
     }
 
-    public Boolean getGalleryFilterOptions(String optionName) {
-        return sharedPreferences.getBoolean(GALLERY_FILTER_OPTIONS + optionName, false);
+    public Map<String, Boolean> getGalleryFilterOptions() {
+        Map<String, Boolean> filterOptions = new HashMap<>();
+        for (FileUtils.GalleryFilterOptions option : FileUtils.GalleryFilterOptions.values()) {
+            Boolean value = sharedPreferences.getBoolean(GALLERY_FILTER_OPTIONS + option.name(), false);
+            filterOptions.put(option.name(), value);
+        }
+        return filterOptions;
     }
 
     public boolean clearAll() {

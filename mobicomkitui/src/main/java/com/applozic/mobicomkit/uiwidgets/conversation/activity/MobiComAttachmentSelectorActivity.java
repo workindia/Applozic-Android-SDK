@@ -73,17 +73,27 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     private MobiComAttachmentGridViewAdapter imagesAdapter;
 
     private boolean isActivityDestroyed;
+    private FileUtils.GalleryFilterOptions choosenOption;
 
-    private Map<String, Boolean> getFilterOptions() {
-        if(alCustomizationSettings.getFilterGallery() != null) {
-            return alCustomizationSettings.getFilterGallery();
-        }
+    private FileUtils.GalleryFilterOptions getFilterOptions() {
         Map<String, Boolean> filterOptions = new HashMap<>();
-        for (FileUtils.GalleryFilterOptions option : FileUtils.GalleryFilterOptions.values()) {
-            Boolean value = ApplozicSetting.getInstance(this).getGalleryFilterOptions(option.name());
-            filterOptions.put(option.name(), value);
+        if(alCustomizationSettings.getFilterGallery() != null) {
+            filterOptions = alCustomizationSettings.getFilterGallery();
+        } else {
+            filterOptions = ApplozicSetting.getInstance(this).getGalleryFilterOptions();
         }
-        return filterOptions;
+
+        FileUtils.GalleryFilterOptions choosenOption = FileUtils.GalleryFilterOptions.ALL_FILES;
+        if (filterOptions != null) {
+            for (FileUtils.GalleryFilterOptions option : FileUtils.GalleryFilterOptions.values()) {
+                if (filterOptions.get(option.name())) {
+                    choosenOption = option;
+                    break;
+                }
+            }
+        }
+
+        return choosenOption;
     }
 
     @Override
@@ -96,7 +106,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-
+        choosenOption = getFilterOptions();
         fileClientService = new FileClientService(this);
         userPreferences = MobiComUserPreference.getInstance(this);
         Intent intent = getIntent();
@@ -114,7 +124,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         setUpGridView();
         fileClientService = new FileClientService(this);
         if (imageUri == null) {
-            Intent getContentIntent = FileUtils.createGetContentIntent(getFilterOptions());
+            Intent getContentIntent = FileUtils.createGetContentIntent(getFilterOptions(), getPackageManager());
             getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             startActivityForResult(getContentIntent, REQUEST_CODE_ATTACH_PHOTO);
         }
@@ -229,8 +239,25 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
      *
      */
     private void setUpGridView() {
-        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList, alCustomizationSettings, imageUri != null, getFilterOptions());
+        imagesAdapter = new MobiComAttachmentGridViewAdapter(MobiComAttachmentSelectorActivity.this, attachmentFileList, alCustomizationSettings, imageUri != null, choosenOption);
         galleryImagesGridView.setAdapter(imagesAdapter);
+    }
+
+    private boolean checkMimeType(String mimeType) {
+        FileUtils.GalleryFilterOptions option = choosenOption;
+        switch (option) {
+            case ALL_FILES:
+                return true;
+            case IMAGE_VIDEO:
+                return mimeType.contains("image/") || mimeType.contains("video/");
+            case IMAGE_ONLY:
+                return mimeType.contains("image/");
+            case VIDEO_ONLY:
+                return mimeType.contains("video/");
+            case AUDIO_ONLY:
+                return mimeType.contains("audio/");
+        }
+        return false;
     }
 
     @Override
@@ -256,6 +283,10 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
                     }
                     String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, selectedFileUri);
                     if (TextUtils.isEmpty(mimeType)) {
+                        return;
+                    }
+                    if (!checkMimeType(mimeType)) {
+                        Toast.makeText(this, R.string.info_file_attachment_mime_type_not_supported, Toast.LENGTH_LONG).show();
                         return;
                     }
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
