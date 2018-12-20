@@ -514,6 +514,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void setToolbarSubtitle(String subtitle){
+        if (subtitle.length() == 0) {
+            return;
+        }
         toolbarSubtitle.setVisibility(View.VISIBLE);
         toolbarSubtitle.setText(subtitle);
         ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", -20f);

@@ -110,6 +110,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private String messageSearchTextColor = "#5fba7d";
     private int notificationDisableThreshold = 0;
     private boolean hideGroupDeleteButton = false;
+    private boolean hideGroupSubtitle = false;
 
     private boolean launchChatFromProfilePicOrName = false;
 
@@ -578,6 +579,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isShowImageOnToolbar() {
         return showImageOnToolbar;
+    }
+
+    public boolean isGroupSubtitleHidden() {
+        return hideGroupSubtitle;
     }
 
     @Override
