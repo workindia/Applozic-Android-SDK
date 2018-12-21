@@ -96,6 +96,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
 
+        if(registrationResponse.isRegistrationSuccess()){
+
         Utils.printLog(context, "Registration response ", "is " + registrationResponse);
         if (registrationResponse.getNotificationResponse() != null) {
             Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
@@ -123,7 +125,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         mobiComUserPreference.setPassword(user.getPassword());
         mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
         mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
-        mobiComUserPreference.setUserRoleType(registrationResponse.getRoleType());
+        if(registrationResponse.getRoleType() != null){
+            mobiComUserPreference.setUserRoleType(registrationResponse.getRoleType());
+        }
         if (user.getUserTypeId() != null) {
             mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
         }
@@ -161,6 +165,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
         ApplozicMqttIntentService.enqueueWork(context, intent);
+
+        }
+
         return registrationResponse;
     }
 

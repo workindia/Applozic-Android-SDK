@@ -1,14 +1,20 @@
 apply plugin: 'com.android.library'
 
+ext {
+    defaultCompileSdkVersion = 27
+    defaultTargetSdkVersion = 27
+    defaultBuildToolVersion = "27.0.3"
+}
+
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion rootProject.hasProperty("compileSdkVersion") ? rootProject.compileSdkVersion : defaultCompileSdkVersion
+    buildToolsVersion rootProject.hasProperty("buildToolVersion") ? rootProject.buildToolVersion : defaultBuildToolVersion
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.30"
+        versionName "5.31"
     }
     useLibrary 'org.apache.http.legacy'
     buildTypes {
@@ -44,9 +50,6 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.google.code.gson:gson:2.8.5'
     api project(':mobicommons')
     //Note: use this for customization
     //implementation 'com.applozic.mobiframework:mobicommons:5.30' //Note: use this in case customization is not required
@@ -67,7 +70,7 @@ ext {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '5.30'
+    libraryVersion = '5.31'
 
     developerId = 'devashish'
     developerName = 'Applozic'

@@ -36,6 +36,8 @@ public class User extends JsonMarker {
     private Map<String, String> metadata;
     private String alBaseUrl;
     private String kmBaseUrl;
+    private String status;
+    private String localImageUri;
     private Short roleType = RoleType.USER_ROLE.getValue();
 
     public List<String> getFeatures() {
@@ -44,6 +46,22 @@ public class User extends JsonMarker {
 
     public void setFeatures(List<String> features) {
         this.features = features;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getLocalImageUri() {
+        return localImageUri;
+    }
+
+    public void setLocalImageUri(String localImageUri) {
+        this.localImageUri = localImageUri;
     }
 
     public String getUserId() {

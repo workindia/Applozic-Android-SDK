@@ -422,7 +422,7 @@ public class ProfileFragment extends Fragment {
                     response = fileClientService.uploadProfileImage(file.getAbsolutePath());
                     filePath = file.getAbsolutePath();
                 }
-                userService.updateDisplayNameORImageLink(displayName, response, filePath, status, contactNumber);
+                userService.updateDisplayNameORImageLink(displayName, response, filePath, status, contactNumber, null);
             } catch (Exception e) {
                 e.printStackTrace();
                 Utils.printLog(context, ProfileFragment.class.getName(), "Exception");

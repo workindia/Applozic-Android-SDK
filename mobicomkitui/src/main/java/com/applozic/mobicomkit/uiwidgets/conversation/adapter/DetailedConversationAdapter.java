@@ -13,6 +13,7 @@ import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -905,7 +906,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 myHolder.mapImageView.setVisibility(View.GONE);
                                 myHolder.attachedFile.setVisibility(View.GONE);
                                 myHolder.preview.setVisibility(View.VISIBLE);
-                                myHolder.messageTextView.setText(message.getMessage());
+                                setMessageText(myHolder.messageTextView, message);
                                 loadImage.setImageFadeIn(false);
                                 loadImage.loadImage(message.getFileMetas().getBlobKeyString(), myHolder.preview);
                                 myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
@@ -941,7 +942,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.preview.setImageResource(R.drawable.applozic_video_default_thumbnail);
                         } else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
                             myHolder.mapImageView.setVisibility(View.GONE);
-                            myHolder.messageTextView.setText(message.getMessage());
+                            setMessageText(myHolder.messageTextView, message);
                         } else {
                             myHolder.mapImageView.setVisibility(View.GONE);
                             myHolder.chatLocation.setVisibility(View.GONE);
@@ -1093,6 +1094,14 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             Utils.printLog(context, "DetailedConvAdapter", "Exception in parsing");
         }
 
+    }
+
+    public void setMessageText(TextView messageTextView, Message message) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            messageTextView.setText(Html.fromHtml(message.getMessage(), Html.FROM_HTML_MODE_COMPACT));
+        } else {
+            messageTextView.setText(Html.fromHtml(message.getMessage()));
+        }
     }
 
     private void loadContactImage(Contact contact, Contact contactDisplayName, Message messageObj, ImageView contactImage, TextView alphabeticTextView, TextView onlineTextView) {
