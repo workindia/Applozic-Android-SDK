@@ -47,7 +47,7 @@ public class URLServiceProvider {
         HttpURLConnection connection;
 
         try {
-            connection = !TextUtils.isEmpty(message.getFileMetas().getUrl()) ? mobiComKitClientService.openHttpConnection(message.getFileMetas().getUrl()) : getUrlService(context).getAttachmentConnection(message);
+            connection = (message.getSource() == 7 && !TextUtils.isEmpty(message.getFileMetas().getUrl())) ? mobiComKitClientService.openHttpConnection(message.getFileMetas().getUrl()) : getUrlService(context).getAttachmentConnection(message);
         } catch (Exception e) {
             throw new IOException("Error connecting");
         }
