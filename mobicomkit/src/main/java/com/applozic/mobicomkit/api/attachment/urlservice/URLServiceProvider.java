@@ -1,8 +1,10 @@
 package com.applozic.mobicomkit.api.attachment.urlservice;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 
 import java.io.IOException;
@@ -12,9 +14,11 @@ public class URLServiceProvider {
 
     private Context context;
     private URLService urlService;
+    private MobiComKitClientService mobiComKitClientService;
 
     public URLServiceProvider(Context context) {
         this.context = context;
+        mobiComKitClientService = new MobiComKitClientService(context);
     }
 
     private URLService getUrlService(Context context) {
@@ -43,7 +47,7 @@ public class URLServiceProvider {
         HttpURLConnection connection;
 
         try {
-            connection = getUrlService(context).getAttachmentConnection(message);
+            connection = (message.getSource() == 7 && !TextUtils.isEmpty(message.getFileMetas().getUrl())) ? mobiComKitClientService.openHttpConnection(message.getFileMetas().getUrl()) : getUrlService(context).getAttachmentConnection(message);
         } catch (Exception e) {
             throw new IOException("Error connecting");
         }

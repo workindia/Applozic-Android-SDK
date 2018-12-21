@@ -1,9 +1,5 @@
 package com.applozic.mobicomkit.api.attachment.urlservice;
 
-import android.content.Context;
-import android.os.Handler;
-
-import com.applozic.mobicomkit.api.attachment.ApplozicMultipartUtility;
 import com.applozic.mobicomkit.api.conversation.Message;
 
 import java.io.IOException;
