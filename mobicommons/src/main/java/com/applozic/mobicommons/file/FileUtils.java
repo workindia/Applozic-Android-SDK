@@ -21,6 +21,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
@@ -47,9 +48,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -67,6 +70,13 @@ public class FileUtils {
     public static final String MIME_TYPE_APP = "application/*";
     public static final String HIDDEN_PREFIX = ".";
 
+    public enum GalleryFilterOptions {
+        ALL_FILES,
+        IMAGE_VIDEO,
+        IMAGE_ONLY,
+        AUDIO_ONLY,
+        VIDEO_ONLY;
+    }
 
     /**
      * TAG for log messages.
@@ -595,13 +605,61 @@ public class FileUtils {
      * @return The intent for opening a file with Intent.createChooser()
      * @author paulburke
      */
-    public static Intent createGetContentIntent() {
-        // Implicitly allow the user to select a particular kind of data
-        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // The MIME data type filter
-        intent.setType("*/*");
-        // Only return URIs that can be opened with ContentResolver
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+    public static Intent createGetContentIntent(GalleryFilterOptions choosenOption, PackageManager packageManager) {
+        Intent intent = new Intent();
+        ArrayList<String> mimeType = new ArrayList<>();
+        switch (choosenOption) {
+            case ALL_FILES:
+                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                return intent;
+            case IMAGE_VIDEO:
+                /// Multiple mimetypes are not supported in ACTION_PICK
+                mimeType.add("image/*");
+                mimeType.add("video/*");
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    break;
+                }
+                intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
+                break;
+            case IMAGE_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("image/*");
+                mimeType.add("image/*");
+                break;
+            case AUDIO_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("audio/*");
+                mimeType.add("audio/*");
+                break;
+            case VIDEO_ONLY:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                intent.setType("video/*");
+                mimeType.add("video/*");
+                break;
+        }
+        if (intent.resolveActivity(packageManager) == null) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType(mimeType.get(0));
+            if (mimeType.size() > 1) {
+                String mimeTypes = "";
+                for (String type : mimeType) {
+                    mimeTypes += type + "|";
+                }
+                intent.setType(mimeTypes);
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType.get(1));
+            }
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            return intent;
+        }
         return intent;
     }
 

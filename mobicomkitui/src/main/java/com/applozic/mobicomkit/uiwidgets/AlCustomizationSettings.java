@@ -118,6 +118,8 @@ public class AlCustomizationSettings extends JsonMarker {
 
     private Map<String, Boolean> attachmentOptions;
 
+    private Map<String, Boolean> filterGallery;
+
     public boolean isBroadcastOption() {
         return broadcastOption;
     }
@@ -579,6 +581,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isShowImageOnToolbar() {
         return showImageOnToolbar;
+    }
+
+    public Map<String, Boolean> getFilterGallery() {
+        return filterGallery;
+    }
+
+    public void setFilterGallery(Map<String, Boolean> filterGallery) {
+        this.filterGallery = filterGallery;
     }
 
     public boolean isGroupSubtitleHidden() {
