@@ -88,6 +88,7 @@
     ":video": true,
     ":contact": true
   },
+  "hideGroupSubtitle": false,
   "editTextHintText:": "Write a Message..",
   "replyMessageLayoutSentMessageBackground": "#C0C0C0",
   "replyMessageLayoutReceivedMessageBackground": "#F5F5F5",
