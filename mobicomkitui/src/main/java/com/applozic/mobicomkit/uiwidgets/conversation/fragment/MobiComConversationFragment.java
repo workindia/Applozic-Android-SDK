@@ -956,7 +956,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
     
     private void setToolbarSubtitle(String subtitle){
-        if (alCustomizationSettings.isGroupSubtitleHidden() && channel != null) {
+        if ((alCustomizationSettings.isGroupSubtitleHidden() || ApplozicSetting.getInstance(getContext()).isGroupSubtitleHidden()) && channel != null && !subtitle.contains(getActivity().getString(R.string.is_typing))) {
             ((CustomToolbarListener)getActivity()).setToolbarSubtitle("");
             return;
         }

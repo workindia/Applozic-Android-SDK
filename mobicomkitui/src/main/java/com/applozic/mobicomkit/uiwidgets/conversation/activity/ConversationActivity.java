@@ -502,19 +502,25 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-    @Override
-    public void setToolbarTitle(String title){
-        toolbarSubtitle.setVisibility(View.GONE);
-        conversationContactPhoto.setVisibility(View.GONE);
-        toolbarTitle.setText(title);
+    private void animateToolbarTitle() {
         ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
         animation.setDuration(0);
         animation.start();
     }
 
     @Override
+    public void setToolbarTitle(String title){
+        toolbarSubtitle.setVisibility(View.GONE);
+        conversationContactPhoto.setVisibility(View.GONE);
+        toolbarTitle.setText(title);
+        animateToolbarTitle();
+    }
+
+    @Override
     public void setToolbarSubtitle(String subtitle){
         if (subtitle.length() == 0) {
+            toolbarSubtitle.setVisibility(View.GONE);
+            animateToolbarTitle();
             return;
         }
         toolbarSubtitle.setVisibility(View.VISIBLE);
