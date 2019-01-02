@@ -510,8 +510,7 @@ public class UserClientService extends MobiComKitClientService {
                 jsonFromObject.put("phoneNumber", contactNumber);
             }
             if (metadata != null && !metadata.isEmpty()) {
-                JSONObject metaObj = (JSONObject) GsonUtils.getObjectFromJson(GsonUtils.getJsonFromObject(metadata, Map.class), JSONObject.class);
-                jsonFromObject.put("metadata", metaObj);
+                jsonFromObject.put("metadata", GsonUtils.getJsonFromObject(metadata, Map.class));
             }
             String response = httpRequestUtils.postData(getUserProfileUpdateUrl(), "application/json", "application/json", jsonFromObject.toString());
             Utils.printLog(context, TAG, response);

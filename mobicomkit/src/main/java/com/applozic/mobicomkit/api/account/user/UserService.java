@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -322,7 +323,12 @@ public class UserService {
                 contact.setContactNumber(contactNumber);
             }
             if (metadata != null && !metadata.isEmpty()) {
-                contact.setMetadata(metadata);
+                Map<String, String> existingMetadata = contact.getMetadata();
+                if (existingMetadata == null) {
+                    existingMetadata = new HashMap<>();
+                }
+                existingMetadata.putAll(metadata);
+                contact.setMetadata(existingMetadata);
             }
             baseContactService.upsert(contact);
             Contact contact1 = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());

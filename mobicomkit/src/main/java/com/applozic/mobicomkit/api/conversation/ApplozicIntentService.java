@@ -3,8 +3,7 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
-
+import android.support.v4.app.AlJobIntentService;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
@@ -14,7 +13,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 /**
  * Created by sunil on 26/12/15.
  */
-public class ApplozicIntentService extends JobIntentService {
+public class ApplozicIntentService extends AlJobIntentService {
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
