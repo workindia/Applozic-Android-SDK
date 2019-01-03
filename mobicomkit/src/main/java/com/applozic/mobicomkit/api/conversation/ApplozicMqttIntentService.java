@@ -1,10 +1,9 @@
 package com.applozic.mobicomkit.api.conversation;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
+import android.support.v4.app.AlJobIntentService;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
@@ -15,7 +14,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 /**
  * Created by sunil on 30/12/15.
  */
-public class ApplozicMqttIntentService extends JobIntentService {
+public class ApplozicMqttIntentService extends AlJobIntentService {
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *

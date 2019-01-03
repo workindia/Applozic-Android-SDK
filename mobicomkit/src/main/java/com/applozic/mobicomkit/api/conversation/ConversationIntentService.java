@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Process;
 import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
+import android.support.v4.app.AlJobIntentService;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * Created by devashish on 15/12/13.
  */
-public class ConversationIntentService extends JobIntentService {
+public class ConversationIntentService extends AlJobIntentService {
 
     public static final String SYNC = "AL_SYNC";
     public static final String AL_MESSAGE = "AL_MESSAGE";
