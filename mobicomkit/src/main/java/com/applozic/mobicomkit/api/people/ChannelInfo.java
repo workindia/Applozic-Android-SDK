@@ -130,7 +130,7 @@ public class ChannelInfo extends JsonMarker {
         this.metadata = metadata;
     }
 
-    public class GroupUser {
+    public class GroupUser extends JsonMarker {
         String userId;
         int groupRole;
 
