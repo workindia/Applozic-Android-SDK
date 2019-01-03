@@ -22,7 +22,7 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.31"
+        versionName "5.32"
     }
     buildTypes {
         release {
@@ -53,8 +53,7 @@ dependencies {
     //Note: use this for customization
     //api 'com.applozic.communication.message:mobicomkit:5.30' //Note: use this in case customization is not required
 }
-/*
- ext {
+/* ext {
     // Where you will see your artifact in Bintray's web interface
     // The "bintrayName" should match the name of the Bintray repro.
     bintrayRepo = 'maven'
@@ -68,7 +67,7 @@ dependencies {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '5.31'
+    libraryVersion = '5.32'
 
     developerId = 'devashish'
     developerName = 'Applozic'
