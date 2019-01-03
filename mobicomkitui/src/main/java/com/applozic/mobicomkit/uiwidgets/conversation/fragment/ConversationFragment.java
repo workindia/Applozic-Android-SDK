@@ -178,9 +178,9 @@ public class ConversationFragment extends MobiComConversationFragment implements
     @Override
     public boolean onQueryTextChange(String newText) {
         if (TextUtils.isEmpty(newText)) {
-            conversationAdapter.getFilter().filter(null);
+            recyclerDetailConversationAdapter.getFilter().filter(null);
         } else {
-            conversationAdapter.getFilter().filter(newText);
+            recyclerDetailConversationAdapter.getFilter().filter(newText);
         }
         return true;
     }
@@ -258,8 +258,8 @@ public class ConversationFragment extends MobiComConversationFragment implements
             if (!TextUtils.isEmpty(stringBufferTitle)) {
                 ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(stringBufferTitle.toString());
             }
-            conversationAdapter.refreshContactData();
-            conversationAdapter.notifyDataSetChanged();
+            recyclerDetailConversationAdapter.refreshContactData();
+            recyclerDetailConversationAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
