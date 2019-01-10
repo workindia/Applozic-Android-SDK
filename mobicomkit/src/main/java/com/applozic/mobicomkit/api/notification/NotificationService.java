@@ -386,7 +386,7 @@ public class NotificationService {
                 .setPriority(muteNotifications(index) ? NotificationCompat.PRIORITY_LOW : NotificationCompat.PRIORITY_MAX)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(title)
-                .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? ((displayNameContact != null ? (displayNameContact.getDisplayName() + ": ") : "" + getSpannedText(notificationText))) : getSpannedText(notificationText));
+                .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? (displayNameContact != null ? (displayNameContact.getDisplayName() + ": " + getSpannedText(notificationText)) : "" + getSpannedText(notificationText)) : getSpannedText(notificationText));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
         if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
