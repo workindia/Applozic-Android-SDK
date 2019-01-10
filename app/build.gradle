@@ -75,7 +75,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api project(':mobicomkitui')
     //Note: use this for customization
-    //implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.32'
+    //implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.33'
     implementation "com.android.support:support-v4:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
     implementation "com.android.support:appcompat-v7:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
     implementation "com.android.support:design:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
