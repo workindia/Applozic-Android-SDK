@@ -2,14 +2,11 @@ package com.applozic.mobicomkit.sample.conversations;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.os.Environment;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
+
+import androidx.test.runner.AndroidJUnit4;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
-import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -18,8 +15,6 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.exception.ApplozicException;
-import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -36,19 +31,15 @@ import org.mockito.exceptions.base.MockitoException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Objects.isNull;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -57,7 +48,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static junit.framework.Assert.assertEquals;
-import static android.support.test.InstrumentationRegistry.getTargetContext;
+import static androidx.test.InstrumentationRegistry.getTargetContext;
 
 @RunWith(AndroidJUnit4.class)
 public class MessageServiceTest {

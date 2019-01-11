@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Process;
-import android.support.annotation.NonNull;
-import android.support.v4.app.AlJobIntentService;
+import androidx.annotation.NonNull;
+import androidx.core.app.AlJobIntentService;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduleMessageService;
