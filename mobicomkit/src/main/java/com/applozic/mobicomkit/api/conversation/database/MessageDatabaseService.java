@@ -159,7 +159,7 @@ public class MessageDatabaseService {
         return messageList;
     }
 
-    public static List<Message> getLatestMessageList(Cursor cursor) {
+    public static List<Message> getLatestMessageList(Cursor cursor, boolean isActionMessageHidden) {
         List<Message> messageList = new ArrayList<Message>();
         try {
             cursor.moveToFirst();
@@ -167,7 +167,7 @@ public class MessageDatabaseService {
                 do {
                     Message message = getMessage(cursor);
                     if (message != null) {
-                        if (!Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                        if (!Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || !(isActionMessageHidden && message.isActionMessage())) {
                             messageList.add(message);
                         }
                     }
@@ -257,6 +257,7 @@ public class MessageDatabaseService {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor cursor = db.query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
+
         List<Message> messageList = MessageDatabaseService.getMessageList(cursor);
         dbHelper.close();
         return messageList;
@@ -1042,7 +1043,7 @@ public class MessageDatabaseService {
                 cursor = db.rawQuery(rowQuery, null);
             }
 
-            List<Message> messageList = getLatestMessageList(cursor);
+            List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
             dbHelper.close();
             return messageList;
         }

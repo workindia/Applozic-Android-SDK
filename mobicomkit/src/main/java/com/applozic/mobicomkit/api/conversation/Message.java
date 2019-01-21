@@ -676,6 +676,10 @@ public class Message extends JsonMarker {
         this.hidden = hidden;
     }
 
+    public boolean getHidden() {
+        return hidden;
+    }
+
     public int isReplyMessage() {
         return replyMessage;
     }
@@ -694,7 +698,7 @@ public class Message extends JsonMarker {
             Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(getGroupId());
             boolean subGroupFlag = channel != null && channel.getParentKey() != null && MobiComUserPreference.getInstance(context).getParentGroupKey().equals(channel.getParentKey());
             boolean categoryFlag = channel != null && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
-            return (subGroupFlag || categoryFlag || ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()) || hidden);
+            return (subGroupFlag || categoryFlag || ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
         }
         return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || isHidden());
     }
