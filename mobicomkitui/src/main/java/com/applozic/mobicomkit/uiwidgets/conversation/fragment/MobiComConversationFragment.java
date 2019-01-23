@@ -1368,6 +1368,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (added) {
                     //Todo: update unread count
                     linearLayoutManager.setStackFromEnd(true);
+                    if (recyclerDetailConversationAdapter == null) {
+                        return;
+                    }
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
 
                     if (alCustomizationSettings.isMessageFastScrollEnabled()) {
