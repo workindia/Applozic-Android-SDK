@@ -19,28 +19,30 @@ public class ConnectivityReceiver extends BroadcastReceiver {
     static final private String TAG = "ConnectivityReceiver";
     static final private String CONNECTIVITY_CHANGE = "android.net.conn.CONNECTIVITY_CHANGE";
     private static final String BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";
+    private static final String REBOOT_COMPLETED = "android.intent.action.QUICKBOOT_POWERON";
     Context context;
     private static boolean firstConnect = true;
 
     @Override
-    public void onReceive(@NonNull final Context context,@NonNull Intent intent) {
+    public void onReceive(@NonNull final Context context, @NonNull Intent intent) {
         this.context = context;
         String action = intent.getAction();
         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(action));
         Utils.printLog(context, TAG, action);
 
-        if(BOOT_COMPLETED.equalsIgnoreCase(action)){
+        if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
+            return;
+        }
+
+        if (BOOT_COMPLETED.equalsIgnoreCase(action) || REBOOT_COMPLETED.equalsIgnoreCase(action)) {
             Intent connectivityIntent = new Intent(context, ApplozicIntentService.class);
             connectivityIntent.putExtra(ApplozicIntentService.AL_SYNC_ON_CONNECTIVITY, true);
-            ApplozicIntentService.enqueueWork(context,connectivityIntent);
+            ApplozicIntentService.enqueueWork(context, connectivityIntent);
         }
 
         if (CONNECTIVITY_CHANGE.equalsIgnoreCase(action)) {
             if (!Utils.isInternetAvailable(context)) {
                 firstConnect = true;
-                return;
-            }
-            if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
                 return;
             }
             ConnectivityManager cm = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
@@ -49,7 +51,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                     firstConnect = false;
                     Intent connectivityIntent = new Intent(context, ApplozicIntentService.class);
                     connectivityIntent.putExtra(ApplozicIntentService.AL_SYNC_ON_CONNECTIVITY, true);
-                    ApplozicIntentService.enqueueWork(context,connectivityIntent);
+                    ApplozicIntentService.enqueueWork(context, connectivityIntent);
                 }
             }
         }
