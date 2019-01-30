@@ -786,6 +786,9 @@ public class ConversationUIService {
         }
     }
 
+    public void onMqttConnected(){
+        // TODO Maybe if someone wants the connection status, send a callback from here
+    }
 
     public void startMessageInfoFragment(String messageJson) {
 

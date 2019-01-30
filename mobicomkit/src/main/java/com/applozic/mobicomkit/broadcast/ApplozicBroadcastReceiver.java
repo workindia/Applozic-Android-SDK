@@ -100,6 +100,12 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             applozicUIListener.onUpdateLastSeen(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
             applozicUIListener.onMqttDisconnected();
+        } else if (BroadcastService.INTENT_ACTIONS.MQTT_CONNECTED.toString().equals(action)) {
+            applozicUIListener.onMqttConnected();
+        } else if (BroadcastService.INTENT_ACTIONS.USER_OFFLINE.toString().equals(action)) {
+            applozicUIListener.onUserOffline();
+        } else if (BroadcastService.INTENT_ACTIONS.USER_ONLINE.toString().equals(action)) {
+            applozicUIListener.onUserOnline();
         } else if (BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
             applozicUIListener.onChannelUpdated();
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString().equals(action)) {
