@@ -953,10 +953,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private void setToolbarTitle(String title) {
         ((CustomToolbarListener) getActivity()).setToolbarTitle(title);
     }
-
-    private void setToolbarSubtitle(String subtitle) {
-        if (alCustomizationSettings.isGroupSubtitleHidden() && channel != null) {
-            ((CustomToolbarListener) getActivity()).setToolbarSubtitle("");
+    
+    private void setToolbarSubtitle(String subtitle){
+        if ((alCustomizationSettings.isGroupSubtitleHidden() || ApplozicSetting.getInstance(getContext()).isGroupSubtitleHidden()) && channel != null && !subtitle.contains(getActivity().getString(R.string.is_typing))) {
+            ((CustomToolbarListener)getActivity()).setToolbarSubtitle("");
             return;
         }
         ((CustomToolbarListener) getActivity()).setToolbarSubtitle(subtitle);

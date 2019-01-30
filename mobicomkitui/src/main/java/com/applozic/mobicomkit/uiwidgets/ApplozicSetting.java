@@ -71,6 +71,7 @@ public class ApplozicSetting {
     private static final String ACTIVITY_CALLBACK = "ACTIVITY_CALLBACK_";
     private static final String DELETE_CONVERSATION_OPTION = "DELETE_CONVERSATION_OPTION";
     private static final String GALLERY_FILTER_OPTIONS = "GALLERY_FILTER_OPTIONS_";
+    private static final String HIDE_GROUP_SUBTITLE = "HIDE_GROUP_SUBTITLE";
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -701,6 +702,15 @@ public class ApplozicSetting {
             filterOptions.put(option.name(), value);
         }
         return filterOptions;
+    }
+
+    public boolean isGroupSubtitleHidden() {
+        return sharedPreferences.getBoolean(HIDE_GROUP_SUBTITLE, false);
+    }
+
+    public ApplozicSetting hideGroupSubtitle(boolean hide) {
+        sharedPreferences.edit().putBoolean(HIDE_GROUP_SUBTITLE, hide).commit();
+        return this;
     }
 
     public boolean clearAll() {
