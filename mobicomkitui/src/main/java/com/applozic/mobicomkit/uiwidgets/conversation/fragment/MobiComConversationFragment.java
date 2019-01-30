@@ -224,7 +224,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected MessageCommunicator messageCommunicator;
     //protected ConversationListView listView = null;
     protected List<Message> messageList = new ArrayList<Message>();
-    protected DetailedConversationAdapter conversationAdapter = null;
     protected Drawable sentIcon;
     protected Drawable deliveredIcon;
     protected ImageButton emoticonsBtn;
@@ -950,9 +949,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         return list;
     }
-    
-    private void setToolbarTitle(String title){
-        ((CustomToolbarListener)getActivity()).setToolbarTitle(title);
+
+    private void setToolbarTitle(String title) {
+        ((CustomToolbarListener) getActivity()).setToolbarTitle(title);
     }
     
     private void setToolbarSubtitle(String subtitle){
@@ -960,11 +959,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             ((CustomToolbarListener)getActivity()).setToolbarSubtitle("");
             return;
         }
-        ((CustomToolbarListener)getActivity()).setToolbarSubtitle(subtitle);
+        ((CustomToolbarListener) getActivity()).setToolbarSubtitle(subtitle);
     }
-    
-    private void setToolbarImage(Contact contact, Channel channel){
-        ((CustomToolbarListener)getActivity()).setToolbarImage(contact, channel);
+
+    private void setToolbarImage(Contact contact, Channel channel) {
+        ((CustomToolbarListener) getActivity()).setToolbarImage(contact, channel);
     }
 
     public void handleSendAndRecordButtonView(boolean isSendButtonVisible) {
@@ -1345,8 +1344,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         if (i != -1) {
             messageList.get(i).setMetadata(messageDatabaseService.getMessage(keyString).getMetadata());
-            if (conversationAdapter != null) {
-                conversationAdapter.notifyDataSetChanged();
+            if (recyclerDetailConversationAdapter != null) {
+                recyclerDetailConversationAdapter.notifyDataSetChanged();
             }
             if (messageList.get(messageList.size() - 1).getMetadata().containsKey("isDoneWithClicking")) {
                 if (templateAdapter != null) {
@@ -1765,8 +1764,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         if (contact != null && this.channel != null) {
             if (getActivity() != null) {
-                    setToolbarSubtitle("");
-                    setToolbarImage(contact, channel);
+                setToolbarSubtitle("");
+                setToolbarImage(contact, channel);
             }
             if (menu != null) {
                 menu.findItem(R.id.unmuteGroup).setVisible(false);
@@ -2045,19 +2044,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         int lastIndex = stringBuffer.lastIndexOf(",");
                         String userIds = stringBuffer.replace(lastIndex, lastIndex + 1, "").toString();
                         if (getActivity() != null) {
-                                setToolbarSubtitle(userIds);
-                                setToolbarImage(null, channel);
+                            setToolbarSubtitle(userIds);
+                            setToolbarImage(null, channel);
                         }
                     } else {
                         if (getActivity() != null) {
-                                setToolbarSubtitle(stringBuffer.toString());
-                                setToolbarImage(null, channel);
+                            setToolbarSubtitle(stringBuffer.toString());
+                            setToolbarImage(null, channel);
                         }
                     }
                 } else {
                     if (getActivity() != null) {
-                            setToolbarSubtitle(youString);
-                            setToolbarImage(null, channel);
+                        setToolbarSubtitle(youString);
+                        setToolbarImage(null, channel);
                     }
                 }
             }
@@ -2808,20 +2807,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                                 if (getActivity() != null) {
-                                        setToolbarSubtitle(getActivity().getString(R.string.is_typing));
-                                        setToolbarImage(null, channel);
+                                    setToolbarSubtitle(getActivity().getString(R.string.is_typing));
+                                    setToolbarImage(null, channel);
                                 }
                             } else {
                                 if (getActivity() != null) {
-                                        setToolbarSubtitle(displayNameContact.getDisplayName() + " " + getActivity().getString(R.string.is_typing));
-                                        setToolbarImage(null, channel);
+                                    setToolbarSubtitle(displayNameContact.getDisplayName() + " " + getActivity().getString(R.string.is_typing));
+                                    setToolbarImage(null, channel);
                                 }
                             }
                         }
                     } else {
                         if (getActivity() != null) {
-                                setToolbarSubtitle(getActivity().getString(R.string.is_typing));
-                                setToolbarImage(null, channel);
+                            setToolbarSubtitle(getActivity().getString(R.string.is_typing));
+                            setToolbarImage(null, channel);
                         }
                     }
                 } else {
@@ -2918,7 +2917,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (stringBufferTitle != null && getActivity() != null) {
-                setToolbarTitle(stringBufferTitle.toString());
+            setToolbarTitle(stringBufferTitle.toString());
         }
 
     }
@@ -3313,7 +3312,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
                 channel = newChannel;
                 if (getActivity() != null) {
-                        setToolbarTitle(title);
+                    setToolbarTitle(title);
                 }
             }
         }
@@ -3324,7 +3323,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (channel != null) {
                 Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
                 if (getActivity() != null) {
-                        setToolbarTitle(newChannel.getName());
+                    setToolbarTitle(newChannel.getName());
                 }
             }
             updateChannelSubTitle();
@@ -3372,9 +3371,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onSuccess(ApiResponse apiResponse) {
                 if (block && typingStarted) {
-                        if(getActivity() != null) {
-                            setToolbarSubtitle("");
-                        }
+                    if (getActivity() != null) {
+                        setToolbarSubtitle("");
+                    }
                     Intent intent = new Intent(getActivity(), ApplozicMqttIntentService.class);
                     intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
                     intent.putExtra(ApplozicMqttIntentService.STOP_TYPING, true);
@@ -3774,7 +3773,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (messageEditTextWeakReference != null) {
                 return messageEditTextWeakReference.get();
             }
-            return  null;
+            return null;
         }
 
         private SwipeRefreshLayout swipeLayout() {

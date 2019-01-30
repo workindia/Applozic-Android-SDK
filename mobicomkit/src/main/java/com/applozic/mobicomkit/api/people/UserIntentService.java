@@ -1,10 +1,9 @@
 package com.applozic.mobicomkit.api.people;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
+import android.support.v4.app.AlJobIntentService;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
@@ -16,7 +15,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 /**
  * Created by devashish on 15/12/13.
  */
-public class UserIntentService extends JobIntentService {
+public class UserIntentService extends AlJobIntentService {
 
     private static final String TAG = "UserIntentService";
     public static final String USER_ID = "userId";
