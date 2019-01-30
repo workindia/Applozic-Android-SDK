@@ -108,6 +108,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private MobiComUserPreference userPreference;
     private ContactDatabase contactDatabase;
     private boolean isDeviceContactSync;
+    private boolean isFragmentDetached = true;
     View footerView;
     static int CONSTANT_TIME = 60 * 1000;
 
@@ -315,20 +316,26 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        isFragmentDetached = false;
         try {
             // Assign callback listener which the holding activity must implement. This is used
             // so that when a contact item is interacted with (selected by the user) the holding
             // activity will be notified and can take further action such as populating the contact
             // detail pane (if in multi-pane layout) or starting a new activity with the contact
             // details (single pane layout).
-            mOnContactSelectedListener = (OnContactsInteractionListener) activity;
+            mOnContactSelectedListener = (OnContactsInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnContactsInteractionListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        isFragmentDetached = true;
     }
 
     @Override
@@ -400,6 +407,10 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         // Updates current filter to new filter
         mSearchTerm = newFilter;
         mAdapter.indexOfSearchQuery(newFilter);
+
+        if (isFragmentDetached) {
+            return true;
+        }
 
         getLoaderManager().restartLoader(
                 AppContactFragment.ContactsQuery.QUERY_ID, null, AppContactFragment.this);

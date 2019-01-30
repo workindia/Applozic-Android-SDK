@@ -694,7 +694,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public void stopSearching() {
         searchString = null;
-        if (!isAlreadyLoading) {
+        if (!isAlreadyLoading && recyclerView.getScrollState() == 0) {
             latestMessageForEachContact.clear();
             messageList.clear();
             downloadConversations(false, searchString);
@@ -857,14 +857,10 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 if (messageList.contains(null)) {
                     messageList.remove(null);
                 }
-                quickConversationAdapterWeakReference.get().notifyDataSetChanged();
                 //progressBar.setVisibility(View.GONE);
             }
-            if (quickConversationAdapterWeakReference != null) {
-                QuickConversationAdapter quickConversationAdapter = quickConversationAdapterWeakReference.get();
-                if (quickConversationAdapter != null) {
-                    quickConversationAdapter.notifyDataSetChanged();
-                }
+            if (quickConversationAdapterWeakReference != null && quickConversationAdapterWeakReference.get() != null) {
+                quickConversationAdapterWeakReference.get().notifyDataSetChanged();
             }
             if (initial) {
                 if (textViewWeakReference != null) {
@@ -879,12 +875,15 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     }
                 }
                 if (!messageList.isEmpty()) {
-                    if (recyclerView != null) {
-                        if (recyclerAdapter.getItemCount() > BroadcastService.lastIndexForChats) {
-                            recyclerView.scrollToPosition(BroadcastService.lastIndexForChats);
-                            BroadcastService.lastIndexForChats = 0;
-                        } else {
-                            recyclerView.scrollToPosition(0);
+                    if (recyclerView != null && quickConversationAdapterWeakReference != null) {
+                        QuickConversationAdapter adapter = quickConversationAdapterWeakReference.get();
+                        if (adapter != null) {
+                            if (adapter.getItemCount() > BroadcastService.lastIndexForChats) {
+                                recyclerView.scrollToPosition(BroadcastService.lastIndexForChats);
+                                BroadcastService.lastIndexForChats = 0;
+                            } else {
+                                recyclerView.scrollToPosition(0);
+                            }
                         }
                     }
                 }
