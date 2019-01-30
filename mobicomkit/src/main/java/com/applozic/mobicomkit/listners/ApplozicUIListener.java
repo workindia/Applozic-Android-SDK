@@ -31,6 +31,12 @@ public interface ApplozicUIListener {
 
     void onMqttDisconnected();
 
+    void onMqttConnected();
+
+    void onUserOnline();
+
+    void onUserOffline();
+
     void onChannelUpdated();
 
     void onConversationRead(String userId, boolean isGroup);

@@ -112,6 +112,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.updateLastSeenStatus(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
             conversationUIService.reconnectMQTT();
+        }else if(BroadcastService.INTENT_ACTIONS.MQTT_CONNECTED.toString().equals(action)){
+            conversationUIService.onMqttConnected();
         } else if (BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
             boolean isMetaDataUpdate = intent.getBooleanExtra("isMetadataUpdate", false);
             conversationUIService.updateChannelSync(isMetaDataUpdate);

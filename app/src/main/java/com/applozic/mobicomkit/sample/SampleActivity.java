@@ -203,6 +203,21 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
     }
 
     @Override
+    public void onMqttConnected() {
+
+    }
+
+    @Override
+    public void onUserOnline() {
+
+    }
+
+    @Override
+    public void onUserOffline() {
+
+    }
+
+    @Override
     public void onChannelUpdated() {
         if (conversationFragment != null) {
             conversationFragment.notifyAdapter();
