@@ -714,7 +714,10 @@ public class MobiComUserPreference {
     }
 
     public String getContactsGroupId() {
-        return sharedPreferences.getString(CONTACTS_GROUP_ID, null);
+        if (sharedPreferences != null) {
+            return sharedPreferences.getString(CONTACTS_GROUP_ID, null);
+        }
+        return null;
     }
 
     public void setContactsGroupId(String contactsGroupId) {
@@ -726,11 +729,17 @@ public class MobiComUserPreference {
     }
 
     public Set<String> getContactGroupIdList() {
-        return sharedPreferences.getStringSet(CONTACT_GROUP_ID_LISTS, null);
+        if (sharedPreferences != null) {
+            return sharedPreferences.getStringSet(CONTACT_GROUP_ID_LISTS, null);
+        }
+        return null;
     }
 
     public boolean isContactGroupNameList() {
-        return sharedPreferences.getBoolean(IS_CONTACT_GROUP_NAME_LIST, false);
+        if (sharedPreferences != null) {
+            return sharedPreferences.getBoolean(IS_CONTACT_GROUP_NAME_LIST, false);
+        }
+        return false;
     }
 
     public void setIsContactGroupNameList(boolean isContactGroupNameList) {
@@ -742,7 +751,10 @@ public class MobiComUserPreference {
     }
 
     public Long getStartTimeForPagination() {
-        return sharedPreferences.getLong(START_TIME_FOR_MESSAGE_LIST_SCROLL, 0);
+        if (sharedPreferences != null) {
+            return sharedPreferences.getLong(START_TIME_FOR_MESSAGE_LIST_SCROLL, 0);
+        }
+        return null;
     }
 
     public void setUserRoleType(Short roleType) {
