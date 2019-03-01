@@ -49,7 +49,7 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.people.contact.DeviceContactSyncService;
+import com.applozic.mobicomkit.contact.DeviceContactSyncService;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -284,8 +284,8 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
 
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
-                    activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
-                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
+                        activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
+                        ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
                     MobiComUserPreference.getInstance(context).setUserRoleType(registrationResponse.getRoleType());
 
                     if (isDeviceContactSync) {
