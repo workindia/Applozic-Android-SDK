@@ -29,6 +29,7 @@ public class GroupInfoUpdate extends JsonMarker {
     private String newlocalPath;
     @Exclude
     private String contentUri;
+    private int kmStatus;
     private Map<String, String> metadata = new HashMap<>();
     private List<ChannelUsersFeed> users = new ArrayList<>();
 
@@ -46,6 +47,7 @@ public class GroupInfoUpdate extends JsonMarker {
         this.clientGroupId = channel.getClientGroupId();
         this.imageUrl = channel.getImageUrl();
         this.localImagePath = channel.getLocalImageUri();
+        this.kmStatus = channel.getKmStatus();
     }
 
     public GroupInfoUpdate(ChannelInfo channel) {
@@ -159,6 +161,14 @@ public class GroupInfoUpdate extends JsonMarker {
 
     public void setUsers(List<ChannelUsersFeed> users) {
         this.users = users;
+    }
+
+    public int getKmStatus() {
+        return kmStatus;
+    }
+
+    public void setKmStatus(int kmStatus) {
+        this.kmStatus = kmStatus;
     }
 
     @Override

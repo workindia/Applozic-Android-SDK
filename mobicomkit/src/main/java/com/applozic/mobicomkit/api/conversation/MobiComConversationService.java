@@ -25,6 +25,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.exception.ApplozicException;
+import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
@@ -39,6 +40,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -300,16 +302,6 @@ public class MobiComConversationService {
             e.printStackTrace();
         }
 
-     /*   messageList.removeAll(cachedMessageList);
-        messageList.addAll(cachedMessageList);
-
-        Collections.sort(messageList, new Comparator<Message>() {
-            @Override
-            public int compare(Message lhs, Message rhs) {
-                return lhs.getCreatedAtTime().compareTo(rhs.getCreatedAtTime());
-            }
-        });*/
-
         List<Message> finalMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
         List<String> messageKeys = new ArrayList<>();
         for (Message msg : finalMessageList) {
@@ -358,6 +350,133 @@ public class MobiComConversationService {
         }
 
         return channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? messageList : finalMessageList;
+    }
+
+    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime) {
+        List<Message> conversationList = new ArrayList<>();
+        List<Message> cachedConversationList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
+        KmConversationResponse kmConversationResponse = null;
+        try {
+            ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(messageClientService.getKmConversationList(status, pageSize, lastFetchTime), new TypeToken<ApiResponse<KmConversationResponse>>() {
+            }.getType());
+            if (apiResponse != null) {
+                kmConversationResponse = apiResponse.getResponse();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return cachedConversationList;
+        }
+
+        if (kmConversationResponse == null) {
+            return null;
+        }
+
+        try {
+            if (kmConversationResponse.getUserDetails() != null) {
+                processUserDetails(kmConversationResponse.getUserDetails());
+            }
+
+            if (kmConversationResponse.getGroupFeeds() != null) {
+                ChannelService.getInstance(context).processChannelFeedList(kmConversationResponse.getGroupFeeds(), false);
+            }
+
+            Message[] messages = kmConversationResponse.getMessage();
+            MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+
+            if (messages != null && messages.length > 0 && cachedConversationList.size() > 0 && cachedConversationList.get(0).isLocalMessage()) {
+                if (cachedConversationList.get(0).getMessage().equals(messages[0])) {
+                    Utils.printLog(context, TAG, "Both messages are same.");
+                    deleteMessage(cachedConversationList.get(0));
+                }
+            }
+
+            for (Message message : messages) {
+                if (!message.isCall() || userPreferences.isDisplayCallRecordEnable()) {
+                    if (message.getTo() == null) {
+                        continue;
+                    }
+
+                    if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
+                        setFilePathifExist(message);
+                    }
+                    if (message.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+                        FileClientService fileClientService = new FileClientService(context);
+                        fileClientService.loadContactsvCard(message);
+                    }
+                    if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                        continue;
+                    }
+                    if (isHideActionMessage && message.isActionMessage()) {
+                        message.setHidden(true);
+                    }
+                    if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
+                        messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
+                    }
+
+                    if (message.isHidden()) {
+                        if (message.getGroupId() != null) {
+                            Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+                            if (newChannel != null) {
+                                getMessages(null, null, null, newChannel, null, true);
+                            }
+                        } else {
+                            getMessages(null, null, new Contact(message.getContactIds()), null, null, true);
+                        }
+                    }
+                }
+                conversationList.add(message);
+            }
+            Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<Message> finalMessageList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
+        List<String> messageKeys = new ArrayList<>();
+        for (Message msg : finalMessageList) {
+            if (msg.getTo() == null) {
+                continue;
+            }
+            if (Message.MetaDataType.HIDDEN.getValue().equals(msg.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(msg.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                continue;
+            }
+            if (msg.getMetadata() != null && msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()) != null && !messageDatabaseService.isMessagePresent(msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()))) {
+                messageKeys.add(msg.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+            }
+        }
+        if (messageKeys != null && messageKeys.size() > 0) {
+            Message[] replyMessageList = getMessageListByKeyList(messageKeys);
+            if (replyMessageList != null) {
+                for (Message replyMessage : replyMessageList) {
+                    if (replyMessage.getTo() == null) {
+                        continue;
+                    }
+                    if (Message.MetaDataType.HIDDEN.getValue().equals(replyMessage.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(replyMessage.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                        continue;
+                    }
+                    if (replyMessage.hasAttachment() && !(replyMessage.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
+                        setFilePathifExist(replyMessage);
+                    }
+                    if (replyMessage.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+                        FileClientService fileClientService = new FileClientService(context);
+                        fileClientService.loadContactsvCard(replyMessage);
+                    }
+                    replyMessage.setReplyMessage(Message.ReplyMessage.HIDE_MESSAGE.getValue());
+                    messageDatabaseService.createMessage(replyMessage);
+                }
+            }
+        }
+
+        if (!conversationList.isEmpty()) {
+            Collections.sort(conversationList, new Comparator<Message>() {
+                @Override
+                public int compare(Message lhs, Message rhs) {
+                    return lhs.getCreatedAtTime().compareTo(rhs.getCreatedAtTime());
+                }
+            });
+        }
+        return finalMessageList;
     }
 
     private void processUserDetails(SyncUserDetailsResponse userDetailsResponse) {
@@ -636,16 +755,4 @@ public class MobiComConversationService {
             }
         }
     }
-
-//    public void addFileMetaDetails(String responseString, Message message) {
-//        JsonParser jsonParser = new JsonParser();
-//        List<FileMeta> metaFileList = new ArrayList<FileMeta>();
-//        JsonObject jsonObject = jsonParser.parse(responseString).getAsJsonObject();
-//        if (jsonObject.has("fileMetas")) {
-//            Gson gson = new Gson();
-//            metaFileList.add(gson.fromJson(jsonObject.get("fileMetas"), FileMeta.class));
-//        }
-//        message.setFileMetas(metaFileList);
-//    }
-
 }

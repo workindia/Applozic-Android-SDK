@@ -99,6 +99,9 @@ public class ChannelDatabaseService {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
             oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
         }
+        if (channel.getKmStatus() != 0) {
+            contentValues.put(MobiComDatabaseHelper.KM_STATUS, channel.getKmStatus());
+        }
         if (oldChannel != null && !TextUtils.isEmpty(channel.getImageUrl()) && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())) {
             updateChannelLocalImageURI(channel.getKey(), null);
         }
@@ -113,7 +116,7 @@ public class ChannelDatabaseService {
         }
         if (channel.getMetadata() != null) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
-            if(channel.getMetadata().containsKey(Channel.AL_CATEGORY)){
+            if (channel.getMetadata().containsKey(Channel.AL_CATEGORY)) {
                 contentValues.put(MobiComDatabaseHelper.AL_CATEGORY, channel.getMetadata().get(Channel.AL_CATEGORY));
             }
         }
@@ -235,6 +238,7 @@ public class ChannelDatabaseService {
         channel.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         channel.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
         channel.setParentKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.PARENT_GROUP_KEY)));
+        channel.setKmStatus(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.KM_STATUS)));
         String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_META_DATA));
         channel.setMetadata(((Map<String, String>) GsonUtils.getObjectFromJson(metadata, Map.class)));
         if (count > 0) {
@@ -486,16 +490,16 @@ public class ChannelDatabaseService {
         return null;
     }
 
-    public void updateRoleInChannelUserMapper(Integer channelKey,String userId,Integer role) {
-        ContentValues contentValues =  new ContentValues();
-        contentValues.put(MobiComDatabaseHelper.ROLE,role);
-        dbHelper.getWritableDatabase().update(CHANNEL_USER_X,contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=? AND "+ MobiComDatabaseHelper.USERID+"=?", new String[]{String.valueOf(channelKey),userId});
+    public void updateRoleInChannelUserMapper(Integer channelKey, String userId, Integer role) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.ROLE, role);
+        dbHelper.getWritableDatabase().update(CHANNEL_USER_X, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=? AND " + MobiComDatabaseHelper.USERID + "=?", new String[]{String.valueOf(channelKey), userId});
     }
 
     public ChannelUserMapper getChannelUserByChannelKey(final Integer channelKey) {
         ChannelUserMapper channelUserMapper = null;
         try {
-            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND "+MobiComDatabaseHelper.USERID +"="+MobiComUserPreference.getInstance(context).getUserId();
+            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + "=" + MobiComUserPreference.getInstance(context).getUserId();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
             if (cursor != null) {
@@ -512,12 +516,12 @@ public class ChannelDatabaseService {
         return channelUserMapper;
     }
 
-    public ChannelUserMapper getChannelUserByChannelKeyAndUserId(final Integer channelKey,final  String userId) {
+    public ChannelUserMapper getChannelUserByChannelKeyAndUserId(final Integer channelKey, final String userId) {
         ChannelUserMapper channelUserMapper = null;
         try {
-            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND "+MobiComDatabaseHelper.USERID+" =?";
+            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + " =?";
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey),userId}, null, null, null);
+            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey), userId}, null, null, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();

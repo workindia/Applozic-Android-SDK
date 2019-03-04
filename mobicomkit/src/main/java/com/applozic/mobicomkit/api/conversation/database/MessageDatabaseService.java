@@ -7,13 +7,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -1047,6 +1044,26 @@ public class MessageDatabaseService {
             dbHelper.close();
             return messageList;
         }
+    }
+
+    public List<Message> getKmConversationList(int status, Long lastFetchTime) {
+        Cursor cursor = null;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String rowQuery = "select max(createdAt) , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
+                "where m.hidden = 0 " +
+                "AND m.deleted = 0 " +
+                "AND m.messageContentType not in (11,102) " +
+                "AND m.type not in (6, 7) " +
+                "AND ch.kmStatus = " + status +
+                (lastFetchTime != null && lastFetchTime > 0 ? " AND m.createdAt < " + lastFetchTime : "") +
+                " group by m.channelKey order by createdAt desc";
+
+        cursor = db.rawQuery(rowQuery, null);
+
+        List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
+        dbHelper.close();
+        return messageList;
     }
 
     public String deleteMessage(Message message, String contactNumber) {
