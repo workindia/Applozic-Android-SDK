@@ -1573,6 +1573,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         switch (item.getItemId()) {
             case 0:
+                if (getActivity() == null) {
+                    break;
+                }
                 if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                     android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboard.setText(message.getMessage());

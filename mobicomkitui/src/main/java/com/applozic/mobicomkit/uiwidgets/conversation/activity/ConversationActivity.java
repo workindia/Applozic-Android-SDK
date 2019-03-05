@@ -184,12 +184,21 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private ImageView conversationContactPhoto;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
+    private boolean isActivityDestroyed;
 
     public ConversationActivity() {
 
     }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+        if (fragmentActivity.isFinishing() || (fragmentActivity instanceof ConversationActivity && ((ConversationActivity)fragmentActivity).isActivityDestroyed)) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (fragmentActivity.isDestroyed()) {
+                return;
+            }
+        }
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
         // Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
@@ -1346,6 +1355,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isActivityDestroyed = true;
         try {
             if (mobiComKitBroadcastReceiver != null) {
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
