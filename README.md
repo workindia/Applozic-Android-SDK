@@ -405,7 +405,7 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 #### Don't have Android Push Notification code ?
 
 To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console](https://console.firebase.google.com) and create new project, add the google service json to your app, configure the build.gradle files in your app ,finally get server key from project settings and update in  
-***[Applozic Dashboard](https://dashboard.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application -> Push Notification -> Android -> GCM/FCM Server Key.***
+***[Applozic Dashboard](https://console.applozic.com/settings/pushnotification) under Push Notification -> Android -> GCM/FCM Server Key.***
 
 
 In case, if you don't have the existing FCM related code, then copy the push notification related files from Applozic sample app to your project from the below github link
