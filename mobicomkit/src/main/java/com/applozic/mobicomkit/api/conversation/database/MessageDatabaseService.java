@@ -1066,6 +1066,32 @@ public class MessageDatabaseService {
         return messageList;
     }
 
+    public int getTotalUnreadCountForSupportGroup(int status) {
+        Cursor cursor = null;
+        int count = 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        try {
+            String rowQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from channel where kmStatus = " + status;
+
+            cursor = db.rawQuery(rowQuery, null);
+            cursor.moveToFirst();
+
+            if (cursor.getCount() > 0) {
+                count = cursor.getInt(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+            dbHelper.close();
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
+    }
+
     public String deleteMessage(Message message, String contactNumber) {
         if (!message.isSentToServer()) {
             deleteMessageFromDb(message);
