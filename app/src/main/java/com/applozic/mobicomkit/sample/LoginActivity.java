@@ -279,14 +279,13 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     mAuthTask = null;
                     showProgress(false);
 
-                    //Basic settings...
+                    //Basic setting for context based chat enable...
 
-                    ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
+                    ApplozicClient.getInstance(context).setContextBasedChat(true);
 
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
-                        activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
-                        ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
-                    MobiComUserPreference.getInstance(context).setUserRoleType(registrationResponse.getRoleType());
+                    activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
+                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
 
                     if (isDeviceContactSync) {
                         Intent intent = new Intent(context, DeviceContactSyncService.class);
@@ -294,12 +293,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     }
 
                     Applozic.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
-                    //Set activity callbacks
-                    /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
-                    activityCallbacks.put(ApplozicSetting.RequestCode.MESSAGE_TAP, MainActivity.class.getName());
-                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);*/
-
-                    //Start GCM registration....
+                    //Start FCM registration....
 
                     PushNotificationTask.TaskListener pushNotificationTaskListener = new PushNotificationTask.TaskListener() {
                         @Override
