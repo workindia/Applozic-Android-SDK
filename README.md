@@ -7,7 +7,7 @@ Android Chat SDK
 
 Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
 
-Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
+Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
 
 Applozic One to One and Group Chat SDK
 
@@ -16,7 +16,7 @@ Applozic One to One and Group Chat SDK
 ### Getting Started       
 
 
-To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
+To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
 
 Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
@@ -54,7 +54,7 @@ android {
 ```
 
 <meta-data android:name="com.applozic.application.key"
-           android:value="YOUR_APPLOZIC_APPLICATION_KEY" /> <!-- Applozic Application Key -->
+           android:value="<YOUR_APPLOZIC_APP_ID" /> <!-- Applozic App ID -->
 
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
