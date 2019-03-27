@@ -66,8 +66,16 @@ public class DeleteConversationAsyncTask extends AsyncTask<Void, Integer, Long> 
     @Override
     protected void onPostExecute(Long aLong) {
         super.onPostExecute(aLong);
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
+        try {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            progressDialog = null;
         }
     }
 

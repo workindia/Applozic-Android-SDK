@@ -2391,6 +2391,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     private void sendForwardMessage(Message messageToForward) {
         //reset Messages Fields...
+        if (getActivity() == null) {
+            return;
+        }
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
 
         if (channel != null) {
