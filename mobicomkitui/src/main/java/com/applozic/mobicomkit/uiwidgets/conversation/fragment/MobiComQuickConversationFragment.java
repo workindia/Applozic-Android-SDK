@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,13 +23,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -39,18 +38,17 @@ import android.support.v7.widget.RecyclerView;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecoration;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
-import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.lang.ref.WeakReference;
@@ -187,7 +185,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         recyclerView.setLongClickable(true);
         registerForContextMenu(recyclerView);
-            ((CustomToolbarListener)getActivity()).setToolbarTitle(getString(R.string.conversation));
+        ((CustomToolbarListener) getActivity()).setToolbarTitle(getString(R.string.conversation));
 
         return list;
     }
@@ -226,6 +224,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
         if (alCustomizationSettings.isLogoutOption()) {
             menu.findItem(R.id.logout).setVisible(true);
+        }
+        if (ALSpecificSettings.getInstance(getContext()).isTextLoggingEnabled() && (getContext() != null && 0 != (getContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE))) {
+            menu.findItem(R.id.sendTextLogs).setVisible(true);
         }
     }
 

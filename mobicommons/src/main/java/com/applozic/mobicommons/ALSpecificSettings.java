@@ -18,6 +18,7 @@ public class ALSpecificSettings {
     private static final String TEXT_LOG_FILE_NAME = "TEXT_LOG_FILE_NAME";
     private static final String AL_BASE_URL = "AL_BASE_URL";
     private static final String KM_BASE_URL = "KM_BASE_URL";
+    private static final String AL_SUPPORT_EMAIL_ID = "AL_SUPPORT_EMAIL_ID";
 
     private ALSpecificSettings(Context context) {
         this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
@@ -72,6 +73,15 @@ public class ALSpecificSettings {
 
     public ALSpecificSettings setKmBaseUrl(String url) {
         sharedPreferences.edit().putString(KM_BASE_URL, url).commit();
+        return this;
+    }
+
+    public String getSupportEmailId() {
+        return sharedPreferences.getString(AL_SUPPORT_EMAIL_ID, "support@applozic.com");
+    }
+
+    public ALSpecificSettings setSupportEmailId(String emailId) {
+        sharedPreferences.edit().putString(AL_SUPPORT_EMAIL_ID, emailId).commit();
         return this;
     }
 

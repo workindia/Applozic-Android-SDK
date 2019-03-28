@@ -121,6 +121,9 @@
     <string name="gallery">Gallery</string>
     <string name="camera_option">Camera</string>
     <string name="logout">Logout</string>
+    <string name="send_logs">Send Logs</string>
+    <string name="log_email_subject">- Applozic android SDK text logs</string>
+    <string name="select_email_app_chooser_title">Select app to send logs</string>
     <string name="copy">Copy</string>
     <string name="forward">Forward</string>
     <string name="resend">Resend</string>
