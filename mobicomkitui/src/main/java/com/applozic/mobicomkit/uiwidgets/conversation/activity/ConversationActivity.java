@@ -913,7 +913,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     public boolean isFromSearch() {
-        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+        if (searchView != null && !searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
             quickConversationFragment.stopSearching();
             searchView.onActionViewCollapsed();
             return true;

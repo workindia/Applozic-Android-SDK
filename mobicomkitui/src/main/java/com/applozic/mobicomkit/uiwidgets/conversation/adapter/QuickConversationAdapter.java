@@ -449,13 +449,28 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
 
             int itemPosition = this.getLayoutPosition();
             if (itemPosition != -1 && !messageList.isEmpty()) {
-                Message message = getItem(itemPosition);
-                if (message != null) {
-                    Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
-                    Contact contact = new ContactDatabase(context).getContactById(channel == null ? message.getContactIds() : null);
-                    InstructionUtil.hideInstruction(context, R.string.instruction_open_conversation_thread);
-                    ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contact, channel, message.getConversationId(), searchString);
-                }
+                final Message message = getItem(itemPosition);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (message != null) {
+                           final Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+                           final Contact contact = new ContactDatabase(context).getContactById(channel == null ? message.getContactIds() : null);
+                            if(context != null){
+                                ((Activity) context).runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ((MobiComKitActivityInterface) context).onQuickConversationFragmentItemClick(view, contact, channel, message.getConversationId(), searchString);
+                                    }
+                                });
+                            }
+
+                        }
+                    }
+                });
+                thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                thread.start();
+
             }
         }
 
