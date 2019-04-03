@@ -509,7 +509,8 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int position = getLayoutPosition();
-                if (position >= messageList.size()) {
+
+                if (messageList.size() <= position || position == -1) {
                     return true;
                 }
                 Message message = messageList.get(position);
