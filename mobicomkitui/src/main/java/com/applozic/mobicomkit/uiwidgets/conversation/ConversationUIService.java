@@ -529,9 +529,16 @@ public class ConversationUIService {
             return;
         }
         if (BroadcastService.isIndividual()) {
-            ConversationFragment conversationFragment = getConversationFragment();
+        final  ConversationFragment conversationFragment = getConversationFragment();
             if (conversationFragment != null && conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null) {
-                conversationFragment.updateLastSeenStatus();
+            Thread thread =   new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        conversationFragment.updateLastSeenStatus();
+                    }
+                });
+                thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                thread.start();
             }
         }
     }

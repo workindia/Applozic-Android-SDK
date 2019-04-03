@@ -157,7 +157,7 @@ public class ContactDatabase {
                 return null;
             }
             String structuredNameWhere = MobiComDatabaseHelper.USERID + " =?";
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{id}, null, null, null);
             Contact contact = null;
             if (cursor != null) {

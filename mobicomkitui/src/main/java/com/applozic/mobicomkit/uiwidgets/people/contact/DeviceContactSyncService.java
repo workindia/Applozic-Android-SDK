@@ -96,6 +96,9 @@ public class DeviceContactSyncService extends JobIntentService {
         if (processUserDetails) {
             MobiComUserPreference.getInstance(DeviceContactSyncService.this).setDeviceContactSyncTime(new Date().getTime());
         }
+        if(people != null){
+            people.close();
+        }
     }
 
     private void processModifiedContacts() {
