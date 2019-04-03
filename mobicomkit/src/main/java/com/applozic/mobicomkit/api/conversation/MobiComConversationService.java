@@ -568,13 +568,9 @@ public class MobiComConversationService {
         try {
             int unreadCount = 0;
             if (contact != null) {
-                Contact newContact = baseContactService.getContactById(contact.getContactIds());
-                unreadCount = newContact.getUnreadCount();
-                messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
+                unreadCount = contact.getUnreadCount();
             } else if (channel != null) {
-                Channel newChannel = channelService.getChannelByChannelKey(channel.getKey());
-                unreadCount = newChannel.getUnreadCount();
-                messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
+                unreadCount = channel.getUnreadCount();
             }
 
             Intent intent = new Intent(context, UserIntentService.class);

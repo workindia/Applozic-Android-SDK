@@ -182,7 +182,7 @@ public class ChannelDatabaseService {
         Channel channel = null;
         try {
             String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =?";
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
