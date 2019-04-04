@@ -67,11 +67,7 @@ public class AppContactService implements BaseContactService {
             contact.processContactNumbers(context);
         } else {
             contact = new Contact(context, contactId);
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                upsert(contact);
-            } else {
-                add(contact);
-            }
+            upsert(contact);
         }
         return contact;
     }
