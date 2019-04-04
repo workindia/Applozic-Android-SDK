@@ -262,6 +262,20 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public SQLiteDatabase getReadableDatabase() {
+        SQLiteDatabase database = super.getReadableDatabase();
+        database.enableWriteAheadLogging();
+        return database;
+    }
+
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        SQLiteDatabase database = super.getWritableDatabase();
+        database.enableWriteAheadLogging();
+        return database;
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase database) {
         //Store Database name in shared preference ...
         if (!DBUtils.isTableExists(database, "sms")) {
