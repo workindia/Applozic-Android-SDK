@@ -408,7 +408,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         mSearchTerm = newFilter;
         mAdapter.indexOfSearchQuery(newFilter);
 
-        if (isFragmentDetached) {
+        if (isFragmentDetached || getContext() == null) {
             return true;
         }
 

@@ -108,6 +108,7 @@ public class FileClientService extends MobiComKitClientService {
     }
 
     public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
+        HttpURLConnection connection = null;
         try {
             Bitmap attachedImage = null;
 
@@ -130,7 +131,7 @@ public class FileClientService extends MobiComKitClientService {
                 }
             }
             if (attachedImage == null) {
-                HttpURLConnection connection = openHttpConnection(thumbnailUrl);
+                connection = openHttpConnection(thumbnailUrl);
                 if (connection.getResponseCode() == 200) {
                     // attachedImage = BitmapFactory.decodeStream(connection.getInputStream(),null,options);
                     attachedImage = BitmapFactory.decodeStream(connection.getInputStream());
@@ -153,6 +154,10 @@ public class FileClientService extends MobiComKitClientService {
             Utils.printLog(context, TAG, "File not found on server: " + ex.getMessage());
         } catch (Exception ex) {
             Utils.printLog(context, TAG, "Exception fetching file from server: " + ex.getMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
         return null;
@@ -164,11 +169,11 @@ public class FileClientService extends MobiComKitClientService {
 
     public void loadContactsvCard(Message message) {
         File file = null;
+        HttpURLConnection connection = null;
         try {
             InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
-            HttpURLConnection connection;
             String fileName = fileMeta.getName();
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
             if (!file.exists()) {
@@ -210,6 +215,10 @@ public class FileClientService extends MobiComKitClientService {
             }
             ex.printStackTrace();
             Utils.printLog(context, TAG, "Exception fetching file from server");
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
@@ -450,6 +459,7 @@ public class FileClientService extends MobiComKitClientService {
             if (in != null && out != null) {
                 try {
                     out.flush();
+                    out.close();
                     in.close();
                 } catch (IOException e) {
                     e.printStackTrace();
