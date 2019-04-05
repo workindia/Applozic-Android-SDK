@@ -113,7 +113,7 @@ public class ChannelDatabaseService {
         }
         if (channel.getMetadata() != null) {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(channel.getMetadata(), Map.class));
-            if(channel.getMetadata().containsKey(Channel.AL_CATEGORY)){
+            if (channel.getMetadata().containsKey(Channel.AL_CATEGORY)) {
                 contentValues.put(MobiComDatabaseHelper.AL_CATEGORY, channel.getMetadata().get(Channel.AL_CATEGORY));
             }
         }
@@ -161,16 +161,21 @@ public class ChannelDatabaseService {
         Channel channel = null;
         try {
             String structuredNameWhere = MobiComDatabaseHelper.CLIENT_GROUP_ID + " =?";
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(clientGroupId)}, null, null, null);
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    channel = getChannel(cursor);
+            try {
+                if (cursor != null) {
+                    if (cursor.getCount() > 0) {
+                        cursor.moveToFirst();
+                        channel = getChannel(cursor);
+                    }
                 }
-                cursor.close();
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                dbHelper.close();
             }
-            dbHelper.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -184,16 +189,20 @@ public class ChannelDatabaseService {
             String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =?";
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    channel = getChannel(cursor);
+            try {
+                if (cursor != null) {
+                    if (cursor.getCount() > 0) {
+                        cursor.moveToFirst();
+                        channel = getChannel(cursor);
+                    }
                 }
-                cursor.close();
 
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                dbHelper.close();
             }
-            dbHelper.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -201,22 +210,22 @@ public class ChannelDatabaseService {
     }
 
     public List<ChannelUserMapper> getChannelUserList(Integer channelKey) {
+        Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String structuredNameWhere = "";
 
             structuredNameWhere += "channelKey = ?";
-            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
-
-            List<ChannelUserMapper> channelUserMappers = getListOfUsers(cursor);
-
-            cursor.close();
-            dbHelper.close();
-
-            return channelUserMappers;
+            cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
+            return getListOfUsers(cursor);
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
         return null;
     }
@@ -245,31 +254,37 @@ public class ChannelDatabaseService {
 
     public List<Channel> getAllChannels() {
         List<Channel> contactList = null;
+        Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor cursor = db.query(CHANNEL, null, null, null, null, null, MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " asc");
+            cursor = db.query(CHANNEL, null, null, null, null, null, MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME + " asc");
             contactList = getChannelList(cursor);
-            cursor.close();
-            dbHelper.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
         return contactList;
     }
 
     public List<Channel> getChannelList(Cursor cursor) {
-
-        List<Channel> channelList = new ArrayList<Channel>();
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                channelList.add(getChannel(cursor));
-            } while (cursor.moveToNext());
+        try {
+            List<Channel> channelList = new ArrayList<Channel>();
+            cursor.moveToFirst();
+            if (cursor.getCount() > 0) {
+                do {
+                    channelList.add(getChannel(cursor));
+                } while (cursor.moveToNext());
+            }
+            return channelList;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        if (cursor != null) {
-            cursor.close();
-        }
-        return channelList;
     }
 
     public void updateChannel(Channel channel) {
@@ -291,27 +306,29 @@ public class ChannelDatabaseService {
     }
 
     public boolean isChannelPresent(Integer channelKey) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        Cursor cursor = database.rawQuery(
-                "SELECT COUNT(*) FROM channel WHERE channelKey=?", new String[]{String.valueOf(channelKey)});
-        cursor.moveToFirst();
-        boolean present = cursor.getInt(0) > 0;
-        if (cursor != null) {
-            cursor.close();
+        Cursor cursor = null;
+        try {
+            SQLiteDatabase database = dbHelper.getReadableDatabase();
+            cursor = database.rawQuery(
+                    "SELECT COUNT(*) FROM channel WHERE channelKey=?", new String[]{String.valueOf(channelKey)});
+            cursor.moveToFirst();
+            return cursor.getInt(0) > 0;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
-        dbHelper.close();
-        return present;
     }
 
     public void updateChannelLocalImageURI(Integer channelKey, String channelLocalURI) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI, channelLocalURI);
-        int updatedRow = dbHelper.getWritableDatabase().update(CHANNEL, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(channelKey)});
-
+        dbHelper.getWritableDatabase().update(CHANNEL, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=?", new String[]{String.valueOf(channelKey)});
     }
 
     public boolean isChannelUserPresent(Integer channelKey, String userId) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor cursor = null;
         boolean present = false;
         try {
@@ -325,8 +342,8 @@ public class ChannelDatabaseService {
         } finally {
             if (cursor != null) {
                 cursor.close();
-                dbHelper.close();
             }
+            dbHelper.close();
         }
         return present;
     }
@@ -440,12 +457,13 @@ public class ChannelDatabaseService {
 
 
     public String getGroupOfTwoReceiverId(Integer channelKey) {
+        Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String structuredNameWhere = "";
 
             structuredNameWhere += "channelKey = ? AND userId NOT IN ('" + MobiComUserPreference.getInstance(context).getUserId().replaceAll("'", "''") + "')";
-            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
+            cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
 
             List<ChannelUserMapper> channelUserMappers = getListOfUsers(cursor);
             if (channelUserMappers != null && channelUserMappers.size() > 0) {
@@ -454,80 +472,95 @@ public class ChannelDatabaseService {
                     return channelUserMapper.getUserKey();
                 }
             }
-            if (!cursor.isClosed()) {
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
             dbHelper.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }
 
 
     public String[] getChannelMemberByName(String name, String type) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         List<String> userIds = new ArrayList<String>();
         Cursor cursor = database.rawQuery("Select cu.userId from channel c JOIN channel_User_X cu on c.channelKey = cu.channelKey where c.channelName ='" + name + "' AND c.type ='" + type + "'", null);
-        cursor.moveToFirst();
-        if (cursor.getCount() > 0) {
-            do {
-                userIds.add(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
+        try {
+            cursor.moveToFirst();
+            if (cursor.getCount() > 0) {
+                do {
+                    userIds.add(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USERID)));
 
-            } while (cursor.moveToNext());
-            cursor.close();
+                } while (cursor.moveToNext());
+            }
+            if (userIds.contains(MobiComUserPreference.getInstance(context).getUserId())) {
+                userIds.remove(MobiComUserPreference.getInstance(context).getUserId());
+            }
+            if (userIds != null && userIds.size() > 0) {
+                return userIds.toArray(new String[userIds.size()]);
+            }
+            return null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
-        if (userIds.contains(MobiComUserPreference.getInstance(context).getUserId())) {
-            userIds.remove(MobiComUserPreference.getInstance(context).getUserId());
-        }
-        if (userIds != null && userIds.size() > 0) {
-            return userIds.toArray(new String[userIds.size()]);
-        }
-        return null;
     }
 
-    public void updateRoleInChannelUserMapper(Integer channelKey,String userId,Integer role) {
-        ContentValues contentValues =  new ContentValues();
-        contentValues.put(MobiComDatabaseHelper.ROLE,role);
-        dbHelper.getWritableDatabase().update(CHANNEL_USER_X,contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=? AND "+ MobiComDatabaseHelper.USERID+"=?", new String[]{String.valueOf(channelKey),userId});
+    public void updateRoleInChannelUserMapper(Integer channelKey, String userId, Integer role) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MobiComDatabaseHelper.ROLE, role);
+        dbHelper.getWritableDatabase().update(CHANNEL_USER_X, contentValues, MobiComDatabaseHelper.CHANNEL_KEY + "=? AND " + MobiComDatabaseHelper.USERID + "=?", new String[]{String.valueOf(channelKey), userId});
     }
 
     public ChannelUserMapper getChannelUserByChannelKey(final Integer channelKey) {
         ChannelUserMapper channelUserMapper = null;
+        Cursor cursor = null;
         try {
-            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND "+MobiComDatabaseHelper.USERID +"="+MobiComUserPreference.getInstance(context).getUserId();
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
+            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + "=" + MobiComUserPreference.getInstance(context).getUserId();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
                     channelUserMapper = getChannelUser(cursor);
                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
             dbHelper.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return channelUserMapper;
     }
 
-    public ChannelUserMapper getChannelUserByChannelKeyAndUserId(final Integer channelKey,final  String userId) {
+    public ChannelUserMapper getChannelUserByChannelKeyAndUserId(final Integer channelKey, final String userId) {
         ChannelUserMapper channelUserMapper = null;
+        Cursor cursor = null;
         try {
-            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND "+MobiComDatabaseHelper.USERID+" =?";
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            Cursor cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey),userId}, null, null, null);
+            String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + " =?";
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey), userId}, null, null, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
                     channelUserMapper = getChannelUser(cursor);
                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
             dbHelper.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return channelUserMapper;
     }
@@ -536,27 +569,29 @@ public class ChannelDatabaseService {
         if (parentGroupKey == null || parentGroupKey == 0) {
             return new ArrayList<>();
         }
+        Cursor cursor = null;
         try {
             List<String> childGroupIds = new ArrayList<>();
 
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String structuredNameWhere = "";
             structuredNameWhere += "parentGroupKey = ?";
-            Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(parentGroupKey)}, null, null, null);
+            cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(parentGroupKey)}, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
                     childGroupIds.add(String.valueOf(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_KEY))));
 
                 } while (cursor.moveToNext());
             }
-            if (!cursor.isClosed()) {
-                cursor.close();
-            }
-            dbHelper.close();
             return childGroupIds;
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            dbHelper.close();
         }
         return null;
     }
@@ -572,20 +607,22 @@ public class ChannelDatabaseService {
         if (TextUtils.isEmpty(parentClientGroupId)) {
             return null;
         }
+        Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String structuredNameWhere = "";
             structuredNameWhere += "parentClientGroupId = ?";
-            Cursor cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(parentClientGroupId)}, null, null, null);
+            cursor = db.query(CHANNEL, null, structuredNameWhere, new String[]{String.valueOf(parentClientGroupId)}, null, null, null);
             if (cursor.moveToFirst()) {
                 return cursor.getInt(cursor.getColumnIndex("parentGroupKey"));
             }
-            if (!cursor.isClosed()) {
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
             dbHelper.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }

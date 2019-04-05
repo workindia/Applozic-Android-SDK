@@ -548,9 +548,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //FlurryAgent.logEvent(QUICK_CONVERSATION_EVENT);
-        //listView.setAdapter(conversationAdapter);
-        // startNewButton.setOnClickListener(startNewConversation());
         fabButton.setOnClickListener(startNewConversation());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -591,10 +588,12 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         return;
                     }
                     if (loadMore && !loading && (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        DownloadConversation downloadConversation = new DownloadConversation(recyclerView, false, listIndex, visibleItemCount, totalItemCount);
+                        DownloadConversation downloadConversation = new DownloadConversation(getContext(), false, listIndex);
                         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
                         downloadConversation.setTextViewWeakReference(emptyTextView);
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
+                        downloadConversation.setRecyclerView(recyclerView);
+                        downloadConversation.setConversationLabelStrings(getContext() != null ? getContext().getString(R.string.no_conversation) : "", getContext() != null ? getContext().getString(R.string.no_conversation) : "");
                         downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         loading = true;
                         loadMore = false;
@@ -611,9 +610,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public void downloadConversations(boolean showInstruction, String searchString) {
         minCreatedAtTime = null;
-        downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, showInstruction, searchString);
+        downloadConversation = new DownloadConversation(getContext(), true, 1, searchString);
         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
+        downloadConversation.setConversationLabelStrings(getContext() != null ? getContext().getString(R.string.no_conversation) : "", getContext() != null ? getContext().getString(R.string.no_conversation) : "");
         downloadConversation.setTextViewWeakReference(emptyTextView);
+        downloadConversation.setRecyclerView(recyclerView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
         downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         if (recyclerAdapter != null) {
@@ -704,16 +705,14 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
     public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
 
-        private RecyclerView view;
         private int firstVisibleItem;
-        private int amountVisible;
-        private int totalItems;
         private boolean initial;
-        private boolean showInstruction;
         private List<Message> nextMessageList = new ArrayList<Message>();
-        private Context context;
+        private WeakReference<Context> context;
         private boolean loadMoreMessages;
         private String searchString;
+        private WeakReference<RecyclerView> recyclerViewWr;
+        private String conversationLabel, noConversationFound;
         private WeakReference<SwipeRefreshLayout> swipeRefreshLayoutWeakReference;
         private WeakReference<QuickConversationAdapter> quickConversationAdapterWeakReference;
         private WeakReference<TextView> textViewWeakReference;
@@ -726,25 +725,28 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             this.textViewWeakReference = new WeakReference<TextView>(emptyTextViewWeakReference);
         }
 
-
         public void setSwipeRefreshLayoutWeakReference(SwipeRefreshLayout swipeRefreshLayout) {
             this.swipeRefreshLayoutWeakReference = new WeakReference<SwipeRefreshLayout>(swipeRefreshLayout);
         }
 
+        public void setRecyclerView(RecyclerView recyclerView) {
+            this.recyclerViewWr = new WeakReference<>(recyclerView);
+        }
 
-        public DownloadConversation(RecyclerView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems, boolean showInstruction, String searchString) {
-            this.context = getActivity();
-            this.view = view;
+        public DownloadConversation(Context context, boolean initial, int firstVisibleItem, String searchString) {
+            this.context = new WeakReference<>(context);
             this.initial = initial;
             this.firstVisibleItem = firstVisibleItem;
-            this.amountVisible = amountVisible;
-            this.totalItems = totalItems;
-            this.showInstruction = showInstruction;
             this.searchString = searchString;
         }
 
-        public DownloadConversation(RecyclerView view, boolean initial, int firstVisibleItem, int amountVisible, int totalItems) {
-            this(view, initial, firstVisibleItem, amountVisible, totalItems, false, null);
+        public void setConversationLabelStrings(String conversationLabel, String noConversationFound) {
+            this.conversationLabel = conversationLabel;
+            this.noConversationFound = noConversationFound;
+        }
+
+        public DownloadConversation(Context context, boolean initial, int firstVisibleItem) {
+            this(context, initial, firstVisibleItem, null);
             loadMoreMessages = true;
         }
 
@@ -776,7 +778,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(context).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(context.get()).getParentGroupKey());
                 if (!nextMessageList.isEmpty()) {
                     minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
                 }
@@ -789,7 +791,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 }
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(context).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(context.get()).getParentGroupKey());
             }
 
             return 0L;
@@ -869,28 +871,28 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     if (emptyTextView != null) {
                         emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
                         if (!TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
-                            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoSearchFoundForChatMessages()) ? alCustomizationSettings.getNoSearchFoundForChatMessages() : getResources().getString(R.string.search_not_found_for_messages));
+                            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoSearchFoundForChatMessages()) ? alCustomizationSettings.getNoSearchFoundForChatMessages() : noConversationFound);
                         } else if (TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
-                            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : getResources().getString(R.string.no_conversation));
+                            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : conversationLabel);
                         }
                     }
                 }
                 if (!messageList.isEmpty()) {
-                    if (recyclerView != null && quickConversationAdapterWeakReference != null) {
+                    if (recyclerViewWr != null && recyclerViewWr.get() != null && quickConversationAdapterWeakReference != null) {
                         QuickConversationAdapter adapter = quickConversationAdapterWeakReference.get();
                         if (adapter != null) {
                             if (adapter.getItemCount() > BroadcastService.lastIndexForChats) {
-                                recyclerView.scrollToPosition(BroadcastService.lastIndexForChats);
+                                recyclerViewWr.get().scrollToPosition(BroadcastService.lastIndexForChats);
                                 BroadcastService.lastIndexForChats = 0;
                             } else {
-                                recyclerView.scrollToPosition(0);
+                                recyclerViewWr.get().scrollToPosition(0);
                             }
                         }
                     }
                 }
             } else {
-                if (!loadMoreMessages) {
-                    recyclerView.scrollToPosition(firstVisibleItem);
+                if (!loadMoreMessages && recyclerViewWr != null && recyclerViewWr.get() != null) {
+                    recyclerViewWr.get().scrollToPosition(firstVisibleItem);
                 }
             }
             if (!nextMessageList.isEmpty()) {
