@@ -33,19 +33,16 @@
     <uses-permission
         android:name="android.permission.CAMERA"
         tools:node="merge" />
-    <uses-permission
-        android:name="com.mobicomkit.sample.permission.MAPS_RECEIVE"
-        tools:node="merge" />
-
-    <permission
-        android:name="com.mobicomkit.sample.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature"
-        tools:node="merge" />
 
     <application>
         <meta-data
             android:name="share_text"
             android:value="@string/invite_message"
+            tools:node="merge" />
+
+        <meta-data
+            android:name="activity.open.on.notification"
+            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
             tools:node="merge" />
 
         <provider
