@@ -344,8 +344,10 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = ProgressDialog.show(context.get(), "",
-                    context.get().getString(R.string.applozic_contacts_loading_info), true);
+            progressDialog = new ProgressDialog(context.get());
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage(context.get().getString(R.string.applozic_contacts_loading_info));
+            progressDialog.show();
         }
 
         @Override

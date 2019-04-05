@@ -119,6 +119,13 @@ public class Utils {
     }
 
     /**
+     * Uses static final constants to detect if the device's platform version is JellyBean MR1 or
+     * later.
+     */
+    public static boolean hasJellyBeanMR1() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
+    }
+    /**
      * Uses static final constants to detect if the device's platform version is ICS or
      * later.
      */
