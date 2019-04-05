@@ -132,4 +132,12 @@
         android:showAsAction="collapseActionView"
         android:title="@string/logout"
         android:visible="false" />
+
+    <item
+        android:id="@+id/sendTextLogs"
+        android:icon="@drawable/applozic_ic_action_time"
+        android:orderInCategory="12"
+        android:showAsAction="collapseActionView"
+        android:title="@string/send_logs"
+        android:visible="false" />
 </menu>

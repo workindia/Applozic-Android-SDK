@@ -19,6 +19,7 @@ import android.os.PowerManager;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.support.v4.content.FileProvider;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
@@ -426,6 +427,22 @@ public class Utils {
             }
         } catch (Exception e) {
         }
+    }
+
+    public static Uri getTextLogFileUri(Context context) {
+        try {
+            String fileName = "/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt";
+            String folder = "/" + Utils.getMetaDataValue(context, "main_folder_name");
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
+            File textLogFile = new File(dir, fileName);
+            if (hasNougat()) {
+                return FileProvider.getUriForFile(context, getMetaDataValue(context, "com.package.name") + ".provider", textLogFile);
+            }
+            return Uri.fromFile(textLogFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

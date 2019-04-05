@@ -90,6 +90,7 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -518,7 +519,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarTitle(String title){
+    public void setToolbarTitle(String title) {
         toolbarSubtitle.setVisibility(View.GONE);
         conversationContactPhoto.setVisibility(View.GONE);
         toolbarTitle.setText(title);
@@ -526,7 +527,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarSubtitle(String subtitle){
+    public void setToolbarSubtitle(String subtitle) {
         if (subtitle.length() == 0) {
             toolbarSubtitle.setVisibility(View.GONE);
             animateToolbarTitle();
@@ -543,8 +544,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarImage(Contact contact, Channel channel){
-        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
+    public void setToolbarImage(Contact contact, Channel channel) {
+        if (ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
             conversationContactPhoto.setVisibility(View.VISIBLE);
             if (contact != null) {
                 Glide.with(this)
@@ -855,6 +856,19 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     }
                 }
             } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else if (id == R.id.sendTextLogs) {
+            try {
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.setType("vnd.android.cursor.dir/email");
+                String receivers[] = {ALSpecificSettings.getInstance(this).getSupportEmailId()};
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, receivers);
+                emailIntent.putExtra(Intent.EXTRA_STREAM, Utils.getTextLogFileUri(this));
+                emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " " + getString(R.string.log_email_subject));
+                startActivity(Intent.createChooser(emailIntent, getString(R.string.select_email_app_chooser_title)));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
