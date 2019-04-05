@@ -38,7 +38,6 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
-import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
@@ -454,9 +453,9 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     @Override
                     public void run() {
                         if (message != null) {
-                           final Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
-                           final Contact contact = new ContactDatabase(context).getContactById(channel == null ? message.getContactIds() : null);
-                            if(context != null){
+                            final Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+                            final Contact contact = new ContactDatabase(context).getContactById(channel == null ? message.getContactIds() : null);
+                            if (context != null) {
                                 ((Activity) context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -535,22 +534,30 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                 if (message.getGroupId() != null) {
                     channel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                 } else {
-                    contact = contactService.getContactById(message.getContactIds());
+                    if (contactService != null) {
+                        contact = contactService.getContactById(message.getContactIds());
+                    }
                 }
 
                 switch (item.getItemId()) {
                     case 0:
-                        if (channel != null && channel.isDeleted()) {
-                            conversationUIService.deleteGroupConversation(channel);
-                        } else {
-                            conversationUIService.deleteConversationThread(contact, channel);
+                        if (conversationUIService != null) {
+                            if (channel != null && channel.isDeleted()) {
+                                conversationUIService.deleteGroupConversation(channel);
+                            } else {
+                                conversationUIService.deleteConversationThread(contact, channel);
+                            }
                         }
                         break;
                     case 1:
-                        conversationUIService.deleteGroupConversation(channel);
+                        if (conversationUIService != null) {
+                            conversationUIService.deleteGroupConversation(channel);
+                        }
                         break;
                     case 2:
-                        conversationUIService.channelLeaveProcess(channel);
+                        if (conversationUIService != null) {
+                            conversationUIService.channelLeaveProcess(channel);
+                        }
                         break;
                     default:
                         //return onMenuItemClick(item);
