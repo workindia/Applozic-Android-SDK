@@ -9,6 +9,7 @@ import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
+import com.applozic.mobicomkit.api.people.AlGetPeopleTask;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -21,6 +22,7 @@ import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.ChannelUsersFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
+import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
@@ -816,5 +818,13 @@ public class ChannelService {
 
     public Integer getParentGroupKeyByClientGroupKey(String parentClientGroupKey) {
         return channelDatabaseService.getParentGroupKey(parentClientGroupKey);
+    }
+
+    public void getChannelByChannelKeyAsync(Integer groupId, AlChannelListener channelListener) {
+        new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, channelDatabaseService).execute();
+    }
+
+    public void getChannelByClientKeyAsync(String clientChannelKey, AlChannelListener channelListener) {
+        new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, channelDatabaseService).execute();
     }
 }
