@@ -108,6 +108,7 @@ import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
@@ -1939,7 +1940,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            updateChannelSubTitle();
+                            updateChannelSubTitle(channel);
                         }
                     });
                     thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -1967,20 +1968,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
         if (contact != null) {
-            contact = appContactService.getContactById(contact.getContactIds());
-        }
-
-        if (contact != null) {
-            processUpdateLastSeenStatus(contact);
+            appContactService.getContactByIdAsync(contact.getContactIds(), new AlContactListener() {
+                @Override
+                public void onGetContact(Contact contact) {
+                    if (contact != null) {
+                        processUpdateLastSeenStatus(contact);
+                    }
+                }
+            });
         } else if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
             String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
             if (!TextUtils.isEmpty(userId)) {
                 Contact withUserContact = appContactService.getContactById(userId);
                 processUpdateLastSeenStatus(withUserContact);
             }
-
         }
-
     }
 
 
@@ -2037,7 +2039,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public void updateChannelSubTitle() {
+    public void updateChannelSubTitle(final Channel channel) {
         if (getActivity() == null) {
             return;
         }
@@ -2119,12 +2121,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 setToolbarImage(null, channel);
                             }
                         }
-
                     }
                 });
-
             }
-
         }
     }
 
@@ -2894,7 +2893,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             if (displayNameContact.isBlocked() || displayNameContact.isBlockedBy()) {
                                 return;
                             }
-                            updateChannelSubTitle();
+                            updateChannelSubTitle(channel);
                         }
                     } else {
                         updateLastSeenStatus();
@@ -2919,7 +2918,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     //TODO: Please add onclick events here...  anonymous class are
-    // TODO :hard to read and suggested if we have very few event view
+// TODO :hard to read and suggested if we have very few event view
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.emoticons_btn) {
@@ -3250,60 +3249,49 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            Thread thread = new Thread(new Runnable() {
+            new AsyncTask<Void, Object, Object>() {
                 @Override
-                public void run() {
-                    try {
-
-                        if (channel != null) {
-
-                            boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-                            if (!present) {
-                                Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-                                if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                                    MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
-                                }
-                            }
-                            updateChannelTitle();
-
-                            if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                                hideSendMessageLayout(channel.isDeleted() || !present);
-
-                            } else {
-                                hideSendMessageLayout(channel.isDeleted());
-                            }
-                            if (ChannelService.isUpdateTitle) {
-                                updateChannelSubTitle();
-                                ChannelService.isUpdateTitle = false;
+                protected Object doInBackground(Void... voids) {
+                    if (channel != null) {
+                        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+                        Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
+                        if (!present) {
+                            if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
+                                MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
                             }
                         }
+                        updateChannelTitle(newChannel);
 
-                        if (appContactService != null && contact != null) {
-                            updateLastSeenStatus();
+                        if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
+                            hideSendMessageLayout(newChannel.isDeleted() || !present);
+                        } else {
+                            hideSendMessageLayout(newChannel.isDeleted());
                         }
 
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (messageList.isEmpty()) {
-                                        loadConversation(contact, channel, currentConversationId, null);
-                                    } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
-                                        loadnewMessageOnResume(contact, channel, currentConversationId);
-                                    }
-
-                                }
-                            });
-                            MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
+                        if (ChannelService.isUpdateTitle) {
+                            updateChannelSubTitle(newChannel);
+                            ChannelService.isUpdateTitle = false;
                         }
-
-                    } catch (Exception e) {
-
                     }
+
+                    return null;
                 }
-            });
-            thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-            thread.start();
+
+                @Override
+                protected void onPostExecute(Object o) {
+                    super.onPostExecute(o);
+                    if (appContactService != null && contact != null) {
+                        updateLastSeenStatus();
+                    }
+
+                    if (messageList.isEmpty()) {
+                        loadConversation(contact, channel, currentConversationId, null);
+                    } else if (MobiComUserPreference.getInstance(getActivity()).getNewMessageFlag()) {
+                        loadnewMessageOnResume(contact, channel, currentConversationId);
+                    }
+                    MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(false);
+                }
+            }.execute();
 
             if (SyncCallService.refreshView) {
                 SyncCallService.refreshView = false;
@@ -3372,8 +3360,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
 
-            updateChannelTitle();
-            updateChannelSubTitle();
+            updateChannelTitle(channelInfo);
+            updateChannelSubTitle(channelInfo);
         }
     }
 
@@ -3394,10 +3382,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void updateChannelTitle() {
-        if (!Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
-            Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-            if (newChannel != null && !TextUtils.isEmpty(channel.getName()) && !channel.getName().equals(newChannel.getName())) {
+    public void updateChannelTitle(Channel newChannel) {
+        if (!Channel.GroupType.GROUPOFTWO.getValue().equals(newChannel.getType())) {
+            if (newChannel != null) {
                 title = ChannelUtils.getChannelTitleName(newChannel, loggedInUserId);
                 channel = newChannel;
                 if (getActivity() != null) {
@@ -3420,7 +3407,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     setToolbarTitle(newChannel.getName());
                 }
             }
-            updateChannelSubTitle();
+            updateChannelSubTitle(channel);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -4294,6 +4281,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         }
+
     }
 
     @Override
