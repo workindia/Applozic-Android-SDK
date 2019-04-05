@@ -314,7 +314,7 @@ public class ConversationUIService {
             } else {
                 name = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(fragmentActivity).getUserId());
             }
-        } else {
+        } else if (contact != null) {
             name = contact.getDisplayName();
         }
         alertDialog.setTitle(fragmentActivity.getString(R.string.dialog_delete_conversation_title).replace("[name]", name));
@@ -529,9 +529,9 @@ public class ConversationUIService {
             return;
         }
         if (BroadcastService.isIndividual()) {
-        final  ConversationFragment conversationFragment = getConversationFragment();
+            final ConversationFragment conversationFragment = getConversationFragment();
             if (conversationFragment != null && conversationFragment.getContact() != null && contactId.equals(conversationFragment.getContact().getContactIds()) || conversationFragment.getChannel() != null) {
-            Thread thread =   new Thread(new Runnable() {
+                Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         conversationFragment.updateLastSeenStatus();
@@ -797,7 +797,7 @@ public class ConversationUIService {
         }
     }
 
-    public void onMqttConnected(){
+    public void onMqttConnected() {
         // TODO Maybe if someone wants the connection status, send a callback from here
     }
 
@@ -812,7 +812,6 @@ public class ConversationUIService {
             ConversationActivity.addFragment(fragmentActivity, messageInfoFragment, MESSGAE_INFO_FRAGMENT);
         }
     }
-
 
     public void checkForStartNewConversation(Intent intent) {
         Contact contact = null;
