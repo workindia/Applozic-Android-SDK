@@ -11,8 +11,6 @@ import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.lang.ref.WeakReference;
-
 public class AlGetPeopleTask extends AsyncTask<Void, Object, Object> {
     private String userId;
     private String clientChannelKey;

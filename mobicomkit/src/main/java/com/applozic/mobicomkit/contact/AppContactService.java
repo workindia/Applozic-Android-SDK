@@ -230,7 +230,7 @@ public class AppContactService implements BaseContactService {
     }
 
     public void getContactByIdAsync(String userId, AlContactListener contactListener) {
-        new AlGetPeopleTask(context, null, userId, null, null, contactListener, contactDatabase, null).execute();
+        new AlGetPeopleTask(context, userId, null, null, null, contactListener, contactDatabase, null).execute();
     }
 
 }
