@@ -299,6 +299,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     int messageUnreadCount = 0;
     TextView applozicLabel;
     private String geoApiKey;
+    private String loggedInUserId;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -363,6 +364,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         multimediaPopupGrid = (GridView) list.findViewById(R.id.mobicom_multimedia_options1);
 
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        loggedInUserId = MobiComUserPreference.getInstance(getContext()).getUserId();
 
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(true);
@@ -1563,7 +1566,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public boolean onItemClick(int position, MenuItem item) {
-        if (messageList.size() <= position && position == -1) {
+        if (messageList.size() <= position || position == -1) {
             return true;
         }
         Message message = messageList.get(position);
@@ -1633,7 +1636,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageMetaData = new HashMap<>();
                     String displayName;
                     if (message.getGroupId() != null) {
-                        if (MobiComUserPreference.getInstance(getActivity()).getUserId().equals(message.getContactIds()) || TextUtils.isEmpty(message.getContactIds())) {
+                        if (loggedInUserId.equals(message.getContactIds()) || TextUtils.isEmpty(message.getContactIds())) {
                             displayName = getString(R.string.you_string);
                         } else {
                             displayName = appContactService.getContactById(message.getContactIds()).getDisplayName();
@@ -1752,6 +1755,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (downloadConversation != null) {
             downloadConversation.cancel(true);
         }
+        setContact(contact);
+        setChannel(channel);
 
         BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
         typingStarted = false;
@@ -1794,8 +1799,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         // infoBroadcast.setVisibility(channel != null ? View.VISIBLE : View.GONE);
         extendedSendingOptionLayout.setVisibility(VISIBLE);
-        setContact(contact);
-        setChannel(channel);
 
         unregisterForContextMenu(recyclerView);
         if (getActivity() != null) {
@@ -1859,7 +1862,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (getActivity() == null) {
                         return;
                     }
-                    if (!ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), MobiComUserPreference.getInstance(getContext()).getUserId())
+                    if (!ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
                             && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
 
                         getActivity().runOnUiThread(new Runnable() {
@@ -2077,7 +2080,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         break;
                     contactDisplayName = appContactService.getContactById(channelUserMapper.getUserKey());
                     if (!TextUtils.isEmpty(channelUserMapper.getUserKey())) {
-                        if (MobiComUserPreference.getInstance(getActivity()).getUserId().equals(channelUserMapper.getUserKey())) {
+                        if (loggedInUserId.equals(channelUserMapper.getUserKey())) {
                             youString = getString(R.string.you_string);
                         } else {
                             stringBuffer.append(contactDisplayName.getDisplayName()).append(",");
@@ -2392,7 +2395,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     return withUserContact.getDisplayName();
                 }
             } else {
-                return ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getActivity()).getUserId());
+                return ChannelUtils.getChannelTitleName(channel, loggedInUserId);
             }
         }
         return "";
@@ -2628,7 +2631,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
             for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
-                if (!userPreferences.getUserId().equals(channelUserMapper.getUserKey())) {
+                if (!loggedInUserId.equals(channelUserMapper.getUserKey())) {
                     Message messageToSend = new Message();
                     messageToSend.setTo(channelUserMapper.getUserKey());
                     messageToSend.setContactIds(channelUserMapper.getUserKey());
@@ -2858,7 +2861,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             public void run() {
                 if (isTypingStatus.equals("1")) {
                     if (channel != null) {
-                        if (!MobiComUserPreference.getInstance(getActivity()).getUserId().equals(typingUserId)) {
+                        if (!loggedInUserId.equals(typingUserId)) {
                             Contact displayNameContact = appContactService.getContactById(typingUserId);
                             if (displayNameContact.isBlocked() || displayNameContact.isBlockedBy()) {
                                 return;
@@ -2883,7 +2886,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     }
                 } else {
                     if (channel != null) {
-                        if (!MobiComUserPreference.getInstance(getActivity()).getUserId().equals(typingUserId)) {
+                        if (!loggedInUserId.equals(typingUserId)) {
                             Contact displayNameContact = appContactService.getContactById(typingUserId);
                             if (displayNameContact.isBlocked() || displayNameContact.isBlockedBy()) {
                                 return;
@@ -2971,7 +2974,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     stringBufferTitle.append(withUserContact.getDisplayName());
                 }
             } else {
-                stringBufferTitle.append(ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(getActivity()).getUserId()));
+                stringBufferTitle.append(ChannelUtils.getChannelTitleName(channel, loggedInUserId));
             }
         }
         if (stringBufferTitle != null && getActivity() != null) {
@@ -3089,7 +3092,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageMetaData = new HashMap<>();
                     String displayName;
                     if (message.getGroupId() != null) {
-                        if (MobiComUserPreference.getInstance(getActivity()).getUserId().equals(message.getContactIds()) || TextUtils.isEmpty(message.getContactIds())) {
+                        if (loggedInUserId.equals(message.getContactIds()) || TextUtils.isEmpty(message.getContactIds())) {
                             displayName = getString(R.string.you_string);
                         } else {
                             displayName = appContactService.getContactById(message.getContactIds()).getDisplayName();
@@ -3250,6 +3253,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     try {
 
                         if (channel != null) {
+
                             boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
                             if (!present) {
                                 Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
@@ -3343,7 +3347,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 individualMessageSendLayout.setVisibility(View.GONE);
                 userNotAbleToChatLayout.setVisibility(VISIBLE);
                 userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
-                if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), MobiComUserPreference.getInstance(getContext()).getUserId())
+                if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
                         && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                     templateAdapter.removeTemplates();
                 }
@@ -3391,7 +3395,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (!Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
             Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
             if (newChannel != null && !TextUtils.isEmpty(channel.getName()) && !channel.getName().equals(newChannel.getName())) {
-                title = ChannelUtils.getChannelTitleName(newChannel, MobiComUserPreference.getInstance(getActivity()).getUserId());
+                title = ChannelUtils.getChannelTitleName(newChannel, loggedInUserId);
                 channel = newChannel;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
@@ -4283,9 +4287,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     container.setImageBitmap(null);
                 }
             }
-
         }
-
     }
 
     @Override
