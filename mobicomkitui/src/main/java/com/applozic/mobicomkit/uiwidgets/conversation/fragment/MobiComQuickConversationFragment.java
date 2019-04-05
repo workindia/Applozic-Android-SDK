@@ -877,7 +877,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     }
                 }
                 if (!messageList.isEmpty()) {
-                    if (recyclerViewWr.get() != null && quickConversationAdapterWeakReference != null) {
+                    if (recyclerViewWr != null && recyclerViewWr.get() != null && quickConversationAdapterWeakReference != null) {
                         QuickConversationAdapter adapter = quickConversationAdapterWeakReference.get();
                         if (adapter != null) {
                             if (adapter.getItemCount() > BroadcastService.lastIndexForChats) {
@@ -890,7 +890,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     }
                 }
             } else {
-                if (!loadMoreMessages) {
+                if (!loadMoreMessages && recyclerViewWr != null && recyclerViewWr.get() != null) {
                     recyclerViewWr.get().scrollToPosition(firstVisibleItem);
                 }
             }
