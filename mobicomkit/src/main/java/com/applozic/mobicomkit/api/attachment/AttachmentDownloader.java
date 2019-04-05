@@ -152,8 +152,9 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
     public void loadAttachmentImage(Message message, Context context) {
         File file = null;
         HttpURLConnection connection = null;
+        InputStream inputStream = null;
+        OutputStream output = null;
         try {
-            InputStream inputStream = null;
             FileMeta fileMeta = message.getFileMetas();
             String contentType = fileMeta.getContentType();
             String fileName = null;
@@ -164,51 +165,58 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
             }
 
             file = FileClientService.getFilePath(fileName, context.getApplicationContext(), contentType);
-            if (!file.exists()) {
+            try {
+                if (!file.exists()) {
 
-                connection = new URLServiceProvider(context).getDownloadConnection(message);
+                    connection = new URLServiceProvider(context).getDownloadConnection(message);
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK || connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
-                    inputStream = connection.getInputStream();
-                } else {
-                    //TODO: Error Handling...
-                    Utils.printLog(context, TAG, "Got Error response while uploading file : " + connection.getResponseCode());
-                    return;
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_OK || connection.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
+                        inputStream = connection.getInputStream();
+                    } else {
+                        //TODO: Error Handling...
+                        Utils.printLog(context, TAG, "Got Error response while uploading file : " + connection.getResponseCode());
+                        return;
+                    }
+
+                    output = new FileOutputStream(file);
+                    byte data[] = new byte[1024];
+                    long totalSize = fileMeta.getSize();
+                    long progressCount = 0;
+                    int count = 0;
+                    int prevPrecentage = 0;
+                    while ((count = inputStream.read(data)) != -1) {
+                        output.write(data, 0, count);
+                        progressCount = progressCount + count;
+                        long percentage = progressCount * 100 / totalSize;
+                        android.os.Message msg = new android.os.Message();
+                        //TODO: pecentage should be transfer via handler
+                        //Message code 2 represents image is successfully downloaded....
+                        if (percentage + 1 != prevPrecentage) {
+                            mPhotoTask.handleDownloadState(5);
+                            mPhotoTask.downloadProgress((int) percentage + 1);
+                            msg.what = 5;
+                            msg.arg1 = (int) percentage + 1;
+                            msg.obj = this;
+                            //msg.sendToTarget();
+                            prevPrecentage = (int) percentage + 1;
+                        }
+                        if ((percentage % 10 == 0)) {
+                            msg.what = 1;
+                            msg.obj = this;
+                        }
+                        if (Thread.interrupted()) {
+                            throw new InterruptedException();
+                        }
+                    }
+                    output.flush();
                 }
-
-                OutputStream output = new FileOutputStream(file);
-                byte data[] = new byte[1024];
-                long totalSize = fileMeta.getSize();
-                long progressCount = 0;
-                int count = 0;
-                int prevPrecentage = 0;
-                while ((count = inputStream.read(data)) != -1) {
-                    output.write(data, 0, count);
-                    progressCount = progressCount + count;
-                    long percentage = progressCount * 100 / totalSize;
-                    android.os.Message msg = new android.os.Message();
-                    //TODO: pecentage should be transfer via handler
-                    //Message code 2 represents image is successfully downloaded....
-                    if (percentage + 1 != prevPrecentage) {
-                        mPhotoTask.handleDownloadState(5);
-                        mPhotoTask.downloadProgress((int) percentage + 1);
-                        msg.what = 5;
-                        msg.arg1 = (int) percentage + 1;
-                        msg.obj = this;
-                        //msg.sendToTarget();
-                        prevPrecentage = (int) percentage + 1;
-                    }
-                    if ((percentage % 10 == 0)) {
-                        msg.what = 1;
-                        msg.obj = this;
-                    }
-                    if (Thread.interrupted()) {
-                        throw new InterruptedException();
-                    }
+            } finally {
+                if (output != null) {
+                    output.close();
                 }
-                output.flush();
-                output.close();
-                inputStream.close();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             }
             //Todo: Fix this, so that attach package can be moved to mobicom mobicom.
             new MessageDatabaseService(context).updateInternalFilePath(message.getKeyString(), file.getAbsolutePath());
