@@ -1752,210 +1752,213 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void loadConversation(final Contact contact, final Channel channel, final Integer conversationId, final String searchString) {
-        if (downloadConversation != null) {
-            downloadConversation.cancel(true);
-        }
-        setContact(contact);
-        setChannel(channel);
-
-        BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
-        typingStarted = false;
-        onSelected = false;
-        messageMetaData = null;
-
-        if (userNotAbleToChatLayout != null) {
-            if (contact != null && contact.isDeleted()) {
-                userNotAbleToChatLayout.setVisibility(VISIBLE);
-                individualMessageSendLayout.setVisibility(View.GONE);
-            } else {
-                userNotAbleToChatLayout.setVisibility(View.GONE);
-                individualMessageSendLayout.setVisibility(VISIBLE);
+        try {
+            if (downloadConversation != null) {
+                downloadConversation.cancel(true);
             }
-        }
+            setContact(contact);
+            setChannel(channel);
 
-        if (contact != null && this.channel != null) {
-            if (getActivity() != null) {
-                setToolbarSubtitle("");
-                setToolbarImage(contact, channel);
+            BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
+            typingStarted = false;
+            onSelected = false;
+            messageMetaData = null;
+
+            if (userNotAbleToChatLayout != null) {
+                if (contact != null && contact.isDeleted()) {
+                    userNotAbleToChatLayout.setVisibility(VISIBLE);
+                    individualMessageSendLayout.setVisibility(View.GONE);
+                } else {
+                    userNotAbleToChatLayout.setVisibility(View.GONE);
+                    individualMessageSendLayout.setVisibility(VISIBLE);
+                }
             }
-            if (menu != null) {
-                menu.findItem(R.id.unmuteGroup).setVisible(false);
-                menu.findItem(R.id.muteGroup).setVisible(false);
+
+            if (contact != null && this.channel != null) {
+                if (getActivity() != null) {
+                    setToolbarSubtitle("");
+                    setToolbarImage(contact, channel);
+                }
+                if (menu != null) {
+                    menu.findItem(R.id.unmuteGroup).setVisible(false);
+                    menu.findItem(R.id.muteGroup).setVisible(false);
+                }
             }
-        }
-        if (replayRelativeLayout != null) {
-            replayRelativeLayout.setVisibility(View.GONE);
-        }
+            if (replayRelativeLayout != null) {
+                replayRelativeLayout.setVisibility(View.GONE);
+            }
         /*
         filePath = null;*/
-        if (TextUtils.isEmpty(filePath) && attachmentLayout != null) {
-            attachmentLayout.setVisibility(View.GONE);
-        }
+            if (TextUtils.isEmpty(filePath) && attachmentLayout != null) {
+                attachmentLayout.setVisibility(View.GONE);
+            }
 
-        if (!TextUtils.isEmpty(defaultText) && messageEditText != null) {
-            messageEditText.setText(defaultText);
-            defaultText = "";
-        }
+            if (!TextUtils.isEmpty(defaultText) && messageEditText != null) {
+                messageEditText.setText(defaultText);
+                defaultText = "";
+            }
 
-        // infoBroadcast.setVisibility(channel != null ? View.VISIBLE : View.GONE);
-        extendedSendingOptionLayout.setVisibility(VISIBLE);
+            // infoBroadcast.setVisibility(channel != null ? View.VISIBLE : View.GONE);
+            extendedSendingOptionLayout.setVisibility(VISIBLE);
 
-        unregisterForContextMenu(recyclerView);
-        if (getActivity() != null) {
-            if (ApplozicClient.getInstance(getActivity()).isNotificationStacking()) {
-                NotificationManagerCompat nMgr = NotificationManagerCompat.from(getActivity());
-                nMgr.cancel(NotificationService.NOTIFICATION_ID);
-            } else {
-                if (contact != null) {
-                    if (!TextUtils.isEmpty(contact.getContactIds())) {
+            unregisterForContextMenu(recyclerView);
+            if (getActivity() != null) {
+                if (ApplozicClient.getInstance(getActivity()).isNotificationStacking()) {
+                    NotificationManagerCompat nMgr = NotificationManagerCompat.from(getActivity());
+                    nMgr.cancel(NotificationService.NOTIFICATION_ID);
+                } else {
+                    if (contact != null) {
+                        if (!TextUtils.isEmpty(contact.getContactIds())) {
+                            NotificationManager notificationManager =
+                                    (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                            if (notificationManager != null) {
+                                notificationManager.cancel(contact.getContactIds().hashCode());
+                            }
+                        }
+                    }
+
+                    if (channel != null) {
                         NotificationManager notificationManager =
                                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                         if (notificationManager != null) {
-                            notificationManager.cancel(contact.getContactIds().hashCode());
+                            notificationManager.cancel(String.valueOf(channel.getKey()).hashCode());
                         }
                     }
                 }
+            }
 
-                if (channel != null) {
-                    NotificationManager notificationManager =
-                            (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (notificationManager != null) {
-                        notificationManager.cancel(String.valueOf(channel.getKey()).hashCode());
-                    }
+            clearList();
+            updateTitle();
+            swipeLayout.setEnabled(true);
+            loadMore = true;
+            if (selfDestructMessageSpinner != null) {
+                selfDestructMessageSpinner.setSelection(0);
+            }
+
+            if (contact != null) {
+                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
+                        R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
+                recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
+                recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+                recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+                if (getActivity() instanceof ALStoragePermissionListener) {
+                    recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+                } else {
+                    recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                        @Override
+                        public boolean isPermissionGranted() {
+                            return false;
+                        }
+
+                        @Override
+                        public void checkPermission(ALStoragePermission storagePermission) {
+
+                        }
+                    });
                 }
-            }
-        }
-
-        clearList();
-        updateTitle();
-        swipeLayout.setEnabled(true);
-        loadMore = true;
-        if (selfDestructMessageSpinner != null) {
-            selfDestructMessageSpinner.setSelection(0);
-        }
-
-        if (contact != null) {
-            recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
-                    R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
-            recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
-            recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
-            recyclerDetailConversationAdapter.setContextMenuClickListener(this);
-            if (getActivity() instanceof ALStoragePermissionListener) {
-                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
-            } else {
-                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
-                    @Override
-                    public boolean isPermissionGranted() {
-                        return false;
-                    }
-
-                    @Override
-                    public void checkPermission(ALStoragePermission storagePermission) {
-
-                    }
-                });
-            }
-        } else if (channel != null) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (getActivity() == null) {
-                        return;
-                    }
-                    if (!ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
-                            && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                templateAdapter.removeTemplates();
-                            }
-                        });
-                    }
-                }
-            });
-            thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-            thread.start();
-
-            recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
-                    R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
-            recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
-            recyclerDetailConversationAdapter.setContextMenuClickListener(this);
-            recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
-            if (getActivity() instanceof ALStoragePermissionListener) {
-                recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
-            } else {
-                recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
-                    @Override
-                    public boolean isPermissionGranted() {
-                        return false;
-                    }
-
-                    @Override
-                    public void checkPermission(ALStoragePermission storagePermission) {
-
-                    }
-                });
-            }
-        }
-        linearLayoutManager.setSmoothScrollbarEnabled(true);
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                linearLayoutManager.setStackFromEnd(true);
-                //recyclerView.smoothScrollToPosition(messageList.size());
-            }
-        });
-        recyclerView.setAdapter(recyclerDetailConversationAdapter);
-        registerForContextMenu(recyclerView);
-
-        processMobiTexterUserCheck();
-
-        downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
-        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-        if (hideExtendedSendingOptionLayout) {
-            extendedSendingOptionLayout.setVisibility(View.GONE);
-        }
-        emoticonsFrameLayout.setVisibility(View.GONE);
-
-        if (contact != null) {
-            Intent intent = new Intent(getActivity(), UserIntentService.class);
-            intent.putExtra(UserIntentService.USER_ID, contact.getUserId());
-            UserIntentService.enqueueWork(getActivity(), intent);
-        }
-
-        if (channel != null) {
-            if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
-                String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                if (!TextUtils.isEmpty(userId)) {
-                    Intent intent = new Intent(getActivity(), UserIntentService.class);
-                    intent.putExtra(UserIntentService.USER_ID, userId);
-                    UserIntentService.enqueueWork(getActivity(), intent);
-                }
-            } else {
+            } else if (channel != null) {
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        updateChannelSubTitle();
+                        if (getActivity() == null) {
+                            return;
+                        }
+                        if (!ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
+                                && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    templateAdapter.removeTemplates();
+                                }
+                            });
+                        }
                     }
                 });
                 thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 thread.start();
-            }
-        }
 
-        if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
+                        R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
+                recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
+                recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+                recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+                if (getActivity() instanceof ALStoragePermissionListener) {
+                    recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
+                } else {
+                    recyclerDetailConversationAdapter.setStoragePermissionListener(new ALStoragePermissionListener() {
+                        @Override
+                        public boolean isPermissionGranted() {
+                            return false;
+                        }
+
+                        @Override
+                        public void checkPermission(ALStoragePermission storagePermission) {
+
+                        }
+                    });
+                }
+            }
+            linearLayoutManager.setSmoothScrollbarEnabled(true);
+
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    recyclerView.smoothScrollToPosition(messageList.size());
-                    recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                    linearLayoutManager.setStackFromEnd(true);
+                    //recyclerView.smoothScrollToPosition(messageList.size());
                 }
             });
+            recyclerView.setAdapter(recyclerDetailConversationAdapter);
+            registerForContextMenu(recyclerView);
+
+            processMobiTexterUserCheck();
+
+            downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
+            downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            if (hideExtendedSendingOptionLayout) {
+                extendedSendingOptionLayout.setVisibility(View.GONE);
+            }
+            emoticonsFrameLayout.setVisibility(View.GONE);
+
+            if (contact != null) {
+                Intent intent = new Intent(getActivity(), UserIntentService.class);
+                intent.putExtra(UserIntentService.USER_ID, contact.getUserId());
+                UserIntentService.enqueueWork(getActivity(), intent);
+            }
+
+            if (channel != null) {
+                if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                    String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                    if (!TextUtils.isEmpty(userId)) {
+                        Intent intent = new Intent(getActivity(), UserIntentService.class);
+                        intent.putExtra(UserIntentService.USER_ID, userId);
+                        UserIntentService.enqueueWork(getActivity(), intent);
+                    }
+                } else {
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateChannelSubTitle();
+                        }
+                    });
+                    thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                    thread.start();
+                }
+            }
+
+            if (alCustomizationSettings.isMessageFastScrollEnabled()) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.smoothScrollToPosition(messageList.size());
+                        recyclerView.getLayoutManager().scrollToPosition(messageList.size());
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        InstructionUtil.showInstruction(getActivity(), R.string.instruction_go_back_to_recent_conversation_list, MobiComKitActivityInterface.INSTRUCTION_DELAY, BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString());
     }
 
 
