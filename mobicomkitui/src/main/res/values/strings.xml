@@ -39,6 +39,7 @@
     <string name="powered_by_applozic_message">We are powered by Applozic</string>
     <string name="failed_to_load_contact">Failed to load contacts : Response : </string>
     <string name="rupee_symbol">\u20B9</string>
+    <string name="invite_message">Download this app from this link : apps.applozic.com</string>
 
 
     <!--

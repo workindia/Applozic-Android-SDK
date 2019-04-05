@@ -6,7 +6,7 @@ import android.database.ContentObserver;
 import android.os.Handler;
 import android.util.Log;
 
-import com.applozic.mobicomkit.uiwidgets.people.contact.DeviceContactSyncService;
+import com.applozic.mobicomkit.contact.DeviceContactSyncService;
 
 /**
  * Created by ashish on 23/03/18.
