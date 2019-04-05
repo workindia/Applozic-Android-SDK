@@ -4047,163 +4047,166 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         protected void onPostExecute(Long result) {
             super.onPostExecute(result);
             //TODO: FIX ME
-            if (swipeLayout() != null) {
-                swipeLayout().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (swipeLayout() != null) {
-                            swipeLayout().setRefreshing(true);
-                        }
-                    }
-                });
-            }
-            if (nextMessageList.isEmpty()) {
-                if (linearLayoutManager() != null) {
-                    linearLayoutManager().setStackFromEnd(true);
-                }
-            }
-            //Note: This is done to avoid duplicates with same timestamp entries
-            if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
-                    messageList.get(0).equals(nextMessageList.get(nextMessageList.size() - 1))) {
-                nextMessageList.remove(nextMessageList.size() - 1);
-            }
-
-            if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
-                    messageList.get(0).getCreatedAtTime().equals(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime())) {
-                nextMessageList.remove(nextMessageList.size() - 1);
-            }
-
-            for (Message message : nextMessageList) {
-                selfDestructMessage(message);
-            }
-
-            if (initial) {
-                messageList.addAll(nextMessageList);
-                recyclerDetailConversationAdapter.searchString = searchString;
-                if (emptyTextView() != null) {
-                    emptyTextView().setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
-                }
-                if (!messageList.isEmpty()) {
-                    recyclerView.post(new Runnable() {
+            try {
+                if (swipeLayout() != null) {
+                    swipeLayout().post(new Runnable() {
                         @Override
                         public void run() {
-                            if (!TextUtils.isEmpty(searchString)) {
-                                if (linearLayoutManager() != null) {
-                                    linearLayoutManager().scrollToPositionWithOffset(scrollToFirstSearchIndex(), 0);
-                                }
-                            } else {
-                                if (linearLayoutManager() != null) {
-                                    linearLayoutManager().scrollToPositionWithOffset(messageList.size() - 1, 0);
-                                }
+                            if (swipeLayout() != null) {
+                                swipeLayout().setRefreshing(true);
                             }
                         }
                     });
                 }
-            } else if (!nextMessageList.isEmpty()) {
-                if (linearLayoutManager() != null) {
-                    linearLayoutManager().setStackFromEnd(true);
-                }
-                messageList.addAll(0, nextMessageList);
-                if (linearLayoutManager() != null) {
-                    linearLayoutManager().scrollToPosition(nextMessageList.size() - 1);
-                }
-            }
-
-            conversationService.read(contact, channel);
-
-            if (!messageList.isEmpty()) {
-                for (int i = messageList.size() - 1; i >= 0; i--) {
-                    Message message = messageList.get(i);
-                    if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
-                        if (message.getMessageId() != null) {
-                            message.setRead(Boolean.TRUE);
-                            messageDatabaseService.updateMessageReadFlag(message.getMessageId(), true);
-                        }
-                    } else {
-                        break;
+                if (nextMessageList.isEmpty()) {
+                    if (linearLayoutManager() != null) {
+                        linearLayoutManager().setStackFromEnd(true);
                     }
                 }
-            }
-
-            if (conversations != null && conversations.size() > 0) {
-                conversationList = conversations;
-            }
-            if (channel != null && channel.getMetadata() != null && !channel.getMetadata().isEmpty()) {
-                if (channel.isContextBasedChat()) {
-                    Conversation conversation = new Conversation();
-                    TopicDetail topic = new TopicDetail();
-                    topic.setTitle(channel.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
-                    topic.setSubtitle(channel.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
-                    topic.setLink(channel.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
-                    conversation.setTopicDetail(topic.getJson());
-                    conversationList = new ArrayList<>();
-                    conversationList.add(conversation);
+                //Note: This is done to avoid duplicates with same timestamp entries
+                if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
+                        messageList.get(0).equals(nextMessageList.get(nextMessageList.size() - 1))) {
+                    nextMessageList.remove(nextMessageList.size() - 1);
                 }
-            }
-            if (conversationList != null && conversationList.size() > 0 && !onSelected) {
-                onSelected = true;
-                applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
-                if (applozicContextSpinnerAdapter != null) {
-                    if (contextSpinner() != null) {
-                        contextSpinner().setAdapter(applozicContextSpinnerAdapter);
+
+                if (!messageList.isEmpty() && !nextMessageList.isEmpty() &&
+                        messageList.get(0).getCreatedAtTime().equals(nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime())) {
+                    nextMessageList.remove(nextMessageList.size() - 1);
+                }
+
+                for (Message message : nextMessageList) {
+                    selfDestructMessage(message);
+                }
+
+                if (initial) {
+                    messageList.addAll(nextMessageList);
+                    recyclerDetailConversationAdapter.searchString = searchString;
+                    if (emptyTextView() != null) {
+                        emptyTextView().setVisibility(messageList.isEmpty() ? VISIBLE : View.GONE);
                     }
-                    if (contextFrameLayout() != null) {
-                        contextFrameLayout().setVisibility(VISIBLE);
+                    if (!messageList.isEmpty()) {
+                        recyclerView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!TextUtils.isEmpty(searchString)) {
+                                    if (linearLayoutManager() != null) {
+                                        linearLayoutManager().scrollToPositionWithOffset(scrollToFirstSearchIndex(), 0);
+                                    }
+                                } else {
+                                    if (linearLayoutManager() != null) {
+                                        linearLayoutManager().scrollToPositionWithOffset(messageList.size() - 1, 0);
+                                    }
+                                }
+                            }
+                        });
                     }
-                    int i = 0;
-                    for (Conversation c : conversationList) {
-                        i++;
-                        if (c.getId() != null && c.getId().equals(conversationId)) {
+                } else if (!nextMessageList.isEmpty()) {
+                    if (linearLayoutManager() != null) {
+                        linearLayoutManager().setStackFromEnd(true);
+                    }
+                    messageList.addAll(0, nextMessageList);
+                    if (linearLayoutManager() != null) {
+                        linearLayoutManager().scrollToPosition(nextMessageList.size() - 1);
+                    }
+                }
+
+                conversationService.read(contact, channel);
+
+                if (!messageList.isEmpty()) {
+                    for (int i = messageList.size() - 1; i >= 0; i--) {
+                        Message message = messageList.get(i);
+                        if (!message.isRead() && !message.isTempDateType() && !message.isCustom()) {
+                            if (message.getMessageId() != null) {
+                                message.setRead(Boolean.TRUE);
+                                messageDatabaseService.updateMessageReadFlag(message.getMessageId(), true);
+                            }
+                        } else {
                             break;
                         }
                     }
-                    if (contextSpinner() != null) {
-                        contextSpinner().setSelection(i - 1, false);
-                        contextSpinner().setOnItemSelectedListener(adapterView);
+                }
+
+                if (conversations != null && conversations.size() > 0) {
+                    conversationList = conversations;
+                }
+                if (channel != null && channel.getMetadata() != null && !channel.getMetadata().isEmpty()) {
+                    if (channel.isContextBasedChat()) {
+                        Conversation conversation = new Conversation();
+                        TopicDetail topic = new TopicDetail();
+                        topic.setTitle(channel.getMetadata().get(Channel.GroupMetaDataType.TITLE.getValue()));
+                        topic.setSubtitle(channel.getMetadata().get(Channel.GroupMetaDataType.PRICE.getValue()));
+                        topic.setLink(channel.getMetadata().get(Channel.GroupMetaDataType.LINK.getValue()));
+                        conversation.setTopicDetail(topic.getJson());
+                        conversationList = new ArrayList<>();
+                        conversationList.add(conversation);
                     }
                 }
-            }
-            if (recyclerDetailConversationAdapter != null) {
-                recyclerDetailConversationAdapter.notifyDataSetChanged();
-            }
-            if (swipeLayout() != null) {
-                swipeLayout().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (swipeLayout() != null) {
-                            swipeLayout().setRefreshing(false);
+                if (conversationList != null && conversationList.size() > 0 && !onSelected) {
+                    onSelected = true;
+                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
+                    if (applozicContextSpinnerAdapter != null) {
+                        if (contextSpinner() != null) {
+                            contextSpinner().setAdapter(applozicContextSpinnerAdapter);
+                        }
+                        if (contextFrameLayout() != null) {
+                            contextFrameLayout().setVisibility(VISIBLE);
+                        }
+                        int i = 0;
+                        for (Conversation c : conversationList) {
+                            i++;
+                            if (c.getId() != null && c.getId().equals(conversationId)) {
+                                break;
+                            }
+                        }
+                        if (contextSpinner() != null) {
+                            contextSpinner().setSelection(i - 1, false);
+                            contextSpinner().setOnItemSelectedListener(adapterView);
                         }
                     }
-                });
-            }
+                }
+                if (recyclerDetailConversationAdapter != null) {
+                    recyclerDetailConversationAdapter.notifyDataSetChanged();
+                }
+                if (swipeLayout() != null) {
+                    swipeLayout().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (swipeLayout() != null) {
+                                swipeLayout().setRefreshing(false);
+                            }
+                        }
+                    });
+                }
 
-            if (messageToForward != null) {
-                sendForwardMessage(messageToForward);
-                messageToForward = null;
-            }
+                if (messageToForward != null) {
+                    sendForwardMessage(messageToForward);
+                    messageToForward = null;
+                }
 
-            if (!messageList.isEmpty()) {
-                channelKey = messageList.get(messageList.size() - 1).getGroupId();
-            }
-            if (initial) {
-                if (recordButtonWeakReference != null) {
-                    ImageButton recordButton = recordButtonWeakReference.get();
-                    if (recordButton != null) {
-                        recordButton.setEnabled(true);
+                if (!messageList.isEmpty()) {
+                    channelKey = messageList.get(messageList.size() - 1).getGroupId();
+                }
+                if (initial) {
+                    if (recordButtonWeakReference != null) {
+                        ImageButton recordButton = recordButtonWeakReference.get();
+                        if (recordButton != null) {
+                            recordButton.setEnabled(true);
+                        }
+                    }
+                    if (sendButton() != null) {
+                        sendButton().setEnabled(true);
+                    }
+                    if (messageEditText() != null) {
+                        messageEditText().setEnabled(true);
                     }
                 }
-                if (sendButton() != null) {
-                    sendButton().setEnabled(true);
-                }
-                if (messageEditText() != null) {
-                    messageEditText().setEnabled(true);
-                }
+                loadMore = !nextMessageList.isEmpty();
+                createTemplateMessages();
+                isAlreadyLoading = false;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            loadMore = !nextMessageList.isEmpty();
-            createTemplateMessages();
-            isAlreadyLoading = false;
         }
-
     }
 
     public class AttachmentAsyncTask extends AsyncTask<Void, Integer, Long> {
