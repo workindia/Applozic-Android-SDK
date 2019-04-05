@@ -445,9 +445,8 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
 
         @Override
         public void onClick(View v) {
-
             int itemPosition = this.getLayoutPosition();
-            if (itemPosition != -1 && !messageList.isEmpty()) {
+            if (itemPosition < messageList.size() && itemPosition != -1) {
                 final Message message = getItem(itemPosition);
                 Thread thread = new Thread(new Runnable() {
                     @Override
