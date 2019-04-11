@@ -1049,13 +1049,14 @@ public class MessageDatabaseService {
     public List<Message> getKmConversationList(int status, Long lastFetchTime) {
         Cursor cursor = null;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String statusQuery = status == 2 ? "ch.kmStatus in (1, 2)" : "ch.kmStatus = " + status;
 
         String rowQuery = "select max(createdAt) , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
                 "where m.hidden = 0 " +
                 "AND m.deleted = 0 " +
                 "AND m.messageContentType not in (11,102) " +
                 "AND m.type not in (6, 7) " +
-                "AND ch.kmStatus = " + status +
+                "AND " + statusQuery +
                 (lastFetchTime != null && lastFetchTime > 0 ? " AND m.createdAt < " + lastFetchTime : "") +
                 " group by m.channelKey order by createdAt desc";
 
@@ -1064,6 +1065,32 @@ public class MessageDatabaseService {
         List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
         dbHelper.close();
         return messageList;
+    }
+
+    public int getTotalUnreadCountForSupportGroup(int status) {
+        Cursor cursor = null;
+        int count = 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        try {
+            String rowQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from channel where kmStatus = " + status;
+
+            cursor = db.rawQuery(rowQuery, null);
+            cursor.moveToFirst();
+
+            if (cursor.getCount() > 0) {
+                count = cursor.getInt(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+            dbHelper.close();
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
     }
 
     public String deleteMessage(Message message, String contactNumber) {
