@@ -352,9 +352,14 @@ public class MobiComConversationService {
         return channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? messageList : finalMessageList;
     }
 
-    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime) {
+    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) {
         List<Message> conversationList = new ArrayList<>();
         List<Message> cachedConversationList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
+
+        if (!makeServerCall && !cachedConversationList.isEmpty()) {
+            return cachedConversationList;
+        }
+
         KmConversationResponse kmConversationResponse = null;
         try {
             ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(messageClientService.getKmConversationList(status, pageSize, lastFetchTime), new TypeToken<ApiResponse<KmConversationResponse>>() {
@@ -384,7 +389,7 @@ public class MobiComConversationService {
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
             if (messages != null && messages.length > 0 && cachedConversationList.size() > 0 && cachedConversationList.get(0).isLocalMessage()) {
-                if (cachedConversationList.get(0).getMessage().equals(messages[0])) {
+                if (cachedConversationList.get(0).equals(messages[0])) {
                     Utils.printLog(context, TAG, "Both messages are same.");
                     deleteMessage(cachedConversationList.get(0));
                 }
@@ -411,6 +416,8 @@ public class MobiComConversationService {
                     }
                     if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
                         messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
+                    } else {
+                        messageDatabaseService.createMessage(message);
                     }
 
                     if (message.isHidden()) {
