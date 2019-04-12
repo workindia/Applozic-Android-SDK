@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
+import com.applozic.mobicommons.ApplozicService;
 
 import java.util.Set;
 
@@ -81,18 +82,17 @@ public class MobiComUserPreference {
 
     private MobiComUserPreference(Context context) {
         this.context = context;
-        if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(context))) {
-            sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
-            initialize(context);
+        if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
+            sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
         }
     }
 
     public static MobiComUserPreference getInstance(Context context) {
         if (userpref == null) {
-            userpref = new MobiComUserPreference(context.getApplicationContext());
+            userpref = new MobiComUserPreference(ApplozicService.getContext(context));
         } else {
-            if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(context))) {
-                sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
+            if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
+                sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
             }
         }
         return userpref;
@@ -382,20 +382,6 @@ public class MobiComUserPreference {
             return sharedPreferences.edit().putLong(device_time_offset_from_UTC, diiference).commit();
         }
         return false;
-    }
-
-    //Local initialization of few fields)
-    public void initialize(Context context) {
-      /*  TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
-        String contactNumber = telephonyManager.getLine1Number();
-        setCountryCode(countryCode);
-        if (!TextUtils.isEmpty(contactNumber)) {
-            setContactNumber(contactNumber);
-        }
-        if (getLastMessageStatSyncTime() == null || getLastMessageStatSyncTime() == 0) {
-            setLastMessageStatSyncTime(new Date().getTime());
-        }*/
     }
 
     public boolean isMobiTexterContactSyncCompleted() {

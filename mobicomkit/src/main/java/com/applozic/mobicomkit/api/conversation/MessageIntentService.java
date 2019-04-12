@@ -9,6 +9,7 @@ import android.support.v4.app.AlJobIntentService;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduleMessageService;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class MessageIntentService extends AlJobIntentService {
      * Convenience method for enqueuing work in to this service.
      */
     static public void enqueueWork(Context context, Intent work, Handler handler) {
-        enqueueWork(context, MessageIntentService.class, JOB_ID, work);
+        enqueueWork(ApplozicService.getContext(context), MessageIntentService.class, JOB_ID, work);
         if (work != null) {
             final Message message = (Message) GsonUtils.getObjectFromJson(work.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
             if (uploadQueueMap != null && handler != null) {

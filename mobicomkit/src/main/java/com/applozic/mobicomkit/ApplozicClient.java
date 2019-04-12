@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import org.json.JSONObject;
@@ -50,13 +51,13 @@ public class ApplozicClient {
     private Context context;
 
     private ApplozicClient(Context context) {
-        this.context = context;
-        sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
+        this.context = ApplozicService.getContext(context);
+        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
     }
 
     public static ApplozicClient getInstance(Context context) {
         if (applozicClient == null) {
-            applozicClient = new ApplozicClient(context.getApplicationContext());
+            applozicClient = new ApplozicClient(ApplozicService.getContext(context));
         }
 
         return applozicClient;

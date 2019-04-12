@@ -9,6 +9,7 @@ import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
@@ -243,8 +244,8 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private Context context;
 
     private MobiComDatabaseHelper(Context context) {
-        this(context, !TextUtils.isEmpty(ALSpecificSettings.getInstance(context).getDatabaseName()) ? ALSpecificSettings.getInstance(context).getDatabaseName() : "MCK_" + MobiComKitClientService.getApplicationKey(context), null, DB_VERSION);
-        this.context = context;
+        this(context, !TextUtils.isEmpty(ALSpecificSettings.getInstance(ApplozicService.getContext(context)).getDatabaseName()) ? ALSpecificSettings.getInstance(ApplozicService.getContext(context)).getDatabaseName() : "MCK_" + MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), null, DB_VERSION);
+        this.context = ApplozicService.getContext(context);
     }
 
     public MobiComDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -256,7 +257,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
         if (sInstance == null) {
-            sInstance = new MobiComDatabaseHelper(context.getApplicationContext());
+            sInstance = new MobiComDatabaseHelper(ApplozicService.getContext(context));
         }
         return sInstance;
     }

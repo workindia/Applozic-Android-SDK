@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DBUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -40,14 +41,12 @@ public class MessageDatabaseService {
     private static final String MIN_CREATED_AT_KEY = "mck.sms.createdAt.min";
     private static final String MAX_CREATED_AT_KEY = "mck.sms.createdAt.max";
     public static List<Message> recentlyAddedMessage = new ArrayList<Message>();
-    Context context = null;
-    private MobiComUserPreference userPreferences;
+    private Context context = null;
     private MobiComDatabaseHelper dbHelper;
     private boolean hideActionMessages = false;
 
     public MessageDatabaseService(Context context) {
-        this.context = context.getApplicationContext();
-        this.userPreferences = MobiComUserPreference.getInstance(context);
+        this.context = ApplozicService.getContext(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
         hideActionMessages = ApplozicClient.getInstance(context).isActionMessagesHidden();
     }

@@ -20,6 +20,7 @@ import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.feed.SyncPxy;
 import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -47,7 +48,7 @@ public class UserService {
     SyncClientService syncClientService;
 
     private UserService(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         userClientService = new UserClientService(context);
         userPreference = MobiComUserPreference.getInstance(context);
         baseContactService = new AppContactService(context);
@@ -56,7 +57,7 @@ public class UserService {
 
     public static UserService getInstance(Context context) {
         if (userService == null) {
-            userService = new UserService(context.getApplicationContext());
+            userService = new UserService(ApplozicService.getContext(context));
         }
         return userService;
     }

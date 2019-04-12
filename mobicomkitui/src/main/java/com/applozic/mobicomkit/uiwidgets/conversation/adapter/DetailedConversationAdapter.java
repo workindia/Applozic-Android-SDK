@@ -69,6 +69,7 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
 import com.applozic.mobicommons.commons.core.utils.Support;
@@ -174,9 +175,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
-        this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         this.messageList = messageList;
-        geoApiKey = Utils.getMetaDataValue(context.getApplicationContext(), ConversationActivity.GOOGLE_API_KEY_META_DATA);
+        geoApiKey = Utils.getMetaDataValue(ApplozicService.getContext(context), ConversationActivity.GOOGLE_API_KEY_META_DATA);
         contactImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -184,7 +184,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             }
         };
         contactImageLoader.setLoadingImage(R.drawable.applozic_ic_contact_picture_180_holo_light);
-        contactImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         contactImageLoader.setImageFadeIn(false);
 
         loadImage = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
@@ -194,16 +193,21 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             }
         };
         loadImage.setImageFadeIn(false);
-        loadImage.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         imageThumbnailLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
                 return fileClientService.loadThumbnailImage(context, (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
             }
         };
-        imageThumbnailLoader.setImageFadeIn(false);
-        imageThumbnailLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
 
+        if (context != null) {
+            this.imageCache = ImageCache.getInstance(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+            contactImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+            loadImage.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+            imageThumbnailLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
+        }
+
+        imageThumbnailLoader.setImageFadeIn(false);
         sentIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
         deliveredIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
         pendingIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_pending);
@@ -407,10 +411,12 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                     myHolder.imageViewPhoto.setVisibility(View.VISIBLE);
                                     myHolder.imageViewRLayout.setVisibility(View.VISIBLE);
                                     if (msg.getFilePaths() != null && msg.getFilePaths().size() > 0) {
-                                        if (imageCache.getBitmapFromMemCache(msg.getKeyString()) != null) {
+                                        if (imageCache != null && imageCache.getBitmapFromMemCache(msg.getKeyString()) != null) {
                                             myHolder.imageViewPhoto.setImageBitmap(imageCache.getBitmapFromMemCache(msg.getKeyString()));
                                         } else {
-                                            imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(msg.getFilePaths().get(0)));
+                                            if (imageCache != null) {
+                                                imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(msg.getFilePaths().get(0)));
+                                            }
                                             myHolder.imageViewPhoto.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(msg.getFilePaths().get(0)));
                                         }
                                     }

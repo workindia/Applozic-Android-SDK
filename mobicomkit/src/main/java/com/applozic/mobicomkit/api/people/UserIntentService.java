@@ -10,6 +10,7 @@ import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -38,7 +39,7 @@ public class UserIntentService extends AlJobIntentService {
      * Convenience method for enqueuing work in to this service.
      */
     static public void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, UserIntentService.class, JOB_ID, work);
+        enqueueWork(ApplozicService.getContext(context), UserIntentService.class, JOB_ID, work);
     }
 
     @Override

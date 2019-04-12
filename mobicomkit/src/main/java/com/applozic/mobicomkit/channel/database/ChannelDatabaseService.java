@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
@@ -33,14 +34,14 @@ public class ChannelDatabaseService {
     private MobiComDatabaseHelper dbHelper;
 
     private ChannelDatabaseService(Context context) {
-        this.context = context;
-        this.mobiComUserPreference = MobiComUserPreference.getInstance(context);
-        this.dbHelper = MobiComDatabaseHelper.getInstance(context);
+        this.context = ApplozicService.getContext(context);
+        this.mobiComUserPreference = MobiComUserPreference.getInstance(ApplozicService.getContext(context));
+        this.dbHelper = MobiComDatabaseHelper.getInstance(ApplozicService.getContext(context));
     }
 
     public synchronized static ChannelDatabaseService getInstance(Context context) {
         if (channelDatabaseService == null) {
-            channelDatabaseService = new ChannelDatabaseService(context.getApplicationContext());
+            channelDatabaseService = new ChannelDatabaseService(ApplozicService.getContext(context));
         }
         return channelDatabaseService;
     }

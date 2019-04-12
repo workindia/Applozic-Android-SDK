@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -30,14 +31,14 @@ public class ContactDatabase {
 
     public static final String CONTACT = "contact";
     private static final String TAG = "ContactDatabaseService";
-    Context context = null;
+    private Context context = null;
     private MobiComUserPreference userPreferences;
     private MobiComDatabaseHelper dbHelper;
 
     public ContactDatabase(Context context) {
-        this.context = context.getApplicationContext();
-        this.userPreferences = MobiComUserPreference.getInstance(context);
-        this.dbHelper = MobiComDatabaseHelper.getInstance(context);
+        this.context = ApplozicService.getContext(context);
+        this.userPreferences = MobiComUserPreference.getInstance(ApplozicService.getContext(context));
+        this.dbHelper = MobiComDatabaseHelper.getInstance(ApplozicService.getContext(context));
     }
 
 

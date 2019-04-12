@@ -7,6 +7,7 @@ import android.support.v4.app.AlJobIntentService;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
@@ -36,7 +37,7 @@ public class ApplozicIntentService extends AlJobIntentService {
      * Convenience method for enqueuing work in to this service.
      */
     static public void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, ApplozicIntentService.class, JOB_ID, work);
+        enqueueWork(ApplozicService.getContext(context), ApplozicIntentService.class, JOB_ID, work);
     }
 
     @Override

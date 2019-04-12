@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -79,7 +80,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public MessageClientService(Context context) {
         super(context);
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
         this.baseContactService = new AppContactService(context);

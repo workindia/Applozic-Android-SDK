@@ -148,7 +148,7 @@ public class ImageUtils {
                 options.inJustDecodeBounds = false;
                 return BitmapFactory.decodeFile(imageLocalPath, options);
             } catch (Exception ex) {
-                Utils.printLog(context,TAG, "Image not found on local storage: " + ex.getMessage());
+                Utils.printLog(context, TAG, "Image not found on local storage: " + ex.getMessage());
             }
         }
         return null;
@@ -156,13 +156,21 @@ public class ImageUtils {
 
 
     public static String saveImageToInternalStorage(File file, Bitmap bitmapImage) {
+        FileOutputStream fos = null;
         try {
-            FileOutputStream fos = new FileOutputStream(file);
+            fos = new FileOutputStream(file);
             // Use the compress method on the BitMap object to write image to the OutputStream
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return file.getAbsolutePath();
     }

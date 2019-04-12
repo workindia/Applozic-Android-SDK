@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -41,7 +42,7 @@ public class ApplozicMqttIntentService extends AlJobIntentService {
      * Convenience method for enqueuing work in to this service.
      */
     static public void enqueueWork(Context context, Intent work) {
-        enqueueWork(context, ApplozicMqttIntentService.class, JOB_ID, work);
+        enqueueWork(ApplozicService.getContext(context), ApplozicMqttIntentService.class, JOB_ID, work);
     }
 
 

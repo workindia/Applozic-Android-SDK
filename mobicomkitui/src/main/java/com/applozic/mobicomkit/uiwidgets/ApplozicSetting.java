@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.util.HashMap;
@@ -79,13 +80,13 @@ public class ApplozicSetting {
     private static final String SHOW_IMAGE_ON_TOOLBAR = "SHOW_IMAGE_ON_TOOLBAR";
 
     private ApplozicSetting(Context context) {
-        this.context = context;
-        sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
+        this.context = ApplozicService.getContext(context);
+        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
     }
 
     public static ApplozicSetting getInstance(Context context) {
         if (applozicSetting == null) {
-            applozicSetting = new ApplozicSetting(context.getApplicationContext());
+            applozicSetting = new ApplozicSetting(ApplozicService.getContext(context));
         }
 
         return applozicSetting;
