@@ -3310,15 +3310,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (appContactService != null && contact != null) {
                         updateLastSeenStatus();
                     }
-
-                    if (messageList.isEmpty()) {
-                        loadConversation(contact, channel, currentConversationId, null);
-                    } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
-                        loadnewMessageOnResume(contact, channel, currentConversationId);
-                    }
-                    MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
                 }
             }.execute();
+
+            if (messageList.isEmpty()) {
+                loadConversation(contact, channel, currentConversationId, null);
+            } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
+                loadnewMessageOnResume(contact, channel, currentConversationId);
+            }
+            MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
 
             if (SyncCallService.refreshView) {
                 SyncCallService.refreshView = false;
