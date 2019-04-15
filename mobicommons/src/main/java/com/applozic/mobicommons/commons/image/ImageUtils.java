@@ -66,7 +66,9 @@ public class ImageUtils {
 
     public static int getLargestScreenDimension(Activity activity) {
         final DisplayMetrics displayMetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        if (activity != null) {
+            activity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        }
         final int height = displayMetrics.heightPixels;
         final int width = displayMetrics.widthPixels;
 

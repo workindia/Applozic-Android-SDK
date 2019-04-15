@@ -81,7 +81,8 @@ public class MobiComUserPreference {
 
 
     private MobiComUserPreference(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
+        ApplozicService.initWithContext(context);
         if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
             sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
         }

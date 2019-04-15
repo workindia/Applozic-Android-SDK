@@ -4,9 +4,9 @@ import android.app.Application;
 import android.content.Context;
 
 public class ApplozicService {
-    private static Application application;
+    private static Context application;
 
-    public static Application getAppContext() {
+    public static Context getAppContext() {
         return application;
     }
 
@@ -15,12 +15,19 @@ public class ApplozicService {
     }
 
     public static Context getContext(Context context) {
-        if (application != null) {
-            return application;
+        if (application == null && context != null) {
+            application = context instanceof Application ? context : context.getApplicationContext();
         }
-        if (context != null) {
-            return context instanceof Application ? context : context.getApplicationContext();
+        return application;
+    }
+
+    public static void initWithContext(Context context) {
+        if (context != null && application == null) {
+            if (context instanceof Application) {
+                ApplozicService.application = context;
+            } else {
+                ApplozicService.application = context.getApplicationContext();
+            }
         }
-        return getAppContext();
     }
 }
