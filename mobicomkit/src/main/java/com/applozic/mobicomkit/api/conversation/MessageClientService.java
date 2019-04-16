@@ -677,7 +677,7 @@ public class MessageClientService extends MobiComKitClientService {
                 params += "conversationReq=true";
             }
         }
-        params = params + "&" + "deletedGroupIncluded=true";
+        params = params + "&" + "deletedGroupIncluded=" + String.valueOf(!ApplozicClient.getInstance(context).isSkipDeletedGroups());
 
         if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())) {
             params = params + "&category=" + MobiComUserPreference.getInstance(context).getCategoryName();

@@ -45,6 +45,7 @@ public class ApplozicClient {
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
     private static final String HIDE_ACTION_MESSAGES = "HIDE_ACTION_MESSAGES";
     private static final String NOTIFICATION_MUTE_THRESHOLD = "NOTIFICATION_MUTE_THRESHOLD";
+    private static final String SKIP_DELETED_GROUPS = "SKIP_DELETED_GROUPS";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -330,6 +331,15 @@ public class ApplozicClient {
 
     public int getNotificationMuteThreshold() {
         return sharedPreferences.getInt(NOTIFICATION_MUTE_THRESHOLD, 0);
+    }
+
+    public ApplozicClient skipDeletedGroups(boolean skip) {
+        sharedPreferences.edit().putBoolean(SKIP_DELETED_GROUPS, skip).commit();
+        return this;
+    }
+
+    public boolean isSkipDeletedGroups() {
+        return sharedPreferences.getBoolean(SKIP_DELETED_GROUPS, false);
     }
 
 }

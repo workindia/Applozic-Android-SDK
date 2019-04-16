@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -787,11 +788,11 @@ public class ChannelService {
             if (channelFeed.getChildKeys() != null && channelFeed.getChildKeys().size() > 0) {
                 processChildGroupKeysForChannelSync(channelFeed.getChildKeys());
             }
-
+            if (channel.isDeleted() && ApplozicClient.getInstance(context).isSkipDeletedGroups()) {
+                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), null, channel.getKey(), "success");
+            }
         }
-
     }
-
 
     private void processChildGroupKeys(Set<Integer> childGroupKeys) {
         for (Integer channelKey : childGroupKeys) {
