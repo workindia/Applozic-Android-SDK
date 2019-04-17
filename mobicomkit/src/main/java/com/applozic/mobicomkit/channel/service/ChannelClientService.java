@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.google.gson.reflect.TypeToken;
@@ -67,14 +68,14 @@ public class ChannelClientService extends MobiComKitClientService {
 
     private ChannelClientService(Context context) {
         super(context);
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
 
     public static ChannelClientService getInstance(Context context) {
         if (channelClientService == null) {
-            channelClientService = new ChannelClientService(context.getApplicationContext());
+            channelClientService = new ChannelClientService(ApplozicService.getContext(context));
         }
         return channelClientService;
     }

@@ -91,6 +91,7 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -192,7 +193,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
-        if (fragmentActivity.isFinishing() || (fragmentActivity instanceof ConversationActivity && ((ConversationActivity)fragmentActivity).isActivityDestroyed)) {
+        if (fragmentActivity.isFinishing() || (fragmentActivity instanceof ConversationActivity && ((ConversationActivity) fragmentActivity).isActivityDestroyed)) {
             return;
         }
         if (Utils.hasJellyBeanMR1()) {
@@ -348,6 +349,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ApplozicService.initWithContext(getApplication());
         String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);

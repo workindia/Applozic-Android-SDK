@@ -24,6 +24,7 @@ import com.applozic.mobicomkit.feed.ChannelUsersFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
@@ -45,16 +46,16 @@ public class ChannelService {
     private UserService userService;
 
     private ChannelService(Context context) {
-        this.context = context;
-        channelClientService = ChannelClientService.getInstance(context);
-        channelDatabaseService = ChannelDatabaseService.getInstance(context);
-        userService = UserService.getInstance(context);
-        baseContactService = new AppContactService(context);
+        this.context = ApplozicService.getContext(context);
+        channelClientService = ChannelClientService.getInstance(ApplozicService.getContext(context));
+        channelDatabaseService = ChannelDatabaseService.getInstance(ApplozicService.getContext(context));
+        userService = UserService.getInstance(ApplozicService.getContext(context));
+        baseContactService = new AppContactService(ApplozicService.getContext(context));
     }
 
     public synchronized static ChannelService getInstance(Context context) {
         if (channelService == null) {
-            channelService = new ChannelService(context.getApplicationContext());
+            channelService = new ChannelService(ApplozicService.getContext(context));
         }
         return channelService;
     }

@@ -24,6 +24,7 @@ import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -63,7 +64,7 @@ public class MobiComMessageService {
     private boolean isHideActionMessage;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.messageClientService = new MessageClientService(context);
         this.conversationService = new MobiComConversationService(context);

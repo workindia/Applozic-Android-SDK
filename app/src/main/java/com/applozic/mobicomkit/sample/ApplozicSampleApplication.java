@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
+
+import com.applozic.mobicommons.ApplozicService;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
@@ -16,6 +18,8 @@ public class ApplozicSampleApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ApplozicService.initApp(this);
 
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()

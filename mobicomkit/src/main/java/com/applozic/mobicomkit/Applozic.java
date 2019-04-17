@@ -22,6 +22,7 @@ import com.applozic.mobicomkit.listners.AlLoginHandler;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -44,7 +45,7 @@ public class Applozic {
     private ApplozicBroadcastReceiver applozicBroadcastReceiver;
 
     private Applozic(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
     }
 
@@ -56,7 +57,7 @@ public class Applozic {
 
     public static Applozic getInstance(Context context) {
         if (applozic == null) {
-            applozic = new Applozic(context.getApplicationContext());
+            applozic = new Applozic(ApplozicService.getContext(context));
         }
         return applozic;
     }

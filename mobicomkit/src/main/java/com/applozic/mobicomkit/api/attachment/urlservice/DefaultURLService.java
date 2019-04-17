@@ -14,20 +14,17 @@ import java.util.Date;
 public class DefaultURLService implements URLService {
 
     private MobiComKitClientService mobiComKitClientService;
-    private Context context;
     private HttpRequestUtils httpRequestUtils;
 
 
     public DefaultURLService(Context context) {
-
         this.httpRequestUtils = new HttpRequestUtils(context);
         mobiComKitClientService = new MobiComKitClientService(context);
-        this.context = context;
     }
 
     @Override
     public HttpURLConnection getAttachmentConnection(Message message) throws IOException {
-        return mobiComKitClientService.openHttpConnection(new MobiComKitClientService(context).getFileUrl() + message.getFileMetas().getBlobKeyString());
+        return mobiComKitClientService.openHttpConnection(mobiComKitClientService.getFileUrl() + message.getFileMetas().getBlobKeyString());
     }
 
     @Override
@@ -43,7 +40,7 @@ public class DefaultURLService implements URLService {
 
     @Override
     public String getImageUrl(Message message) {
-        return new MobiComKitClientService(context).getFileUrl() + message.getFileMetas().getBlobKeyString();
+        return mobiComKitClientService.getFileUrl() + message.getFileMetas().getBlobKeyString();
     }
 
 }

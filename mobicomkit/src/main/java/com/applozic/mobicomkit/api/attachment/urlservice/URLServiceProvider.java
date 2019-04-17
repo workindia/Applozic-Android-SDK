@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicommons.ApplozicService;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -17,7 +18,7 @@ public class URLServiceProvider {
     private MobiComKitClientService mobiComKitClientService;
 
     public URLServiceProvider(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         mobiComKitClientService = new MobiComKitClientService(context);
     }
 

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
 
@@ -39,7 +40,7 @@ public class HttpRequestUtils {
 
 
     public HttpRequestUtils(Context context) {
-            this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
     }
 
     private void log(String message) {

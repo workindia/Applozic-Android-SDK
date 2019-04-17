@@ -7,7 +7,7 @@ Android Chat SDK
 
 Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
 
-Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
+Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
 
 Applozic One to One and Group Chat SDK
 
@@ -16,7 +16,7 @@ Applozic One to One and Group Chat SDK
 ### Getting Started       
 
 
-To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the application key.
+To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
 
 Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.33' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.34' `
 
 
 Add the following in gradle android target:      
@@ -54,7 +54,7 @@ android {
 ```
 
 <meta-data android:name="com.applozic.application.key"
-           android:value="YOUR_APPLOZIC_APPLICATION_KEY" /> <!-- Applozic Application Key -->
+           android:value="<YOUR_APPLOZIC_APP_ID" /> <!-- Applozic App ID -->
 
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
@@ -405,7 +405,7 @@ if(MobiComPushReceiver.isMobiComPushNotification(data)) {
 #### Don't have Android Push Notification code ?
 
 To Enable Android Push Notification using Firebase Cloud Messaging (FCM) visit the [Firebase console](https://console.firebase.google.com) and create new project, add the google service json to your app, configure the build.gradle files in your app ,finally get server key from project settings and update in  
-***[Applozic Dashboard](https://dashboard.applozic.com/views/applozic/page/admin/dashboard.jsp) under Edit Application -> Push Notification -> Android -> GCM/FCM Server Key.***
+***[Applozic Dashboard](https://console.applozic.com/settings/pushnotification) under Push Notification -> Android -> GCM/FCM Server Key.***
 
 
 In case, if you don't have the existing FCM related code, then copy the push notification related files from Applozic sample app to your project from the below github link

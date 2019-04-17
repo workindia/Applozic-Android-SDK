@@ -11,6 +11,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.listners.AlContactListener;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -30,7 +31,7 @@ public class AppContactService implements BaseContactService {
     FileClientService fileClientService;
 
     public AppContactService(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
         this.contactDatabase = new ContactDatabase(context);
         this.fileClientService = new FileClientService(context);
     }

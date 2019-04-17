@@ -21,12 +21,12 @@ public class ALSpecificSettings {
     private static final String AL_SUPPORT_EMAIL_ID = "AL_SUPPORT_EMAIL_ID";
 
     private ALSpecificSettings(Context context) {
-        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
+        this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
     }
 
     public static ALSpecificSettings getInstance(Context context) {
         if (applozicSettings == null) {
-            applozicSettings = new ALSpecificSettings(context.getApplicationContext());
+            applozicSettings = new ALSpecificSettings(ApplozicService.getContext(context));
         }
         return applozicSettings;
     }
