@@ -385,7 +385,7 @@ public class Utils {
     public static void printLog(Context context, String tag, String message) {
         try {
             boolean isDebuggable = (0 != (ApplozicService.getContext(context).getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-            if (isDebuggable) {
+            if (isDebuggable || ALSpecificSettings.getInstance(context).isLoggingEnabledForReleaseBuild()) {
                 Log.i(tag, message);
 
                 if (ALSpecificSettings.getInstance(context).isTextLoggingEnabled()) {
@@ -426,6 +426,7 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

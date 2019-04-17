@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -10,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -383,7 +383,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
 
-        if (Utils.hasMarshmallow() && !alCustomizationSettings.isGlobalStoagePermissionDisabled()) {
+        if ((0 == (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
+            showLogWarningForReleaseBuild();
+        }
+
+        if (Utils.hasMarshmallow() && (!alCustomizationSettings.isGlobalStoagePermissionDisabled() || ALSpecificSettings.getInstance(this).isTextLoggingEnabled())) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
@@ -592,6 +596,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void showLogWarningForReleaseBuild() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(R.string.warning);
+        dialogBuilder.setMessage(R.string.release_log_warning_message);
+        dialogBuilder.show();
     }
 
     @Override

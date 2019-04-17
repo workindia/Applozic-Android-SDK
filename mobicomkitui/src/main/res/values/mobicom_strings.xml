@@ -192,6 +192,8 @@
     <string name="audio_string">Audio</string>
     <string name="al_location_string">Location</string>
     <string name="restricted_words_are_not_allowed">Restricted words are not allowed</string>
+    <string name="release_log_warning_message">This is a release build and Applozic logging is enabled. Please disable Logging for Applozic before you upload your app on play store</string>
+    <string name="warning">WARNING!!!</string>
     <string name="ok_alert">OK</string>
 
     <string name="JUST_NOW">Just now</string>
