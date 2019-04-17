@@ -22,7 +22,7 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.41"
+        versionName "5.42"
     }
     buildTypes {
         release {
@@ -67,7 +67,7 @@ dependencies {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '5.41'
+    libraryVersion = '5.42'
 
     developerId = 'devashish'
     developerName = 'Applozic'
