@@ -383,7 +383,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
 
-        if ((0 == (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
+        if (Utils.isDebugBuild(this) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
             showLogWarningForReleaseBuild();
         }
 
