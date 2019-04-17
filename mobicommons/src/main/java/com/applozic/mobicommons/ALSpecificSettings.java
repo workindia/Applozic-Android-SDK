@@ -19,6 +19,7 @@ public class ALSpecificSettings {
     private static final String AL_BASE_URL = "AL_BASE_URL";
     private static final String KM_BASE_URL = "KM_BASE_URL";
     private static final String AL_SUPPORT_EMAIL_ID = "AL_SUPPORT_EMAIL_ID";
+    private static final String ENABLE_LOGGING_IN_RELEASE_BUILD = "ENABLE_LOGGING_IN_RELEASE_BUILD";
 
     private ALSpecificSettings(Context context) {
         this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
@@ -83,6 +84,15 @@ public class ALSpecificSettings {
     public ALSpecificSettings setSupportEmailId(String emailId) {
         sharedPreferences.edit().putString(AL_SUPPORT_EMAIL_ID, emailId).commit();
         return this;
+    }
+
+    public ALSpecificSettings enableLoggingForReleaseBuild(boolean enable) {
+        sharedPreferences.edit().putBoolean(ENABLE_LOGGING_IN_RELEASE_BUILD, enable).commit();
+        return this;
+    }
+
+    public boolean isLoggingEnabledForReleaseBuild() {
+        return sharedPreferences.getBoolean(ENABLE_LOGGING_IN_RELEASE_BUILD, false);
     }
 
     public boolean clearAll() {

@@ -8,6 +8,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import org.json.JSONObject;
@@ -118,8 +119,7 @@ public class ApplozicClient {
 
     public boolean isServiceDisconnected() {
         int pricingPackage = MobiComUserPreference.getInstance(context).getPricingPackage();
-        boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-        return (pricingPackage == -1 || pricingPackage == 6 || (pricingPackage == 0 && !isDebuggable));
+        return (pricingPackage == -1 || pricingPackage == 6 || (pricingPackage == 0 && !Utils.isDebugBuild(context)));
     }
 
     public boolean isAccountClosed() {
