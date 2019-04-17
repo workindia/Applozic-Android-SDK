@@ -6,6 +6,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -121,6 +122,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setUserBlockSyncTime("10000");
+            ApplozicClient.getInstance(context).skipDeletedGroups(user.isSkipDeletedGroups());
             if (!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())) {
                 mobiComUserPreference.setUserEncryptionKey(registrationResponse.getUserEncryptionKey());
             }

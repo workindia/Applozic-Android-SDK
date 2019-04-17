@@ -38,6 +38,7 @@ public class User extends JsonMarker {
     private String kmBaseUrl;
     private String status;
     private String localImageUri;
+    private boolean skipDeletedGroups;
     private Short roleType = RoleType.USER_ROLE.getValue();
 
     public List<String> getFeatures() {
@@ -270,6 +271,14 @@ public class User extends JsonMarker {
 
     public void setKmBaseUrl(String kmBaseUrl) {
         this.kmBaseUrl = kmBaseUrl;
+    }
+
+    public boolean isSkipDeletedGroups() {
+        return skipDeletedGroups;
+    }
+
+    public void setSkipDeletedGroups(boolean skipDeletedGroups) {
+        this.skipDeletedGroups = skipDeletedGroups;
     }
 
     public enum AuthenticationType {

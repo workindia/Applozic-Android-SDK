@@ -44,11 +44,14 @@ public class MessageDatabaseService {
     private Context context = null;
     private MobiComDatabaseHelper dbHelper;
     private boolean hideActionMessages = false;
+    private boolean skipDeletedGroups;
+
 
     public MessageDatabaseService(Context context) {
         this.context = ApplozicService.getContext(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
         hideActionMessages = ApplozicClient.getInstance(context).isActionMessagesHidden();
+        skipDeletedGroups = ApplozicClient.getInstance(context).isSkipDeletedGroups();
     }
 
     public static Message getMessage(Cursor cursor) {
@@ -1053,16 +1056,18 @@ public class MessageDatabaseService {
                 String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
                         + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType and m1.hidden = m2.hidden " + messageTypeJoinClause + " ) ";
 
-                if (!TextUtils.isEmpty(categoryName)) {
+                if (!TextUtils.isEmpty(categoryName) || skipDeletedGroups) {
                     rowQuery = rowQuery + categoryClause;
                 }
 
-                rowQuery = rowQuery + "where m2.createdAt is null  ";
+                rowQuery = rowQuery + "where m2.createdAt is null ";
 
                 if (!TextUtils.isEmpty(categoryName)) {
-
                     rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName + "'";
+                }
 
+                if (skipDeletedGroups) {
+                    rowQuery = rowQuery + " and ch.deletedAtTime is null";
                 }
 
                 rowQuery = rowQuery + createdAtClause + searchCaluse + hiddenType + messageTypeClause + " order by m1.createdAt desc";
