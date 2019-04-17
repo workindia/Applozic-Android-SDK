@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.34' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.42' `
 
 
 Add the following in gradle android target:      
@@ -65,24 +65,11 @@ android {
 <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="YOUR_GEO_API_KEY" />  <!--Replace with your geo api key from google developer console  --> 
 <!-- For testing purpose use AIzaSyAYB1vPc4cpn_FJv68eS_ZGe1UasBNwxLI
-To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->
-           
- <meta-data android:name="activity.open.on.notification"
-            android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" /> <!-- NOTE : Do NOT change this value -->    
+To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->   
             
 <meta-data android:name="com.package.name" 
            android:value="${applicationId}" /> <!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->
-           
-  <provider
-            android:name="com.applozic.mobicomkit.uiwidgets.ALFileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/applozic_provider_paths" />
-        </provider>           
-         
+                     
 ```
    **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
 
@@ -93,37 +80,7 @@ To disable the location sharing via map add this line ApplozicSetting.getInstanc
 <string name="default_media_location_folder">YOUR_APP_NAME</string> 
 ```
 
-Permissions:          
-
-
-
-
-
-
-```
-<uses-permission android:name="<APP_PKG_NAME>.permission.MAPS_RECEIVE" />
-<permission android:name="<APP_PKG_NAME>.permission.MAPS_RECEIVE" android:protectionLevel="signature" />
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"  />
-<uses-permission android:name="android.permission.READ_CONTACTS" />
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-<uses-permission android:name="android.permission.CALL_PHONE" />
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-<uses-permission android:name="android.permission.VIBRATE" />
-  ```
-
-Paste the following in your androidmanifest.xml:       
-
-
-
-
-   
+Paste the following in your androidmanifest.xml:        
 ```
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
@@ -135,144 +92,8 @@ Paste the following in your androidmanifest.xml:
 <meta-data
            android:name="android.support.PARENT_ACTIVITY"
            android:value="<APP_PARENT_ACTIVITY>" />
- </activity>
-                   
- <activity android:name="com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity"
-           android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-           android:label="@string/app_name"
-           android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-           android:theme="@style/ApplozicTheme"
-           android:windowSoftInputMode="adjustResize">
-
-            <!-- Parent activity meta-data to support API level 7+ -->
-<meta-data android:name="android.support.PARENT_ACTIVITY"
-           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-
-         <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-         </intent-filter>
-
-         <intent-filter>
-               <action android:name="android.intent.action.SEND" />             
-               <category android:name="android.intent.category.DEFAULT" />
-               <data android:mimeType="image/*" />
-               <data android:mimeType="audio/*" />
-               <data android:mimeType="video/*" />
-               <data android:mimeType="text/plain"/>
-         </intent-filter>
-<meta-data android:name="android.app.searchable"
-           android:resource="@xml/searchable_contacts" />
-</activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:label="Image"
- android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/Applozic_FullScreen_Theme">
-    <!-- Parent activity meta-data to support API level 7+ -->
-<meta-data
-          android:name="android.support.PARENT_ACTIVITY"
-          android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-</activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ContactSelectionActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:launchMode="singleTop"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme">
-<meta-data
-           android:name="android.support.PARENT_ACTIVITY"
-           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-</activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelCreateActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:launchMode="singleTop"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme">
-<meta-data
-          android:name="android.support.PARENT_ACTIVITY"
-          android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-</activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelNameActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:launchMode="singleTop"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme">
-</activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:launchMode="singleTop"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme">
-<meta-data
-           android:name="android.support.PARENT_ACTIVITY"
-           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
- </activity>
-
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:launchMode="singleTop"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme"
-          android:windowSoftInputMode="stateHidden|adjustResize">
-<meta-data 
-           android:name="android.support.PARENT_ACTIVITY"
-           android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
-</activity>
-  
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
-          android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-          android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-          android:theme="@style/ApplozicTheme"
-          android:windowSoftInputMode="adjustResize">
- </activity>
- 
-<activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-           android:theme="@style/Base.Theme.AppCompat"/>
-           
-<service android:name="org.eclipse.paho.android.service.MqttService"/>
-
-<service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
-         android:permission="android.permission.BIND_JOB_SERVICE"
-         android:exported="false" />
-         
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
-            
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
-         android:permission="android.permission.BIND_JOB_SERVICE"
-         android:exported="false" />
-<service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
-         android:permission="android.permission.BIND_JOB_SERVICE"
-         android:exported="false" />
-         
- <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-          android:permission="android.permission.BIND_JOB_SERVICE"
-          android:exported="false" />
-        
-<receiver android:name="com.applozic.mobicomkit.broadcast.TimeChangeBroadcastReceiver">
-         <intent-filter>
-             <action android:name="android.intent.action.TIME_SET" />
-             <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-         </intent-filter>
-</receiver>
-
-<receiver android:name="com.applozic.mobicomkit.broadcast.ConnectivityReceiver"
-          android:exported="true" android:enabled="true">
-          <intent-filter>
-              <action android:name="android.intent.action.BOOT_COMPLETED" />
-          </intent-filter>
-</receiver>                 
+ </activity>               
 ```
-
-
-
-
-
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
