@@ -180,5 +180,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity" />
         </activity>
+
+        <activity
+            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity"
+            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+            android:theme="@style/ApplozicTheme"
+            android:windowSoftInputMode="adjustResize"
+            tools:node="merge" />
     </application>
 </manifest>
