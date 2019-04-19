@@ -3,6 +3,8 @@ package com.applozic.mobicommons;
 import android.app.Application;
 import android.content.Context;
 
+import java.lang.ref.WeakReference;
+
 public class ApplozicService {
     private static Context application;
 
@@ -17,6 +19,13 @@ public class ApplozicService {
     public static Context getContext(Context context) {
         if (application == null && context != null) {
             application = context instanceof Application ? context : context.getApplicationContext();
+        }
+        return application;
+    }
+
+    public static Context getContextFromWeak(WeakReference<Context> contextWeakReference) {
+        if (application == null && contextWeakReference != null) {
+            application = contextWeakReference.get() instanceof Application ? contextWeakReference.get() : contextWeakReference.get().getApplicationContext();
         }
         return application;
     }

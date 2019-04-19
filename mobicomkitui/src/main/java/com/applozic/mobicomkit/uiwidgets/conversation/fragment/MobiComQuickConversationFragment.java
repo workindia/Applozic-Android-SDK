@@ -44,6 +44,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPosit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -102,7 +103,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String jsonString = FileUtils.loadSettingsJsonFile(getActivity().getApplicationContext());
+        String jsonString = FileUtils.loadSettingsJsonFile(ApplozicService.getContext(getContext()));
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
         } else {
@@ -185,7 +186,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         recyclerView.setLongClickable(true);
         registerForContextMenu(recyclerView);
-        ((CustomToolbarListener) getActivity()).setToolbarTitle(getString(R.string.conversation));
+        ((CustomToolbarListener) getActivity()).setToolbarTitle(ApplozicService.getContext(getContext()).getString(R.string.conversation));
 
         return list;
     }
@@ -477,9 +478,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             });
         } else {
             if (!Utils.isInternetAvailable(getActivity())) {
-                Toast.makeText(getActivity(), getString(R.string.you_need_network_access_for_delete), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ApplozicService.getContext(getActivity()), ApplozicService.getContext(getContext()).getString(R.string.you_need_network_access_for_delete), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), getString(R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ApplozicService.getContext(getActivity()), ApplozicService.getContext(getContext()).getString(R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -489,7 +490,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
-            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : getResources().getString(R.string.no_conversation));
+            emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : ApplozicService.getContext(getContext()).getResources().getString(R.string.no_conversation));
             //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
@@ -518,7 +519,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     @Override
     public void onResume() {
         //Assigning to avoid notification in case if quick conversation fragment is opened....
-        toolbar.setTitle(getResources().getString(R.string.chats));
+        toolbar.setTitle(ApplozicService.getContext(getContext()).getResources().getString(R.string.chats));
         toolbar.setSubtitle("");
         BroadcastService.selectMobiComKitAll();
         super.onResume();
@@ -593,7 +594,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         downloadConversation.setTextViewWeakReference(emptyTextView);
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
                         downloadConversation.setRecyclerView(recyclerView);
-                        downloadConversation.setConversationLabelStrings(getContext() != null ? getContext().getString(R.string.no_conversation) : "", getContext() != null ? getContext().getString(R.string.no_conversation) : "");
+                        downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
                         downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         loading = true;
                         loadMore = false;
@@ -612,7 +613,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         minCreatedAtTime = null;
         downloadConversation = new DownloadConversation(getContext(), true, 1, searchString);
         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
-        downloadConversation.setConversationLabelStrings(getContext() != null ? getContext().getString(R.string.no_conversation) : "", getContext() != null ? getContext().getString(R.string.no_conversation) : "");
+        downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
         downloadConversation.setTextViewWeakReference(emptyTextView);
         downloadConversation.setRecyclerView(recyclerView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
@@ -778,7 +779,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(context.get()).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
                 if (!nextMessageList.isEmpty()) {
                     minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
                 }
@@ -791,7 +792,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 }
                 minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(context.get()).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
             }
 
             return 0L;
@@ -805,13 +806,15 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             if (!loadMoreMessages) {
                 if (swipeRefreshLayoutWeakReference != null) {
                     final SwipeRefreshLayout swipeRefreshLayout = swipeRefreshLayoutWeakReference.get();
-                    swipeRefreshLayout.setEnabled(true);
-                    swipeRefreshLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
+                    if (swipeRefreshLayout != null) {
+                        swipeRefreshLayout.setEnabled(true);
+                        swipeRefreshLayout.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
                 }
             }
 
