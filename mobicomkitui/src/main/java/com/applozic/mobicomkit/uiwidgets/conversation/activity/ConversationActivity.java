@@ -1381,9 +1381,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        isActivityDestroyed = true;
         try {
+            super.onDestroy();
+            isActivityDestroyed = true;
+
             if (mobiComKitBroadcastReceiver != null) {
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
             }
