@@ -12,6 +12,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelMetadata;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
@@ -630,6 +631,11 @@ public class Message extends JsonMarker {
 
     public String getMetaDataValueForKey(String key) {
         return getMetadata() != null ? getMetadata().get(key) : null;
+    }
+
+    public boolean isGroupDeleteAction() {
+        return getMetadata() != null && getMetadata().containsKey(ChannelMetadata.AL_CHANNEL_ACTION)
+                && Integer.parseInt(getMetadata().get(ChannelMetadata.AL_CHANNEL_ACTION)) == GroupAction.DELETE_GROUP.getValue();
     }
 
     public boolean isUpdateMessage() {

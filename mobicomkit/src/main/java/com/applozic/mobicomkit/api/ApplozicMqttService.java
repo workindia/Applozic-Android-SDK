@@ -274,11 +274,16 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     Message message = messageResponse.getMessage();
                                     if (message.getGroupId() != null) {
                                         Channel channel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
+
                                         if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                                             if (!MobiComUserPreference.getInstance(context).getDeviceKeyString().equals(message.getDeviceKeyString())) {
                                                 syncCallService.syncMessages(message.getKeyString(), message);
                                             }
                                         } else {
+                                            if (message.isGroupDeleteAction()) {
+                                                syncCallService.deleteChannelConversationThread(message.getGroupId());
+                                                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), null, message.getGroupId(), "success");
+                                            }
                                             syncCallService.syncMessages(null);
                                         }
                                     } else {

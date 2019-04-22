@@ -164,6 +164,11 @@ public class SyncCallService {
         refreshView = true;
     }
 
+    public synchronized void deleteChannelConversationThread(Integer channelKey) {
+        mobiComConversationService.deleteChannelConversationFromDevice(channelKey);
+        refreshView = true;
+    }
+
     public synchronized void deleteMessage(String messageKey) {
         mobiComConversationService.deleteMessageFromDevice(messageKey, null);
         refreshView = true;
