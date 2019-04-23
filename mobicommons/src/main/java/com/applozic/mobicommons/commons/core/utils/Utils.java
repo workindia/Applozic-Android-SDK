@@ -449,4 +449,12 @@ public class Utils {
         return null;
     }
 
+    public static String getString(Context context, int resId) {
+        return ApplozicService.getContext(context).getString(resId);
+    }
+
+    public static int getColor(Context context, int resId) {
+        return ApplozicService.getContext(context).getResources().getColor(resId);
+    }
+
 }

@@ -3,6 +3,7 @@ package com.applozic.mobicommons.commons.core.utils;
 import android.content.Context;
 import android.telephony.PhoneNumberUtils;
 
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.contact.Contact;
 
 /**
@@ -14,7 +15,7 @@ public class Support {
     private String SUPPORT_PHONE_NUMBER;
 
     public Support(Context context) {
-        this.SUPPORT_PHONE_NUMBER = Utils.getMetaDataValue(context.getApplicationContext(), SUPPORT_PHONE_NUMBER_METADATA);
+        this.SUPPORT_PHONE_NUMBER = Utils.getMetaDataValue(ApplozicService.getContext(context), SUPPORT_PHONE_NUMBER_METADATA);
     }
 
     public String getSupportNumber() {
