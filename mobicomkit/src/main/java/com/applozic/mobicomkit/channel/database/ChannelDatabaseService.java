@@ -100,6 +100,9 @@ public class ChannelDatabaseService {
             contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
             oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
         }
+        if (channel.getKmStatus() != 0) {
+            contentValues.put(MobiComDatabaseHelper.KM_STATUS, channel.getKmStatus());
+        }
         if (oldChannel != null && !TextUtils.isEmpty(channel.getImageUrl()) && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())) {
             updateChannelLocalImageURI(channel.getKey(), null);
         }
@@ -245,6 +248,7 @@ public class ChannelDatabaseService {
         channel.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         channel.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
         channel.setParentKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.PARENT_GROUP_KEY)));
+        channel.setKmStatus(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.KM_STATUS)));
         String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_META_DATA));
         channel.setMetadata(((Map<String, String>) GsonUtils.getObjectFromJson(metadata, Map.class)));
         if (count > 0) {
@@ -438,10 +442,7 @@ public class ChannelDatabaseService {
 
                 StringBuffer stringBuffer = new StringBuffer();
 
-                stringBuffer.append("SELECT ").append(MobiComDatabaseHelper._ID).append(",").append(MobiComDatabaseHelper.CHANNEL_KEY).append(",").append(MobiComDatabaseHelper.CLIENT_GROUP_ID).append(",").append(MobiComDatabaseHelper.CHANNEL_DISPLAY_NAME).append(",").
-                        append(MobiComDatabaseHelper.ADMIN_ID).append(",").append(MobiComDatabaseHelper.TYPE).append(",").append(MobiComDatabaseHelper.UNREAD_COUNT).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_URL).append(",").append(MobiComDatabaseHelper.CHANNEL_IMAGE_LOCAL_URI).append(",").
-                        append(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME).append(" , ").append(MobiComDatabaseHelper.AL_CATEGORY).append(",").
-                        append(MobiComDatabaseHelper.DELETED_AT).append(",").append(MobiComDatabaseHelper.CHANNEL_META_DATA).append(",").append(MobiComDatabaseHelper.PARENT_GROUP_KEY).append(",").append(MobiComDatabaseHelper.PARENT_CLIENT_GROUP_ID).
+                stringBuffer.append("SELECT ").append(" * ").
                         append(" FROM ").append(MobiComDatabaseHelper.CHANNEL).append(" where ").append(MobiComDatabaseHelper.TYPE).append(" NOT IN ('").append(Channel.GroupType.CONTACT_GROUP.getValue()).append("')");
 
                 if (!TextUtils.isEmpty(searchString)) {
@@ -523,6 +524,7 @@ public class ChannelDatabaseService {
         Cursor cursor = null;
         try {
             String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + "=" + MobiComUserPreference.getInstance(context).getUserId();
+
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey)}, null, null, null);
             if (cursor != null) {
@@ -547,6 +549,7 @@ public class ChannelDatabaseService {
         Cursor cursor = null;
         try {
             String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + " =?";
+            
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey), userId}, null, null, null);
             if (cursor != null) {

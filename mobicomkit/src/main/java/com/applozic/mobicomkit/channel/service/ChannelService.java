@@ -292,6 +292,7 @@ public class ChannelService {
         channel.setMetadata(channelFeed.getMetadata());
         channel.setParentKey(channelFeed.getParentKey());
         channel.setParentClientGroupId(channelFeed.getParentClientGroupId());
+        channel.setKmStatus(channel.generateKmStatus(MobiComUserPreference.getInstance(context).getUserId()));
         return channel;
     }
 

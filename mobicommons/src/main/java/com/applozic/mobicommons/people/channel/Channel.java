@@ -1,5 +1,7 @@
 package com.applozic.mobicommons.people.channel;
 
+import android.text.TextUtils;
+
 import com.applozic.mobicommons.json.JsonMarker;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.annotations.Expose;
@@ -35,8 +37,13 @@ public class Channel extends JsonMarker {
     private List<Contact> contacts = new ArrayList<Contact>();
     private Long notificationAfterTime;
     private Long deletedAtTime;
-    public static final String AL_CATEGORY= "AL_CATEGORY";
-
+    private int kmStatus;
+    public static final String AL_CATEGORY = "AL_CATEGORY";
+    public static final String CONVERSATION_STATUS = "CONVERSATION_STATUS";
+    public static final String CONVERSATION_ASSIGNEE = "CONVERSATION_ASSIGNEE";
+    public static final int CLOSED_CONVERSATIONS = 3;
+    public static final int ASSIGNED_CONVERSATIONS = 1;
+    public static final int ALL_CONVERSATIONS = 2;
 
     public Channel() {
 
@@ -216,15 +223,38 @@ public class Channel extends JsonMarker {
         this.subGroupCount = subGroupCount;
     }
 
-    public boolean isPartOfCategory(String category){
+    public boolean isPartOfCategory(String category) {
 
-        return (this.metadata!=null && this.metadata.containsKey(AL_CATEGORY)
+        return (this.metadata != null && this.metadata.containsKey(AL_CATEGORY)
                 && this.metadata.get(AL_CATEGORY).equals(category));
 
     }
 
-    public boolean isContextBasedChat(){
+    public boolean isContextBasedChat() {
         return (this.metadata != null && "true".equals(this.metadata.get(ChannelMetadata.AL_CONTEXT_BASED_CHAT)));
+    }
+
+    public int getKmStatus() {
+        return kmStatus;
+    }
+
+    public void setKmStatus(int kmStatus) {
+        this.kmStatus = kmStatus;
+    }
+
+    public int generateKmStatus(String loggedInUserId) {
+        if (getMetadata() == null) {
+            return ALL_CONVERSATIONS;
+        }
+
+        if (getMetadata().containsKey(CONVERSATION_STATUS) && "2".equals(getMetadata().get(CONVERSATION_STATUS))) {
+            return CLOSED_CONVERSATIONS;
+        }
+
+        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE)) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
+            return ASSIGNED_CONVERSATIONS;
+        }
+        return ALL_CONVERSATIONS;
     }
 
     public enum GroupType {
@@ -289,6 +319,7 @@ public class Channel extends JsonMarker {
                 ", contacts=" + contacts +
                 ", notificationAfterTime=" + notificationAfterTime +
                 ", deletedAtTime=" + deletedAtTime +
+                ", kmStatus=" + kmStatus +
                 '}';
     }
 }
