@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -10,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -90,6 +90,8 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.MobicomkitUriListener;
+import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
@@ -184,12 +186,21 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private ImageView conversationContactPhoto;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
+    private boolean isActivityDestroyed;
 
     public ConversationActivity() {
 
     }
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
+        if (fragmentActivity.isFinishing() || (fragmentActivity instanceof ConversationActivity && ((ConversationActivity) fragmentActivity).isActivityDestroyed)) {
+            return;
+        }
+        if (Utils.hasJellyBeanMR1()) {
+            if (fragmentActivity.isDestroyed()) {
+                return;
+            }
+        }
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
 
         // Fragment activeFragment = UIService.getActiveFragment(fragmentActivity);
@@ -338,6 +349,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ApplozicService.initWithContext(getApplication());
         String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
@@ -371,7 +383,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
 
-        if (Utils.hasMarshmallow() && !alCustomizationSettings.isGlobalStoagePermissionDisabled()) {
+        if (Utils.isDebugBuild(this) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
+            showLogWarningForReleaseBuild();
+        }
+
+        if (Utils.hasMarshmallow() && (!alCustomizationSettings.isGlobalStoagePermissionDisabled() || ALSpecificSettings.getInstance(this).isTextLoggingEnabled())) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
         mActionBar = getSupportActionBar();
@@ -509,7 +525,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarTitle(String title){
+    public void setToolbarTitle(String title) {
         toolbarSubtitle.setVisibility(View.GONE);
         conversationContactPhoto.setVisibility(View.GONE);
         toolbarTitle.setText(title);
@@ -517,7 +533,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarSubtitle(String subtitle){
+    public void setToolbarSubtitle(String subtitle) {
         if (subtitle.length() == 0) {
             toolbarSubtitle.setVisibility(View.GONE);
             animateToolbarTitle();
@@ -534,8 +550,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     @Override
-    public void setToolbarImage(Contact contact, Channel channel){
-        if(ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
+    public void setToolbarImage(Contact contact, Channel channel) {
+        if (ApplozicSetting.getInstance(this).isShowImageOnToolbar() || alCustomizationSettings.isShowImageOnToolbar()) {
             conversationContactPhoto.setVisibility(View.VISIBLE);
             if (contact != null) {
                 Glide.with(this)
@@ -580,6 +596,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void showLogWarningForReleaseBuild() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(R.string.warning);
+        dialogBuilder.setMessage(R.string.release_log_warning_message);
+        dialogBuilder.show();
     }
 
     @Override
@@ -848,6 +871,19 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        } else if (id == R.id.sendTextLogs) {
+            try {
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.setType("vnd.android.cursor.dir/email");
+                String receivers[] = {ALSpecificSettings.getInstance(this).getSupportEmailId()};
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, receivers);
+                emailIntent.putExtra(Intent.EXTRA_STREAM, Utils.getTextLogFileUri(this));
+                emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " " + getString(R.string.log_email_subject));
+                startActivity(Intent.createChooser(emailIntent, getString(R.string.select_email_app_chooser_title)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
@@ -913,7 +949,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     public boolean isFromSearch() {
-        if (!searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
+        if (searchView != null && !searchView.isIconified() && quickConversationFragment != null && quickConversationFragment.isVisible()) {
             quickConversationFragment.stopSearching();
             searchView.onActionViewCollapsed();
             return true;
@@ -1346,6 +1382,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isActivityDestroyed = true;
         try {
             if (mobiComKitBroadcastReceiver != null) {
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);

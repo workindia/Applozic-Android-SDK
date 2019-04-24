@@ -6,6 +6,7 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -16,6 +17,7 @@ import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -38,7 +40,8 @@ public class RegisterUserClientService extends MobiComKitClientService {
     private HttpRequestUtils httpRequestUtils;
 
     public RegisterUserClientService(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
+        ApplozicService.initWithContext(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
@@ -96,75 +99,76 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
 
-        if(registrationResponse.isRegistrationSuccess()){
+        if (registrationResponse.isRegistrationSuccess()) {
 
-        Utils.printLog(context, "Registration response ", "is " + registrationResponse);
-        if (registrationResponse.getNotificationResponse() != null) {
-            Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
-        }
-        mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
-        mobiComUserPreference.enableEncryption(user.isEnableEncryption());
-        mobiComUserPreference.setCountryCode(user.getCountryCode());
-        mobiComUserPreference.setUserId(user.getUserId());
-        mobiComUserPreference.setContactNumber(user.getContactNumber());
-        mobiComUserPreference.setEmailVerified(user.isEmailVerified());
-        mobiComUserPreference.setDisplayName(user.getDisplayName());
-        mobiComUserPreference.setMqttBrokerUrl(registrationResponse.getBrokerUrl());
-        mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKey());
-        mobiComUserPreference.setEmailIdValue(user.getEmail());
-        mobiComUserPreference.setImageLink(user.getImageLink());
-        mobiComUserPreference.setSuUserKeyString(registrationResponse.getUserKey());
-        mobiComUserPreference.setLastSyncTimeForMetadataUpdate(String.valueOf(registrationResponse.getCurrentTimeStamp()));
-        mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
-        mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
-        mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
-        mobiComUserPreference.setUserBlockSyncTime("10000");
-        if (!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())) {
-            mobiComUserPreference.setUserEncryptionKey(registrationResponse.getUserEncryptionKey());
-        }
-        mobiComUserPreference.setPassword(user.getPassword());
-        mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
-        mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
-        if(registrationResponse.getRoleType() != null){
-            mobiComUserPreference.setUserRoleType(registrationResponse.getRoleType());
-        }
-        if (user.getUserTypeId() != null) {
-            mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
-        }
-        if (!TextUtils.isEmpty(user.getNotificationSoundFilePath())) {
-            Applozic.getInstance(context).setCustomNotificationSound(user.getNotificationSoundFilePath());
-        }
-        Contact contact = new Contact();
-        contact.setUserId(user.getUserId());
-        contact.setFullName(registrationResponse.getDisplayName());
-        contact.setImageURL(registrationResponse.getImageLink());
-        contact.setContactNumber(registrationResponse.getContactNumber());
-        if (user.getUserTypeId() != null) {
-            contact.setUserTypeId(user.getUserTypeId());
-        }
-        contact.setRoleType(user.getRoleType());
-        contact.setMetadata(user.getMetadata());
-        contact.setStatus(registrationResponse.getStatusMessage());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
-            new NotificationChannels(context, Applozic.getInstance(context).getCustomNotificationSound()).prepareNotificationChannels();
-        }
-        contact.processContactNumbers(context);
-        new AppContactService(context).upsert(contact);
-
-
-        Intent conversationIntentService = new Intent(context, ConversationIntentService.class);
-        conversationIntentService.putExtra(ConversationIntentService.SYNC, false);
-        ConversationIntentService.enqueueWork(context, conversationIntentService);
+            Utils.printLog(context, "Registration response ", "is " + registrationResponse);
+            if (registrationResponse.getNotificationResponse() != null) {
+                Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
+            }
+            mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
+            mobiComUserPreference.enableEncryption(user.isEnableEncryption());
+            mobiComUserPreference.setCountryCode(user.getCountryCode());
+            mobiComUserPreference.setUserId(user.getUserId());
+            mobiComUserPreference.setContactNumber(user.getContactNumber());
+            mobiComUserPreference.setEmailVerified(user.isEmailVerified());
+            mobiComUserPreference.setDisplayName(user.getDisplayName());
+            mobiComUserPreference.setMqttBrokerUrl(registrationResponse.getBrokerUrl());
+            mobiComUserPreference.setDeviceKeyString(registrationResponse.getDeviceKey());
+            mobiComUserPreference.setEmailIdValue(user.getEmail());
+            mobiComUserPreference.setImageLink(user.getImageLink());
+            mobiComUserPreference.setSuUserKeyString(registrationResponse.getUserKey());
+            mobiComUserPreference.setLastSyncTimeForMetadataUpdate(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+            mobiComUserPreference.setLastSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+            mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+            mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
+            mobiComUserPreference.setUserBlockSyncTime("10000");
+            ApplozicClient.getInstance(context).skipDeletedGroups(user.isSkipDeletedGroups());
+            if (!TextUtils.isEmpty(registrationResponse.getUserEncryptionKey())) {
+                mobiComUserPreference.setUserEncryptionKey(registrationResponse.getUserEncryptionKey());
+            }
+            mobiComUserPreference.setPassword(user.getPassword());
+            mobiComUserPreference.setPricingPackage(registrationResponse.getPricingPackage());
+            mobiComUserPreference.setAuthenticationType(String.valueOf(user.getAuthenticationTypeId()));
+            if (registrationResponse.getRoleType() != null) {
+                mobiComUserPreference.setUserRoleType(registrationResponse.getRoleType());
+            }
+            if (user.getUserTypeId() != null) {
+                mobiComUserPreference.setUserTypeId(String.valueOf(user.getUserTypeId()));
+            }
+            if (!TextUtils.isEmpty(user.getNotificationSoundFilePath())) {
+                Applozic.getInstance(context).setCustomNotificationSound(user.getNotificationSoundFilePath());
+            }
+            Contact contact = new Contact();
+            contact.setUserId(user.getUserId());
+            contact.setFullName(registrationResponse.getDisplayName());
+            contact.setImageURL(registrationResponse.getImageLink());
+            contact.setContactNumber(registrationResponse.getContactNumber());
+            if (user.getUserTypeId() != null) {
+                contact.setUserTypeId(user.getUserTypeId());
+            }
+            contact.setRoleType(user.getRoleType());
+            contact.setMetadata(user.getMetadata());
+            contact.setStatus(registrationResponse.getStatusMessage());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
+                new NotificationChannels(context, Applozic.getInstance(context).getCustomNotificationSound()).prepareNotificationChannels();
+            }
+            contact.processContactNumbers(context);
+            new AppContactService(context).upsert(contact);
 
 
-        Intent mutedUserListService = new Intent(context, ConversationIntentService.class);
-        mutedUserListService.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
-        ConversationIntentService.enqueueWork(context, mutedUserListService);
+            Intent conversationIntentService = new Intent(context, ConversationIntentService.class);
+            conversationIntentService.putExtra(ConversationIntentService.SYNC, false);
+            ConversationIntentService.enqueueWork(context, conversationIntentService);
 
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+
+            Intent mutedUserListService = new Intent(context, ConversationIntentService.class);
+            mutedUserListService.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
+            ConversationIntentService.enqueueWork(context, mutedUserListService);
+
+            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+            intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
+            ApplozicMqttIntentService.enqueueWork(context, intent);
 
         }
 

@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -80,7 +81,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public MessageClientService(Context context) {
         super(context);
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
         this.baseContactService = new AppContactService(context);
@@ -681,7 +682,7 @@ public class MessageClientService extends MobiComKitClientService {
                 params += "conversationReq=true";
             }
         }
-        params = params + "&" + "deletedGroupIncluded=true";
+        params = params + "&" + "deletedGroupIncluded=" + String.valueOf(!ApplozicClient.getInstance(context).isSkipDeletedGroups());
 
         if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())) {
             params = params + "&category=" + MobiComUserPreference.getInstance(context).getCategoryName();

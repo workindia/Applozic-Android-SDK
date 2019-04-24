@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets.people.contact;
+package com.applozic.mobicomkit.contact;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +11,6 @@ import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
-import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.contact.DeviceContactService;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.Date;
@@ -95,6 +93,9 @@ public class DeviceContactSyncService extends JobIntentService {
 
         if (processUserDetails) {
             MobiComUserPreference.getInstance(DeviceContactSyncService.this).setDeviceContactSyncTime(new Date().getTime());
+        }
+        if(people != null){
+            people.close();
         }
     }
 

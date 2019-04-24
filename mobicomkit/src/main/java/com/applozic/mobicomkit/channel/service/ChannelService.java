@@ -4,11 +4,13 @@ import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
+import com.applozic.mobicomkit.api.people.AlGetPeopleTask;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -21,7 +23,9 @@ import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.ChannelUsersFeed;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
+import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.sync.SyncChannelFeed;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
@@ -43,16 +47,16 @@ public class ChannelService {
     private UserService userService;
 
     private ChannelService(Context context) {
-        this.context = context;
-        channelClientService = ChannelClientService.getInstance(context);
-        channelDatabaseService = ChannelDatabaseService.getInstance(context);
-        userService = UserService.getInstance(context);
-        baseContactService = new AppContactService(context);
+        this.context = ApplozicService.getContext(context);
+        channelClientService = ChannelClientService.getInstance(ApplozicService.getContext(context));
+        channelDatabaseService = ChannelDatabaseService.getInstance(ApplozicService.getContext(context));
+        userService = UserService.getInstance(ApplozicService.getContext(context));
+        baseContactService = new AppContactService(ApplozicService.getContext(context));
     }
 
     public synchronized static ChannelService getInstance(Context context) {
         if (channelService == null) {
-            channelService = new ChannelService(context.getApplicationContext());
+            channelService = new ChannelService(ApplozicService.getContext(context));
         }
         return channelService;
     }
@@ -785,11 +789,11 @@ public class ChannelService {
             if (channelFeed.getChildKeys() != null && channelFeed.getChildKeys().size() > 0) {
                 processChildGroupKeysForChannelSync(channelFeed.getChildKeys());
             }
-
+            if (channel.isDeleted() && ApplozicClient.getInstance(context).isSkipDeletedGroups()) {
+                BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), null, channel.getKey(), "success");
+            }
         }
-
     }
-
 
     private void processChildGroupKeys(Set<Integer> childGroupKeys) {
         for (Integer channelKey : childGroupKeys) {
@@ -817,5 +821,13 @@ public class ChannelService {
 
     public Integer getParentGroupKeyByClientGroupKey(String parentClientGroupKey) {
         return channelDatabaseService.getParentGroupKey(parentClientGroupKey);
+    }
+
+    public void getChannelByChannelKeyAsync(Integer groupId, AlChannelListener channelListener) {
+        new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, channelDatabaseService).execute();
+    }
+
+    public void getChannelByClientKeyAsync(String clientChannelKey, AlChannelListener channelListener) {
+        new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, channelDatabaseService).execute();
     }
 }

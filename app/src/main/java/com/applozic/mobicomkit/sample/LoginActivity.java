@@ -46,10 +46,12 @@ import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.AlLoginHandler;
+import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.people.contact.DeviceContactSyncService;
+import com.applozic.mobicomkit.contact.DeviceContactSyncService;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -271,37 +273,40 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             showProgress(true);
 
             // callback for login process
-            final Activity activity = LoginActivity.this;
-            UserLoginTask.TaskListener listener = new UserLoginTask.TaskListener() {
 
+            User user = new User();
+            user.setUserId(userId);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setDisplayName(displayName);
+            user.setContactNumber(phoneNumber);
+            user.setAuthenticationTypeId(authenticationType.getValue());
+
+            Applozic.connectUser(this, user, new AlLoginHandler() {
                 @Override
                 public void onSuccess(RegistrationResponse registrationResponse, final Context context) {
+                    // After successful registration with Applozic server the callback will come here
                     mAuthTask = null;
                     showProgress(false);
+                    //Basic setting for context based chat enable...
 
-                    //Basic settings...
-
-                    ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true);
+                    ApplozicClient.getInstance(context).setContextBasedChat(true);
 
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
-                    MobiComUserPreference.getInstance(context).setUserRoleType(registrationResponse.getRoleType());
 
                     if (isDeviceContactSync) {
                         Intent intent = new Intent(context, DeviceContactSyncService.class);
                         DeviceContactSyncService.enqueueWork(context, intent);
                     }
 
+                    buildContactData();
+
                     Applozic.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
-                    //Set activity callbacks
-                    /*Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
-                    activityCallbacks.put(ApplozicSetting.RequestCode.MESSAGE_TAP, MainActivity.class.getName());
-                    ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);*/
+                    //Start FCM registration....
 
-                    //Start GCM registration....
-
-                    PushNotificationTask.TaskListener pushNotificationTaskListener = new PushNotificationTask.TaskListener() {
+                    Applozic.registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), new AlPushNotificationHandler() {
                         @Override
                         public void onSuccess(RegistrationResponse registrationResponse) {
 
@@ -311,11 +316,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                         public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
 
                         }
-                    };
-                    PushNotificationTask pushNotificationTask = new PushNotificationTask(Applozic.getInstance(context).getDeviceRegistrationId(), pushNotificationTaskListener, context);
-                    pushNotificationTask.execute((Void) null);
-
-                    buildContactData();
+                    });
 
                     //starting main MainActivity
                     Intent mainActvity = new Intent(context, MainActivity.class);
@@ -330,6 +331,7 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
                 @Override
                 public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+                    // If any failure in registration the callback  will come here
                     mAuthTask = null;
                     showProgress(false);
 
@@ -347,20 +349,12 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                         alertDialog.show();
                     }
                 }
-            };
+            });
 
-            User user = new User();
-            user.setUserId(userId);
-            user.setEmail(email);
-            user.setPassword(password);
-            user.setDisplayName(displayName);
-            user.setContactNumber(phoneNumber);
-            user.setAuthenticationTypeId(authenticationType.getValue());
-
-            mAuthTask = new UserLoginTask(user, listener, this);
             mEmailSignInButton.setVisibility(View.INVISIBLE);
             mSpinnerView.setVisibility(View.INVISIBLE);
-            mAuthTask.execute((Void) null);
+
+
         }
     }
 

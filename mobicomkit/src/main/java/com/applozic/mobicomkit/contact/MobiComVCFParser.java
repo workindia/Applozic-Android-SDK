@@ -47,49 +47,54 @@ public class MobiComVCFParser {
         BufferedReader in = new BufferedReader(fin);
         StringBuffer contactBuffer = new StringBuffer();
         StringBuffer imageByteCode = null;
-        for (String sLine = in.readLine(); sLine != null; sLine = in.readLine()) {
-            if (sLine.equalsIgnoreCase(BEGIN_VCARD)) {
+        try {
+            for (String sLine = in.readLine(); sLine != null; sLine = in.readLine()) {
+                if (sLine.equalsIgnoreCase(BEGIN_VCARD)) {
 
-                //START
-                vcfContactData = new VCFContactData();
+                    //START
+                    vcfContactData = new VCFContactData();
 
-            } else if (sLine.equalsIgnoreCase(END_VCARD)) {
+                } else if (sLine.equalsIgnoreCase(END_VCARD)) {
 
-                //END
-                vcfContactData.setTelephoneNumber(contactBuffer.toString());
-                if (imageByteCode != null) {
-                    vcfContactData.setProfilePic(stringToBitMap(imageByteCode.toString()));
-                }
-                return vcfContactData;
+                    //END
+                    vcfContactData.setTelephoneNumber(contactBuffer.toString());
+                    if (imageByteCode != null) {
+                        vcfContactData.setProfilePic(stringToBitMap(imageByteCode.toString()));
+                    }
+                    return vcfContactData;
 
-            } else if (sLine.startsWith("FN:")) {
+                } else if (sLine.startsWith("FN:")) {
 
-                String[] tokens = sLine.split(":");
-                if (tokens.length == 2) {
-                    vcfContactData.setName(tokens[1]);
-                }
+                    String[] tokens = sLine.split(":");
+                    if (tokens.length == 2) {
+                        vcfContactData.setName(tokens[1]);
+                    }
 
-            } else if (sLine.startsWith("TEL;")) {
-                String[] tokens = sLine.split(":");
-                if (tokens.length == 2) {
-                    contactBuffer.append(tokens[1] + "\n");
-                }
-            } else if (sLine.startsWith("PHOTO")) {
+                } else if (sLine.startsWith("TEL;")) {
+                    String[] tokens = sLine.split(":");
+                    if (tokens.length == 2) {
+                        contactBuffer.append(tokens[1] + "\n");
+                    }
+                } else if (sLine.startsWith("PHOTO")) {
 
-                String[] tokens = sLine.split(":");
-                if (tokens.length >= 2) {
-                    imageByteCode = new StringBuffer().append(tokens[1]);
-                }
-            } else if (sLine.startsWith("EMAIL")) {
-                String[] tokens = sLine.split(":");
-                if (tokens.length >= 2) {
-                    vcfContactData.setEmail(tokens[1]);
-                }
-            } else {
-                if (imageByteCode != null) {
-                    imageByteCode.append(sLine);
+                    String[] tokens = sLine.split(":");
+                    if (tokens.length >= 2) {
+                        imageByteCode = new StringBuffer().append(tokens[1]);
+                    }
+                } else if (sLine.startsWith("EMAIL")) {
+                    String[] tokens = sLine.split(":");
+                    if (tokens.length >= 2) {
+                        vcfContactData.setEmail(tokens[1]);
+                    }
+                } else {
+                    if (imageByteCode != null) {
+                        imageByteCode.append(sLine);
+                    }
                 }
             }
+        } finally {
+            fin.close();
+            in.close();
         }
         return null;
     }

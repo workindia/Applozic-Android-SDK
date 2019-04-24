@@ -7,6 +7,8 @@ import android.content.pm.ApplicationInfo;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import org.json.JSONObject;
@@ -44,19 +46,20 @@ public class ApplozicClient {
     private static final String AL_SUBGROUP_SUPPORT = "AL_SUBGROUP_SUPPORT";
     private static final String HIDE_ACTION_MESSAGES = "HIDE_ACTION_MESSAGES";
     private static final String NOTIFICATION_MUTE_THRESHOLD = "NOTIFICATION_MUTE_THRESHOLD";
+    private static final String SKIP_DELETED_GROUPS = "SKIP_DELETED_GROUPS";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
     private Context context;
 
     private ApplozicClient(Context context) {
-        this.context = context;
-        sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
+        this.context = ApplozicService.getContext(context);
+        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
     }
 
     public static ApplozicClient getInstance(Context context) {
         if (applozicClient == null) {
-            applozicClient = new ApplozicClient(context.getApplicationContext());
+            applozicClient = new ApplozicClient(ApplozicService.getContext(context));
         }
 
         return applozicClient;
@@ -116,8 +119,7 @@ public class ApplozicClient {
 
     public boolean isServiceDisconnected() {
         int pricingPackage = MobiComUserPreference.getInstance(context).getPricingPackage();
-        boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-        return (pricingPackage == -1 || pricingPackage == 6 || (pricingPackage == 0 && !isDebuggable));
+        return (pricingPackage == -1 || pricingPackage == 6 || (pricingPackage == 0 && !Utils.isDebugBuild(context)));
     }
 
     public boolean isAccountClosed() {
@@ -329,6 +331,15 @@ public class ApplozicClient {
 
     public int getNotificationMuteThreshold() {
         return sharedPreferences.getInt(NOTIFICATION_MUTE_THRESHOLD, 0);
+    }
+
+    public ApplozicClient skipDeletedGroups(boolean skip) {
+        sharedPreferences.edit().putBoolean(SKIP_DELETED_GROUPS, skip).commit();
+        return this;
+    }
+
+    public boolean isSkipDeletedGroups() {
+        return sharedPreferences.getBoolean(SKIP_DELETED_GROUPS, false);
     }
 
 }

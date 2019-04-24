@@ -6,9 +6,12 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
+import com.applozic.mobicomkit.api.people.AlGetPeopleTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.listners.AlContactListener;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -28,7 +31,7 @@ public class AppContactService implements BaseContactService {
     FileClientService fileClientService;
 
     public AppContactService(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
         this.contactDatabase = new ContactDatabase(context);
         this.fileClientService = new FileClientService(context);
     }
@@ -67,11 +70,7 @@ public class AppContactService implements BaseContactService {
             contact.processContactNumbers(context);
         } else {
             contact = new Contact(context, contactId);
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                upsert(contact);
-            } else {
-                add(contact);
-            }
+            upsert(contact);
         }
         return contact;
     }
@@ -229,6 +228,10 @@ public class AppContactService implements BaseContactService {
     @Override
     public void updateLocalImageUri(Contact contact) {
         contactDatabase.updateLocalImageUri(contact);
+    }
+
+    public void getContactByIdAsync(String userId, AlContactListener contactListener) {
+        new AlGetPeopleTask(context, userId, null, null, null, contactListener, contactDatabase, null).execute();
     }
 
 }

@@ -34,11 +34,6 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
 
     private ApplozicAudioManager(Context context) {
         this.context = context;
-        //mTelephonyMgr = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-        }
     }
 
     public static ApplozicAudioManager getInstance(Context context) {
@@ -49,6 +44,11 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
     }
 
     void play(final Uri uri, final ApplozicDocumentView view) {
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        }
+
         final String key = view.message.getKeyString();
         MediaPlayer mp = pool.get(key);
         if (mp != null) {

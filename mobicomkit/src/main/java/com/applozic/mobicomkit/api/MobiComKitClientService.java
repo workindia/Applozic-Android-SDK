@@ -7,6 +7,7 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
 
@@ -44,21 +45,19 @@ public class MobiComKitClientService {
     }
 
     public MobiComKitClientService(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = ApplozicService.getContext(context);
     }
 
     public static String getApplicationKey(Context context) {
-        String applicationKey = Applozic.getInstance(context).getApplicationKey();
+        String applicationKey = Applozic.getInstance(ApplozicService.getContext(context)).getApplicationKey();
         if (!TextUtils.isEmpty(applicationKey)) {
             return applicationKey;
         }
-        return Utils.getMetaDataValue(context.getApplicationContext(), APPLICATION_KEY_HEADER_VALUE_METADATA);
+        return Utils.getMetaDataValue(ApplozicService.getContext(context), APPLICATION_KEY_HEADER_VALUE_METADATA);
     }
 
     public static String getAppModuleName(Context context) {
-
-        return Utils.getMetaDataValue(context.getApplicationContext(), APP_MODULE_NAME_META_DATA_KEY);
-
+        return Utils.getMetaDataValue(ApplozicService.getContext(context), APP_MODULE_NAME_META_DATA_KEY);
     }
 
     public String getBaseUrl() {

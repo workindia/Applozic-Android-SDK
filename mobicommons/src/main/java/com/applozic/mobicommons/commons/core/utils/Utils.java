@@ -19,6 +19,7 @@ import android.os.PowerManager;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.support.v4.content.FileProvider;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.ApplozicService;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -116,6 +118,14 @@ public class Utils {
      */
     public static boolean hasHoneycombMR1() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
+    }
+
+    /**
+     * Uses static final constants to detect if the device's platform version is JellyBean MR1 or
+     * later.
+     */
+    public static boolean hasJellyBeanMR1() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
     }
 
     /**
@@ -247,7 +257,7 @@ public class Utils {
 
     public static boolean isInternetAvailable(Context context) {
         ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) ApplozicService.getContext(context).getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return (activeNetwork != null &&
@@ -257,8 +267,8 @@ public class Utils {
 
     public static String getMetaDataValue(Context context, String metaDataName) {
         try {
-            PackageManager packageManager = context.getPackageManager();
-            ApplicationInfo ai = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            PackageManager packageManager = ApplozicService.getContext(context).getPackageManager();
+            ApplicationInfo ai = packageManager.getApplicationInfo(ApplozicService.getContext(context).getPackageName(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
                 return ai.metaData.getString(metaDataName);
 
@@ -275,15 +285,15 @@ public class Utils {
 
     public static boolean isAutomaticTimeEnabled(Context context, boolean isTimeZone) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return Settings.Global.getInt(context.getContentResolver(), (isTimeZone ? Settings.Global.AUTO_TIME_ZONE : Settings.Global.AUTO_TIME), 0) == 1;
+            return Settings.Global.getInt(ApplozicService.getContext(context).getContentResolver(), (isTimeZone ? Settings.Global.AUTO_TIME_ZONE : Settings.Global.AUTO_TIME), 0) == 1;
         } else {
-            return android.provider.Settings.System.getInt(context.getContentResolver(), (isTimeZone ? Settings.System.AUTO_TIME_ZONE : Settings.System.AUTO_TIME), 0) == 1;
+            return android.provider.Settings.System.getInt(ApplozicService.getContext(context).getContentResolver(), (isTimeZone ? Settings.System.AUTO_TIME_ZONE : Settings.System.AUTO_TIME), 0) == 1;
         }
     }
 
     public static int getLauncherIcon(Context context) {
         try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            ApplicationInfo ai = ApplozicService.getContext(context).getPackageManager().getApplicationInfo(ApplozicService.getContext(context).getPackageName(), PackageManager.GET_META_DATA);
             return ai.icon;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -293,7 +303,7 @@ public class Utils {
 
     public static Integer getMetaDataValueForResources(Context context, String metaDataName) {
         try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            ApplicationInfo ai = ApplozicService.getContext(context).getPackageManager().getApplicationInfo(ApplozicService.getContext(context).getPackageName(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
                 Integer metaDataValue = ai.metaData.getInt(metaDataName);
                 return metaDataValue == 0 ? null : metaDataValue;
@@ -308,7 +318,7 @@ public class Utils {
 
     public static String getMetaDataValueForReceiver(Context context, String componentName, String metaDataName) {
         try {
-            ActivityInfo ai = context.getPackageManager().getReceiverInfo(new ComponentName(context, componentName), PackageManager.GET_META_DATA);
+            ActivityInfo ai = ApplozicService.getContext(context).getPackageManager().getReceiverInfo(new ComponentName(ApplozicService.getContext(context), componentName), PackageManager.GET_META_DATA);
             return ai.metaData.getString(metaDataName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -374,19 +384,20 @@ public class Utils {
 
     public static void printLog(Context context, String tag, String message) {
         try {
-            if (context != null) {
-                boolean isDebuggable = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-                if (isDebuggable) {
-                    Log.i(tag, message);
+            if (isDebugBuild(context) || ALSpecificSettings.getInstance(context).isLoggingEnabledForReleaseBuild()) {
+                Log.i(tag, message);
 
-                    if (ALSpecificSettings.getInstance(context).isTextLoggingEnabled()) {
-                        writeToFile(context, tag + " (" + DateUtils.getDateAndTimeInDefaultFormat(System.currentTimeMillis()) + ") : " + message);
-                    }
+                if (ALSpecificSettings.getInstance(context).isTextLoggingEnabled()) {
+                    writeToFile(context, tag + " (" + DateUtils.getDateAndTimeInDefaultFormat(System.currentTimeMillis()) + ") : " + message);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isDebugBuild(Context context) {
+        return (0 != (ApplozicService.getContext(context).getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
     }
 
     public static void writeToFile(Context context, String log) {
@@ -418,7 +429,24 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    public static Uri getTextLogFileUri(Context context) {
+        try {
+            String fileName = "/" + ALSpecificSettings.getInstance(context).getTextLogFileName() + ".txt";
+            String folder = "/" + Utils.getMetaDataValue(context, "main_folder_name");
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
+            File textLogFile = new File(dir, fileName);
+            if (hasNougat()) {
+                return FileProvider.getUriForFile(ApplozicService.getContext(context), getMetaDataValue(context, "com.package.name") + ".provider", textLogFile);
+            }
+            return Uri.fromFile(textLogFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

@@ -29,6 +29,7 @@ import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.AnnotationExclusionStrategy;
@@ -71,14 +72,14 @@ public class MobiComConversationService {
 
 
     public MobiComConversationService(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.messageClientService = new MessageClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.baseContactService = new AppContactService(context);
         this.conversationService = ConversationService.getInstance(context);
         this.channelService = ChannelService.getInstance(context);
         this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
-        this.sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), context.MODE_PRIVATE);
+        this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
     }
 
     @VisibleForTesting
@@ -694,13 +695,9 @@ public class MobiComConversationService {
         try {
             int unreadCount = 0;
             if (contact != null) {
-                Contact newContact = baseContactService.getContactById(contact.getContactIds());
-                unreadCount = newContact.getUnreadCount();
-                messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
+                unreadCount = contact.getUnreadCount();
             } else if (channel != null) {
-                Channel newChannel = channelService.getChannelByChannelKey(channel.getKey());
-                unreadCount = newChannel.getUnreadCount();
-                messageDatabaseService.updateReadStatusForChannel(String.valueOf(newChannel.getKey()));
+                unreadCount = channel.getUnreadCount();
             }
 
             Intent intent = new Intent(context, UserIntentService.class);
