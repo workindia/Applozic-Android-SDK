@@ -183,8 +183,7 @@ public class ChannelFragment extends ListFragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Loader<Cursor> loader = ChannelDatabaseService.getInstance(getActivity()).getSearchCursorForGroupsLoader(mSearchTerm);
-        return loader;
+        return ChannelDatabaseService.getInstance(getActivity()).getSearchCursorForGroupsLoader(mSearchTerm);
     }
 
     @Override

@@ -1051,16 +1051,30 @@ public class MessageDatabaseService {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String statusQuery = status == 2 ? "ch.kmStatus in (1, 2)" : "ch.kmStatus = " + status;
 
-        String rowQuery = "select max(createdAt) , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
-                "where m.hidden = 0 " +
-                "AND m.deleted = 0 " +
-                "AND m.messageContentType not in (11,102) " +
-                "AND m.type not in (6, 7) " +
-                "AND " + statusQuery +
-                (lastFetchTime != null && lastFetchTime > 0 ? " AND m.createdAt < " + lastFetchTime : "") +
-                " group by m.channelKey order by createdAt desc";
+        if (status == 3) {
+            String rowQuery = "select max(createdAt) , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
+                    "where m.hidden = 0 " +
+                    "AND m.deleted = 0 " +
+                    "AND m.messageContentType not in (11,102) " +
+                    "AND m.type not in (6, 7) " +
+                    "AND " + statusQuery +
+                    (lastFetchTime != null && lastFetchTime > 0 ? " AND m.createdAt < " + lastFetchTime : "") +
+                    " group by m.channelKey order by createdAt desc";
 
-        cursor = db.rawQuery(rowQuery, null);
+            cursor = db.rawQuery(rowQuery, null);
+        } else {
+            String rowQuery = "SELECT * FROM (" +
+                    "select max(createdAt) as maxCreatedAt , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
+                    "where m.hidden = 0 AND m.deleted = 0 AND m.messageContentType not in (11,102) AND m.type not in (6, 7) AND " + statusQuery + " group by m.channelKey " +
+                    "UNION ALL " +
+                    "select max(createdAt) as maxCreatedAt , m.* from sms m " +
+                    "where m.hidden = 0 AND m.deleted = 0 AND m.messageContentType not in (11,102) AND m.type not in (6, 7) AND m.channelKey = 0 " +
+                    "group by m.contactNumbers " +
+                    ") temp " +
+                    " ORDER BY temp.maxCreatedAt DESC";
+
+            cursor = db.rawQuery(rowQuery, null);
+        }
 
         List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
         dbHelper.close();
@@ -1072,8 +1086,10 @@ public class MessageDatabaseService {
         int count = 0;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+        String statusQuery = status == 2 ? "kmStatus in (1, 2)" : "kmStatus = " + status;
+
         try {
-            String rowQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from channel where kmStatus = " + status;
+            String rowQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from channel where " + statusQuery;
 
             cursor = db.rawQuery(rowQuery, null);
             cursor.moveToFirst();

@@ -244,20 +244,17 @@ public class Channel extends JsonMarker {
 
     public int generateKmStatus(String loggedInUserId) {
         if (getMetadata() == null) {
-            return 0;
+            return ALL_CONVERSATIONS;
         }
 
         if (getMetadata().containsKey(CONVERSATION_STATUS) && "2".equals(getMetadata().get(CONVERSATION_STATUS))) {
             return CLOSED_CONVERSATIONS;
         }
 
-        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE))) {
-            if (loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
-                return ASSIGNED_CONVERSATIONS;
-            }
-            return ALL_CONVERSATIONS;
+        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE)) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
+            return ASSIGNED_CONVERSATIONS;
         }
-        return 0;
+        return ALL_CONVERSATIONS;
     }
 
     public enum GroupType {
