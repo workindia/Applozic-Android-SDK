@@ -548,6 +548,8 @@ public class MessageDatabaseService {
                 if (cursor.getInt(0) > 0) {
                     return -1;
                 }
+            } catch (Throwable e) {
+                e.printStackTrace();
             } finally {
                 if (cursor != null) {
                     cursor.close();

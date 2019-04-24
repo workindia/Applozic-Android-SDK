@@ -38,7 +38,9 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
@@ -75,18 +77,12 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
 
     public ImageLoader contactImageLoader, channelImageLoader;
     public String searchString = null;
-    TextView messageTextView;
-    ImageView attachmentIcon;
-    TextView alphabeticTextView;
-    CircleImageView contactImage;
     private Context context;
     private MessageDatabaseService messageDatabaseService;
     private List<Message> messageList;
     private BaseContactService contactService;
     private EmojiconHandler emojiconHandler;
-    private long deviceTimeOffset = 0;
     private List<Message> originalList;
-    private AlphabetIndexer mAlphabetIndexer;
     private TextAppearanceSpan highlightTextSpan;
     private AlCustomizationSettings alCustomizationSettings;
     private View view;
@@ -119,29 +115,28 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
         };
         channelImageLoader.addImageCache(((FragmentActivity) context).getSupportFragmentManager(), 0.1f);
         channelImageLoader.setImageFadeIn(false);
-        final String alphabet = context.getString(R.string.alphabet);
-        mAlphabetIndexer = new AlphabetIndexer(null, 1, alphabet);
         highlightTextSpan = new TextAppearanceSpan(context, R.style.searchTextHiglight);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (viewType == 2) {
-            View v2 = inflater.inflate(R.layout.mobicom_message_list_header_footer, parent, false);
-            return new FooterViewHolder(v2);
-        } else {
-            deviceTimeOffset = MobiComUserPreference.getInstance(context).getDeviceTimeOffset();
-            view = inflater.inflate(R.layout.mobicom_message_row_view, parent, false);
-            return new Myholder(view);
+        if (inflater != null) {
+            if (viewType == 2) {
+                View v2 = inflater.inflate(R.layout.mobicom_message_list_header_footer, parent, false);
+                return new FooterViewHolder(v2);
+            } else {
+                view = inflater.inflate(R.layout.mobicom_message_row_view, parent, false);
+                return new Myholder(view);
+            }
         }
+        return null;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == 2) {
             FooterViewHolder myHolder = (FooterViewHolder) holder;
-            //myHolder.loadMoreProgressBar.setVisibility(View.GONE);
             myHolder.infoBroadCast.setVisibility(View.GONE);
         } else {
             Myholder myholder = (Myholder) holder;
@@ -235,7 +230,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                 } else if (myholder.attachmentIcon != null && message.getContentType() == Message.ContentType.LOCATION.getValue()) {
                     myholder.attachmentIcon.setVisibility(View.VISIBLE);
                     myholder.attachmentIcon.setImageResource(R.drawable.mobicom_notification_location_icon);
-                    myholder.messageTextView.setText(context.getString(R.string.Location));
+                    myholder.messageTextView.setText(Utils.getString(context, R.string.Location));
                 } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                     myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT + message.getMessage(), emojiconHandler));
                 } else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
@@ -248,7 +243,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                 if (myholder.sentOrReceived != null) {
                     if (message.isCall()) {
                         myholder.sentOrReceived.setImageResource(R.drawable.applozic_ic_action_call_holo_light);
-                        myholder.messageTextView.setTextColor(context.getResources().getColor(message.isIncomingCall() ? R.color.incoming_call : R.color.outgoing_call));
+                        myholder.messageTextView.setTextColor(Utils.getColor(context, message.isIncomingCall() ? R.color.incoming_call : R.color.outgoing_call));
                     } else if (getItemViewType(position) == 0) {
                         myholder.sentOrReceived.setImageResource(R.drawable.mobicom_social_forward);
                     } else {
@@ -392,14 +387,14 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                 }
                 Character colorKey = AlphaNumberColorUtil.alphabetBackgroundColorMap.containsKey(firstLetter) ? firstLetter : null;
                 GradientDrawable bgShape = (GradientDrawable) alphabeticTextView.getBackground();
-                bgShape.setColor(context.getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
+                bgShape.setColor(ApplozicService.getContext(context).getResources().getColor(AlphaNumberColorUtil.alphabetBackgroundColorMap.get(colorKey)));
             }
 
             alphabeticTextView.setVisibility(View.GONE);
             contactImage.setVisibility(View.VISIBLE);
             if (contact != null) {
                 if (contact.isDrawableResources()) {
-                    int drawableResourceId = context.getResources().getIdentifier(contact.getrDrawableName(), "drawable", context.getPackageName());
+                    int drawableResourceId = ApplozicService.getContext(context).getResources().getIdentifier(contact.getrDrawableName(), "drawable", ApplozicService.getContext(context).getPackageName());
                     contactImage.setImageResource(drawableResourceId);
                 } else {
                     contactImageLoader.loadImage(contact, contactImage, alphabeticTextView);
@@ -482,7 +477,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
             Message message = messageList.get(position);
             menu.setHeaderTitle(R.string.conversation_options);
 
-            String[] menuItems = context.getResources().getStringArray(R.array.conversation_options_menu);
+            String[] menuItems = ApplozicService.getContext(context).getResources().getStringArray(R.array.conversation_options_menu);
 
             boolean isUserPresentInGroup = false;
             boolean isChannelDeleted = false;
@@ -497,19 +492,19 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
 
             for (int i = 0; i < menuItems.length; i++) {
 
-                if ((message.getGroupId() == null || (channel != null && (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())))) && (menuItems[i].equals(context.getResources().getString(R.string.delete_group)) ||
-                        menuItems[i].equals(context.getResources().getString(R.string.exit_group)))) {
+                if ((message.getGroupId() == null || (channel != null && (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())))) && (menuItems[i].equals(Utils.getString(context, R.string.delete_group)) ||
+                        menuItems[i].equals(Utils.getString(context, R.string.exit_group)))) {
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
+                if (menuItems[i].equals(Utils.getString(context, R.string.exit_group)) && (isChannelDeleted || !isUserPresentInGroup || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.delete_group)) && (isUserPresentInGroup || !isChannelDeleted)) {
+                if (menuItems[i].equals(Utils.getString(context, R.string.delete_group)) && (isUserPresentInGroup || !isChannelDeleted)) {
                     continue;
                 }
-                if (menuItems[i].equals(context.getResources().getString(R.string.delete_conversation)) && !(alCustomizationSettings.isDeleteOption() || ApplozicSetting.getInstance(context).isDeleteConversationOption())) {
+                if (menuItems[i].equals(Utils.getString(context, R.string.delete_conversation)) && !(alCustomizationSettings.isDeleteOption() || ApplozicSetting.getInstance(context).isDeleteConversationOption())) {
                     continue;
                 }
 

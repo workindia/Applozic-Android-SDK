@@ -182,7 +182,7 @@ public class MobiComConversationService {
         }
 
         if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
-                (cachedMessageList.size() > 1 || wasServerCallDoneBefore(contact, channel, conversationId))
+                wasServerCallDoneBefore(contact, channel, conversationId)
                 || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
             Utils.printLog(context, TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
@@ -437,7 +437,7 @@ public class MobiComConversationService {
     }
 
     public String getServerSyncCallKey(Contact contact, Channel channel, Integer conversationId) {
-        return SERVER_SYNC.replace("[CONVERSATION]", conversationId != null ? String.valueOf(conversationId) : "")
+        return SERVER_SYNC.replace("[CONVERSATION]", (conversationId != null && conversationId != 0) ? String.valueOf(conversationId) : "")
                 .replace("[CONTACT]", contact != null ? contact.getContactIds() : "")
                 .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()) : "");
     }

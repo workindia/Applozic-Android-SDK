@@ -110,8 +110,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
     public ImageLoader contactImageLoader, loadImage;
     public String searchString;
-    AlCustomizationSettings alCustomizationSettings;
+    private AlCustomizationSettings alCustomizationSettings;
     private Context context;
+    private Context activityContext;
     private Contact contact;
     private Channel channel;
     private boolean individual;
@@ -120,19 +121,15 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private Drawable pendingIcon;
     private Drawable scheduledIcon;
     private ImageLoader imageThumbnailLoader;
-    private TextView downloadSizeTextView;
     private EmojiconHandler emojiconHandler;
     private FileClientService fileClientService;
     private MessageDatabaseService messageDatabaseService;
     private BaseContactService contactService;
-    private long deviceTimeOffset = 0;
     private Class<?> messageIntentClass;
     private List<Message> messageList;
     private List<Message> originalList;
     private MobiComConversationService conversationService;
     private ImageCache imageCache;
-    private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
-    private TextAppearanceSpan highlightTextSpan;
     private View view;
     private ContextMenuClickListener contextMenuClickListener;
     private ALStoragePermissionListener storagePermissionListener;
@@ -155,18 +152,18 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.storagePermissionListener = storagePermissionListener;
     }
 
-    public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
-        this(context, textViewResourceId, messageList, null, channel, messageIntentClass, emojiconHandler);
+    public DetailedConversationAdapter(final Context context, List<Message> messageList, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
+        this(context, messageList, null, channel, messageIntentClass, emojiconHandler);
     }
 
-    public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, Contact contact, Class messageIntentClass, EmojiconHandler emojiconHandler) {
-        this(context, textViewResourceId, messageList, contact, null, messageIntentClass, emojiconHandler);
+    public DetailedConversationAdapter(final Context context, List<Message> messageList, Contact contact, Class messageIntentClass, EmojiconHandler emojiconHandler) {
+        this(context, messageList, contact, null, messageIntentClass, emojiconHandler);
     }
 
-    public DetailedConversationAdapter(final Context context, int textViewResourceId, List<Message> messageList, final Contact contact, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
-        //super(context, textViewResourceId, messageList);
+    public DetailedConversationAdapter(final Context context, List<Message> messageList, final Contact contact, Channel channel, Class messageIntentClass, EmojiconHandler emojiconHandler) {
         this.messageIntentClass = messageIntentClass;
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
+        this.activityContext = context;
         this.contact = contact;
         this.channel = channel;
         this.emojiconHandler = emojiconHandler;
@@ -212,15 +209,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         deliveredIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
         pendingIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_pending);
         scheduledIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_schedule);
-        final String alphabet = context.getString(R.string.alphabet);
-        mAlphabetIndexer = new AlphabetIndexer(null, 1, alphabet);
-        highlightTextSpan = new TextAppearanceSpan(context, R.style.searchTextHiglight);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        deviceTimeOffset = MobiComUserPreference.getInstance(context).getDeviceTimeOffset();
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) activityContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (layoutInflater == null) {
             return null;
@@ -474,7 +467,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.replyRelativeLayout.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    ((OnClickReplyInterface) context).onClickOnMessageReply(msg);
+                                    ((OnClickReplyInterface) activityContext).onClickOnMessageReply(msg);
                                 }
                             });
                         }
@@ -514,12 +507,12 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.nameTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    Intent intent = new Intent(context, ConversationActivity.class);
+                                    Intent intent = new Intent(activityContext, ConversationActivity.class);
                                     intent.putExtra(ConversationUIService.USER_ID, message.getContactIds());
                                     if (message.getConversationId() != null) {
                                         intent.putExtra(ConversationUIService.CONVERSATION_ID, message.getConversationId());
                                     }
-                                    context.startActivity(intent);
+                                    activityContext.startActivity(intent);
                                 }
                             });
                         }
@@ -602,24 +595,24 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.contactImage.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Intent intent = new Intent(context, ConversationActivity.class);
+                                Intent intent = new Intent(activityContext, ConversationActivity.class);
                                 intent.putExtra(ConversationUIService.USER_ID, message.getContactIds());
                                 if (message.getConversationId() != null) {
                                     intent.putExtra(ConversationUIService.CONVERSATION_ID, message.getConversationId());
                                 }
-                                context.startActivity(intent);
+                                activityContext.startActivity(intent);
                             }
                         });
 
                         myHolder.alphabeticTextView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Intent intent = new Intent(context, ConversationActivity.class);
+                                Intent intent = new Intent(activityContext, ConversationActivity.class);
                                 intent.putExtra(ConversationUIService.USER_ID, message.getContactIds());
                                 if (message.getConversationId() != null) {
                                     intent.putExtra(ConversationUIService.CONVERSATION_ID, message.getConversationId());
                                 }
-                                context.startActivity(intent);
+                                activityContext.startActivity(intent);
                             }
                         });
                     }
@@ -936,7 +929,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 public void onClick(View v) {
                                     String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=" + LocationUtils.getLocationFromMessage(message.getMessage()));
                                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                                    context.startActivity(intent);
+                                    activityContext.startActivity(intent);
                                 }
                             });
                         } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
@@ -952,17 +945,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         } else {
                             myHolder.mapImageView.setVisibility(View.GONE);
                             myHolder.chatLocation.setVisibility(View.GONE);
-                            //myHolder.attachedFile.setVisibility(View.GONE);
-                            //myHolder.preview.setVisibility(View.GONE);
-                            myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(context, message.getMessage(), emojiconHandler));
-                        /*if (mimeType != null && myHolder.attachmentIcon != null) {
-                            myHolder.messageTextView.setVisibility(TextUtils.isEmpty(message.getMessage()) ? View.GONE : View.VISIBLE);
-                            if (mimeType.startsWith("image")) {
-                                myHolder.attachmentIcon.setImageResource(R.drawable.applozic_ic_action_camera);
-                            } else if (mimeType.startsWith("video")) {
-                                myHolder.attachmentIcon.setImageResource(R.drawable.applozic_ic_action_video);
-                            }
-                        }*/
+                            myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(activityContext, message.getMessage(), emojiconHandler));
                         }
 
                         if (myHolder.messageTextLayout != null) {
@@ -987,7 +970,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                     if (message.getMetadata() != null && "300".equals(message.getMetadata().get("contentType"))) {
                         myHolder.richMessageLayout.setVisibility(View.VISIBLE);
-                        new AlRichMessage(context, myHolder.richMessageContainer, myHolder.richMessageLayout, message, listener);
+                        new AlRichMessage(activityContext, myHolder.richMessageContainer, myHolder.richMessageLayout, message, listener);
                     } else {
                         myHolder.richMessageLayout.setVisibility(View.GONE);
                     }
@@ -1067,7 +1050,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
                         if (intent.resolveActivity(context.getPackageManager()) != null) {
                             intent.setDataAndType(outputUri, "text/x-vcard");
-                            context.startActivity(intent);
+                            activityContext.startActivity(intent);
                         } else {
                             Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
                         }
@@ -1086,7 +1069,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 }
                                 if (intent.resolveActivity(context.getPackageManager()) != null) {
                                     intent.setDataAndType(outputUri, "text/x-vcard");
-                                    context.startActivity(intent);
+                                    activityContext.startActivity(intent);
                                 } else {
                                     Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
                                 }
@@ -1201,7 +1184,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         if (intent.resolveActivity(context.getPackageManager()) != null) {
                             intent.setDataAndType(outputUri, mimeType);
-                            context.startActivity(intent);
+                            activityContext.startActivity(intent);
                         } else {
                             Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
                         }
@@ -1226,9 +1209,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             final String mimeType = FileUtils.getMimeType(smListItem.getFilePaths().get(0));
             if (mimeType != null) {
                 if (mimeType.startsWith("image")) {
-                    Intent intent = new Intent(context, FullScreenImageActivity.class);
+                    Intent intent = new Intent(activityContext, FullScreenImageActivity.class);
                     intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(smListItem, Message.class));
-                    ((MobiComKitActivityInterface) context).startActivityForResult(intent, MobiComKitActivityInterface.REQUEST_CODE_FULL_SCREEN_ACTION);
+                    ((MobiComKitActivityInterface) activityContext).startActivityForResult(intent, MobiComKitActivityInterface.REQUEST_CODE_FULL_SCREEN_ACTION);
                 }
                 if (mimeType.startsWith("video")) {
                     if (smListItem.isAttachmentDownloaded()) {
@@ -1243,7 +1226,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         intentVideo.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         if (intentVideo.resolveActivity(context.getPackageManager()) != null) {
                             intentVideo.setDataAndType(outputUri, "video/*");
-                            context.startActivity(intentVideo);
+                            activityContext.startActivity(intentVideo);
                         } else {
                             Toast.makeText(context, R.string.info_app_not_found_to_open_file, Toast.LENGTH_LONG).show();
                         }
@@ -1619,8 +1602,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     public void sendCallback(List<Message> messageList, int pos) {
         Message message = messageList.get(pos);
         if (message != null) {
-            if (context.getApplicationContext() instanceof ALProfileClickListener) {
-                ((ALProfileClickListener) context.getApplicationContext()).onClick(context, message.getTo(), channel, false);
+            if (context instanceof ALProfileClickListener) {
+                ((ALProfileClickListener) context).onClick(activityContext, message.getTo(), channel, false);
             }
         }
     }

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.conversation.database.ConversationDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ChannelFeed;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -31,7 +32,7 @@ public class ConversationService {
 
     public synchronized static ConversationService getInstance(Context context) {
         if (conversationService == null) {
-            conversationService = new ConversationService(context.getApplicationContext());
+            conversationService = new ConversationService(ApplozicService.getContext(context));
         }
         return conversationService;
     }

@@ -13,6 +13,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -39,7 +40,7 @@ public class SyncCallService {
     private MessageDatabaseService messageDatabaseService;
 
     private SyncCallService(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
         this.mobiComConversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
@@ -50,7 +51,7 @@ public class SyncCallService {
 
     public static SyncCallService getInstance(Context context) {
         if (syncCallService == null) {
-            syncCallService = new SyncCallService(context.getApplicationContext());
+            syncCallService = new SyncCallService(context);
         }
         return syncCallService;
     }
@@ -77,12 +78,12 @@ public class SyncCallService {
         return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt, searchString);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(String searchString,Integer parentGroupKey) {
-        return mobiComConversationService.getLatestMessagesGroupByPeople(null,searchString,parentGroupKey);
+    public synchronized List<Message> getLatestMessagesGroupByPeople(String searchString, Integer parentGroupKey) {
+        return mobiComConversationService.getLatestMessagesGroupByPeople(null, searchString, parentGroupKey);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt,String searchString,Integer parentGroupKey) {
-        return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt,searchString,parentGroupKey);
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
+        return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt, searchString, parentGroupKey);
     }
 
     public synchronized void syncMessages(String key) {
@@ -160,6 +161,11 @@ public class SyncCallService {
 
     public synchronized void deleteChannelConversationThread(String channelKey) {
         mobiComConversationService.deleteChannelConversationFromDevice(Integer.valueOf(channelKey));
+        refreshView = true;
+    }
+
+    public synchronized void deleteChannelConversationThread(Integer channelKey) {
+        mobiComConversationService.deleteChannelConversationFromDevice(channelKey);
         refreshView = true;
     }
 

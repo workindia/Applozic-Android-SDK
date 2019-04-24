@@ -1856,8 +1856,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (contact != null) {
-                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
-                        R.layout.mobicom_message_row_view, messageList, contact, messageIntentClass, emojiIconHandler);
+                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, contact, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
@@ -1897,8 +1896,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                 thread.start();
 
-                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(),
-                        R.layout.mobicom_message_row_view, messageList, channel, messageIntentClass, emojiIconHandler);
+                recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, channel, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);

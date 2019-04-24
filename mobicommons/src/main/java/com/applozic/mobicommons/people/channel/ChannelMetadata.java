@@ -22,6 +22,7 @@ public class ChannelMetadata extends JsonMarker {
     public final static String ALERT_METADATA_NOTIFICATION = "ALERT";
     public final static String MUTE = "MUTE";
     public final static String AL_CONTEXT_BASED_CHAT = "AL_CONTEXT_BASED_CHAT";
+    public static final String AL_CHANNEL_ACTION = "action";
 
     public static final String ADMIN_NAME = ":adminName";
     public static final String GROUP_NAME = ":groupName";
@@ -112,7 +113,7 @@ public class ChannelMetadata extends JsonMarker {
         this.hideMetaDataNotification = hideMetaDataNotification;
     }
 
-    private void buildEmptyMetadata(){
+    private void buildEmptyMetadata() {
         this.createGroupMessage = "";
         this.removeMemberMessage = "";
         this.addMemberMessage = "";
@@ -123,7 +124,7 @@ public class ChannelMetadata extends JsonMarker {
         this.deletedGroupMessage = "";
     }
 
-    public void hideAllMetadataMessages(){
+    public void hideAllMetadataMessages() {
         buildEmptyMetadata();
         this.hideMetaDataNotification = true;
         this.alertMetaDataNotfication = false;
@@ -134,7 +135,7 @@ public class ChannelMetadata extends JsonMarker {
     }
 
     public void setAlertMetaDataNotfication(boolean alertMetaDataNotfication) {
-        if(!alertMetaDataNotfication) {
+        if (!alertMetaDataNotfication) {
             buildEmptyMetadata();
         }
         this.alertMetaDataNotfication = alertMetaDataNotfication;
@@ -148,7 +149,7 @@ public class ChannelMetadata extends JsonMarker {
         this.defaultMute = defaultMute;
     }
 
-    public Map<String,String> getMetadata() {
+    public Map<String, String> getMetadata() {
         Map<String, String> metadata = new HashMap<>();
         metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, this.getCreateGroupMessage());
         metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, this.getAddMemberMessage());
@@ -159,11 +160,11 @@ public class ChannelMetadata extends JsonMarker {
         metadata.put(ChannelMetadata.DELETED_GROUP_MESSAGE, this.getDeletedGroupMessage());
         metadata.put(ChannelMetadata.REMOVE_MEMBER_MESSAGE, this.getRemoveMemberMessage());
         metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.isHideMetaDataNotification() + "");
-        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.isAlertMetaDataNotfication()+"");
-        metadata.put(ChannelMetadata.MUTE, this.isDefaultMute()+"");
+        metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.isAlertMetaDataNotfication() + "");
+        metadata.put(ChannelMetadata.MUTE, this.isDefaultMute() + "");
         return metadata;
     }
-  
+
     public boolean isContextBasedChat() {
         return contextBasedChat;
     }

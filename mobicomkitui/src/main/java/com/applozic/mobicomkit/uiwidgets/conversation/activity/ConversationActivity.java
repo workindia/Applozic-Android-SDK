@@ -383,13 +383,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         contactsGroupId = MobiComUserPreference.getInstance(this).getContactsGroupId();
         serviceDisconnectionLayout = findViewById(R.id.serviceDisconnectionLayout);
 
-        if (Utils.isDebugBuild(this) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
+        if (!Utils.isDebugBuild(this) && ALSpecificSettings.getInstance(this).isLoggingEnabledForReleaseBuild()) {
             showLogWarningForReleaseBuild();
         }
 
         if (Utils.hasMarshmallow() && (!alCustomizationSettings.isGlobalStoagePermissionDisabled() || ALSpecificSettings.getInstance(this).isTextLoggingEnabled())) {
             applozicPermission.checkRuntimePermissionForStorage();
         }
+
         mActionBar = getSupportActionBar();
         if (!TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimary()) && !TextUtils.isEmpty(alCustomizationSettings.getThemeColorPrimaryDark())) {
             mActionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(alCustomizationSettings.getThemeColorPrimary())));
@@ -1381,9 +1382,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        isActivityDestroyed = true;
         try {
+            super.onDestroy();
+            isActivityDestroyed = true;
+
             if (mobiComKitBroadcastReceiver != null) {
                 LocalBroadcastManager.getInstance(this).unregisterReceiver(mobiComKitBroadcastReceiver);
             }

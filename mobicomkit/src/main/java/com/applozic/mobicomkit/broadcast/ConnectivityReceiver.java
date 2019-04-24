@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -46,12 +47,15 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                 return;
             }
             ConnectivityManager cm = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
-            if (cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected()) {
-                if (firstConnect) {
-                    firstConnect = false;
-                    Intent connectivityIntent = new Intent(context, ApplozicIntentService.class);
-                    connectivityIntent.putExtra(ApplozicIntentService.AL_SYNC_ON_CONNECTIVITY, true);
-                    ApplozicIntentService.enqueueWork(context, connectivityIntent);
+            if (cm != null) {
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    if (firstConnect) {
+                        firstConnect = false;
+                        Intent connectivityIntent = new Intent(context, ApplozicIntentService.class);
+                        connectivityIntent.putExtra(ApplozicIntentService.AL_SYNC_ON_CONNECTIVITY, true);
+                        ApplozicIntentService.enqueueWork(context, connectivityIntent);
+                    }
                 }
             }
         }

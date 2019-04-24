@@ -8,18 +8,15 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.applozic.mobicomkit.Applozic;
-import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
-import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.ArrayList;
@@ -310,6 +307,10 @@ MobiComPushReceiver {
 
                 if (!TextUtils.isEmpty(messageObj.getKeyString())) {
                     syncCallService.syncMessages(messageObj.getKeyString());
+                    if (messageObj.getGroupId() != null && messageObj.isGroupDeleteAction()) {
+                        syncCallService.deleteChannelConversationThread(messageObj.getGroupId());
+                        BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), null, messageObj.getGroupId(), "success");
+                    }
                 } else {
                     syncCallService.syncMessages(null);
                 }

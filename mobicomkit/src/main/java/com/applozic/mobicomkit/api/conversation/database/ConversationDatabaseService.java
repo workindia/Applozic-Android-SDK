@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.Conversation;
@@ -26,13 +27,13 @@ public class ConversationDatabaseService {
     private Context context;
 
     private ConversationDatabaseService(Context context) {
-        this.context = context;
+        this.context = ApplozicService.getContext(context);
         this.dbHelper = MobiComDatabaseHelper.getInstance(context);
     }
 
     public static synchronized ConversationDatabaseService getInstance(Context context) {
         if (conversationDatabaseService == null) {
-            conversationDatabaseService = new ConversationDatabaseService(context.getApplicationContext());
+            conversationDatabaseService = new ConversationDatabaseService(ApplozicService.getContext(context));
         }
         return conversationDatabaseService;
     }
