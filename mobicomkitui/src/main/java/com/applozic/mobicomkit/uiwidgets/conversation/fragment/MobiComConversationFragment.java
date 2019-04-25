@@ -3696,6 +3696,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         ApplozicAudioManager.getInstance(getContext()).audiostop();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(getActivity() != null){
+            ((CustomToolbarListener) getActivity()).hideSubtitleAndProfilePic();
+        }
+    }
+
     public ViewGroup.LayoutParams getImageLayoutParam(boolean outBoxType) {
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
