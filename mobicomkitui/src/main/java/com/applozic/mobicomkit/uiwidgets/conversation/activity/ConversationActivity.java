@@ -520,17 +520,19 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     private void animateToolbarTitle() {
-        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
-        animation.setDuration(0);
-        animation.start();
+        if(toolbarTitle != null){
+            ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
+            animation.setDuration(0);
+            animation.start();
+        }
     }
 
     @Override
     public void setToolbarTitle(String title) {
-        toolbarSubtitle.setVisibility(View.GONE);
-        conversationContactPhoto.setVisibility(View.GONE);
         toolbarTitle.setText(title);
-        animateToolbarTitle();
+        if(toolbarSubtitle != null && toolbarSubtitle.getVisibility() == View.GONE){
+            animateToolbarTitle();
+        }
     }
 
     @Override
@@ -1431,6 +1433,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         protected Void doInBackground(Boolean... parms) {
             messageService.syncMessages();
             return null;
+        }
+    }
+
+    @Override
+    public void hideSubtitleAndProfilePic() {
+        animateToolbarTitle();
+        if(toolbarSubtitle != null){
+            toolbarSubtitle.setVisibility(View.GONE);
+        }
+        if(conversationContactPhoto != null) {
+            conversationContactPhoto.setVisibility(View.GONE);
         }
     }
 

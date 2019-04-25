@@ -11,4 +11,6 @@ public interface CustomToolbarListener {
 
     void setToolbarImage(Contact contact, Channel channel);
 
+    void hideSubtitleAndProfilePic();
+
 }
