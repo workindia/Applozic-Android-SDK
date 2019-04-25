@@ -824,10 +824,10 @@ public class ChannelService {
     }
 
     public void getChannelByChannelKeyAsync(Integer groupId, AlChannelListener channelListener) {
-        new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, channelDatabaseService).execute();
+        new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, this).execute();
     }
 
     public void getChannelByClientKeyAsync(String clientChannelKey, AlChannelListener channelListener) {
-        new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, channelDatabaseService).execute();
+        new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, this).execute();
     }
 }

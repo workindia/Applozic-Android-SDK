@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
-import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.channel.service.ChannelService;
+import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -17,26 +17,27 @@ public class AlGetPeopleTask extends AsyncTask<Void, Object, Object> {
     private Integer groupId;
     private AlChannelListener channelListener;
     private AlContactListener contactListener;
-    private ContactDatabase contactDatabase;
-    private ChannelDatabaseService channelDatabaseService;
+    private ChannelService channelService;
+    private AppContactService appContactService;
 
-    public AlGetPeopleTask(Context context, String userId, String clientChannelKey, Integer channelKey, AlChannelListener channelListener, AlContactListener contactListener, ContactDatabase contactDatabase, ChannelDatabaseService channelDatabaseService) {
+    public AlGetPeopleTask(Context context, String userId, String clientChannelKey, Integer channelKey, AlChannelListener channelListener, AlContactListener contactListener, AppContactService appContactService, ChannelService channelService) {
         this.userId = userId;
         this.clientChannelKey = clientChannelKey;
         this.groupId = channelKey;
         this.channelListener = channelListener;
         this.contactListener = contactListener;
+        this.appContactService = appContactService;
 
-        if (contactDatabase == null) {
-            this.contactDatabase = new ContactDatabase(context);
+        if (appContactService == null) {
+            this.appContactService = new AppContactService(context);
         } else {
-            this.contactDatabase = contactDatabase;
+            this.appContactService = appContactService;
         }
 
-        if (channelDatabaseService == null) {
-            this.channelDatabaseService = ChannelDatabaseService.getInstance(context);
+        if (channelService == null) {
+            this.channelService = ChannelService.getInstance(context);
         } else {
-            this.channelDatabaseService = channelDatabaseService;
+            this.channelService = channelService;
         }
     }
 
@@ -45,15 +46,15 @@ public class AlGetPeopleTask extends AsyncTask<Void, Object, Object> {
     protected Object doInBackground(Void... voids) {
         try {
             if (!TextUtils.isEmpty(userId)) {
-                return contactDatabase.getContactById(userId);
+                return appContactService.getContactById(userId);
             }
 
             if (!TextUtils.isEmpty(clientChannelKey)) {
-                return channelDatabaseService.getChannelByClientGroupId(clientChannelKey);
+                return channelService.getChannelByClientGroupId(clientChannelKey);
             }
 
             if (groupId != null && groupId > 0) {
-                return channelDatabaseService.getChannelByChannelKey(groupId);
+                return channelService.getChannelByChannelKey(groupId);
             }
         } catch (Exception e) {
             e.printStackTrace();
