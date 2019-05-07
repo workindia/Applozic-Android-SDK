@@ -669,7 +669,7 @@ public class MessageDatabaseService {
             }
             dbHelper.close();
         } catch (Throwable t) {
-
+            t.printStackTrace();
         }
     }
 
