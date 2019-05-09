@@ -1,15 +1,11 @@
 package com.applozic.mobicomkit.uiwidgets.attachmentview;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
@@ -29,6 +25,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -89,20 +86,6 @@ public class ApplozicDocumentView {
         ImageView cancelIcon = (ImageView) rootview.findViewById(R.id.download_calcle_icon);
         audioseekbar = (SeekBar) rootview.findViewById(R.id.applozic_audio_seekbar);
         audio_duration_textView = (TextView) rootview.findViewById(R.id.audio_duration_textView);
-
-        //progressBar.setVisibility(GONE);
-        //previewLayout.setVisibility(GONE);
-        //sizeTextView.setVisibility(GONE);
-        //downloadInProgressLayout.setVisibility(GONE);
-        //retryLayout.setVisibility(GONE);
-        //downloadedLayout.setVisibility(GONE);
-        //previewLayout.setVisibility(GONE);
-        //fileText.setVisibility(GONE);
-        //uploadDownloadImage.setVisibility(GONE);
-        //docIcon.setVisibility(GONE);
-        //cancelIcon.setVisibility(GONE);
-        //audioseekbar.setVisibility(GONE);
-        //audio_duration_textView.setVisibility(GONE);
 
         if (!message.hasAttachment()) {
             return;
@@ -392,13 +375,22 @@ public class ApplozicDocumentView {
     }
 
     public void setAudioIcons() {
-        int state = ApplozicAudioManager.getInstance(context).getAudioState(message.getKeyString());
-        Utils.printLog(context, "state:", String.valueOf(state));
-        docIcon.setVisibility(View.VISIBLE);
-        if (state == 1) {
-            docIcon.setImageResource(R.drawable.ic_pause_circle_outline);
-        } else {
-            docIcon.setImageResource(R.drawable.ic_play_circle_outline);
+        if (context instanceof ConversationActivity) {
+            ((ConversationActivity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (message != null && docIcon != null) {
+                        int state = ApplozicAudioManager.getInstance(context).getAudioState(message.getKeyString());
+                        Utils.printLog(context, "state:", String.valueOf(state));
+                        docIcon.setVisibility(View.VISIBLE);
+                        if (state == 1) {
+                            docIcon.setImageResource(R.drawable.ic_pause_circle_outline);
+                        } else {
+                            docIcon.setImageResource(R.drawable.ic_play_circle_outline);
+                        }
+                    }
+                }
+            });
         }
     }
 
