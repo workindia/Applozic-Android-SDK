@@ -446,23 +446,27 @@ MobiComPushReceiver {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
     }
 
     public static void processMessageAsync(final Context context, final Bundle bundle) {
-        if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
+        try {
+            if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    processMessage(context, bundle);
-                }
-            });
-            t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            t.start();
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        processMessage(context, bundle);
+                    }
+                });
+                t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                t.start();
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
@@ -471,16 +475,20 @@ MobiComPushReceiver {
     }
 
     public static void processMessageAsync(final Context context, final Map<String, String> data) {
-        if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
+        try {
+            if (MobiComUserPreference.getInstance(context).isLoggedIn()) {
 
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    processMessage(context, data);
-                }
-            });
-            t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-            t.start();
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        processMessage(context, data);
+                    }
+                });
+                t.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                t.start();
+            }
+        } catch (Throwable w) {
+            w.printStackTrace();
         }
     }
 
