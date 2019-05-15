@@ -186,7 +186,7 @@ public class Applozic {
             Contact contact = new ContactDatabase(context).getContactById(MobiComUserPreference.getInstance(context).getUserId());
             if (contact != null) {
                 registrationResponse.setUserId(contact.getUserId());
-                registrationResponse.setContactNumber(contact.getUserId());
+                registrationResponse.setContactNumber(contact.getContactNumber());
                 registrationResponse.setRoleType(contact.getRoleType());
                 registrationResponse.setImageLink(contact.getImageURL());
                 registrationResponse.setDisplayName(contact.getDisplayName());
