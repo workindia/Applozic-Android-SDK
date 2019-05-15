@@ -21,4 +21,9 @@ public class AlLinearLayoutManager extends LinearLayoutManager {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean supportsPredictiveItemAnimations() {
+        return false;
+    }
 }
