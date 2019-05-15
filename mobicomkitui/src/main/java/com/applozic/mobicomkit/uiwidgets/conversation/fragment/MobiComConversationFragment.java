@@ -117,7 +117,7 @@ import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.AlBitmapUtils;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicAudioManager;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicAudioRecordManager;
-import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicDocumentView;
+import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -136,7 +136,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlHotelBookingModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.payment.PaymentActivity;
-import com.applozic.mobicomkit.uiwidgets.instruction.InstructionUtil;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
@@ -269,7 +268,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     boolean longPress;
     boolean isToastVisible = false;
     int seconds = 0, minutes = 0;
-    ApplozicDocumentView applozicDocumentView;
     ImageView slideImageView;
     private EmojiconHandler emojiIconHandler;
     private Bitmap previewThumbnail;
@@ -321,7 +319,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
-        //applozicDocumentView = new ApplozicDocumentView(getContext());
         restrictedWords = FileUtils.loadRestrictedWordsFile(getContext());
         conversationUIService = new ConversationUIService(getActivity());
         syncCallService = SyncCallService.getInstance(getActivity());
@@ -356,12 +353,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                              Bundle savedInstanceState) {
         final View list = inflater.inflate(R.layout.mobicom_message_list, container, false);
         recyclerView = (RecyclerView) list.findViewById(R.id.messageList);
-        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager = new AlLinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerViewPositionHelper = new RecyclerViewPositionHelper(recyclerView, linearLayoutManager);
         ((ConversationActivity) getActivity()).setChildFragmentLayoutBGToTransparent();
-        //listView.setDivider(null);
         messageList = new ArrayList<Message>();
         multimediaPopupGrid = (GridView) list.findViewById(R.id.mobicom_multimedia_options1);
 
@@ -714,18 +710,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
         });
-
-        messageEditText.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    Utils.toggleSoftKeyBoard(getActivity(), true);
-                    return true;
-                }
-                return false;
-            }
-        });
-
 
         recordButton.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -3699,7 +3683,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(getActivity() != null){
+        if (getActivity() != null) {
             ((CustomToolbarListener) getActivity()).hideSubtitleAndProfilePic();
         }
     }

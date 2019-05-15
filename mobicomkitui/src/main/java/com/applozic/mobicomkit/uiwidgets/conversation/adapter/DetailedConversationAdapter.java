@@ -18,7 +18,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -28,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AlphabetIndexer;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -82,7 +80,6 @@ import com.applozic.mobicommons.emoticon.EmoticonUtils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.bumptech.glide.Glide;
 
@@ -97,7 +94,6 @@ import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 /**
  * Created by adarsh on 4/7/15.
@@ -621,7 +617,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         loadContactImage(receiverContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
                     }
 
-                    ApplozicDocumentView audioView = new ApplozicDocumentView(this.context, storagePermissionListener);
+                    ApplozicDocumentView audioView = new ApplozicDocumentView(activityContext, storagePermissionListener);
                     audioView.inflateViewWithMessage(myHolder.view, message);
                     audioView.hideView(true);
 

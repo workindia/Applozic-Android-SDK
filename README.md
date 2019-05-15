@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.44' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.45' `
 
 
 Add the following in gradle android target:      
@@ -59,9 +59,6 @@ android {
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
            
-<meta-data android:name="main_folder_name"
-           android:value="@string/default_media_location_folder" /> <!-- Attachment Folder Name -->
-           
 <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="YOUR_GEO_API_KEY" />  <!--Replace with your geo api key from google developer console  --> 
 <!-- For testing purpose use AIzaSyAYB1vPc4cpn_FJv68eS_ZGe1UasBNwxLI
@@ -87,7 +84,8 @@ Paste the following in your androidmanifest.xml:
            android:label="@string/app_name"
            android:parentActivityName="<APP_PARENT_ACTIVITY>"
            android:theme="@style/ApplozicTheme"
-           android:launchMode="singleTask" >
+           android:launchMode="singleTask"
+           tools:node="replace">
       <!-- Parent activity meta-data to support API level 7+ -->
 <meta-data
            android:name="android.support.PARENT_ACTIVITY"

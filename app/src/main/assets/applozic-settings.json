@@ -26,6 +26,7 @@
   "groupDeleteButtonBackgroundColor": "#FF03A9F4",
   "groupExitButtonBackgroundColor": "#FF03A9F4",
   "adminTextColor": "#FF03A9F4",
+  "messageSearchOption": false,
   "attachCameraIconName": "applozic_ic_action_camera_new",
   "adminBackgroundColor": "#FFFFFFFF",
   "adminBorderColor": "#FF03A9F4",
@@ -79,7 +80,7 @@
   "messageSearchTextColor": "#ff0000",
   "notificationDisableThreshold": 10,
   "hideGroupDeleteButton": false,
-  "showImageOnToolbar":false,
+  "showImageOnToolbar": false,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

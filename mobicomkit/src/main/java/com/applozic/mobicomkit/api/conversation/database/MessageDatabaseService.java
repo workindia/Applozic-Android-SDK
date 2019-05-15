@@ -613,7 +613,8 @@ public class MessageDatabaseService {
                 }
             }
             id = database.insertOrThrow("sms", null, values);
-        } catch (SQLException ex) {
+        } catch (Throwable ex) {
+            ex.printStackTrace();
             Utils.printLog(context, TAG, " Ignore Duplicate entry in sms table, sms: " + message);
         } finally {
             dbHelper.close();

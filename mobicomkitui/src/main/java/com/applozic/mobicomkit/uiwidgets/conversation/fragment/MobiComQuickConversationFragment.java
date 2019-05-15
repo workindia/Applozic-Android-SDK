@@ -40,7 +40,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.DividerItemDecoration;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.QuickConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ALSpecificSettings;
@@ -67,7 +66,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     protected RecyclerView recyclerView = null;
     protected ImageButton fabButton;
     protected TextView emptyTextView;
-    protected Button startNewButton;
     protected SwipeRefreshLayout swipeLayout;
     protected int listIndex;
     protected Map<String, Message> latestMessageForEachContact = new HashMap<String, Message>();
@@ -83,15 +81,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private BaseContactService baseContactService;
     private Toolbar toolbar;
     private MessageDatabaseService messageDatabaseService;
-    private int visibleThreshold = 5;
-    private int currentPage = 0;
     private int previousTotalItemCount = 0;
     private boolean loading = true;
-    private int startingPageIndex = 0;
-    private ProgressBar progressBar;
-    RecyclerViewPositionHelper recyclerViewPositionHelper;
-    AlLinearLayoutManager linearLayoutManager;
-    int position;
+    private AlLinearLayoutManager linearLayoutManager;
     boolean isAlreadyLoading = false;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
 
@@ -137,7 +129,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             messageList.add(null);
         }
         recyclerAdapter = new QuickConversationAdapter(getContext(), messageList, null);
-        //recyclerAdapter.setRecyclerView(recyclerView);
         recyclerAdapter.setAlCustomizationSettings(alCustomizationSettings);
 
         linearLayoutManager = new AlLinearLayoutManager(getContext());
@@ -147,7 +138,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setAdapter(recyclerAdapter);
-        //recyclerView.addItemDecoration(new FooterItemDecoration(getContext(), recyclerView, R.layout.mobicom_message_list_header_footer));
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
@@ -158,23 +148,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         individualMessageSendLayout.setVisibility(View.GONE);
         extendedSendingOptionLayout.setVisibility(View.GONE);
 
-        //setLoadingProgressBar();
-
-        //View spinnerLayout = inflater.inflate(R.layout.mobicom_message_list_header_footer, null);
-        //progressBar = (ProgressBar) spinnerLayout.findViewById(R.id.load_more_progressbar);
-        //recyclerView.addFooterView(spinnerLayout);
-        //linearLayoutManager.addView(spinnerLayout);
-
-        View view = recyclerView.getChildAt(messageList.size());
-        if (view != null) {
-            progressBar = view.findViewById(R.id.load_more_progressbar);
-        }
-
-        //spinner = (ProgressBar) spinnerLayout.findViewById(R.id.spinner);
         emptyTextView = (TextView) list.findViewById(R.id.noConversations);
         emptyTextView.setTextColor(Color.parseColor(alCustomizationSettings.getNoConversationLabelTextColor().trim()));
-
-        //startNewButton = (Button) spinnerLayout.findViewById(R.id.start_new_conversation);
 
         fabButton.setVisibility(alCustomizationSettings.isStartNewFloatingButton() ? View.VISIBLE : View.GONE);
 
@@ -264,11 +239,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 }
                 messageList.add(0, message);
                 recyclerAdapter.notifyDataSetChanged();
-                //listView.smoothScrollToPosition(messageList.size());
-                //listView.setSelection(0);
                 emptyTextView.setVisibility(View.GONE);
                 emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : getResources().getString(R.string.no_conversation));
-                // startQNewButton.setVisibility(View.GONE);
             }
         });
     }
@@ -491,10 +463,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
             emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : ApplozicService.getContext(getContext()).getResources().getString(R.string.no_conversation));
-            //startNewButton.setVisibility(applozicSetting.isStartNewButtonVisible() ? View.VISIBLE : View.GONE);
         } else {
             emptyTextView.setVisibility(View.GONE);
-            // startNewButton.setVisibility(View.GONE);
         }
     }
 
@@ -526,8 +496,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         if (recyclerView != null) {
             if (recyclerView.getChildCount() > listIndex) {
                 recyclerView.scrollToPosition(listIndex);
-            } else {
-                //recyclerView.scrollToPosition(0);
             }
         }
         if (!isAlreadyLoading) {
@@ -578,7 +546,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                                 loading = false;
                             }
                             previousTotalItemCount = totalItemCount;
-                            currentPage++;
                         }
                     }
 

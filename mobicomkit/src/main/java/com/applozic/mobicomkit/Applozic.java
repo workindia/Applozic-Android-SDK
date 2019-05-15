@@ -18,6 +18,7 @@ import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.broadcast.ApplozicBroadcastReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.listners.AlLoginHandler;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
@@ -179,17 +180,26 @@ public class Applozic {
     }
 
     public static void connectUser(Context context, User user, AlLoginHandler loginHandler) {
-        new UserLoginTask(user, loginHandler, context).execute();
-    }
-
-    public static void connectUserWithCheck(Context context, User user, AlLoginHandler loginHandler) {
         if (isConnected(context)) {
             RegistrationResponse registrationResponse = new RegistrationResponse();
             registrationResponse.setMessage("User already Logged in");
+            Contact contact = new ContactDatabase(context).getContactById(MobiComUserPreference.getInstance(context).getUserId());
+            if (contact != null) {
+                registrationResponse.setUserId(contact.getUserId());
+                registrationResponse.setContactNumber(contact.getContactNumber());
+                registrationResponse.setRoleType(contact.getRoleType());
+                registrationResponse.setImageLink(contact.getImageURL());
+                registrationResponse.setDisplayName(contact.getDisplayName());
+                registrationResponse.setStatusMessage(contact.getStatus());
+            }
             loginHandler.onSuccess(registrationResponse, context);
         } else {
             new UserLoginTask(user, loginHandler, context).execute();
         }
+    }
+
+    public static void connectUserWithoutCheck(Context context, User user, AlLoginHandler loginHandler) {
+        new UserLoginTask(user, loginHandler, context).execute();
     }
 
     public static boolean isConnected(Context context) {
