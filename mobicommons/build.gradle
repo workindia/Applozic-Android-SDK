@@ -16,7 +16,7 @@ android {
         minSdkVersion 14
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.45"
+        versionName "5.46"
     }
     buildTypes {
         release {
@@ -37,7 +37,6 @@ dependencies {
     api "com.google.code.gson:gson:${rootProject.hasProperty("googleGsonVersion") ? rootProject.googleGsonVersion : defaultGoogleGsonVersion}"
 }
 
-
 /*ext {
     // Where you will see your artifact in Bintray's web interface
     // The "bintrayName" should match the name of the Bintray repro.
@@ -52,7 +51,7 @@ dependencies {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '5.45'
+    libraryVersion = '5.46'
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'

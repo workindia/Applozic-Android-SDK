@@ -18,8 +18,6 @@ public class ApplozicSampleApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        //ApplozicService.initApp(this);
-
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
