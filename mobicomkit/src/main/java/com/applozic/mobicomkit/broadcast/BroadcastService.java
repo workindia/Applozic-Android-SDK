@@ -14,6 +14,8 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.ApplozicUIListener;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -25,13 +27,11 @@ import com.applozic.mobicommons.people.contact.Contact;
 public class BroadcastService {
 
     private static final String TAG = "BroadcastService";
-    private static final String PACKAGE_NAME = "com.package.name";
     private static final String MOBICOMKIT_ALL = "MOBICOMKIT_ALL";
 
     public static String currentUserId = null;
     public static Integer parentGroupKey = null;
     public static Integer currentConversationId = null;
-    public static boolean mobiTexterBroadcastReceiverActivated;
     public static String currentInfoId = null;
     public static boolean videoCallAcitivityOpend = false;
     public static boolean callRinging = false;
@@ -63,20 +63,15 @@ public class BroadcastService {
         return contextBasedChatEnabled = contextBasedChat;
     }
 
-    public static void sendFirstTimeSyncCompletedBroadcast(Context context) {
-        Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString() + " broadcast");
-        Intent intent = new Intent();
-        intent.setAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intent);
-    }
-
     public static void sendLoadMoreBroadcast(Context context, boolean loadMore) {
         Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.LOAD_MORE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("loadMore", loadMore);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onLoadMore(loadMore);
+        }
         sendBroadcast(context, intent);
     }
 
@@ -86,6 +81,13 @@ public class BroadcastService {
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(MobiComKitConstants.CONTACT_ID, contactId);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            if (INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onAllMessagesRead(contactId);
+            } else if (INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onAllMessagesDelivered(contactId);
+            }
+        }
         sendBroadcast(context, intentUpdate);
     }
 
@@ -99,6 +101,19 @@ public class BroadcastService {
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            if (!message.isSentToMany() && !message.isTypeOutbox()) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageReceived(message);
+            }
+
+            if (INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageSent(message);
+            } else if (INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageSync(message, message.getKeyString());
+            } else if (INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action) || INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageDelivered(message, message.getContactIds());
+            }
+        }
         sendBroadcast(context, intentUpdate);
     }
 
@@ -109,6 +124,9 @@ public class BroadcastService {
         intentDelete.putExtra("keyString", keyString);
         intentDelete.putExtra("contactNumbers", contactNumbers);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageDeleted(keyString, contactNumbers);
+        }
         sendBroadcast(context, intentDelete);
     }
 
@@ -120,6 +138,9 @@ public class BroadcastService {
         intentDelete.putExtra("contactNumber", contactNumber);
         intentDelete.putExtra("response", response);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onConversationDeleted(contactNumber, channelKey, response);
+        }
         sendBroadcast(context, intentDelete);
     }
 
@@ -160,6 +181,9 @@ public class BroadcastService {
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onUpdateLastSeen(contactId);
+        }
         sendBroadcast(context, intent);
     }
 
@@ -171,16 +195,32 @@ public class BroadcastService {
         intentTyping.putExtra("userId", userId);
         intentTyping.putExtra("isTyping", isTyping);
         intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onUpdateTypingStatus(userId, isTyping);
+        }
         sendBroadcast(context, intentTyping);
     }
 
 
-    public static void sendUpdate(Context context, boolean isMetadataUpdate, String action) {
+    public static void sendUpdate(Context context, boolean isMetadataUpdate, final String action) {
         Utils.printLog(context, TAG, action);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("isMetadataUpdate", isMetadataUpdate);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            if (INTENT_ACTIONS.MQTT_CONNECTED.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMqttConnected();
+            } else if (INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onMqttDisconnected();
+            } else if (INTENT_ACTIONS.USER_ONLINE.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onUserOnline();
+            } else if (INTENT_ACTIONS.USER_OFFLINE.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onUserOffline();
+            } else if (INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
+                ((ApplozicUIListener) ApplozicService.getContext(context)).onChannelUpdated();
+            }
+        }
         sendBroadcast(context, intent);
     }
 
@@ -194,6 +234,9 @@ public class BroadcastService {
         intent.setAction(action);
         intent.putExtra("keyString", messageKey);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageMetadataUpdated(messageKey);
+        }
         sendBroadcast(context, intent);
     }
 
@@ -205,6 +248,9 @@ public class BroadcastService {
         intent.putExtra("currentId", currentId);
         intent.putExtra("isGroup", isGroup);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onConversationRead(currentId, isGroup);
+        }
         sendBroadcast(context, intent);
     }
 
@@ -215,6 +261,9 @@ public class BroadcastService {
         intent.putExtra("mute", mute);
         intent.putExtra("userId", userId);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onUserMute(mute, userId);
+        }
         sendBroadcast(context, intent);
     }
 
@@ -223,6 +272,9 @@ public class BroadcastService {
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
+        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
+            ((ApplozicUIListener) ApplozicService.getContext(context)).onUserDetailUpdated(contactId);
+        }
         sendBroadcast(context, intent);
     }
 

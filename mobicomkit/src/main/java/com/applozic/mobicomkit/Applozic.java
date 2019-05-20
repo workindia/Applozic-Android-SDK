@@ -243,7 +243,7 @@ public class Applozic {
 
 
     public void registerUIListener(ApplozicUIListener applozicUIListener) {
-        applozicBroadcastReceiver = new ApplozicBroadcastReceiver(context, applozicUIListener);
+        applozicBroadcastReceiver = new ApplozicBroadcastReceiver(applozicUIListener);
         LocalBroadcastManager.getInstance(context).registerReceiver(applozicBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 

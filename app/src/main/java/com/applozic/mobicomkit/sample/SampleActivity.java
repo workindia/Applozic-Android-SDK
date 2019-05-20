@@ -242,4 +242,9 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
             conversationFragment.notifyAdapter();
         }
     }
+
+    @Override
+    public void onUserMute(boolean mute, String userId) {
+
+    }
 }
