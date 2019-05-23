@@ -1108,6 +1108,7 @@ public class MessageDatabaseService {
                     "where m.hidden = 0 AND m.deleted = 0 AND m.messageContentType not in (11,102) AND m.type not in (6, 7) AND m.channelKey = 0 " +
                     "group by m.contactNumbers " +
                     ") temp " +
+                    (lastFetchTime != null && lastFetchTime > 0 ? " where temp.maxCreatedAt < " + lastFetchTime : "") +
                     " ORDER BY temp.maxCreatedAt DESC";
 
             cursor = db.rawQuery(rowQuery, null);
