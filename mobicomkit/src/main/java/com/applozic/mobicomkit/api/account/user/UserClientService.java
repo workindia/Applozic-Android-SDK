@@ -197,28 +197,26 @@ public class UserClientService extends MobiComKitClientService {
     public ApiResponse logout(boolean fromLogin) {
         Utils.printLog(context, TAG, "Al Logout call !!");
         ApiResponse apiResponse = userLogoutResponse();
-        if (apiResponse != null && apiResponse.isSuccess()) {
-            MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-            final String deviceKeyString = mobiComUserPreference.getDeviceKeyString();
-            final String userKeyString = mobiComUserPreference.getSuUserKeyString();
-            String url = mobiComUserPreference.getUrl();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Applozic.getInstance(context).setCustomNotificationSound(null);
-                new NotificationChannels(context, null).deleteAllChannels();
-            }
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancelAll();
-            mobiComUserPreference.clearAll();
-            ALSpecificSettings.getInstance(context).clearAll();
-            MessageDatabaseService.recentlyAddedMessage.clear();
-            MobiComDatabaseHelper.getInstance(context).delDatabase();
-            mobiComUserPreference.setUrl(url);
-            if (!fromLogin) {
-                Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-                intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
-                intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-                ApplozicMqttIntentService.enqueueWork(context, intent);
-            }
+        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
+        final String deviceKeyString = mobiComUserPreference.getDeviceKeyString();
+        final String userKeyString = mobiComUserPreference.getSuUserKeyString();
+        String url = mobiComUserPreference.getUrl();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Applozic.getInstance(context).setCustomNotificationSound(null);
+            new NotificationChannels(context, null).deleteAllChannels();
+        }
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+        mobiComUserPreference.clearAll();
+        ALSpecificSettings.getInstance(context).clearAll();
+        MessageDatabaseService.recentlyAddedMessage.clear();
+        MobiComDatabaseHelper.getInstance(context).delDatabase();
+        mobiComUserPreference.setUrl(url);
+        if (!fromLogin) {
+            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
+            intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
+            intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
+            ApplozicMqttIntentService.enqueueWork(context, intent);
         }
         return apiResponse;
     }

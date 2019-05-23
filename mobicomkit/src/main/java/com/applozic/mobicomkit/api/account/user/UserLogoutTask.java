@@ -30,10 +30,9 @@ public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        ApiResponse apiResponse = null;
         try {
-            apiResponse = userClientService.logout();
-            return apiResponse != null && apiResponse.isSuccess();
+            userClientService.logout();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;
@@ -43,16 +42,19 @@ public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean result) {
-        // And if it is we call the callback function on it.
-        if (result && this.taskListener != null) {
-            this.taskListener.onSuccess(context.get());
-
-        } else if (mException != null && this.taskListener != null) {
-            this.taskListener.onFailure(mException);
-        } else if (result && this.logoutHandler != null) {
-            this.logoutHandler.onSuccess(context.get());
-        } else if (mException != null && this.logoutHandler != null) {
-            this.logoutHandler.onFailure(mException);
+        if (taskListener != null) {
+            if (result) {
+                taskListener.onSuccess(context.get());
+            } else {
+                taskListener.onFailure(mException);
+            }
+        }
+        if (logoutHandler != null) {
+            if (result) {
+                logoutHandler.onSuccess(context.get());
+            } else {
+                logoutHandler.onFailure(mException);
+            }
         }
     }
 
