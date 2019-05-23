@@ -251,7 +251,8 @@ public class Channel extends JsonMarker {
             return CLOSED_CONVERSATIONS;
         }
 
-        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE)) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
+        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE)) &&
+                !TextUtils.isEmpty(loggedInUserId) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
             return ASSIGNED_CONVERSATIONS;
         }
         return ALL_CONVERSATIONS;
