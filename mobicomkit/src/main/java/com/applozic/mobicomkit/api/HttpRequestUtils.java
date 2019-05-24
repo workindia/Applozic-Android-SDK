@@ -265,6 +265,7 @@ public class HttpRequestUtils {
                 String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
                 String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
                 connection.setRequestProperty("Authorization", basicAuth);
+                connection.setRequestProperty("Application-User", basicAuth);
             }
         } catch (Exception e) {
             e.printStackTrace();
