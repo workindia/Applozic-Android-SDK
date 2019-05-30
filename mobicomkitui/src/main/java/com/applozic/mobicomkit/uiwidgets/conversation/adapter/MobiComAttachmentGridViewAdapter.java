@@ -21,7 +21,6 @@ import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 
 public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
@@ -88,6 +87,12 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
                     Toast.makeText(context, R.string.mobicom_max_attachment_warning, Toast.LENGTH_LONG).show();
                     return;
                 }
+                try {
+                    ImageView galleryImageView = (ImageView) v;
+                    galleryImageView.setEnabled(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Intent getContentIntent = FileUtils.createGetContentIntent(filterOptions, context.getPackageManager());
                 getContentIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
@@ -152,6 +157,7 @@ public class MobiComAttachmentGridViewAdapter extends BaseAdapter {
     private void setNewAttachmentView() {
         deleteButton.setVisibility(View.GONE);
         galleryImageView.setImageResource(R.drawable.applozic_ic_action_add);
+        galleryImageView.setEnabled(true);
         fileName.setVisibility(View.GONE);
         attachmentImageView.setVisibility(View.GONE);
         fileSize.setText(R.string.New_Attachment);
