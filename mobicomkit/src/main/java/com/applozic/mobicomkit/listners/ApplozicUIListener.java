@@ -44,4 +44,6 @@ public interface ApplozicUIListener {
     void onUserDetailUpdated(String userId);
 
     void onMessageMetadataUpdated(String keyString);
+
+    void onUserMute(boolean mute, String userId);
 }

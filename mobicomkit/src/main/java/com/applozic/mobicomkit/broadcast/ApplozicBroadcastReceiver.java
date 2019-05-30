@@ -18,11 +18,9 @@ import com.applozic.mobicommons.json.GsonUtils;
 public class ApplozicBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "ApplozicUIReceiver";
-    private Context context;
     private ApplozicUIListener applozicUIListener;
 
-    public ApplozicBroadcastReceiver(Context context, ApplozicUIListener listener) {
-        this.context = context;
+    public ApplozicBroadcastReceiver(ApplozicUIListener listener) {
         this.applozicUIListener = listener;
     }
 
@@ -55,13 +53,7 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
         String keyString = intent.getStringExtra("keyString");
         String userId = message != null ? message.getContactIds() : "";
 
-        if (BroadcastService.INTENT_ACTIONS.INSTRUCTION.toString().equals(action)) {
-            //InstructionUtil.showInstruction(context, intent.getIntExtra("resId", -1), intent.getBooleanExtra("actionable", false), R.color.instruction_color);
-        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_CHANNEL_NAME.toString().equals(action)) {
-            //applozicUIListener.onChannelNameUpdated();
-        } else if (BroadcastService.INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString().equals(action)) {
-            //applozicUIListener.downloadConversations(true);
-        } else if (BroadcastService.INTENT_ACTIONS.LOAD_MORE.toString().equals(action)) {
+        if (BroadcastService.INTENT_ACTIONS.LOAD_MORE.toString().equals(action)) {
             applozicUIListener.onLoadMore(intent.getBooleanExtra("loadMore", true));
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString().equals(action)) {
             applozicUIListener.onMessageSent(message);
@@ -81,17 +73,7 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             String contactNumber = intent.getStringExtra("contactNumber");
             Integer channelKey = intent.getIntExtra("channelKey", 0);
             String response = intent.getStringExtra("response");
-           /* Contact contact = null;
-            if (contactNumber != null) {
-                contact = baseContactService.getContactById(contactNumber);
-            }*/
             applozicUIListener.onConversationDeleted(contactNumber, channelKey, response);
-        } else if (BroadcastService.INTENT_ACTIONS.UPLOAD_ATTACHMENT_FAILED.toString().equals(action) && message != null) {
-            //applozicUIListener.updateUploadFailedStatus(message);
-        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString().equals(action) && message != null) {
-            //applozicUIListener.updateDownloadStatus(message);
-        } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_FAILD.toString().equals(action) && message != null) {
-            //applozicUIListener.updateDownloadFailed(message);
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString().equals(action)) {
             String currentUserId = intent.getStringExtra("userId");
             String isTyping = intent.getStringExtra("isTyping");
@@ -108,8 +90,6 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             applozicUIListener.onUserOnline();
         } else if (BroadcastService.INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
             applozicUIListener.onChannelUpdated();
-        } else if (BroadcastService.INTENT_ACTIONS.UPDATE_TITLE_SUBTITLE.toString().equals(action)) {
-            //applozicUIListener.onChannelTitleUpdated();
         } else if (BroadcastService.INTENT_ACTIONS.CONVERSATION_READ.toString().equals(action)) {
             String currentId = intent.getStringExtra("currentId");
             boolean isGroup = intent.getBooleanExtra("isGroup", false);
@@ -118,6 +98,8 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             applozicUIListener.onUserDetailUpdated(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString().equals(action)) {
             applozicUIListener.onMessageMetadataUpdated(keyString);
+        }else if(BroadcastService.INTENT_ACTIONS.MUTE_USER_CHAT.toString().equals(action)){
+            applozicUIListener.onUserMute(intent.getBooleanExtra("mute", false), intent.getStringExtra("userId"));
         }
     }
 }
