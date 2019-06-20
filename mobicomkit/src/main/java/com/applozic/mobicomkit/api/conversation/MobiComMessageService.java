@@ -179,7 +179,7 @@ public class MobiComMessageService {
             receiverContact = baseContactService.getContactById(message.getContactIds());
         }
 
-        if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage())) {
+        if (message.getMessage() != null && PersonalizedMessage.isPersonalized(message.getMessage()) && receiverContact != null) {
             message.setMessage(PersonalizedMessage.prepareMessageFromTemplate(message.getMessage(), receiverContact));
         }
 
