@@ -72,6 +72,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_BY_MESSAGE_KEYS_URL = "/rest/ws/message/detail";
     private static final String UPDATE_MESSAGE_METADATA_URL = "/rest/ws/message/update/metadata";
     private static final String GET_KM_CONVERSATION_LIST_URL = "/rest/ws/group/support";
+    private static final String GET_ALL_GROUPS_URL = "/rest/ws/group/all";
 
     private static final String TAG = "MessageClientService";
     private Context context;
@@ -149,6 +150,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getSingleMessageReadUrl() {
         return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
+    }
+
+    public String getAllGroupsUrl() {
+        return getBaseUrl() + GET_ALL_GROUPS_URL;
     }
 
     public String getMessageByMessageKeysUrl() {
@@ -696,13 +701,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             StringBuilder urlBuilder = new StringBuilder(getKmConversationListUrl());
             if (status == Channel.ALL_CONVERSATIONS) {
-                urlBuilder.append("?pageSize=");
-                urlBuilder.append(pageSize);
-                if (lastFetchTime != null && lastFetchTime != 0) {
-                    urlBuilder.append("&lastFetchTime=");
-                    urlBuilder.append(lastFetchTime);
-                }
-                urlBuilder.append("&status=0&status=6");
+                return getAllGroupsList(pageSize, lastFetchTime);
             } else if (status == Channel.CLOSED_CONVERSATIONS) {
                 urlBuilder.append("?pageSize=");
                 urlBuilder.append(pageSize);
@@ -711,6 +710,7 @@ public class MessageClientService extends MobiComKitClientService {
                     urlBuilder.append(lastFetchTime);
                 }
                 urlBuilder.append("&status=2&status=3&status=4&status=5");
+                return httpRequestUtils.getResponse(urlBuilder.toString(), "application/json", "application/json");
             } else if (status == Channel.ASSIGNED_CONVERSATIONS) {
                 urlBuilder.append("/assigned?userId=");
                 urlBuilder.append(URLEncoder.encode(MobiComUserPreference.getInstance(context).getUserId(), "UTF-8"));
@@ -721,6 +721,24 @@ public class MessageClientService extends MobiComKitClientService {
                     urlBuilder.append(lastFetchTime);
                 }
                 urlBuilder.append("&status=0&status=6&status=-1");
+                return httpRequestUtils.getResponse(urlBuilder.toString(), "application/json", "application/json");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getAllGroupsList(int pageSize, Long lastFetchTime) {
+        try {
+            StringBuilder urlBuilder = new StringBuilder(getAllGroupsUrl());
+            if (pageSize > 0) {
+                urlBuilder.append("?pageSize=");
+                urlBuilder.append(pageSize);
+            }
+            if (lastFetchTime != null && lastFetchTime > 0) {
+                urlBuilder.append("&lastFetchTime=");
+                urlBuilder.append(lastFetchTime);
             }
             return httpRequestUtils.getResponse(urlBuilder.toString(), "application/json", "application/json");
         } catch (Exception e) {
