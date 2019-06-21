@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.listners;
+package com.applozic.mobicomkit.broadcast;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicommons.json.JsonMarker;

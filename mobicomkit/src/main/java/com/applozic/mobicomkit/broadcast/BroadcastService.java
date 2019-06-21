@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -15,7 +14,6 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.listners.AlMessageEvent;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -306,7 +304,7 @@ public class BroadcastService {
     }
 
     private static void postEventData(Context context, AlMessageEvent messageEvent) {
-        Applozic.getInstance(context).postEventData(messageEvent);
+        AlEventManager.getInstance().postEventData(messageEvent);
     }
 
     public enum INTENT_ACTIONS {
