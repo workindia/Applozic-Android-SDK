@@ -493,7 +493,7 @@ public class UserClientService extends MobiComKitClientService {
         return response;
     }
 
-    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status, String contactNumber, Map<String, String> metadata) {
+    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status, String contactNumber, Map<String, String> metadata, String userId) {
         AlUserUpdate userUpdate = new AlUserUpdate();
         try {
             if (!TextUtils.isEmpty(displayName)) {
@@ -512,7 +512,7 @@ public class UserClientService extends MobiComKitClientService {
                 userUpdate.setMetadata(metadata);
             }
 
-            String response = httpRequestUtils.postData(getUserProfileUpdateUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(userUpdate, AlUserUpdate.class));
+            String response = httpRequestUtils.postData(getUserProfileUpdateUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(userUpdate, AlUserUpdate.class), userId);
             Utils.printLog(context, TAG, response);
             return ((ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class));
         } catch (JSONException e) {

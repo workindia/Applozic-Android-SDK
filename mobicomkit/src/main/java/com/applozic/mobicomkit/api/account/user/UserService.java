@@ -295,12 +295,16 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null);
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, Map<String, String> metadata) {
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null);
+    }
 
-        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, metadata);
+    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, Map<String, String> metadata, String userId) {
+
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, metadata, userId);
 
         if (response == null) {
             return null;
@@ -340,6 +344,10 @@ public class UserService {
 
     public String updateLoggedInUser(User user) {
         return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getMetadata());
+    }
+
+    public String updateUser(User user) {
+        return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getMetadata(), user.getUserId());
     }
 
 

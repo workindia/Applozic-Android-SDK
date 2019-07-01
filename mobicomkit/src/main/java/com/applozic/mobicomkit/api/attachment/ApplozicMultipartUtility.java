@@ -40,7 +40,7 @@ public class ApplozicMultipartUtility {
         httpConn.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
         HttpRequestUtils httpRequestUtils = new HttpRequestUtils(context);
-        httpRequestUtils.addGlobalHeaders(httpConn);
+        httpRequestUtils.addGlobalHeaders(httpConn, null);
         outputStream = httpConn.getOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
                 true);
