@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -59,8 +58,10 @@ import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
@@ -71,6 +72,8 @@ import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.broadcast.AlEventManager;
+import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.ContactsChangeObserver;
@@ -123,7 +126,7 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener, ApplozicUIListener {
 
     public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
@@ -283,12 +286,23 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             String errorMessage = getResources().getString(R.string.internet_connection_not_available);
             showErrorMessageView(errorMessage);
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Utils.printLog(ConversationActivity.this, "TestGroup", new MessageClientService(ConversationActivity.this).getAllGroupsList(60, 1560943903952L));
+                User user = new User();
+                user.setUserId("reytum7");
+                user.setEmail("reytum@reytum.com");
+                Utils.printLog(ConversationActivity.this, "UserTest", "Response : " + UserService.getInstance(ConversationActivity.this).updateUser(user));
+                Utils.printLog(ConversationActivity.this, "UserTest", "Contact : " + new AppContactService(ConversationActivity.this).getContactById("reytum7"));
+            }
+        }).start();
     }
 
     @Override
     protected void onPause() {
         //ApplozicMqttService.getInstance(this).unSubscribe();
-
 
         super.onPause();
     }
@@ -488,6 +502,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             getApplicationContext().getContentResolver().registerContentObserver(
                     ContactsContract.Contacts.CONTENT_URI, true, observer);
         }
+
+        AlEventManager.getInstance().registerUIListener("activity1", this);
     }
 
     @Override
@@ -520,7 +536,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     private void animateToolbarTitle() {
-        if(toolbarTitle != null){
+        if (toolbarTitle != null) {
             ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
             animation.setDuration(0);
             animation.start();
@@ -530,7 +546,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void setToolbarTitle(String title) {
         toolbarTitle.setText(title);
-        if(toolbarSubtitle != null && toolbarSubtitle.getVisibility() == View.GONE){
+        if (toolbarSubtitle != null && toolbarSubtitle.getVisibility() == View.GONE) {
             animateToolbarTitle();
         }
     }
@@ -1423,6 +1439,106 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.alStoragePermission = storagePermission;
     }
 
+    @Override
+    public void onMessageSent(Message message) {
+        Utils.printLog(this, "LisTest", "sent : " + message);
+    }
+
+    @Override
+    public void onMessageReceived(Message message) {
+        Utils.printLog(this, "LisTest", "received : " + message);
+    }
+
+    @Override
+    public void onLoadMore(boolean loadMore) {
+        Utils.printLog(this, "LisTest", "loadMore : " + loadMore);
+    }
+
+    @Override
+    public void onMessageSync(Message message, String key) {
+        Utils.printLog(this, "LisTest", "Message sync : " + message + " , Key : " + key);
+    }
+
+    @Override
+    public void onMessageDeleted(String messageKey, String userId) {
+        Utils.printLog(this, "LisTest", "Message deleted : " + messageKey + " , userId : " + userId);
+    }
+
+    @Override
+    public void onMessageDelivered(Message message, String userId) {
+        Utils.printLog(this, "LisTest", "Message delivered : " + message + " , userId : " + userId);
+    }
+
+    @Override
+    public void onAllMessagesDelivered(String userId) {
+        Utils.printLog(this, "LisTest", "Message all delivered : " + userId);
+    }
+
+    @Override
+    public void onAllMessagesRead(String userId) {
+        Utils.printLog(this, "LisTest", "Message all read : " + userId);
+    }
+
+    @Override
+    public void onConversationDeleted(String userId, Integer channelKey, String response) {
+        Utils.printLog(this, "LisTest", "conv deleted : " + userId + " , groip Key : " + channelKey + " , Reponse : " + response);
+    }
+
+    @Override
+    public void onUpdateTypingStatus(String userId, String isTyping) {
+        Utils.printLog(this, "LisTest", "typing status update : " + userId + " , isTyping : " + isTyping);
+    }
+
+    @Override
+    public void onUpdateLastSeen(String userId) {
+        Utils.printLog(this, "LisTest", "Update last seen : " + userId);
+    }
+
+    @Override
+    public void onMqttDisconnected() {
+        Utils.printLog(this, "LisTest", "Mqtt disconnected");
+    }
+
+    @Override
+    public void onMqttConnected() {
+        Utils.printLog(this, "LisTest", "Mqtt connected");
+    }
+
+    @Override
+    public void onUserOnline() {
+        Utils.printLog(this, "LisTest", "user online");
+    }
+
+    @Override
+    public void onUserOffline() {
+        Utils.printLog(this, "LisTest", "user offline");
+    }
+
+    @Override
+    public void onChannelUpdated() {
+        Utils.printLog(this, "LisTest", "channel updated");
+    }
+
+    @Override
+    public void onConversationRead(String userId, boolean isGroup) {
+        Utils.printLog(this, "LisTest", "conversation read : " + userId + " , " + isGroup);
+    }
+
+    @Override
+    public void onUserDetailUpdated(String userId) {
+        Utils.printLog(this, "LisTest", "user updated : " + userId);
+    }
+
+    @Override
+    public void onMessageMetadataUpdated(String keyString) {
+        Utils.printLog(this, "LisTest", "Message metadata update : " + keyString);
+    }
+
+    @Override
+    public void onUserMute(boolean mute, String userId) {
+        Utils.printLog(this, "LisTest", "user mute : " + userId + " , Mute : " + mute);
+    }
+
     private class SyncMessagesAsyncTask extends AsyncTask<Boolean, Void, Void> {
         MobiComMessageService messageService;
 
@@ -1439,10 +1555,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void hideSubtitleAndProfilePic() {
         animateToolbarTitle();
-        if(toolbarSubtitle != null){
+        if (toolbarSubtitle != null) {
             toolbarSubtitle.setVisibility(View.GONE);
         }
-        if(conversationContactPhoto != null) {
+        if (conversationContactPhoto != null) {
             conversationContactPhoto.setVisibility(View.GONE);
         }
     }
