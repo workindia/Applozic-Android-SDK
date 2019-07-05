@@ -9,6 +9,7 @@ public class AlUserUpdate extends JsonMarker {
     private String imageLink;
     private String statusMessage;
     private String phoneNumber;
+    private String email;
     private Map<String, String> metadata;
 
     public String getDisplayName() {
@@ -49,6 +50,14 @@ public class AlUserUpdate extends JsonMarker {
 
     public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

@@ -295,22 +295,22 @@ public class UserService {
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null, null);
     }
 
     public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, Map<String, String> metadata) {
-        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null);
+        return updateDisplayNameORImageLink(displayName, profileImageLink, localURL, status, null, null, null, null);
     }
 
-    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, Map<String, String> metadata, String userId) {
+    public String updateDisplayNameORImageLink(String displayName, String profileImageLink, String localURL, String status, String contactNumber, String emailId, Map<String, String> metadata, String userId) {
 
-        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, metadata, userId);
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, emailId, metadata, userId);
 
         if (response == null) {
             return null;
         }
         if (response.isSuccess()) {
-            Contact contact = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
+            Contact contact = baseContactService.getContactById(!TextUtils.isEmpty(userId) ? userId : MobiComUserPreference.getInstance(context).getUserId());
             if (!TextUtils.isEmpty(displayName)) {
                 if (Applozic.getInstance(context).isDeviceContactSync()) {
                     contact.setPhoneDisplayName(displayName);
@@ -327,6 +327,9 @@ public class UserService {
             if (!TextUtils.isEmpty(contactNumber)) {
                 contact.setContactNumber(contactNumber);
             }
+            if (!TextUtils.isEmpty(emailId)) {
+                contact.setEmailId(emailId);
+            }
             if (metadata != null && !metadata.isEmpty()) {
                 Map<String, String> existingMetadata = contact.getMetadata();
                 if (existingMetadata == null) {
@@ -336,8 +339,8 @@ public class UserService {
                 contact.setMetadata(existingMetadata);
             }
             baseContactService.upsert(contact);
-            Contact contact1 = baseContactService.getContactById(MobiComUserPreference.getInstance(context).getUserId());
-            Utils.printLog(context, "UserService", contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus() + "," + contact1.getStatus() + "," + contact1.getMetadata());
+            Contact contact1 = baseContactService.getContactById(!TextUtils.isEmpty(userId) ? userId : MobiComUserPreference.getInstance(context).getUserId());
+            Utils.printLog(context, TAG, contact1.getImageURL() + ", " + contact1.getDisplayName() + "," + contact1.getStatus() + "," + contact1.getStatus() + "," + contact1.getMetadata() + "," + contact1.getEmailId() + "," + contact1.getContactNumber());
         }
         return response.getStatus();
     }
@@ -347,7 +350,7 @@ public class UserService {
     }
 
     public String updateUser(User user) {
-        return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getMetadata(), user.getUserId());
+        return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getEmail(), user.getMetadata(), user.getUserId());
     }
 
 

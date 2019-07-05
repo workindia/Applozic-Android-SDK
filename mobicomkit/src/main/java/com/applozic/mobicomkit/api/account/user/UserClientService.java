@@ -493,7 +493,7 @@ public class UserClientService extends MobiComKitClientService {
         return response;
     }
 
-    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status, String contactNumber, Map<String, String> metadata, String userId) {
+    public ApiResponse updateDisplayNameORImageLink(String displayName, String profileImageLink, String status, String contactNumber, String emailId, Map<String, String> metadata, String userId) {
         AlUserUpdate userUpdate = new AlUserUpdate();
         try {
             if (!TextUtils.isEmpty(displayName)) {
@@ -507,6 +507,9 @@ public class UserClientService extends MobiComKitClientService {
             }
             if (!TextUtils.isEmpty(contactNumber)) {
                 userUpdate.setPhoneNumber(contactNumber);
+            }
+            if (!TextUtils.isEmpty(emailId)) {
+                userUpdate.setEmail(emailId);
             }
             if (metadata != null && !metadata.isEmpty()) {
                 userUpdate.setMetadata(metadata);

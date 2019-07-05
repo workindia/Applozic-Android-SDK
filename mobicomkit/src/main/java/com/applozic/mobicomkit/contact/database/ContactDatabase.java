@@ -72,6 +72,7 @@ public class ContactDatabase {
             contact.setBlocked(userBlocked);
             Boolean userBlockedBy = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED_BY)) == 1);
             contact.setBlockedBy(userBlockedBy);
+            contact.setEmailId(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.EMAIL)));
             contact.setStatus(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.STATUS)));
             contact.setUserTypeId(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.USER_TYPE_ID)));
             contact.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
