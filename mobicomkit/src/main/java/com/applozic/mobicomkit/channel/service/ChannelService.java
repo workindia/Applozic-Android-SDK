@@ -795,6 +795,18 @@ public class ChannelService {
         }
     }
 
+    public String deleteChannel(Integer channelKey) {
+        ApiResponse apiResponse = channelClientService.deleteChannel(channelKey);
+        if (apiResponse != null && apiResponse.isSuccess()) {
+            channelDatabaseService.deleteChannel(channelKey);
+            channelDatabaseService.deleteChannelUserMappers(channelKey);
+            BroadcastService.sendConversationDeleteBroadcast(context, BroadcastService.INTENT_ACTIONS.DELETE_CONVERSATION.toString(), null, channelKey, apiResponse.getStatus());
+            return apiResponse.getStatus();
+        } else {
+            return null;
+        }
+    }
+
     private void processChildGroupKeys(Set<Integer> childGroupKeys) {
         for (Integer channelKey : childGroupKeys) {
             Channel channel = channelDatabaseService.getChannelByChannelKey(channelKey);
