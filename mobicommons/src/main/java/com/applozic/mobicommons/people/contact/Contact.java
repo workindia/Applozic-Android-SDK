@@ -103,7 +103,7 @@ public class Contact extends JsonMarker {
     }
 
     public void setDeviceContactType(Short contactType) {
-        if(contactType == null){
+        if (contactType == null) {
             return;
         }
         this.deviceContactType = contactType;
@@ -126,7 +126,7 @@ public class Contact extends JsonMarker {
                 if (context.getApplicationContext() instanceof ALContactProcessor) {
                     setFormattedContactNumber(((ALContactProcessor) context.getApplicationContext()).processContact(getContactNumber(), countryCode));
                 }
-            }catch(ClassCastException e){
+            } catch (ClassCastException e) {
                 e.printStackTrace();
             }
         }
@@ -286,7 +286,7 @@ public class Contact extends JsonMarker {
         if (formattedContactNumber != null) {
             return TextUtils.isEmpty(phoneDisplayName) ? TextUtils.isEmpty(getFormattedContactNumber()) ? getContactIds() : getFormattedContactNumber() : phoneDisplayName;
         }
-        return TextUtils.isEmpty(fullName) ? getContactIds() : fullName;
+        return TextUtils.isEmpty(fullName) ? (TextUtils.isEmpty(emailId) ? getContactIds() : emailId) : fullName;
     }
 
     public String getFullName() {

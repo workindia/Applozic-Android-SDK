@@ -38,6 +38,9 @@ public class HttpRequestUtils {
     private static String SOURCE_HEADER = "Source";
     private static String SOURCE_HEADER_VALUE = "1";
     private static final String OF_USER_ID_HEADER = "Of-User-Id";
+    private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
+    private static final String APZ_APP_ID_HEADER = "Apz-AppId";
+    private static final String APZ_TOKEN_HEADER = "Apz-Token";
     private Context context;
 
 
@@ -257,10 +260,6 @@ public class HttpRequestUtils {
 
     public void addGlobalHeaders(HttpURLConnection connection, String userId) {
         try {
-            connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
-            connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
-            connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
-            connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
             Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
             if (User.AuthenticationType.APPLOZIC.getValue().equals(authenticationType)) {
                 connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
@@ -275,11 +274,25 @@ public class HttpRequestUtils {
             }
 
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-            if (userPreferences.isRegistered()) {
-                String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
+
+            if (User.RoleType.AGENT.getValue().equals(userPreferences.getUserRoleType()) && !TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(APZ_APP_ID_HEADER, MobiComKitClientService.getApplicationKey(context));
+                connection.setRequestProperty(APZ_PRODUCT_APP_HEADER, "true");
+                String userCredentials = getCredentialsWithPassword().getUserName() + ":" + String.valueOf(getCredentialsWithPassword().getPassword());
                 String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
-                connection.setRequestProperty("Authorization", basicAuth);
-                connection.setRequestProperty("Application-User", basicAuth);
+                connection.setRequestProperty(APZ_TOKEN_HEADER, basicAuth);
+            } else {
+                connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
+                connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
+                connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
+                connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+
+                if (userPreferences.isRegistered()) {
+                    String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
+                    String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
+                    connection.setRequestProperty("Authorization", basicAuth);
+                    connection.setRequestProperty("Application-User", basicAuth);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -287,12 +300,20 @@ public class HttpRequestUtils {
     }
 
 
-    public PasswordAuthentication getCredentials() {
+    private PasswordAuthentication getCredentials() {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isRegistered()) {
             return null;
         }
         return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
+    }
+
+    private PasswordAuthentication getCredentialsWithPassword() {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (!userPreferences.isRegistered()) {
+            return null;
+        }
+        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getPassword().toCharArray());
     }
 
 }
