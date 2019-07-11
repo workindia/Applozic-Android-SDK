@@ -45,6 +45,7 @@ public class ChannelService {
     private ChannelClientService channelClientService;
     private BaseContactService baseContactService;
     private UserService userService;
+    private String loggedInUserId;
 
     private ChannelService(Context context) {
         this.context = ApplozicService.getContext(context);
@@ -52,6 +53,7 @@ public class ChannelService {
         channelDatabaseService = ChannelDatabaseService.getInstance(ApplozicService.getContext(context));
         userService = UserService.getInstance(ApplozicService.getContext(context));
         baseContactService = new AppContactService(ApplozicService.getContext(context));
+        loggedInUserId = MobiComUserPreference.getInstance(context).getUserId();
     }
 
     public synchronized static ChannelService getInstance(Context context) {
@@ -102,6 +104,14 @@ public class ChannelService {
             }
         }
         return channel;
+    }
+
+    public static void clearInstance() {
+        channelService = null;
+    }
+
+    public String getLoggedInUserId() {
+        return loggedInUserId;
     }
 
     public Channel getChannelInfo(String clientGroupId) {
@@ -292,7 +302,7 @@ public class ChannelService {
         channel.setMetadata(channelFeed.getMetadata());
         channel.setParentKey(channelFeed.getParentKey());
         channel.setParentClientGroupId(channelFeed.getParentClientGroupId());
-        channel.setKmStatus(channel.generateKmStatus(MobiComUserPreference.getInstance(context).getUserId()));
+        channel.setKmStatus(channel.generateKmStatus(loggedInUserId));
         return channel;
     }
 

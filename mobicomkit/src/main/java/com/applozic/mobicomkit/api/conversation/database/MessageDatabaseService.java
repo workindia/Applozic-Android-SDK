@@ -1088,28 +1088,38 @@ public class MessageDatabaseService {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String statusQuery = status == 2 ? "ch.kmStatus in (1, 2)" : "ch.kmStatus = " + status;
 
-        if (status == 3) {
+        if (status == 1) {
+            String rowQuery = "SELECT * FROM (" +
+                    "select max(createdAt) as maxCreatedAt , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
+                    "where m.hidden = 0 " +
+                    "AND m.deleted = 0 " +
+                    "AND m.messageContentType not in (11,102) " +
+                    "AND m.type not in (6, 7) " +
+                    "AND ch.deletedAtTime is NULL " +
+                    "AND " + statusQuery + " group by m.channelKey " +
+                    "UNION ALL " +
+                    "select max(createdAt) as maxCreatedAt , m.* from sms m " +
+                    "where m.hidden = 0 " +
+                    "AND m.deleted = 0 " +
+                    "AND m.messageContentType not in (11,102) " +
+                    "AND m.type not in (6, 7) AND m.channelKey = 0 " +
+                    "group by m.contactNumbers " +
+                    ") temp " +
+                    (lastFetchTime != null && lastFetchTime > 0 ? " where temp.maxCreatedAt < " + lastFetchTime : "") +
+                    " ORDER BY temp.maxCreatedAt DESC";
+
+            cursor = db.rawQuery(rowQuery, null);
+        } else {
             String rowQuery = "select max(createdAt) , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
                     "where m.hidden = 0 " +
                     "AND m.deleted = 0 " +
                     "AND m.messageContentType not in (11,102) " +
                     "AND m.type not in (6, 7) " +
+                    "AND ch.type = 10 " +
+                    "AND ch.deletedAtTime is NULL " +
                     "AND " + statusQuery +
                     (lastFetchTime != null && lastFetchTime > 0 ? " AND m.createdAt < " + lastFetchTime : "") +
                     " group by m.channelKey order by createdAt desc";
-
-            cursor = db.rawQuery(rowQuery, null);
-        } else {
-            String rowQuery = "SELECT * FROM (" +
-                    "select max(createdAt) as maxCreatedAt , m.* from sms m inner join channel ch on m.channelKey = ch.channelKey " +
-                    "where m.hidden = 0 AND m.deleted = 0 AND m.messageContentType not in (11,102) AND m.type not in (6, 7) AND " + statusQuery + " group by m.channelKey " +
-                    "UNION ALL " +
-                    "select max(createdAt) as maxCreatedAt , m.* from sms m " +
-                    "where m.hidden = 0 AND m.deleted = 0 AND m.messageContentType not in (11,102) AND m.type not in (6, 7) AND m.channelKey = 0 " +
-                    "group by m.contactNumbers " +
-                    ") temp " +
-                    (lastFetchTime != null && lastFetchTime > 0 ? " where temp.maxCreatedAt < " + lastFetchTime : "") +
-                    " ORDER BY temp.maxCreatedAt DESC";
 
             cursor = db.rawQuery(rowQuery, null);
         }
@@ -1119,43 +1129,28 @@ public class MessageDatabaseService {
         return messageList;
     }
 
+
     public int getTotalUnreadCountForSupportGroup(int status) {
         Cursor cursor = null;
-        Cursor contactCountCursor = null;
         int count = 0;
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        String statusQuery = status == 2 ? "kmStatus in (1, 2)" : "kmStatus = " + status;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         try {
+            String statusQuery = status == 2 ? "kmStatus in (1, 2)" : "kmStatus = " + status;
             String rowQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from channel where " + statusQuery;
-
-            if (status != 3) {
-                String contactCountQuery = "select sum(" + MobiComDatabaseHelper.UNREAD_COUNT + ") from contact";
-                contactCountCursor = db.rawQuery(contactCountQuery, null);
-                contactCountCursor.moveToFirst();
-
-                if (contactCountCursor.getCount() > 0) {
-                    count += contactCountCursor.getInt(0);
-                }
-            }
 
             cursor = db.rawQuery(rowQuery, null);
             cursor.moveToFirst();
 
             if (cursor.getCount() > 0) {
-                count += cursor.getInt(0);
+                count = cursor.getInt(0);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            db.close();
             dbHelper.close();
             if (cursor != null) {
                 cursor.close();
-            }
-            if (contactCountCursor != null) {
-                contactCountCursor.close();
             }
         }
         return count;

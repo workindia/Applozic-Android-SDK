@@ -244,18 +244,20 @@ public class Channel extends JsonMarker {
 
     public int generateKmStatus(String loggedInUserId) {
         if (getMetadata() == null) {
-            return ALL_CONVERSATIONS;
+            return ASSIGNED_CONVERSATIONS;
         }
 
-        if (getMetadata().containsKey(CONVERSATION_STATUS) && "2".equals(getMetadata().get(CONVERSATION_STATUS))) {
+        if (getMetadata().containsKey(CONVERSATION_STATUS) && ("2".equals(getMetadata().get(CONVERSATION_STATUS)) || "3".equals(getMetadata().get(CONVERSATION_STATUS)))) {
             return CLOSED_CONVERSATIONS;
         }
 
-        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE)) &&
-                !TextUtils.isEmpty(loggedInUserId) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
-            return ASSIGNED_CONVERSATIONS;
+        if (getMetadata().containsKey(CONVERSATION_ASSIGNEE) && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE))) {
+            if (!TextUtils.isEmpty(loggedInUserId) && loggedInUserId.equals(getMetadata().get(CONVERSATION_ASSIGNEE))) {
+                return ASSIGNED_CONVERSATIONS;
+            }
+            return ALL_CONVERSATIONS;
         }
-        return ALL_CONVERSATIONS;
+        return ASSIGNED_CONVERSATIONS;
     }
 
     public enum GroupType {
@@ -298,6 +300,14 @@ public class Channel extends JsonMarker {
         public String getValue() {
             return value;
         }
+    }
+
+    public static class KmConversationStatus {
+        public static final String RESOLVED_STATUS = "Resolved";
+        public static final String SPAM_STATUS = "Spam/Irrelevant";
+        public static final String OPEN_STATUS = "Open";
+        public static final String CLOSED = "2";
+        public static final String RESOLVED = "3";
     }
 
     @Override
