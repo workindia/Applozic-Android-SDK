@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
-ext{
+ext {
     defaultCompileSdkVersion = 27
     defaultTargetSdkVersion = 27
     defaultBuildToolVersion = "27.0.3"
@@ -58,7 +58,6 @@ android {
     }
 
 
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/DEPENDENCIES'
@@ -68,6 +67,10 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/ECLIPSE_.SF'
         exclude 'META-INF/ECLIPSE_.RSA'
+        exclude 'META-INF/ECLIPSE_.DSA'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
     }
 }
 
@@ -87,11 +90,11 @@ dependencies {
     androidTestImplementation "com.android.support:support-annotations:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
-    androidTestImplementation ('org.mockito:mockito-android:2.6.3'){
-        exclude group: 'org.hamcrest', module:'hamcrest-core'
+    androidTestImplementation('org.mockito:mockito-android:2.6.3') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    androidTestImplementation  'com.google.dagger:dagger:2.13'
+    androidTestImplementation 'com.google.dagger:dagger:2.13'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
     androidTestImplementation('org.droidparts.dexmaker:dexmaker:1.5') {
         exclude module: 'objenesis'

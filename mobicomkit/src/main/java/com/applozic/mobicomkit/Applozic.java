@@ -47,7 +47,7 @@ public class Applozic {
 
     private Applozic(Context context) {
         this.context = ApplozicService.getContext(context);
-        this.sharedPreferences = context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
+        this.sharedPreferences = this.context.getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
     }
 
     public static Applozic init(Context context, String applicationKey) {
@@ -242,16 +242,17 @@ public class Applozic {
     }
 
 
+    @Deprecated
     public void registerUIListener(ApplozicUIListener applozicUIListener) {
         applozicBroadcastReceiver = new ApplozicBroadcastReceiver(applozicUIListener);
         LocalBroadcastManager.getInstance(context).registerReceiver(applozicBroadcastReceiver, BroadcastService.getIntentFilter());
     }
 
+    @Deprecated
     public void unregisterUIListener() {
         if (applozicBroadcastReceiver != null) {
             LocalBroadcastManager.getInstance(context).unregisterReceiver(applozicBroadcastReceiver);
             applozicBroadcastReceiver = null;
         }
     }
-
 }

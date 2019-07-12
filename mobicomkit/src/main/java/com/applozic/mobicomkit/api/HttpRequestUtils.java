@@ -20,6 +20,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.net.URLEncoder;
 
 
 /**
@@ -36,6 +37,10 @@ public class HttpRequestUtils {
     public static String ACCESS_TOKEN = "Access-Token";
     private static String SOURCE_HEADER = "Source";
     private static String SOURCE_HEADER_VALUE = "1";
+    private static final String OF_USER_ID_HEADER = "Of-User-Id";
+    private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
+    private static final String APZ_APP_ID_HEADER = "Apz-AppId";
+    private static final String APZ_TOKEN_HEADER = "Apz-Token";
     private Context context;
 
 
@@ -43,11 +48,11 @@ public class HttpRequestUtils {
         this.context = ApplozicService.getContext(context);
     }
 
-    private void log(String message) {
-        Log.i(TAG, message);
+    public String postData(String urlString, String contentType, String accept, String data) throws Exception {
+        return postData(urlString, contentType, accept, data, null);
     }
 
-    public String postData(String urlString, String contentType, String accept, String data) throws Exception {
+    public String postData(String urlString, String contentType, String accept, String data, String userId) throws Exception {
         Utils.printLog(context, TAG, "Calling url: " + urlString);
         HttpURLConnection connection;
         URL url;
@@ -67,7 +72,7 @@ public class HttpRequestUtils {
             if (!TextUtils.isEmpty(accept)) {
                 connection.setRequestProperty("Accept", accept);
             }
-            addGlobalHeaders(connection);
+            addGlobalHeaders(connection, userId);
             connection.connect();
 
             if (connection == null) {
@@ -118,9 +123,13 @@ public class HttpRequestUtils {
         return null;
     }
 
-    public String postJsonToServer(String StringUrl, String data) throws Exception {
+    public String postJsonToServer(String stringUrl, String data) throws Exception {
+        return postJsonToServer(stringUrl, data, null);
+    }
+
+    public String postJsonToServer(String stringUrl, String data, String userId) throws Exception {
         HttpURLConnection connection;
-        URL url = new URL(StringUrl);
+        URL url = new URL(stringUrl);
         connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
@@ -129,7 +138,7 @@ public class HttpRequestUtils {
         }
         connection.setDoInput(true);
         connection.setDoOutput(true);
-        addGlobalHeaders(connection);
+        addGlobalHeaders(connection, userId);
         connection.connect();
 
         byte[] dataBytes = data.getBytes("UTF-8");
@@ -166,10 +175,14 @@ public class HttpRequestUtils {
     }
 
     public String getResponse(String urlString, String contentType, String accept) {
-        return getResponse(urlString, contentType, accept, false);
+        return getResponse(urlString, contentType, accept, false, null);
     }
 
     public String getResponse(String urlString, String contentType, String accept, boolean isFileUpload) {
+        return getResponse(urlString, contentType, accept, isFileUpload, null);
+    }
+
+    public String getResponse(String urlString, String contentType, String accept, boolean isFileUpload, String userId) {
         Utils.printLog(context, TAG, "Calling url: " + urlString);
 
         HttpURLConnection connection = null;
@@ -189,7 +202,7 @@ public class HttpRequestUtils {
             if (!TextUtils.isEmpty(accept)) {
                 connection.setRequestProperty("Accept", accept);
             }
-            addGlobalHeaders(connection);
+            addGlobalHeaders(connection, userId);
             connection.connect();
 
             if (connection == null) {
@@ -245,14 +258,10 @@ public class HttpRequestUtils {
         return null;
     }
 
-    public void addGlobalHeaders(HttpURLConnection connection) {
+    public void addGlobalHeaders(HttpURLConnection connection, String userId) {
         try {
-            connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
-            connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
-            connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
-            connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
             Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
-            if (User.AuthenticationType.APPLOZIC.getValue() == authenticationType) {
+            if (User.AuthenticationType.APPLOZIC.getValue().equals(authenticationType)) {
                 connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
             }
 
@@ -260,12 +269,30 @@ public class HttpRequestUtils {
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
             }
 
+            if (!TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(OF_USER_ID_HEADER, URLEncoder.encode(userId, "UTF-8"));
+            }
+
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-            if (userPreferences.isRegistered()) {
-                String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
+
+            if (User.RoleType.AGENT.getValue().equals(userPreferences.getUserRoleType()) && !TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(APZ_APP_ID_HEADER, MobiComKitClientService.getApplicationKey(context));
+                connection.setRequestProperty(APZ_PRODUCT_APP_HEADER, "true");
+                String userCredentials = getCredentialsWithPassword().getUserName() + ":" + String.valueOf(getCredentialsWithPassword().getPassword());
                 String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
-                connection.setRequestProperty("Authorization", basicAuth);
-                connection.setRequestProperty("Application-User", basicAuth);
+                connection.setRequestProperty(APZ_TOKEN_HEADER, basicAuth);
+            } else {
+                connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
+                connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
+                connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
+                connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
+
+                if (userPreferences.isRegistered()) {
+                    String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
+                    String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
+                    connection.setRequestProperty("Authorization", basicAuth);
+                    connection.setRequestProperty("Application-User", basicAuth);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -273,12 +300,20 @@ public class HttpRequestUtils {
     }
 
 
-    public PasswordAuthentication getCredentials() {
+    private PasswordAuthentication getCredentials() {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
         if (!userPreferences.isRegistered()) {
             return null;
         }
         return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
+    }
+
+    private PasswordAuthentication getCredentialsWithPassword() {
+        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+        if (!userPreferences.isRegistered()) {
+            return null;
+        }
+        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getPassword().toCharArray());
     }
 
 }

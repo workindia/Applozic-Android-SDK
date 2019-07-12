@@ -14,8 +14,6 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicomkit.listners.ApplozicUIListener;
-import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -64,30 +62,28 @@ public class BroadcastService {
     }
 
     public static void sendLoadMoreBroadcast(Context context, boolean loadMore) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.LOAD_MORE).setLoadMore(loadMore));
+
         Utils.printLog(context, TAG, "Sending " + INTENT_ACTIONS.LOAD_MORE.toString() + " broadcast");
         Intent intent = new Intent();
         intent.setAction(INTENT_ACTIONS.LOAD_MORE.toString());
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.putExtra("loadMore", loadMore);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onLoadMore(loadMore);
-        }
         sendBroadcast(context, intent);
     }
 
     public static void sendDeliveryReportForContactBroadcast(Context context, String action, String contactId) {
+        if (INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.ALL_MESSAGES_READ).setUserId(contactId));
+        } else if (INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.ALL_MESSAGES_DELIVERED).setUserId(contactId));
+        }
+
         Utils.printLog(context, TAG, "Sending message delivery report of contact broadcast for " + action + ", " + contactId);
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(MobiComKitConstants.CONTACT_ID, contactId);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            if (INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED_FOR_CONTECT.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onAllMessagesRead(contactId);
-            } else if (INTENT_ACTIONS.MESSAGE_DELIVERY_FOR_CONTACT.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onAllMessagesDelivered(contactId);
-            }
-        }
         sendBroadcast(context, intentUpdate);
     }
 
@@ -96,41 +92,40 @@ public class BroadcastService {
             return;
         }
 
+        if (!message.isSentToMany() && !message.isTypeOutbox()) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_RECEIVED).setMessage(message));
+        }
+        if (INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_SENT).setMessage(message));
+        } else if (INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_SYNC).setMessage(message));
+        } else if (INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action) || INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_DELIVERED).setMessage(message).setUserId(message.getContactIds()));
+        }
+
         Utils.printLog(context, TAG, "Sending message update broadcast for " + action + ", " + message.getKeyString());
         Intent intentUpdate = new Intent();
         intentUpdate.setAction(action);
         intentUpdate.addCategory(Intent.CATEGORY_DEFAULT);
         intentUpdate.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            if (!message.isSentToMany() && !message.isTypeOutbox()) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageReceived(message);
-            }
-
-            if (INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageSent(message);
-            } else if (INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageSync(message, message.getKeyString());
-            } else if (INTENT_ACTIONS.MESSAGE_DELIVERY.toString().equals(action) || INTENT_ACTIONS.MESSAGE_READ_AND_DELIVERED.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageDelivered(message, message.getContactIds());
-            }
-        }
         sendBroadcast(context, intentUpdate);
     }
 
     public static void sendMessageDeleteBroadcast(Context context, String action, String keyString, String contactNumbers) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_DELETED).setMessageKey(keyString).setUserId(contactNumbers));
+
         Utils.printLog(context, TAG, "Sending message delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
         intentDelete.putExtra("keyString", keyString);
         intentDelete.putExtra("contactNumbers", contactNumbers);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageDeleted(keyString, contactNumbers);
-        }
         sendBroadcast(context, intentDelete);
     }
 
     public static void sendConversationDeleteBroadcast(Context context, String action, String contactNumber, Integer channelKey, String response) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CONVERSATION_DELETED).setUserId(contactNumber).setGroupId(channelKey).setResponse(response));
+
         Utils.printLog(context, TAG, "Sending conversation delete broadcast for " + action);
         Intent intentDelete = new Intent();
         intentDelete.setAction(action);
@@ -138,16 +133,11 @@ public class BroadcastService {
         intentDelete.putExtra("contactNumber", contactNumber);
         intentDelete.putExtra("response", response);
         intentDelete.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onConversationDeleted(contactNumber, channelKey, response);
-        }
         sendBroadcast(context, intentDelete);
     }
 
-
     public static void sendNotificationBroadcast(Context context, Message message, int index) {
         if (message != null) {
-
             if (message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {
                 return;
             }
@@ -174,20 +164,20 @@ public class BroadcastService {
         }
     }
 
-
     public static void sendUpdateLastSeenAtTimeBroadcast(Context context, String action, String contactId) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.UPDATE_LAST_SEEN).setUserId(contactId));
+
         Utils.printLog(context, TAG, "Sending lastSeenAt broadcast....");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onUpdateLastSeen(contactId);
-        }
         sendBroadcast(context, intent);
     }
 
     public static void sendUpdateTypingBroadcast(Context context, String action, String applicationId, String userId, String isTyping) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.UPDATE_TYPING_STATUS).setUserId(userId).setTyping(isTyping));
+
         Utils.printLog(context, TAG, "Sending typing Broadcast.......");
         Intent intentTyping = new Intent();
         intentTyping.setAction(action);
@@ -195,32 +185,28 @@ public class BroadcastService {
         intentTyping.putExtra("userId", userId);
         intentTyping.putExtra("isTyping", isTyping);
         intentTyping.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onUpdateTypingStatus(userId, isTyping);
-        }
         sendBroadcast(context, intentTyping);
     }
 
 
     public static void sendUpdate(Context context, boolean isMetadataUpdate, final String action) {
+        if (INTENT_ACTIONS.MQTT_CONNECTED.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MQTT_CONNECTED));
+        } else if (INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MQTT_DISCONNECTED));
+        } else if (INTENT_ACTIONS.USER_ONLINE.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CURRENT_USER_ONLINE));
+        } else if (INTENT_ACTIONS.USER_OFFLINE.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CURRENT_USER_OFFLINE));
+        } else if (INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
+            postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CHANNEL_UPDATED));
+        }
+
         Utils.printLog(context, TAG, action);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("isMetadataUpdate", isMetadataUpdate);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            if (INTENT_ACTIONS.MQTT_CONNECTED.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMqttConnected();
-            } else if (INTENT_ACTIONS.MQTT_DISCONNECTED.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onMqttDisconnected();
-            } else if (INTENT_ACTIONS.USER_ONLINE.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onUserOnline();
-            } else if (INTENT_ACTIONS.USER_OFFLINE.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onUserOffline();
-            } else if (INTENT_ACTIONS.CHANNEL_SYNC.toString().equals(action)) {
-                ((ApplozicUIListener) ApplozicService.getContext(context)).onChannelUpdated();
-            }
-        }
         sendBroadcast(context, intent);
     }
 
@@ -229,52 +215,48 @@ public class BroadcastService {
     }
 
     public static void updateMessageMetadata(Context context, String messageKey, String action) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_METADATA_UPDATED).setMessageKey(messageKey));
+
         Utils.printLog(context, TAG, "Sending Message Metadata Update Broadcast for message key : " + messageKey);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("keyString", messageKey);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onMessageMetadataUpdated(messageKey);
-        }
         sendBroadcast(context, intent);
     }
 
 
     public static void sendConversationReadBroadcast(Context context, String action, String currentId, boolean isGroup) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CONVERSATION_READ).setUserId(currentId).setGroup(isGroup));
+
         Utils.printLog(context, TAG, "Sending  Broadcast for conversation read ......");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("currentId", currentId);
         intent.putExtra("isGroup", isGroup);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onConversationRead(currentId, isGroup);
-        }
         sendBroadcast(context, intent);
     }
 
     public static void sendMuteUserBroadcast(Context context, String action, boolean mute, String userId) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.ON_USER_MUTE).setUserId(userId).setLoadMore(mute));
+
         Utils.printLog(context, TAG, "Sending Mute user Broadcast for user : " + userId + ", mute : " + mute);
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("mute", mute);
         intent.putExtra("userId", userId);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onUserMute(mute, userId);
-        }
         sendBroadcast(context, intent);
     }
 
     public static void sendUpdateUserDetailBroadcast(Context context, String action, String contactId) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.USER_DETAILS_UPDATED).setUserId(contactId));
+
         Utils.printLog(context, TAG, "Sending profileImage update....");
         Intent intent = new Intent();
         intent.setAction(action);
         intent.putExtra("contactId", contactId);
-        if (ApplozicService.getContext(context) != null && ApplozicService.getContext(context) instanceof ApplozicUIListener) {
-            ((ApplozicUIListener) ApplozicService.getContext(context)).onUserDetailUpdated(contactId);
-        }
         sendBroadcast(context, intent);
     }
 
@@ -319,6 +301,10 @@ public class BroadcastService {
 
     public static void sendBroadcast(Context context, Intent intent) {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    private static void postEventData(Context context, AlMessageEvent messageEvent) {
+        AlEventManager.getInstance().postEventData(messageEvent);
     }
 
     public enum INTENT_ACTIONS {

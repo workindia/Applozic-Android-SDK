@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -289,7 +288,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     protected void onPause() {
         //ApplozicMqttService.getInstance(this).unSubscribe();
 
-
         super.onPause();
     }
 
@@ -520,7 +518,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     }
 
     private void animateToolbarTitle() {
-        if(toolbarTitle != null){
+        if (toolbarTitle != null) {
             ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
             animation.setDuration(0);
             animation.start();
@@ -530,7 +528,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void setToolbarTitle(String title) {
         toolbarTitle.setText(title);
-        if(toolbarSubtitle != null && toolbarSubtitle.getVisibility() == View.GONE){
+        if (toolbarSubtitle != null && toolbarSubtitle.getVisibility() == View.GONE) {
             animateToolbarTitle();
         }
     }
@@ -1439,10 +1437,10 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     @Override
     public void hideSubtitleAndProfilePic() {
         animateToolbarTitle();
-        if(toolbarSubtitle != null){
+        if (toolbarSubtitle != null) {
             toolbarSubtitle.setVisibility(View.GONE);
         }
-        if(conversationContactPhoto != null) {
+        if (conversationContactPhoto != null) {
             conversationContactPhoto.setVisibility(View.GONE);
         }
     }
