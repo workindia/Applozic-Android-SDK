@@ -4,7 +4,7 @@ Thanks for taking time to contribute to Applozic SDK.
 We would love your contribution to the Applozic SDK. If you are planning to contribute to Applozic SDK, then please follow the below guidelines:
 
 1) Incase of a small change or a minor bug fix, we request you to fork this repo, do the changes in your fork and then create a PR clearly describing the changes and their scope. Please follow our PR guidelines when creating one.
-2) Incase of heavy or breaking changes, contact us on email or support before putting in your efforts and time in the development as we may not be able to use the changes as we need to keep the SDK stable so that developers do not need to change the code continuosly. So please get in touch before planning to contribute breaking changes.
+2) Incase of heavy or breaking changes, contact us on email or support before putting in your efforts and time in the development as we may not be able to use the changes as we need to keep the SDK stable so that developers do not need to change the code continuously. So please get in touch before planning to contribute breaking changes.
 
 ## Code guidelines:
 Please follow the below guidelines:
