@@ -260,10 +260,7 @@ public class HttpRequestUtils {
 
     public void addGlobalHeaders(HttpURLConnection connection, String userId) {
         try {
-            Short authenticationType = Short.valueOf(MobiComUserPreference.getInstance(context).getAuthenticationType());
-            if (User.AuthenticationType.APPLOZIC.getValue().equals(authenticationType)) {
-                connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
-            }
+            connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
 
             if (MobiComKitClientService.getAppModuleName(context) != null) {
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
