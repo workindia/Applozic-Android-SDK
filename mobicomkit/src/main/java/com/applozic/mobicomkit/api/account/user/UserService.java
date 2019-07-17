@@ -176,6 +176,7 @@ public class UserService {
         contact.setMetadata(userDetail.getMetadata());
         contact.setRoleType(userDetail.getRoleType());
         contact.setDeletedAtTime(userDetail.getDeletedAtTime());
+        contact.setEmailId(userDetail.getEmailId());
         if (!TextUtils.isEmpty(userDetail.getImageLink())) {
             contact.setImageURL(userDetail.getImageLink());
         }
@@ -204,6 +205,7 @@ public class UserService {
         contact.setMetadata(userDetail.getMetadata());
         contact.setRoleType(userDetail.getRoleType());
         contact.setDeletedAtTime(userDetail.getDeletedAtTime());
+        contact.setEmailId(userDetail.getEmailId());
         if (!TextUtils.isEmpty(userDetail.getImageLink())) {
             contact.setImageURL(userDetail.getImageLink());
         }
