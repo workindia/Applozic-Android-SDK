@@ -1,5 +1,34 @@
 
 ## Changelog
+**Version 5.50**  - Tuesday, 16 July 2019
+
+**Features**
+* New UI callbacks. You can now register multiple listeners with unique IDs. Then unregister the listeners usig those IDs.
+   Registering:
+   ```
+  AlEventManager.getInstance().registerUIListener("mListener1", this);
+   ```
+   Unregistering:
+    ```
+  AlEventManager.getInstance().unregisterUIListener("mListener2");
+    ```
+* New update user method. The update user now accepts emailId as well. Admin can update the details of other users by passing the userId of the user(Call the below method in a background thread).
+```
+  User user = new User();
+  user.setEmail("email@email.com");
+  UserService.getInstance(this).updateUser(user);
+```
+* Added delete Group method.
+* EmailID priority in display name. If user does'nt have display name and has emaild, emailId will be displayed.
+* Added contribution doc. Please refer to the contribution doc before you contribute to Applozic SDK.
+
+**Internal changes**
+* Added Of-User-Id header for agents
+* Added access token header for all authentication types
+* updated getConversationList methods and DB calls for agents (Conversation sectioning)
+
+**Fixes**
+Fixed crash in personalized messages.
 
 **Version 4.78**  - Thursday, 2 March 2017
    
