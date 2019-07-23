@@ -18,6 +18,7 @@ import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
 import com.applozic.mobicomkit.feed.SyncApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.feed.SyncPxy;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.sync.SyncUserBlockFeed;
 import com.applozic.mobicomkit.sync.SyncUserBlockListFeed;
 import com.applozic.mobicommons.ApplozicService;
@@ -347,6 +348,52 @@ public class UserService {
         return response.getStatus();
     }
 
+    public ApiResponse updateUserWithResponse(String displayName, String profileImageLink, String localURL, String status, String contactNumber, String emailId, Map<String, String> metadata, String userId) {
+
+        ApiResponse response = userClientService.updateDisplayNameORImageLink(displayName, profileImageLink, status, contactNumber, emailId, metadata, userId);
+
+        if (response == null) {
+            return null;
+        }
+
+        if (response.isSuccess()) {
+            Contact contact = baseContactService.getContactById(!TextUtils.isEmpty(userId) ? userId : MobiComUserPreference.getInstance(context).getUserId());
+            if (!TextUtils.isEmpty(displayName)) {
+                if (Applozic.getInstance(context).isDeviceContactSync()) {
+                    contact.setPhoneDisplayName(displayName);
+                }
+                contact.setFullName(displayName);
+            }
+            if (!TextUtils.isEmpty(profileImageLink)) {
+                contact.setImageURL(profileImageLink);
+            }
+            contact.setLocalImageUrl(localURL);
+            if (!TextUtils.isEmpty(status)) {
+                contact.setStatus(status);
+            }
+            if (!TextUtils.isEmpty(contactNumber)) {
+                contact.setContactNumber(contactNumber);
+            }
+            if (!TextUtils.isEmpty(emailId)) {
+                contact.setEmailId(emailId);
+            }
+            if (metadata != null && !metadata.isEmpty()) {
+                Map<String, String> existingMetadata = contact.getMetadata();
+                if (existingMetadata == null) {
+                    existingMetadata = new HashMap<>();
+                }
+                existingMetadata.putAll(metadata);
+                contact.setMetadata(existingMetadata);
+            }
+            baseContactService.upsert(contact);
+        }
+        return response;
+    }
+
+    public ApiResponse updateUserWithResponse(User user) {
+        return updateUserWithResponse(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getEmail(), user.getMetadata(), user.getUserId());
+    }
+
     public String updateLoggedInUser(User user) {
         return updateDisplayNameORImageLink(user.getDisplayName(), user.getImageLink(), user.getLocalImageUri(), user.getStatus(), user.getContactNumber(), user.getMetadata());
     }
@@ -434,5 +481,9 @@ public class UserService {
         }
         processUserDetails(userIds);
         MobiComUserPreference.getInstance(context).setContactSyncTime(apiResponse.getGeneratedAt());
+    }
+
+    public void updateUser(User user, AlCallback callback) {
+        new AlUserUpdateTask(context, user, callback).execute();
     }
 }
