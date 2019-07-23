@@ -7,12 +7,18 @@ import android.content.pm.ApplicationInfo;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.account.user.UserService;
+import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -342,4 +348,39 @@ public class ApplozicClient {
         return sharedPreferences.getBoolean(SKIP_DELETED_GROUPS, false);
     }
 
+    public ApplozicClient disableChatForUser(final boolean disable, final AlCallback callback) {
+        Map<String, String> userMetadata;
+        Contact contact = new AppContactService(context).getContactById(MobiComUserPreference.getInstance(context).getUserId());
+        if (contact != null && contact.getMetadata() != null) {
+            userMetadata = contact.getMetadata();
+            userMetadata.putAll(contact.getMetadata());
+        } else {
+            userMetadata = new HashMap<>();
+        }
+        userMetadata.put(Contact.DISABLE_CHAT_WITH_USER, String.valueOf(disable));
+
+        User user = new User();
+        user.setMetadata(userMetadata);
+        UserService.getInstance(context).updateUser(user, new AlCallback() {
+            @Override
+            public void onSuccess(Object response) {
+                sharedPreferences.edit().putBoolean(Contact.DISABLE_CHAT_WITH_USER, disable).commit();
+                if (callback != null) {
+                    callback.onSuccess(response);
+                }
+            }
+
+            @Override
+            public void onError(Object error) {
+                if (callback != null) {
+                    callback.onError(error);
+                }
+            }
+        });
+        return this;
+    }
+
+    public boolean isChatForUserDisabled() {
+        return sharedPreferences.getBoolean(Contact.DISABLE_CHAT_WITH_USER, false);
+    }
 }

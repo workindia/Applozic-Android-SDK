@@ -1968,9 +1968,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 if (userNotAbleToChatLayout != null && individualMessageSendLayout != null) {
-                    userNotAbleToChatLayout.setVisibility(withUserContact.isDeleted() ? VISIBLE : View.GONE);
-                    individualMessageSendLayout.setVisibility(withUserContact.isDeleted() ? View.GONE : VISIBLE);
-                    bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
+                    if (withUserContact.isDeleted()) {
+                        individualMessageSendLayout.setVisibility(View.GONE);
+                        userNotAbleToChatLayout.setVisibility(VISIBLE);
+                        bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
+                    } else {
+                        enableOrDisableChat(withUserContact);
+                    }
                 }
 
                 if (menu != null) {
@@ -3211,6 +3215,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     super.onPostExecute(o);
                     if (appContactService != null && contact != null) {
                         updateLastSeenStatus();
+                        enableOrDisableChat(contact);
                     }
                 }
             }.execute();
@@ -3250,11 +3255,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     userNotAbleToChatTextView.setText(isUserInGroup ?  R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
                 } else {
                     userNotAbleToChatLayout.setVisibility(View.GONE);
-
+                    individualMessageSendLayout.setVisibility(VISIBLE);
                 }
             }
         });
+    }
 
+    protected void enableOrDisableChat(Contact contact) {
+        boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
+        hideSendMessageLayout(contact.isChatForUserDisabled() || isMyChatDisabled);
+        if (userNotAbleToChatTextView != null) {
+            userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+        }
     }
 
     public void updateChannelTitleAndSubTitle() {
