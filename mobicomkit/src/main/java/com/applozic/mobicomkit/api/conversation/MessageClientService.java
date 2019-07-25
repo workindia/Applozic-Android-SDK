@@ -345,7 +345,7 @@ public class MessageClientService extends MobiComKitClientService {
             contact = baseContactService.getContactById(message.getContactIds());
         } else {
             channel = ChannelService.getInstance(context).getChannel(message.getGroupId());
-            isOpenGroup = Channel.GroupType.OPEN.getValue().equals(channel.getType());
+            isOpenGroup = (Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? !message.hasAttachment() :false);
             isBroadcastOneByOneGroupType = Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue().equals(channel.getType());
         }
         long messageId = -1;
@@ -373,7 +373,7 @@ public class MessageClientService extends MobiComKitClientService {
         if (isBroadcast && !skipMessage) {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
-        if (!isBroadcastOneByOneGroupType && message.isUploadRequired() && !isOpenGroup) {
+        if (!isBroadcastOneByOneGroupType && message.isUploadRequired()) {
             for (String filePath : message.getFilePaths()) {
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath, handler, oldMessageKey);

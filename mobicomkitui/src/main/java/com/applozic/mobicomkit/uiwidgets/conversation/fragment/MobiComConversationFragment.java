@@ -449,8 +449,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
         deliveredIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
 
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? View.VISIBLE : View.GONE);
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? View.GONE : View.VISIBLE);
 
         GradientDrawable bgShape = (GradientDrawable) sendButton.getBackground();
         bgShape.setColor(Color.parseColor(alCustomizationSettings.getSendButtonBackgroundColor().trim()));
@@ -656,11 +656,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 emoticonsFrameLayout.setVisibility(View.GONE);
             }
         });
-
-        if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-            attachButton.setVisibility(View.GONE);
-            messageEditText.setPadding(20, 0, 0, 0);
-        }
 
         attachReplyCancelLayout.setOnClickListener(new View.OnClickListener() {
             @Override

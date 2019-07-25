@@ -252,6 +252,10 @@ public class MobiComMessageService {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
+    public void processOpenGroupAttachmentMessage(Message message){
+        processMessage(message, message.getTo(),0);
+    }
+
     public synchronized void syncMessages() {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         boolean syncChannel = false;
@@ -555,14 +559,17 @@ public class MobiComMessageService {
     }
 
     public synchronized void processInstantMessage(Message message) {
-        if (!message.hasAttachment()) {
-            if (!baseContactService.isContactPresent(message.getContactIds())) {
-                userService.processUserDetails(message.getContactIds());
-            }
-            Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-            if (channel == null) {
-                return;
-            }
+
+        if (!baseContactService.isContactPresent(message.getContactIds())) {
+            userService.processUserDetails(message.getContactIds());
+        }
+        Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+        if (channel == null) {
+            return;
+        }
+        if (message.hasAttachment()) {
+            processOpenGroupAttachmentMessage(message);
+        } else {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
     }
