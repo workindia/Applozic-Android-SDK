@@ -1059,7 +1059,11 @@ public class MessageDatabaseService {
                 String rowQuery = "select m1.* from sms m1 left outer join sms m2 on (m1.createdAt < m2.createdAt"
                         + " and m1.channelKey = m2.channelKey and m1.contactNumbers = m2.contactNumbers and m1.deleted = m2.deleted and  m1.messageContentType = m2.messageContentType and m1.hidden = m2.hidden " + messageTypeJoinClause + " ) ";
 
-                rowQuery = rowQuery + categoryClause + "where m2.createdAt is null and ch.type != 6 ";
+                if (!TextUtils.isEmpty(categoryName) || skipDeletedGroups) {
+                    rowQuery = rowQuery + categoryClause;
+                }
+
+                rowQuery = rowQuery + "where m2.createdAt is null ";
 
                 if (!TextUtils.isEmpty(categoryName)) {
                     rowQuery = rowQuery + "and ch.AL_CATEGORY = '" + categoryName + "'";
