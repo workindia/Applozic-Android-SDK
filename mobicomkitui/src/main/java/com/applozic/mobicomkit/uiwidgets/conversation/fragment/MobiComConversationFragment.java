@@ -970,8 +970,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void handleSendAndRecordButtonView(boolean isSendButtonVisible) {
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -1100,55 +1100,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void sendOpenGroupMessage(String messageText) {
-
-        attachReplyCancelLayout.setVisibility(View.GONE);
-        replayRelativeLayout.setVisibility(View.GONE);
-
-        Map<String, String> messageMetaData = new HashMap<>();
-        if (this.messageMetaData != null && !this.messageMetaData.isEmpty()) {
-            messageMetaData.putAll(this.messageMetaData);
-        }
-
-
-        new MessageBuilder(getActivity()).setMessage(messageText).setMetadata(messageMetaData).setGroupId(channel.getKey()).send(new MediaUploadProgressHandler() {
-
-            @Override
-            public void onUploadStarted(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onProgressUpdate(int percentage, ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onCancelled(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onCompleted(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onSent(Message message, String oldMessageKey) {
-                Message messageToBeReplied = new Message();
-                messageToBeReplied.setKeyString(oldMessageKey);
-                int indexOfObject = messageList.indexOf(messageToBeReplied);
-                if (indexOfObject != -1) {
-                    messageList.set(indexOfObject, message);
-                    recyclerDetailConversationAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-
-        this.messageMetaData = null;
-    }
-
-
     protected void processSendMessage() {
         if (!TextUtils.isEmpty(messageEditText.getText().toString().trim()) || !TextUtils.isEmpty(filePath)) {
             String inputMessage = messageEditText.getText().toString();
@@ -1171,11 +1122,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (disjointResult && !restrictedWordMatches) {
-                if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    sendOpenGroupMessage(messageEditText.getText().toString().trim());
-                } else {
-                    sendMessage(messageEditText.getText().toString().trim());
-                }
+                sendMessage(messageEditText.getText().toString().trim());
                 messageEditText.setText("");
                 scheduleOption.setText(R.string.ScheduleText);
                 if (scheduledTimeHolder.getTimestamp() != null) {
@@ -4406,4 +4353,3 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return channel != null && channel.isContextBasedChat();
     }
 }
-
