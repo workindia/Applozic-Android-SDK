@@ -132,6 +132,7 @@
     <string name="info">Info</string>
     <string name="share">Share</string>
     <string name="reply">Reply</string>
+    <string name="report">Report</string>
     <string name="self_destruct">Self Destruct</string>
     <string name="off">Off</string>
     <string name="one_min">1 min</string>
@@ -222,4 +223,6 @@
     <string name="profile_contact_number">Contact Number</string>
     <string name="user_name">User Name</string>
     <string name="powered_by_applozic">Powered By Applozic</string>
+    <string name="message_reported_successfully">This message has been reported successfully</string>
+    <string name="failed_to_report_message">Failed to report message</string>
 </resources>

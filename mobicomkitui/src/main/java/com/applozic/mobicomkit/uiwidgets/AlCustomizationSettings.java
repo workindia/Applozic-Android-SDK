@@ -115,6 +115,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean launchChatFromProfilePicOrName = false;
 
     private boolean showImageOnToolbar = false;
+    private boolean enableMessageReport = true;
 
     private Map<String, Boolean> attachmentOptions;
 
@@ -593,6 +594,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isGroupSubtitleHidden() {
         return hideGroupSubtitle;
+    }
+
+    public boolean isMessageReportEnabled() {
+        return enableMessageReport;
+    }
+
+    public void enableMessageReport(boolean enableMessageReport) {
+        this.enableMessageReport = enableMessageReport;
     }
 
     @Override

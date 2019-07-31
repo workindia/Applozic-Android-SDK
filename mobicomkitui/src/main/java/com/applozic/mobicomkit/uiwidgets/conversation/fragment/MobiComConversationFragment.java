@@ -77,6 +77,7 @@ import com.applozic.mobicomkit.api.account.user.UserBlockTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
@@ -101,6 +102,7 @@ import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -1716,6 +1718,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 } catch (Exception e) {
 
                 }
+                break;
+            case 7:
+                new AlMessageReportTask(message.getKeyString(), conversationService, new AlCallback() {
+                    @Override
+                    public void onSuccess(Object response) {
+                        Toast.makeText(getContext(), ApplozicService.getContext(getContext()).getString(R.string.message_reported_successfully), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Object error) {
+                        Toast.makeText(getContext(), ApplozicService.getContext(getContext()).getString(R.string.failed_to_report_message), Toast.LENGTH_SHORT).show();
+                    }
+                }).execute();
                 break;
         }
         return true;

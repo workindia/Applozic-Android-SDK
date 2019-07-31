@@ -691,6 +691,10 @@ public class MobiComConversationService {
         return BroadcastService.isContextBasedChatEnabled() && conversationId != null && conversationId != 0 ? "_" + conversationId : "";
     }
 
+    public String reportMessage(String messageKey) {
+        return messageClientService.reportMessage(messageKey);
+    }
+
     public void read(Contact contact, Channel channel) {
         try {
             int unreadCount = 0;
