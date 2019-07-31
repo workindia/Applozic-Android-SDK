@@ -73,6 +73,7 @@ public class MessageClientService extends MobiComKitClientService {
     private static final String UPDATE_MESSAGE_METADATA_URL = "/rest/ws/message/update/metadata";
     private static final String GET_KM_CONVERSATION_LIST_URL = "/rest/ws/group/support";
     private static final String GET_ALL_GROUPS_URL = "/rest/ws/group/all";
+    private static final String MESSAGE_REPORT_URL = "/rest/ws/message/report";
 
     private static final String TAG = "MessageClientService";
     private Context context;
@@ -158,6 +159,21 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getMessageByMessageKeysUrl() {
         return getBaseUrl() + MESSAGE_BY_MESSAGE_KEYS_URL;
+    }
+
+    public String getMessageReportUrl() {
+        return getBaseUrl() + MESSAGE_REPORT_URL;
+    }
+
+    public String reportMessage(String messageKey) {
+        try {
+            if (!TextUtils.isEmpty(messageKey)) {
+                return httpRequestUtils.postData(getMessageReportUrl() + "?messageKey=" + messageKey, "application/json", "application/json", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void updateDeliveryStatus(String messageKeyString, String userId, String receiverNumber) {
