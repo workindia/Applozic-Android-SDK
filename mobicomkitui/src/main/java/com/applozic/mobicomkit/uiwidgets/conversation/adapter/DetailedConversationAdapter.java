@@ -1533,7 +1533,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 if (menuItems[i].equals(context.getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || !(new File(message.getFilePaths().get(0)).exists()))) {
                     continue;
                 }
-                if (menuItems[i].equals(ApplozicService.getContext(context).getString(R.string.report)) && !alCustomizationSettings.isMessageReportEnabled()) {
+                if (menuItems[i].equals(ApplozicService.getContext(context).getString(R.string.report)) && !alCustomizationSettings.isMessageReportEnabled() && !message.isTypeOutbox()) {
                     continue;
                 }
 
