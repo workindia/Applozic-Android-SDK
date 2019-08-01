@@ -66,6 +66,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ConversationUIService {
@@ -221,7 +222,7 @@ public class ConversationUIService {
                             }
                         });
                 if (getConversationFragment() != null) {
-                    getConversationFragment().loadFile(selectedFileUri, file);
+                    getConversationFragment().loadFileAndSendMessage(selectedFileUri, file,Message.ContentType.ATTACHMENT.getValue());
                 }
                 Utils.printLog(fragmentActivity, TAG, "File uri: " + selectedFileUri);
             }
@@ -240,8 +241,7 @@ public class ConversationUIService {
                 }
 
                 if (selectedFilePath != null && getConversationFragment() != null) {
-                    getConversationFragment().loadFile(selectedFilePath, file);
-                    getConversationFragment().sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
+                    getConversationFragment().loadFileAndSendMessage(selectedFilePath, file,Message.ContentType.VIDEO_MSG.getValue());
                 }
             }
 
@@ -251,7 +251,9 @@ public class ConversationUIService {
                     File vCradFile = new ContactService(fragmentActivity).vCard(intent.getData());
 
                     if (vCradFile != null && getConversationFragment() != null) {
-                        getConversationFragment().sendMessage(Message.ContentType.CONTACT_MSG.getValue(), vCradFile.getAbsolutePath());
+                        List<String> filePaths = new ArrayList<>();
+                        filePaths.add(vCradFile.getAbsolutePath());
+                        getConversationFragment().sendMessage("",Message.ContentType.CONTACT_MSG.getValue(),filePaths);
                     }
 
                 } catch (Exception e) {
@@ -266,12 +268,13 @@ public class ConversationUIService {
 
                 //TODO: check performance, we might need to put in each posting in separate thread.
 
+                List<String> filePaths = new ArrayList<>();
                 if (getConversationFragment() != null) {
                     for (Uri info : attachmentList) {
-                        getConversationFragment().sendMessage(messageText, Message.ContentType.ATTACHMENT.getValue(), info.toString());
+                        filePaths.add(info.getPath());
                     }
+                    getConversationFragment().sendMessage(messageText,Message.ContentType.ATTACHMENT.getValue(),filePaths);
                 }
-
             }
 
             if (requestCode == MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION && resultCode == Activity.RESULT_OK) {
