@@ -3192,9 +3192,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
 
                         if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                            hideSendMessageLayout(newChannel.isDeleted() || !present);
+                            hideSendMessageLayout(newChannel.isDeleted() || !present, present);
                         } else {
-                            hideSendMessageLayout(newChannel.isDeleted());
+                            hideSendMessageLayout(newChannel.isDeleted(),present);
                         }
 
                         if (ChannelService.isUpdateTitle) {
@@ -3236,7 +3236,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
-    private void hideSendMessageLayout(final boolean hide) {
+    private void hideSendMessageLayout(final boolean hide, final boolean isUserInGroup) {
         if (getActivity() == null) {
             return;
         }
@@ -3247,6 +3247,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (hide) {
                     individualMessageSendLayout.setVisibility(View.GONE);
                     userNotAbleToChatLayout.setVisibility(VISIBLE);
+                    userNotAbleToChatTextView.setText(isUserInGroup ?  R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
                 } else {
                     userNotAbleToChatLayout.setVisibility(View.GONE);
 
@@ -3276,6 +3277,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                     individualMessageSendLayout.setVisibility(View.GONE);
                     userNotAbleToChatLayout.setVisibility(VISIBLE);
+                    userNotAbleToChatTextView.setText(R.string.user_not_in_this_group_text);
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                         templateAdapter.removeTemplates();
                     }

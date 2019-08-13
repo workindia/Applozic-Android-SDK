@@ -298,10 +298,9 @@ public class ContactDatabase {
 
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
-            contactImage = getContactById(contact.getUserId());
-        }
-        if (contactImage != null && !TextUtils.isEmpty(contactImage.getImageURL()) && !TextUtils.isEmpty(contact.getImageURL()) && !contact.getImageURL().equals(contactImage.getImageURL())) {
-            updateContactLocalImageURIToNull(contact.getUserId());
+        }else{
+            contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+            contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_URL);
         }
 
         if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {

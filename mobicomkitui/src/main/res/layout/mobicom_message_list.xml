@@ -518,7 +518,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/user_not_in_this_group_text"
             android:textSize="18sp" />
     </LinearLayout>
 
