@@ -1,17 +1,15 @@
 apply plugin: 'com.android.library'
 
 ext {
-    defaultCompileSdkVersion = 27
-    defaultTargetSdkVersion = 27
-    defaultBuildToolVersion = "27.0.3"
+    defaultCompileSdkVersion = 28
+    defaultTargetSdkVersion = 28
 }
 
 android {
     compileSdkVersion rootProject.hasProperty("compileSdkVersion") ? rootProject.compileSdkVersion : defaultCompileSdkVersion
-    buildToolsVersion rootProject.hasProperty("buildToolVersion") ? rootProject.buildToolVersion : defaultBuildToolVersion
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
         versionName "5.51"

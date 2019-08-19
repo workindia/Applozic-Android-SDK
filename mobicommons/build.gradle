@@ -1,19 +1,17 @@
 apply plugin: 'com.android.library'
 
 ext{
-    defaultCompileSdkVersion = 27
-    defaultTargetSdkVersion = 27
-    defaultBuildToolVersion = "27.0.3"
-    defaultSupportLibVersion = "27.1.1"
+    defaultCompileSdkVersion = 28
+    defaultTargetSdkVersion = 28
+    defaultSupportLibVersion = "28.0.0"
     defaultGoogleGsonVersion = "2.8.5"
 }
 
 android {
     compileSdkVersion rootProject.hasProperty("compileSdkVersion") ? rootProject.compileSdkVersion : defaultCompileSdkVersion
-    buildToolsVersion rootProject.hasProperty("buildToolVersion") ? rootProject.buildToolVersion : defaultBuildToolVersion
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
         versionName "5.51"
@@ -33,7 +31,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api "com.android.support:appcompat-v7:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
+    api 'androidx.appcompat:appcompat:1.0.2'
     api "com.google.code.gson:gson:${rootProject.hasProperty("googleGsonVersion") ? rootProject.googleGsonVersion : defaultGoogleGsonVersion}"
 }
 
