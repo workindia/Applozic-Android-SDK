@@ -77,25 +77,23 @@ dependencies {
     //Note: use this for customization
     api project(':mobicomkitui')
     //api 'com.applozic.communication.uiwidget:mobicomkitui:5.51'
-    implementation "com.android.support:design:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation('com.crashlytics.sdk.android:crashlytics:2.5.7@aar') {
         transitive = true;
     }
-
-    androidTestImplementation "com.android.support:support-annotations:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
-    androidTestImplementation 'androidx.test:runner:1.1.0'
-    androidTestImplementation 'androidx.test:rules:1.1.0'
+    implementation "androidx.annotation:annotation:1.1.0"
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation('org.mockito:mockito-android:2.6.3') {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'com.google.dagger:dagger:2.13'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
     androidTestImplementation('org.droidparts.dexmaker:dexmaker:1.5') {
         exclude module: 'objenesis'
     }
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     androidTestImplementation 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'
