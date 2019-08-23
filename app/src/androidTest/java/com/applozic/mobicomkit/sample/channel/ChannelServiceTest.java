@@ -1,7 +1,7 @@
 package com.applozic.mobicomkit.sample.channel;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
@@ -21,7 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
+import static androidx.test.InstrumentationRegistry.getTargetContext;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
