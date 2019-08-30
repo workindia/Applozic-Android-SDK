@@ -23,7 +23,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -35,6 +37,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -3213,7 +3216,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
                             hideSendMessageLayout(newChannel.isDeleted() || !present, present);
                         } else {
-                            hideSendMessageLayout(newChannel.isDeleted(),present);
+                            hideSendMessageLayout(newChannel.isDeleted(), present);
                         }
 
                         if (ChannelService.isUpdateTitle) {
@@ -3267,7 +3270,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (hide) {
                     individualMessageSendLayout.setVisibility(View.GONE);
                     userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    userNotAbleToChatTextView.setText(isUserInGroup ?  R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
+                    userNotAbleToChatTextView.setText(isUserInGroup ? R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
                 } else {
                     userNotAbleToChatLayout.setVisibility(View.GONE);
                     individualMessageSendLayout.setVisibility(VISIBLE);
@@ -3276,11 +3279,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    protected void enableOrDisableChat(Contact contact) {
-        boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
-        hideSendMessageLayout(contact.isChatForUserDisabled() || isMyChatDisabled);
-        if (userNotAbleToChatTextView != null) {
-            userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+    protected void enableOrDisableChat(final Contact contact) {
+        final boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean hide = contact.isChatForUserDisabled() || isMyChatDisabled;
+                    individualMessageSendLayout.setVisibility(hide ? View.GONE : VISIBLE);
+                    userNotAbleToChatLayout.setVisibility(hide ? VISIBLE : View.GONE);
+                }
+            });
+
+            if (userNotAbleToChatTextView != null) {
+                userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+            }
         }
     }
 
