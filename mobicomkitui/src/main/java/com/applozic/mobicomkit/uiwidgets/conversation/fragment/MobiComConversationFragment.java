@@ -24,6 +24,7 @@ import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
 
+import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -80,7 +81,6 @@ import com.applozic.mobicomkit.api.account.user.UserBlockTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
-import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
@@ -105,7 +105,6 @@ import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
-import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -3289,7 +3288,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     individualMessageSendLayout.setVisibility(hide ? View.GONE : VISIBLE);
                     userNotAbleToChatLayout.setVisibility(hide ? VISIBLE : View.GONE);
                 }
-            });
+            }
+        });
 
             if (userNotAbleToChatTextView != null) {
                 userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
