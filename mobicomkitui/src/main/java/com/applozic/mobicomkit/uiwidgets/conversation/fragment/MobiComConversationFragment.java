@@ -25,6 +25,7 @@ import android.os.ResultReceiver;
 import android.os.Vibrator;
 
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -3288,8 +3289,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     individualMessageSendLayout.setVisibility(hide ? View.GONE : VISIBLE);
                     userNotAbleToChatLayout.setVisibility(hide ? VISIBLE : View.GONE);
                 }
-            }
-        });
+            });
 
             if (userNotAbleToChatTextView != null) {
                 userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
