@@ -19,7 +19,7 @@ public abstract class AlJobIntentService extends JobIntentService {
         super.onCreate();
         // override mJobImpl with safe class to ignore SecurityException
         if (Build.VERSION.SDK_INT >= 26) {
-            mJobImpl = new AlJobServiceEngineImpl(this);
+            mJobImpl = new androidx.core.app.AlJobServiceEngineImpl(this);
         } else {
             mJobImpl = null;
         }
