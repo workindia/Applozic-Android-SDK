@@ -480,7 +480,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
-        viewPager.setCurrentItem(tab.getPosition(), true);
+        //viewPager.setCurrentItem(tab.getPosition(), true);
     }
 
     @Override
