@@ -238,6 +238,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
                 if (updatedInfoContact != null && (!TextUtils.isEmpty(contact.getDisplayName())) && (!contact.getDisplayName().equals(updatedInfoContact.getDisplayName()))) {
                     stringBufferTitle.append(updatedInfoContact.getDisplayName());
                 }
+                enableOrDisableChat(updatedInfoContact);
             } else if (channel != null) {
                 if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                     String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());

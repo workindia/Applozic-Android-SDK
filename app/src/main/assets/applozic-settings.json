@@ -81,6 +81,7 @@
   "notificationDisableThreshold": 10,
   "hideGroupDeleteButton": false,
   "showImageOnToolbar": false,
+  "enableMessageReport": true,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

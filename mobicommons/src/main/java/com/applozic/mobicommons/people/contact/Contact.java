@@ -22,6 +22,8 @@ import java.util.TimeZone;
 public class Contact extends JsonMarker {
 
     public static final String R_DRAWABLE = "R.drawable";
+    public static final String DISABLE_CHAT_WITH_USER = "DISABLE_CHAT_WITH_USER";
+    public static final String TRUE = "true";
     @Expose
     private String firstName = "";
     @Expose
@@ -509,6 +511,10 @@ public class Contact extends JsonMarker {
 
     public Short getRoleType() {
         return roleType;
+    }
+
+    public boolean isChatForUserDisabled() {
+        return metadata != null && metadata.containsKey(DISABLE_CHAT_WITH_USER) && TRUE.equals(metadata.get(DISABLE_CHAT_WITH_USER));
     }
 
     @Override
