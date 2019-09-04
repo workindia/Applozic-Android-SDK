@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -233,7 +234,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
                 String typingResponse[] = mqttMessage.toString().split(",");
                 String applicationId = typingResponse[0];
-                String userId = typingResponse[1];
+                String userId = User.getDecodedUserId(typingResponse[1]);
                 String isTypingStatus = typingResponse[2];
                 BroadcastService.sendUpdateTypingBroadcast(context, BroadcastService.INTENT_ACTIONS.UPDATE_TYPING_STATUS.toString(), applicationId, userId, isTypingStatus);
             } else {
@@ -443,10 +444,10 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             }
             MqttMessage message = new MqttMessage();
             message.setRetained(false);
-            message.setPayload((applicationId + "," + loggedInUserId + "," + status).getBytes());
+            message.setPayload((applicationId + "," + User.getEncodedUserId(loggedInUserId) + "," + status).getBytes());
             message.setQos(0);
-            client.publish("typing" + "-" + applicationId + "-" + userId, message);
-            Utils.printLog(context, TAG, "Published " + new String(message.getPayload()) + " to topic: " + "typing" + "-" + applicationId + "-" + userId);
+            client.publish("typing" + "-" + applicationId + "-" + User.getEncodedUserId(userId), message);
+            Utils.printLog(context, TAG, "Published " + new String(message.getPayload()) + " to topic: " + "typing" + "-" + applicationId + "-" + User.getEncodedUserId(userId));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -467,8 +468,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return;
             }
 
-            client.subscribe("typing-" + getApplicationKey(context) + "-" + currentId, 0);
-            Utils.printLog(context, TAG, "Subscribed to topic: " + "typing-" + getApplicationKey(context) + "-" + currentId);
+            client.subscribe("typing-" + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId), 0);
+            Utils.printLog(context, TAG, "Subscribed to topic: " + "typing-" + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -489,8 +490,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return;
             }
 
-            client.unsubscribe("typing-" + getApplicationKey(context) + "-" + currentId);
-            Utils.printLog(context, TAG, "UnSubscribed to topic: " + "typing-" + getApplicationKey(context) + "-" + currentId);
+            client.unsubscribe("typing-" + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
+            Utils.printLog(context, TAG, "UnSubscribed to topic: " + "typing-" + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -509,7 +510,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             currentId = contact.getUserId();
         }
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-        publishTopic(getApplicationKey(context), "1", mobiComUserPreference.getUserId(), currentId);
+        publishTopic(getApplicationKey(context), "1", User.getEncodedUserId(mobiComUserPreference.getUserId()), User.getEncodedUserId(currentId));
     }
 
     public void typingStopped(Contact contact, Channel channel) {
@@ -520,7 +521,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             currentId = contact.getUserId();
         }
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-        publishTopic(getApplicationKey(context), "0", mobiComUserPreference.getUserId(), currentId);
+        publishTopic(getApplicationKey(context), "0", User.getEncodedUserId(mobiComUserPreference.getUserId()), User.getEncodedUserId(currentId));
     }
 
     public synchronized void subscribeToOpenGroupTopic(Channel channel) {
@@ -534,8 +535,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return;
             }
 
-            client.subscribe(OPEN_GROUP + getApplicationKey(context) + "-" + currentId, 0);
-            Utils.printLog(context, TAG, "Subscribed to Open group: " + OPEN_GROUP + getApplicationKey(context) + "-" + currentId);
+            client.subscribe(OPEN_GROUP + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId), 0);
+            Utils.printLog(context, TAG, "Subscribed to Open group: " + OPEN_GROUP + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -553,8 +554,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return;
             }
 
-            client.unsubscribe(OPEN_GROUP + getApplicationKey(context) + "-" + currentId);
-            Utils.printLog(context, TAG, "UnSubscribed to topic: " + OPEN_GROUP + getApplicationKey(context) + "-" + currentId);
+            client.unsubscribe(OPEN_GROUP + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
+            Utils.printLog(context, TAG, "UnSubscribed to topic: " + OPEN_GROUP + getApplicationKey(context) + "-" + User.getEncodedUserId(currentId));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -595,7 +596,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         public String getValue() {
             return String.valueOf(value);
         }
-
     }
 
 }

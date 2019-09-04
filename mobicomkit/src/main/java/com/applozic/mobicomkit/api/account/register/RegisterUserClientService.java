@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.ApplozicService;
@@ -69,6 +70,14 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         if (!TextUtils.isEmpty(user.getKmBaseUrl())) {
             ALSpecificSettings.getInstance(context).setKmBaseUrl(user.getKmBaseUrl());
+        }
+
+        if (TextUtils.isEmpty(user.getUserId())) {
+            throw new ApplozicException("userId cannot be empty");
+        }
+
+        if (!user.isValidUserId()) {
+            throw new ApplozicException("Invalid userId. Spacing and set of special characters ^!$%&*:(), are not accepted. \nOnly english language characters are accepted");
         }
 
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);

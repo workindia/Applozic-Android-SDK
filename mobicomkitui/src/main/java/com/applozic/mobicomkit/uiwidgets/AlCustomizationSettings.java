@@ -115,6 +115,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean launchChatFromProfilePicOrName = false;
 
     private boolean showImageOnToolbar = false;
+    private String restrictedWordRegex;
     private boolean enableMessageReport = true;
 
     private Map<String, Boolean> attachmentOptions;
@@ -590,6 +591,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setFilterGallery(Map<String, Boolean> filterGallery) {
         this.filterGallery = filterGallery;
+    }
+
+    public String getRestrictedWordRegex() {
+        return restrictedWordRegex;
     }
 
     public boolean isGroupSubtitleHidden() {

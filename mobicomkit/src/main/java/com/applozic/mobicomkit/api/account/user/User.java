@@ -1,15 +1,23 @@
 package com.applozic.mobicomkit.api.account.user;
 
+import android.text.TextUtils;
+
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by devashish on 22/12/14.
  */
 public class User extends JsonMarker {
 
+    private static final String DEFAULT_USER_ID_REGEX = "^[a-zA-Z0-9_+#@.?|=;-]+$";
+    private String userIdRegex;
     private String userId;
     private String email;
     private String password;
@@ -279,6 +287,43 @@ public class User extends JsonMarker {
 
     public void setSkipDeletedGroups(boolean skipDeletedGroups) {
         this.skipDeletedGroups = skipDeletedGroups;
+    }
+
+    public String getUserIdRegex() {
+        return userIdRegex;
+    }
+
+    public void setUserIdRegex(String regex) {
+        this.userIdRegex = regex;
+    }
+
+    public boolean isValidUserId() {
+        if (TextUtils.isEmpty(userIdRegex)) {
+            setUserIdRegex(DEFAULT_USER_ID_REGEX);
+        }
+        return Pattern.compile(userIdRegex).matcher(getUserId()).matches();
+    }
+
+    public static String getEncodedUserId(String userId) {
+        if (!TextUtils.isEmpty(userId) && (userId.contains("+") || userId.contains("#"))) {
+            try {
+                return URLEncoder.encode(userId, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return userId;
+    }
+
+    public static String getDecodedUserId(String encodedId) {
+        if (!TextUtils.isEmpty(encodedId)) {
+            try {
+                return URLDecoder.decode(encodedId, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return encodedId;
     }
 
     public enum AuthenticationType {

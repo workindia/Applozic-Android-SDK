@@ -73,6 +73,7 @@ public class ApplozicSetting {
     private static final String DELETE_CONVERSATION_OPTION = "DELETE_CONVERSATION_OPTION";
     private static final String GALLERY_FILTER_OPTIONS = "GALLERY_FILTER_OPTIONS_";
     private static final String HIDE_GROUP_SUBTITLE = "HIDE_GROUP_SUBTITLE";
+    private static final String RESTRICTED_WORDS_REGEX = "RESTRICTED_WORDS_REGEX";
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -711,6 +712,15 @@ public class ApplozicSetting {
 
     public ApplozicSetting hideGroupSubtitle(boolean hide) {
         sharedPreferences.edit().putBoolean(HIDE_GROUP_SUBTITLE, hide).commit();
+        return this;
+    }
+
+    public String getRestrictedWordsRegex() {
+        return sharedPreferences.getString(RESTRICTED_WORDS_REGEX, null);
+    }
+
+    public ApplozicSetting setRestrictedWordsRegex(String restrictedWordsRegex) {
+        sharedPreferences.edit().putString(RESTRICTED_WORDS_REGEX, restrictedWordsRegex).commit();
         return this;
     }
 

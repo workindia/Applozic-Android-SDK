@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
-
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -176,6 +175,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import static android.view.View.VISIBLE;
 import static java.util.Collections.disjoint;
@@ -1159,10 +1160,22 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             String[] inputMsg = inputMessage.toLowerCase().split(" ");
             List<String> userInputList = Arrays.asList(inputMsg);
 
-            boolean disjointResult = (restrictedWords == null) ? true : disjoint(restrictedWords, userInputList);
+            boolean disjointResult = (restrictedWords == null) || disjoint(restrictedWords, userInputList);
+            boolean restrictedWordMatches;
 
-            if (disjointResult) {
+            try {
+                String dynamicRegex = ApplozicSetting.getInstance(getContext()).getRestrictedWordsRegex();
+                String pattern = !TextUtils.isEmpty(dynamicRegex) ? dynamicRegex : (alCustomizationSettings != null
+                        && !TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordRegex()) ? alCustomizationSettings.getRestrictedWordRegex() : "");
 
+                restrictedWordMatches = Pattern.matches(pattern, inputMessage);
+            } catch (PatternSyntaxException e) {
+                e.printStackTrace();
+                createInvalidPatternExceptionDialog();
+                return;
+            }
+
+            if (disjointResult && !restrictedWordMatches) {
                 if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                     sendOpenGroupMessage(messageEditText.getText().toString().trim());
                 } else {
@@ -1180,16 +1193,37 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-
+                                handleSendAndRecordButtonView(true);
                             }
-                        });
+                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        handleSendAndRecordButtonView(true);
+                    }
+                });
                 alertDialog.setTitle(alCustomizationSettings.getRestrictedWordMessage());
                 alertDialog.setCancelable(true);
                 alertDialog.create().show();
-
             }
         }
+    }
 
+    private void createInvalidPatternExceptionDialog() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
+                setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        handleSendAndRecordButtonView(true);
+                    }
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                handleSendAndRecordButtonView(true);
+            }
+        });
+        alertDialog.setTitle(ApplozicService.getContext(getContext()).getString(R.string.invalid_message_matching_pattern));
+        alertDialog.setCancelable(true);
+        alertDialog.create().show();
     }
 
     public void showScheduleMessageToast() {
