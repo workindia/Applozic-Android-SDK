@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
@@ -31,6 +34,7 @@ import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.uiwidgets.async.ApplozicConversationCreateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -157,11 +161,9 @@ public class MainActivity extends AppCompatActivity
 
         if (position == 2) {
 
-            UserLogoutTask.TaskListener userLogoutTaskListener = new UserLogoutTask.TaskListener() {
-
+            Applozic.logoutUser(this, new AlLogoutHandler() {
                 @Override
                 public void onSuccess(Context context) {
-                    userLogoutTask = null;
                     Toast.makeText(getBaseContext(), getBaseContext().getString(R.string.log_out_successful), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -171,7 +173,6 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onFailure(Exception exception) {
-                    userLogoutTask = null;
                     AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                     alertDialog.setTitle(getString(R.string.text_alert));
                     alertDialog.setMessage(exception.toString());
@@ -185,11 +186,7 @@ public class MainActivity extends AppCompatActivity
                         alertDialog.show();
                     }
                 }
-            };
-
-            userLogoutTask = new UserLogoutTask(userLogoutTaskListener, this);
-            userLogoutTask.execute((Void) null);
-
+            });
         }
 
         if (position == 3) {
@@ -298,7 +295,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(groupChat);
     }
 
-    public void startSample(View v){
+    public void startSample(View v) {
         Intent intent = new Intent(this, SampleActivity.class);
         startActivity(intent);
     }

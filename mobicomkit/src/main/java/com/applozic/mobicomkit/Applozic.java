@@ -4,7 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
@@ -24,6 +27,7 @@ import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -229,8 +233,8 @@ public class Applozic {
         }
     }
 
-    public static void logoutUser(Context context, AlLogoutHandler logoutHandler) {
-        new UserLogoutTask(logoutHandler, context).execute();
+    public static void logoutUser(final Context context, AlLogoutHandler logoutHandler) {
+        new UserLogoutTask(logoutHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void registerForPushNotification(Context context, String pushToken, AlPushNotificationHandler handler) {

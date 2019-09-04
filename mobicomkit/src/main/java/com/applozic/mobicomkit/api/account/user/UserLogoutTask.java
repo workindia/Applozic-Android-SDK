@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 
 import java.lang.ref.WeakReference;
