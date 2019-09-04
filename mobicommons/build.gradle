@@ -14,7 +14,7 @@ android {
         minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.51"
+        versionName "5.60"
     }
     buildTypes {
         release {
@@ -49,7 +49,7 @@ dependencies {
     artifact = 'mobicommons'
 
     libraryDescription = 'Applozic MobiFramekwork mobicommons library for utilities'
-    libraryVersion = '5.51'
+    libraryVersion = '5.60'
     developerId = 'devashish'
     developerName = 'Applozic'
     developerEmail = 'devashish.mamgain@gmail.com'
