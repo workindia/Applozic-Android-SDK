@@ -148,7 +148,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
                 contact.setUserTypeId(user.getUserTypeId());
             }
             contact.setRoleType(user.getRoleType());
-            contact.setMetadata(registrationResponse.getMetadata());
             contact.setStatus(registrationResponse.getStatusMessage());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
