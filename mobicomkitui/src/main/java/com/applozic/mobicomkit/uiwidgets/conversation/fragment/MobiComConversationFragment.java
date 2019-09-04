@@ -1734,12 +1734,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageMetaData = null;
 
             if (userNotAbleToChatLayout != null) {
-                if (contact != null && contact.isDeleted()) {
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    individualMessageSendLayout.setVisibility(View.GONE);
+                if (contact != null) {
+                    enableOrDisableChat(contact);
                 } else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
-                    individualMessageSendLayout.setVisibility(VISIBLE);
+                    enableOrDisableChannel(channel);
                 }
             }
 
@@ -3203,18 +3201,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (channel != null) {
-                boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
                 Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
 
                 if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
                     MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
                 }
 
-                if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                    hideSendMessageLayout(newChannel.isDeleted() || !present);
-                } else {
-                    hideSendMessageLayout(newChannel.isDeleted());
-                }
+                enableOrDisableChannel(newChannel);
 
                 if (ChannelService.isUpdateTitle) {
                     updateChannelSubTitle(newChannel);
@@ -3231,7 +3224,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
                 MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
-                loadConversation(contact, channel, currentConversationId, null);
+                Applozic.subscribeToTyping(getContext(), channel, contact);
+                loadnewMessageOnResume(contact,channel,currentConversationId);
             }
 
             if (SyncCallService.refreshView) {
@@ -3266,6 +3260,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         });
+    }
+
+    protected void enableOrDisableChannel(final Channel channel) {
+        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+
+        if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+            hideSendMessageLayout(channel.isDeleted() || !present, present);
+        } else {
+            hideSendMessageLayout(channel.isDeleted(), present);
+        }
     }
 
     protected void enableOrDisableChat(final Contact contact) {
