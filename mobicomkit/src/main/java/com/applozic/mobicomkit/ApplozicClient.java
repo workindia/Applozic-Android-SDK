@@ -380,6 +380,11 @@ public class ApplozicClient {
         return this;
     }
 
+    public ApplozicClient setChatDisabled(boolean disable) {
+        sharedPreferences.edit().putBoolean(Contact.DISABLE_CHAT_WITH_USER, disable).commit();
+        return this;
+    }
+
     public boolean isChatForUserDisabled() {
         return sharedPreferences.getBoolean(Contact.DISABLE_CHAT_WITH_USER, false);
     }
