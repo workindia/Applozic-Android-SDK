@@ -23,7 +23,10 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
+
+import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -39,6 +42,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -857,20 +861,30 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             profilefragment.setApplozicPermissions(applozicPermission);
             addFragment(this, profilefragment, ProfileFragment.ProfileFragmentTag);
         } else if (id == R.id.logout) {
-            try {
-                if (!TextUtils.isEmpty(alCustomizationSettings.getLogoutPackage())) {
-                    Class loginActivity = Class.forName(alCustomizationSettings.getLogoutPackage().trim());
-                    if (loginActivity != null) {
-                        new UserClientService(this).logout();
-                        Toast.makeText(getBaseContext(), getString(R.string.user_logout_info), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(this, loginActivity);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        startActivity(intent);
-                        finish();
+
+            if (!TextUtils.isEmpty(alCustomizationSettings.getLogoutPackage())) {
+                Applozic.logoutUser(ConversationActivity.this, new AlLogoutHandler() {
+                    @Override
+                    public void onSuccess(Context context) {
+                        try {
+                            Class loginActivity = Class.forName(alCustomizationSettings.getLogoutPackage().trim());
+                            if (loginActivity != null) {
+                                Toast.makeText(getBaseContext(), getString(R.string.user_logout_info), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(ConversationActivity.this, loginActivity);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
+                                finish();
+                            }
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+
+                    @Override
+                    public void onFailure(Exception exception) {
+
+                    }
+                });
             }
         } else if (id == R.id.sendTextLogs) {
             try {

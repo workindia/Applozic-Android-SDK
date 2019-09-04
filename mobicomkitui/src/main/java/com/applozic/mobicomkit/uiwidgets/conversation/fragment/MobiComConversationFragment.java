@@ -1858,6 +1858,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (contact != null) {
+                enableOrDisableChat(contact);
                 recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, contact, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);

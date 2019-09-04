@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -19,6 +20,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -34,11 +36,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -105,7 +108,7 @@ public class ProfileFragment extends Fragment {
         displayNameText = (TextView) view.findViewById(R.id.applozic_profile_displayname);
         statusText = (TextView) view.findViewById(R.id.applozic_profile_status);
         contactNumberText = (TextView) view.findViewById(R.id.applozic_profile_contact);
-        applozicProfileContactLayout =  (RelativeLayout)view.findViewById(R.id.applozic_profile_contact_section_rl);
+        applozicProfileContactLayout = (RelativeLayout) view.findViewById(R.id.applozic_profile_contact_section_rl);
 
         setupDeviderView(view, R.id.applozic_profile_section_rl, R.id.applozic_profile_verticalline_rl);
         setupDeviderView(view, R.id.applozic_datausage_section_rl, R.id.applozic_datausage_verticalline_rl);
@@ -113,11 +116,11 @@ public class ProfileFragment extends Fragment {
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
 
-            toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
-            toolbarTitle.setText(R.string.applozic_user_profile_heading);
-            ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
-            animation.setDuration(10);
-            animation.start();
+        toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
+        toolbarTitle.setText(R.string.applozic_user_profile_heading);
+        ObjectAnimator animation = ObjectAnimator.ofFloat(toolbarTitle, "translationY", 0f);
+        animation.setDuration(10);
+        animation.start();
 
         toolbar.setClickable(false);
 //        toolbar.setTitle(getString(R.string.applozic_user_profile_heading));
@@ -134,7 +137,7 @@ public class ProfileFragment extends Fragment {
         }
         if (!TextUtils.isEmpty(userContact.getContactNumber())) {
             contactNumberText.setText(userContact.getContactNumber());
-        }else {
+        } else {
             applozicProfileContactLayout.setVisibility(View.GONE);
         }
 
@@ -158,19 +161,27 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                try {
-                    final String logoutActivity = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.USER_LOOUT);
-                    if (!TextUtils.isEmpty(logoutActivity)) {
-                        new UserClientService(getActivity()).logout();
-                        Intent intent = new Intent(getActivity(), Class.forName(logoutActivity));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                        startActivity(intent);
-                        getActivity().finish();
-                        return;
+                Applozic.logoutUser(getContext(), new AlLogoutHandler() {
+                    @Override
+                    public void onSuccess(Context context) {
+                        try {
+                            final String logoutActivity = ApplozicSetting.getInstance(getActivity()).getActivityCallback(ApplozicSetting.RequestCode.USER_LOOUT);
+                            if (logoutActivity != null && getActivity() != null) {
+                                Intent intent = new Intent(getActivity(), Class.forName(logoutActivity));
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(intent);
+                                getActivity().finish();
+                            }
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+
+                    }
+                });
             }
         });
         statusEdit.setOnClickListener(new View.OnClickListener() {
@@ -305,35 +316,35 @@ public class ProfileFragment extends Fragment {
 
     public void processPhotoOption() {
         try {
-        if (PermissionsUtils.isCameraPermissionGranted(getContext()) && !PermissionsUtils.checkSelfForStoragePermission(getActivity())) {
+            if (PermissionsUtils.isCameraPermissionGranted(getContext()) && !PermissionsUtils.checkSelfForStoragePermission(getActivity())) {
 
-            new Handler().post(new Runnable() {
-                public void run() {
-                    FragmentManager supportFragmentManager = getActivity().getSupportFragmentManager();
-                    DialogFragment fragment = new PictureUploadPopUpFragment();
-                    fragment.setTargetFragment(ProfileFragment.this, REQUEST_CODE_ATTACH_PHOTO);
-                    FragmentTransaction fragmentTransaction = supportFragmentManager
-                            .beginTransaction();
-                    Fragment prev = getFragmentManager().findFragmentByTag("PhotosAttachmentFragment");
-                    if (prev != null) {
-                        fragmentTransaction.remove(prev);
+                new Handler().post(new Runnable() {
+                    public void run() {
+                        FragmentManager supportFragmentManager = getActivity().getSupportFragmentManager();
+                        DialogFragment fragment = new PictureUploadPopUpFragment();
+                        fragment.setTargetFragment(ProfileFragment.this, REQUEST_CODE_ATTACH_PHOTO);
+                        FragmentTransaction fragmentTransaction = supportFragmentManager
+                                .beginTransaction();
+                        Fragment prev = getFragmentManager().findFragmentByTag("PhotosAttachmentFragment");
+                        if (prev != null) {
+                            fragmentTransaction.remove(prev);
+                        }
+                        fragmentTransaction.addToBackStack(null);
+                        fragment.show(fragmentTransaction, "PhotosAttachmentFragment");
                     }
-                    fragmentTransaction.addToBackStack(null);
-                    fragment.show(fragmentTransaction, "PhotosAttachmentFragment");
-                }
-            });
+                });
 
-        } else {
-            if (Utils.hasMarshmallow()) {
-                if (PermissionsUtils.checkSelfForCameraPermission(getActivity())) {
-                    applozicPermissions.requestCameraPermissionForProfilePhoto();
-                } else {
-                    applozicPermissions.requestStoragePermissionsForProfilePhoto();
-                }
             } else {
-                processPhotoOption();
+                if (Utils.hasMarshmallow()) {
+                    if (PermissionsUtils.checkSelfForCameraPermission(getActivity())) {
+                        applozicPermissions.requestCameraPermissionForProfilePhoto();
+                    } else {
+                        applozicPermissions.requestStoragePermissionsForProfilePhoto();
+                    }
+                } else {
+                    processPhotoOption();
+                }
             }
-        }
         } catch (Exception e) {
 
         }
@@ -351,14 +362,14 @@ public class ProfileFragment extends Fragment {
             super.onActivityResult(requestCode, resultCode, intent);
             File file = FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getContext(), "image", true);
             if (file == null || !file.exists()) {
-                Utils.printLog(getActivity(),TAG, "file not found,exporting it from drawable");
+                Utils.printLog(getActivity(), TAG, "file not found,exporting it from drawable");
                 Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.applozic_ic_contact_picture_180_holo_light);
                 String filePath = ImageUtils.saveImageToInternalStorage(FileClientService.getFilePath(DEFAULT_CONATCT_IMAGE, getActivity().getApplicationContext(), "image", true), bm);
                 file = new File(filePath);
             }
             handleProfileimageUpload(false, Uri.parse(file.getAbsolutePath()), file);
         } else {
-            Utils.printLog(getActivity(),TAG, "Activity result failed with code: " + resultCode);
+            Utils.printLog(getActivity(), TAG, "Activity result failed with code: " + resultCode);
         }
     }
 
@@ -451,7 +462,7 @@ public class ProfileFragment extends Fragment {
                     contactNumberTextView.setText(contactNumber);
                 }
             }
-            if(progressDialog.isShowing()){
+            if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
         }
