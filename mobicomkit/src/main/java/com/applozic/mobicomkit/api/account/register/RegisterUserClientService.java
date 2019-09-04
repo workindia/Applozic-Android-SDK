@@ -143,17 +143,19 @@ public class RegisterUserClientService extends MobiComKitClientService {
             contact.setFullName(registrationResponse.getDisplayName());
             contact.setImageURL(registrationResponse.getImageLink());
             contact.setContactNumber(registrationResponse.getContactNumber());
+            contact.setMetadata(registrationResponse.getMetadata());
             if (user.getUserTypeId() != null) {
                 contact.setUserTypeId(user.getUserTypeId());
             }
             contact.setRoleType(user.getRoleType());
-            contact.setMetadata(user.getMetadata());
+            contact.setMetadata(registrationResponse.getMetadata());
             contact.setStatus(registrationResponse.getStatusMessage());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Applozic.getInstance(context).setNotificationChannelVersion(NotificationChannels.NOTIFICATION_CHANNEL_VERSION - 1);
                 new NotificationChannels(context, Applozic.getInstance(context).getCustomNotificationSound()).prepareNotificationChannels();
             }
             contact.processContactNumbers(context);
+            ApplozicClient.getInstance(context).setChatDisabled(contact.isChatForUserDisabled());
             new AppContactService(context).upsert(contact);
 
 

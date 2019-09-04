@@ -4,6 +4,8 @@ import android.text.TextUtils;
 
 import com.applozic.mobicommons.json.JsonMarker;
 
+import java.util.Map;
+
 /**
  * @author devashish
  */
@@ -24,6 +26,7 @@ public class RegistrationResponse extends JsonMarker {
     private String encryptionKey;
     private String userEncryptionKey;
     private boolean enableEncryption;
+    private Map<String, String> metadata;
     private Short roleType;
     private Short pricingPackage = PricingType.STARTER.getValue();
 
@@ -165,6 +168,14 @@ public class RegistrationResponse extends JsonMarker {
 
     public void setUserEncryptionKey(String userEncryptionKey) {
         this.userEncryptionKey = userEncryptionKey;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
     }
 
     public static enum PricingType {
