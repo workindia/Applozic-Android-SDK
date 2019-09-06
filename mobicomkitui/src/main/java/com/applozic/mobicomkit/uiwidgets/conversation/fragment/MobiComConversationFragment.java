@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
+
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -452,8 +453,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
         deliveredIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
 
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? View.VISIBLE : View.GONE);
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? View.GONE : View.VISIBLE);
 
         GradientDrawable bgShape = (GradientDrawable) sendButton.getBackground();
         bgShape.setColor(Color.parseColor(alCustomizationSettings.getSendButtonBackgroundColor().trim()));
@@ -973,8 +974,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void handleSendAndRecordButtonView(boolean isSendButtonVisible) {
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null ) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -2288,12 +2289,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.execute();
         } else {
             String path = Uri.parse(file.getAbsolutePath()).toString();
-            if(channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())){
+            if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 this.messageContentType = messageContentType;
                 List<String> paths = new ArrayList<>();
                 paths.add(path);
                 this.filePaths = paths;
-            }else{
+            } else {
                 sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
             }
         }
@@ -2500,7 +2501,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
         messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
         messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
-        String originalFilePath =   this.filePath != null ? this.filePath : filePath;
+        String originalFilePath = this.filePath != null ? this.filePath : filePath;
         if (!TextUtils.isEmpty(originalFilePath)) {
             List<String> filePaths = new ArrayList<String>();
             filePaths.add(originalFilePath);
@@ -2639,7 +2640,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void sendMessage(short messageContentType, String filePath) {
-        if(filePath != null ){
+        if (filePath != null) {
             sendMessage("", null, null, null, messageContentType, filePath);
         }
     }
@@ -3224,7 +3225,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
                 MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
                 Applozic.subscribeToTyping(getContext(), channel, contact);
-                loadnewMessageOnResume(contact,channel,currentConversationId);
+                loadnewMessageOnResume(contact, channel, currentConversationId);
             }
 
             if (SyncCallService.refreshView) {
@@ -4144,9 +4145,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageToForward = null;
                 }
 
-                if(filePaths != null && filePaths.size() > 0){
-                    for(String path :filePaths ){
-                        sendMessage(message,messageContentType,path);
+                if (filePaths != null && filePaths.size() > 0) {
+                    for (String path : filePaths) {
+                        sendMessage(message, messageContentType, path);
                     }
                     message = "";
                     filePaths = null;

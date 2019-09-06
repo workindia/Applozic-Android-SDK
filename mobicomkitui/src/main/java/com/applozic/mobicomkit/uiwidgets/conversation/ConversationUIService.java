@@ -12,7 +12,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+
 import androidx.fragment.app.FragmentActivity;
+
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -222,7 +224,7 @@ public class ConversationUIService {
                             }
                         });
                 if (getConversationFragment() != null) {
-                    getConversationFragment().loadFileAndSendMessage(selectedFileUri, file,Message.ContentType.ATTACHMENT.getValue());
+                    getConversationFragment().loadFileAndSendMessage(selectedFileUri, file, Message.ContentType.ATTACHMENT.getValue());
                 }
                 Utils.printLog(fragmentActivity, TAG, "File uri: " + selectedFileUri);
             }
@@ -241,7 +243,7 @@ public class ConversationUIService {
                 }
 
                 if (selectedFilePath != null && getConversationFragment() != null) {
-                    getConversationFragment().loadFileAndSendMessage(selectedFilePath, file,Message.ContentType.VIDEO_MSG.getValue());
+                    getConversationFragment().loadFileAndSendMessage(selectedFilePath, file, Message.ContentType.VIDEO_MSG.getValue());
                 }
             }
 
@@ -253,7 +255,7 @@ public class ConversationUIService {
                     if (vCradFile != null && getConversationFragment() != null) {
                         List<String> filePaths = new ArrayList<>();
                         filePaths.add(vCradFile.getAbsolutePath());
-                        getConversationFragment().sendMessage("",Message.ContentType.CONTACT_MSG.getValue(),filePaths);
+                        getConversationFragment().sendMessage("", Message.ContentType.CONTACT_MSG.getValue(), filePaths);
                     }
 
                 } catch (Exception e) {
@@ -273,7 +275,7 @@ public class ConversationUIService {
                     for (Uri info : attachmentList) {
                         filePaths.add(info.getPath());
                     }
-                    getConversationFragment().sendMessage(messageText,Message.ContentType.ATTACHMENT.getValue(),filePaths);
+                    getConversationFragment().sendMessage(messageText, Message.ContentType.ATTACHMENT.getValue(), filePaths);
                 }
             }
 

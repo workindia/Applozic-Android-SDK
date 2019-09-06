@@ -345,7 +345,7 @@ public class MessageClientService extends MobiComKitClientService {
             contact = baseContactService.getContactById(message.getContactIds());
         } else {
             channel = ChannelService.getInstance(context).getChannel(message.getGroupId());
-            isOpenGroup = (Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? !message.hasAttachment() :false);
+            isOpenGroup = (Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !message.hasAttachment());
             isBroadcastOneByOneGroupType = Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue().equals(channel.getType());
         }
         long messageId = -1;
