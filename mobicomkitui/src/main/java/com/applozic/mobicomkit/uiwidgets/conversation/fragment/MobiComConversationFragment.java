@@ -1934,14 +1934,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
         if (contact != null) {
-            appContactService.getContactByIdAsync(contact.getContactIds(), new AlContactListener() {
-                @Override
-                public void onGetContact(Contact contact) {
-                    if (contact != null) {
-                        processUpdateLastSeenStatus(contact);
-                    }
-                }
-            });
+            Contact withContact = appContactService.getContactById(contact.getContactIds());
+            if(withContact != null){
+                processUpdateLastSeenStatus(withContact);
+            }
         } else if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
             String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
             if (!TextUtils.isEmpty(userId)) {
@@ -3217,7 +3213,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (appContactService != null && contact != null) {
                 updateLastSeenStatus();
-                enableOrDisableChat(contact);
             }
 
             if (messageList.isEmpty()) {
