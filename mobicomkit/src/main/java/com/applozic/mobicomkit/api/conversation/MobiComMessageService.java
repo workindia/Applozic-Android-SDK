@@ -3,7 +3,9 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -250,6 +252,10 @@ public class MobiComMessageService {
         BroadcastService.sendNotificationBroadcast(context, message, index);
         Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    public void processOpenGroupAttachmentMessage(Message message) {
+        processMessage(message, message.getTo(), 0);
     }
 
     public synchronized void syncMessages() {
@@ -555,14 +561,17 @@ public class MobiComMessageService {
     }
 
     public synchronized void processInstantMessage(Message message) {
-        if (!message.hasAttachment()) {
-            if (!baseContactService.isContactPresent(message.getContactIds())) {
-                userService.processUserDetails(message.getContactIds());
-            }
-            Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-            if (channel == null) {
-                return;
-            }
+
+        if (!baseContactService.isContactPresent(message.getContactIds())) {
+            userService.processUserDetails(message.getContactIds());
+        }
+        Channel channel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
+        if (channel == null) {
+            return;
+        }
+        if (message.hasAttachment()) {
+            processOpenGroupAttachmentMessage(message);
+        } else {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
         }
     }

@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
+
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -294,6 +295,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     private String geoApiKey;
     private String loggedInUserId;
     private ResultReceiver channelUpdateReceiver;
+    List<String> filePaths = new ArrayList<>();
+    String message = "";
+    Short messageContentType = Message.ContentType.DEFAULT.getValue();
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -449,8 +453,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sentIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_sent);
         deliveredIcon = getResources().getDrawable(R.drawable.applozic_ic_action_message_delivered);
 
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? View.VISIBLE : View.GONE);
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? View.GONE : View.VISIBLE);
 
         GradientDrawable bgShape = (GradientDrawable) sendButton.getBackground();
         bgShape.setColor(Color.parseColor(alCustomizationSettings.getSendButtonBackgroundColor().trim()));
@@ -656,11 +660,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 emoticonsFrameLayout.setVisibility(View.GONE);
             }
         });
-
-        if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-            attachButton.setVisibility(View.GONE);
-            messageEditText.setPadding(20, 0, 0, 0);
-        }
 
         attachReplyCancelLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -975,8 +974,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void handleSendAndRecordButtonView(boolean isSendButtonVisible) {
-        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
-        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
+        sendButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? isSendButtonVisible ? View.VISIBLE : View.GONE : View.VISIBLE);
+        recordButton.setVisibility(alCustomizationSettings.isRecordButton() && (contact != null || channel != null) ? isSendButtonVisible ? View.GONE : View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -1105,55 +1104,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void sendOpenGroupMessage(String messageText) {
-
-        attachReplyCancelLayout.setVisibility(View.GONE);
-        replayRelativeLayout.setVisibility(View.GONE);
-
-        Map<String, String> messageMetaData = new HashMap<>();
-        if (this.messageMetaData != null && !this.messageMetaData.isEmpty()) {
-            messageMetaData.putAll(this.messageMetaData);
-        }
-
-
-        new MessageBuilder(getActivity()).setMessage(messageText).setMetadata(messageMetaData).setGroupId(channel.getKey()).send(new MediaUploadProgressHandler() {
-
-            @Override
-            public void onUploadStarted(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onProgressUpdate(int percentage, ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onCancelled(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onCompleted(ApplozicException e, String oldMessageKey) {
-
-            }
-
-            @Override
-            public void onSent(Message message, String oldMessageKey) {
-                Message messageToBeReplied = new Message();
-                messageToBeReplied.setKeyString(oldMessageKey);
-                int indexOfObject = messageList.indexOf(messageToBeReplied);
-                if (indexOfObject != -1) {
-                    messageList.set(indexOfObject, message);
-                    recyclerDetailConversationAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-
-        this.messageMetaData = null;
-    }
-
-
     protected void processSendMessage() {
         if (!TextUtils.isEmpty(messageEditText.getText().toString().trim()) || !TextUtils.isEmpty(filePath)) {
             String inputMessage = messageEditText.getText().toString();
@@ -1176,11 +1126,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (disjointResult && !restrictedWordMatches) {
-                if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    sendOpenGroupMessage(messageEditText.getText().toString().trim());
-                } else {
-                    sendMessage(messageEditText.getText().toString().trim());
-                }
+                sendMessage(messageEditText.getText().toString().trim());
                 messageEditText.setText("");
                 scheduleOption.setText(R.string.ScheduleText);
                 if (scheduledTimeHolder.getTimestamp() != null) {
@@ -1789,12 +1735,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             messageMetaData = null;
 
             if (userNotAbleToChatLayout != null) {
-                if (contact != null && contact.isDeleted()) {
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    individualMessageSendLayout.setVisibility(View.GONE);
+                if (contact != null) {
+                    enableOrDisableChat(contact);
                 } else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
-                    individualMessageSendLayout.setVisibility(VISIBLE);
+                    enableOrDisableChannel(channel);
                 }
             }
 
@@ -1858,7 +1802,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (contact != null) {
-                enableOrDisableChat(contact);
                 recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, contact, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
@@ -1991,14 +1934,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
         if (contact != null) {
-            appContactService.getContactByIdAsync(contact.getContactIds(), new AlContactListener() {
-                @Override
-                public void onGetContact(Contact contact) {
-                    if (contact != null) {
-                        processUpdateLastSeenStatus(contact);
-                    }
-                }
-            });
+            Contact withContact = appContactService.getContactById(contact.getContactIds());
+            if(withContact != null){
+                processUpdateLastSeenStatus(withContact);
+            }
         } else if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
             String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
             if (!TextUtils.isEmpty(userId)) {
@@ -2321,11 +2260,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public void loadFile(Uri uri) {
-        loadFile(uri, null);
-    }
 
-    public void loadFile(Uri uri, File file) {
+    public void loadFileAndSendMessage(Uri uri, File file, short messageContentType) {
         if (uri == null || file == null) {
             Toast.makeText(getActivity(), R.string.file_not_selected, Toast.LENGTH_LONG).show();
             return;
@@ -2348,7 +2284,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
             attachmentAsyncTask.execute();
         } else {
-            filePath = Uri.parse(file.getAbsolutePath()).toString();
+            String path = Uri.parse(file.getAbsolutePath()).toString();
+            if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+                this.messageContentType = messageContentType;
+                List<String> paths = new ArrayList<>();
+                paths.add(path);
+                this.filePaths = paths;
+            } else {
+                sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
+            }
         }
 
     }
@@ -2521,8 +2465,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         filePath = null;
     }
 
-
     public void sendMessage(String message, Map<String, String> messageMetaData, FileMeta fileMetas, String fileMetaKeyStrings, short messageContentType) {
+        sendMessage(message, messageMetaData, fileMetas, fileMetaKeyStrings, messageContentType, null);
+    }
+
+    public void sendMessage(String message, Map<String, String> messageMetaData, FileMeta fileMetas, String fileMetaKeyStrings, short messageContentType, String filePath) {
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(getActivity());
         Message messageToSend = new Message();
 
@@ -2550,9 +2497,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
         messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
         messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
-        if (!TextUtils.isEmpty(filePath)) {
+        String originalFilePath = this.filePath != null ? this.filePath : filePath;
+        if (!TextUtils.isEmpty(originalFilePath)) {
             List<String> filePaths = new ArrayList<String>();
-            filePaths.add(filePath);
+            filePaths.add(originalFilePath);
             messageToSend.setFilePaths(filePaths);
             if (messageContentType == Message.ContentType.AUDIO_MSG.getValue() || messageContentType == Message.ContentType.CONTACT_MSG.getValue() || messageContentType == Message.ContentType.VIDEO_MSG.getValue()) {
                 messageToSend.setContentType(messageContentType);
@@ -2597,10 +2545,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         attachmentLayout.setVisibility(View.GONE);
         if (channel != null && channel.getType() != null && Channel.GroupType.BROADCAST_ONE_BY_ONE.getValue().equals(channel.getType())) {
-            sendBroadcastMessage(message, filePath);
+            sendBroadcastMessage(message, originalFilePath);
         }
         this.messageMetaData = null;
-        filePath = null;
+        this.filePath = null;
     }
 
     public void sendProductMessage(final String messageToSend, final FileMeta fileMeta, final Contact contact, final short messageContentType) {
@@ -2688,13 +2636,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void sendMessage(short messageContentType, String filePath) {
-        this.filePath = filePath;
-        sendMessage("", messageContentType);
+        if (filePath != null) {
+            sendMessage("", null, null, null, messageContentType, filePath);
+        }
     }
 
     public void sendMessage(String message, short messageContentType, String filePath) {
-        this.filePath = filePath;
-        sendMessage(message, null, null, null, messageContentType);
+        sendMessage(message, null, null, null, messageContentType, filePath);
+    }
+
+    public void sendMessage(String message, short messageContentType, List<String> filePaths) {
+        if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+            this.filePaths = filePaths;
+            this.message = message;
+            this.messageContentType = messageContentType;
+        } else {
+            for (String filePath : filePaths) {
+                sendMessage(message, null, null, null, messageContentType, filePath);
+            }
+        }
     }
 
     public void sendMessage(String message, short messageContentType) {
@@ -3236,49 +3196,32 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            new AsyncTask<Void, Object, Object>() {
-                @Override
-                protected Object doInBackground(Void... voids) {
-                    if (channel != null) {
-                        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-                        Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-                        if (!present) {
-                            if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                                MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
-                            }
-                        }
+            if (channel != null) {
+                Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
 
-                        if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                            hideSendMessageLayout(newChannel.isDeleted() || !present, present);
-                        } else {
-                            hideSendMessageLayout(newChannel.isDeleted(), present);
-                        }
-
-                        if (ChannelService.isUpdateTitle) {
-                            updateChannelSubTitle(newChannel);
-                            ChannelService.isUpdateTitle = false;
-                        }
-                    }
-
-                    return null;
+                if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
+                    MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
                 }
 
-                @Override
-                protected void onPostExecute(Object o) {
-                    super.onPostExecute(o);
-                    if (appContactService != null && contact != null) {
-                        updateLastSeenStatus();
-                        enableOrDisableChat(contact);
-                    }
+                enableOrDisableChannel(newChannel);
+
+                if (ChannelService.isUpdateTitle) {
+                    updateChannelSubTitle(newChannel);
+                    ChannelService.isUpdateTitle = false;
                 }
-            }.execute();
+            }
+
+            if (appContactService != null && contact != null) {
+                updateLastSeenStatus();
+            }
 
             if (messageList.isEmpty()) {
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
+                MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
+                Applozic.subscribeToTyping(getContext(), channel, contact);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
             }
-            MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
 
             if (SyncCallService.refreshView) {
                 SyncCallService.refreshView = false;
@@ -3312,6 +3255,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         });
+    }
+
+    protected void enableOrDisableChannel(final Channel channel) {
+        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+
+        if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+            hideSendMessageLayout(channel.isDeleted() || !present, present);
+        } else {
+            hideSendMessageLayout(channel.isDeleted(), present);
+        }
     }
 
     protected void enableOrDisableChat(final Contact contact) {
@@ -4187,6 +4140,15 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageToForward = null;
                 }
 
+                if (filePaths != null && filePaths.size() > 0) {
+                    for (String path : filePaths) {
+                        sendMessage(message, messageContentType, path);
+                    }
+                    message = "";
+                    filePaths = null;
+                    messageContentType = Message.ContentType.DEFAULT.getValue();
+                }
+
                 if (!messageList.isEmpty()) {
                     channelKey = messageList.get(messageList.size() - 1).getGroupId();
                 }
@@ -4411,4 +4373,3 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return channel != null && channel.isContextBasedChat();
     }
 }
-
