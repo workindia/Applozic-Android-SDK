@@ -117,6 +117,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean showImageOnToolbar = false;
     private String restrictedWordRegex;
     private boolean enableMessageReport = true;
+    private boolean deleteMessageOption = true;
 
     private Map<String, Boolean> attachmentOptions;
 
@@ -607,6 +608,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void enableMessageReport(boolean enableMessageReport) {
         this.enableMessageReport = enableMessageReport;
+    }
+
+    public boolean isDeleteMessageOption() {
+        return deleteMessageOption;
+    }
+
+    public void setDeleteMessageOption(boolean deleteMessageOption) {
+        this.deleteMessageOption = deleteMessageOption;
     }
 
     @Override
