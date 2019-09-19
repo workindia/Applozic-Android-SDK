@@ -2284,12 +2284,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
             attachmentAsyncTask.execute();
         } else {
-            String path = Uri.parse(file.getAbsolutePath()).toString();
+            filePath = Uri.parse(file.getAbsolutePath()).toString();
             if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 this.messageContentType = messageContentType;
-                List<String> paths = new ArrayList<>();
-                paths.add(path);
-                this.filePaths = paths;
+                this.filePaths.add(filePath);
             } else {
                 sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
             }
