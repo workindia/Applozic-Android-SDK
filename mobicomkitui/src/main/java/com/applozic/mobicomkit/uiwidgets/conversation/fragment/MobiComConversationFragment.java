@@ -1118,7 +1118,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 String pattern = !TextUtils.isEmpty(dynamicRegex) ? dynamicRegex : (alCustomizationSettings != null
                         && !TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordRegex()) ? alCustomizationSettings.getRestrictedWordRegex() : "");
 
-                restrictedWordMatches = Pattern.matches(pattern, inputMessage);
+                restrictedWordMatches = !TextUtils.isEmpty(pattern) && Pattern.matches(pattern, inputMessage);
             } catch (PatternSyntaxException e) {
                 e.printStackTrace();
                 createInvalidPatternExceptionDialog();
