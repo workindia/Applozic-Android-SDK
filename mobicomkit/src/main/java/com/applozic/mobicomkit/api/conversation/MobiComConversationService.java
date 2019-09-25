@@ -6,8 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+
 import androidx.annotation.VisibleForTesting;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -21,6 +23,7 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.cache.MessageSearchCache;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -48,6 +51,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -153,7 +157,7 @@ public class MobiComConversationService {
         boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
 
         if (emptyTable || createdAt != null && createdAt != 0) {
-            getMessages(null, createdAt, null, null, null, false);
+            getMessages(null, createdAt, null, null, null, false, false);
         }
 
         return messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey);
@@ -164,14 +168,90 @@ public class MobiComConversationService {
     }
 
     public List<Message> getMessages(String userId, Long startTime, Long endTime) {
-        return getMessages(startTime, endTime, new Contact(userId), null, null, false);
+        return getMessages(startTime, endTime, new Contact(userId), null, null, false, false);
     }
 
     public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId) {
-        return getMessages(startTime, endTime, contact, channel, conversationId, false);
+        return getMessages(startTime, endTime, contact, channel, conversationId, false, false);
     }
 
-    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead) {
+    public synchronized List<Message> getMessagesForParticularThread(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead) {
+        String data = null;
+        try {
+            data = messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead);
+            Utils.printLog(context, TAG, "Received response from server for Messages: " + data);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
+            return null;
+        }
+
+        KmConversationResponse kmConversationResponse = null;
+        try {
+            kmConversationResponse = (KmConversationResponse) GsonUtils.getObjectFromJson(messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead), KmConversationResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (kmConversationResponse == null) {
+            return null;
+        }
+
+        List<Message> messageList = new ArrayList<>();
+
+        try {
+            if (kmConversationResponse.getUserDetails() != null) {
+                MessageSearchCache.processUserDetails(kmConversationResponse.getUserDetails());
+            }
+
+            if (kmConversationResponse.getGroupFeeds() != null) {
+                MessageSearchCache.processChannelFeeds(kmConversationResponse.getGroupFeeds());
+            }
+
+            List<String> messageKeys = new ArrayList<>();
+
+            for (Message message : kmConversationResponse.getMessage()) {
+                if (message.getTo() == null) {
+                    continue;
+                }
+                if (message.hasAttachment() && !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
+                    setFilePathifExist(message);
+                }
+                if (message.getContentType() == Message.ContentType.CONTACT_MSG.getValue()) {
+                    FileClientService fileClientService = new FileClientService(context);
+                    fileClientService.loadContactsvCard(message);
+                }
+                if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+                    continue;
+                }
+                if (message.getMetadata() != null && Message.GroupMessageMetaData.TRUE.getValue().equals(message.getMetadata().get(Message.GroupMessageMetaData.HIDE_KEY.getValue()))) {
+                    continue;
+                }
+                if (isHideActionMessage && message.isActionMessage()) {
+                    message.setHidden(true);
+                }
+                messageList.add(message);
+                if (message.getMetadata() != null && message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()) != null) {
+                    messageKeys.add(message.getMetaDataValueForKey(Message.MetaDataType.AL_REPLY.getValue()));
+                }
+            }
+
+            if (kmConversationResponse.getMessage() != null) {
+                Collections.reverse(messageList);
+                MessageSearchCache.setMessageList(messageList);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return messageList;
+    }
+
+    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead, boolean isForSearch) {
+        if (isForSearch) {
+            return getMessagesForParticularThread(startTime, endTime, contact, channel, conversationId, isSkipRead);
+        }
         List<Message> messageList = new ArrayList<Message>();
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
         boolean isServerCallNotRequired = false;
@@ -283,10 +363,10 @@ public class MobiComConversationService {
                             if (message.getGroupId() != null) {
                                 Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                                 if (newChannel != null) {
-                                    getMessages(null, null, null, newChannel, null, true);
+                                    getMessages(null, null, null, newChannel, null, true, isForSearch);
                                 }
                             } else {
-                                getMessages(null, null, new Contact(message.getContactIds()), null, null, true);
+                                getMessages(null, null, new Contact(message.getContactIds()), null, null, true, isForSearch);
                             }
                         }
                     }
@@ -351,6 +431,34 @@ public class MobiComConversationService {
         }
 
         return channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? messageList : finalMessageList;
+    }
+
+    public List<Message> getConversationSearchList(String searchString) throws Exception {
+        String response = messageClientService.getMessageSearchResult(searchString);
+        try {
+            ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(response, new TypeToken<ApiResponse<KmConversationResponse>>() {
+            }.getType());
+            if (apiResponse != null) {
+                if (apiResponse.isSuccess()) {
+                    processMessageSearchResult(apiResponse.getResponse());
+                    return Arrays.asList(apiResponse.getResponse().getMessage());
+                } else if (apiResponse.getErrorResponse() != null) {
+                    throw new ApplozicException(GsonUtils.getJsonFromObject(apiResponse.getErrorResponse(), List.class));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return null;
+    }
+
+    private void processMessageSearchResult(KmConversationResponse kmConversationResponse) {
+        if (kmConversationResponse != null) {
+            MessageSearchCache.processChannelFeeds(kmConversationResponse.getGroupFeeds());
+            MessageSearchCache.processUserDetails(kmConversationResponse.getUserDetails());
+            MessageSearchCache.setMessageList(Arrays.asList(kmConversationResponse.getMessage()));
+        }
     }
 
     public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) {
@@ -425,10 +533,10 @@ public class MobiComConversationService {
                         if (message.getGroupId() != null) {
                             Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                             if (newChannel != null) {
-                                getMessages(null, null, null, newChannel, null, true);
+                                getMessages(null, null, null, newChannel, null, true, false);
                             }
                         } else {
-                            getMessages(null, null, new Contact(message.getContactIds()), null, null, true);
+                            getMessages(null, null, new Contact(message.getContactIds()), null, null, true, false);
                         }
                     }
                 }

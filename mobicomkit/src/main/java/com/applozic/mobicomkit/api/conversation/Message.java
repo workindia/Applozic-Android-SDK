@@ -70,6 +70,7 @@ public class Message extends JsonMarker {
     public static final String OTHER = "other";
     public static final String KM_ASSIGN = "KM_ASSIGN";
     public static final String KM_STATUS = "KM_STATUS";
+    public static final String KM_SKIP_BOT = "skipBot";
 
     public Message() {
 

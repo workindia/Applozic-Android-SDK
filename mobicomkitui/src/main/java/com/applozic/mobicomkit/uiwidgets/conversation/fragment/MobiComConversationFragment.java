@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import android.service.autofill.RegexValidator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -1118,7 +1119,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 String pattern = !TextUtils.isEmpty(dynamicRegex) ? dynamicRegex : (alCustomizationSettings != null
                         && !TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordRegex()) ? alCustomizationSettings.getRestrictedWordRegex() : "");
 
-                restrictedWordMatches = !TextUtils.isEmpty(pattern) && Pattern.matches(pattern, inputMessage);
+                restrictedWordMatches = !TextUtils.isEmpty(pattern) && Pattern.compile(pattern).matcher(inputMessage.trim()).matches();
             } catch (PatternSyntaxException e) {
                 e.printStackTrace();
                 createInvalidPatternExceptionDialog();

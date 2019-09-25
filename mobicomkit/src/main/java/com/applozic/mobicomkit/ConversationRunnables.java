@@ -116,7 +116,7 @@ public class ConversationRunnables {
                     contact = new Contact(message.getContactIds());
                 }
 
-                mobiComConversationService.getMessages(1L, null, contact, channel, null, true);
+                mobiComConversationService.getMessages(1L, null, contact, channel, null, true, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
