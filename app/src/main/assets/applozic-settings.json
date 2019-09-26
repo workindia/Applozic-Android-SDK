@@ -67,6 +67,7 @@
   "launchChatFromProfilePicOrName": false,
   "refreshOption": true,
   "deleteOption": true,
+  "deleteMessageOption": true,
   "blockOption": true,
   "muteOption": true,
   "muteUserChatOption": true,

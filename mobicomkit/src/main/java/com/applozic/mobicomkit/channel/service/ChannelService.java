@@ -1,7 +1,9 @@
 package com.applozic.mobicomkit.channel.service;
 
 import android.content.Context;
+
 import androidx.annotation.VisibleForTesting;
+
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -13,6 +15,7 @@ import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
 import com.applozic.mobicomkit.api.people.AlGetPeopleTask;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.cache.MessageSearchCache;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -214,7 +217,11 @@ public class ChannelService {
     }
 
     public Channel getChannel(Integer channelKey) {
-        Channel channel = channelDatabaseService.getChannelByChannelKey(channelKey);
+        Channel channel;
+        channel = MessageSearchCache.getChannelByKey(channelKey);
+        if (channel == null) {
+            channel = channelDatabaseService.getChannelByChannelKey(channelKey);
+        }
         if (channel == null) {
             channel = new Channel(channelKey);
         }

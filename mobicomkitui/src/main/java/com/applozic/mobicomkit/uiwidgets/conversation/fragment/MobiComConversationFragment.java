@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import android.service.autofill.RegexValidator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -1118,7 +1119,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 String pattern = !TextUtils.isEmpty(dynamicRegex) ? dynamicRegex : (alCustomizationSettings != null
                         && !TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordRegex()) ? alCustomizationSettings.getRestrictedWordRegex() : "");
 
-                restrictedWordMatches = Pattern.matches(pattern, inputMessage);
+                restrictedWordMatches = !TextUtils.isEmpty(pattern) && Pattern.compile(pattern).matcher(inputMessage.trim()).matches();
             } catch (PatternSyntaxException e) {
                 e.printStackTrace();
                 createInvalidPatternExceptionDialog();
@@ -2284,12 +2285,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
             attachmentAsyncTask.execute();
         } else {
-            String path = Uri.parse(file.getAbsolutePath()).toString();
+            filePath = Uri.parse(file.getAbsolutePath()).toString();
             if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 this.messageContentType = messageContentType;
-                List<String> paths = new ArrayList<>();
-                paths.add(path);
-                this.filePaths = paths;
+                this.filePaths.add(filePath);
             } else {
                 sendMessage("", Message.ContentType.VIDEO_MSG.getValue());
             }

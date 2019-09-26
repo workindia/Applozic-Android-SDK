@@ -1,5 +1,9 @@
 
 ## Changelog
+
+**Version 5.51**  - Friday, 19 July 2019
+* Fixed issue where user email was not updating from the server.
+
 **Version 5.50**  - Tuesday, 16 July 2019
 
 **Features**

@@ -563,6 +563,17 @@ public class MessageClientService extends MobiComKitClientService {
         }
     }
 
+    public String getMessageSearchResult(String searchText) {
+        try {
+            if (!TextUtils.isEmpty(searchText)) {
+                return httpRequestUtils.getResponse(getKmConversationListUrl() + "?search=" + searchText, "application/json", "application/json");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public SyncMessageFeed getMessageFeed(String lastSyncTime, boolean isMetadataUpdate) {
         String url;
 

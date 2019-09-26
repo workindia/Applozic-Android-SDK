@@ -60,6 +60,8 @@ public class NotificationService {
     private NotificationChannels notificationChannels;
     private String[] constArray = {MobiComKitConstants.LOCATION, MobiComKitConstants.AUDIO, MobiComKitConstants.VIDEO, MobiComKitConstants.ATTACHMENT};
     private String notificationFilePath;
+    public static final String BADGE_COUNT = "BADGE_COUNT";
+    public static final String NO_ALERT = "NO_ALERT";
 
     public NotificationService(int iconResourceID, Context context, int wearable_action_label, int wearable_action_title, int wearable_send_icon) {
         this.context = context;

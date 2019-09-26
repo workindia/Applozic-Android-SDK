@@ -8,6 +8,7 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.people.AlGetPeopleTask;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
+import com.applozic.mobicomkit.cache.MessageSearchCache;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.listners.AlContactListener;
@@ -65,7 +66,11 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public Contact getContactById(String contactId) {
-        Contact contact = contactDatabase.getContactById(contactId);
+        Contact contact;
+        contact = MessageSearchCache.getContactById(contactId);
+        if (contact == null) {
+            contact = contactDatabase.getContactById(contactId);
+        }
         if (contact != null) {
             contact.processContactNumbers(context);
         } else {
