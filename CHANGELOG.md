@@ -1,6 +1,21 @@
 
 ## Changelog
 
+**Version 5.62** - Thursday, 5 September 2019
+**Features**
+* Updated glide version to 4.9.0
+* Added Message search APIs
+
+**Improvements**
+* Fixed typing indicator issue.
+* Fixed image not sending issue when regex in settings file is empty.
+* Fixed video not sending issue.
+* Fixed MQTT not connecting when device goes idle for long time with chat open.
+
+**Fixes**
+* Fixed issue where logout was taking too long to respond.
+* Other crash fixes.
+
 **Version 5.60** - Thursday, 5 September 2019
 
 **Features**
