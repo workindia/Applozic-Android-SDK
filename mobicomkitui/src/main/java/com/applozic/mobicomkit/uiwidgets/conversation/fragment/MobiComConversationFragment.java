@@ -1725,6 +1725,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
             }
+
             setContact(contact);
             setChannel(channel);
 
@@ -1732,6 +1733,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             typingStarted = false;
             onSelected = false;
             messageMetaData = null;
+
+            Applozic.subscribeToTyping(getContext(), channel, contact);
 
             if (userNotAbleToChatLayout != null) {
                 if (contact != null) {
@@ -3169,7 +3172,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             return;
         }
-        Applozic.subscribeToTyping(getContext(), channel, contact);
+
         ((ConversationActivity) getActivity()).setChildFragmentLayoutBGToTransparent();
         if (contact != null || channel != null) {
             BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
@@ -3218,6 +3221,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
                 MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
+            } else {
+                Applozic.subscribeToTyping(getContext(), channel, contact);
             }
 
             if (SyncCallService.refreshView) {
