@@ -1725,15 +1725,16 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
             }
+
             setContact(contact);
             setChannel(channel);
-
-            Applozic.subscribeToTyping(getContext(), channel, contact);
 
             BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
             typingStarted = false;
             onSelected = false;
             messageMetaData = null;
+
+            Applozic.subscribeToTyping(getContext(), channel, contact);
 
             if (userNotAbleToChatLayout != null) {
                 if (contact != null) {
@@ -1936,7 +1937,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         if (contact != null) {
             Contact withContact = appContactService.getContactById(contact.getContactIds());
-            if(withContact != null){
+            if (withContact != null) {
                 processUpdateLastSeenStatus(withContact);
             }
         } else if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
@@ -3171,6 +3172,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             return;
         }
+
         ((ConversationActivity) getActivity()).setChildFragmentLayoutBGToTransparent();
         if (contact != null || channel != null) {
             BroadcastService.currentUserId = contact != null ? contact.getContactIds() : String.valueOf(channel.getKey());
@@ -3218,8 +3220,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
                 MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
-                Applozic.subscribeToTyping(getContext(), channel, contact);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
+            } else {
+                Applozic.subscribeToTyping(getContext(), channel, contact);
             }
 
             if (SyncCallService.refreshView) {

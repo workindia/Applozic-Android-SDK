@@ -3,7 +3,9 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +14,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationCallbackHandler;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -30,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ConversationFragment extends MobiComConversationFragment implements SearchListFragment {
+public class ConversationFragment extends MobiComConversationFragment implements SearchListFragment, AlCallback {
 
     public static final int ATTCHMENT_OPTIONS = 6;
     private static final String TAG = "ConversationFragment";
@@ -44,6 +49,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
     private List<String> attachmentKey = new ArrayList<>();
     private List<String> attachmentText = new ArrayList<>();
     private List<String> attachmentIcon = new ArrayList<>();
+    private ConversationCallbackHandler conversationCallbackHandler;
 
     public static ConversationFragment newInstance(Contact contact, Channel channel, Integer conversationId, String searchString) {
         ConversationFragment f = new ConversationFragment();
@@ -96,6 +102,8 @@ public class ConversationFragment extends MobiComConversationFragment implements
 
         View view = super.onCreateView(inflater, container, savedInstanceState);
         populateAttachmentOptions();
+
+        conversationCallbackHandler = new ConversationCallbackHandler(getContext(), this);
 
         if (alCustomizationSettings.isHideAttachmentButton()) {
 
@@ -179,6 +187,18 @@ public class ConversationFragment extends MobiComConversationFragment implements
         return true;
     }
 
+    @Override
+    public void onResume() {
+        conversationCallbackHandler.registerUICallback();
+        super.onResume();
+
+    }
+
+    @Override
+    public void onPause() {
+        conversationCallbackHandler.unregisterUICallbacks();
+        super.onPause();
+    }
 
     void processAttachButtonClick(View view) {
         MobicomMultimediaPopupAdapter mobicomMultimediaPopupAdapter = new MobicomMultimediaPopupAdapter(getActivity(), attachmentIcon, attachmentText);
@@ -258,6 +278,28 @@ public class ConversationFragment extends MobiComConversationFragment implements
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public void onSuccess(Object response) {
+        if (response instanceof ConversationCallbackHandler.CallbackEvent) {
+            ConversationCallbackHandler.CallbackEvent callbackEvent = (ConversationCallbackHandler.CallbackEvent) response;
+
+            if (ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_CONNECTED.equals(callbackEvent.getAction())) {
+                Applozic.subscribeToTyping(getContext(), channel, contact);
+            }
+        }
+    }
+
+    @Override
+    public void onError(Object error) {
+
+        if (error instanceof ConversationCallbackHandler.CallbackEvent) {
+            ConversationCallbackHandler.CallbackEvent callbackEvent = (ConversationCallbackHandler.CallbackEvent) error;
+
+            if (ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_DISCONNECTED.equals(callbackEvent.getAction())) {
+                Applozic.unSubscribeToTyping(getContext(), channel, contact);
+            }
+        }
     }
 }

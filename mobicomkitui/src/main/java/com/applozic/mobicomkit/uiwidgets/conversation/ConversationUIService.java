@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -32,7 +33,6 @@ import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -1033,9 +1033,7 @@ public class ConversationUIService {
                 if (Utils.isInternetAvailable(fragmentActivity)) {
                     Utils.printLog(fragmentActivity, TAG, "Reconnecting to mqtt.");
                     ((MobiComKitActivityInterface) fragmentActivity).retry();
-                    Intent intent = new Intent(fragmentActivity, ApplozicMqttIntentService.class);
-                    intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-                    ApplozicMqttIntentService.enqueueWork(fragmentActivity, intent);
+                    Applozic.connectPublish(fragmentActivity);
 
                 }
             }

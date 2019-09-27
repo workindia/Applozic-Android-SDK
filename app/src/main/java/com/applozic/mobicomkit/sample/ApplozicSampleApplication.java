@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.sample;
 
 import android.content.Context;
 import android.os.StrictMode;
+
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
 
@@ -31,7 +32,11 @@ public class ApplozicSampleApplication extends MultiDexApplication {
                 .penaltyDeath()
                 .build());
 
-        Fabric.with(this, new Crashlytics());
+        try {
+            Fabric.with(this, new Crashlytics());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
