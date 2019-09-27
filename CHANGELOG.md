@@ -1,6 +1,19 @@
 
 ## Changelog
 
+**Version 5.60** - Thursday, 5 September 2019
+
+**Features**
+* AndroidX migration.
+* Option to enable/disable one to one chat.
+* Option to set regex to block message that matches the pattern.
+* UserId validation before login.
+* Option to report a message.
+
+**Fixes**
+* Fixed issue where logout was taking too long to respond.
+* Other crash fixes.
+
 **Version 5.51**  - Friday, 19 July 2019
 * Fixed issue where user email was not updating from the server.
 
