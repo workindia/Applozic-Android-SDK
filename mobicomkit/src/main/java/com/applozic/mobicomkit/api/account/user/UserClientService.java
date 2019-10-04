@@ -10,6 +10,7 @@ import android.util.Log;
 import com.applozic.mobicomkit.AlUserUpdate;
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -185,6 +186,7 @@ public class UserClientService extends MobiComKitClientService {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
         mobiComUserPreference.clearAll();
+        ChannelService.clearInstance();
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
         mobiComUserPreference.setUrl(url);

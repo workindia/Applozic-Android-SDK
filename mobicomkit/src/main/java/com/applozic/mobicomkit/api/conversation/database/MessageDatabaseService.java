@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
@@ -579,8 +578,8 @@ public class MessageDatabaseService {
             values.put(MobiComDatabaseHelper.STATUS, message.getStatus());
             values.put(MobiComDatabaseHelper.CONVERSATION_ID, message.getConversationId());
             values.put(MobiComDatabaseHelper.TOPIC_ID, message.getTopicId());
-            values.put(MobiComDatabaseHelper.HIDDEN, message.isHidden());
-            boolean hidden = (hideActionMessages && message.isActionMessage()) || message.isHidden();
+            values.put(MobiComDatabaseHelper.HIDDEN, message.hasHideKey());
+            boolean hidden = (hideActionMessages && message.isActionMessage()) || message.hasHideKey();
             values.put(MobiComDatabaseHelper.HIDDEN, hidden);
             if (message.getGroupId() != null) {
                 values.put(MobiComDatabaseHelper.CHANNEL_KEY, message.getGroupId());
