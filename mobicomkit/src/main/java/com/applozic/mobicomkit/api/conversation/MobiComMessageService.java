@@ -64,6 +64,7 @@ public class MobiComMessageService {
     protected UserService userService;
     protected FileClientService fileClientService;
     private boolean isHideActionMessage;
+    private Short loggedInUserRole;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
         this.context = ApplozicService.getContext(context);
@@ -76,6 +77,7 @@ public class MobiComMessageService {
         fileClientService = new FileClientService(context);
         this.userService = UserService.getInstance(context);
         isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
+        loggedInUserRole = MobiComUserPreference.getInstance(context).getUserRoleType();
     }
 
     public Message processMessage(final Message messageToProcess, String tofield, int index) {
@@ -213,7 +215,7 @@ public class MobiComMessageService {
             VideoCallNotificationHelper.buildVideoCallNotification(context, message, index);
         } else if (!isContainerOpened) {
             if (message.isConsideredForCount() && !message.isHidden()) {
-                if (message.getTo() != null && message.getGroupId() == null && !(isHideActionMessage && message.isActionMessage())) {
+                if (message.getTo() != null && message.getGroupId() == null && !message.getHidden()) {
                     messageDatabaseService.updateContactUnreadCount(message.getTo());
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Contact contact = new ContactDatabase(context).getContactById(message.getTo());
@@ -222,14 +224,12 @@ public class MobiComMessageService {
                     }
                 }
                 if (message.getGroupId() != null && !Message.GroupMessageMetaData.FALSE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.KEY.getValue()))) {
-                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType()) && !(isHideActionMessage && message.isActionMessage())) {
+                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType()) && !message.getHidden()) {
                         messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Channel currentChannel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-                    if (currentChannel != null && ((!Channel.GroupType.SUPPORT_GROUP.getValue().equals(currentChannel.getType())
-                            && !currentChannel.isNotificationMuted()) || (Channel.GroupType.SUPPORT_GROUP.getValue().equals(currentChannel.getType())
-                            && currentChannel.getKmStatus() == Channel.ASSIGNED_CONVERSATIONS))) {
+                    if (currentChannel != null && !currentChannel.blockNotification(loggedInUserRole)) {
                         sendNotification(message, index);
                     }
                 }

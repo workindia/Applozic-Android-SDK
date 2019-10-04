@@ -242,6 +242,12 @@ public class Channel extends JsonMarker {
         this.kmStatus = kmStatus;
     }
 
+    public boolean blockNotification(Short loggedInUserRole) {
+        return isNotificationMuted() || (GroupType.SUPPORT_GROUP.getValue().equals(getType())
+                && loggedInUserRole != 3
+                && (getKmStatus() == ALL_CONVERSATIONS || getKmStatus() == CLOSED_CONVERSATIONS));
+    }
+
     public int generateKmStatus(String loggedInUserId) {
         if (getMetadata() == null) {
             return ASSIGNED_CONVERSATIONS;

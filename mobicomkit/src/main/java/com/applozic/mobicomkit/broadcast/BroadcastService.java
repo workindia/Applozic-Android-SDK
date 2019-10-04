@@ -88,10 +88,6 @@ public class BroadcastService {
     }
 
     public static void sendMessageUpdateBroadcast(Context context, String action, Message message) {
-        if (message.isActionMessage() && INTENT_ACTIONS.SYNC_MESSAGE.toString().equals(action) && ApplozicClient.getInstance(context).isActionMessagesHidden()) {
-            return;
-        }
-
         if (!message.isSentToMany() && !message.isTypeOutbox()) {
             postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_RECEIVED).setMessage(message));
         }
