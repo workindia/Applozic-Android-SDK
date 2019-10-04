@@ -429,7 +429,7 @@ public class ConversationUIService {
     }
 
     public void addMessage(Message message) {
-        if (message.isUpdateMessage() || !message.getHidden()) {
+        if (message.isUpdateMessage() || message.getHidden()) {
             if (!BroadcastService.isQuick()) {
                 return;
             }

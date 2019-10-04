@@ -348,9 +348,9 @@ public class MobiComConversationService {
                     if (Message.MetaDataType.HIDDEN.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
                         continue;
                     }
-                    if (isHideActionMessage && message.isActionMessage()) {
-                        message.setHidden(true);
-                    }
+
+                    message.setHidden(isHideActionMessage && message.isActionMessage());
+
                     if (messageDatabaseService.isMessagePresent(message.getKeyString(), Message.ReplyMessage.HIDE_MESSAGE.getValue())) {
                         messageDatabaseService.updateMessageReplyType(message.getKeyString(), Message.ReplyMessage.NON_HIDDEN.getValue());
                     } else {
@@ -371,7 +371,7 @@ public class MobiComConversationService {
                         }
                     }
                 }
-                if (!isServerCallNotRequired) {
+                if (!isServerCallNotRequired && !message.getHidden()) {
                     messageList.add(message);
                 }
             }
