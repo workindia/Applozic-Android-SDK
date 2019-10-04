@@ -109,7 +109,7 @@ public class Message extends JsonMarker {
         this.setConversationId(message.getConversationId());
         this.setTopicId(message.getTopicId());
         this.setMetadata(message.getMetadata());
-        this.setHidden(message.isHidden());
+        this.setHidden(message.hasHideKey());
     }
 
     public long getSentMessageTimeAtServer() {
@@ -668,10 +668,10 @@ public class Message extends JsonMarker {
 
     public boolean isConsideredForCount() {
         return (!Message.ContentType.HIDDEN.getValue().equals(getContentType()) &&
-                !ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue().equals(getContentType()) && !isReadStatus() && !isHidden());
+                !ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue().equals(getContentType()) && !isReadStatus() && !hasHideKey());
     }
-
-    public boolean isHidden() {
+  
+    public boolean hasHideKey() {
         return GroupMessageMetaData.TRUE.getValue().equals(getMetaDataValueForKey(GroupMessageMetaData.HIDE_KEY.getValue())) || Message.ContentType.HIDDEN.getValue().equals(getContentType()) || hidden;
     }
 
@@ -683,7 +683,7 @@ public class Message extends JsonMarker {
         this.hidden = hidden;
     }
 
-    public boolean getHidden() {
+    public boolean isHidden() {
         return hidden;
     }
 
@@ -707,7 +707,7 @@ public class Message extends JsonMarker {
             boolean categoryFlag = channel != null && channel.isPartOfCategory(MobiComUserPreference.getInstance(context).getCategoryName());
             return (subGroupFlag || categoryFlag || ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
         }
-        return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || isHidden());
+        return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || hasHideKey());
     }
 
     @Override

@@ -214,8 +214,9 @@ public class MobiComMessageService {
             BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
             VideoCallNotificationHelper.buildVideoCallNotification(context, message, index);
         } else if (!isContainerOpened) {
-            if (message.isConsideredForCount() && !message.isHidden()) {
-                if (message.getTo() != null && message.getGroupId() == null && !message.getHidden()) {
+
+            if (message.isConsideredForCount() && !message.hasHideKey()) {
+                if (message.getTo() != null && message.getGroupId() == null && !message.isHidden()) {
                     messageDatabaseService.updateContactUnreadCount(message.getTo());
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Contact contact = new ContactDatabase(context).getContactById(message.getTo());
@@ -224,7 +225,7 @@ public class MobiComMessageService {
                     }
                 }
                 if (message.getGroupId() != null && !Message.GroupMessageMetaData.FALSE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.KEY.getValue()))) {
-                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType()) && !message.getHidden()) {
+                    if (!Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType()) && !message.isHidden()) {
                         messageDatabaseService.updateChannelUnreadCount(message.getGroupId());
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);

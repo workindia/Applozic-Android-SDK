@@ -359,7 +359,7 @@ public class MobiComConversationService {
                         }
                     }
                     if (contact == null && channel == null) {
-                        if (message.isHidden()) {
+                        if (message.hasHideKey()) {
                             if (message.getGroupId() != null) {
                                 Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                                 if (newChannel != null) {
@@ -371,7 +371,8 @@ public class MobiComConversationService {
                         }
                     }
                 }
-                if (!isServerCallNotRequired && !message.getHidden()) {
+              
+                if (!isServerCallNotRequired && !message.isHidden()) {
                     messageList.add(message);
                 }
             }
@@ -529,7 +530,7 @@ public class MobiComConversationService {
                         messageDatabaseService.createMessage(message);
                     }
 
-                    if (message.isHidden()) {
+                    if (message.hasHideKey()) {
                         if (message.getGroupId() != null) {
                             Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                             if (newChannel != null) {
