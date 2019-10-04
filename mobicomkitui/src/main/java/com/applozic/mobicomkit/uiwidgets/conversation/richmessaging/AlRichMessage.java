@@ -2,11 +2,11 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging;
 
 import android.content.Context;
 import android.os.Build;
-import android.graphics.Color;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.Html;
-import androidx.annotation.Dimension;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
