@@ -387,7 +387,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         if (alCustomizationSettings.isHideGroupAddMembersButton() || loggedInUserMapper != null && ChannelUserMapper.UserRole.MEMBER.getValue().equals(loggedInUserMapper.getRole()) || (!ChannelUtils.isAdminUserId(userPreference.getUserId(), channel) && loggedInUserMapper != null && Integer.valueOf(0).equals(loggedInUserMapper.getRole()))) {
             menu.removeItem(R.id.add_member_to_channel);
         }
-        if (alCustomizationSettings.isHideGroupNameUpdateButton() || channel.isBroadcastMessage()) {
+        if (ApplozicSetting.getInstance(this).isHideGroupNameEditButton() || alCustomizationSettings.isHideGroupNameUpdateButton() || channel.isBroadcastMessage()) {
             menu.removeItem(R.id.edit_channel_name);
         }
         return true;
