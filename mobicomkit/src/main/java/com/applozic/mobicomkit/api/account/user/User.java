@@ -47,6 +47,7 @@ public class User extends JsonMarker {
     private String status;
     private String localImageUri;
     private boolean skipDeletedGroups;
+    private boolean hideActionMessages;
     private Short roleType = RoleType.USER_ROLE.getValue();
 
     public List<String> getFeatures() {
@@ -287,6 +288,14 @@ public class User extends JsonMarker {
 
     public void setSkipDeletedGroups(boolean skipDeletedGroups) {
         this.skipDeletedGroups = skipDeletedGroups;
+    }
+
+    public boolean isHideActionMessages() {
+        return hideActionMessages;
+    }
+
+    public void setHideActionMessages(boolean hideActionMessages) {
+        this.hideActionMessages = hideActionMessages;
     }
 
     public String getUserIdRegex() {

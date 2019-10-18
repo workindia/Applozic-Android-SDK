@@ -131,33 +131,7 @@ public class MessageDatabaseService {
         return message;
     }
 
-    public static List<Message> getMessageList(Cursor cursor, boolean hideActionMessages) {
-        List<Message> messageList = new ArrayList<Message>();
-        try {
-            cursor.moveToFirst();
-            if (cursor.getCount() > 0) {
-                do {
-                    Message message = getMessage(cursor);
-                    if (Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue().equals(message.getContentType())) {
-                        if (!Message.GroupMessageMetaData.TRUE.getValue().equals(message.getMetaDataValueForKey(Message.GroupMessageMetaData.HIDE_KEY.getValue())) && !(hideActionMessages && message.isActionMessage())) {
-                            messageList.add(message);
-                        }
-                    } else {
-                        messageList.add(message);
-                    }
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return messageList;
-    }
-
-    public static List<Message> getMessageList(Cursor cursor){
+    public static List<Message> getMessageList(Cursor cursor) {
         List<Message> messageList = new ArrayList<Message>();
         try {
             cursor.moveToFirst();
@@ -282,7 +256,7 @@ public class MessageDatabaseService {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try {
             Cursor cursor = db.query("sms", null, structuredNameWhere, structuredNameParamsList.toArray(new String[structuredNameParamsList.size()]), null, null, "createdAt asc");
-            return MessageDatabaseService.getMessageList(cursor, hideActionMessages);
+            return MessageDatabaseService.getMessageList(cursor);
         } finally {
             dbHelper.close();
         }
