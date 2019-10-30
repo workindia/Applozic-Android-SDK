@@ -752,6 +752,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void onClick(View v) {
                 filePath = null;
+                filePaths.clear();
                 attachmentLayout.setVisibility(View.GONE);
 
                 if (messageEditText != null && TextUtils.isEmpty(messageEditText.getText().toString().trim()) && recordButton != null && sendButton != null) {
@@ -4144,7 +4145,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         sendMessage(message, messageContentType, path);
                     }
                     message = "";
-                    filePaths = null;
+                    filePaths.clear();
                     messageContentType = Message.ContentType.DEFAULT.getValue();
                 }
 
