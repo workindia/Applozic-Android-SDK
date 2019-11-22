@@ -1235,8 +1235,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForContactPermission(this)) {
             applozicPermission.requestContactPermission();
         } else {
-            Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            contactIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+            Intent contactIntent = new Intent(Intent.ACTION_PICK);
+            contactIntent.setDataAndType(ContactsContract.Contacts.CONTENT_URI, ContactsContract.Contacts.CONTENT_TYPE);
             startActivityForResult(contactIntent, MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE);
         }
     }

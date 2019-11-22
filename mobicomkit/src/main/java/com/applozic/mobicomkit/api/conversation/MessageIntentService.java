@@ -45,9 +45,8 @@ public class MessageIntentService extends AlJobIntentService {
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         messageClientService = new MessageClientService(MessageIntentService.this);
-        final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
-
         try {
+            final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
             Thread thread = new Thread(new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime())));
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             thread.start();
