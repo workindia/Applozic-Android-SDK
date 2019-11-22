@@ -129,7 +129,7 @@ public class ApplozicClient {
     }
 
     public boolean isAccountClosed() {
-        return MobiComUserPreference.getInstance(context).getPricingPackage() == RegistrationResponse.PricingType.CLOSED.getValue();
+        return MobiComUserPreference.getInstance(context).getPricingPackage() == RegistrationResponse.PricingType.CLOSED.getValue() || MobiComUserPreference.getInstance(context).getPricingPackage() == RegistrationResponse.PricingType.UNSUBSCRIBED.getValue();
     }
 
     public String getAppName() {
