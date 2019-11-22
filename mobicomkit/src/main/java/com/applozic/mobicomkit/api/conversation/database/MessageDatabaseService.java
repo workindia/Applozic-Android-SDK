@@ -157,7 +157,7 @@ public class MessageDatabaseService {
         return messageList;
     }
 
-    public static List<Message> getLatestMessageList(Cursor cursor, boolean isActionMessageHidden) {
+    public static List<Message> getLatestMessageList(Cursor cursor) {
         List<Message> messageList = new ArrayList<Message>();
         try {
             cursor.moveToFirst();
@@ -165,7 +165,7 @@ public class MessageDatabaseService {
                 do {
                     Message message = getMessage(cursor);
                     if (message != null) {
-                        if (!Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || !(isActionMessageHidden && message.isActionMessage())) {
+                        if (!Message.MetaDataType.ARCHIVE.getValue().equals(message.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || !message.isHidden()) {
                             messageList.add(message);
                         }
                     }
@@ -1076,7 +1076,7 @@ public class MessageDatabaseService {
                 cursor = db.rawQuery(rowQuery, null);
             }
 
-            List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
+            List<Message> messageList = getLatestMessageList(cursor);
             dbHelper.close();
             return messageList;
         }
@@ -1123,7 +1123,7 @@ public class MessageDatabaseService {
             cursor = db.rawQuery(rowQuery, null);
         }
 
-        List<Message> messageList = getLatestMessageList(cursor, hideActionMessages);
+        List<Message> messageList = getLatestMessageList(cursor);
         dbHelper.close();
         return messageList;
     }

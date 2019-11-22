@@ -65,6 +65,7 @@ public class MobiComMessageService {
     protected FileClientService fileClientService;
     private boolean isHideActionMessage;
     private Short loggedInUserRole;
+    private String loggedInUserId;
 
     public MobiComMessageService(Context context, Class messageIntentServiceClass) {
         this.context = ApplozicService.getContext(context);
@@ -78,6 +79,7 @@ public class MobiComMessageService {
         this.userService = UserService.getInstance(context);
         isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
         loggedInUserRole = MobiComUserPreference.getInstance(context).getUserRoleType();
+        loggedInUserId = MobiComUserPreference.getInstance(context).getUserId();
     }
 
     public Message processMessage(final Message messageToProcess, String tofield, int index) {
@@ -230,7 +232,7 @@ public class MobiComMessageService {
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Channel currentChannel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-                    if (currentChannel != null && !currentChannel.blockNotification(loggedInUserRole)) {
+                    if (currentChannel != null && (!currentChannel.blockNotification(loggedInUserRole) || loggedInUserId.equals(message.getAssigneId()))) {
                         sendNotification(message, index);
                     }
                 }
@@ -248,7 +250,7 @@ public class MobiComMessageService {
     }
 
     public void sendNotification(Message message, int index) {
-        if (isHideActionMessage && message.isActionMessage()) {
+        if (message.isHidden()) {
             return;
         }
 
