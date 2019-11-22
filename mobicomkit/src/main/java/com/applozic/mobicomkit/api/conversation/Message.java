@@ -634,6 +634,13 @@ public class Message extends JsonMarker {
         return getMetadata() != null ? getMetadata().get(key) : null;
     }
 
+    public String getAssigneId() {
+        if (isActionMessage()) {
+            return getMetadata().get(KM_ASSIGN);
+        }
+        return null;
+    }
+
     public boolean isGroupDeleteAction() {
         return getMetadata() != null && getMetadata().containsKey(ChannelMetadata.AL_CHANNEL_ACTION)
                 && Integer.parseInt(getMetadata().get(ChannelMetadata.AL_CHANNEL_ACTION)) == GroupAction.DELETE_GROUP.getValue();
@@ -641,7 +648,7 @@ public class Message extends JsonMarker {
 
     public boolean isUpdateMessage() {
         return !Message.ContentType.HIDDEN.getValue().equals(contentType)
-                && !Message.MetaDataType.ARCHIVE.getValue().equals(getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))
+                && (!Message.MetaDataType.ARCHIVE.getValue().equals(getMetaDataValueForKey(Message.MetaDataType.KEY.getValue())) || !isHidden())
                 && !isVideoNotificationMessage();
 
     }
@@ -670,7 +677,7 @@ public class Message extends JsonMarker {
         return (!Message.ContentType.HIDDEN.getValue().equals(getContentType()) &&
                 !ContentType.VIDEO_CALL_NOTIFICATION_MSG.getValue().equals(getContentType()) && !isReadStatus() && !hasHideKey());
     }
-  
+
     public boolean hasHideKey() {
         return GroupMessageMetaData.TRUE.getValue().equals(getMetaDataValueForKey(GroupMessageMetaData.HIDE_KEY.getValue())) || Message.ContentType.HIDDEN.getValue().equals(getContentType()) || hidden;
     }

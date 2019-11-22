@@ -823,7 +823,10 @@ public class MobiComUserPreference {
     }
 
     public String getCategoryName() {
-        return sharedPreferences.getString(CATEGORY_NAME_KEY, null);
+        if (sharedPreferences != null) {
+            return sharedPreferences.getString(CATEGORY_NAME_KEY, null);
+        }
+        return null;
     }
 
     public void setCategoryName(String category) {

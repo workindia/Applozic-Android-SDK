@@ -4,8 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -96,14 +98,13 @@ public class ChannelDatabaseService {
         contentValues.put(MobiComDatabaseHelper.DELETED_AT, channel.getDeletedAtTime());
         contentValues.put(MobiComDatabaseHelper.ADMIN_ID, channel.getAdminKey());
         Channel oldChannel = null;
-        if (!TextUtils.isEmpty(channel.getImageUrl())) {
-            contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
-            oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
-        }
+        contentValues.put(MobiComDatabaseHelper.CHANNEL_IMAGE_URL, channel.getImageUrl());
+        oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
+
         if (channel.getKmStatus() != 0) {
             contentValues.put(MobiComDatabaseHelper.KM_STATUS, channel.getKmStatus());
         }
-        if (oldChannel != null && !TextUtils.isEmpty(channel.getImageUrl()) && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())) {
+        if (oldChannel != null && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())) {
             updateChannelLocalImageURI(channel.getKey(), null);
         }
         if (!TextUtils.isEmpty(channel.getLocalImageUri())) {
@@ -549,7 +550,7 @@ public class ChannelDatabaseService {
         Cursor cursor = null;
         try {
             String structuredNameWhere = MobiComDatabaseHelper.CHANNEL_KEY + " =? AND " + MobiComDatabaseHelper.USERID + " =?";
-            
+
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             cursor = db.query(CHANNEL_USER_X, null, structuredNameWhere, new String[]{String.valueOf(channelKey), userId}, null, null, null);
             if (cursor != null) {

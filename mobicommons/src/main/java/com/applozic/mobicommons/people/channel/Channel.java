@@ -54,7 +54,7 @@ public class Channel extends JsonMarker {
         this.name = name;
         this.adminKey = adminKey;
         this.type = type;
-        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl == null ? "" : imageUrl;
         this.unreadCount = unreadCount;
     }
 

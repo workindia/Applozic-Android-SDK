@@ -8,7 +8,9 @@ import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.core.app.NotificationCompat;
+
 import android.text.Html;
 import android.text.TextUtils;
 
@@ -121,11 +123,10 @@ public class NotificationService {
 
         Integer smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
         Intent intent;
+        intent = new Intent(context, activity);
         if (count < 2) {
-            intent = new Intent(context, activity);
             intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         } else {
-            intent = new Intent(context, activity);
             intent.putExtra(MobiComKitConstants.QUICK_LIST, true);
         }
         if (applozicClient.isChatListOnNotificationIsHidden()) {
@@ -309,116 +310,116 @@ public class NotificationService {
 
 
     public void notifyUserForNormalMessage(Contact contact, Channel channel, Message message, int index) {
-            if (ApplozicClient.getInstance(context).isNotificationDisabled()) {
-                Utils.printLog(context, TAG, "Notification is disabled");
+        if (ApplozicClient.getInstance(context).isNotificationDisabled()) {
+            Utils.printLog(context, TAG, "Notification is disabled");
+            return;
+        }
+        String title = null;
+        String notificationText;
+        Bitmap notificationIconBitmap = null;
+        Contact displayNameContact = null;
+        if (message.getGroupId() != null) {
+            if (channel == null) {
                 return;
             }
-            String title = null;
-            String notificationText;
-            Bitmap notificationIconBitmap = null;
-            Contact displayNameContact = null;
-            if (message.getGroupId() != null) {
-                if (channel == null) {
-                    return;
+            if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                String userId = ChannelService.getInstance(context).getGroupOfTwoReceiverUserId(channel.getKey());
+                if (!TextUtils.isEmpty(userId)) {
+                    Contact newContact = appContactService.getContactById(userId);
+                    notificationIconBitmap = appContactService.downloadContactImage(context, newContact);
+                    title = newContact.getDisplayName();
                 }
-                if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
-                    String userId = ChannelService.getInstance(context).getGroupOfTwoReceiverUserId(channel.getKey());
-                    if (!TextUtils.isEmpty(userId)) {
-                        Contact newContact = appContactService.getContactById(userId);
-                        notificationIconBitmap = appContactService.downloadContactImage(context, newContact);
-                        title = newContact.getDisplayName();
-                    }
-                } else if (Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) {
-                    String userId = message.getTo();
-                    if (!TextUtils.isEmpty(userId)) {
-                        Contact newContact = appContactService.getContactById(userId);
-                        notificationIconBitmap = appContactService.downloadGroupImage(context, channel);
-                        title = newContact.getDisplayName();
-                    }
-                } else {
-                    displayNameContact = appContactService.getContactById(message.getTo());
-                    title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
+            } else if (Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) {
+                String userId = message.getTo();
+                if (!TextUtils.isEmpty(userId)) {
+                    Contact newContact = appContactService.getContactById(userId);
                     notificationIconBitmap = appContactService.downloadGroupImage(context, channel);
+                    title = newContact.getDisplayName();
                 }
             } else {
-                title = contact.getDisplayName();
-                notificationIconBitmap = appContactService.downloadContactImage(context, contact);
+                displayNameContact = appContactService.getContactById(message.getTo());
+                title = ChannelUtils.getChannelTitleName(channel, MobiComUserPreference.getInstance(context).getUserId());
+                notificationIconBitmap = appContactService.downloadGroupImage(context, channel);
             }
+        } else {
+            title = contact.getDisplayName();
+            notificationIconBitmap = appContactService.downloadContactImage(context, contact);
+        }
 
-            if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
-                notificationText = getText(0);
-            } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
-                notificationText = getText(1);
-            } else if (message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) {
-                notificationText = getText(2);
-            } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
-                notificationText = getText(3);
-            } else {
-                notificationText = message.getMessage();
-            }
+        if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
+            notificationText = getText(0);
+        } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
+            notificationText = getText(1);
+        } else if (message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) {
+            notificationText = getText(2);
+        } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
+            notificationText = getText(3);
+        } else {
+            notificationText = message.getMessage();
+        }
 
-            Class activity = null;
-            try {
-                activity = Class.forName(activityToOpen);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        Class activity = null;
+        try {
+            activity = Class.forName(activityToOpen);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
-            Integer smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
+        Integer smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
             Intent intent = new Intent(context, activity);
-            intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-            if (applozicClient.isChatListOnNotificationIsHidden()) {
-                intent.putExtra("takeOrder", true);
-            }
-            if (applozicClient.isContextBasedChat()) {
-                intent.putExtra("contextBasedChat", true);
-            }
-            intent.putExtra("sms_body", "text");
-            intent.setType("vnd.android-dir/mms-sms");
+        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if (applozicClient.isChatListOnNotificationIsHidden()) {
+            intent.putExtra("takeOrder", true);
+        }
+        if (applozicClient.isContextBasedChat()) {
+            intent.putExtra("contextBasedChat", true);
+        }
+        intent.putExtra("sms_body", "text");
+        intent.setType("vnd.android-dir/mms-sms");
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, (int) (System.currentTimeMillis() & 0xfffffff),
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, (int) (System.currentTimeMillis() & 0xfffffff),
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, notificationChannels.getDefaultChannelId(muteNotifications(index)));
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, notificationChannels.getDefaultChannelId(muteNotifications(index)));
 
-            mBuilder.setSmallIcon(smallIconResourceId)
-                    .setLargeIcon(ApplozicClient.getInstance(context).isShowAppIconInNotification() ? BitmapFactory.decodeResource(context.getResources(), iconResourceId) : notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())))
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                    .setPriority(muteNotifications(index) ? NotificationCompat.PRIORITY_LOW : NotificationCompat.PRIORITY_MAX)
-                    .setWhen(System.currentTimeMillis())
-                    .setContentTitle(title)
-                    .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? (displayNameContact != null ? (displayNameContact.getDisplayName() + ": " + getSpannedText(notificationText)) : "" + getSpannedText(notificationText)) : getSpannedText(notificationText));
-            mBuilder.setContentIntent(pendingIntent);
-            mBuilder.setAutoCancel(true);
-            if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
-                int totalCount = messageDatabaseService.getTotalUnreadCount();
-                if (totalCount != 0) {
-                    mBuilder.setNumber(totalCount);
-                }
+        mBuilder.setSmallIcon(smallIconResourceId)
+                .setLargeIcon(ApplozicClient.getInstance(context).isShowAppIconInNotification() ? BitmapFactory.decodeResource(context.getResources(), iconResourceId) : notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())))
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setPriority(muteNotifications(index) ? NotificationCompat.PRIORITY_LOW : NotificationCompat.PRIORITY_MAX)
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle(title)
+                .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? (displayNameContact != null ? (displayNameContact.getDisplayName() + ": " + getSpannedText(notificationText)) : "" + getSpannedText(notificationText)) : getSpannedText(notificationText));
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setAutoCancel(true);
+        if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
+            int totalCount = messageDatabaseService.getTotalUnreadCount();
+            if (totalCount != 0) {
+                mBuilder.setNumber(totalCount);
             }
-            if (!muteNotifications(index)) {
-                mBuilder.setSound(TextUtils.isEmpty(notificationFilePath) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(notificationFilePath));
-            }
-            if (message.hasAttachment()) {
-                try {
-                    FileMeta fileMeta = message.getFileMetas();
-                    HttpURLConnection httpConn = null;
-                    if (fileMeta.getThumbnailBlobKey() != null) {
-                        Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
-                        mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            WearableNotificationWithVoice notificationWithVoice =
-                    new WearableNotificationWithVoice(mBuilder, wearable_action_title,
-                            wearable_action_label, wearable_send_icon, message.getGroupId() != null ? String.valueOf(message.getGroupId()).hashCode() : message.getContactIds().hashCode());
-            notificationWithVoice.setCurrentContext(context);
-            notificationWithVoice.setPendingIntent(pendingIntent);
-
+        }
+        if (!muteNotifications(index)) {
+            mBuilder.setSound(TextUtils.isEmpty(notificationFilePath) ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(notificationFilePath));
+        }
+        if (message.hasAttachment()) {
             try {
-                notificationWithVoice.sendNotification();
+                FileMeta fileMeta = message.getFileMetas();
+                HttpURLConnection httpConn = null;
+                if (fileMeta.getThumbnailBlobKey() != null) {
+                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        WearableNotificationWithVoice notificationWithVoice =
+                new WearableNotificationWithVoice(mBuilder, wearable_action_title,
+                        wearable_action_label, wearable_send_icon, message.getGroupId() != null ? String.valueOf(message.getGroupId()).hashCode() : message.getContactIds().hashCode());
+        notificationWithVoice.setCurrentContext(context);
+        notificationWithVoice.setPendingIntent(pendingIntent);
+
+        try {
+            notificationWithVoice.sendNotification();
         } catch (Exception e) {
             e.printStackTrace();
         }
