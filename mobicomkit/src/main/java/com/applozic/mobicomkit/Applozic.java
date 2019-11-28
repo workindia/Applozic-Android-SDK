@@ -138,6 +138,20 @@ public class Applozic {
         ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
     }
 
+    public static void subscribeToSupportGroup(Context context, boolean useEncrypted) {
+        Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.CONNECT_TO_SUPPORT_GROUP_TOPIC, true);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTION_IN_SUPPORT_GROUP, useEncrypted);
+        ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
+    }
+
+    public static void unSubscribeToSupportGroup(Context context, boolean useEncrypted) {
+        Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.DISCONNECT_FROM_SUPPORT_GROUP_TOPIC, true);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTION_IN_SUPPORT_GROUP, useEncrypted);
+        ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
+    }
+
     public static void subscribeToTyping(Context context, Channel channel, Contact contact) {
         Intent intent = new Intent(context, ApplozicMqttIntentService.class);
         if (channel != null) {

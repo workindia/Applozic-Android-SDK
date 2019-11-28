@@ -83,7 +83,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
-        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
+        if (user.getAppVersionCode() == null || user.getAppVersionCode() == 0) {
+            user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
+        }
         user.setApplicationId(getApplicationKey(context));
         user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
