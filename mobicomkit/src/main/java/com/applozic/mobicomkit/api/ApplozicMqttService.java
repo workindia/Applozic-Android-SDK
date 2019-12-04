@@ -131,7 +131,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         }
     }
 
-    public synchronized void subscribe() {
+    public synchronized void subscribe(boolean useEncrypted) {
         if (!Utils.isInternetAvailable(context)) {
             return;
         }
@@ -146,7 +146,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 return;
             }
             connectPublish(userKeyString, deviceKeyString, "1");
-            subscribeToConversation();
+            subscribeToConversation(useEncrypted);
             if (client != null) {
                 client.setCallback(ApplozicMqttService.this);
             }
@@ -155,26 +155,26 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         }
     }
 
-    public synchronized void unSubscribe() {
-        unSubscribeToConversation();
+    public synchronized void unSubscribe(boolean useEncrypted) {
+        unSubscribeToConversation(useEncrypted);
     }
 
-    public synchronized void subscribeToConversation() {
+    public synchronized void subscribeToConversation(boolean useEncrypted) {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
             if (TextUtils.isEmpty(userKeyString)) {
                 return;
             }
             if (client != null && client.isConnected()) {
-                Utils.printLog(context, TAG, "Subscribing to conversation topic : " + MQTT_ENCRYPTION_TOPIC + userKeyString);
-                client.subscribe(MQTT_ENCRYPTION_TOPIC + userKeyString, 0);
+                Utils.printLog(context, TAG, "Subscribing to conversation topic : " + (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + userKeyString);
+                client.subscribe((useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + userKeyString, 0);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public synchronized void unSubscribeToConversation() {
+    public synchronized void unSubscribeToConversation(final boolean useEncrypted) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -183,8 +183,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                         return;
                     }
                     String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
-                    Utils.printLog(context, TAG, "UnSubscribing to conversation topic : " + MQTT_ENCRYPTION_TOPIC + userKeyString);
-                    client.unsubscribe(MQTT_ENCRYPTION_TOPIC + userKeyString);
+                    Utils.printLog(context, TAG, "UnSubscribing to conversation topic : " + (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + userKeyString);
+                    client.unsubscribe((useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + userKeyString);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -231,9 +231,10 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         thread.start();
     }
 
-    public void disconnectPublish(String userKeyString, String deviceKeyString, String status) {
+    public void disconnectPublish(String userKeyString, String deviceKeyString, String status, boolean useEncrypted) {
         try {
             connectPublish(userKeyString, deviceKeyString, status);
+            unSubscribe(useEncrypted);
             if (!MobiComUserPreference.getInstance(context).isLoggedIn()) {
                 disconnect();
             }
@@ -630,4 +631,3 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
     }
 
 }
-

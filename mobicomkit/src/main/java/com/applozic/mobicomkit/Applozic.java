@@ -112,11 +112,12 @@ public class Applozic {
         return sharedPreferences.getString(CUSTOM_NOTIFICATION_SOUND, null);
     }
 
-    public static void disconnectPublish(Context context, String deviceKeyString, String userKeyString) {
+    public static void disconnectPublish(Context context, String deviceKeyString, String userKeyString, boolean useEncrypted) {
         if (!TextUtils.isEmpty(userKeyString) && !TextUtils.isEmpty(deviceKeyString)) {
             Intent intent = new Intent(context, ApplozicMqttIntentService.class);
             intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
             intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
+            intent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
             ApplozicMqttIntentService.enqueueWork(context, intent);
         }
     }
@@ -127,28 +128,40 @@ public class Applozic {
     }
 
     public static void disconnectPublish(Context context) {
-        final String deviceKeyString = MobiComUserPreference.getInstance(context).getDeviceKeyString();
-        final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
-        disconnectPublish(context, deviceKeyString, userKeyString);
+        disconnectPublish(context, true);
+        disconnectPublish(context, false);
     }
 
     public static void connectPublish(Context context) {
+        connectPublish(context, true);
+        connectPublish(context, false);
+    }
+
+
+    public static void disconnectPublish(Context context, boolean useEncrypted) {
+        final String deviceKeyString = MobiComUserPreference.getInstance(context).getDeviceKeyString();
+        final String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+        disconnectPublish(context, deviceKeyString, userKeyString, useEncrypted);
+    }
+
+    public static void connectPublish(Context context, boolean useEncrypted) {
         Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
         subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
         ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
     }
 
     public static void subscribeToSupportGroup(Context context, boolean useEncrypted) {
         Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
         subscribeIntent.putExtra(ApplozicMqttIntentService.CONNECT_TO_SUPPORT_GROUP_TOPIC, true);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTION_IN_SUPPORT_GROUP, useEncrypted);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
         ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
     }
 
     public static void unSubscribeToSupportGroup(Context context, boolean useEncrypted) {
         Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
         subscribeIntent.putExtra(ApplozicMqttIntentService.DISCONNECT_FROM_SUPPORT_GROUP_TOPIC, true);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTION_IN_SUPPORT_GROUP, useEncrypted);
+        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
         ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
     }
 

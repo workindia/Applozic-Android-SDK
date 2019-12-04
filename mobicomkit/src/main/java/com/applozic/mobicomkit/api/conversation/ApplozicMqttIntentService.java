@@ -36,7 +36,7 @@ public class ApplozicMqttIntentService extends AlJobIntentService {
     public static final String STOP_TYPING = "STOP_TYPING";
     public static final String CONNECT_TO_SUPPORT_GROUP_TOPIC = "connectToSupportGroupTopic";
     public static final String DISCONNECT_FROM_SUPPORT_GROUP_TOPIC = "disconnectFromSupportGroupTopic";
-    public static final String USE_ENCRYPTION_IN_SUPPORT_GROUP = "useEncryptedTopic";
+    public static final String USE_ENCRYPTED_TOPIC = "useEncryptedTopic";
 
     /**
      * Unique job ID for this service.
@@ -56,9 +56,10 @@ public class ApplozicMqttIntentService extends AlJobIntentService {
         if (intent == null) {
             return;
         }
+        boolean useEncryptedTopic = intent.getBooleanExtra(USE_ENCRYPTED_TOPIC, false);
         boolean subscribe = intent.getBooleanExtra(SUBSCRIBE, false);
         if (subscribe) {
-            ApplozicMqttService.getInstance(getApplicationContext()).subscribe();
+            ApplozicMqttService.getInstance(getApplicationContext()).subscribe(useEncryptedTopic);
         }
         Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
         Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
@@ -80,7 +81,6 @@ public class ApplozicMqttIntentService extends AlJobIntentService {
             return;
         }
 
-        boolean useEncryptedTopic = intent.getBooleanExtra(USE_ENCRYPTION_IN_SUPPORT_GROUP, false);
         boolean subscribeToSupportGroupTopic = intent.getBooleanExtra(CONNECT_TO_SUPPORT_GROUP_TOPIC, false);
         if (subscribeToSupportGroupTopic) {
             ApplozicMqttService.getInstance(getApplicationContext()).subscribeToSupportGroup(useEncryptedTopic);
@@ -96,7 +96,7 @@ public class ApplozicMqttIntentService extends AlJobIntentService {
         String userKeyString = intent.getStringExtra(USER_KEY_STRING);
         String deviceKeyString = intent.getStringExtra(DEVICE_KEY_STRING);
         if (!TextUtils.isEmpty(userKeyString) && !TextUtils.isEmpty(deviceKeyString)) {
-            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, deviceKeyString, "0");
+            ApplozicMqttService.getInstance(getApplicationContext()).disconnectPublish(userKeyString, deviceKeyString, "0", useEncryptedTopic);
         }
 
         boolean connectedStatus = intent.getBooleanExtra(CONNECTED_PUBLISH, false);

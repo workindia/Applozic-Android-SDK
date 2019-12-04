@@ -35,7 +35,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
     public static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
     public static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
-    public static final Short MOBICOMKIT_VERSION_CODE = 111;
+    public static final Short MOBICOMKIT_VERSION_CODE = 112;
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     private HttpRequestUtils httpRequestUtils;
@@ -83,9 +83,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
 
         Gson gson = new Gson();
-        if (user.getAppVersionCode() == null || user.getAppVersionCode() == 0) {
-            user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
-        }
+        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         user.setApplicationId(getApplicationKey(context));
         user.setRegistrationId(mobiComUserPreference.getDeviceRegistrationId());
 
