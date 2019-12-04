@@ -252,9 +252,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         Gson gson = new Gson();
         user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
-        if (user.getAppVersionCode() == null || user.getAppVersionCode() == 0) {
-            user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
-        }
         user.setApplicationId(getApplicationKey(context));
         user.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
         if (!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())) {
