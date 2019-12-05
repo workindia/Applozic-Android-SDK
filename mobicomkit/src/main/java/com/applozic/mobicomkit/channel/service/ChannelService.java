@@ -813,7 +813,11 @@ public class ChannelService {
     }
 
     public String deleteChannel(Integer channelKey) {
-        ApiResponse apiResponse = channelClientService.deleteChannel(channelKey);
+        return deleteChannel(channelKey, false, false);
+    }
+
+    public String deleteChannel(Integer channelKey, boolean updateClientGroupId, boolean resetCount) {
+        ApiResponse apiResponse = channelClientService.deleteChannel(channelKey, updateClientGroupId, resetCount);
         if (apiResponse != null && apiResponse.isSuccess()) {
             channelDatabaseService.deleteChannel(channelKey);
             channelDatabaseService.deleteChannelUserMappers(channelKey);
