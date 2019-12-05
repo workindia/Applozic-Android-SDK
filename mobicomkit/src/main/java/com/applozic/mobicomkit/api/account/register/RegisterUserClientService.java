@@ -35,7 +35,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
     public static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
     public static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
-    public static final Short MOBICOMKIT_VERSION_CODE = 111;
+    public static final Short MOBICOMKIT_VERSION_CODE = 112;
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
     private HttpRequestUtils httpRequestUtils;
@@ -237,6 +237,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
+        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
 
         if (!TextUtils.isEmpty(user.getAlBaseUrl())) {
             ALSpecificSettings.getInstance(context).setAlBaseUrl(user.getAlBaseUrl());
@@ -250,7 +251,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
         Gson gson = new Gson();
         user.setEnableEncryption(mobiComUserPreference.isEncryptionEnabled());
-        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
         user.setApplicationId(getApplicationKey(context));
         user.setAuthenticationTypeId(Short.valueOf(mobiComUserPreference.getAuthenticationType()));
         if (!TextUtils.isEmpty(mobiComUserPreference.getUserTypeId())) {

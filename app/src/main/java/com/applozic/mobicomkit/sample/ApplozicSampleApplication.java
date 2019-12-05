@@ -19,7 +19,7 @@ public class ApplozicSampleApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+        /*StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
                 .detectNetwork()
@@ -30,7 +30,7 @@ public class ApplozicSampleApplication extends MultiDexApplication {
                 .detectLeakedClosableObjects()
                 .penaltyLog()
                 .penaltyDeath()
-                .build());
+                .build());*/
 
         try {
             Fabric.with(this, new Crashlytics());
