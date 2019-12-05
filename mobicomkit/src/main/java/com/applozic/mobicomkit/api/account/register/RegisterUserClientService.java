@@ -237,6 +237,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setDeviceType(Short.valueOf("1"));
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
+        user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
 
         if (!TextUtils.isEmpty(user.getAlBaseUrl())) {
             ALSpecificSettings.getInstance(context).setAlBaseUrl(user.getAlBaseUrl());
