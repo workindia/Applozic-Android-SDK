@@ -517,23 +517,14 @@ public class ChannelClientService extends MobiComKitClientService {
         try {
             if (channelKey != null) {
                 StringBuilder urlBuilder = new StringBuilder(getChannelDeleteUrl());
-                urlBuilder.append("?");
-                urlBuilder.append(GROUP_ID);
-                urlBuilder.append("=");
-                urlBuilder.append(URLEncoder.encode(String.valueOf(channelKey), "UTF-8"));
+                urlBuilder.append("?").append(GROUP_ID).append("=").append(URLEncoder.encode(String.valueOf(channelKey), "UTF-8"));
 
                 if (updateClientGroupId) {
-                    urlBuilder.append("&");
-                    urlBuilder.append(UPDATE_CLIENT_GROUP_ID);
-                    urlBuilder.append("=");
-                    urlBuilder.append("true");
+                    urlBuilder.append("&").append(UPDATE_CLIENT_GROUP_ID).append("=").append("true");
                 }
 
                 if (resetCount) {
-                    urlBuilder.append("&");
-                    urlBuilder.append(RESET_UNREAD_COUNT);
-                    urlBuilder.append("=");
-                    urlBuilder.append("true");
+                    urlBuilder.append("&").append(RESET_UNREAD_COUNT).append("=").append("true");
                 }
 
                 String response = httpRequestUtils.getResponse(urlBuilder.toString(), "application/json",
