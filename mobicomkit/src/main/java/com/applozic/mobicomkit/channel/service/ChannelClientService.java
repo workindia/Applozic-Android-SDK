@@ -55,6 +55,8 @@ public class ChannelClientService extends MobiComKitClientService {
     private static final String UPDATED_AT = "updatedAt";
     private static final String USER_ID = "userId";
     private static final String GROUP_ID = "groupId";
+    private static final String UPDATE_CLIENT_GROUP_ID = "updateClientGroupId";
+    private static final String RESET_UNREAD_COUNT = "resetCount";
     private static final String CLIENT_GROUPID = "clientGroupId";
     private static final String GROUPIDS = "groupIds";
     private static final String GROUP_NAME = "groupName";
@@ -508,12 +510,24 @@ public class ChannelClientService extends MobiComKitClientService {
     }
 
     public synchronized ApiResponse deleteChannel(Integer channelKey) {
+        return deleteChannel(channelKey, false, false);
+    }
+
+    public synchronized ApiResponse deleteChannel(Integer channelKey, boolean updateClientGroupId, boolean resetCount) {
         try {
             if (channelKey != null) {
-                String url = getChannelDeleteUrl() + "?" +
-                        GROUP_ID
-                        + "=" + URLEncoder.encode(String.valueOf(channelKey), "UTF-8");
-                String response = httpRequestUtils.getResponse(url, "application/json",
+                StringBuilder urlBuilder = new StringBuilder(getChannelDeleteUrl());
+                urlBuilder.append("?").append(GROUP_ID).append("=").append(URLEncoder.encode(String.valueOf(channelKey), "UTF-8"));
+
+                if (updateClientGroupId) {
+                    urlBuilder.append("&").append(UPDATE_CLIENT_GROUP_ID).append("=").append("true");
+                }
+
+                if (resetCount) {
+                    urlBuilder.append("&").append(RESET_UNREAD_COUNT).append("=").append("true");
+                }
+
+                String response = httpRequestUtils.getResponse(urlBuilder.toString(), "application/json",
                         "application/json");
                 ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response,
                         ApiResponse.class);
