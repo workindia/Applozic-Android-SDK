@@ -35,8 +35,8 @@ import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.R;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.TouchImageView;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.file.FileUtils;

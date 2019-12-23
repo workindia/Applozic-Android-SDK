@@ -1,7 +1,6 @@
-package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging;
+package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
@@ -21,6 +20,12 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALBookingDetailsModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALGuestCountModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.AlHotelBookingModel;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.bumptech.glide.Glide;
 
@@ -690,7 +695,7 @@ public class ALRichMessageAdapter extends RecyclerView.Adapter {
                         || TextUtils.isEmpty(holder.emailIdEt.getText().toString().trim())
                         || TextUtils.isEmpty(holder.firstNameEt.getText().toString().trim())
                         || "Title *".equals(titleList.get(holder.titleSpinner.getSelectedItemPosition()))) {
-                    Toast.makeText(context, "Mandatory fields required...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.mandatory_fields, Toast.LENGTH_SHORT).show();
                 } else {
                     bookingDetails.setTitle(titleList.get(holder.titleSpinner.getSelectedItemPosition()));
                     bookingDetails.setFirstName(holder.firstNameEt.getText().toString().trim());
