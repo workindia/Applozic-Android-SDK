@@ -45,17 +45,6 @@
             android:value="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
             tools:node="merge" />
 
-        <provider
-            android:name="com.applozic.mobicomkit.uiwidgets.ALFileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true"
-            tools:node="merge">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/applozic_provider_paths" />
-        </provider>
-
         <activity
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
             android:configChanges="keyboardHidden|screenSize|locale|smallestScreenSize|screenLayout|orientation"

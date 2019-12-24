@@ -16,11 +16,12 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
+
+import com.applozic.mobicommons.file.ALFileProvider;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -181,7 +182,7 @@ public class AlAttachmentOptions {
 
             File mediaFile = FileClientService.getFilePath(imageFileName, activity.getApplicationContext(), "video/mp4");
 
-            Uri videoFileUri = FileProvider.getUriForFile(activity, Utils.getMetaDataValue(activity, MobiComKitConstants.PACKAGE_NAME) + ".provider", mediaFile);
+            Uri videoFileUri = ALFileProvider.getUriForFile(activity, Utils.getMetaDataValue(activity, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", mediaFile);
 
             videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoFileUri);
 
@@ -236,7 +237,7 @@ public class AlAttachmentOptions {
 
             File mediaFile = FileClientService.getFilePath(imageFileName, activity.getApplicationContext(), "image/jpeg");
 
-            Uri capturedImageUri = FileProvider.getUriForFile(activity, Utils.getMetaDataValue(activity, MobiComKitConstants.PACKAGE_NAME) + ".provider", mediaFile);
+            Uri capturedImageUri = ALFileProvider.getUriForFile(activity, Utils.getMetaDataValue(activity, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", mediaFile);
 
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 

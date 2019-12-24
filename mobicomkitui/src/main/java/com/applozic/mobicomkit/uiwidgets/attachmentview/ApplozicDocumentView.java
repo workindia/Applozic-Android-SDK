@@ -7,7 +7,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,6 +28,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.ALFileProvider;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -345,7 +345,7 @@ public class ApplozicDocumentView {
     public void playAudio() {
         final String mimeType = FileUtils.getMimeType(message.getFileMetas().getName());
         if (Utils.hasNougat()) {
-            uri = FileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+            uri = ALFileProvider.getUriForFile(context, Utils.getMetaDataValue(context, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", new File(message.getFilePaths().get(0)));
         } else {
             uri = Uri.fromFile(new File(message.getFilePaths().get(0)));
             Log.i(TAG, uri.toString());
