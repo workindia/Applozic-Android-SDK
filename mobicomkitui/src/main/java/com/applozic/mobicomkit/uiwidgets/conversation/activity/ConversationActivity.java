@@ -25,6 +25,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
+import com.applozic.mobicommons.file.ALFileProvider;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.core.app.ActivityCompat;
@@ -35,7 +36,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
-import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.ActionBar;
@@ -1248,7 +1248,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             mediaFile = FileClientService.getFilePath(imageFileName, getApplicationContext(), "image/jpeg");
 
-            capturedImageUri = FileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".provider", mediaFile);
+            capturedImageUri = ALFileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", mediaFile);
 
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -1307,7 +1307,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
             mediaFile = FileClientService.getFilePath(imageFileName, getApplicationContext(), "video/mp4");
 
-            videoFileUri = FileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".provider", mediaFile);
+            videoFileUri = ALFileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", mediaFile);
 
             videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoFileUri);
 
@@ -1355,7 +1355,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_" + ".jpeg";
         profilePhotoFile = FileClientService.getFilePath(imageFileName, getApplicationContext(), "image/jpeg");
-        imageUri = FileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".provider", profilePhotoFile);
+        imageUri = ALFileProvider.getUriForFile(this, Utils.getMetaDataValue(this, MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", profilePhotoFile);
         return imageUri;
     }
 

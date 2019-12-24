@@ -1,4 +1,4 @@
-package com.applozic.mobicomkit.uiwidgets;
+package com.applozic.mobicommons.file;
 
 import androidx.core.content.FileProvider;
 

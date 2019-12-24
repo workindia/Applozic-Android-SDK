@@ -29,6 +29,7 @@ import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
+import com.applozic.mobicommons.file.ALFileProvider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -36,7 +37,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -1566,7 +1566,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (message.getFilePaths() != null) {
                     Uri shareUri = null;
                     if (Utils.hasNougat()) {
-                        shareUri = FileProvider.getUriForFile(ApplozicService.getContext(getContext()), Utils.getMetaDataValue(getActivity(), MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+                        shareUri = ALFileProvider.getUriForFile(ApplozicService.getContext(getContext()), Utils.getMetaDataValue(getActivity(), MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", new File(message.getFilePaths().get(0)));
                     } else {
                         shareUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
                     }
@@ -3017,7 +3017,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (message.getFilePaths() != null) {
                     Uri shareUri = null;
                     if (Utils.hasNougat()) {
-                        shareUri = FileProvider.getUriForFile(ApplozicService.getContext(getContext()), Utils.getMetaDataValue(ApplozicService.getContext(getContext()), MobiComKitConstants.PACKAGE_NAME) + ".provider", new File(message.getFilePaths().get(0)));
+                        shareUri = ALFileProvider.getUriForFile(ApplozicService.getContext(getContext()), Utils.getMetaDataValue(ApplozicService.getContext(getContext()), MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", new File(message.getFilePaths().get(0)));
                     } else {
                         shareUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
                     }

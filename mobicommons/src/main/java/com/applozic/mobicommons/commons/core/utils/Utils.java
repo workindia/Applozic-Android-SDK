@@ -26,9 +26,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.file.ALFileProvider;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -440,7 +440,7 @@ public class Utils {
             File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
             File textLogFile = new File(dir, fileName);
             if (hasNougat()) {
-                return FileProvider.getUriForFile(ApplozicService.getContext(context), getMetaDataValue(context, "com.package.name") + ".provider", textLogFile);
+                return ALFileProvider.getUriForFile(ApplozicService.getContext(context), getMetaDataValue(context, "com.package.name") + ".applozic.provider", textLogFile);
             }
             return Uri.fromFile(textLogFile);
         } catch (Exception e) {
