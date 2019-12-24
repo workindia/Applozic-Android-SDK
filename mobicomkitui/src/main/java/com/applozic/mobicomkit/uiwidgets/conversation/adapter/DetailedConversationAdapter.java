@@ -975,7 +975,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
 
                         try {
-                            new AlRichMessage(context, myHolder.richMessageLayout, message, listener, alCustomizationSettings).createRichMessage();
+                            new AlRichMessage(activityContext, myHolder.richMessageLayout, message, listener, alCustomizationSettings).createRichMessage();
                         } catch (Exception e) {
                             e.printStackTrace();
                             myHolder.richMessageLayout.setVisibility(View.GONE);
