@@ -1,6 +1,8 @@
-package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.lists;
+package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +11,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageListener;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.bumptech.glide.Glide;
 

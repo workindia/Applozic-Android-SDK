@@ -10,9 +10,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -61,8 +63,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -980,7 +982,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
                     } else {
                         myHolder.richMessageLayout.setVisibility(View.GONE);
+                        myHolder.messageTextLayout.setVisibility(View.VISIBLE);
                     }
+
 
                     //Handling contact share
                     if (message.isContactMessage()) {
@@ -1403,7 +1407,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         Button addContactButton;
         int position;
         LinearLayout richMessageLayout;
-        RecyclerView richMessageContainer;
 
         public MyViewHolder(final View customView) {
             super(customView);
@@ -1449,7 +1452,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             addContactButton = (Button) mainContactShareLayout.findViewById(R.id.contact_share_add_btn);
 
             richMessageLayout = (LinearLayout) customView.findViewById(R.id.alRichMessageView);
-            richMessageContainer = (RecyclerView) customView.findViewById(R.id.alRichMessageContainer);
 
             customView.setOnCreateContextMenuListener(this);
 
@@ -1618,4 +1620,3 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         }
     }
 }
-

@@ -14,13 +14,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="95dp"
         android:layout_marginStart="95dp"
+        android:layout_marginLeft="95dp"
         android:background="@drawable/applozic_sent_message"
-        android:gravity="end|center_vertical"
-        android:minHeight="35dp"
-        android:minWidth="32dp"
         android:elevation="1dp"
+        android:gravity="end|center_vertical"
+        android:minWidth="32dp"
+        android:minHeight="35dp"
         android:orientation="vertical"
         android:padding="5dp">
 
@@ -37,9 +37,9 @@
                 android:id="@+id/attached_file"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:drawableStart="@drawable/applozic_ic_action_attachment"
                 android:drawableLeft="@drawable/applozic_ic_action_attachment"
                 android:drawablePadding="8dp"
-                android:drawableStart="@drawable/applozic_ic_action_attachment"
                 android:textAlignment="gravity"
                 android:textColor="@color/white"
                 android:textDirection="locale"
@@ -72,38 +72,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:paddingEnd="8dp"
-            android:paddingLeft="2dp"
-            android:paddingRight="8dp"
             android:paddingStart="2dp"
+            android:paddingLeft="2dp"
+            android:paddingEnd="8dp"
+            android:paddingRight="8dp"
             android:text="@string/self_destruct"
             android:textColor="@color/message_details_text_color"
             android:textSize="12sp"
             android:visibility="gone" />
     </LinearLayout>
 
+    <include layout="@layout/al_rich_message_sender_layout" />
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/timeContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/timeContainer"
+        android:layout_below="@+id/alRichMessageView"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/messageTextLayout"
         android:orientation="horizontal"
-        android:paddingBottom="6dp"
+        android:paddingStart="4dp"
         android:paddingEnd="4dp"
         android:paddingRight="4dp"
-        android:paddingStart="4dp">
+        android:paddingBottom="6dp">
 
         <TextView
             android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:paddingEnd="2dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="2dp"
             android:paddingStart="0dp"
+            android:paddingLeft="0dp"
+            android:paddingEnd="2dp"
+            android:paddingRight="2dp"
             android:text=""
             android:textColor="@color/message_details_text_color"
             android:textSize="11sp" />
@@ -113,19 +115,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingEnd="2dp"
-            android:paddingLeft="2dp"
             android:paddingStart="2dp"
+            android:paddingLeft="2dp"
+            android:paddingEnd="2dp"
             android:text="@string/created_at_time"
             android:textSize="11sp" />
 
     </LinearLayout>
-
-    <include
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/timeContainer"
-        layout="@layout/al_rich_message_layout" />
 
     <!--
     <ImageView

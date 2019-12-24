@@ -1,10 +1,14 @@
-package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.payment;
+package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview;
 
 import android.content.DialogInterface;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -23,14 +27,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class PaymentActivity extends AppCompatActivity {
+public class AlWebViewActivity extends AppCompatActivity {
 
     WebView webView;
     Toolbar toolbar;
     private Map<String, String> txnData;
-    private boolean isLinkType = false;
     private boolean isPaymentRequest = false;
     private ProgressBar loadingProgressBar;
+    private static final String JS_INTERFACE_NAME = "AlWebViewScreen";
+    public static final String SURL = "surl";
+    public static final String FURL = "furl";
+    public static final String DEFAULT_REQUEST_TYPE = "application/x-www-form-urlencoded";
+    public static final String KM_HELPCENTER_URL = "KM_HELPCENTER_URL";
+    public static final String REQUEST_TYPE_JSON = "json";
+    public static final String Al_WEB_VIEW_BUNDLE = "alWebViewBundle";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,37 +53,47 @@ public class PaymentActivity extends AppCompatActivity {
         webView = findViewById(R.id.paymentWebView);
         loadingProgressBar = findViewById(R.id.loadingProgress);
 
-        isLinkType = getIntent().getBooleanExtra(AlRichMessage.WEB_LINK, false);
+        if (getIntent() != null) {
+            Bundle alWebViewBundle = getIntent().getBundleExtra(Al_WEB_VIEW_BUNDLE);
 
-        txnData = new HashMap<>();
-        setWebViewClient();
+            if (alWebViewBundle != null) {
+                boolean isLinkType = alWebViewBundle.getBoolean(AlRichMessage.WEB_LINK, false);
 
-        if (isLinkType) {
-            String linkUrl = getIntent().getStringExtra(AlRichMessage.LINK_URL);
-            if (!TextUtils.isEmpty(linkUrl)) {
-                loadUrl(linkUrl.startsWith("http") ? linkUrl : "http://" + linkUrl);
-            }
-        } else {
-            String formDataJson = getIntent().getStringExtra("formData");
-            String baseUrl = getIntent().getStringExtra("formAction");
+                txnData = new HashMap<>();
+                setWebViewClient();
 
-            if (formDataJson != null) {
-                try {
-                    JSONObject jsonObject = new JSONObject(formDataJson);
+                String helpCenterUrl = alWebViewBundle.getString(KM_HELPCENTER_URL);
 
-                    Iterator<String> iter = jsonObject.keys();
-
-                    while (iter.hasNext()) {
-                        String key = iter.next();
-                        if (jsonObject.getString(key) != null) {
-                            txnData.put(key, jsonObject.getString(key));
-                        }
+                if (!TextUtils.isEmpty(helpCenterUrl)) {
+                    loadUrl(helpCenterUrl);
+                } else if (isLinkType) {
+                    String linkUrl = alWebViewBundle.getString(AlRichMessage.LINK_URL);
+                    if (linkUrl != null && !TextUtils.isEmpty(linkUrl)) {
+                        loadUrl(linkUrl.startsWith("http") ? linkUrl : "http://" + linkUrl);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    String formDataJson = alWebViewBundle.getString(AlRichMessage.KM_FORM_DATA);
+                    String baseUrl = alWebViewBundle.getString(AlRichMessage.KM_FORM_ACTION);
+
+                    if (formDataJson != null) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(formDataJson);
+
+                            Iterator<String> iter = jsonObject.keys();
+
+                            while (iter.hasNext()) {
+                                String key = iter.next();
+                                if (jsonObject.getString(key) != null) {
+                                    txnData.put(key, jsonObject.getString(key));
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        isPaymentRequest = true;
+                        webViewClientPost(webView, baseUrl, txnData.entrySet());
+                    }
                 }
-                isPaymentRequest = true;
-                webViewClientPost(webView, baseUrl, txnData.entrySet());
             }
         }
     }
@@ -100,7 +120,7 @@ public class PaymentActivity extends AppCompatActivity {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(PaymentActivity.this);
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(AlWebViewActivity.this);
 
             alertDialog.setTitle(getString(R.string.warning));
             alertDialog.setMessage(getString(isPaymentRequest ? R.string.cancel_transaction : R.string.go_back));
@@ -163,9 +183,9 @@ public class PaymentActivity extends AppCompatActivity {
                 if (loadingProgressBar != null) {
                     loadingProgressBar.setVisibility(View.GONE);
                 }
-                if (!txnData.isEmpty() && txnData.containsKey("surl") && url.equals(txnData.get("surl"))) {
+                if (!txnData.isEmpty() && txnData.containsKey(SURL) && url.equals(txnData.get(FURL))) {
                     finish();
-                } else if (!txnData.isEmpty() && txnData.containsKey("furl") && url.equals(txnData.get("furl"))) {
+                } else if (!txnData.isEmpty() && txnData.containsKey(FURL) && url.equals(txnData.get(FURL))) {
                     finish();
                 }
                 super.onPageFinished(view, url);
@@ -182,6 +202,6 @@ public class PaymentActivity extends AppCompatActivity {
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setUseWideViewPort(false);
         webView.getSettings().setLoadWithOverviewMode(false);
-        webView.addJavascriptInterface(new PaymentJsInterface(PaymentActivity.this), "PaymentScreen");
+        webView.addJavascriptInterface(new AlWebViewJsInterface(AlWebViewActivity.this), JS_INTERFACE_NAME);
     }
 }

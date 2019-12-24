@@ -26,6 +26,9 @@ import android.os.Vibrator;
 
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -119,19 +122,12 @@ import com.applozic.mobicomkit.uiwidgets.conversation.MobicomMessageTemplate;
 import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPositionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALBookingDetailsModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALGuestCountModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageListener;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessageModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlHotelBookingModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.payment.PaymentActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
 import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
@@ -296,6 +292,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     List<String> filePaths = new ArrayList<>();
     String message = "";
     Short messageContentType = Message.ContentType.DEFAULT.getValue();
+    private RichMessageActionProcessor richMessageActionProcessor;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -315,6 +312,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
+
+        richMessageActionProcessor = new RichMessageActionProcessor(this);
+
         restrictedWords = FileUtils.loadRestrictedWordsFile(getContext());
         conversationUIService = new ConversationUIService(getActivity());
         syncCallService = SyncCallService.getInstance(getActivity());
@@ -1804,7 +1804,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (contact != null) {
                 recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, contact, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
-                recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+                recyclerDetailConversationAdapter.setRichMessageCallbackListener(richMessageActionProcessor.getRichMessageListener());
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
                 if (getActivity() instanceof ALStoragePermissionListener) {
                     recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
@@ -1845,7 +1845,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 recyclerDetailConversationAdapter = new DetailedConversationAdapter(getActivity(), messageList, channel, messageIntentClass, emojiIconHandler);
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
-                recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+                recyclerDetailConversationAdapter.setRichMessageCallbackListener(richMessageActionProcessor.getRichMessageListener());
                 if (getActivity() instanceof ALStoragePermissionListener) {
                     recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
                 } else {
@@ -4260,134 +4260,30 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         }
-
     }
 
     @Override
     public void onAction(Context context, String action, Message message, Object object, Map<String, Object> replyMetadata) {
         switch (action) {
-            case AlRichMessage.SEND_GUEST_LIST:
-                List<ALGuestCountModel> guestCountModels = (List<ALGuestCountModel>) object;
-                sendGuestListMessage(guestCountModels, getStringMap(replyMetadata));
-                break;
-
-            case AlRichMessage.SEND_HOTEL_RATING:
-                sendMessage((String) object, getStringMap(replyMetadata));
-                break;
-
-            case AlRichMessage.SEND_HOTEL_DETAILS:
-                sendHotelDetailMessage((AlHotelBookingModel) object, getStringMap(replyMetadata));
-                break;
-
-            case AlRichMessage.SEND_ROOM_DETAILS_MESSAGE:
-                sendRoomDetailsMessage((AlHotelBookingModel) object, getStringMap(replyMetadata));
-                break;
-
-            case AlRichMessage.SEND_BOOKING_DETAILS:
-                sendBookingDetailsMessage((ALBookingDetailsModel) object, getStringMap(replyMetadata));
-                break;
-
-            case AlRichMessage.MAKE_PAYMENT:
-            case AlRichMessage.SUBMIT_BUTTON:
-                handleSubmitButton(object);
-                break;
-
-            case AlRichMessage.QUICK_REPLY_OLD:
-            case AlRichMessage.QUICK_REPLY:
-                handleQuickReplies(object, replyMetadata);
-                break;
-
-            case AlRichMessage.TEMPLATE_ID + 9:
-                loadImageOnFullScreen(context, action, (ALRichMessageModel.ALPayloadModel) object);
-                break;
-
-            case AlRichMessage.WEB_LINK:
-                handleWebLinks(object);
-                break;
-        }
-    }
-
-    public void handleWebLinks(Object object) {
-        ALRichMessageModel.AlAction alAction = null;
-
-        if (object instanceof ALRichMessageModel.AlButtonModel) {
-            alAction = ((ALRichMessageModel.AlButtonModel) object).getAction();
-        } else if (object instanceof ALRichMessageModel.AlElementModel) {
-            alAction = ((ALRichMessageModel.AlElementModel) object).getAction();
-        } else if (object instanceof ALRichMessageModel.AlAction) {
-            alAction = (ALRichMessageModel.AlAction) object;
-        }
-
-        if (alAction != null) {
-            if (!TextUtils.isEmpty(alAction.getUrl())) {
-                openWebLink(alAction.getUrl());
-            } else if (alAction.getPayload() != null && !TextUtils.isEmpty(alAction.getPayload().getUrl())) {
-                openWebLink(alAction.getPayload().getUrl());
-            }
-        }
-
-        if (object instanceof ALRichMessageModel.ALPayloadModel) {
-            ALRichMessageModel.ALPayloadModel payloadModel = (ALRichMessageModel.ALPayloadModel) object;
-            if (!TextUtils.isEmpty(payloadModel.getUrl())) {
-                openWebLink(payloadModel.getUrl());
-            }
-        }
-    }
-
-    public void handleQuickReplies(Object object, Map<String, Object> replyMetadata) {
-        String message = null;
-        if (object instanceof ALRichMessageModel.AlButtonModel) {
-            ALRichMessageModel.AlButtonModel buttonModel = (ALRichMessageModel.AlButtonModel) object;
-            if (buttonModel.getAction() != null) {
-                handleQuickReplies(buttonModel.getAction(), replyMetadata);
-            } else {
-                message = buttonModel.getName();
-            }
-        } else if (object instanceof ALRichMessageModel.AlAction) {
-            ALRichMessageModel.AlAction action = (ALRichMessageModel.AlAction) object;
-            if (action.getPayload() != null) {
-                if (!TextUtils.isEmpty(action.getPayload().getMessage())) {
-                    message = action.getPayload().getMessage();
-                } else if (!TextUtils.isEmpty(action.getPayload().getTitle())) {
-                    message = action.getPayload().getTitle();
+            case AlRichMessage.OPEN_WEB_VIEW_ACTIVITY:
+                if (getActivity() != null) {
+                    Bundle bundle = (Bundle) object;
+                    boolean isDeepLink = bundle.getBoolean(AlRichMessage.IS_DEEP_LINK, false);
+                    Intent intent;
+                    if (isDeepLink) {
+                        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(bundle.getString(AlRichMessage.LINK_URL)));
+                    } else {
+                        intent = new Intent(getActivity(), AlWebViewActivity.class);
+                        intent.putExtra(AlWebViewActivity.Al_WEB_VIEW_BUNDLE, bundle);
+                    }
+                    getActivity().startActivity(intent);
                 }
-            } else {
-                message = action.getText();
-            }
-        } else if (object instanceof ALRichMessageModel.AlElementModel) {
-            ALRichMessageModel.AlElementModel elementModel = (ALRichMessageModel.AlElementModel) object;
-            if (replyMetadata == null) {
-                replyMetadata = new HashMap<>();
-            }
-            if (elementModel.getArticleId() != null) {
-                replyMetadata.put(AlRichMessage.KM_FAQ_ID, elementModel.getArticleId());
-            }
-            if (!TextUtils.isEmpty(elementModel.getSource())) {
-                replyMetadata.put(AlRichMessage.KM_SOURCE, elementModel.getSource());
-            }
-
-            if (elementModel.getAction() != null) {
-                handleQuickReplies(elementModel.getAction(), replyMetadata);
-            } else {
-                message = elementModel.getTitle();
-            }
-        }
-
-        if (!TextUtils.isEmpty(message)) {
-            sendMessage(message, getStringMap(replyMetadata));
-        }
-    }
-
-    public void handleSubmitButton(Object object) {
-        if (object instanceof ALRichMessageModel.AlButtonModel) {
-            ALRichMessageModel.AlButtonModel buttonModel = (ALRichMessageModel.AlButtonModel) object;
-            if (buttonModel.getAction() != null && buttonModel.getAction().getPayload() != null) {
-                openWebLink(GsonUtils.getJsonFromObject(buttonModel.getAction().getPayload().getFormData(), ALRichMessageModel.AlFormDataModel.class)
-                        , buttonModel.getAction().getPayload().getFormAction());
-            }
-        } else if (object instanceof ALRichMessageModel) {
-            ALRichMessageModel model = (ALRichMessageModel) object;
-            openWebLink(model.getFormData(), model.getFormAction());
+                break;
+            case AlRichMessage.SEND_MESSAGE:
+                if (message != null) {
+                    sendMessage(message.getMessage(), message.getMetadata(), message.getContentType());
+                }
+                break;
         }
     }
 
@@ -4406,117 +4302,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendMessage(message, replyMetadata, null, null, Message.ContentType.DEFAULT.getValue());
     }
 
-    public void openWebLink(String url) {
-        if (getActivity() != null) {
-            Intent intent = new Intent(getActivity(), PaymentActivity.class);
-            intent.putExtra(AlRichMessage.WEB_LINK, true);
-            intent.putExtra(AlRichMessage.LINK_URL, url);
-            getActivity().startActivity(intent);
-        }
-    }
-
-    public void openWebLink(String formData, String formAction) {
-        Intent intent = new Intent(getActivity(), PaymentActivity.class);
-        if (!TextUtils.isEmpty(formData)) {
-            intent.putExtra(AlRichMessage.KM_FORM_DATA, formData);
-        }
-        if (!TextUtils.isEmpty(formAction)) {
-            intent.putExtra(AlRichMessage.KM_FORM_ACTION, formAction);
-        }
-        if (getActivity() != null) {
-            getActivity().startActivity(intent);
-        }
-    }
-
-    public void sendGuestListMessage(List<ALGuestCountModel> guestList, Map<String, String> replyMetadata) {
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("guestTypeId", "ADULTS");
-        metadata.put("isRoomGuestJSON", "true");
-        metadata.put("roomGuestJson", GsonUtils.getJsonFromObject(guestList, List.class));
-
-        StringBuilder message = new StringBuilder("");
-        int count = 0;
-
-        for (ALGuestCountModel guestModel : guestList) {
-            message.append("Room ");
-            message.append(count + 1);
-            message.append(" Guest ");
-            message.append(guestModel.getNoOfAdults());
-            message.append(" Children ");
-            message.append(guestModel.getNoOfChild());
-            message.append(", ");
-        }
-
-        if (replyMetadata != null) {
-            metadata.putAll(replyMetadata);
-        }
-
-        sendMessage(message.toString(), metadata, Message.ContentType.DEFAULT.getValue());
-    }
-
-    public void sendHotelDetailMessage(AlHotelBookingModel hotel, Map<String, String> replyMetadata) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("hotelSelected", "true");
-        metadata.put("resultIndex", String.valueOf(hotel.getResultIndex()));
-        metadata.put("sessionId", hotel.getSessionId());
-        metadata.put("skipBot", "true");
-
-        String message = "Get room detail of " + hotel.getHotelName();
-
-        if (replyMetadata != null) {
-            metadata.putAll(replyMetadata);
-        }
-
-        sendMessage(message, metadata, Message.ContentType.DEFAULT.getValue());
-    }
-
-    public void sendRoomDetailsMessage(AlHotelBookingModel hotel, Map<String, String> replyMetadata) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("HotelResultIndex", String.valueOf(hotel.getHotelResultIndex()));
-        metadata.put("NoOfRooms", String.valueOf(hotel.getNoOfRooms()));
-        metadata.put("RoomIndex", String.valueOf(hotel.getRoomIndex()));
-        metadata.put("blockHotelRoom", "true");
-        metadata.put("sessionId", hotel.getSessionId());
-        metadata.put("skipBot", "true");
-
-        if (replyMetadata != null) {
-            metadata.putAll(replyMetadata);
-        }
-
-        String message = "Book Hotel " + hotel.getHotelName() + ", Room " + hotel.getRoomTypeName();
-
-        sendMessage(message, metadata, Message.ContentType.DEFAULT.getValue());
-    }
-
-    public void sendBookingDetailsMessage(ALBookingDetailsModel model, Map<String, String> replyMetadata) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("guestDetail", "true");
-        metadata.put("personInfo", GsonUtils.getJsonFromObject(model.getPersonInfo(), ALBookingDetailsModel.ALBookingDetails.class));
-        metadata.put("sessionId", model.getSessionId());
-        metadata.put("skipBot", "true");
-
-        if (replyMetadata != null) {
-            metadata.putAll(replyMetadata);
-        }
-
-        sendMessage("Your details have been submitted", metadata, Message.ContentType.DEFAULT.getValue());
-    }
-
-    public void loadImageOnFullScreen(Context context, String action, ALRichMessageModel.ALPayloadModel payloadModel) {
-        Intent intent = new Intent(context, FullScreenImageActivity.class);
-        intent.putExtra(action, GsonUtils.getJsonFromObject(payloadModel, ALRichMessageModel.ALPayloadModel.class));
-        getActivity().startActivityForResult(intent, MobiComKitActivityInterface.REQUEST_CODE_FULL_SCREEN_ACTION);
-    }
-
-    public void makePaymentForBooking(ALRichMessageModel model) {
-        Intent intent = new Intent(getActivity(), PaymentActivity.class);
-        intent.putExtra("formData", model.getFormData());
-        intent.putExtra("formAction", model.getFormAction());
-        if (getContext() != null) {
-            getContext().startActivity(intent);
-        }
-    }
 
     public boolean isContextBasedChat(Integer conversationId, Channel channel) {
         if (conversationId != null && conversationId > 0) {
