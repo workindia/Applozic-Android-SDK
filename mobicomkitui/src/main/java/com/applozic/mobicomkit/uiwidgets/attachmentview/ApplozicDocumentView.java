@@ -6,7 +6,9 @@ import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+
 import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -65,7 +67,6 @@ public class ApplozicDocumentView {
     private Handler mHandler = new Handler();
     private ALStoragePermissionListener alStoragePermissionListener;
 
-
     public ApplozicDocumentView(Context context, ALStoragePermissionListener alStoragePermissionListener) {
         this.context = context;
         this.alStoragePermissionListener = alStoragePermissionListener;
@@ -118,7 +119,7 @@ public class ApplozicDocumentView {
             }
         }
 
-        fileText.setTextColor(ContextCompat.getColor(context, R.color.message_text_color));
+        fileText.setTextColor(ContextCompat.getColor(context, message.isTypeOutbox() ? R.color.white : R.color.message_text_color));
         audioseekbar.getProgressDrawable().setColorFilter(message.isTypeOutbox() ? 0xFFFFFFFF : 0xFFFFB242, PorterDuff.Mode.MULTIPLY);
         cancelIcon.setVisibility(message.isTypeOutbox() ? GONE : View.VISIBLE);
         if (message.isTypeOutbox()) {
