@@ -1,23 +1,17 @@
 package com.applozic.mobicomkit.sample;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import androidx.core.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -28,7 +22,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,7 +44,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.google.android.material.snackbar.Snackbar;
 
 
 import java.util.ArrayList;
@@ -65,9 +57,6 @@ import java.util.Map;
 public class LoginActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final String TAG = "LoginActivity";
-    private static final int REQUEST_CONTACTS = 1;
-    private static String[] PERMISSIONS_CONTACT = {Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS};
     LinearLayout layout;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -84,18 +73,15 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
     private View mProgressView;
     private View mLoginFormView;
     private Button mEmailSignInButton;
-    //CallbackManager callbackManager;
     private TextView mTitleView;
     private Spinner mSpinnerView;
     private int touchCount = 0;
     private MobiComUserPreference mobiComUserPreference;
     private boolean isDeviceContactSync = false;
-    //private LoginButton loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //FacebookSdk.sdkInitialize(this);
 
         Applozic.init(this, getString(R.string.application_key));
 
@@ -457,115 +443,10 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         }
     }
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void showRunTimePermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestContactsPermissions();
-
-        } else {
-            if (isDeviceContactSync) {
-                Intent intent = new Intent(this, DeviceContactSyncService.class);
-                DeviceContactSyncService.enqueueWork(this, intent);
-            }
-            new SetupEmailAutoCompleteTask().execute(null, null);
-        }
-    }
-
-    private void requestContactsPermissions() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_CONTACTS)
-                || ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.WRITE_CONTACTS)) {
-
-            Snackbar.make(layout, R.string.contact_permission,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok_alert, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat
-                                    .requestPermissions(LoginActivity.this, PERMISSIONS_CONTACT,
-                                            REQUEST_CONTACTS);
-                        }
-                    }).show();
-        } else {
-            ActivityCompat.requestPermissions(this, PERMISSIONS_CONTACT, REQUEST_CONTACTS);
-        }
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        if (requestCode == REQUEST_CONTACTS) {
-            if (PermissionsUtils.verifyPermissions(grantResults)) {
-                showSnackBar(R.string.contact_permission_granted);
-
-                if (isDeviceContactSync) {
-                    Intent intent = new Intent(this, DeviceContactSyncService.class);
-                    DeviceContactSyncService.enqueueWork(this, intent);
-                }
-
-                new SetupEmailAutoCompleteTask().execute(null, null);
-
-            } else {
-                showSnackBar(R.string.contact_permission_granted);
-            }
-
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    public void showSnackBar(int resId) {
-        Snackbar.make(layout, resId,
-                Snackbar.LENGTH_SHORT)
-                .show();
-    }
-
-    /**
-     * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
-     * the email text field with results on the main UI thread.
-     */
-    class SetupEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
-
-        @Override
-        protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<String>();
-
-            // Get all emails from the user's contacts and copy them to a list.
-            ContentResolver cr = getContentResolver();
-            Cursor emailCur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                    null, null, null);
-            while (emailCur.moveToNext()) {
-                String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract
-                        .CommonDataKinds.Email.DATA));
-                emailAddressCollection.add(email);
-            }
-            emailCur.close();
-
-            return emailAddressCollection;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> emailAddressCollection) {
-            addEmailsToAutoComplete(emailAddressCollection);
-        }
-    }
 }
