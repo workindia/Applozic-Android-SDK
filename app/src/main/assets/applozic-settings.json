@@ -89,8 +89,7 @@
     ":camera": true,
     ":file": true,
     ":audio": true,
-    ":video": true,
-    ":contact": true
+    ":video": true
   },
   "filterGallery": {
     "ALL_FILES": true,

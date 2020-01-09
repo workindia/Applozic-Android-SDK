@@ -49,8 +49,6 @@ import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.contact.DeviceContactSyncService;
-import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.google.android.material.snackbar.Snackbar;
@@ -107,15 +105,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-
-        if (Utils.hasMarshmallow()) {
-            showRunTimePermission();
-        } else {
-            if (isDeviceContactSync) {
-                Intent intent = new Intent(this, DeviceContactSyncService.class);
-                DeviceContactSyncService.enqueueWork(this, intent);
-            }
-        }
 
         mPhoneNumberView = (EditText) findViewById(R.id.phoneNumber);
         mUserIdView = (EditText) findViewById(R.id.userId);
@@ -204,15 +193,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         }
     }
 
-    private void populateAutoComplete() {
-        if (Utils.isBetweenGingerBreadAndKitKat()) {
-            // Use AccountManager (API 8+)
-            new SetupEmailAutoCompleteTask().execute(null, null);
-        } else if (Utils.hasMarshmallow()) {
-            showRunTimePermission();
-        }
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -294,11 +274,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
-
-                    if (isDeviceContactSync) {
-                        Intent intent = new Intent(context, DeviceContactSyncService.class);
-                        DeviceContactSyncService.enqueueWork(context, intent);
-                    }
 
                     buildContactData();
 
