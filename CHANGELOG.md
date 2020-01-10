@@ -1,7 +1,27 @@
 
 ## Changelog
 
+**Version 5.66** - Tuesday, 31 December 2019
+
+* MQTT message encryption.
+* Added 2 more paramters in delete group API: updateClientGroupId and resetCount
+* RichMessage UI fixes on the Sender side. Support for Image type and multiple buttons type rich messages added.
+* isDeepLink option in link type rich messages
+* Changed the authority of applozic file provider to applozic.provider in order to avoid conflicts with the same authority.
+
+**Version 5.65** - Monday, 25 November 2019
+
+* Fix notification issues for support groups
+* Other crash fixes and optimization
+
+**Version 5.64** - Friday, 18 October 2019
+
+* Added dynamic setting to hide group name edit button
+* Added setting in user to hide action messages
+* New Rich message support
+
 **Version 5.62** - Friday, 27 September 2019
+
 **Features**
 * Updated glide version to 4.9.0
 * Added Message search APIs
