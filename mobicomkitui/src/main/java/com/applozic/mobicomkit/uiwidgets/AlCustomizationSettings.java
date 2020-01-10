@@ -104,7 +104,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean showAllDeviceContacts = true;
     private boolean poweredByApplozic = false;
     private boolean enableImageCompression = false;
-    private boolean disableGlobalStoragePermission = false;
+    private boolean disableGlobalStoragePermission = true;
     private boolean enableMessageFastScroll = false;
     private boolean isContactSearchFromServer = false;
     private String messageSearchTextColor = "#5fba7d";

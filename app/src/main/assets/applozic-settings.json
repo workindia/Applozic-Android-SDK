@@ -34,7 +34,7 @@
   "audioPermissionNotFoundMsg": "",
   "noConversationLabel": "You have no conversations",
   "noSearchFoundForChatMessages": "No conversation found",
-  "disableGlobalStoragePermission": false,
+  "disableGlobalStoragePermission": true,
   "enableMessageFastScroll": false,
   "totalRegisteredUserToFetch": 100,
   "maxAttachmentAllowed": 10,
