@@ -32,7 +32,6 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
-import com.applozic.mobicomkit.contact.ContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
@@ -151,16 +150,6 @@ public class AlAttachmentOptions {
             fragmentTransaction.commitAllowingStateLoss();
         } else {
             //Permissions not granted error
-        }
-    }
-
-    public static void processContactAction(Activity activity, LinearLayout layout) {
-        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForContactPermission(activity)) {
-            new ApplozicPermissions(activity).requestContactPermission();
-        } else {
-            Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            contactIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-            activity.startActivityForResult(contactIntent, REQUEST_CODE_CONTACT_SHARE);
         }
     }
 
@@ -331,20 +320,6 @@ public class AlAttachmentOptions {
                 }
             }
 
-            if (requestCode == REQUEST_CODE_CONTACT_SHARE && resultCode == Activity.RESULT_OK) {
-
-                try {
-                    File vCradFile = new ContactService(activity).vCard(intent.getData());
-
-                    if (vCradFile != null) {
-                        messageBuilder.setFilePath(vCradFile.getAbsolutePath()).setContentType(Message.ContentType.CONTACT_MSG.getValue()).send();
-                    }
-
-                } catch (Exception e) {
-                    Toast.makeText(activity, activity.getString(R.string.applozic_failed_to_load_contact), Toast.LENGTH_SHORT).show();
-                    Log.e("Exception::", "Exception", e);
-                }
-            }
             if (requestCode == REQUEST_MULTI_ATTCAHMENT && resultCode == Activity.RESULT_OK) {
 
                 ArrayList<Uri> attachmentList = intent.getParcelableArrayListExtra(MULTISELECT_SELECTED_FILES);
@@ -422,14 +397,7 @@ public class AlAttachmentOptions {
             } else {
                 showSnackBar(snackbarLayout, R.string.phone_camera_permission_not_granted);
             }
-        } else if (requestCode == PermissionsUtils.REQUEST_CONTACT) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(snackbarLayout, R.string.contact_permission_granted);
-                processContactAction(activity, snackbarLayout);
-            } else {
-                showSnackBar(snackbarLayout, R.string.contact_permission_not_granted);
-            }
-        } else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
+        }  else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(snackbarLayout, R.string.phone_camera_permission_granted);
                 /*if (profilefragment != null) {

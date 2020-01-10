@@ -80,9 +80,6 @@ public class AlAttachmentView extends ApplozicComponents implements AdapterView.
             case 4:
                 AlAttachmentOptions.processVideoAction(getActivity(), null);
                 break;
-            case 5:
-                AlAttachmentOptions.processContactAction(getActivity(), null);
-                break;
         }
     }
 

@@ -46,7 +46,6 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
-import com.applozic.mobicomkit.contact.DeviceContactSyncService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
@@ -519,17 +518,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             if (refreshContactsScreenBroadcast != null) {
                 LocalBroadcastManager.getInstance(getActivity()).registerReceiver(refreshContactsScreenBroadcast, new IntentFilter(BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString()));
             }
-
-            if (isDeviceContactSync) {
-                if (userPreference.getDeviceContactSyncTime() != 0) {
-                    Date date = new Date();
-                    if ((date.getTime() - userPreference.getDeviceContactSyncTime()) >= CONSTANT_TIME) {
-                        Intent intent = new Intent(getActivity(), DeviceContactSyncService.class);
-                        intent.putExtra(DeviceContactSyncService.PROCESS_USER_DETAILS, true);
-                        DeviceContactSyncService.enqueueWork(getContext(), intent);
-                    }
-                }
-            }
         } catch (Exception e) {
 
         }
@@ -543,7 +531,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(refreshContactsScreenBroadcast);
         }
     }
-
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
