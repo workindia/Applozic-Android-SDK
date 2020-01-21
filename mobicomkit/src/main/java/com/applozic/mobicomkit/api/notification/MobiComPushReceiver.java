@@ -17,6 +17,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ MobiComPushReceiver {
         notificationKeyList.add("APPLOZIC_33");//30 for Meta data update changes
         notificationKeyList.add("APPLOZIC_34");//31 for user delete notification
         notificationKeyList.add("APPLOZIC_37");//32 for user mute notification
+        notificationKeyList.add("APPLOZIC_38");//33 for mute all notifications
     }
 
     public static boolean isMobiComPushNotification(Intent intent) {
@@ -162,7 +164,7 @@ MobiComPushReceiver {
                     messageSent = null, deleteConversationForContact = null, deleteConversationForChannel = null,
                     deleteMessage = null, conversationReadResponse = null,
                     userBlockedResponse = null, userUnBlockedResponse = null, conversationReadForContact = null, conversationReadForChannel = null, conversationReadForSingleMessage = null,
-                    userDetailChanged = null, userDeleteNotification = null, messageMetadataUpdate = null, mutedUserListResponse = null, contactSync = null;
+                    userDetailChanged = null, userDeleteNotification = null, messageMetadataUpdate = null, mutedUserListResponse = null, contactSync = null, muteAllNotificationResponse = null;
             SyncCallService syncCallService = SyncCallService.getInstance(context);
 
             if (bundle != null) {
@@ -185,6 +187,7 @@ MobiComPushReceiver {
                 messageMetadataUpdate = bundle.getString(notificationKeyList.get(30));
                 mutedUserListResponse = bundle.getString(notificationKeyList.get(32));
                 contactSync = bundle.getString(notificationKeyList.get(25));
+                muteAllNotificationResponse = bundle.getString(notificationKeyList.get(33));
             } else if (data != null) {
                 deleteConversationForContact = data.get(notificationKeyList.get(5));
                 deleteMessage = data.get(notificationKeyList.get(4));
@@ -205,6 +208,7 @@ MobiComPushReceiver {
                 messageMetadataUpdate = data.get(notificationKeyList.get(30));
                 mutedUserListResponse = data.get(notificationKeyList.get(32));
                 contactSync = data.get(notificationKeyList.get(25));
+                muteAllNotificationResponse = data.get(notificationKeyList.get(33));
             }
 
             if (!TextUtils.isEmpty(payloadForDelivered)) {
@@ -440,6 +444,25 @@ MobiComPushReceiver {
                             String userId = response.getMessage().substring(0, response.getMessage().length() - 2);
                             syncCallService.syncMutedUserList(true, userId);
                         }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (!TextUtils.isEmpty(muteAllNotificationResponse)) {
+                try {
+                    GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(muteAllNotificationResponse, GcmMessageResponse.class);
+
+                    if (processPushNotificationId(messageResponse.getId())) {
+                        return;
+                    }
+
+                    addPushNotificationId(messageResponse.getId());
+
+                    if (messageResponse.getMessage() != null && messageResponse.getMessage().getMessage() != null) {
+                        long notificationAfterTime = Long.parseLong(messageResponse.getMessage().getMessage());
+                        ALSpecificSettings.getInstance(context).notificationAfterTime(notificationAfterTime);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

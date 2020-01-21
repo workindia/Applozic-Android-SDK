@@ -16,6 +16,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -450,6 +451,17 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     }
                                 }
 
+                                if (NOTIFICATION_TYPE.MUTE_NOTIFICATIONS.getValue().equals(mqttMessageResponse.getType())) {
+                                    try {
+                                        GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageDataString, GcmMessageResponse.class);
+                                        if (messageResponse.getMessage() != null && messageResponse.getMessage().getMessage() != null) {
+                                            long notificationAfterTime = Long.parseLong(messageResponse.getMessage().getMessage());
+                                            ALSpecificSettings.getInstance(context).notificationAfterTime(notificationAfterTime);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
 
                         } catch (Exception e) {
@@ -617,7 +629,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         USER_DETAIL_CHANGED("APPLOZIC_30"),
         MESSAGE_METADATA_UPDATE("APPLOZIC_33"),
         USER_DELETE_NOTIFICATION("APPLOZIC_34"),
-        USER_MUTE_NOTIFICATION("APPLOZIC_37");
+        USER_MUTE_NOTIFICATION("APPLOZIC_37"),
+        MUTE_NOTIFICATIONS("APPLOZIC_38");
 
         private String value;
 
