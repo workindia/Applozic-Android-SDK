@@ -462,7 +462,7 @@ MobiComPushReceiver {
 
                     if (messageResponse.getMessage() != null && messageResponse.getMessage().getMessage() != null) {
                         long notificationAfterTime = Long.parseLong(messageResponse.getMessage().getMessage());
-                        ALSpecificSettings.getInstance(context).notificationAfterTime(notificationAfterTime);
+                        ALSpecificSettings.getInstance(context).setNotificationAfterTime(notificationAfterTime);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

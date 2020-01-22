@@ -99,7 +99,7 @@ public class ALSpecificSettings {
         return sharedPreferences.getBoolean(ENABLE_LOGGING_IN_RELEASE_BUILD, false);
     }
 
-    public ALSpecificSettings notificationAfterTime(long notificationAfterTime) {
+    public ALSpecificSettings setNotificationAfterTime(long notificationAfterTime) {
         sharedPreferences.edit().putLong(AL_NOTIFICATION_AFTER_TIME, notificationAfterTime).commit();
         return this;
     }
