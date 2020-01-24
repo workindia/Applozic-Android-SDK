@@ -18,12 +18,6 @@
             android:name="main_folder_name"
             android:value="Applozic"
             tools:node="merge" />
-
-        <service
-            android:name="com.applozic.mobicomkit.contact.DeviceContactSyncService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            tools:node="merge" />
         <service
             android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
             android:exported="false"

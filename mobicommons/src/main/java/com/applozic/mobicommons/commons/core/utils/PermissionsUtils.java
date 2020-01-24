@@ -18,7 +18,6 @@ public class PermissionsUtils {
     public static final int REQUEST_AUDIO_RECORD = 3;
     public static final int REQUEST_CALL_PHONE = 4;
     public static final int REQUEST_CAMERA = 5;
-    public static final int REQUEST_CONTACT = 6;
     public static final int REQUEST_CAMERA_FOR_PROFILE_PHOTO = 7;
     public static final int REQUEST_STORAGE_FOR_PROFILE_PHOTO = 8;
     public static final int REQUEST_CAMERA_AUDIO = 9;
@@ -28,7 +27,6 @@ public class PermissionsUtils {
             Manifest.permission.READ_EXTERNAL_STORAGE};
     public static String[] PERMISSIONS_RECORD_AUDIO = {Manifest.permission.RECORD_AUDIO};
     public static String[] PERMISSION_CAMERA = {Manifest.permission.CAMERA};
-    public static String[] PERMISSION_CONTACT = {Manifest.permission.READ_CONTACTS};
 
     public static boolean verifyPermissions(int[] grantResults) {
         if (grantResults.length < 1) {
@@ -73,11 +71,6 @@ public class PermissionsUtils {
                 Manifest.permission.CAMERA));
     }
 
-    public static boolean shouldShowRequestForContactPermission(Activity activity) {
-        return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.READ_CONTACTS));
-    }
-
     public static boolean checkSelfForStoragePermission(Activity activity) {
         return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED
@@ -105,11 +98,6 @@ public class PermissionsUtils {
 
     public static boolean checkSelfForCameraPermission(Activity activity) {
         return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED);
-    }
-
-    public static boolean checkSelfForContactPermission(Activity activity) {
-        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED);
     }
 

@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -31,7 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.AlUserSearchTask;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -41,7 +39,6 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
-import com.applozic.mobicomkit.uiwidgets.ContactsChangeObserver;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -91,7 +88,6 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     OnContactsInteractionListener onContactsInteractionListener;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-    private ContactsChangeObserver observer;
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd, String fragmentTag) {
         FragmentManager supportFragmentManager = fragmentActivity.getSupportFragmentManager();
@@ -168,26 +164,8 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         } else {
             addFragment(this, appContactFragment, "AppContactFragment");
         }
-      /*  mContactsListFragment = (AppContactFragment)
-                getSupportFragmentManager().findFragmentById(R.id.contact_list);*/
 
-        // This flag notes that the Activity is doing a search, and so the result will be
-        // search results rather than all contacts. This prevents the Activity and Fragment
-        // from trying to a search on search results.
         isSearchResultView = true;
-
-        // Get the intent, verify the action and get the query
-        Intent intent = getIntent();
-        // Set special title for search results
-
-      /*  if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            mContactsListFragment.onQueryTextChange(searchQuery);
-        }*/
-        if (Applozic.getInstance(this).isDeviceContactSync()) {
-            observer = new ContactsChangeObserver(null, this);
-            getApplicationContext().getContentResolver().registerContentObserver(
-                    ContactsContract.Contacts.CONTENT_URI, true, observer);
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -493,9 +471,6 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         super.onDestroy();
         if (onContactsInteractionListener != null) {
             onContactsInteractionListener = null;
-        }
-        if (observer != null) {
-            getApplicationContext().getContentResolver().unregisterContentObserver(observer);
         }
     }
 
