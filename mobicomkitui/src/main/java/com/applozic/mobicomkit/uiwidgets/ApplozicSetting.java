@@ -1,7 +1,13 @@
 package com.applozic.mobicomkit.uiwidgets;
 
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+
+import androidx.core.app.NavUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -74,6 +80,7 @@ public class ApplozicSetting {
     private static final String GALLERY_FILTER_OPTIONS = "GALLERY_FILTER_OPTIONS_";
     private static final String HIDE_GROUP_SUBTITLE = "HIDE_GROUP_SUBTITLE";
     private static final String RESTRICTED_WORDS_REGEX = "RESTRICTED_WORDS_REGEX";
+    private static final String PARENT_ACTIVITY_INTENT = "PARENT_ACTIVITY_INTENT";
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -721,6 +728,32 @@ public class ApplozicSetting {
 
     public ApplozicSetting setRestrictedWordsRegex(String restrictedWordsRegex) {
         sharedPreferences.edit().putString(RESTRICTED_WORDS_REGEX, restrictedWordsRegex).commit();
+        return this;
+    }
+
+    public Intent getParentActivityIntent(Activity sourceActivity) {
+        String parentActivityName = sharedPreferences.getString(PARENT_ACTIVITY_INTENT, null);
+
+        try {
+            if (parentActivityName != null) {
+                final ComponentName target = new ComponentName(sourceActivity, parentActivityName);
+                return new Intent().setComponent(target);
+            } else {
+                return NavUtils.getParentActivityIntent(sourceActivity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return NavUtils.getParentActivityIntent(sourceActivity);
+        }
+    }
+
+    public String getParentActivityName(Activity activity) {
+        String parentActivityName = sharedPreferences.getString(PARENT_ACTIVITY_INTENT, null);
+        return !TextUtils.isEmpty(parentActivityName) ? parentActivityName : NavUtils.getParentActivityName(activity);
+    }
+
+    public ApplozicSetting setParentActivity(String parentActivityName) {
+        sharedPreferences.edit().putString(PARENT_ACTIVITY_INTENT, parentActivityName).commit();
         return this;
     }
 
