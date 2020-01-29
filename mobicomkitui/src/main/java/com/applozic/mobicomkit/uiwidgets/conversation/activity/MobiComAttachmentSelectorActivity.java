@@ -318,7 +318,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
                     }
 
                     File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
-                    new FileTaskAsync(mediaFile, selectedFileUri, this).execute((Void) null);
+                    new FileTaskAsync(mediaFile, selectedFileUri, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

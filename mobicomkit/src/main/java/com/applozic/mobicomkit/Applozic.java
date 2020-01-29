@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
@@ -230,7 +231,7 @@ public class Applozic {
     }
 
     public static void logoutUser(Context context, AlLogoutHandler logoutHandler) {
-        new UserLogoutTask(logoutHandler, context).execute();
+        new UserLogoutTask(logoutHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void registerForPushNotification(Context context, String pushToken, AlPushNotificationHandler handler) {
