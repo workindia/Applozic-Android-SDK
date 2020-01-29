@@ -3,6 +3,9 @@ package com.applozic.mobicommons;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  * Created by ashish on 24/04/18.
  * Do not touch settings from this file, unless asked to do so by Applozic
@@ -20,6 +23,7 @@ public class ALSpecificSettings {
     private static final String KM_BASE_URL = "KM_BASE_URL";
     private static final String AL_SUPPORT_EMAIL_ID = "AL_SUPPORT_EMAIL_ID";
     private static final String ENABLE_LOGGING_IN_RELEASE_BUILD = "ENABLE_LOGGING_IN_RELEASE_BUILD";
+    private static final String AL_NOTIFICATION_AFTER_TIME = "AL_NOTIFICATION_AFTER_TIME";
 
     private ALSpecificSettings(Context context) {
         this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
@@ -93,6 +97,17 @@ public class ALSpecificSettings {
 
     public boolean isLoggingEnabledForReleaseBuild() {
         return sharedPreferences.getBoolean(ENABLE_LOGGING_IN_RELEASE_BUILD, false);
+    }
+
+    public ALSpecificSettings setNotificationAfterTime(long notificationAfterTime) {
+        sharedPreferences.edit().putLong(AL_NOTIFICATION_AFTER_TIME, notificationAfterTime).commit();
+        return this;
+    }
+
+    public boolean isAllNotificationMuted() {
+        long notificationAfterTime = sharedPreferences.getLong(AL_NOTIFICATION_AFTER_TIME, 0);
+        Date date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        return (notificationAfterTime - date.getTime() > 0);
     }
 
     public boolean clearAll() {

@@ -14,6 +14,7 @@ import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -134,7 +135,7 @@ public class BroadcastService {
 
     public static void sendNotificationBroadcast(Context context, Message message, int index) {
         if (message != null) {
-            if (message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {
+            if (ALSpecificSettings.getInstance(context).isAllNotificationMuted() || message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {
                 return;
             }
 

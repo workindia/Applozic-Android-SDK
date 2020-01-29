@@ -29,6 +29,7 @@ public class RegistrationResponse extends JsonMarker {
     private Map<String, String> metadata;
     private Short roleType;
     private Short pricingPackage = PricingType.STARTER.getValue();
+    private Long notificationAfter;
 
     public String getMessage() {
         return message;
@@ -176,6 +177,14 @@ public class RegistrationResponse extends JsonMarker {
 
     public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
+    }
+
+    public Long getNotificationAfter() {
+        return notificationAfter;
+    }
+
+    public void setNotificationAfter(Long notificationAfter) {
+        this.notificationAfter = notificationAfter;
     }
 
     public static enum PricingType {
