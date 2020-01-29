@@ -320,8 +320,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                if (upIntent != null && isTaskRoot()) {
+
+                Intent upIntent = ApplozicSetting.getInstance(this).getParentActivityIntent(this);
+                if (upIntent != null) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
                 }
                 ConversationActivity.this.finish();
@@ -329,11 +330,17 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
             if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                if (upIntent != null && isTaskRoot()) {
-                    TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
+                try {
+                    String parentActivity = ApplozicSetting.getInstance(this).getParentActivityName(this);
+                    if (parentActivity != null) {
+                        Intent intent = new Intent(this, Class.forName(parentActivity));
+                        startActivity(intent);
+                    }
+                    ConversationActivity.this.finish();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return false;
                 }
-                ConversationActivity.this.finish();
                 return true;
             } else {
                 getSupportFragmentManager().popBackStack();
@@ -916,8 +923,8 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             try {
-                Intent upIntent = NavUtils.getParentActivityIntent(this);
-                if (upIntent != null && isTaskRoot()) {
+                Intent upIntent = ApplozicSetting.getInstance(this).getParentActivityIntent(this);
+                if (upIntent != null) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
                 }
             } catch (Exception e) {
@@ -935,7 +942,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
-            Intent upIntent = NavUtils.getParentActivityIntent(this);
+            Intent upIntent = ApplozicSetting.getInstance(this).getParentActivityIntent(this);
             if (upIntent != null && isTaskRoot()) {
                 TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities();
             }
