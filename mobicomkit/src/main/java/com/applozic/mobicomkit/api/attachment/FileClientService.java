@@ -70,7 +70,7 @@ public class FileClientService extends MobiComKitClientService {
 
     public static File getFilePath(String fileName, Context context, String contentType, boolean isThumbnail) {
         File filePath;
-        File dir;
+        File dir = null;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             String folder = "/" + Utils.getMetaDataValue(context, MAIN_FOLDER_META_DATA) + MOBI_COM_OTHER_FILES_FOLDER;
 
@@ -84,9 +84,12 @@ public class FileClientService extends MobiComKitClientService {
             if (isThumbnail) {
                 folder = folder + MOBI_COM_THUMBNAIL_SUFIX;
             }
-            dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + folder);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            File directory = context.getExternalFilesDir(null);
+            if (directory != null) {
+                dir = new File(directory.getAbsolutePath() + folder);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
             }
         } else {
             ContextWrapper cw = new ContextWrapper(context);
@@ -107,7 +110,8 @@ public class FileClientService extends MobiComKitClientService {
         return getBaseUrl() + AL_UPLOAD_FILE_URL;
     }
 
-    public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
+    public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth,
+                                     int reqHeight) {
         HttpURLConnection connection = null;
         try {
             Bitmap attachedImage = null;
@@ -245,7 +249,8 @@ public class FileClientService extends MobiComKitClientService {
         return null;
     }
 
-    public String uploadBlobImage(String path, Handler handler, String oldMessageKey) throws UnsupportedEncodingException {
+    public String uploadBlobImage(String path, Handler handler, String oldMessageKey) throws
+            UnsupportedEncodingException {
         try {
 
             ApplozicMultipartUtility multipart = new ApplozicMultipartUtility(getUploadURL(), "UTF-8", context);

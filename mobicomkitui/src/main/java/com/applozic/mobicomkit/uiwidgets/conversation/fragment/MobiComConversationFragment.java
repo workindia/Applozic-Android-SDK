@@ -2282,7 +2282,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
             attachmentAsyncTask.setTextViewWeakReference(attachedFile);
             attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
-            attachmentAsyncTask.execute();
+            attachmentAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             filePath = Uri.parse(file.getAbsolutePath()).toString();
             if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
