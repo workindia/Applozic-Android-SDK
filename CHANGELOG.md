@@ -1,6 +1,11 @@
 
 ## Changelog
 
+**Version 5.73** - Thursday, 30 January 2020
+
+* Fixed file access issue for apps targetting 29
+* Fixed issue where files where not uploading on first install
+
 **Version 5.66** - Tuesday, 31 December 2019
 
 * MQTT message encryption.
