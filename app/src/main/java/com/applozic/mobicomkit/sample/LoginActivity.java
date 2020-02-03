@@ -6,18 +6,14 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
@@ -42,7 +38,6 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -51,8 +46,6 @@ import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.contact.DeviceContactSyncService;
-import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -111,11 +104,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
         if (Utils.hasMarshmallow()) {
             showRunTimePermission();
-        } else {
-            if (isDeviceContactSync) {
-                Intent intent = new Intent(this, DeviceContactSyncService.class);
-                DeviceContactSyncService.enqueueWork(this, intent);
-            }
         }
 
         mPhoneNumberView = (EditText) findViewById(R.id.phoneNumber);
@@ -205,15 +193,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         }
     }
 
-    private void populateAutoComplete() {
-        if (Utils.isBetweenGingerBreadAndKitKat()) {
-            // Use AccountManager (API 8+)
-            new SetupEmailAutoCompleteTask().execute(null, null);
-        } else if (Utils.hasMarshmallow()) {
-            showRunTimePermission();
-        }
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -295,11 +274,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
-
-                    if (isDeviceContactSync) {
-                        Intent intent = new Intent(context, DeviceContactSyncService.class);
-                        DeviceContactSyncService.enqueueWork(context, intent);
-                    }
 
                     buildContactData();
 
@@ -483,15 +457,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
         }
     }
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -505,12 +470,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                 != PackageManager.PERMISSION_GRANTED) {
             requestContactsPermissions();
 
-        } else {
-            if (isDeviceContactSync) {
-                Intent intent = new Intent(this, DeviceContactSyncService.class);
-                DeviceContactSyncService.enqueueWork(this, intent);
-            }
-            new SetupEmailAutoCompleteTask().execute(null, null);
         }
     }
 
@@ -536,62 +495,9 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        if (requestCode == REQUEST_CONTACTS) {
-            if (PermissionsUtils.verifyPermissions(grantResults)) {
-                showSnackBar(R.string.contact_permission_granted);
-
-                if (isDeviceContactSync) {
-                    Intent intent = new Intent(this, DeviceContactSyncService.class);
-                    DeviceContactSyncService.enqueueWork(this, intent);
-                }
-
-                new SetupEmailAutoCompleteTask().execute(null, null);
-
-            } else {
-                showSnackBar(R.string.contact_permission_granted);
-            }
-
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
     public void showSnackBar(int resId) {
         Snackbar.make(layout, resId,
                 Snackbar.LENGTH_SHORT)
                 .show();
-    }
-
-    /**
-     * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
-     * the email text field with results on the main UI thread.
-     */
-    class SetupEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
-
-        @Override
-        protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<String>();
-
-            // Get all emails from the user's contacts and copy them to a list.
-            ContentResolver cr = getContentResolver();
-            Cursor emailCur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                    null, null, null);
-            while (emailCur.moveToNext()) {
-                String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract
-                        .CommonDataKinds.Email.DATA));
-                emailAddressCollection.add(email);
-            }
-            emailCur.close();
-
-            return emailAddressCollection;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> emailAddressCollection) {
-            addEmailsToAutoComplete(emailAddressCollection);
-        }
     }
 }

@@ -57,7 +57,6 @@
         <item>Attach file</item>
         <item>Audio Message</item>
         <item>Video Message</item>
-        <item>Share Contact</item>
     </string-array>
 
     <string-array name="multimediaOptions_with_price">
@@ -66,9 +65,7 @@
         <item>Attach file</item>
         <item>Audio Message</item>
         <item>Video Message</item>
-        <item>Share Contact</item>
         <item>Attach price</item>
-
     </string-array>
 
     <string-array name="multimediaOptions_with_price_text">
@@ -77,7 +74,6 @@
         <item>File</item>
         <item>Audio</item>
         <item>Video</item>
-        <item>Contact</item>
         <item>Price</item>
     </string-array>
 
@@ -87,7 +83,6 @@
         <item>File</item>
         <item>Audio</item>
         <item>Video</item>
-        <item>Contact</item>
     </string-array>
 
     <string-array name="multimediaOptions_without_price_key">
@@ -96,7 +91,6 @@
         <item>:file</item>
         <item>:audio</item>
         <item>:video</item>
-        <item>:contact</item>
     </string-array>
 
     <string-array name="multimediaOptionIcons_without_price">
@@ -105,7 +99,6 @@
         <item>&#xf0c6;</item>
         <item>&#xf130;</item>
         <item>&#xf03d;</item>
-        <item>&#xf007;</item>
     </string-array>
 
     <string-array name="notification_texts">

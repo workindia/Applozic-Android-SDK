@@ -18,10 +18,8 @@ import java.util.List;
  * Created by reytum on 19/3/16.
  */
 public class MultimediaOptionsGridView {
-    public PopupWindow showPopup;
     FragmentActivity context;
     GridView multimediaOptions;
-    private Uri capturedImageUri;
     private ALStoragePermissionListener storagePermissionListener;
 
     public MultimediaOptionsGridView(FragmentActivity context, GridView multimediaOptions) {
@@ -45,8 +43,6 @@ public class MultimediaOptionsGridView {
     }
 
     public void setMultimediaClickListener(final List<String> keys) {
-        capturedImageUri = null;
-
         multimediaOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -113,19 +109,6 @@ public class MultimediaOptionsGridView {
                         if (didGrant) {
                             ((ConversationActivity) context).isTakePhoto(false);
                             ((ConversationActivity) context).processVideoRecording();
-                        }
-                    }
-                });
-            }
-        } else if (key.equals(context.getString(R.string.al_contact))) {
-            if (storagePermissionListener.isPermissionGranted()) {
-                ((ConversationActivity) context).processContact();
-            } else {
-                storagePermissionListener.checkPermission(new ALStoragePermission() {
-                    @Override
-                    public void onAction(boolean didGrant) {
-                        if (didGrant) {
-                            ((ConversationActivity) context).processContact();
                         }
                     }
                 });

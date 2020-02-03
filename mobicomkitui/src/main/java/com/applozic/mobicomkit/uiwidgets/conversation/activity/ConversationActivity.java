@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -72,7 +71,6 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
-import com.applozic.mobicomkit.uiwidgets.ContactsChangeObserver;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
@@ -178,7 +176,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchView searchView;
     private String searchTerm;
     private SearchListFragment searchListFragment;
-    ContactsChangeObserver observer;
     private LinearLayout serviceDisconnectionLayout;
     private ALStoragePermission alStoragePermission;
 
@@ -480,12 +477,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mobiComKitBroadcastReceiver, BroadcastService.getIntentFilter());
-
-        if (Applozic.getInstance(this).isDeviceContactSync()) {
-            observer = new ContactsChangeObserver(null, this);
-            getApplicationContext().getContentResolver().registerContentObserver(
-                    ContactsContract.Contacts.CONTENT_URI, true, observer);
-        }
     }
 
     @Override
@@ -731,13 +722,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 }
             } else {
                 showSnackBar(R.string.phone_camera_permission_not_granted);
-            }
-        } else if (requestCode == PermissionsUtils.REQUEST_CONTACT) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(R.string.contact_permission_granted);
-                processContact();
-            } else {
-                showSnackBar(R.string.contact_permission_not_granted);
             }
         } else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1217,16 +1201,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-    public void processContact() {
-        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForContactPermission(this)) {
-            applozicPermission.requestContactPermission();
-        } else {
-            Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            contactIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-            startActivityForResult(contactIntent, MultimediaOptionFragment.REQUEST_CODE_CONTACT_SHARE);
-        }
-    }
-
     public void imageCapture() {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -1394,9 +1368,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
             if (accountStatusAsyncTask != null) {
                 accountStatusAsyncTask.cancel(true);
-            }
-            if (observer != null) {
-                getApplicationContext().getContentResolver().unregisterContentObserver(observer);
             }
         } catch (Exception e) {
             e.printStackTrace();

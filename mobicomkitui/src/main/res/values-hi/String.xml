@@ -324,6 +324,7 @@
     <string-array name="channel_users_menu_option">
         <item>संदेश</item>
         <item>हटाना</item>
+        <item>ग्रुप एडमिन बनाएं</item>
     </string-array>
 
     <!--Multimedia options -->
@@ -337,7 +338,6 @@
         <item>फ़ाइल जोड़ें</item>
         <item>ऑडियो संदेश</item>
         <item>वीडियो संदेश</item>
-        <item>संपर्क साझा करें</item>
     </string-array>
 
     <string-array name="multimediaOptions_with_price">
@@ -346,9 +346,7 @@
         <item>फ़ाइल जोड़ें</item>
         <item>ऑडियो संदेश</item>
         <item>वीडियो संदेश</item>
-        <item>संपर्क साझा करें</item>
         <item>कीमत संलग्न करें</item>
-
     </string-array>
 
     <string-array name="multimediaOptions_with_price_text">
@@ -357,7 +355,6 @@
         <item>फ़ाइल</item>
         <item>ऑडियो</item>
         <item>वीडियो</item>
-        <item>संपर्क</item>
         <item>मूल्य</item>
     </string-array>
 
@@ -367,7 +364,6 @@
         <item>फ़ाइल</item>
         <item>ऑडियो</item>
         <item>वीडियो</item>
-        <item>संपर्क</item>
     </string-array>
 
     <string-array name="multimediaOptions_without_price_key">
@@ -376,7 +372,6 @@
         <item>:फ़ाइल</item>
         <item>:ऑडियो</item>
         <item>:वीडियो</item>
-        <item>:संपर्क</item>
     </string-array>
 
     <string-array name="multimediaOptionIcons_without_price">
@@ -385,7 +380,6 @@
         <item>&#xf0c6;</item>
         <item>&#xf130;</item>
         <item>&#xf03d;</item>
-        <item>&#xf007;</item>
     </string-array>
 
     <array name="alphabet_color">
