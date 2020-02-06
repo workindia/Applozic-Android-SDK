@@ -187,10 +187,10 @@ public class SecurityUtils {
     private Cipher returnCipher(String cryptAlgorithm, int cryptMode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
         Cipher cipher;
         Key keyRSA = cryptMode == Cipher.DECRYPT_MODE ? keyPairRSA.getPrivate() : keyPairRSA.getPublic();
-        if (cryptAlgorithm.equals(AES)) {
+        if (AES.equals(cryptAlgorithm)) {
             cipher = Cipher.getInstance(CIPHER_AES);
             cipher.init(cryptMode, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
-        } else if (cryptAlgorithm.equals(RSA)) {
+        } else if (RSA.equals(cryptAlgorithm)) {
             cipher = Cipher.getInstance(CIPHER_RSA);
             if (keyRSA == null) {
                 throw new InvalidAlgorithmParameterException("Please provide RSA public or private key when passing cryptAlgorithm == \"RSA\".");
