@@ -150,26 +150,24 @@ public class SecurityUtils {
      * @return the AES key {@link SecretKey}
      */
     private SecretKey getAESKey() {
-        try {
-            SharedPreferences sharedPreferences = context.getApplicationContext().getSharedPreferences(CRYPTO_SHARED_PREF, Context.MODE_PRIVATE);
-            if (sharedPreferences.contains(AES_ENCRYPTION_KEY)) { //get key from shared pref file, decrypt it and return
-                String cipherKey = sharedPreferences.getString(AES_ENCRYPTION_KEY, null);
-                String plainKey = decrypt(RSA, cipherKey);
-                byte[] decodedKey = Base64.decode(plainKey, Base64.DEFAULT);
-                return new SecretKeySpec(decodedKey, 0, decodedKey.length, AES);
-            } else { //generate AES key, encrypt it, store it to shared pref and return the un-encrypted version
-                SecretKey secretKey = generateAESKey();
-                String plainKey = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
-                String cipherKey = encrypt(RSA, plainKey);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(AES_ENCRYPTION_KEY, cipherKey);
-                editor.apply();
-                return secretKey;
+        SharedPreferences sharedPreferences = context.getApplicationContext().getSharedPreferences(CRYPTO_SHARED_PREF, Context.MODE_PRIVATE);
+        if (sharedPreferences.contains(AES_ENCRYPTION_KEY)) { //get key from shared pref file, decrypt it and return
+            String cipherKey = sharedPreferences.getString(AES_ENCRYPTION_KEY, null);
+            String plainKey = decrypt(RSA, cipherKey);
+            byte[] decodedKey = Base64.decode(plainKey, Base64.DEFAULT);
+            return new SecretKeySpec(decodedKey, 0, decodedKey.length, AES);
+        } else { //generate AES key, encrypt it, store it to shared pref and return the un-encrypted version
+            SecretKey secretKey = generateAESKey();
+            if (secretKey == null) {
+                Utils.printLog(context, TAG, "SecretKey is null. There are problems occurring with it's generation at runtime.");
+                return null;
             }
-        } catch (NullPointerException exception) {
-            Utils.printLog(context, TAG, "KeyGenerator might be initialized with a non-existing algorithm.");
-            exception.printStackTrace();
-            return null;
+            String plainKey = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
+            String cipherKey = encrypt(RSA, plainKey);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(AES_ENCRYPTION_KEY, cipherKey);
+            editor.apply();
+            return secretKey;
         }
     }
 
