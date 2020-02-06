@@ -56,7 +56,7 @@ public class SecurityUtils {
 
     private SecretKey secretKeyAES;
     private KeyPair keyPairRSA;
-    private byte[] iv;
+    private byte[] initializationVector;
     private Context context;
 
     /**
@@ -66,7 +66,7 @@ public class SecurityUtils {
      */
     public SecurityUtils(Context context) {
         this.context = context;
-        iv = new byte[16];
+        initializationVector = new byte[16];
         keyPairRSA = getRSAKeyPair();
         if (keyPairRSA != null) {
             secretKeyAES = getAESKey();
@@ -95,12 +95,12 @@ public class SecurityUtils {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
             keyPairGenerator.initialize(keyPairGeneratorSpec);
             keyPairGenerator.genKeyPair();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException exception) {
+            exception.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
+        } catch (NoSuchProviderException exception) {
+            exception.printStackTrace();
         }
     }
 
@@ -114,34 +114,35 @@ public class SecurityUtils {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
-            //generate or retrieve the public and private keys to encrypt/decrypt the AES key
+            //generate the public and private keys to encrypt/decrypt the AES key
             if (!keyStore.containsAlias(RSA_KEY_ALIAS)) {
                 generateRSAKeyPair();
             }
+            //retrieve keys from keystore
             KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(RSA_KEY_ALIAS, null);
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
             return new KeyPair(publicKey, privateKey);
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
+        } catch (KeyStoreException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (CertificateException e) {
-            e.printStackTrace();
+        } catch (CertificateException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
+        } catch (UnrecoverableKeyException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (UnrecoverableEntryException e) {
-            e.printStackTrace();
+        } catch (UnrecoverableEntryException exception) {
+            exception.printStackTrace();
             return null;
         }
     }
@@ -156,8 +157,8 @@ public class SecurityUtils {
             KeyGenerator keygen = KeyGenerator.getInstance(AES);
             keygen.init(256);
             return keygen.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
             return null;
         }
     }
@@ -171,7 +172,7 @@ public class SecurityUtils {
     private SecretKey getAESKey() {
         try {
             SharedPreferences sharedPreferences = context.getApplicationContext().getSharedPreferences(CRYPTO_SHARED_PREF, Context.MODE_PRIVATE);
-            if(sharedPreferences.contains(AES_ENCRYPTION_KEY)) { //get key from shared pref file, decrypt it and return
+            if (sharedPreferences.contains(AES_ENCRYPTION_KEY)) { //get key from shared pref file, decrypt it and return
                 String cipherKey = sharedPreferences.getString(AES_ENCRYPTION_KEY, null);
                 String plainKey = decrypt(RSA, cipherKey);
                 byte[] decodedKey = Base64.decode(plainKey, Base64.DEFAULT);
@@ -185,8 +186,8 @@ public class SecurityUtils {
                 editor.apply();
                 return secretKey;
             }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
             return null;
         }
     }
@@ -196,19 +197,19 @@ public class SecurityUtils {
      * NOTE: when passing RSA as the encryption algorithm, note than the plain text size must be less than 256 bits
      *
      * @param cryptAlgorithm the name of the algorithm to use
-     * @param plainText the plain text
+     * @param plainText      the plain text
      * @return the cipher text
      */
     public String encrypt(String cryptAlgorithm, String plainText) {
-        if(TextUtils.isEmpty(plainText) || TextUtils.isEmpty(cryptAlgorithm)) {
+        if (TextUtils.isEmpty(plainText) || TextUtils.isEmpty(cryptAlgorithm)) {
             return null;
         }
         try {
             Cipher cipher;
-            if(cryptAlgorithm.equals(AES)) {
+            if (cryptAlgorithm.equals(AES)) {
                 cipher = Cipher.getInstance(CIPHER_AES);
-                cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(iv));
-            } else if(cryptAlgorithm.equals(RSA)) {
+                cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
+            } else if (cryptAlgorithm.equals(RSA)) {
                 cipher = Cipher.getInstance(CIPHER_RSA);
                 cipher.init(Cipher.ENCRYPT_MODE, keyPairRSA.getPublic());
             } else {
@@ -216,23 +217,23 @@ public class SecurityUtils {
             }
             byte[] cipherText = cipher.doFinal(plainText.getBytes());
             return Base64.encodeToString(cipherText, Base64.DEFAULT);
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
+        } catch (BadPaddingException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
+        } catch (IllegalBlockSizeException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+        } catch (NoSuchPaddingException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
+        } catch (InvalidKeyException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException exception) {
+            exception.printStackTrace();
             return null;
         }
     }
@@ -241,16 +242,16 @@ public class SecurityUtils {
      * decrypt string cipher text to string plain text based on the encryption algorithm name passed.
      *
      * @param cryptAlgorithm the name of the algorithm to use
-     * @param cipherText the plain text
+     * @param cipherText     the plain text
      * @return the plain text
      */
     public String decrypt(String cryptAlgorithm, String cipherText) {
         try {
             Cipher cipher;
-            if(cryptAlgorithm.equals(AES)) {
+            if (cryptAlgorithm.equals(AES)) {
                 cipher = Cipher.getInstance(CIPHER_AES);
-                cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(iv));
-            } else if(cryptAlgorithm.equals(RSA)) {
+                cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
+            } else if (cryptAlgorithm.equals(RSA)) {
                 cipher = Cipher.getInstance(CIPHER_RSA);
                 cipher.init(Cipher.DECRYPT_MODE, keyPairRSA.getPrivate());
             } else {
@@ -260,23 +261,23 @@ public class SecurityUtils {
             byte[] cipherArray = Base64.decode(cipherText, Base64.DEFAULT);
             byte[] plainText = cipher.doFinal(cipherArray);
             return new String(plainText);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+        } catch (NoSuchPaddingException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
+        } catch (InvalidKeyException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
+        } catch (IllegalBlockSizeException exception) {
+            exception.printStackTrace();
             return null;
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
+        } catch (BadPaddingException exception) {
+            exception.printStackTrace();
             return null;
         }
     }

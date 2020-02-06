@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 
 import com.applozic.mobicommons.encryption.SecurityUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,43 +29,33 @@ public class SecureSharedPreferences implements SharedPreferences {
     }
 
     /**
-     * returns a (String, String) map
-     * NOTE: this differs from the java {@link SharedPreferences} implementation which returns (String, ?) map
+     * NOTE: the values returned will be encrypted, you must decrypt them manually using {@link SecurityUtils}
      *
-     * @return map with (String, String) as the key, value
+     * @return map with (String, ?) as the key, value
      */
     @Override
-    public Map<String, String> getAll() {
-        Map<String, ?> prefMap = sharedPreferences.getAll();
-        Map<String, String> decryptedMap = new HashMap<>();
-
-        if(!prefMap.isEmpty()) {
-            for (Map.Entry<String, ?> entry : prefMap.entrySet()) {
-                String decryptedKey = securityUtils.decrypt(SecurityUtils.AES, entry.getKey());
-                decryptedMap.put(decryptedKey, securityUtils.decrypt(SecurityUtils.AES, String.valueOf(prefMap.get(decryptedKey))));
-            }
-        }
-        return decryptedMap;
+    public Map<String, ?> getAll() {
+        return sharedPreferences.getAll();
     }
 
     @Nullable
     @Override
-    public String getString(String s, @Nullable String s1) {
+    public String getString(String key, @Nullable String defValue) {
         try {
-            return securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, s), s1));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return s1;
+            return securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), defValue));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return defValue;
         }
     }
 
     @Nullable
     @Override
-    public Set<String> getStringSet(String s, @Nullable Set<String> set) {
-        Set<String> encryptSet = sharedPreferences.getStringSet(securityUtils.encrypt(SecurityUtils.AES, s), set);
+    public Set<String> getStringSet(String key, @Nullable Set<String> defValue) {
+        Set<String> encryptSet = sharedPreferences.getStringSet(securityUtils.encrypt(SecurityUtils.AES, key), defValue);
         Set<String> decryptSet = new HashSet<>();
         if (encryptSet == null) {
-            return set;
+            return defValue;
         }
         for (String string : encryptSet) {
             decryptSet.add(securityUtils.decrypt(SecurityUtils.AES, string));
@@ -75,60 +64,60 @@ public class SecureSharedPreferences implements SharedPreferences {
     }
 
     @Override
-    public int getInt(String s, int i) {
+    public int getInt(String key, int defValue) {
         try {
-            return Integer.parseInt(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, s), String.valueOf(i))));
+            return Integer.parseInt(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), String.valueOf(defValue))));
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+            return defValue;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return defValue;
+        }
+    }
+
+    @Override
+    public long getLong(String key, long defValue) {
+        try {
+            return Long.parseLong(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), String.valueOf(defValue))));
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
+            return defValue;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return defValue;
+        }
+    }
+
+    @Override
+    public float getFloat(String key, float defValue) {
+        try {
+            return Float.parseFloat(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), String.valueOf(defValue))));
         } catch (NullPointerException exceptionNull) {
             exceptionNull.printStackTrace();
-            return i;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return i;
+            return defValue;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return defValue;
         }
     }
 
     @Override
-    public long getLong(String s, long l) {
+    public boolean getBoolean(String key, boolean defValue) {
         try {
-            return Long.parseLong(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, s), String.valueOf(l))));
-        } catch (NullPointerException exceptionNull) {
-            exceptionNull.printStackTrace();
-            return l;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return l;
+            return Boolean.parseBoolean(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), String.valueOf(defValue))));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return defValue;
         }
     }
 
     @Override
-    public float getFloat(String s, float v) {
+    public boolean contains(String key) {
         try {
-            return Float.parseFloat(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, s), String.valueOf(v))));
-        } catch (NullPointerException exceptionNull) {
-            exceptionNull.printStackTrace();
-            return v;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return v;
-        }
-    }
-
-    @Override
-    public boolean getBoolean(String s, boolean b) {
-        try {
-            return Boolean.parseBoolean(securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, s), String.valueOf(b))));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return b;
-        }
-    }
-
-    @Override
-    public boolean contains(String s) {
-        try {
-            return sharedPreferences.contains(securityUtils.encrypt(SecurityUtils.AES, s));
-        } catch (Exception e) {
-            e.printStackTrace();
+            return sharedPreferences.contains(securityUtils.encrypt(SecurityUtils.AES, key));
+        } catch (Exception exception) {
+            exception.printStackTrace();
             return false;
         }
     }
@@ -163,85 +152,85 @@ public class SecureSharedPreferences implements SharedPreferences {
         }
 
         @Override
-        public SecureEditor putString(String s, @Nullable String s1) {
+        public SecureEditor putString(String key, @Nullable String value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, s), securityUtils.encrypt(SecurityUtils.AES, s1));
+                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, value));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor putStringSet(String s, @Nullable Set<String> set) {
+        public SecureEditor putStringSet(String key, @Nullable Set<String> values) {
             try {
                 Set<String> encryptedStringSet = new HashSet<>();
-                if(set == null) {
+                if (values == null) {
                     return this;
                 }
-                for (String string : set) {
+                for (String string : values) {
                     encryptedStringSet.add(securityUtils.encrypt(SecurityUtils.AES, string));
                 }
-                editor.putStringSet(securityUtils.encrypt(SecurityUtils.AES, s), encryptedStringSet);
+                editor.putStringSet(securityUtils.encrypt(SecurityUtils.AES, key), encryptedStringSet);
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor putInt(String s, int i) {
+        public SecureEditor putInt(String key, int value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, s), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(i)));
+                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(value)));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor putLong(String s, long l) {
+        public SecureEditor putLong(String key, long value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, s), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(l)));
+                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(value)));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor putFloat(String s, float v) {
+        public SecureEditor putFloat(String key, float value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, s), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(v)));
+                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(value)));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor putBoolean(String s, boolean b) {
+        public SecureEditor putBoolean(String key, boolean value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, s), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(b)));
+                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(value)));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        public SecureEditor remove(String s) {
+        public SecureEditor remove(String key) {
             try {
-                editor.remove(securityUtils.encrypt(SecurityUtils.AES, s));
+                editor.remove(securityUtils.encrypt(SecurityUtils.AES, key));
                 return this;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception exception) {
+                exception.printStackTrace();
                 return null;
             }
         }
