@@ -8,10 +8,13 @@ import android.security.KeyPairGeneratorSpec;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.applozic.mobicommons.commons.core.utils.Utils;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -21,7 +24,6 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
 
@@ -44,6 +46,8 @@ import javax.security.auth.x500.X500Principal;
  */
 public class SecurityUtils {
 
+    public static final String TAG = "SecurityUtils";
+
     public static final String AES = "AES";
     public static final String RSA = "RSA";
 
@@ -51,8 +55,8 @@ public class SecurityUtils {
     private static final String CIPHER_RSA = "RSA/ECB/PKCS1Padding";
     private static final String RSA_KEY_ALIAS = "ApplozicRSAKey";
     private static final String RSA_PROVIDER = "AndroidKeyStore";
-    private static final String CRYPTO_SHARED_PREF = "cryptosharedpreferences";
-    private static final String AES_ENCRYPTION_KEY = "aesencryptionkey";
+    private static final String CRYPTO_SHARED_PREF = "cryptosharedpreferences"; //name for the shared pref storing the AES encryption key
+    private static final String AES_ENCRYPTION_KEY = "aesencryptionkey"; //key for the AES encryption key entry
 
     private SecretKey secretKeyAES;
     private KeyPair keyPairRSA;
@@ -76,8 +80,6 @@ public class SecurityUtils {
     /**
      * generate a public-private RSA key pair using {@link KeyPairGenerator} and using AndroidKeystore as provider.
      * the key-pair is stored using {@link KeyStore}
-     *
-     * @return the {@link KeyPair} public/private RSA key pair
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void generateRSAKeyPair() {
@@ -95,11 +97,7 @@ public class SecurityUtils {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
             keyPairGenerator.initialize(keyPairGeneratorSpec);
             keyPairGenerator.genKeyPair();
-        } catch (InvalidAlgorithmParameterException exception) {
-            exception.printStackTrace();
-        } catch (NoSuchAlgorithmException exception) {
-            exception.printStackTrace();
-        } catch (NoSuchProviderException exception) {
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException exception) {
             exception.printStackTrace();
         }
     }
@@ -123,25 +121,7 @@ public class SecurityUtils {
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
             return new KeyPair(publicKey, privateKey);
-        } catch (KeyStoreException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (CertificateException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (UnrecoverableKeyException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (NoSuchAlgorithmException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (UnrecoverableEntryException exception) {
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
             exception.printStackTrace();
             return null;
         }
@@ -187,9 +167,39 @@ public class SecurityUtils {
                 return secretKey;
             }
         } catch (NullPointerException exception) {
+            Utils.printLog(context, TAG, "KeyGenerator might be initialized with a non-existing algorithm.");
             exception.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * return the {@link Cipher} object based on the cipher mode(encryption or decryption) and the algorithm
+     *
+     * @param cryptAlgorithm the algorithm to use: AES or RSA
+     * @param cryptMode      the mode: encryption ot decryption, passed as an int constant
+     * @return the cipher object
+     * @throws NoSuchPaddingException             if the padding type doesn't exist
+     * @throws NoSuchAlgorithmException           if the algo doesn't exist
+     * @throws InvalidAlgorithmParameterException if the algorithm parameters are null or not-compatible
+     * @throws InvalidKeyException                if the key is not compatible
+     */
+    private Cipher returnCipher(String cryptAlgorithm, int cryptMode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        Cipher cipher;
+        Key keyRSA = cryptMode == Cipher.DECRYPT_MODE ? keyPairRSA.getPrivate() : keyPairRSA.getPublic();
+        if (cryptAlgorithm.equals(AES)) {
+            cipher = Cipher.getInstance(CIPHER_AES);
+            cipher.init(cryptMode, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
+        } else if (cryptAlgorithm.equals(RSA)) {
+            cipher = Cipher.getInstance(CIPHER_RSA);
+            if (keyRSA == null) {
+                throw new InvalidAlgorithmParameterException("Please provide RSA public or private key when passing cryptAlgorithm == \"RSA\".");
+            }
+            cipher.init(cryptMode, keyRSA);
+        } else {
+            throw new NoSuchAlgorithmException("The algorithm parameter that is passed to the method must either be \"AES\" or \"RSA\".");
+        }
+        return cipher;
     }
 
     /**
@@ -205,34 +215,10 @@ public class SecurityUtils {
             return null;
         }
         try {
-            Cipher cipher;
-            if (cryptAlgorithm.equals(AES)) {
-                cipher = Cipher.getInstance(CIPHER_AES);
-                cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
-            } else if (cryptAlgorithm.equals(RSA)) {
-                cipher = Cipher.getInstance(CIPHER_RSA);
-                cipher.init(Cipher.ENCRYPT_MODE, keyPairRSA.getPublic());
-            } else {
-                throw new NoSuchAlgorithmException("The parameter that is passed to the encrypt method must either be AES or RSA.");
-            }
+            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.ENCRYPT_MODE);
             byte[] cipherText = cipher.doFinal(plainText.getBytes());
             return Base64.encodeToString(cipherText, Base64.DEFAULT);
-        } catch (BadPaddingException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (IllegalBlockSizeException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (NoSuchAlgorithmException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (NoSuchPaddingException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (InvalidKeyException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (InvalidAlgorithmParameterException exception) {
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException exception) {
             exception.printStackTrace();
             return null;
         }
@@ -247,36 +233,11 @@ public class SecurityUtils {
      */
     public String decrypt(String cryptAlgorithm, String cipherText) {
         try {
-            Cipher cipher;
-            if (cryptAlgorithm.equals(AES)) {
-                cipher = Cipher.getInstance(CIPHER_AES);
-                cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
-            } else if (cryptAlgorithm.equals(RSA)) {
-                cipher = Cipher.getInstance(CIPHER_RSA);
-                cipher.init(Cipher.DECRYPT_MODE, keyPairRSA.getPrivate());
-            } else {
-                throw new NoSuchAlgorithmException("The parameter that is passed to the decrypt method must either be AES or RSA.");
-            }
-
+            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.DECRYPT_MODE);
             byte[] cipherArray = Base64.decode(cipherText, Base64.DEFAULT);
             byte[] plainText = cipher.doFinal(cipherArray);
             return new String(plainText);
-        } catch (NoSuchAlgorithmException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (NoSuchPaddingException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (InvalidKeyException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (InvalidAlgorithmParameterException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (IllegalBlockSizeException exception) {
-            exception.printStackTrace();
-            return null;
-        } catch (BadPaddingException exception) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException exception) {
             exception.printStackTrace();
             return null;
         }
