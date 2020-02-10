@@ -17,7 +17,6 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -57,9 +56,6 @@ public class MultimediaOptionFragment extends DialogFragment {
         builder.setItems(menuOptionsResourceId, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case 0:
-                        ((ConversationActivity) getActivity()).processLocation();
-                        break;
                     case 1:
                         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         // Ensure that there's a camera activity to handle the intent

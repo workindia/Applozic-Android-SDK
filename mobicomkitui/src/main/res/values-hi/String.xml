@@ -350,7 +350,6 @@
     </string-array>
 
     <string-array name="multimediaOptions_with_price_text">
-        <item>स्थान</item>
         <item>कैमरा</item>
         <item>फ़ाइल</item>
         <item>ऑडियो</item>
@@ -359,7 +358,6 @@
     </string-array>
 
     <string-array name="multimediaOptions_without_price_text">
-        <item>स्थान</item>
         <item>कैमरा</item>
         <item>फ़ाइल</item>
         <item>ऑडियो</item>
@@ -367,7 +365,6 @@
     </string-array>
 
     <string-array name="multimediaOptions_without_price_key">
-        <item>:स्थान</item>
         <item>:कैमरा</item>
         <item>:फ़ाइल</item>
         <item>:ऑडियो</item>
@@ -375,7 +372,6 @@
     </string-array>
 
     <string-array name="multimediaOptionIcons_without_price">
-        <item>&#xf041;</item>
         <item>&#xf030;</item>
         <item>&#xf0c6;</item>
         <item>&#xf130;</item>

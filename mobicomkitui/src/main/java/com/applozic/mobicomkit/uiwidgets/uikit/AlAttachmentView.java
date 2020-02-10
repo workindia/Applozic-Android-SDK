@@ -65,9 +65,6 @@ public class AlAttachmentView extends ApplozicComponents implements AdapterView.
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
-            case 0:
-                AlAttachmentOptions.processLocationAction(getActivity(), null);
-                break;
             case 1:
                 AlAttachmentOptions.processCameraAction(getActivity(), null);
                 break;

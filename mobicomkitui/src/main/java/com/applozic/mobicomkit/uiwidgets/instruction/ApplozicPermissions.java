@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 
 /**
@@ -33,14 +31,6 @@ public class ApplozicPermissions {
         }
     }
 
-    public void checkRuntimePermissionForLocation() {
-        if (PermissionsUtils.checkSelfPermissionForLocation(activity)) {
-            requestLocationPermissions();
-        } else {
-            ((ConversationActivity) activity).processingLocation();
-        }
-    }
-
     public void requestStoragePermissions() {
         if (PermissionsUtils.shouldShowRequestForStoragePermission(activity)) {
             showSnackBar(R.string.storage_permission, PermissionsUtils.PERMISSIONS_STORAGE, PermissionsUtils.REQUEST_STORAGE);
@@ -49,27 +39,11 @@ public class ApplozicPermissions {
         }
     }
 
-    public void requestLocationPermissions() {
-        if (PermissionsUtils.shouldShowRequestForLocationPermission(activity)) {
-            showSnackBar(R.string.location_permission, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_LOCATION);
-        } else {
-            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_LOCATION);
-        }
-    }
-
     public void requestAudio() {
         if (PermissionsUtils.shouldShowRequestForLocationPermission(activity)) {
             showSnackBar(R.string.record_audio, PermissionsUtils.PERMISSIONS_LOCATION, PermissionsUtils.REQUEST_AUDIO_RECORD);
         } else {
             PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSIONS_RECORD_AUDIO, PermissionsUtils.REQUEST_AUDIO_RECORD);
-        }
-    }
-
-    public void requestCallPermission() {
-        if (PermissionsUtils.shouldShowRequestForCallPermission(activity)) {
-            showSnackBar(R.string.phone_call_permission, PermissionsUtils.PERMISSION_CALL, PermissionsUtils.REQUEST_CALL_PHONE);
-        } else {
-            PermissionsUtils.requestPermissions(activity, PermissionsUtils.PERMISSION_CALL, PermissionsUtils.REQUEST_CALL_PHONE);
         }
     }
 
@@ -106,16 +80,8 @@ public class ApplozicPermissions {
     }
 
     public void checkRuntimePermissionForCameraAndAudioRecording() {
-        if (PermissionsUtils.checkSelfPermissionForLocation(activity)) {
+        if (PermissionsUtils.checkPermissionForCameraAndMicrophone(activity)) {
             requestCameraAndRecordPermission();
-        }
-    }
-
-    public void checkRuntimePermissionForLocationActivity() {
-        if (PermissionsUtils.checkSelfPermissionForLocation(activity)) {
-            requestLocationPermissions();
-        } else {
-            ((MobicomLocationActivity) activity).processingLocation();
         }
     }
 

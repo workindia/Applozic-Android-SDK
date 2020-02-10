@@ -236,21 +236,9 @@ public class ApplozicAudioManager implements AudioManager.OnAudioFocusChangeList
     @Override
     public void onAudioFocusChange(int i) {
         switch (i) {
-            case AudioManager.AUDIOFOCUS_GAIN:
-                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                pauseIfPlaying();
-                if (currentView != null) {
-                    currentView.setAudioIcons();
-                }
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS:
-                pauseIfPlaying();
-                if (currentView != null) {
-                    currentView.setAudioIcons();
-                }
-                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+            case AudioManager.AUDIOFOCUS_LOSS:
                 pauseIfPlaying();
                 if (currentView != null) {
                     currentView.setAudioIcons();
