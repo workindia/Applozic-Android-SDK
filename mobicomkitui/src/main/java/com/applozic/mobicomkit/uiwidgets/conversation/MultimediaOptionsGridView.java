@@ -1,11 +1,9 @@
 package com.applozic.mobicomkit.uiwidgets.conversation;
 
-import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.PopupWindow;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -53,9 +51,7 @@ public class MultimediaOptionsGridView {
     }
 
     public void executeMethod(String key) {
-        if (key.equals(context.getResources().getString(R.string.al_location))) {
-            ((ConversationActivity) context).processLocation();
-        } else if (key.equals(context.getString(R.string.al_camera))) {
+        if (key.equals(context.getString(R.string.al_camera))) {
             if (storagePermissionListener.isPermissionGranted()) {
                 ((ConversationActivity) context).isTakePhoto(true);
                 ((ConversationActivity) context).processCameraAction();

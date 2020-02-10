@@ -41,8 +41,6 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:support-v4:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
     api "com.google.firebase:firebase-messaging:${rootProject.hasProperty("firebaseVersison") ? rootProject.firebaseVersison : defaultFirebaseVersison}"
-    api "com.google.android.gms:play-services-maps:${rootProject.hasProperty("googleMapsVersion") ? rootProject.googleMapsVersion : defaultGoogleMapsVersion}"
-    api "com.google.android.gms:play-services-location:${rootProject.hasProperty("locationServicesVersion") ? rootProject.locationServicesVersion : defaultLocationServicesVersion}"
     implementation "de.hdodenhof:circleimageview:${rootProject.hasProperty("circleImageViewVersion") ? rootProject.circleImageViewVersion : defaultCircleImageViewVersion}"
     implementation "com.android.support:design:${rootProject.hasProperty("supportLibVersion") ? rootProject.supportLibVersion : defaultSupportLibVersion}"
     implementation "com.theartofdev.edmodo:android-image-cropper:${rootProject.hasProperty("imageCropperVersion") ? rootProject.imageCropperVersion : defaultImageCropperVersion}"

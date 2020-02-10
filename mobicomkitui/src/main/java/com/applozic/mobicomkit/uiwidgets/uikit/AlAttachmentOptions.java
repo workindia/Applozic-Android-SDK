@@ -1,27 +1,22 @@
 package com.applozic.mobicomkit.uiwidgets.uikit;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.location.LocationManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -31,7 +26,6 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.AudioMessageFragment;
 import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionFragment;
 import com.applozic.mobicomkit.uiwidgets.instruction.ApplozicPermissions;
@@ -53,22 +47,14 @@ import java.util.List;
 
 public class AlAttachmentOptions {
 
-    public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
-    private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
-    public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final int REQUEST_CODE_CONTACT_GROUP_SELECTION = 1011;
     public static final int RESULT_OK = -1;
-    public static final int REQUEST_CODE_SEND_LOCATION = 10;
     public static final int REQUEST_CODE_TAKE_PHOTO = 11;
     public static final int REQUEST_CODE_ATTACH_PHOTO = 12;
     public static final int REQUEST_MULTI_ATTCAHMENT = 16;
-    public static final int REQUEST_CODE_ATTACHE_AUDIO = 13;
-    public static final int MEDIA_TYPE_VIDEO = 2;
     public static final int REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY = 14;
-    public static final int REQUEST_CODE_CONTACT_SHARE = 15;
     public static final String MULTISELECT_SELECTED_FILES = "multiselect.selectedFiles";
     public static final String MULTISELECT_MESSAGE = "multiselect.message";
-    public static final String URI_LIST = "URI_LIST";
     private static Bundle bundle;
 
     public static void processCameraAction(final Activity activity, LinearLayout layout) {
@@ -79,41 +65,6 @@ public class AlAttachmentOptions {
                 new ApplozicPermissions(activity).requestCameraPermission();
             } else {
                 captureImage(activity);
-            }
-        }
-    }
-
-    public static void processLocationAction(final Activity activity, LinearLayout layout) {
-        String geoApiKey = Utils.getMetaDataValue(activity.getApplicationContext(), GOOGLE_API_KEY_META_DATA);
-
-        if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfPermissionForLocation(activity)) {
-            new ApplozicPermissions(activity, layout).requestLocationPermissions();
-        } else {
-            if (!TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
-                Intent toMapActivity = new Intent(activity, MobicomLocationActivity.class);
-                activity.startActivityForResult(toMapActivity, REQUEST_CODE_SEND_LOCATION);
-            } else {
-                if (!((LocationManager) activity.getSystemService(Context.LOCATION_SERVICE))
-                        .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setTitle(R.string.location_services_disabled_title)
-                            .setMessage(R.string.location_services_disabled_message)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.location_service_settings, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                    activity.startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                    Toast.makeText(activity, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();
-                                }
-                            });
-                    AlertDialog alert = builder.create();
-                    alert.show();
-                }
             }
         }
     }
@@ -353,14 +304,6 @@ public class AlAttachmentOptions {
             } else {
                 showSnackBar(snackbarLayout, R.string.storage_permission_not_granted);
             }
-        } else if (requestCode == PermissionsUtils.REQUEST_LOCATION) {
-            if (PermissionsUtils.verifyPermissions(grantResults)) {
-                showSnackBar(snackbarLayout, R.string.location_permission_granted);
-                processLocationAction(activity, snackbarLayout);
-            } else {
-                showSnackBar(snackbarLayout, R.string.location_permission_not_granted);
-            }
-
         } else if (requestCode == PermissionsUtils.REQUEST_PHONE_STATE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(snackbarLayout, R.string.phone_state_permission_granted);

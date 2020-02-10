@@ -5,23 +5,18 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -39,7 +34,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,12 +93,7 @@ import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -120,20 +109,16 @@ import java.util.Set;
 /**
  * Created by devashish on 6/25/2015.
  */
-public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
+public class ConversationActivity extends AppCompatActivity implements MessageCommunicator, MobiComKitActivityInterface, ActivityCompat.OnRequestPermissionsResultCallback, MobicomkitUriListener, SearchView.OnQueryTextListener, OnClickReplyInterface, ALStoragePermissionListener, CustomToolbarListener {
 
-    public static final int LOCATION_SERVICE_ENABLE = 1001;
     public static final String TAKE_ORDER = "takeOrder";
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
     public static final String CONVERSATION_ID = "conversationId";
     public static final String GOOGLE_API_KEY_META_DATA = "com.google.android.geo.API_KEY";
     public static final String ACTIVITY_TO_OPEN_ONCLICK_OF_CALL_BUTTON_META_DATA = "activity.open.on.call.button.click";
-    protected static final long UPDATE_INTERVAL = 500;
-    protected static final long FASTEST_INTERVAL = 1;
     private static final String LOAD_FILE = "loadFile";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    private static final String API_KYE_STRING = "YOUR_GEO_API_KEY";
     private static final String CAPTURED_IMAGE_URI = "capturedImageUri";
     private static final String CAPTURED_VIDEO_URI = "capturedVideoUri";
     private static final String SHARE_TEXT = "share_text";
@@ -153,7 +138,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     protected MobiComQuickConversationFragment quickConversationFragment;
     protected MobiComKitBroadcastReceiver mobiComKitBroadcastReceiver;
     protected ActionBar mActionBar;
-    protected GoogleApiClient googleApiClient;
     String geoApiKey;
     String activityToOpenOnClickOfCallButton;
     int resourceId;
@@ -166,7 +150,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     File profilePhotoFile;
     SyncAccountStatusAsyncTask accountStatusAsyncTask;
     String contactsGroupId;
-    private LocationRequest locationRequest;
     private Channel channel;
     private BaseContactService baseContactService;
     private ApplozicPermissions applozicPermission;
@@ -441,12 +424,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
 
-        googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
-        onNewIntent(getIntent());
-
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
 
         if (!takeOrder) {
@@ -626,15 +603,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     Utils.printLog(this, ConversationActivity.class.getName(), "Cropping failed:" + result.getError());
                 }
             }
-            if (requestCode == LOCATION_SERVICE_ENABLE) {
-                if (((LocationManager) getSystemService(Context.LOCATION_SERVICE))
-                        .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    googleApiClient.connect();
-                } else {
-                    Toast.makeText(ConversationActivity.this, R.string.unable_to_fetch_location, Toast.LENGTH_LONG).show();
-                }
-                return;
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -684,14 +652,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.storage_permission_not_granted);
             }
-        } else if (requestCode == PermissionsUtils.REQUEST_LOCATION) {
-            if (PermissionsUtils.verifyPermissions(grantResults)) {
-                showSnackBar(R.string.location_permission_granted);
-                processingLocation();
-            } else {
-                showSnackBar(R.string.location_permission_not_granted);
-            }
-
         } else if (requestCode == PermissionsUtils.REQUEST_PHONE_STATE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(R.string.phone_state_permission_granted);
@@ -749,52 +709,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    public void processingLocation() {
-        if (alCustomizationSettings.isLocationShareViaMap() && !TextUtils.isEmpty(geoApiKey) && !API_KYE_STRING.equals(geoApiKey)) {
-            Intent toMapActivity = new Intent(this, MobicomLocationActivity.class);
-            startActivityForResult(toMapActivity, MultimediaOptionFragment.REQUEST_CODE_SEND_LOCATION);
-        } else {
-            //================= START GETTING LOCATION WITHOUT LOADING MAP AND SEND LOCATION AS TEXT===============
-
-            if (!((LocationManager) getSystemService(Context.LOCATION_SERVICE))
-                    .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.location_services_disabled_title)
-                        .setMessage(R.string.location_services_disabled_message)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.location_service_settings, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivityForResult(intent, LOCATION_SERVICE_ENABLE);
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                Toast.makeText(ConversationActivity.this, R.string.location_sending_cancelled, Toast.LENGTH_LONG).show();
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                alert.show();
-            } else {
-                googleApiClient.disconnect();
-                googleApiClient.connect();
-            }
-
-            //================= END ===============
-
-        }
-
-    }
-
-    public void processLocation() {
-        if (Utils.hasMarshmallow()) {
-            new ApplozicPermissions(ConversationActivity.this, layout).checkRuntimePermissionForLocation();
-        } else {
-            processingLocation();
         }
     }
 
@@ -953,62 +867,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         conversationUIService.removeConversation(message, formattedContactNumber);
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        try {
-            Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if (mCurrentLocation == null) {
-                Toast.makeText(this, R.string.waiting_for_current_location, Toast.LENGTH_SHORT).show();
-                locationRequest = new LocationRequest();
-                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                locationRequest.setInterval(UPDATE_INTERVAL);
-                locationRequest.setFastestInterval(FASTEST_INTERVAL);
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-            }
-            if (mCurrentLocation != null && conversation != null) {
-                conversation.attachLocation(mCurrentLocation);
-            }
-        } catch (Exception e) {
-        }
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.w(((Object) this).getClass().getSimpleName(),
-                "onConnectionSuspended() called.");
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        try {
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-            if (conversation != null && location != null) {
-                conversation.attachLocation(location);
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(
-                        this,
-                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            } catch (IntentSender.SendIntentException e) {
-                // Log the error
-                e.printStackTrace();
-            }
-        } else {
-            showErrorDialog(connectionResult.getErrorCode());
-        }
-
-    }
-
     public void setChildFragmentLayoutBG() {
 
         childFragmentLayout.setBackgroundResource(R.color.conversation_list_all_background);
@@ -1144,24 +1002,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                     callIntent.setData(Uri.parse(uri));
                     startActivity(callIntent);
                 }
-            } else {
-                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
-                    applozicPermission.requestCallPermission();
-                } else if (PermissionsUtils.isCallPermissionGranted(this)) {
-                    if (!TextUtils.isEmpty(contact.getContactNumber())) {
-                        Intent callIntent;
-                        String uri = "tel:" + contact.getContactNumber().trim();
-                        callIntent = new Intent(Intent.ACTION_CALL);
-                        callIntent.setData(Uri.parse(uri));
-                        startActivity(callIntent);
-                    }
-                } else {
-                    snackbar = Snackbar.make(layout, R.string.phone_call_permission_not_granted,
-                            Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
             }
-
         } catch (Exception e) {
             Utils.printLog(this, "ConversationActivity", "Call permission is not added in androidManifest");
         }
