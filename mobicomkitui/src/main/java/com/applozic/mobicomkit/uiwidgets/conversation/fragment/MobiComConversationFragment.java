@@ -3218,9 +3218,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (messageList.isEmpty()) {
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
+                MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
+                Applozic.subscribeToTyping(getContext(), channel, contact);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
             }
-            MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
 
             if (SyncCallService.refreshView) {
                 SyncCallService.refreshView = false;
