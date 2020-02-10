@@ -423,6 +423,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         setToolbarTitle(getString(R.string.conversations));
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
+        onNewIntent(getIntent());
 
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
 
