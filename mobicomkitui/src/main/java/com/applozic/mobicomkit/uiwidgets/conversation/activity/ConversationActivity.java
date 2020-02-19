@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 
@@ -34,7 +33,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.core.view.MenuItemCompat;
@@ -61,7 +59,6 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
-import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
@@ -710,13 +707,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             } else {
                 showSnackBar(R.string.phone_state_permission_not_granted);
             }
-        } else if (requestCode == PermissionsUtils.REQUEST_CALL_PHONE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(R.string.phone_call_permission_granted);
-                processCall(contact, currentConversationId);
-            } else {
-                showSnackBar(R.string.phone_call_permission_not_granted);
-            }
         } else if (requestCode == PermissionsUtils.REQUEST_AUDIO_RECORD) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(R.string.record_audio_permission_granted);
@@ -1158,33 +1148,13 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 }
                 callIntent.putExtra(ConversationUIService.CONTACT, contact);
                 startActivity(callIntent);
-            } else if (alCustomizationSettings.isShowActionDialWithOutCalling()) {
-                if (!TextUtils.isEmpty(contact.getContactNumber())) {
-                    Intent callIntent;
-                    String uri = "tel:" + contact.getContactNumber().trim();
-                    callIntent = new Intent(Intent.ACTION_DIAL);
-                    callIntent.setData(Uri.parse(uri));
-                    startActivity(callIntent);
-                }
             } else {
-                if (Utils.hasMarshmallow() && PermissionsUtils.checkSelfForCallPermission(this)) {
-                    applozicPermission.requestCallPermission();
-                } else if (PermissionsUtils.isCallPermissionGranted(this)) {
-                    if (!TextUtils.isEmpty(contact.getContactNumber())) {
-                        Intent callIntent;
-                        String uri = "tel:" + contact.getContactNumber().trim();
-                        callIntent = new Intent(Intent.ACTION_CALL);
-                        callIntent.setData(Uri.parse(uri));
-                        startActivity(callIntent);
-                    }
-                } else {
-                    snackbar = Snackbar.make(layout, R.string.phone_call_permission_not_granted,
-                            Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
+                snackbar = Snackbar.make(layout, R.string.phone_call_permission_not_granted,
+                        Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
-
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             Utils.printLog(this, "ConversationActivity", "Call permission is not added in androidManifest");
         }
     }

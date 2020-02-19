@@ -172,17 +172,6 @@ public class Utils {
         return Build.VERSION.SDK_INT >= 26;
     }
 
-    public static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Could not get package name: " + e);
-        }
-        return -1;
-    }
-
     public static void toggleSoftKeyBoard(Activity activity, boolean hide) {
         InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         View view = activity.getCurrentFocus();
@@ -194,57 +183,6 @@ public class Utils {
         } else {
             inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
-    }
-
-    public static boolean isNetworkAvailable(final Activity activity, final String errorMessage) {
-        if (activity == null) {
-            return true;
-        }
-        ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        if (activeNetworkInfo == null) {
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-        return activeNetworkInfo != null;
-    }
-
-    public static String getDeviceInformation() {
-
-        return "Phone Model = " + Build.MODEL + "::Android Version = " + Build.VERSION.SDK_INT + ":::MANUFACTURER  = " + Build.MANUFACTURER + "::Overall PRODUCT = " + Build.PRODUCT;
-    }
-
-    public static Uri getUserImageUri(Context context) {
-        if (Build.VERSION.SDK_INT > 14) {
-            String[] mProjection = new String[]
-                    {
-                            ContactsContract.Profile._ID,
-                            ContactsContract.Profile.DISPLAY_NAME_PRIMARY,
-                            ContactsContract.Profile.LOOKUP_KEY,
-                            ContactsContract.Profile.PHOTO_THUMBNAIL_URI
-                    };
-            Cursor mProfileCursor =
-                    context.getContentResolver().query(
-                            ContactsContract.Profile.CONTENT_URI,
-                            mProjection, null, null, null);
-
-            try {
-                if (mProfileCursor.moveToFirst()) {
-                    String photo = mProfileCursor.getString(mProfileCursor.getColumnIndex(ContactsContract.Profile.PHOTO_THUMBNAIL_URI));
-                    if (!TextUtils.isEmpty(photo)) {
-                        return Uri.parse(photo);
-                    }
-                }
-            } finally {
-                if (mProfileCursor != null) {
-                    mProfileCursor.close();
-                }
-            }
-        }
-        return null;
     }
 
     public static int dpToPx(int dp) {
