@@ -659,6 +659,13 @@ public class Message extends JsonMarker {
         return getMetadata() != null && (getMetadata().containsKey(KM_ASSIGN) || getMetadata().containsKey(KM_STATUS));
     }
 
+    public String getConversationStatus() {
+        return (getMetadata() != null && getMetadata().containsKey(KM_STATUS)) ? getMetadata().get(KM_STATUS) : null;
+    }
+
+    public String getConversationAssignee() {
+        return (getMetadata() != null && getMetadata().containsKey(KM_ASSIGN)) ? getMetadata().get(KM_ASSIGN) : null;
+    }
 
     public boolean isIgnoreMessageAdding(Context context) {
         if (ApplozicClient.getInstance(context).isSubGroupEnabled() && MobiComUserPreference.getInstance(context).getParentGroupKey() != null || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName())) {
