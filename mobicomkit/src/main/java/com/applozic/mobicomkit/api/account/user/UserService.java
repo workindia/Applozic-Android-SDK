@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.SyncClientService;
 import com.applozic.mobicomkit.api.notification.MuteUserResponse;
@@ -454,19 +453,6 @@ public class UserService {
             throw new ApplozicException(e.getMessage());
         }
         return null;
-    }
-
-
-    public void processPackageDetail() {
-        CustomerPackageDetail customerPackageDetail = new CustomerPackageDetail();
-        customerPackageDetail.setApplicationKey((MobiComKitClientService.getApplicationKey(context)));
-        customerPackageDetail.setPackageName(context.getPackageName());
-        String response = userClientService.packageDetail(customerPackageDetail);
-        if (!TextUtils.isEmpty(response) && response.equals(MobiComKitConstants.APPLICATION_INFO_RESPONSE)) {
-            userPreference.setApplicationInfoCallDone(true);
-        } else {
-            userPreference.setApplicationInfoCallDone(false);
-        }
     }
 
     public void processContactSync() {

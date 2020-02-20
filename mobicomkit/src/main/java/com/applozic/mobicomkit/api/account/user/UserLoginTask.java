@@ -52,7 +52,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         try {
             userClientService.clearDataAndPreference();
             registrationResponse = registerUserClientService.createAccount(user);
-            userService.processPackageDetail();
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;

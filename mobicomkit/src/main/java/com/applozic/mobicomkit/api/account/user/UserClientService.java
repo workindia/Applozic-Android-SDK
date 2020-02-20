@@ -65,7 +65,6 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_DETAILS_LIST_POST_URL = "/rest/ws/user/detail";
     public static final String UPDATE_USER_PASSWORD = "/rest/ws/user/update/password";
     public static final String USER_LOGOUT = "/rest/ws/device/logout";
-    public static final String APPLICATION_INFO_UPDATE_URL = "/apps/customer/application/info/update";
     private static final String MUTE_USER_URL = "/rest/ws/user/chat/mute";
     private static final String USER_SEARCH_URL = "/rest/ws/user/search/contact";
     private static final String GET_MUTED_USER_LIST = "/rest/ws/user/chat/mute/list";
@@ -156,10 +155,6 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getUserLogout() {
         return getBaseUrl() + USER_LOGOUT;
-    }
-
-    public String getApplicationInfoUrl() {
-        return getBaseUrl() + APPLICATION_INFO_UPDATE_URL;
     }
 
     private String getMuteUserUrl() {
@@ -620,18 +615,6 @@ public class UserClientService extends MobiComKitClientService {
         }
 
         return apiResponse;
-    }
-
-    public String packageDetail(CustomerPackageDetail customerPackageDetail) {
-        String response;
-        String jsonFromObject = GsonUtils.getJsonFromObject(customerPackageDetail, CustomerPackageDetail.class);
-        try {
-            response = httpRequestUtils.postData(getApplicationInfoUrl(), "application/json", "application/json", jsonFromObject);
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public String postUserDetailsByContactNos(Set<String> phoneNos) {
