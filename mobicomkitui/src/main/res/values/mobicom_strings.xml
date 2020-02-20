@@ -73,12 +73,6 @@
     <string name="incoming_call">Received call</string>
     <string name="outgoing_call">Dialed call</string>
 
-    <string name="welcome_message">Welcome,
-        \nMobiTexter is a Messenger &amp; SMS Texting app
-        \nText from your laptop, mobile and any Android device using your own phone number.
-        \nSend and receive text on the laptop/pc/computer browser from http://www.mobitexter.net/
-        \nFor any queries, get in touch with us at support@mobitexter.net</string>
-
     <string name="info_app_not_found_to_open_file">No application found to open this file</string>
     <string name="unable_to_play_requested_audio_file">No application found to open this file</string>
     <string name="file_not_selected">Did you miss selecting the file?</string>

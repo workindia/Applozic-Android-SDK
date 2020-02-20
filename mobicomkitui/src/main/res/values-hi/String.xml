@@ -15,7 +15,6 @@
     <string name="no_contacts">कोई संपर्क नहीं मिला</string>
     <string name="search_hint">खोज...</string>
     <string name="phone_number_not_present">फोन नंबर मौजूद नहीं है</string>
-    <string name="zero_friends_on_phone">फोन संपर्कों पर कोई मिलान संपर्क नहीं मिला लेकिन आप अभी भी ईमेल, यूजर आईडी या फोन नंबर दर्ज करके संदेश भेज सकते हैं</string>
     <string name="delete_thread_text">हटाया जा रहा है ....</string>
     <string name="search_title">खोज</string>
     <string name ="applozic_user_already_in_a_group">समूह प्रकार में पहले से ही जोड़ा गया है</string>
