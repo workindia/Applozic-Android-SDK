@@ -3152,46 +3152,38 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            new AsyncTask<Void, Object, Object>() {
-                @Override
-                protected Object doInBackground(Void... voids) {
-                    if (channel != null) {
-                        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-                        Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
-                        if (!present) {
-                            if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                                MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
-                            }
-                        }
-
-                        if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
-                            hideSendMessageLayout(newChannel.isDeleted() || !present);
-                        } else {
-                            hideSendMessageLayout(newChannel.isDeleted());
-                        }
-
-                        if (ChannelService.isUpdateTitle) {
-                            updateChannelSubTitle(newChannel);
-                            ChannelService.isUpdateTitle = false;
-                        }
-                    }
-
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Object o) {
-                    super.onPostExecute(o);
-                    if (appContactService != null && contact != null) {
-                        updateLastSeenStatus();
+            if (channel != null) {
+                boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+                Channel newChannel = ChannelService.getInstance(getActivity()).getChannelByChannelKey(channel.getKey());
+                if (!present) {
+                    if (newChannel != null && newChannel.getType() != null && Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
+                        MobiComUserPreference.getInstance(getActivity()).setNewMessageFlag(true);
                     }
                 }
-            }.execute();
+
+                if (newChannel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(newChannel.getType())) {
+                    hideSendMessageLayout(newChannel.isDeleted() || !present);
+                } else {
+                    hideSendMessageLayout(newChannel.isDeleted());
+                }
+
+                if (ChannelService.isUpdateTitle) {
+                    updateChannelSubTitle(newChannel);
+                    ChannelService.isUpdateTitle = false;
+                }
+            }
+
+            if (appContactService != null && contact != null) {
+                updateLastSeenStatus();
+            }
 
             if (messageList.isEmpty()) {
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
+                Applozic.subscribeToTyping(getContext(),channel,contact);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
+            } else {
+                Applozic.subscribeToTyping(getContext(),channel,contact);
             }
             MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
 
