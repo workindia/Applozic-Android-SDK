@@ -26,7 +26,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private RegistrationResponse registrationResponse;
     private UserClientService userClientService;
     private RegisterUserClientService registerUserClientService;
-    private UserService userService;
     private AlLoginHandler loginHandler;
 
     public UserLoginTask(User user, TaskListener listener, Context context) {
@@ -35,7 +34,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         this.user = user;
         this.userClientService = new UserClientService(context);
         this.registerUserClientService = new RegisterUserClientService(context);
-        this.userService = UserService.getInstance(context);
     }
 
     public UserLoginTask(User user, AlLoginHandler listener, Context context) {
@@ -44,7 +42,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         this.user = user;
         this.userClientService = new UserClientService(context);
         this.registerUserClientService = new RegisterUserClientService(context);
-        this.userService = UserService.getInstance(context);
     }
 
     @Override
@@ -52,7 +49,6 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         try {
             userClientService.clearDataAndPreference();
             registrationResponse = registerUserClientService.createAccount(user);
-            userService.processPackageDetail();
         } catch (Exception e) {
             e.printStackTrace();
             mException = e;

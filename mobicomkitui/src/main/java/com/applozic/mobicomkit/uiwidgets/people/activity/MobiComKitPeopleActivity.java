@@ -52,7 +52,6 @@ import com.applozic.mobicommons.people.OnContactsInteractionListener;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.people.contact.ContactUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -60,7 +59,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class MobiComKitPeopleActivity extends AppCompatActivity implements OnContactsInteractionListener,
         SearchView.OnQueryTextListener, TabLayout.OnTabSelectedListener {
@@ -195,20 +193,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
      */
     @Override
     public void onContactSelected(Uri contactUri) {
-        Long contactId = ContactUtils.getContactId(getContentResolver(), contactUri);
-        Map<String, String> phoneNumbers = ContactUtils.getPhoneNumbers(getApplicationContext(), contactId);
 
-        if (phoneNumbers.isEmpty()) {
-            Toast toast = Toast.makeText(this.getApplicationContext(), R.string.phone_number_not_present, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-            return;
-        }
-
-        Intent intent = new Intent();
-        intent.putExtra(CONTACT_ID, contactId);
-        intent.setData(contactUri);
-        finishActivity(intent);
     }
 
     public void startNewConversation(String contactNumber) {

@@ -121,12 +121,10 @@ public class Contact extends JsonMarker {
     }
 
     public void processContactNumbers(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
         if (TextUtils.isEmpty(formattedContactNumber)) {
             try {
                 if (context.getApplicationContext() instanceof ALContactProcessor) {
-                    setFormattedContactNumber(((ALContactProcessor) context.getApplicationContext()).processContact(getContactNumber(), countryCode));
+                    setFormattedContactNumber(((ALContactProcessor) context.getApplicationContext()).processContact(getContactNumber()));
                 }
             } catch (ClassCastException e) {
                 e.printStackTrace();
@@ -169,56 +167,6 @@ public class Contact extends JsonMarker {
             return value;
         }
     }
-
-  /*//Todo: Will be used for device contacts
-    public void processContactNumbers(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryCode = telephonyManager.getSimCountryIso().toUpperCase();
-        phoneNumbers = ContactUtils.getPhoneNumbers(context, getContactId());
-        if (TextUtils.isEmpty(getFormattedContactNumber()) && !TextUtils.isEmpty(getContactNumber())) {
-            setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(getContactNumber(), countryCode));
-        }
-
-        if (!TextUtils.isEmpty(getContactNumber()) || phoneNumbers.isEmpty()) {
-            return;
-        }
-
-        String mobileNumber = null;
-        String mainNumber = null;
-        for (String phoneNumber : phoneNumbers.keySet()) {
-            setContactNumber(phoneNumber);
-            //if (phoneNumbers.get(phoneNumber).equals(ContactsContract.CommonDataKinds.Phone.TYPE_MAIN)) {
-            if (phoneNumbers.get(phoneNumber).equals("Main")) {
-                mainNumber = phoneNumber;
-                break;
-            }
-            if (phoneNumbers.get(phoneNumber).equals("Mobile")) {
-                //if (phoneNumbers.get(phoneNumber).equals(ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)) {
-                mobileNumber = phoneNumber;
-            }
-        }
-
-        if (!TextUtils.isEmpty(mobileNumber)) {
-            setContactNumber(mobileNumber);
-        }
-
-        if (!TextUtils.isEmpty(mainNumber)) {
-            setContactNumber(mainNumber);
-        }
-
-        //Note: contact.getContactNumber() is not a formattedNumber with country code so it might not match with
-        //phoneNumbers key
-        if (phoneNumbers.get(getContactNumber()) == null) {
-            for (String phoneNumber : phoneNumbers.keySet()) {
-                if (PhoneNumberUtils.compare(getContactNumber(), phoneNumber)) {
-                    setContactNumber(phoneNumber);
-                    break;
-                }
-            }
-        }
-
-        setFormattedContactNumber(ContactNumberUtils.getPhoneNumber(getContactNumber(), countryCode));
-    }*/
 
     public String getContactNumber() {
         return contactNumber;

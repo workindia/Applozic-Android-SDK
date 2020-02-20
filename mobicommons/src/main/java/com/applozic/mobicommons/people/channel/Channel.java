@@ -266,6 +266,14 @@ public class Channel extends JsonMarker {
         return ASSIGNED_CONVERSATIONS;
     }
 
+    public int getConversationStatus() {
+        return (GroupType.SUPPORT_GROUP.getValue().equals(getType()) && getMetadata() != null && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_STATUS))) ? Integer.parseInt(getMetadata().get(CONVERSATION_STATUS)) : -1;
+    }
+
+    public String getConversationAssignee() {
+        return (GroupType.SUPPORT_GROUP.getValue().equals(getType()) && getMetadata() != null && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE))) ? getMetadata().get(CONVERSATION_ASSIGNEE) : null;
+    }
+
     public enum GroupType {
 
         VIRTUAL(0),

@@ -129,8 +129,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversati
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
-import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
-import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -208,7 +206,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected View spinnerLayout;
     protected SwipeRefreshLayout swipeLayout;
     protected Button scheduleOption;
-    protected ScheduledTimeHolder scheduledTimeHolder = new ScheduledTimeHolder();
     protected Spinner selfDestructMessageSpinner;
     protected ImageView mediaContainer;
     protected TextView attachedFile, userNotAbleToChatTextView;
@@ -600,19 +597,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 return true;
             }
         });
-
-        scheduleOption.setOnClickListener(new View.OnClickListener() {
-
-                                              @Override
-                                              public void onClick(View v) {
-                                                  ConversationScheduler conversationScheduler = new ConversationScheduler();
-                                                  conversationScheduler.setScheduleOption(scheduleOption);
-                                                  conversationScheduler.setScheduledTimeHolder(scheduledTimeHolder);
-                                                  conversationScheduler.setCancelable(false);
-                                                  conversationScheduler.show(getActivity().getSupportFragmentManager(), "conversationScheduler");
-                                              }
-                                          }
-        );
 
         messageEditText.addTextChangedListener(new TextWatcher() {
 
@@ -1127,12 +1111,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (disjointResult && !restrictedWordMatches) {
                 sendMessage(messageEditText.getText().toString().trim());
                 messageEditText.setText("");
-                scheduleOption.setText(R.string.ScheduleText);
-                if (scheduledTimeHolder.getTimestamp() != null) {
-                    showScheduleMessageToast();
-                }
-                scheduledTimeHolder.resetScheduledTimeHolder();
-
             } else {
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
                         setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
@@ -2493,7 +2471,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageToSend.setTimeToLive(getTimeToLive());
         messageToSend.setMessage(message);
         messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
-        messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
         messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
         String originalFilePath = this.filePath != null ? this.filePath : filePath;
         if (!TextUtils.isEmpty(originalFilePath)) {
@@ -2604,7 +2581,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageToSend.setTimeToLive(getTimeToLive());
                     messageToSend.setMessage(message);
                     messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
-                    messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
                     messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
                     if (!TextUtils.isEmpty(path)) {
                         List<String> filePaths = new ArrayList<String>();

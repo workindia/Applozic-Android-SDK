@@ -5,5 +5,5 @@ package com.applozic.mobicommons.people;
  */
 
 public interface ALContactProcessor {
-    String processContact(String contactNumber, String countryCode);
+    String processContact(String contactNumber);
 }

@@ -19,10 +19,12 @@ import android.provider.Settings;
 
 import com.applozic.mobicommons.file.ALFileProvider;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.LinearLayout;
@@ -370,13 +372,6 @@ public class AlAttachmentOptions {
             } else {
                 showSnackBar(snackbarLayout, R.string.phone_state_permission_not_granted);
             }
-        } else if (requestCode == PermissionsUtils.REQUEST_CALL_PHONE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(snackbarLayout, R.string.phone_call_permission_granted);
-                //processCall(contact, currentConversationId);
-            } else {
-                showSnackBar(snackbarLayout, R.string.phone_call_permission_not_granted);
-            }
         } else if (requestCode == PermissionsUtils.REQUEST_AUDIO_RECORD) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(snackbarLayout, R.string.record_audio_permission_granted);
@@ -397,7 +392,7 @@ public class AlAttachmentOptions {
             } else {
                 showSnackBar(snackbarLayout, R.string.phone_camera_permission_not_granted);
             }
-        }  else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
+        } else if (requestCode == PermissionsUtils.REQUEST_CAMERA_FOR_PROFILE_PHOTO) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(snackbarLayout, R.string.phone_camera_permission_granted);
                 /*if (profilefragment != null) {
