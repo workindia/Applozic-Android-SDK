@@ -262,8 +262,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
 
                     buildContactData();
-
-                    Applozic.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
                     //Start FCM registration....
 
                     Applozic.registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), new AlPushNotificationHandler() {

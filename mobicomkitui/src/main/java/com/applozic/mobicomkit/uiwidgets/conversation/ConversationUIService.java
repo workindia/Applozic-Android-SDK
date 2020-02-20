@@ -56,7 +56,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.fragment.MultimediaOptionF
 import com.applozic.mobicomkit.uiwidgets.people.activity.MobiComKitPeopleActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicommons.commons.core.utils.LocationInfo;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -899,72 +898,6 @@ public class ConversationUIService {
             getConversationFragment().setConversationId(conversationId);
         } else {
             conversationId = null;
-        }
-
-        boolean support = intent.getBooleanExtra(Support.SUPPORT_INTENT_KEY, false);
-        if (support) {
-            contact = new Support(fragmentActivity).getSupportContact();
-        }
-
-        String defaultText = intent.getStringExtra(ConversationUIService.DEFAULT_TEXT);
-        if (!TextUtils.isEmpty(defaultText) && getConversationFragment() != null) {
-            getConversationFragment().setDefaultText(defaultText);
-        }
-
-        String forwardMessage = intent.getStringExtra(MobiComKitPeopleActivity.FORWARD_MESSAGE);
-        if (!TextUtils.isEmpty(forwardMessage)) {
-            Message messageToForward = (Message) GsonUtils.getObjectFromJson(forwardMessage, Message.class);
-            if (getConversationFragment() != null) {
-                getConversationFragment().forwardMessage(messageToForward, contact, channel);
-            }
-        }
-
-        if (contact != null) {
-            openConversationFragment(contact, conversationId, searchString);
-        }
-
-        if (channel != null) {
-            openConversationFragment(channel, conversationId, searchString);
-        }
-        String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
-        String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);
-        if (!TextUtils.isEmpty(productTopicId) && !TextUtils.isEmpty(productImageUrl)) {
-            try {
-                FileMeta fileMeta = new FileMeta();
-                fileMeta.setContentType("image");
-                fileMeta.setBlobKeyString(productImageUrl);
-                if (getConversationFragment() != null) {
-                    getConversationFragment().sendProductMessage(productTopicId, fileMeta, contact, Message.ContentType.TEXT_URL.getValue());
-                }
-            } catch (Exception e) {
-            }
-        }
-
-        String sharedText = intent.getStringExtra(MobiComKitPeopleActivity.SHARED_TEXT);
-        if (!TextUtils.isEmpty(sharedText) && getConversationFragment() != null) {
-            getConversationFragment().sendMessage(sharedText);
-        }
-    }
-
-    public void processStartNewConversation(Contact contact, Channel channel, Integer conversationId, String searchString, Intent intent) {
-        String channelName = intent.getStringExtra(GROUP_NAME);
-        if (channel != null && !TextUtils.isEmpty(channelName) && TextUtils.isEmpty(channel.getName())) {
-            channel.setName(channelName);
-            ChannelService.getInstance(fragmentActivity).updateChannel(channel);
-        }
-
-        if (conversationId == null) {
-            conversationId = intent.getIntExtra(CONVERSATION_ID, 0);
-        }
-        if (conversationId != 0 && conversationId != null && getConversationFragment() != null) {
-            getConversationFragment().setConversationId(conversationId);
-        } else {
-            conversationId = null;
-        }
-
-        boolean support = intent.getBooleanExtra(Support.SUPPORT_INTENT_KEY, false);
-        if (support) {
-            contact = new Support(fragmentActivity).getSupportContact();
         }
 
         String defaultText = intent.getStringExtra(ConversationUIService.DEFAULT_TEXT);

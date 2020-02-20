@@ -66,15 +66,6 @@ public class Applozic {
         return applozic;
     }
 
-    public Applozic enableDeviceContactSync(boolean enable) {
-        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable).apply();
-        return this;
-    }
-
-    public boolean isDeviceContactSync() {
-        return sharedPreferences.getBoolean(ENABLE_DEVICE_CONTACT_SYNC, false);
-    }
-
     public String getApplicationKey() {
         return sharedPreferences.getString(APPLICATION_KEY, null);
     }

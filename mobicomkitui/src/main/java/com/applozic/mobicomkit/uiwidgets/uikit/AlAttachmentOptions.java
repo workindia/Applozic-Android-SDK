@@ -13,7 +13,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 
@@ -26,7 +25,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 

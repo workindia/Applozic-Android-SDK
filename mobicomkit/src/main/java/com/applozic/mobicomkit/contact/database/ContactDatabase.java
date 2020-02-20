@@ -4,11 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
@@ -64,7 +65,6 @@ public class ContactDatabase {
             contact.setContactType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.CONTACT_TYPE)));
             contact.setConnected(connected != 0 && connected.intValue() == 1);
             contact.setLastSeenAt(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_SEEN_AT_TIME)));
-            contact.processContactNumbers(context);
             contact.setUnreadCount(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.UNREAD_COUNT)));
             Boolean userBlocked = (cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.BLOCKED)) == 1);
             contact.setBlocked(userBlocked);
@@ -77,11 +77,6 @@ public class ContactDatabase {
             contact.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
             contact.setRoleType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.USER_ROLE_TYPE)));
             contact.setLastMessageAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.LAST_MESSAGED_AT)));
-
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                contact.setDeviceContactType(cursor.getShort(cursor.getColumnIndex(MobiComDatabaseHelper.DEVICE_CONTACT_TYPE)));
-                contact.setPhoneDisplayName(cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.PHONE_CONTACT_DISPLAY_NAME)));
-            }
 
             String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.USER_METADATA));
             if (!TextUtils.isEmpty(metadata)) {
@@ -236,12 +231,6 @@ public class ContactDatabase {
 
     public void addContact(Contact contact) {
         try {
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                contact.processContactNumbers(context);
-                if (contact.getDeviceContactType() == null) {
-                    contact.setDeviceContactType(Contact.ContactType.APPLOZIC.getValue());
-                }
-            }
             ContentValues contentValues = prepareContactValues(contact);
             dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
         } catch (Exception e) {
@@ -253,31 +242,15 @@ public class ContactDatabase {
 
     public ContentValues prepareContactValues(Contact contact) {
         ContentValues contentValues = new ContentValues();
-        Contact contactImage = null;
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
-        if (Applozic.getInstance(context).isDeviceContactSync()) {
-
-            if (contact.getDeviceContactType() != null) {
-                contentValues.put(MobiComDatabaseHelper.DEVICE_CONTACT_TYPE, contact.getDeviceContactType());
-                contentValues.put(MobiComDatabaseHelper.APPLOZIC_TYPE, contact.isApplozicType() ? 1 : 0);
-            }
-
-            if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getFormattedContactNumber());
-            }
-            if (!TextUtils.isEmpty(contact.getPhoneDisplayName())) {
-                contentValues.put(MobiComDatabaseHelper.PHONE_CONTACT_DISPLAY_NAME, contact.getPhoneDisplayName());
-            }
-        } else {
-            if (!TextUtils.isEmpty(contact.getContactNumber())) {
-                contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
-            }
+        if (!TextUtils.isEmpty(contact.getContactNumber())) {
+            contentValues.put(MobiComDatabaseHelper.CONTACT_NO, contact.getContactNumber());
         }
 
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
-        }else{
+        } else {
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_URL);
         }
@@ -498,140 +471,6 @@ public class ContactDatabase {
         };
     }
 
-    public Loader<Cursor> getPhoneContactCursorLoader(final String searchString, final String[] userIdArray, final boolean isLoadAllContact) {
-
-
-        return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
-            @Override
-            public Cursor loadInBackground() {
-
-                if (TextUtils.isEmpty(userPreferences.getUserId())) {
-                    return null;
-                }
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor;
-                String query = "select userId as _id, fullName, contactNO, " +
-                        "displayName,contactImageURL,contactImageLocalURI,email," +
-                        "applicationId,connected,lastSeenAt,unreadCount,blocked," +
-                        "blockedBy,status,contactType,phoneContactDisplayName,deviceContactType,userTypeId,applozicType,deletedAtTime,notificationAfterTime,userRoleType,userMetadata,lastMessagedAt from " + CONTACT + " where deletedAtTime=0 ";
-
-                if (userIdArray != null && userIdArray.length > 0) {
-                    String placeHolderString = Utils.makePlaceHolders(userIdArray.length);
-                    if (!TextUtils.isEmpty(searchString)) {
-                        query = query + " and phoneContactDisplayName like '%" + searchString.replaceAll("'", "''") + "%' and  userId  IN (" + placeHolderString + ")";
-                    } else {
-                        query = query + " and userId IN (" + placeHolderString + ")";
-                    }
-                    query = query + " order by connected desc,lastSeenAt desc ";
-
-                    cursor = db.rawQuery(query, userIdArray);
-                } else {
-                    if (ApplozicClient.getInstance(context).isShowMyContacts()) {
-                        if (!TextUtils.isEmpty(searchString)) {
-                            query = query + " and phoneContactDisplayName like '%" + searchString.replaceAll("'", "''") + "%' AND deviceContactType != 0 AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
-                        } else {
-                            query = query + " and deviceContactType != 0 AND userId != '" + userPreferences.getUserId() + "'";
-                        }
-                    } else {
-                        if (!TextUtils.isEmpty(searchString)) {
-                            query = query + " AND phoneContactDisplayName like '%" + searchString.replaceAll("'", "''") + "%' AND " + (isLoadAllContact ? "deviceContactType != 0" : "deviceContactType = 2") + " AND userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
-                        } else {
-                            query = query + " AND " + (isLoadAllContact ? "deviceContactType != 0" : "deviceContactType = 2") + " AND userId != '" + userPreferences.getUserId() + "'";
-                        }
-                    }
-                    query = query + " order by applozicType desc, phoneContactDisplayName COLLATE NOCASE,userId COLLATE NOCASE asc ";
-                    cursor = db.rawQuery(query, null);
-                }
-
-                return cursor;
-
-            }
-        };
-    }
-
-
-    public void updateContactLocalImageURIToNull(String userId) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
-        dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
-    }
-
-    public List<Contact> getContacts(Contact.ContactType contactType) {
-        Cursor cursor = null;
-        try {
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String structuredNameWhere = MobiComDatabaseHelper.CONTACT_TYPE + " = ?";
-            cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{String.valueOf(contactType.getValue())}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
-            return getContactList(cursor);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            dbHelper.close();
-        }
-    }
-
-    public void updateContactByPhoneNumber(Contact contact) {
-        try {
-            if (contact == null || TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                return;
-            }
-
-            if (Contact.ContactType.APPLOZIC.getValue().equals(contact.getDeviceContactType()) || Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())) {
-                //applozic contact
-                if (isContactPresent(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE)) {
-                    List<Contact> contactDevice = getContactsByContactNumberAndType(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE.getValue());
-                    for (Contact c : contactDevice) {
-                        contact.setPhoneDisplayName(c.getPhoneDisplayName());
-                    }
-                    contact.setDeviceContactType(Contact.ContactType.DEVICE_AND_APPLOZIC.getValue());
-                }
-                saveOrUpdate(contact);
-            } else if (Contact.ContactType.DEVICE.getValue().equals(contact.getDeviceContactType())) {
-                //device contact
-                if (isContactPresent(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE_AND_APPLOZIC)) {//do nothing
-                } else if (isContactPresent(contact.getFormattedContactNumber(), Contact.ContactType.APPLOZIC)) {
-                    List<Contact> contactListApplozic = getContactsByContactNumberAndType(contact.getFormattedContactNumber(), Contact.ContactType.APPLOZIC.getValue());
-                    for (Contact c : contactListApplozic) {
-                        c.setDeviceContactType(Contact.ContactType.DEVICE_AND_APPLOZIC.getValue());
-                        updateContact(c);
-                    }
-                } else if (isContactPresent(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE)) {
-                    saveOrUpdate(contact);
-                } else {
-                    addContact(contact);
-                }
-            } else {
-                saveOrUpdate(contact);
-            }
-
-            if (isContactPresent(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE_AND_APPLOZIC)) {
-                if (!TextUtils.isEmpty(contact.getPhoneDisplayName())) {
-                    updatePhoneContactDisplayName(contact.getFormattedContactNumber(), contact.getPhoneDisplayName(), Contact.ContactType.DEVICE_AND_APPLOZIC.getValue());
-                }
-                deleteContactByPhoneNumber(contact.getFormattedContactNumber(), Contact.ContactType.DEVICE.getValue());
-                deleteContactByPhoneNumber(contact.getFormattedContactNumber(), Contact.ContactType.APPLOZIC.getValue());
-            }
-        } catch (Throwable t) {
-        } finally {
-            dbHelper.close();
-        }
-    }
-
-
-    public void updatePhoneContactDisplayName(String contactNumber, String displayName, int type) {
-        try {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MobiComDatabaseHelper.PHONE_CONTACT_DISPLAY_NAME, displayName);
-            dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.CONTACT_NO + "=? AND " + MobiComDatabaseHelper.DEVICE_CONTACT_TYPE + "=?", new String[]{contactNumber, String.valueOf(type)});
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            dbHelper.close();
-        }
-    }
-
-
     public boolean isContactPresent(String contactNumber, Contact.ContactType contactType) {
         Cursor cursor = null;
         try {
@@ -655,53 +494,17 @@ public class ContactDatabase {
         if (existingContact == null) {
             addContact(contact);
         } else {
-            if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(existingContact.getDeviceContactType())) {
-                contact.setDeviceContactType(existingContact.getDeviceContactType());
-            } else if (Contact.ContactType.DEVICE_AND_APPLOZIC.getValue().equals(contact.getDeviceContactType())) {
-                contact.setDeviceContactType(existingContact.getDeviceContactType());
-            }
             updateContact(contact);
         }
     }
 
-    public void deleteContactByPhoneNumber(String conatctNumber, int type) {
-        dbHelper.getWritableDatabase().delete(CONTACT, MobiComDatabaseHelper.CONTACT_NO + "=? AND " + MobiComDatabaseHelper.DEVICE_CONTACT_TYPE + "=?", new String[]{conatctNumber, String.valueOf(type)});
-        dbHelper.close();
-    }
-
-
-    public List<Contact> getContactsByContactNumberAndType(String contactNumber, int contactType) {
+    public List<Contact> getContacts(Contact.ContactType contactType) {
         Cursor cursor = null;
         try {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String structuredNameWhere = MobiComDatabaseHelper.CONTACT_NO + " = ? AND " + MobiComDatabaseHelper.DEVICE_CONTACT_TYPE + " = ? ";
-            cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{contactNumber, String.valueOf(contactType)}, null, null, null);
+            String structuredNameWhere = MobiComDatabaseHelper.CONTACT_TYPE + " = ?";
+            cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{String.valueOf(contactType.getValue())}, null, null, MobiComDatabaseHelper.FULL_NAME + " asc");
             return getContactList(cursor);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            dbHelper.close();
-        }
-    }
-
-    public Contact getContactByPhoneNo(String contactNO) {
-        if (TextUtils.isEmpty(contactNO)) {
-            return null;
-        }
-        Cursor cursor = null;
-        try {
-            String structuredNameWhere = "contactNO = ?";
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            cursor = db.query(CONTACT, null, structuredNameWhere, new String[]{contactNO}, null, null, null);
-            Contact contact = null;
-            if (cursor != null) {
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    contact = getContact(cursor);
-                }
-            }
-            return contact;
         } finally {
             if (cursor != null) {
                 cursor.close();

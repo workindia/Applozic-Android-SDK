@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 import androidx.loader.app.LoaderManager;
@@ -19,6 +20,7 @@ import androidx.loader.content.Loader;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.appcompat.widget.AppCompatCheckBox;
+
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -500,12 +502,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
-            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
-        } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
-        }
+        return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
     }
 
     @Override
@@ -546,7 +543,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
-     * in the {@link android.provider.ContactsContract.Contacts} class.
      */
     public interface ContactsQuery {
         // An identifier for the loader

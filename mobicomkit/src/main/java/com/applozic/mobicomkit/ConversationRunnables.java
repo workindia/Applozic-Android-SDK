@@ -2,23 +2,17 @@ package com.applozic.mobicomkit;
 
 import android.content.Context;
 import android.os.Process;
-import android.text.TextUtils;
 
-import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
-import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by ashish on 27/03/18.
@@ -89,22 +83,6 @@ public class ConversationRunnables {
             MobiComConversationService mobiComConversationService = new MobiComConversationService(context);
             List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
             UserService.getInstance(context).processSyncUserBlock();
-
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                Set<String> contactNoSet = new HashSet<String>();
-                List<Contact> contacts = new AppContactService(context).getContacts(Contact.ContactType.DEVICE);
-                for (Contact contact : contacts) {
-                    if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                        contactNoSet.add(contact.getFormattedContactNumber());
-                    }
-                }
-
-                if (!contactNoSet.isEmpty()) {
-                    UserService userService = UserService.getInstance(context.getApplicationContext());
-                    userService.processUserDetailsByContactNos(contactNoSet);
-                }
-                MobiComUserPreference.getInstance(context).setDeviceContactSyncTime(new Date().getTime());
-            }
 
             for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
                 Contact contact = null;
