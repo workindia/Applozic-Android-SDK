@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -491,7 +492,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
 
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
-                    alChannelCreateAsyncTask.execute((Void) null);
+                    alChannelCreateAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
             return true;

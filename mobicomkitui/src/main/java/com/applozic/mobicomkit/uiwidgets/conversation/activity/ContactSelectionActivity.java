@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.applozic.mobicomkit.api.account.user.AlUserSearchTask;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
-import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -61,8 +60,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     private ActionBar mActionBar;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-    private String mSearchTerm;
-    private AppContactService contactService;
     private ConnectivityReceiver connectivityReceiver;
 
     public static void addFragment(FragmentActivity fragmentActivity, Fragment fragmentToAdd,
@@ -91,7 +88,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         setSearchListFragment(contactSelectionFragment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
-        contactService = new AppContactService(this);
         mActionBar = getSupportActionBar();
         String jsonString = FileUtils.loadSettingsJsonFile(getApplicationContext());
         if (!TextUtils.isEmpty(jsonString)) {
@@ -183,7 +179,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        this.mSearchTerm = query;
         isSearching = false;
 
         if (alCustomizationSettings.isContactSearchFromServer()) {
@@ -222,7 +217,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
 
     @Override
     public boolean onQueryTextChange(String query) {
-        this.mSearchTerm = query;
         if (getSearchListFragment() != null) {
             getSearchListFragment().onQueryTextChange(query);
             isSearching = true;
