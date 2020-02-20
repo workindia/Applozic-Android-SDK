@@ -90,22 +90,6 @@ public class ConversationRunnables {
             List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
             UserService.getInstance(context).processSyncUserBlock();
 
-            if (Applozic.getInstance(context).isDeviceContactSync()) {
-                Set<String> contactNoSet = new HashSet<String>();
-                List<Contact> contacts = new AppContactService(context).getContacts(Contact.ContactType.DEVICE);
-                for (Contact contact : contacts) {
-                    if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                        contactNoSet.add(contact.getFormattedContactNumber());
-                    }
-                }
-
-                if (!contactNoSet.isEmpty()) {
-                    UserService userService = UserService.getInstance(context.getApplicationContext());
-                    userService.processUserDetailsByContactNos(contactNoSet);
-                }
-                MobiComUserPreference.getInstance(context).setDeviceContactSyncTime(new Date().getTime());
-            }
-
             for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
                 Contact contact = null;
                 Channel channel = null;

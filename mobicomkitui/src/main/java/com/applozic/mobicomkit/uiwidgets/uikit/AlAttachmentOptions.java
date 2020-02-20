@@ -361,19 +361,6 @@ public class AlAttachmentOptions {
                 showSnackBar(snackbarLayout, R.string.location_permission_not_granted);
             }
 
-        } else if (requestCode == PermissionsUtils.REQUEST_PHONE_STATE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(snackbarLayout, R.string.phone_state_permission_granted);
-            } else {
-                showSnackBar(snackbarLayout, R.string.phone_state_permission_not_granted);
-            }
-        } else if (requestCode == PermissionsUtils.REQUEST_CALL_PHONE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showSnackBar(snackbarLayout, R.string.phone_call_permission_granted);
-                //processCall(contact, currentConversationId);
-            } else {
-                showSnackBar(snackbarLayout, R.string.phone_call_permission_not_granted);
-            }
         } else if (requestCode == PermissionsUtils.REQUEST_AUDIO_RECORD) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showSnackBar(snackbarLayout, R.string.record_audio_permission_granted);

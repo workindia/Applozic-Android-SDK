@@ -85,7 +85,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
     private Spinner mSpinnerView;
     private int touchCount = 0;
     private MobiComUserPreference mobiComUserPreference;
-    private boolean isDeviceContactSync = false;
     //private LoginButton loginButton;
 
     @Override
@@ -276,8 +275,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
 
                     buildContactData();
-
-                    Applozic.getInstance(context).enableDeviceContactSync(isDeviceContactSync);
                     //Start FCM registration....
 
                     Applozic.registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), new AlPushNotificationHandler() {

@@ -25,7 +25,6 @@ import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
 
 import com.applozic.mobicommons.ApplozicService;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -411,81 +410,6 @@ public class MobiComMessageService {
         }
     }
 
-    public void putMtextToDatabase(String payloadForMtextReceived) {
-        JSONObject json = null;
-        try {
-            json = new JSONObject(payloadForMtextReceived);
-
-            String smsKeyString = json.getString("keyString");
-            String receiverNumber = json.getString("contactNumber");
-            String body = json.getString("message");
-            Integer timeToLive = json.isNull("timeToLive") ? null : Integer.parseInt(json.getString("timeToLive"));
-            Message mTextMessageReceived = new Message();
-            mTextMessageReceived.setTo(json.getString("senderContactNumber"));
-            mTextMessageReceived.setCreatedAtTime(System.currentTimeMillis());
-            mTextMessageReceived.setMessage(body);
-            mTextMessageReceived.setSendToDevice(Boolean.FALSE);
-            mTextMessageReceived.setSent(Boolean.TRUE);
-            mTextMessageReceived.setDeviceKeyString(MobiComUserPreference.getInstance(context).getDeviceKeyString());
-            mTextMessageReceived.setType(Message.MessageType.MT_INBOX.getValue());
-            mTextMessageReceived.setSource(Message.Source.MT_MOBILE_APP.getValue());
-            mTextMessageReceived.setTimeToLive(timeToLive);
-
-         /*   if (json.has("fileMetaKeyStrings")) {
-                JSONArray fileMetaKeyStringsJSONArray = json.getJSONArray("fileMetaKeyStrings");
-                List<String> fileMetaKeyStrings = new ArrayList<String>();
-                for (int i = 0; i < fileMetaKeyStringsJSONArray.length(); i++) {
-                    JSONObject fileMeta = fileMetaKeyStringsJSONArray.getJSONObject(i);
-                    fileMetaKeyStrings.add(fileMeta.toString());
-                }
-                //mTextMessageReceived.setFileMetaKeyStrings(fileMetaKeyStrings);
-            }*/
-
-            mTextMessageReceived.processContactIds(context);
-
-            mTextMessageReceived.setTo(mTextMessageReceived.getTo());
-            Contact receiverContact = baseContactService.getContactById(receiverNumber);
-
-            if (mTextMessageReceived.getMessage() != null && PersonalizedMessage.isPersonalized(mTextMessageReceived.getMessage())) {
-                mTextMessageReceived.setMessage(PersonalizedMessage.prepareMessageFromTemplate(mTextMessageReceived.getMessage(), receiverContact));
-            }
-
-            try {
-                messageClientService.sendMessageToServer(mTextMessageReceived, null);
-            } catch (Exception ex) {
-                Utils.printLog(context, TAG, "Received message error " + ex.getMessage());
-            }
-            messageClientService.updateDeliveryStatus(smsKeyString, null, receiverNumber);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-    }
-
-    public void addWelcomeMessage(String content) {
-        Message message = new Message();
-        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-        message.setContactIds(new Support(context).getSupportNumber());
-        message.setTo(new Support(context).getSupportNumber());
-        message.setMessage(content);
-        message.setStoreOnDevice(Boolean.TRUE);
-        message.setSendToDevice(Boolean.FALSE);
-        message.setType(Message.MessageType.MT_INBOX.getValue());
-        message.setDeviceKeyString(userPreferences.getDeviceKeyString());
-        message.setSource(Message.Source.MT_MOBILE_APP.getValue());
-        conversationService.sendMessage(message, messageIntentServiceClass);
-    }
-
-    public void sendCustomMessage(Message message) {
-        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-        message.setStoreOnDevice(Boolean.TRUE);
-        message.setSendToDevice(Boolean.FALSE);
-        message.setType(Message.MessageType.MT_OUTBOX.getValue());
-        message.setContentType(Message.ContentType.CUSTOM.getValue());
-        message.setDeviceKeyString(userPreferences.getDeviceKeyString());
-        message.setSource(Message.Source.MT_MOBILE_APP.getValue());
-        conversationService.sendMessage(message, messageIntentServiceClass);
-    }
 
     public synchronized void updateDeliveryStatusForContact(String contactId, boolean markRead) {
         int rows = messageDatabaseService.updateMessageDeliveryReportForContact(contactId, markRead);
@@ -543,7 +467,7 @@ public class MobiComMessageService {
     public void createEmptyMessage(Contact contact) {
         Message sms = new Message();
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-        sms.setContactIds(contact.getFormattedContactNumber());
+        sms.setContactIds(contact.getContactIds());
         sms.setTo(contact.getContactNumber());
         sms.setCreatedAtTime(0L);
         sms.setStoreOnDevice(Boolean.TRUE);

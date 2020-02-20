@@ -108,22 +108,6 @@ public class ConversationIntentService extends AlJobIntentService {
                 List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
                 UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
 
-                if (Applozic.getInstance(ConversationIntentService.this).isDeviceContactSync()) {
-                    Set<String> contactNoSet = new HashSet<String>();
-                    List<Contact> contacts = new AppContactService(ConversationIntentService.this).getContacts(Contact.ContactType.DEVICE);
-                    for (Contact contact : contacts) {
-                        if (!TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                            contactNoSet.add(contact.getFormattedContactNumber());
-                        }
-                    }
-
-                    if (!contactNoSet.isEmpty()) {
-                        UserService userService = UserService.getInstance(getApplicationContext());
-                        userService.processUserDetailsByContactNos(contactNoSet);
-                    }
-                    MobiComUserPreference.getInstance(ConversationIntentService.this).setDeviceContactSyncTime(new Date().getTime());
-                }
-
                 for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
                     Contact contact = null;
                     Channel channel = null;

@@ -454,43 +454,6 @@ public class Message extends JsonMarker {
             return (getKeyString().equals(message.getKeyString()));
         }
 
-       /* if ((isSentToMany() && !getContactIds().contains(message.getContactIds())) || (message.isSentToMany() && !message.getContactIds().contains(getContactIds()))) {
-            return false;
-        } else if (!isSentToMany() && !message.isSentToMany() && !PhoneNumberUtils.compare(to, message.to)) {
-            return false;
-        }
-
-        if (!getMessage().equals(message.getMessage()) && !getMessage().contains(message.getMessage()) && !message.getMessage().contains(getMessage())) {
-            return false;
-        }
-
-        if (getType() != null && message.getType() != null && ((isTypeOutbox() && !message.isTypeOutbox()) || (!isTypeOutbox() && message.isTypeOutbox()))) {
-            return false;
-        }
-
-        if (getTimeToLive() != null && !getTimeToLive().equals(message.getTimeToLive())) {
-            return false;
-        } else if (getTimeToLive() != null && !getCreatedAtTime().equals(message.getCreatedAtTime())) {
-            return false;
-        }
-
-        if ((getFilePaths() != null && !getFilePaths().equals(message.getFilePaths()))
-                || (message.getFilePaths() != null && !message.getFilePaths().equals(getFilePaths()))) {
-            return false;
-        } else if (getFileMetaKeyStrings() != null && message.getFileMetaKeyStrings() != null && !getFileMetaKeyStrings().equals(message.getFileMetaKeyStrings())) {
-            return false;
-        }
-*/
-        /*long createdTimeDifference = 0;
-        if (!getDelivered().equals(getDelivered())) {
-            createdTimeDifference = 240 * 1000;
-        }
-*//*
-        if (createdAtTime != null && message.getCreatedAtTime() != null &&
-                Math.abs(createdAtTime - message.getCreatedAtTime()) > createdTimeDifference) {
-            return false;
-        }
-*/
         return false;
     }
 
@@ -547,15 +510,6 @@ public class Message extends JsonMarker {
         }
         return result;
     }
-
-  /*@Override
-    public int hashCode() {
-       *//* int result = getContactIds() != null ? getContactIds().hashCode() : 0;
-        result = 31 * result + (getTo() != null ? getTo().hashCode() : 0);
-        result = 31 * result + (getMessage() != null ? getMessage().hashCode() : 0);
-        result = 31 * result + (getTimeToLive() != null ? getTimeToLive().hashCode() : 0);*//*
-        return result;
-    }*/
 
     public boolean isCanceled() {
         return canceled;

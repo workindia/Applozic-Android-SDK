@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -75,7 +76,7 @@ public class AlUIService {
                             }
                         };
                         ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(context, channelDeleteTask, channel);
-                        applozicChannelDeleteTask.execute((Void) null);
+                        applozicChannelDeleteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

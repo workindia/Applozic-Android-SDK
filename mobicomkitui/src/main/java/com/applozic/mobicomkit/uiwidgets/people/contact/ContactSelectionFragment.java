@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
@@ -93,7 +94,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     public static final String GROUP_TYPE = "GROUP_TYPE";
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "SELECTED_ITEM";
-    public static boolean isSearching = false;
     ContactDatabase contactDatabase;
     boolean disableCheckBox;
     boolean isUserPresnt;
@@ -104,12 +104,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     String contactsGroupId;
     private String mSearchTerm; // Stores the current search query term
     private ContactsAdapter mAdapter;
-    private boolean isScrolling = false;
-    private int visibleThreshold = 0;
-    private int currentPage = 0;
-    private int previousTotalItemCount = 0;
-    private boolean loading = true;
-    private int startingPageIndex = 0;
     private ImageLoader mImageLoader;
     private int mPreviouslySelectedSearchItem = 0;
     private String imageUrl;
@@ -211,9 +205,9 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             };
 
             if (MobiComUserPreference.getInstance(getContext()).isContactGroupNameList()) {
-                new AlGetMembersFromContactGroupListTask(getContext(), listener, null, groupList, "9").execute();
+                new AlGetMembersFromContactGroupListTask(getContext(), listener, null, groupList, "9").executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
             } else {
-                new AlGetMembersFromContactGroupListTask(getContext(), listener, groupList, null, "9").execute();
+                new AlGetMembersFromContactGroupListTask(getContext(), listener, groupList, null, "9").executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
             }
         }
     }
@@ -490,7 +484,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
 
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
-                    alChannelCreateAsyncTask.execute((Void) null);
+                    alChannelCreateAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
             return true;
@@ -501,12 +495,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
-            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
-        } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
-        }
+        return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
     }
 
     @Override
@@ -544,11 +533,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
         return true;
     }
 
-
-    /**
-     * This interface defines constants for the Cursor and CursorLoader, based on constants defined
-     * in the {@link android.provider.ContactsContract.Contacts} class.
-     */
     public interface ContactsQuery {
         // An identifier for the loader
         int QUERY_ID = 1;

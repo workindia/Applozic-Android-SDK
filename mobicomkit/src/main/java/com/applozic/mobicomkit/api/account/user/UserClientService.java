@@ -42,14 +42,7 @@ import java.util.Set;
  */
 public class UserClientService extends MobiComKitClientService {
 
-    public static final String SHARED_PREFERENCE_VERSION_UPDATE_KEY = "mck.version.update";
-    public static final String PHONE_NUMBER_UPDATE_URL = "/rest/ws/registration/phone/number/update";
-    public static final String NOTIFY_CONTACTS_ABOUT_JOINING_MT = "/rest/ws/registration/notify/contacts";
-    public static final String VERIFICATION_CONTACT_NUMBER_URL = "/rest/ws/verification/number";
-    public static final String VERIFICATION_CODE_CONTACT_NUMBER_URL = "/rest/ws/verification/code";
     public static final String APP_VERSION_UPDATE_URL = "/rest/ws/register/version/update";
-    public static final String SETTING_UPDATE_URL = "/rest/ws/setting/single/update";
-    public static final String TIMEZONE_UPDATAE_URL = "/rest/ws/setting/updateTZ";
     public static final String USER_INFO_URL = "/rest/ws/user/info?";
     public static final Short MOBICOMKIT_VERSION_CODE = 109;
     public static final String USER_DISPLAY_NAME_UPDATE = "/rest/ws/user/name?";
@@ -64,7 +57,6 @@ public class UserClientService extends MobiComKitClientService {
     public static final String USER_DETAILS_LIST_POST_URL = "/rest/ws/user/detail";
     public static final String UPDATE_USER_PASSWORD = "/rest/ws/user/update/password";
     public static final String USER_LOGOUT = "/rest/ws/device/logout";
-    public static final String APPLICATION_INFO_UPDATE_URL = "/apps/customer/application/info/update";
     private static final String MUTE_USER_URL = "/rest/ws/user/chat/mute";
     private static final String USER_SEARCH_URL = "/rest/ws/user/search/contact";
     private static final String GET_MUTED_USER_LIST = "/rest/ws/user/chat/mute/list";
@@ -77,24 +69,8 @@ public class UserClientService extends MobiComKitClientService {
         this.httpRequestUtils = new HttpRequestUtils(context);
     }
 
-    public String getPhoneNumberUpdateUrl() {
-        return getBaseUrl() + PHONE_NUMBER_UPDATE_URL;
-    }
-
     public String getUserProfileUpdateUrl() {
         return getBaseUrl() + USER_PROFILE_UPDATE_URL;
-    }
-
-    public String getNotifyContactsAboutJoiningMt() {
-        return getBaseUrl() + NOTIFY_CONTACTS_ABOUT_JOINING_MT;
-    }
-
-    public String getVerificationContactNumberUrl() {
-        return getBaseUrl() + VERIFICATION_CONTACT_NUMBER_URL;
-    }
-
-    public String getVerificationCodeContactNumberUrl() {
-        return getBaseUrl() + VERIFICATION_CODE_CONTACT_NUMBER_URL;
     }
 
     public String getAppVersionUpdateUrl() {
@@ -103,14 +79,6 @@ public class UserClientService extends MobiComKitClientService {
 
     public String getUpdateUserDisplayNameUrl() {
         return getBaseUrl() + USER_DISPLAY_NAME_UPDATE;
-    }
-
-    public String getSettingUpdateUrl() {
-        return getBaseUrl() + SETTING_UPDATE_URL;
-    }
-
-    public String getTimezoneUpdataeUrl() {
-        return getBaseUrl() + TIMEZONE_UPDATAE_URL;
     }
 
     public String getUserInfoUrl() {
@@ -157,10 +125,6 @@ public class UserClientService extends MobiComKitClientService {
         return getBaseUrl() + USER_LOGOUT;
     }
 
-    public String getApplicationInfoUrl() {
-        return getBaseUrl() + APPLICATION_INFO_UPDATE_URL;
-    }
-
     private String getMuteUserUrl() {
         return getBaseUrl() + MUTE_USER_URL;
     }
@@ -176,6 +140,7 @@ public class UserClientService extends MobiComKitClientService {
     public ApiResponse logout() {
         return logout(false);
     }
+
 
     public void clearDataAndPreference() {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
@@ -235,44 +200,11 @@ public class UserClientService extends MobiComKitClientService {
         return apiResponse;
     }
 
-    public boolean sendVerificationCodeToServer(String verificationCode) {
-        try {
-            String response = httpRequestUtils.getResponse(getVerificationCodeContactNumberUrl() + "?verificationCode=" + verificationCode, "application/json", "application/json");
-            JSONObject json = new JSONObject(response);
-            return json.has("code") && json.get("code").equals("200");
-        } catch (Exception e) {
-            Utils.printLog(context, "Verification Code", "Got Exception while submitting verification code to server: " + e);
-        }
-        return false;
-    }
-
     public void updateCodeVersion(final String deviceKeyString) {
         String url = getAppVersionUpdateUrl() + "?appVersionCode=" + MOBICOMKIT_VERSION_CODE + "&deviceKey=" + deviceKeyString;
         String response = httpRequestUtils.getResponse(url, "text/plain", "text/plain");
         Utils.printLog(context, TAG, "Version update response: " + response);
 
-    }
-
-    public String updatePhoneNumber(String contactNumber) throws UnsupportedEncodingException {
-        return httpRequestUtils.getResponse(getPhoneNumberUpdateUrl() + "?phoneNumber=" + URLEncoder.encode(contactNumber, "UTF-8"), "text/plain", "text/plain");
-    }
-
-    public void notifyFriendsAboutJoiningThePlatform() {
-        String response = httpRequestUtils.getResponse(getNotifyContactsAboutJoiningMt(), "text/plain", "text/plain");
-        Utils.printLog(context, TAG, "Response for notify contact about joining MT: " + response);
-    }
-
-    public String sendPhoneNumberForVerification(String contactNumber, String countryCode, boolean viaSms) {
-        try {
-            String viaSmsParam = "";
-            if (viaSms) {
-                viaSmsParam = "&viaSms=true";
-            }
-            return httpRequestUtils.getResponse(getVerificationContactNumberUrl() + "?countryCode=" + countryCode + "&contactNumber=" + URLEncoder.encode(contactNumber, "UTF-8") + viaSmsParam, "application/json", "application/json");
-        } catch (Exception e) {
-            Utils.printLog(context, "Verification Code", "Got Exception while submitting contact number for verification to server: " + e);
-        }
-        return null;
     }
 
     public void updateSetting(final String key, final String value) {
@@ -426,7 +358,7 @@ public class UserClientService extends MobiComKitClientService {
                         userDetailListFeed.setUserIdList(userDetailsList);
                         String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
                         Utils.printLog(context, TAG, "Sending json:" + jsonFromObject);
-                        response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+                        response = httpRequestUtils.postData(getUserDetailsListPostUrl() , "application/json", "application/json", jsonFromObject);
                         userDetailsList = new ArrayList<String>();
                         if (!TextUtils.isEmpty(response)) {
                             UserService.getInstance(context).processUserDetailsResponse(response);
@@ -438,7 +370,7 @@ public class UserClientService extends MobiComKitClientService {
                     userDetailListFeed.setContactSync(true);
                     userDetailListFeed.setUserIdList(userDetailsList);
                     String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                    response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
+                    response = httpRequestUtils.postData(getUserDetailsListPostUrl(), "application/json", "application/json", jsonFromObject);
 
                     Utils.printLog(context, TAG, "User details response is :" + response);
                     if (TextUtils.isEmpty(response) || response.contains("<html>")) {
@@ -618,64 +550,5 @@ public class UserClientService extends MobiComKitClientService {
         }
 
         return apiResponse;
-    }
-
-    public String packageDetail(CustomerPackageDetail customerPackageDetail) {
-        String response;
-        String jsonFromObject = GsonUtils.getJsonFromObject(customerPackageDetail, CustomerPackageDetail.class);
-        try {
-            response = httpRequestUtils.postData(getApplicationInfoUrl(), "application/json", "application/json", jsonFromObject);
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String postUserDetailsByContactNos(Set<String> phoneNos) {
-        try {
-            if (phoneNos != null && phoneNos.size() > 0) {
-                List<String> phoneNumberList = new ArrayList<>();
-                String response = "";
-                int count = 0;
-                for (String phoneNo : phoneNos) {
-                    count++;
-                    phoneNumberList.add(phoneNo);
-                    if (count % BATCH_SIZE == 0) {
-                        UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
-                        userDetailListFeed.setContactSync(true);
-                        userDetailListFeed.setPhoneNumberList(phoneNumberList);
-                        String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                        Log.i(TAG, "Sending json:" + jsonFromObject);
-                        response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
-                        phoneNumberList = new ArrayList<String>();
-                        if (!TextUtils.isEmpty(response)) {
-                            UserService.getInstance(context).processUserDetailsResponse(response);
-                        }
-                    }
-                }
-                if (!phoneNumberList.isEmpty() && phoneNumberList.size() > 0) {
-                    UserDetailListFeed userDetailListFeed = new UserDetailListFeed();
-                    userDetailListFeed.setContactSync(true);
-                    userDetailListFeed.setPhoneNumberList(phoneNumberList);
-                    String jsonFromObject = GsonUtils.getJsonFromObject(userDetailListFeed, userDetailListFeed.getClass());
-                    response = httpRequestUtils.postData(getUserDetailsListPostUrl() + "?contactSync=true", "application/json", "application/json", jsonFromObject);
-
-                    Log.i(TAG, "User details response is :" + response);
-                    if (TextUtils.isEmpty(response) || response.contains("<html>")) {
-                        return null;
-                    }
-
-                    if (!TextUtils.isEmpty(response)) {
-                        UserService.getInstance(context).processUserDetailsResponse(response);
-                    }
-                }
-                return response;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

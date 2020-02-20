@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
         applozicConversationCreateTask = new ApplozicConversationCreateTask(MainActivity.this, conversationCreateListener, conversation);
-        applozicConversationCreateTask.execute((Void) null);
+        applozicConversationCreateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 

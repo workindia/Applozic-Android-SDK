@@ -31,8 +31,6 @@
     <string name="contact_permission_not_granted">संपर्क के लिए अनुमति नहीं दी गई थी</string>
     <string name="storage_permission_not_granted">संग्रहण के लिए अनुमतियाँ नहीं दी गईं</string>
     <string name="location_permission_not_granted">स्थान के लिए अनुमतियाँ नहीं दी गईं</string>
-    <string name="phone_state_permission_not_granted">फ़ोन स्टेट के लिए अनुमतियां प्रदान नहीं की गईं</string>
-    <string name="phone_call_permission_not_granted">फोन कॉल के लिए अनुमति नहीं दी गई थी</string>
     <string name="phone_camera_permission_not_granted">कैमरे के लिए अनुमति नहीं दी गई थी</string>
     <string name="record_audio_permission_not_granted">ऑडियो रिकॉर्डिंग के लिए अनुमतियां प्रदान नहीं की गईं</string>
     <string name="contact_permission_granted">संपर्क अनुमति दी गई है</string>

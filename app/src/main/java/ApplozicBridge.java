@@ -2,6 +2,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -51,7 +52,7 @@ public class ApplozicBridge {
 
             user = user != null ? user : getLoggedInUserInformation();
 
-            new UserLoginTask(user, listener, context).execute((Void) null);
+            new UserLoginTask(user, listener, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
 
         } else {
             launchChat(context);
@@ -125,7 +126,7 @@ public class ApplozicBridge {
         };
 
         pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, context);
-        pushNotificationTask.execute((Void) null);
+        pushNotificationTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
 
     }
 

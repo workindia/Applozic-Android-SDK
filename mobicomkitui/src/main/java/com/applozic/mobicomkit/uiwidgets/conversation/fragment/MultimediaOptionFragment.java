@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -17,7 +16,6 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComAttachmentSelectorActivity;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobicomLocationActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -103,14 +101,6 @@ public class MultimediaOptionFragment extends DialogFragment {
                         ((ConversationActivity) (getActivity())).setVideoFileUri(Uri.fromFile(fileUri));
                         getActivity().startActivityForResult(intent, REQUEST_CODE_CAPTURE_VIDEO_ACTIVITY);
                         break;
-
-                    case 5:
-                        //Sharing contact.
-                        intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                        getActivity().startActivityForResult(intent, REQUEST_CODE_CONTACT_SHARE);
-                        break;
-
                     case 6:
                         new ConversationUIService(getActivity()).sendPriceMessage();
                         break;

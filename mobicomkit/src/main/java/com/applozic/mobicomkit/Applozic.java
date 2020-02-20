@@ -38,7 +38,6 @@ public class Applozic {
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
-    private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
     private static final String NOTIFICATION_CHANNEL_VERSION_STATE = "NOTIFICATION_CHANNEL_VERSION_STATE";
     private static final String CUSTOM_NOTIFICATION_SOUND = "CUSTOM_NOTIFICATION_SOUND";
     public static Applozic applozic;
@@ -62,15 +61,6 @@ public class Applozic {
             applozic = new Applozic(ApplozicService.getContext(context));
         }
         return applozic;
-    }
-
-    public Applozic enableDeviceContactSync(boolean enable) {
-        sharedPreferences.edit().putBoolean(ENABLE_DEVICE_CONTACT_SYNC, enable).apply();
-        return this;
-    }
-
-    public boolean isDeviceContactSync() {
-        return sharedPreferences.getBoolean(ENABLE_DEVICE_CONTACT_SYNC, false);
     }
 
     public String getApplicationKey() {
@@ -176,7 +166,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 
@@ -195,12 +185,12 @@ public class Applozic {
             }
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 
     public static void connectUserWithoutCheck(Context context, User user, AlLoginHandler loginHandler) {
-        new UserLoginTask(user, loginHandler, context).execute();
+        new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
     }
 
     public static boolean isConnected(Context context) {
@@ -226,7 +216,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 

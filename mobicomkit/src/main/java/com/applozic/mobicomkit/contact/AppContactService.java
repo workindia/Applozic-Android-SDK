@@ -66,10 +66,8 @@ public class AppContactService implements BaseContactService {
     @Override
     public Contact getContactById(String contactId) {
         Contact contact = contactDatabase.getContactById(contactId);
-        if (contact != null) {
-            contact.processContactNumbers(context);
-        } else {
-            contact = new Contact(context, contactId);
+        if (contact == null) {
+            contact = new Contact(contactId);
             upsert(contact);
         }
         return contact;
@@ -77,38 +75,15 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateContact(Contact contact) {
-        if (Applozic.getInstance(context).isDeviceContactSync()) {
-            contact.processContactNumbers(context);
-        }
         contactDatabase.updateContact(contact);
     }
 
     @Override
     public void upsert(Contact contact) {
-        if (Applozic.getInstance(context).isDeviceContactSync()) {
-            contact.processContactNumbers(context);
-            if (contact.getDeviceContactType() == null || TextUtils.isEmpty(contact.getFormattedContactNumber())) {
-                if (contactDatabase.getContactById(contact.getUserId()) == null) {
-                    contactDatabase.addContact(contact);
-                } else {
-                    contactDatabase.updateContact(contact);
-                }
-            } else {
-                //Need to check if contact no exist
-                if (contactDatabase.getContactByPhoneNo(contact.getFormattedContactNumber()) != null) {
-                    contactDatabase.updateContactByPhoneNumber(contact);
-                } else if (contactDatabase.getContactById(contact.getUserId()) == null) {
-                    contactDatabase.addContact(contact);
-                } else {
-                    contactDatabase.updateContact(contact);
-                }
-            }
+        if (contactDatabase.getContactById(contact.getUserId()) == null) {
+            contactDatabase.addContact(contact);
         } else {
-            if (contactDatabase.getContactById(contact.getUserId()) == null) {
-                contactDatabase.addContact(contact);
-            } else {
-                contactDatabase.updateContact(contact);
-            }
+            contactDatabase.updateContact(contact);
         }
     }
 

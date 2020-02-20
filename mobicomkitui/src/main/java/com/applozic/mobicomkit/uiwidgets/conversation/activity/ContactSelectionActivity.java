@@ -61,7 +61,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
     private ActionBar mActionBar;
     private SearchListFragment searchListFragment;
     private boolean isSearchResultView = false;
-    private String mSearchTerm;
     private AppContactService contactService;
     private ConnectivityReceiver connectivityReceiver;
 
@@ -183,7 +182,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        this.mSearchTerm = query;
         isSearching = false;
 
         if (alCustomizationSettings.isContactSearchFromServer()) {
@@ -222,7 +220,6 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
 
     @Override
     public boolean onQueryTextChange(String query) {
-        this.mSearchTerm = query;
         if (getSearchListFragment() != null) {
             getSearchListFragment().onQueryTextChange(query);
             isSearching = true;

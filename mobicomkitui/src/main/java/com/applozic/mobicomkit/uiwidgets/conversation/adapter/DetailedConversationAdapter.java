@@ -70,7 +70,6 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ContextMenuClickListener;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -577,8 +576,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         if (message.isDeliveredAndRead()) {
                             statusIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
                         } else {
-                            statusIcon = (message.getDelivered() || (contact != null && new Support(context).isSupportNumber(contact.getFormattedContactNumber())) ?
-                                    deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
+                            statusIcon = (message.getDelivered() ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
                         }
                         myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
                     }

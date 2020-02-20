@@ -325,7 +325,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 if (channel.getName().equals(groupInfoUpdate.getNewName())) {
                     groupInfoUpdate.setNewName(null);
                 }
-                new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this, channelUpdateReceiver).execute();
+                new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this, channelUpdateReceiver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
             }
         }
     }
@@ -361,7 +361,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     channelUsersFeed.setRole(1);
                     channelUsersFeedList.add(channelUsersFeed);
                     groupInfoUpdate.setUsers(channelUsersFeedList);
-                    new ChannelUserRoleAsyncTask(channelUserMapper, groupInfoUpdate, this).execute();
+                    new ChannelUserRoleAsyncTask(channelUserMapper, groupInfoUpdate, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
                 } else {
                     Toast toast = Toast.makeText(this, getString(R.string.you_dont_have_any_network_access_info), Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
@@ -534,7 +534,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.remove_member, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).execute();
+                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
 
                     }
                 });
@@ -562,7 +562,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
+                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
 
                     }
                 });

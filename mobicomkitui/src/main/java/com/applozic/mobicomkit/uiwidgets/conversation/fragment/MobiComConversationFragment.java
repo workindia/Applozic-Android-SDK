@@ -130,8 +130,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.ALRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlHotelBookingModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.payment.PaymentActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
-import com.applozic.mobicomkit.uiwidgets.schedule.ConversationScheduler;
-import com.applozic.mobicomkit.uiwidgets.schedule.ScheduledTimeHolder;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -140,7 +138,6 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -207,7 +204,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected View spinnerLayout;
     protected SwipeRefreshLayout swipeLayout;
     protected Button scheduleOption;
-    protected ScheduledTimeHolder scheduledTimeHolder = new ScheduledTimeHolder();
     protected Spinner selfDestructMessageSpinner;
     protected ImageView mediaContainer;
     protected TextView attachedFile, userNotAbleToChatTextView;
@@ -218,7 +214,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected Drawable sentIcon;
     protected Drawable deliveredIcon;
     protected ImageButton emoticonsBtn;
-    protected Support support;
     protected MultimediaOptionFragment multimediaOptionFragment = new MultimediaOptionFragment();
     protected boolean hideExtendedSendingOptionLayout;
     protected SyncCallService syncCallService;
@@ -592,19 +587,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 return true;
             }
         });
-
-        scheduleOption.setOnClickListener(new View.OnClickListener() {
-
-                                              @Override
-                                              public void onClick(View v) {
-                                                  ConversationScheduler conversationScheduler = new ConversationScheduler();
-                                                  conversationScheduler.setScheduleOption(scheduleOption);
-                                                  conversationScheduler.setScheduledTimeHolder(scheduledTimeHolder);
-                                                  conversationScheduler.setCancelable(false);
-                                                  conversationScheduler.show(getActivity().getSupportFragmentManager(), "conversationScheduler");
-                                              }
-                                          }
-        );
 
         messageEditText.addTextChangedListener(new TextWatcher() {
 
@@ -1164,12 +1146,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     sendMessage(messageEditText.getText().toString().trim());
                 }
                 messageEditText.setText("");
-                scheduleOption.setText(R.string.ScheduleText);
-                if (scheduledTimeHolder.getTimestamp() != null) {
-                    showScheduleMessageToast();
-                }
-                scheduledTimeHolder.resetScheduledTimeHolder();
-
             } else {
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
                         setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
@@ -1235,14 +1211,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(VISIBLE);
-                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
+                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getUserId());
                     }
                     break;
                 }
             }
             int messageListSize = messageList.size();
             if (messageListSize > 0 && updateQuickConversation) {
-                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
+                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), channel != null ? String.valueOf(channel.getKey()) : contact.getUserId());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1254,7 +1230,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (contact == null) {
             return "";
         }
-        return contact.getUserId() != null ? contact.getUserId() : contact.getFormattedContactNumber();
+        return contact.getUserId() != null ? contact.getUserId() : "";
     }
 
     public Contact getContact() {
@@ -2318,7 +2294,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        support = new Support(activity);
         try {
             messageCommunicator = (MessageCommunicator) activity;
         } catch (ClassCastException e) {
@@ -2491,7 +2466,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageToSend.setTimeToLive(getTimeToLive());
         messageToSend.setMessage(message);
         messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
-        messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
         messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
         if (!TextUtils.isEmpty(filePath)) {
             List<String> filePaths = new ArrayList<String>();
@@ -2601,7 +2575,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     messageToSend.setTimeToLive(getTimeToLive());
                     messageToSend.setMessage(message);
                     messageToSend.setDeviceKeyString(userPreferences.getDeviceKeyString());
-                    messageToSend.setScheduledAt(scheduledTimeHolder.getTimestamp());
                     messageToSend.setSource(Message.Source.MT_MOBILE_APP.getValue());
                     if (!TextUtils.isEmpty(path)) {
                         List<String> filePaths = new ArrayList<String>();
@@ -2705,7 +2678,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                         if (createdAtTime != null && messageListItem.getKeyString() != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && !messageListItem.isChannelCustomMessage() && messageListItem.getScheduledAt() == null
                                 && (!(channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || contact != null)) {
-                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, sentIcon, null);
                         }
                     }
                 }
