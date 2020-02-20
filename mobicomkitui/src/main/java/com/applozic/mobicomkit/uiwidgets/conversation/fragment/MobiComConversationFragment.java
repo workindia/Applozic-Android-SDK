@@ -3180,7 +3180,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (messageList.isEmpty()) {
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
-                Applozic.subscribeToTyping(getContext(),channel,contact);
                 loadnewMessageOnResume(contact, channel, currentConversationId);
             } else {
                 Applozic.subscribeToTyping(getContext(),channel,contact);
