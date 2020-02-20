@@ -10,7 +10,9 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 import androidx.loader.app.LoaderManager;
@@ -19,6 +21,7 @@ import androidx.loader.content.Loader;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.appcompat.widget.AppCompatCheckBox;
+
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -92,7 +95,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     public static final String GROUP_TYPE = "GROUP_TYPE";
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "SELECTED_ITEM";
-    public static boolean isSearching = false;
     ContactDatabase contactDatabase;
     boolean disableCheckBox;
     boolean isUserPresnt;
@@ -103,12 +105,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     String contactsGroupId;
     private String mSearchTerm; // Stores the current search query term
     private ContactsAdapter mAdapter;
-    private boolean isScrolling = false;
-    private int visibleThreshold = 0;
-    private int currentPage = 0;
-    private int previousTotalItemCount = 0;
-    private boolean loading = true;
-    private int startingPageIndex = 0;
     private ImageLoader mImageLoader;
     private int mPreviouslySelectedSearchItem = 0;
     private String imageUrl;
@@ -489,7 +485,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
 
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
-                    alChannelCreateAsyncTask.execute((Void) null);
+                    alChannelCreateAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
             return true;
@@ -500,12 +496,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (Applozic.getInstance(getContext()).isDeviceContactSync()) {
-            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, groupContacts, false);
-        } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
-        }
+        return contactDatabase.getSearchCursorLoader(mSearchTerm, groupContacts, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
     }
 
     @Override
@@ -546,7 +537,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
-     * in the {@link android.provider.ContactsContract.Contacts} class.
      */
     public interface ContactsQuery {
         // An identifier for the loader

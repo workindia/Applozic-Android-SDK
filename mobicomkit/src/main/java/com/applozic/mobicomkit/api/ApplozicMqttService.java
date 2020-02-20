@@ -402,10 +402,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     syncCallService.syncUserDetail(userId);
                                 }
 
-                                if (Applozic.getInstance(context).isDeviceContactSync() && NOTIFICATION_TYPE.CONTACT_SYNC.getValue().equals(mqttMessageResponse.getType())) {
-                                    syncCallService.processContactSync(mqttMessageResponse.getMessage().toString());
-                                }
-
                                 if (NOTIFICATION_TYPE.MESSAGE_METADATA_UPDATE.getValue().equals(mqttMessageResponse.getType())) {
                                     String keyString = null;
                                     String deviceKey = null;
@@ -622,7 +618,6 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         GROUP_CONVERSATION_DELETED("APPLOZIC_23"),
         APPLOZIC_TEST("APPLOZIC_24"),
         USER_ONLINE_STATUS("APPLOZIC_25"),
-        CONTACT_SYNC("APPLOZIC_26"),
         CONVERSATION_DELETED_NEW("APPLOZIC_27"),
         CONVERSATION_DELIVERED_AND_READ_NEW("APPLOZIC_28"),
         CONVERSATION_READ_NEW("APPLOZIC_29"),

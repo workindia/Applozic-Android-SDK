@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -137,7 +136,6 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
-import com.applozic.mobicommons.commons.core.utils.Support;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -216,8 +214,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected Drawable sentIcon;
     protected Drawable deliveredIcon;
     protected ImageButton emoticonsBtn;
-    protected Support support;
-    protected MultimediaOptionFragment multimediaOptionFragment = new MultimediaOptionFragment();
     protected boolean hideExtendedSendingOptionLayout;
     protected SyncCallService syncCallService;
     protected ApplozicContextSpinnerAdapter applozicContextSpinnerAdapter;
@@ -1197,14 +1193,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     recyclerDetailConversationAdapter.notifyDataSetChanged();
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(VISIBLE);
-                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
+                        ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getUserId());
                     }
                     break;
                 }
             }
             int messageListSize = messageList.size();
             if (messageListSize > 0 && updateQuickConversation) {
-                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), channel != null ? String.valueOf(channel.getKey()) : contact.getFormattedContactNumber());
+                ((MobiComKitActivityInterface) getActivity()).updateLatestMessage(messageList.get(messageListSize - 1), channel != null ? String.valueOf(channel.getKey()) : contact.getUserId());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1213,10 +1209,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public String getCurrentUserId() {
-        if (contact == null) {
-            return "";
-        }
-        return contact.getUserId() != null ? contact.getUserId() : contact.getFormattedContactNumber();
+        return contact != null ? contact.getUserId() : "";
     }
 
     public Contact getContact() {
@@ -2295,7 +2288,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        support = new Support(activity);
         try {
             messageCommunicator = (MessageCommunicator) activity;
         } catch (ClassCastException e) {
@@ -2696,7 +2688,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         TextView createdAtTime = (TextView) view.findViewById(R.id.createdAtTime);
                         if (createdAtTime != null && messageListItem.getKeyString() != null && messageListItem.isTypeOutbox() && !messageListItem.isCall() && !messageListItem.getDelivered() && !messageListItem.isCustom() && !messageListItem.isChannelCustomMessage() && messageListItem.getScheduledAt() == null
                                 && (!(channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || contact != null)) {
-                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, support.isSupportNumber(getCurrentUserId()) ? deliveredIcon : sentIcon, null);
+                            createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, sentIcon, null);
                         }
                     }
                 }

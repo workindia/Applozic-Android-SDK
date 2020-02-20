@@ -14,12 +14,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+
 import androidx.fragment.app.ListFragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.appcompat.app.AlertDialog;
+
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -38,7 +40,6 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserBlockTask;
@@ -64,7 +65,6 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -106,7 +106,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     private String[] userIdArray;
     private MobiComUserPreference userPreference;
     private ContactDatabase contactDatabase;
-    private boolean isDeviceContactSync;
     private boolean isFragmentDetached = true;
     View footerView;
     static int CONSTANT_TIME = 60 * 1000;
@@ -135,7 +134,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         mAdapter = new ContactsAdapter(getActivity().getApplicationContext());
         userPreference = MobiComUserPreference.getInstance(getContext());
         inviteMessage = Utils.getMetaDataValue(getActivity().getApplicationContext(), SHARE_TEXT);
-        isDeviceContactSync = Applozic.getInstance(getContext()).isDeviceContactSync();
         if (savedInstanceState != null) {
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mPreviouslySelectedSearchItem =
@@ -220,7 +218,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         shareButton.setVisibility(alCustomizationSettings.isInviteFriendsInContactActivity() ? View.VISIBLE : View.GONE);
         resultTextView = (TextView) view.findViewById(R.id.result);
         footerView = inflater.inflate(R.layout.mobicom_message_list_header_footer, null, false);
-        if(footerView != null){
+        if (footerView != null) {
             footerView.setVisibility(View.GONE);
         }
         return view;
@@ -359,13 +357,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             return;
         }
 
-        //TODO: place Invite code here.Invite view is invisible, make visibility here based on condition.
-        if (contact.isDeviceContact()) {
-            //Starting sms app for invite with number
-            openInvite();
-            return;
-        }
-
         mOnContactSelectedListener.onCustomContactSelected(contact);
     }
 
@@ -443,12 +434,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        if (isDeviceContactSync) {
-            return contactDatabase.getPhoneContactCursorLoader(mSearchTerm, userIdArray, alCustomizationSettings != null && alCustomizationSettings.isShowAllDeviceContacts());
-        } else {
-            return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
-        }
+        return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
     }
 
     @Override
@@ -534,7 +520,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
-     * in the {@link android.provider.ContactsContract.Contacts} class.
      */
     public interface ContactsQuery {
         // An identifier for the loader
@@ -633,20 +618,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             holder.unBlock.setVisibility(View.GONE);
             holder.invite.setVisibility(View.GONE);
 
-            if (isDeviceContactSync) {
-                if (contact.isDeviceContact()) {
-                    holder.invite.setVisibility(View.VISIBLE);
-                } else {
-                    holder.invite.setVisibility(View.GONE);
-                }
-
-                if (contact.isBlocked()) {
-                    holder.unBlock.setVisibility(View.VISIBLE);
-                } else {
-                    holder.unBlock.setVisibility(View.GONE);
-                }
-            }
-
             if (contact != null && !TextUtils.isEmpty(contact.getDisplayName())) {
                 contactNumber = contact.getDisplayName().toUpperCase();
                 firstLetter = contact.getDisplayName().toUpperCase().charAt(0);
@@ -670,15 +641,9 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 }
             }
 
-            if (!TextUtils.isEmpty(contact.getContactNumber()) || isDeviceContactSync) {
+            if (!TextUtils.isEmpty(contact.getContactNumber())) {
                 holder.contactNumberTextView.setVisibility(View.VISIBLE);
-
-                if (isDeviceContactSync) {
-                    holder.contactNumberTextView.setText(contact.getFormattedContactNumber());
-                } else {
-                    holder.contactNumberTextView.setText(contact.getContactNumber());
-                }
-
+                holder.contactNumberTextView.setText(contact.getContactNumber());
             } else {
                 holder.text2.setVisibility(View.GONE);
                 holder.contactNumberTextView.setVisibility(View.GONE);

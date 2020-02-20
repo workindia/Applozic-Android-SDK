@@ -16,12 +16,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -498,7 +501,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute((Void) null);
+        usersAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 
@@ -534,7 +537,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.remove_member, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).execute();
+                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                     }
                 });
@@ -562,7 +565,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
+                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                     }
                 });
@@ -589,7 +592,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_exit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver).execute();
+                        new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -609,7 +612,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_deleting, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
+                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
