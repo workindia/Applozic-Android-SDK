@@ -21,13 +21,10 @@
     <string name ="applozic_contacts_loading_info">लोड हो रहा है, कृपया प्रतीक्षा करें...</string>
     <string name ="applozic_contacts_loading_error">संपर्कों को लोड करने के लिए आपको नेटवर्क एक्सेस की आवश्यकता है</string>
     <string name="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
-    <string name="contact_permission">संपर्क की अनुमति के उपयोग के लिए आवश्यक हैं</string>
     <string name="storage_permission">उपयोग करने के लिए संग्रहण अनुमति आवश्यक है</string>
     <string name="location_permission">उपयोग करने के लिए स्थान अनुमति आवश्यक है</string>
-    <string name="phone_call_permission">प्रवेश करने के लिए फोन कॉल की अनुमति आवश्यक है</string>
     <string name="phone_camera_permission">एक्सेस करने के लिए कैमरा अनुमति आवश्यक है</string>
     <string name="record_audio">ऑडियो रिकॉर्डिंग अनुमति की आवश्यकता है</string>
-    <string name="contact_permission_not_granted">संपर्क के लिए अनुमति नहीं दी गई थी</string>
     <string name="storage_permission_not_granted">संग्रहण के लिए अनुमतियाँ नहीं दी गईं</string>
     <string name="location_permission_not_granted">स्थान के लिए अनुमतियाँ नहीं दी गईं</string>
     <string name="phone_camera_permission_not_granted">कैमरे के लिए अनुमति नहीं दी गई थी</string>
@@ -35,8 +32,6 @@
     <string name="contact_permission_granted">संपर्क अनुमति दी गई है</string>
     <string name="storage_permission_granted">संग्रहण अनुमतियां दी गई हैं</string>
     <string name="location_permission_granted">स्थान अनुमतियां दी गई हैं</string>
-    <string name="phone_state_permission_granted">फोन स्थिति अनुमति दी गई है</string>
-    <string name="phone_call_permission_granted">फोन कॉल की अनुमति दी गई है</string>
     <string name="phone_camera_permission_granted">कैमरा अनुमति दी गई है</string>
     <string name="record_audio_permission_granted">ऑडियो रिकार्ड अनुमति दी गई है</string>
     <string name="mobicom_max_attachment_warning">अधिकतम लगाव सीमा तक पहुंची</string>

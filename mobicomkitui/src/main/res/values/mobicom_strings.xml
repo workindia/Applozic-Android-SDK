@@ -65,7 +65,6 @@
     <string name="attachment_retry">Retry</string>
 
 
-    <string name="verification_success">Your phone number got verified successfully</string>
     <string name="launch_mobitexter_app">LAUNCH_MOBITEXTER</string>
     <string name="delete_conversation">Delete conversation</string>
     <string name="sync_messages_from_server">Syncing with the server…</string>
@@ -105,10 +104,6 @@
 
     <string name="wearable_action_title">Reply</string>
     <string name="wearable_action_label">Reply to</string>
-
-    <string name="verify_phone_number_notify_message">sending a text message to verify your number, we will automatically detect it when it arrives</string>
-    <string name="verification_send_sms_itself">We need to confirm that [phone_number] is your phone number. Your phone will be used to send itself a message.</string>
-    <string name="confirm_your_number">Confirm your number</string>
     <string name="edit">Edit</string>
     <string name="confirm">Confirm</string>
     <string name="skip">Skip</string>
