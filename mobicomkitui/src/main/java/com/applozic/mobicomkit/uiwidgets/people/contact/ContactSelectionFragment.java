@@ -95,7 +95,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     public static final String GROUP_TYPE = "GROUP_TYPE";
     private static final String STATE_PREVIOUSLY_SELECTED_KEY =
             "SELECTED_ITEM";
-    public static boolean isSearching = false;
     ContactDatabase contactDatabase;
     boolean disableCheckBox;
     boolean isUserPresnt;
@@ -106,12 +105,6 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
     String contactsGroupId;
     private String mSearchTerm; // Stores the current search query term
     private ContactsAdapter mAdapter;
-    private boolean isScrolling = false;
-    private int visibleThreshold = 0;
-    private int currentPage = 0;
-    private int previousTotalItemCount = 0;
-    private boolean loading = true;
-    private int startingPageIndex = 0;
     private ImageLoader mImageLoader;
     private int mPreviouslySelectedSearchItem = 0;
     private String imageUrl;
