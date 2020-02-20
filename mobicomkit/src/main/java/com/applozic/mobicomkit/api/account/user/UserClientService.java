@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.applozic.mobicomkit.AlUserUpdate;
 import com.applozic.mobicomkit.Applozic;

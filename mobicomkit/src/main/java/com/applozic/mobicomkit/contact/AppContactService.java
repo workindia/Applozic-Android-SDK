@@ -72,8 +72,8 @@ public class AppContactService implements BaseContactService {
         }
         if (contact == null) {
             contact = new Contact(contactId);
+            upsert(contact);
         }
-        upsert(contact);
         return contact;
     }
 
