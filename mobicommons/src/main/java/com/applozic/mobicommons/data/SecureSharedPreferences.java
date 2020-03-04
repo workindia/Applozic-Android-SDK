@@ -5,11 +5,15 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.encryption.SecurityUtils;
 
+import java.security.KeyPair;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.crypto.SecretKey;
 
 /**
  * a security wrapper over {@link SharedPreferences} implementing encryption and decryption of the key-value pairs.
@@ -21,23 +25,29 @@ import java.util.Set;
 public class SecureSharedPreferences implements SharedPreferences {
 
     private SharedPreferences sharedPreferences; //shared preference object being used
-    private SecurityUtils securityUtils; //with the encrypt, decrypt functions
+    private SecretKey secretKeyAES;
+    private byte[] initializationVector;
 
     public SecureSharedPreferences(SharedPreferences sharedPreferences, Context context) {
         this.sharedPreferences = sharedPreferences;
-        securityUtils = new SecurityUtils(context);
+        Context applicationContext = ApplozicService.getContext(context);
+        KeyPair keyPairRSA = SecurityUtils.getRSAKeyPair(applicationContext);
+        if (keyPairRSA != null) {
+            secretKeyAES = SecurityUtils.getAESKey(applicationContext, keyPairRSA);
+        }
+        initializationVector = new byte[16];
     }
 
     /**
      * return the plain value for the given plain key, from the encrypted shared pref key/value pairs
      *
-     * @param key the plain key string
+     * @param key      the plain key string
      * @param defValue the default value
-     * @param <T> for the default value type
+     * @param <T>      for the default value type
      * @return the plain value for the given key
      */
     private <T> String getDecryptedString(String key, T defValue) {
-        return securityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(securityUtils.encrypt(SecurityUtils.AES, key), String.valueOf(defValue)));
+        return SecurityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), String.valueOf(defValue)), secretKeyAES, initializationVector);
     }
 
     /**
@@ -64,13 +74,13 @@ public class SecureSharedPreferences implements SharedPreferences {
     @Nullable
     @Override
     public Set<String> getStringSet(String key, @Nullable Set<String> defValue) {
-        Set<String> encryptSet = sharedPreferences.getStringSet(securityUtils.encrypt(SecurityUtils.AES, key), defValue);
+        Set encryptSet = sharedPreferences.getStringSet(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), defValue);
         Set<String> decryptSet = new HashSet<>();
         if (encryptSet == null) {
             return defValue;
         }
-        for (String string : encryptSet) {
-            decryptSet.add(securityUtils.decrypt(SecurityUtils.AES, string));
+        for (Object string : encryptSet) {
+            decryptSet.add(SecurityUtils.decrypt(SecurityUtils.AES, (String) string, secretKeyAES, initializationVector));
         }
         return decryptSet;
     }
@@ -118,7 +128,7 @@ public class SecureSharedPreferences implements SharedPreferences {
     @Override
     public boolean contains(String key) {
         try {
-            return sharedPreferences.contains(securityUtils.encrypt(SecurityUtils.AES, key));
+            return sharedPreferences.contains(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector));
         } catch (Exception exception) {
             exception.printStackTrace();
             return false;
@@ -157,14 +167,14 @@ public class SecureSharedPreferences implements SharedPreferences {
         /**
          * add the given value to the {@link SharedPreferences} as a string (for encryption and decryption)
          *
-         * @param key the plain key
+         * @param key   the plain key
          * @param value the plain value
-         * @param <T> depending of the type of putX function this method is being used in
+         * @param <T>   depending of the type of putX function this method is being used in
          * @return the {@link SecureEditor}
          */
         private <T> SecureEditor putAsString(String key, T value) {
             try {
-                editor.putString(securityUtils.encrypt(SecurityUtils.AES, key), securityUtils.encrypt(SecurityUtils.AES, String.valueOf(value)));
+                editor.putString(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), SecurityUtils.encrypt(SecurityUtils.AES, String.valueOf(value), secretKeyAES, initializationVector));
                 return this;
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -185,9 +195,9 @@ public class SecureSharedPreferences implements SharedPreferences {
                     return this;
                 }
                 for (String string : values) {
-                    encryptedStringSet.add(securityUtils.encrypt(SecurityUtils.AES, string));
+                    encryptedStringSet.add(SecurityUtils.encrypt(SecurityUtils.AES, string, secretKeyAES, initializationVector));
                 }
-                editor.putStringSet(securityUtils.encrypt(SecurityUtils.AES, key), encryptedStringSet);
+                editor.putStringSet(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), encryptedStringSet);
                 return this;
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -218,7 +228,7 @@ public class SecureSharedPreferences implements SharedPreferences {
         @Override
         public SecureEditor remove(String key) {
             try {
-                editor.remove(securityUtils.encrypt(SecurityUtils.AES, key));
+                editor.remove(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector));
                 return this;
             } catch (Exception exception) {
                 exception.printStackTrace();

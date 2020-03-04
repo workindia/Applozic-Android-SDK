@@ -64,31 +64,20 @@ public class SecurityUtils {
     public static final String VERSION_CODE = "version_code";
     public static final String CURRENT_VERSION = "1.0";
 
-    private SecretKey secretKeyAES;
-    private KeyPair keyPairRSA;
-    private byte[] initializationVector;
-    private Context context;
-
     /**
-     * initialize the object and get the secret key, based on the algorithm
-     *
-     * @param context the context
+     * no object allowed
      */
-    public SecurityUtils(Context context) {
-        this.context = context;
-        initializationVector = new byte[16];
-        keyPairRSA = getRSAKeyPair();
-        if (keyPairRSA != null) {
-            secretKeyAES = getAESKey();
-        }
+    private SecurityUtils() {
     }
 
     /**
      * generate a public-private RSA key pair using {@link KeyPairGenerator} and using AndroidKeystore as provider.
      * the key-pair is stored using {@link KeyStore}
+     *
+     * @param context the context
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void generateRSAKeyPair() {
+    private static void generateRSAKeyPair(Context context) {
         try {
             Calendar start = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
@@ -111,16 +100,17 @@ public class SecurityUtils {
     /**
      * get keys from {@link KeyStore} or generate them using the generateRSAKeyPair method.
      *
+     * @param context the context
      * @return RSA key-pair {@link KeyPair}
      */
-    private KeyPair getRSAKeyPair() {
+    public static KeyPair getRSAKeyPair(Context context) {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
 
             //generate the public and private keys to encrypt/decrypt the AES key
             if (!keyStore.containsAlias(RSA_KEY_ALIAS)) {
-                generateRSAKeyPair();
+                generateRSAKeyPair(context);
             }
             //retrieve keys from keystore
             KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(RSA_KEY_ALIAS, null);
@@ -138,7 +128,7 @@ public class SecurityUtils {
      *
      * @return {@link SecretKey} the secret key
      */
-    private SecretKey generateAESKey() {
+    private static SecretKey generateAESKey() {
         try {
             KeyGenerator keygen = KeyGenerator.getInstance(AES);
             keygen.init(256);
@@ -153,13 +143,15 @@ public class SecurityUtils {
      * get secret key for shared pref, or generate one if not found
      * the secret key is encrypted using RSA and stored in shared preferences
      *
+     * @param context              the context
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
      * @return the AES key {@link SecretKey}
      */
-    private SecretKey getAESKey() {
+    public static SecretKey getAESKey(Context context, KeyPair keyPairRSA) {
         SharedPreferences sharedPreferences = context.getApplicationContext().getSharedPreferences(CRYPTO_SHARED_PREF, Context.MODE_PRIVATE);
         if (sharedPreferences.contains(AES_ENCRYPTION_KEY)) { //get key from shared pref file, decrypt it and return
             String cipherKey = sharedPreferences.getString(AES_ENCRYPTION_KEY, null);
-            String plainKey = decrypt(RSA, cipherKey);
+            String plainKey = decrypt(RSA, cipherKey, keyPairRSA);
             byte[] decodedKey = Base64.decode(plainKey, Base64.DEFAULT);
             return new SecretKeySpec(decodedKey, 0, decodedKey.length, AES);
         } else { //generate AES key, encrypt it, store it to shared pref and return the un-encrypted version
@@ -169,7 +161,7 @@ public class SecurityUtils {
                 return null;
             }
             String plainKey = Base64.encodeToString(secretKey.getEncoded(), Base64.DEFAULT);
-            String cipherKey = encrypt(RSA, plainKey);
+            String cipherKey = encrypt(RSA, plainKey, keyPairRSA);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(AES_ENCRYPTION_KEY, cipherKey);
             editor.apply();
@@ -180,22 +172,25 @@ public class SecurityUtils {
     /**
      * return the {@link Cipher} object based on the cipher mode(encryption or decryption) and the algorithm
      *
-     * @param cryptAlgorithm the algorithm to use: AES or RSA
-     * @param cryptMode      the mode: encryption ot decryption, passed as an int constant
+     * @param cryptAlgorithm       the algorithm to use: AES or RSA
+     * @param cryptMode            the mode: encryption ot decryption, passed as an int constant
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
+     * @param secretKeyAES         the secret key for aes encryption/decryption
+     * @param initializationVector the vector for aes encryption/decryption
      * @return the cipher object
      * @throws NoSuchPaddingException             if the padding type doesn't exist
      * @throws NoSuchAlgorithmException           if the algo doesn't exist
      * @throws InvalidAlgorithmParameterException if the algorithm parameters are null or not-compatible
      * @throws InvalidKeyException                if the key is not compatible
      */
-    private Cipher returnCipher(String cryptAlgorithm, int cryptMode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+    private static Cipher returnCipher(String cryptAlgorithm, int cryptMode, KeyPair keyPairRSA, SecretKey secretKeyAES, byte[] initializationVector) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
         Cipher cipher;
-        Key keyRSA = cryptMode == Cipher.DECRYPT_MODE ? keyPairRSA.getPrivate() : keyPairRSA.getPublic();
-        if (AES.equals(cryptAlgorithm)) {
+        if (AES.equals(cryptAlgorithm) && secretKeyAES != null && initializationVector != null) {
             cipher = Cipher.getInstance(CIPHER_AES);
             cipher.init(cryptMode, new SecretKeySpec(secretKeyAES.getEncoded(), cryptAlgorithm), new IvParameterSpec(initializationVector));
-        } else if (RSA.equals(cryptAlgorithm)) {
+        } else if (RSA.equals(cryptAlgorithm) && keyPairRSA != null) {
             cipher = Cipher.getInstance(CIPHER_RSA);
+            Key keyRSA = cryptMode == Cipher.DECRYPT_MODE ? keyPairRSA.getPrivate() : keyPairRSA.getPublic();
             if (keyRSA == null) {
                 throw new InvalidAlgorithmParameterException("Please provide RSA public or private key when passing cryptAlgorithm == \"RSA\".");
             }
@@ -210,16 +205,19 @@ public class SecurityUtils {
      * encrypt string plain text to string cipher text based on the encryption algorithm name passed.
      * NOTE: when passing RSA as the encryption algorithm, note than the plain text size must be less than 256 bits
      *
-     * @param cryptAlgorithm the name of the algorithm to use
-     * @param plainText      the plain text
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param plainText            the plain text
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
+     * @param secretKeyAES         the secret key for aes encryption/decryption
+     * @param initializationVector the vector for aes encryption/decryption
      * @return the cipher text
      */
-    public String encrypt(String cryptAlgorithm, String plainText) {
+    private static String encrypt(String cryptAlgorithm, String plainText, KeyPair keyPairRSA, SecretKey secretKeyAES, byte[] initializationVector) {
         if (TextUtils.isEmpty(plainText) || TextUtils.isEmpty(cryptAlgorithm)) {
             return null;
         }
         try {
-            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.ENCRYPT_MODE);
+            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.ENCRYPT_MODE, keyPairRSA, secretKeyAES, initializationVector);
             byte[] cipherText = cipher.doFinal(plainText.getBytes());
             return Base64.encodeToString(cipherText, Base64.DEFAULT);
         } catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException exception) {
@@ -229,15 +227,43 @@ public class SecurityUtils {
     }
 
     /**
+     * encrypt for RSA
+     *
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param plainText            the plain text
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
+     * @return the cipher text
+     */
+    public static String encrypt(String cryptAlgorithm, String plainText, KeyPair keyPairRSA) {
+        return encrypt(cryptAlgorithm, plainText, keyPairRSA, null, null);
+    }
+
+    /**
+     * encrypt for AES
+     *
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param plainText            the plain text
+     * @param secretKeyAES         the key for AES
+     * @param initializationVector the IV for ECB encryption mode
+     * @return the cipher text
+     */
+    public static String encrypt(String cryptAlgorithm, String plainText, SecretKey secretKeyAES, byte[] initializationVector) {
+        return encrypt(cryptAlgorithm, plainText, null, secretKeyAES, initializationVector);
+    }
+
+    /**
      * decrypt string cipher text to string plain text based on the encryption algorithm name passed.
      *
-     * @param cryptAlgorithm the name of the algorithm to use
-     * @param cipherText     the plain text
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param cipherText           the plain text
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
+     * @param secretKeyAES         the secret key for aes encryption/decryption
+     * @param initializationVector the vector for aes encryption/decryption
      * @return the plain text
      */
-    public String decrypt(String cryptAlgorithm, String cipherText) {
+    private static String decrypt(String cryptAlgorithm, String cipherText, KeyPair keyPairRSA, SecretKey secretKeyAES, byte[] initializationVector) {
         try {
-            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.DECRYPT_MODE);
+            Cipher cipher = returnCipher(cryptAlgorithm, Cipher.DECRYPT_MODE, keyPairRSA, secretKeyAES, initializationVector);
             byte[] cipherArray = Base64.decode(cipherText, Base64.DEFAULT);
             byte[] plainText = cipher.doFinal(cipherArray);
             return new String(plainText);
@@ -248,21 +274,47 @@ public class SecurityUtils {
     }
 
     /**
-     * encrypts the entire shared preference passed to it
-     * also add a version code to identify as encrypted
+     * decrypt for RSA
      *
-     * @param plainSharedPreferences the shared pref to encrypt (key, values)
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param cipherText           the plain text
+     * @param keyPairRSA           the key pair for rsa encryption/decryption
+     * @return the plain text
      */
+    public static String decrypt(String cryptAlgorithm, String cipherText, KeyPair keyPairRSA) {
+        return decrypt(cryptAlgorithm, cipherText, keyPairRSA, null, null);
+    }
+
+    /**
+     * decrypt for AES
+     *
+     * @param cryptAlgorithm       the name of the algorithm to use
+     * @param cipherText           the plain text
+     * @param secretKeyAES         the secret key for aes encryption/decryption
+     * @param initializationVector the vector for aes encryption/decryption
+     * @return the plain text
+     */
+    public static String decrypt(String cryptAlgorithm, String cipherText, SecretKey secretKeyAES, byte[] initializationVector) {
+        return decrypt(cryptAlgorithm, cipherText, null, secretKeyAES, initializationVector);
+    }
+
+        /**
+         * encrypts the entire shared preference passed to it
+         * also add a version code to identify as encrypted
+         *
+         * @param plainSharedPreferences the plain text Shared Preference, to encrypt
+         * @param context                the context
+         */
     @SuppressWarnings({"unchecked"})
-    public SecureSharedPreferences encryptAll(SharedPreferences plainSharedPreferences) {
+    public static SecureSharedPreferences encryptAll(SharedPreferences plainSharedPreferences, Context context) {
         Map<String, ?> plainTextMap = plainSharedPreferences.getAll();
         SecureSharedPreferences secureSharedPreferences = new SecureSharedPreferences(plainSharedPreferences, context);
         SharedPreferences.Editor plainEditor = plainSharedPreferences.edit();
         SecureSharedPreferences.Editor secureEditor = secureSharedPreferences.edit();
         for (Map.Entry<String, ?> entry : plainTextMap.entrySet()) {
             String key = entry.getKey();
-            Object value =  entry.getValue();
-            if(value instanceof Set) {
+            Object value = entry.getValue();
+            if (value instanceof Set) {
                 secureEditor.putStringSet(key, (Set<String>) value);
             } else {
                 secureEditor.putString(key, String.valueOf(value));
