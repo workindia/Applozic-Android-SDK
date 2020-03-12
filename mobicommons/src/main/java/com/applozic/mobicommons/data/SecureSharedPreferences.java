@@ -2,6 +2,7 @@ package com.applozic.mobicommons.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
@@ -30,12 +31,18 @@ public class SecureSharedPreferences implements SharedPreferences {
 
     public SecureSharedPreferences(SharedPreferences sharedPreferences, Context context) {
         this.sharedPreferences = sharedPreferences;
+        //use application context
         Context applicationContext = ApplozicService.getContext(context);
         KeyPair keyPairRSA = SecurityUtils.getRSAKeyPair(applicationContext);
-        if (keyPairRSA != null) {
-            secretKeyAES = SecurityUtils.getAESKey(applicationContext, keyPairRSA);
-        }
+        secretKeyAES = SecurityUtils.getAESKey(applicationContext, keyPairRSA);
         initializationVector = new byte[16];
+
+        if (!sharedPreferences.contains(SecurityUtils.VERSION_CODE) && !sharedPreferences.getAll().isEmpty()) {
+            encryptAll(sharedPreferences, applicationContext);
+        }
+
+        //to identify the shared pref as wrapped by SecureSharedPreferences
+        sharedPreferences.edit().putString(SecurityUtils.VERSION_CODE, SecurityUtils.CURRENT_VERSION).apply();
     }
 
     /**
@@ -48,6 +55,45 @@ public class SecureSharedPreferences implements SharedPreferences {
      */
     private <T> String getDecryptedString(String key, T defValue) {
         return SecurityUtils.decrypt(SecurityUtils.AES, sharedPreferences.getString(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), String.valueOf(defValue)), secretKeyAES, initializationVector);
+    }
+
+    /**
+     * encrypt string using aes
+     *
+     * @param string the string to encrypt
+     * @return the encrypted string
+     */
+    private String encryptString(String string) {
+        return !TextUtils.isEmpty(string) ? SecurityUtils.encrypt(SecurityUtils.AES, string, secretKeyAES, initializationVector) : "";
+    }
+
+    /**
+     * encrypts the entire shared preference passed to it
+     * also add a version code to identify as encrypted
+     *
+     * @param plainSharedPreferences the plain text Shared Preference, to encrypt
+     * @param context                the context
+     */
+    @SuppressWarnings({"unchecked"})
+    private void encryptAll(SharedPreferences plainSharedPreferences, Context context) {
+        Map<String, ?> plainTextMap = plainSharedPreferences.getAll();
+        SharedPreferences.Editor plainEditor = plainSharedPreferences.edit();
+        for (Map.Entry<String, ?> entry : plainTextMap.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Set) {
+                Set<String> set = (Set<String>) value;
+                Set<String> encryptedSet = new HashSet<>();
+                for (String element : set) {
+                    encryptedSet.add(TextUtils.isEmpty(element) ? "" : encryptString(element));
+                }
+                plainSharedPreferences.edit().putStringSet(encryptString(key), encryptedSet).apply();
+            } else {
+                plainEditor.putString(encryptString(key), TextUtils.isEmpty(String.valueOf(value)) ? "" : encryptString(String.valueOf(value)));
+            }
+            plainEditor.remove(key); //remove the plain key, value pair
+        }
+        plainEditor.apply();
     }
 
     /**
@@ -174,7 +220,7 @@ public class SecureSharedPreferences implements SharedPreferences {
          */
         private <T> SecureEditor putAsString(String key, T value) {
             try {
-                editor.putString(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), SecurityUtils.encrypt(SecurityUtils.AES, String.valueOf(value), secretKeyAES, initializationVector));
+                editor.putString(SecurityUtils.encrypt(SecurityUtils.AES, key, secretKeyAES, initializationVector), TextUtils.isEmpty(String.valueOf(value)) ? "" : SecurityUtils.encrypt(SecurityUtils.AES, String.valueOf(value), secretKeyAES, initializationVector));
                 return this;
             } catch (Exception exception) {
                 exception.printStackTrace();
