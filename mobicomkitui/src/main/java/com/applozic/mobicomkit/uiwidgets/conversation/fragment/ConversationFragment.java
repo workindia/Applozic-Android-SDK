@@ -20,6 +20,7 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationCallbackHandler;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
@@ -229,10 +230,13 @@ public class ConversationFragment extends MobiComConversationFragment implements
         String[] allValues = getResources().getStringArray(R.array.multimediaOptions_without_price_text);
         String[] allIcons = getResources().getStringArray(R.array.multimediaOptionIcons_without_price);
 
-        Map<String, Boolean> maps = alCustomizationSettings.getAttachmentOptions();
+        Map<String, Boolean> maps = ApplozicSetting.getInstance(getContext()).getAttachmentOptions();
+
+        if (maps == null) {
+            maps = alCustomizationSettings.getAttachmentOptions();
+        }
 
         for (int index = 0; index < allKeys.length; index++) {
-
             String key = allKeys[index];
             if (maps == null || maps.get(key) == null || maps.get(key)) {
                 attachmentKey.add(key);
