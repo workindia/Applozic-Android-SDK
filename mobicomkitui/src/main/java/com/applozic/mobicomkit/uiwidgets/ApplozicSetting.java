@@ -13,6 +13,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +82,7 @@ public class ApplozicSetting {
     private static final String HIDE_GROUP_SUBTITLE = "HIDE_GROUP_SUBTITLE";
     private static final String RESTRICTED_WORDS_REGEX = "RESTRICTED_WORDS_REGEX";
     private static final String PARENT_ACTIVITY_INTENT = "PARENT_ACTIVITY_INTENT";
+    private static final String ATTACHMENT_OPTIONS = "ATTACHMENT_OPTIONS";
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -759,6 +761,19 @@ public class ApplozicSetting {
 
     public boolean clearAll() {
         return sharedPreferences.edit().clear().commit();
+    }
+
+    public Map<String, Boolean> getAttachmentOptions() {
+        String attachmentOptionString = sharedPreferences.getString(ATTACHMENT_OPTIONS, null);
+        if (!TextUtils.isEmpty(attachmentOptionString)) {
+            return (Map<String, Boolean>) GsonUtils.getObjectFromJson(sharedPreferences.getString(ATTACHMENT_OPTIONS, null), Map.class);
+        }
+        return null;
+    }
+
+    public ApplozicSetting setAttachmentOptions(Map<String, Boolean> attachmentOptions) {
+        sharedPreferences.edit().putString(ATTACHMENT_OPTIONS, GsonUtils.getJsonFromObject(attachmentOptions, Map.class)).commit();
+        return this;
     }
 
     public enum RequestCode {
