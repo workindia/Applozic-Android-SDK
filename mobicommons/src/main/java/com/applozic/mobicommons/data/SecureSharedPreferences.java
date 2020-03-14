@@ -28,21 +28,27 @@ public class SecureSharedPreferences implements SharedPreferences {
     private SharedPreferences sharedPreferences; //shared preference object being used
     private SecretKey secretKeyAES;
     private byte[] initializationVector;
+    private String name; //name of shared preference
 
-    public SecureSharedPreferences(SharedPreferences sharedPreferences, Context context) {
-        this.sharedPreferences = sharedPreferences;
+    public SecureSharedPreferences(String name, Context context) {
         //use application context
         Context applicationContext = ApplozicService.getContext(context);
+        sharedPreferences = applicationContext.getSharedPreferences(name, Context.MODE_PRIVATE);
+        this.name = name;
         KeyPair keyPairRSA = SecurityUtils.getRSAKeyPair(applicationContext);
         secretKeyAES = SecurityUtils.getAESKey(applicationContext, keyPairRSA);
         initializationVector = new byte[16];
 
         if (!sharedPreferences.contains(SecurityUtils.VERSION_CODE) && !sharedPreferences.getAll().isEmpty()) {
-            encryptAll(sharedPreferences, applicationContext);
+            encryptAll(sharedPreferences);
         }
 
         //to identify the shared pref as wrapped by SecureSharedPreferences
         sharedPreferences.edit().putString(SecurityUtils.VERSION_CODE, SecurityUtils.CURRENT_VERSION).apply();
+    }
+
+    public String getName() {
+        return name;
     }
 
     /**
@@ -72,10 +78,9 @@ public class SecureSharedPreferences implements SharedPreferences {
      * also add a version code to identify as encrypted
      *
      * @param plainSharedPreferences the plain text Shared Preference, to encrypt
-     * @param context                the context
      */
     @SuppressWarnings({"unchecked"})
-    private void encryptAll(SharedPreferences plainSharedPreferences, Context context) {
+    private void encryptAll(SharedPreferences plainSharedPreferences) {
         Map<String, ?> plainTextMap = plainSharedPreferences.getAll();
         SharedPreferences.Editor plainEditor = plainSharedPreferences.edit();
         for (Map.Entry<String, ?> entry : plainTextMap.entrySet()) {

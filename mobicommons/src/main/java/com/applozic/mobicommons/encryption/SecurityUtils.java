@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.data.SecureSharedPreferences;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -27,8 +26,6 @@ import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
-import java.util.Map;
-import java.util.Set;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -58,7 +55,7 @@ public class SecurityUtils {
     private static final String CIPHER_RSA = "RSA/ECB/PKCS1Padding";
     private static final String RSA_KEY_ALIAS = "ApplozicRSAKey";
     private static final String RSA_PROVIDER = "AndroidKeyStore";
-    private static final String CRYPTO_SHARED_PREF = "cryptosharedpreferences"; //name for the shared pref storing the AES encryption key
+    private static final String CRYPTO_SHARED_PREF = "security_shared_preferences"; //name for the shared pref storing the AES encryption key
     private static final String AES_ENCRYPTION_KEY = "aesencryptionkey"; //key for the AES encryption key entry
 
     public static final String VERSION_CODE = "version_code";
@@ -302,37 +299,5 @@ public class SecurityUtils {
      */
     public static String decrypt(String cryptAlgorithm, String cipherText, SecretKey secretKeyAES, byte[] initializationVector) {
         return decrypt(cryptAlgorithm, cipherText, null, secretKeyAES, initializationVector);
-    }
-
-    /**
-     * encrypts the entire shared preference passed to it
-     * also add a version code to identify as encrypted
-     *
-     * @param plainSharedPreferences the plain text Shared Preference, to encrypt
-     * @param context                the context
-     */
-    @SuppressWarnings({"unchecked"})
-    public static SecureSharedPreferences encryptAll(SharedPreferences plainSharedPreferences, Context context) {
-        Map<String, ?> plainTextMap = plainSharedPreferences.getAll();
-        SecureSharedPreferences secureSharedPreferences = new SecureSharedPreferences(plainSharedPreferences, context);
-        SharedPreferences.Editor plainEditor = plainSharedPreferences.edit();
-        SecureSharedPreferences.Editor secureEditor = secureSharedPreferences.edit();
-        for (Map.Entry<String, ?> entry : plainTextMap.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value instanceof Set) {
-                secureEditor.putStringSet(key, (Set<String>) value);
-            } else {
-                secureEditor.putString(key, String.valueOf(value));
-            }
-            plainEditor.remove(key); //remove the plain key, value pair
-        }
-
-        //to identify it as an encrypted shared pref
-        plainEditor.putString(VERSION_CODE, CURRENT_VERSION);
-
-        plainEditor.apply();
-        secureEditor.apply();
-        return secureSharedPreferences;
     }
 }
