@@ -74,6 +74,7 @@ public class MobiComUserPreference {
     private static String PARENT_GROUP_KEY = "PARENT_GROUP_KEY";
     private static String user_encryption_Key = "user_encryption_Key";
     private static String CATEGORY_NAME_KEY = "CATEGORY_KEY";
+    private static String RECEIVER_USER_NAME_UPDATE = "RECEIVER_USER_";
 
     private static SharedPreferences sharedPreferences;
     private Context context;
@@ -830,6 +831,21 @@ public class MobiComUserPreference {
     }
 
     public void setCategoryName(String category) {
-        sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
+        }
+    }
+
+    public Boolean isDisplayNameUpdatedForUser(String receiverUserId) {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getBoolean(RECEIVER_USER_NAME_UPDATE + receiverUserId, false);
+        }
+        return false;
+    }
+
+    public void setServerCallDoneForUserDisplayNameUpdate(String receiverUserId) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putBoolean(RECEIVER_USER_NAME_UPDATE + receiverUserId, true).commit();
+        }
     }
 }

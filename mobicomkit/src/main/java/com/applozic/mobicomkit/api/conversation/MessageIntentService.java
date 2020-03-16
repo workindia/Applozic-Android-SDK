@@ -47,7 +47,7 @@ public class MessageIntentService extends AlJobIntentService {
         messageClientService = new MessageClientService(MessageIntentService.this);
         try {
             final Message message = (Message) GsonUtils.getObjectFromJson(intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT), Message.class);
-            Thread thread = new Thread(new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime())));
+            Thread thread = new Thread(new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime()),intent.getStringExtra(MobiComKitConstants.DISPLAY_NAME)));
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
             thread.start();
         } catch (Exception e) {
@@ -58,16 +58,18 @@ public class MessageIntentService extends AlJobIntentService {
     private class MessageSender implements Runnable {
         private Message message;
         private Handler handler;
+        private String userDisplayName;
 
-        public MessageSender(Message message, Handler handler) {
+        public MessageSender(Message message, Handler handler, String userDisplayName) {
             this.message = message;
             this.handler = handler;
+            this.userDisplayName = userDisplayName;
         }
 
         @Override
         public void run() {
             try {
-                messageClientService.sendMessageToServer(message, handler, ScheduleMessageService.class);
+                messageClientService.sendMessageToServer(message, handler, ScheduleMessageService.class, userDisplayName);
                 messageClientService.syncPendingMessages(true);
                 uploadQueueMap.remove(message.getCreatedAtTime());
             } catch (Exception e) {

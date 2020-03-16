@@ -43,4 +43,5 @@ public final class MobiComKitConstants {
     public static final String MESSAGE_JSON_INTENT_EXTRA = "messageJson";
     public static final String MESSAGE_INTENT_EXTRA = "message";
     public static final String OLD_MESSAGE_KEY_INTENT_EXTRA = "oldMessageKey";
+    public static final String DISPLAY_NAME = "displayName";
 }

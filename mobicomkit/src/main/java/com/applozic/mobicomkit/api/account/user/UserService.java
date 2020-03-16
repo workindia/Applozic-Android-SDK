@@ -428,4 +428,13 @@ public class UserService {
     public void updateUser(User user, AlCallback callback) {
         new AlUserUpdateTask(context, user, callback).execute();
     }
+
+    public ApiResponse updateUserDisplayName(String userId, String userDisplayName) {
+       ApiResponse response =  userClientService.updateUserDisplayName(userId,userDisplayName);
+       if (response != null && response.isSuccess()) {
+           userPreference.setServerCallDoneForUserDisplayNameUpdate(userId);
+           Utils.printLog(context, TAG, " Update display name Response :" + response.getStatus());
+       }
+       return response;
+    }
 }
