@@ -11,6 +11,7 @@ import androidx.loader.content.Loader;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.ApplozicService;
@@ -167,7 +168,7 @@ public class ContactDatabase {
     }
 
     public void updateContact(Contact contact) {
-        ContentValues contentValues = prepareContactValues(contact);
+        ContentValues contentValues = prepareContactValues(contact, true);
         dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
         dbHelper.close();
     }
@@ -231,7 +232,7 @@ public class ContactDatabase {
 
     public void addContact(Contact contact) {
         try {
-            ContentValues contentValues = prepareContactValues(contact);
+            ContentValues contentValues = prepareContactValues(contact, false);
             dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
         } catch (Exception e) {
             Utils.printLog(context, TAG, "Ignoring duplicate entry for contact");
@@ -240,7 +241,7 @@ public class ContactDatabase {
         }
     }
 
-    public ContentValues prepareContactValues(Contact contact) {
+    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
@@ -286,8 +287,11 @@ public class ContactDatabase {
         if (contact.getNotificationAfterTime() != null && contact.getNotificationAfterTime() != 0) {
             contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME, contact.getNotificationAfterTime());
         }
-        if (contact.getMetadata() != null && !contact.getMetadata().isEmpty()) {
-            contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(contact.getMetadata(), Map.class));
+
+        Map<String, String> metadata = getUpdatedMetadata(contact, isContactUpdated);
+
+        if (metadata != null && !metadata.isEmpty()) {
+            contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
         }
         contentValues.put(MobiComDatabaseHelper.USER_ROLE_TYPE, contact.getRoleType());
         contentValues.put(MobiComDatabaseHelper.LAST_MESSAGED_AT, contact.getLastMessageAtTime());
@@ -296,6 +300,21 @@ public class ContactDatabase {
             contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
         }
         return contentValues;
+    }
+
+    private Map<String, String> getUpdatedMetadata(Contact contact, boolean isContactUpdate) {
+        Map<String, String> metadata = contact.getMetadata();
+        if (isContactUpdate) {
+            Contact existingContact = getContactById(contact.getUserId());
+            Map<String, String> existingMetadata = existingContact.getMetadata();
+            if (metadata != null && existingMetadata != null && !existingMetadata.isEmpty() && existingMetadata.containsKey(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED)) {
+                String flag = existingMetadata.get(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED);
+                if (!TextUtils.isEmpty(flag)) {
+                    metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, flag);
+                }
+            }
+        }
+        return metadata;
     }
 
     /**
@@ -510,6 +529,19 @@ public class ContactDatabase {
                 cursor.close();
             }
             dbHelper.close();
+        }
+    }
+
+    public void updateMetadataKeyValueForUserId(String userId, String key, String value) {
+        Contact contact = getContactById(userId);
+        if (contact != null) {
+            Map<String, String> metadata = contact.getMetadata();
+            if (metadata != null && !metadata.isEmpty()) {
+                metadata.put(key, value);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
+                dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
+            }
         }
     }
 }

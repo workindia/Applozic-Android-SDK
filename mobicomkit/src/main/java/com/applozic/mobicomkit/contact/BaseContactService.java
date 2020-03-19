@@ -55,4 +55,6 @@ public interface BaseContactService {
     void updateLocalImageUri(Contact contact);
 
     List<Contact> getContacts(Contact.ContactType contactType);
+
+    void updateMetadataKeyValueForUserId(String userId, String key, String value);
 }

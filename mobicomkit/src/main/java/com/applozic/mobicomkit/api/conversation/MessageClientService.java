@@ -19,6 +19,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
@@ -81,6 +82,7 @@ public class MessageClientService extends MobiComKitClientService {
     private MessageDatabaseService messageDatabaseService;
     private HttpRequestUtils httpRequestUtils;
     private BaseContactService baseContactService;
+    private ContactDatabase contactDatabase;
 
     public MessageClientService(Context context) {
         super(context);
@@ -88,6 +90,7 @@ public class MessageClientService extends MobiComKitClientService {
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
         this.baseContactService = new AppContactService(context);
+        this.contactDatabase = new ContactDatabase(context);
     }
 
     public String getMtextDeliveryUrl() {
@@ -310,8 +313,13 @@ public class MessageClientService extends MobiComKitClientService {
             if (broadcast) {
                 BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.MESSAGE_SYNC_ACK_FROM_SERVER.toString(), message);
             }
-
             messageDatabaseService.updateMessageSyncStatus(message, keyString);
+            if (message.getGroupId() == null && TextUtils.isEmpty(message.getContactIds())) {
+                Contact contact = contactDatabase.getContactById(message.getContactIds());
+                if (contact != null && contact.isUserDisplayUpdateRequired()) {
+                    UserService.getInstance(context).updateUserDisplayName(contact.getUserId(), contact.getDisplayName());
+                }
+            }
         } catch (Exception e) {
             Utils.printLog(context, TAG, "Error while sending pending messages.");
         }
@@ -504,7 +512,7 @@ public class MessageClientService extends MobiComKitClientService {
                     message.setSentToServer(true);
                     message.setKeyString(keyString);
 
-                    if (contact != null && !TextUtils.isEmpty(userDisplayName) && !userPreferences.isDisplayNameUpdatedForUser(message.getTo())) {
+                    if (contact != null && !TextUtils.isEmpty(userDisplayName) && contact.isUserDisplayUpdateRequired()) {
                         UserService.getInstance(context).updateUserDisplayName(message.getTo(), userDisplayName);
                     }
                 }

@@ -432,7 +432,7 @@ public class UserService {
     public ApiResponse updateUserDisplayName(String userId, String userDisplayName) {
        ApiResponse response =  userClientService.updateUserDisplayName(userId,userDisplayName);
        if (response != null && response.isSuccess()) {
-           userPreference.setServerCallDoneForUserDisplayNameUpdate(userId);
+           baseContactService.updateMetadataKeyValueForUserId(userId, MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "true");
            Utils.printLog(context, TAG, " Update display name Response :" + response.getStatus());
        }
        return response;

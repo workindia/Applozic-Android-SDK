@@ -30,7 +30,6 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
-import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -66,7 +65,9 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ConversationUIService {
@@ -812,17 +813,6 @@ public class ConversationUIService {
             }
         }
 
-        final Uri uri = intent.getData();
-        if (uri != null) {
-            //Note: This is used only for the device contacts
-            Long contactId = intent.getLongExtra(CONTACT_ID, 0);
-            if (contactId == 0) {
-                //Todo: show warning that the user doesn't have any number stored.
-                return;
-            }
-            contact = baseContactService.getContactById(String.valueOf(contactId));
-        }
-
         Integer channelKey = intent.getIntExtra(GROUP_ID, -1);
         String clientGroupId = intent.getStringExtra(CLIENT_GROUP_ID);
         String channelName = intent.getStringExtra(GROUP_NAME);
@@ -841,35 +831,31 @@ public class ConversationUIService {
             ChannelService.getInstance(fragmentActivity).updateChannel(channel);
         }
 
-        String contactNumber = intent.getStringExtra(CONTACT_NUMBER);
-
-        boolean firstTimeMTexterFriend = intent.getBooleanExtra(FIRST_TIME_MTEXTER_FRIEND, false);
-        if (!TextUtils.isEmpty(contactNumber)) {
-            contact = baseContactService.getContactById(contactNumber);
-            if (BroadcastService.isIndividual() && getConversationFragment() != null) {
-                getConversationFragment().setFirstTimeMTexterFriend(firstTimeMTexterFriend);
-            }
-        }
-
         String userId = intent.getStringExtra(USER_ID);
-        if (TextUtils.isEmpty(userId)) {
-            userId = intent.getStringExtra("contactId");
-        }
-
+        String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
+            if (contact != null) {
+                if (TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
+                    contact.setFullName(fullName);
+                }
+                if (!TextUtils.isEmpty(fullName)) {
+                    Map<String, String> metadata = contact.getMetadata();
+                    if (metadata == null) {
+                        metadata = new HashMap<>();
+                        metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "false");
+                        contact.setMetadata(metadata);
+                    }
+                }
+            }
+            String applicationId = intent.getStringExtra(APPLICATION_ID);
+            if (contact != null) {
+                contact.setApplicationId(applicationId);
+            }
+            baseContactService.upsert(contact);
         }
+
         String searchString = intent.getStringExtra(SEARCH_STRING);
-        String applicationId = intent.getStringExtra(APPLICATION_ID);
-        if (contact != null) {
-            contact.setApplicationId(applicationId);
-            baseContactService.upsert(contact);
-        }
-        String fullName = intent.getStringExtra(DISPLAY_NAME);
-        if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
-            contact.setFullName(fullName);
-            baseContactService.upsert(contact);
-        }
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         if (!TextUtils.isEmpty(messageJson)) {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);

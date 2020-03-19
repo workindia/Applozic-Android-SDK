@@ -402,6 +402,10 @@ public class Contact extends JsonMarker {
         return metadata != null && metadata.containsKey(DISABLE_CHAT_WITH_USER) && TRUE.equals(metadata.get(DISABLE_CHAT_WITH_USER));
     }
 
+    public boolean isUserDisplayUpdateRequired() {
+        return metadata != null && !metadata.isEmpty() && metadata.containsKey("AL_DISPLAY_NAME_UPDATED") && !TRUE.equals(metadata.get("AL_DISPLAY_NAME_UPDATED"));
+    }
+
     @Override
     public String toString() {
         return "Contact{" +
