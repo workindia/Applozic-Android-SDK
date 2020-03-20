@@ -836,17 +836,22 @@ public class ConversationUIService {
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
             if (contact != null) {
-                if (TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
-                    contact.setFullName(fullName);
-                }
                 if (!TextUtils.isEmpty(fullName)) {
                     Map<String, String> metadata = contact.getMetadata();
                     if (metadata == null) {
                         metadata = new HashMap<>();
                         metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "false");
                         contact.setMetadata(metadata);
+                    } else if (metadata != null && !metadata.isEmpty() && !fullName.equals(contact.getDisplayName())) {
+                        metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "false");
+                        contact.setMetadata(metadata);
                     }
                 }
+
+                if (!TextUtils.isEmpty(fullName)) {
+                    contact.setFullName(fullName);
+                }
+
             }
             String applicationId = intent.getStringExtra(APPLICATION_ID);
             if (contact != null) {

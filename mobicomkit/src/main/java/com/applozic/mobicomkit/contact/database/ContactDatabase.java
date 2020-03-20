@@ -305,6 +305,9 @@ public class ContactDatabase {
     private Map<String, String> getUpdatedMetadata(Contact contact, boolean isContactUpdate) {
         Map<String, String> metadata = contact.getMetadata();
         if (isContactUpdate) {
+            if (metadata != null && !metadata.isEmpty() && metadata.containsKey(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED)) {
+                return metadata;
+            }
             Contact existingContact = getContactById(contact.getUserId());
             Map<String, String> existingMetadata = existingContact.getMetadata();
             if (metadata != null && existingMetadata != null && !existingMetadata.isEmpty() && existingMetadata.containsKey(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED)) {
