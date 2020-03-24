@@ -840,10 +840,10 @@ public class ConversationUIService {
                     Map<String, String> metadata = contact.getMetadata();
                     if (metadata == null) {
                         metadata = new HashMap<>();
-                        metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "false");
+                        metadata.put(Contact.AL_DISPLAY_NAME_UPDATED, "false");
                         contact.setMetadata(metadata);
-                    } else if (metadata != null && !metadata.isEmpty() && !fullName.equals(contact.getDisplayName())) {
-                        metadata.put(MobiComKitConstants.AL_DISPLAY_NAME_UPDATED, "false");
+                    } else if (!metadata.isEmpty() && !fullName.equals(contact.getDisplayName())) {
+                        metadata.put(Contact.AL_DISPLAY_NAME_UPDATED, "false");
                         contact.setMetadata(metadata);
                     }
                 }

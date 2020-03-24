@@ -21,6 +21,7 @@ public class Contact extends JsonMarker {
     public static final String R_DRAWABLE = "R.drawable";
     public static final String DISABLE_CHAT_WITH_USER = "DISABLE_CHAT_WITH_USER";
     public static final String TRUE = "true";
+    public static final String AL_DISPLAY_NAME_UPDATED = "AL_DISPLAY_NAME_UPDATED";
     @Expose
     private String firstName = "";
     @Expose
@@ -403,7 +404,7 @@ public class Contact extends JsonMarker {
     }
 
     public boolean isUserDisplayUpdateRequired() {
-        return metadata != null && !metadata.isEmpty() && metadata.containsKey("AL_DISPLAY_NAME_UPDATED") && !TRUE.equals(metadata.get("AL_DISPLAY_NAME_UPDATED"));
+        return metadata != null && !metadata.isEmpty() && metadata.containsKey(AL_DISPLAY_NAME_UPDATED) && !TRUE.equals(metadata.get(AL_DISPLAY_NAME_UPDATED));
     }
 
     @Override
