@@ -892,7 +892,7 @@ public class ConversationUIService {
         }
 
         if (channel != null) {
-            openConversationFragment(contact, conversationId, searchString, fullName);
+            openConversationFragment(channel, conversationId, searchString, fullName);
         }
         String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
         String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);
