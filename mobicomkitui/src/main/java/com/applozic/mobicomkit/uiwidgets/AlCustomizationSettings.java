@@ -123,6 +123,8 @@ public class AlCustomizationSettings extends JsonMarker {
 
     private Map<String, Boolean> filterGallery;
 
+    private boolean hideGroupsSectionTab = false;
+
     public boolean isBroadcastOption() {
         return broadcastOption;
     }
@@ -616,6 +618,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setDeleteMessageOption(boolean deleteMessageOption) {
         this.deleteMessageOption = deleteMessageOption;
+    }
+
+    public boolean isGroupsSectionTabHidden() {
+        return hideGroupsSectionTab;
+    }
+
+    public void setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
+        this.hideGroupsSectionTab = hideGroupsSectionTab;
     }
 
     @Override

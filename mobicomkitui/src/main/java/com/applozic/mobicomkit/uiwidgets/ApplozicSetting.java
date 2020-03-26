@@ -83,6 +83,8 @@ public class ApplozicSetting {
     private static final String RESTRICTED_WORDS_REGEX = "RESTRICTED_WORDS_REGEX";
     private static final String PARENT_ACTIVITY_INTENT = "PARENT_ACTIVITY_INTENT";
     private static final String ATTACHMENT_OPTIONS = "ATTACHMENT_OPTIONS";
+    private static final String GROUPS_SECTION_TAB = "GROUPS_SECTION_TAB";
+
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -773,6 +775,15 @@ public class ApplozicSetting {
 
     public ApplozicSetting setAttachmentOptions(Map<String, Boolean> attachmentOptions) {
         sharedPreferences.edit().putString(ATTACHMENT_OPTIONS, GsonUtils.getJsonFromObject(attachmentOptions, Map.class)).commit();
+        return this;
+    }
+
+    public boolean isGroupsSectionTabHidden() {
+        return sharedPreferences.getBoolean(GROUPS_SECTION_TAB, false);
+    }
+
+    public ApplozicSetting setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
+        sharedPreferences.edit().putBoolean(GROUPS_SECTION_TAB, hideGroupsSectionTab).commit();
         return this;
     }
 

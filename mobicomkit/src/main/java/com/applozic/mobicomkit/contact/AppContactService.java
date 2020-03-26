@@ -98,6 +98,11 @@ public class AppContactService implements BaseContactService {
     }
 
     @Override
+    public void updateMetadataKeyValueForUserId(String userId, String key, String value) {
+        contactDatabase.updateMetadataKeyValueForUserId(userId, key, value);
+    }
+
+    @Override
     public List<Contact> getAllContactListExcludingLoggedInUser() {
         return contactDatabase.getAllContactListExcludingLoggedInUser();
     }
