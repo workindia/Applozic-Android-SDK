@@ -84,6 +84,7 @@
   "hideGroupDeleteButton": false,
   "showImageOnToolbar": false,
   "enableMessageReport": true,
+  "hideGroupsSectionTab": false,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,
