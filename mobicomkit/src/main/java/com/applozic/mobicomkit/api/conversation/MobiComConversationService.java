@@ -121,10 +121,16 @@ public class MobiComConversationService {
         MessageIntentService.enqueueWork(context, intent, handler);
     }
 
-    public void sendMessage(Message message, Class messageIntentClass) {
+    public void sendMessage(Message message, Class messageIntentClass, String userDisplayName) {
         Intent intent = new Intent(context, messageIntentClass);
         intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if (!TextUtils.isEmpty(userDisplayName)) {
+            intent.putExtra(MobiComKitConstants.DISPLAY_NAME, userDisplayName);
+        }
         MessageIntentService.enqueueWork(context, intent, null);
+    }
+    public void sendMessage(Message message, Class messageIntentClass) {
+        sendMessage(message,messageIntentClass, null);
     }
 
     public void sendMessage(Message message, MediaUploadProgressHandler handler) {

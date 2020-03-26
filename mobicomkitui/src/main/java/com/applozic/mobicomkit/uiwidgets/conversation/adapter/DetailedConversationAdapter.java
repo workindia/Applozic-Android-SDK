@@ -57,6 +57,7 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.attachmentview.ApplozicDocumentView;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -123,11 +124,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     private Class<?> messageIntentClass;
     private List<Message> messageList;
     private List<Message> originalList;
-    private MobiComConversationService conversationService;
     private ImageCache imageCache;
     private View view;
     private ContextMenuClickListener contextMenuClickListener;
     private ALStoragePermissionListener storagePermissionListener;
+    private ALSendMessageInterface sendMessageInterfaceCallBack;
     private ALRichMessageListener listener;
     private String geoApiKey;
 
@@ -137,6 +138,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
     public void setContextMenuClickListener(ContextMenuClickListener contextMenuClickListener) {
         this.contextMenuClickListener = contextMenuClickListener;
+    }
+    public void setSendMessageInterfaceCallBack(ALSendMessageInterface sendMessageInterfaceCallBack) {
+        this.sendMessageInterfaceCallBack = sendMessageInterfaceCallBack;
     }
 
     public void setRichMessageCallbackListener(ALRichMessageListener listener) {
@@ -165,7 +169,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         this.individual = (contact != null || channel != null);
         this.fileClientService = new FileClientService(context);
         this.messageDatabaseService = new MessageDatabaseService(context);
-        this.conversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
         this.messageList = messageList;
         geoApiKey = Utils.getMetaDataValue(ApplozicService.getContext(context), ConversationActivity.GOOGLE_API_KEY_META_DATA);
@@ -764,7 +767,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 //updating Cancel Flag to smListItem....
                                 message.setCanceled(false);
                                 messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
-                                conversationService.sendMessage(message, messageIntentClass);
+                                if (sendMessageInterfaceCallBack != null) {
+                                    sendMessageInterfaceCallBack.sendMessage(message);
+                                }
                             } else {
                                 Toast.makeText(context, context.getString(R.string.internet_connection_not_available), Toast.LENGTH_SHORT).show();
                             }

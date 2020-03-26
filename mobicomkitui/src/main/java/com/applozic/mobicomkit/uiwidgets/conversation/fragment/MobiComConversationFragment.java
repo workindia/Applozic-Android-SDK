@@ -116,6 +116,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTas
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobicomMessageTemplate;
 import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -176,7 +177,7 @@ import static java.util.Collections.disjoint;
  * reg
  * Created by devashish on 10/2/15.
  */
-abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener, ALRichMessageListener {
+abstract public class MobiComConversationFragment extends Fragment implements View.OnClickListener, GestureDetector.OnGestureListener, ContextMenuClickListener, ALRichMessageListener, ALSendMessageInterface {
 
     private static final String TAG = "MobiComConversation";
     private static int count;
@@ -220,7 +221,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected ApplozicContextSpinnerAdapter applozicContextSpinnerAdapter;
     private List<Conversation> conversationList;
     protected Message messageToForward;
-    protected String searchString;
+    protected String searchString, userDisplayName;
     protected AlCustomizationSettings alCustomizationSettings;
     LinearLayout userNotAbleToChatLayout;
     List<ChannelUserMapper> channelUserMapperList;
@@ -1541,7 +1542,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             case 2:
                 Message messageToResend = new Message(message);
                 messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
-                conversationService.sendMessage(messageToResend, messageIntentClass);
+                conversationService.sendMessage(messageToResend, messageIntentClass, userDisplayName);
                 break;
             case 3:
                 String messageKeyString = message.getKeyString();
@@ -1702,6 +1703,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (downloadConversation != null) {
                 downloadConversation.cancel(true);
             }
+
+            if (this.contact != null  && contact != null && !contact.getUserId().equals(this.contact.getUserId())) {
+                userDisplayName = null;
+            }
+
             setContact(contact);
             setChannel(channel);
 
@@ -1786,6 +1792,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
+                recyclerDetailConversationAdapter.setSendMessageInterfaceCallBack(this);
                 if (getActivity() instanceof ALStoragePermissionListener) {
                     recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
                 } else {
@@ -1826,6 +1833,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 recyclerDetailConversationAdapter.setAlCustomizationSettings(alCustomizationSettings);
                 recyclerDetailConversationAdapter.setContextMenuClickListener(this);
                 recyclerDetailConversationAdapter.setRichMessageCallbackListener(this);
+                recyclerDetailConversationAdapter.setSendMessageInterfaceCallBack(this);
                 if (getActivity() instanceof ALStoragePermissionListener) {
                     recyclerDetailConversationAdapter.setStoragePermissionListener((ALStoragePermissionListener) getActivity());
                 } else {
@@ -2431,7 +2439,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             filePaths.add(filePath);
             messageToForward.setFilePaths(filePaths);
         }
-        conversationService.sendMessage(messageToForward, messageIntentClass);
+        conversationService.sendMessage(messageToForward, messageIntentClass, userDisplayName);
         if (selfDestructMessageSpinner != null) {
             selfDestructMessageSpinner.setSelection(0);
         }
@@ -2505,7 +2513,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         messageToSend.setMetadata(messageMetaData);
 
 
-        conversationService.sendMessage(messageToSend, messageIntentClass);
+        conversationService.sendMessage(messageToSend, messageIntentClass, userDisplayName);
         if (replayRelativeLayout != null) {
             replayRelativeLayout.setVisibility(View.GONE);
         }
@@ -2548,7 +2556,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 message.setTopicId(topicId);
                 message.setConversationId(currentConversationId);
                 message.setFileMetas(fileMeta);
-                conversationService.sendMessage(message, MessageIntentService.class);
+                conversationService.sendMessage(message, MessageIntentService.class, userDisplayName);
             }
         }).start();
 
@@ -2958,7 +2966,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             case 2:
                 Message messageToResend = new Message(message);
                 messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
-                conversationService.sendMessage(messageToResend, messageIntentClass);
+                conversationService.sendMessage(messageToResend, messageIntentClass, userDisplayName);
                 break;
             case 3:
                 String messageKeyString = message.getKeyString();
@@ -4296,6 +4304,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         return channel != null && channel.isContextBasedChat();
+    }
+    @Override
+    public void sendMessage(Object message) {
+        if (message instanceof Message ){
+            conversationService.sendMessage(((Message)message), messageIntentClass, userDisplayName);
+        }
     }
 }
 

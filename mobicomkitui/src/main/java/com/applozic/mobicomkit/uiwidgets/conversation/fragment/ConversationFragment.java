@@ -18,6 +18,7 @@ import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.ApplozicApplication;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -46,7 +47,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
     private List<String> attachmentText = new ArrayList<>();
     private List<String> attachmentIcon = new ArrayList<>();
 
-    public static ConversationFragment newInstance(Contact contact, Channel channel, Integer conversationId, String searchString) {
+    public static ConversationFragment newInstance(Contact contact, Channel channel, Integer conversationId, String searchString, String userDisplayName) {
         ConversationFragment f = new ConversationFragment();
         Bundle args = new Bundle();
         if (contact != null) {
@@ -59,6 +60,9 @@ public class ConversationFragment extends MobiComConversationFragment implements
             args.putInt(CONVERSATION_ID, conversationId);
         }
         args.putString(SEARCH_STRING, searchString);
+        if (!TextUtils.isEmpty(userDisplayName)) {
+            args.putString(ConversationUIService.DISPLAY_NAME, userDisplayName);
+        }
         f.setArguments(args);
         return f;
     }
@@ -73,6 +77,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
             channel = (Channel) bundle.getSerializable(CHANNEL);
             currentConversationId = bundle.getInt(CONVERSATION_ID);
             searchString = bundle.getString(SEARCH_STRING);
+            userDisplayName = bundle.getString(ConversationUIService.DISPLAY_NAME);
             if (searchString != null) {
                 SyncCallService.refreshView = true;
             }

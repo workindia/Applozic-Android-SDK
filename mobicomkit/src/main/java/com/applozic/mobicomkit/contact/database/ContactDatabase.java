@@ -166,7 +166,7 @@ public class ContactDatabase {
     }
 
     public void updateContact(Contact contact) {
-        ContentValues contentValues = prepareContactValues(contact);
+        ContentValues contentValues = prepareContactValues(contact, true);
         dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
         dbHelper.close();
     }
@@ -230,7 +230,7 @@ public class ContactDatabase {
 
     public void addContact(Contact contact) {
         try {
-            ContentValues contentValues = prepareContactValues(contact);
+            ContentValues contentValues = prepareContactValues(contact, false);
             dbHelper.getWritableDatabase().insert(CONTACT, null, contentValues);
         } catch (Exception e) {
             Utils.printLog(context, TAG, "Ignoring duplicate entry for contact");
@@ -239,7 +239,7 @@ public class ContactDatabase {
         }
     }
 
-    public ContentValues prepareContactValues(Contact contact) {
+    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
         ContentValues contentValues = new ContentValues();
         Contact contactImage = null;
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
@@ -288,9 +288,13 @@ public class ContactDatabase {
         if (contact.getNotificationAfterTime() != null && contact.getNotificationAfterTime() != 0) {
             contentValues.put(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME, contact.getNotificationAfterTime());
         }
-        if (contact.getMetadata() != null && !contact.getMetadata().isEmpty()) {
-            contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(contact.getMetadata(), Map.class));
+
+        Map<String, String> metadata = getUpdatedMetadata(contact, isContactUpdated);
+
+        if (metadata != null && !metadata.isEmpty()) {
+            contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
         }
+
         contentValues.put(MobiComDatabaseHelper.USER_ROLE_TYPE, contact.getRoleType());
         contentValues.put(MobiComDatabaseHelper.LAST_MESSAGED_AT, contact.getLastMessageAtTime());
         contentValues.put(MobiComDatabaseHelper.USER_TYPE_ID, contact.getUserTypeId());
@@ -300,6 +304,23 @@ public class ContactDatabase {
         return contentValues;
     }
 
+    private Map<String, String> getUpdatedMetadata(Contact contact, boolean isContactUpdate) {
+        Map<String, String> metadata = contact.getMetadata();
+        if (isContactUpdate) {
+            if (metadata != null && !metadata.isEmpty() && metadata.containsKey(Contact.AL_DISPLAY_NAME_UPDATED)) {
+                return metadata;
+            }
+            Contact existingContact = getContactById(contact.getUserId());
+            Map<String, String> existingMetadata = existingContact.getMetadata();
+            if (metadata != null && existingMetadata != null && !existingMetadata.isEmpty() && existingMetadata.containsKey(Contact.AL_DISPLAY_NAME_UPDATED)) {
+                String flag = existingMetadata.get(Contact.AL_DISPLAY_NAME_UPDATED);
+                if (!TextUtils.isEmpty(flag)) {
+                    metadata.put(Contact.AL_DISPLAY_NAME_UPDATED, flag);
+                }
+            }
+        }
+        return metadata;
+    }
     /**
      * This method will return full name of contact to be updated.
      * This is require to avoid updating full name back to userId in case fullname is not set while updating contact.
@@ -500,6 +521,19 @@ public class ContactDatabase {
             addContact(contact);
         } else {
             updateContact(contact);
+        }
+    }
+
+    public void updateMetadataKeyValueForUserId(String userId, String key, String value) {
+        Contact contact = getContactById(userId);
+        if (contact != null) {
+            Map<String, String> metadata = contact.getMetadata();
+            if (metadata != null && !metadata.isEmpty()) {
+                metadata.put(key, value);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MobiComDatabaseHelper.USER_METADATA, GsonUtils.getJsonFromObject(metadata, Map.class));
+                dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
+            }
         }
     }
 

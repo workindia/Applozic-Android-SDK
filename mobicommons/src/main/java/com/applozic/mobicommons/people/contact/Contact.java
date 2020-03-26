@@ -19,6 +19,8 @@ import java.util.TimeZone;
  */
 public class Contact extends JsonMarker {
 
+    public static final String AL_DISPLAY_NAME_UPDATED = "AL_DISPLAY_NAME_UPDATED";
+    public static final String TRUE = "true";
     public static final String R_DRAWABLE = "R.drawable";
     @Expose
     private String firstName = "";
@@ -397,6 +399,10 @@ public class Contact extends JsonMarker {
 
     public Short getRoleType() {
         return roleType;
+    }
+
+    public boolean isUserDisplayUpdateRequired() {
+        return metadata != null && !metadata.isEmpty() && metadata.containsKey(AL_DISPLAY_NAME_UPDATED) && !TRUE.equals(metadata.get(AL_DISPLAY_NAME_UPDATED));
     }
 
     @Override

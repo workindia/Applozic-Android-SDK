@@ -73,6 +73,8 @@ public class ApplozicSetting {
     private static final String DELETE_CONVERSATION_OPTION = "DELETE_CONVERSATION_OPTION";
     private static final String GALLERY_FILTER_OPTIONS = "GALLERY_FILTER_OPTIONS_";
     private static final String HIDE_GROUP_SUBTITLE = "HIDE_GROUP_SUBTITLE";
+    private static final String GROUPS_SECTION_TAB = "GROUPS_SECTION_TAB";
+
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
     private Context context;
@@ -711,6 +713,15 @@ public class ApplozicSetting {
 
     public ApplozicSetting hideGroupSubtitle(boolean hide) {
         sharedPreferences.edit().putBoolean(HIDE_GROUP_SUBTITLE, hide).commit();
+        return this;
+    }
+
+    public boolean isGroupsSectionTabHidden() {
+        return sharedPreferences.getBoolean(GROUPS_SECTION_TAB, false);
+    }
+
+    public ApplozicSetting setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
+        sharedPreferences.edit().putBoolean(GROUPS_SECTION_TAB, hideGroupsSectionTab).commit();
         return this;
     }
 

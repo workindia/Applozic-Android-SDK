@@ -827,6 +827,8 @@ public class MobiComUserPreference {
     }
 
     public void setCategoryName(String category) {
-        sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
+        }
     }
 }

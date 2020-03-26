@@ -10,6 +10,7 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
+import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
@@ -18,6 +19,7 @@ import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
@@ -73,6 +75,7 @@ public class MessageClientService extends MobiComKitClientService {
     private static final String UPDATE_MESSAGE_METADATA_URL = "/rest/ws/message/update/metadata";
     private static final String GET_KM_CONVERSATION_LIST_URL = "/rest/ws/group/support";
     private static final String GET_ALL_GROUPS_URL = "/rest/ws/group/all";
+    private ContactDatabase contactDatabase;
 
     private static final String TAG = "MessageClientService";
     private Context context;
@@ -86,6 +89,7 @@ public class MessageClientService extends MobiComKitClientService {
         this.messageDatabaseService = new MessageDatabaseService(context);
         this.httpRequestUtils = new HttpRequestUtils(context);
         this.baseContactService = new AppContactService(context);
+        this.contactDatabase = new ContactDatabase(context);
     }
 
     public String getMtextDeliveryUrl() {
@@ -259,7 +263,7 @@ public class MessageClientService extends MobiComKitClientService {
         try {
             if (message.isContactMessage()) {
                 try {
-                    this.processMessage(message, null);
+                    this.processMessage(message, null, null);
                 } catch (Exception e) {
                     Utils.printLog(context, TAG, "Exception while sending contact message.");
                 }
@@ -295,6 +299,12 @@ public class MessageClientService extends MobiComKitClientService {
             }
 
             messageDatabaseService.updateMessageSyncStatus(message, keyString);
+            if (message.getGroupId() == null && TextUtils.isEmpty(message.getContactIds())) {
+                Contact contact = contactDatabase.getContactById(message.getContactIds());
+                if (contact != null && contact.isUserDisplayUpdateRequired()) {
+                    UserService.getInstance(context).updateUserDisplayName(contact.getUserId(), contact.getDisplayName());
+                }
+            }
         } catch (Exception e) {
             Utils.printLog(context, TAG, "Error while sending pending messages.");
         }
@@ -302,17 +312,17 @@ public class MessageClientService extends MobiComKitClientService {
     }
 
     public void sendMessageToServer(Message message, Handler handler) throws Exception {
-        sendMessageToServer(message, handler, null);
+        sendMessageToServer(message, handler, null, null);
     }
 
-    public void sendMessageToServer(Message message, Handler handler, Class intentClass) throws Exception {
-        processMessage(message, handler);
+    public void sendMessageToServer(Message message, Handler handler, Class intentClass, String userDisplayName) throws Exception {
+        processMessage(message, handler, userDisplayName);
         if (message.getScheduledAt() != null && message.getScheduledAt() != 0 && intentClass != null) {
             new ScheduledMessageUtil(context, intentClass).createScheduleMessage(message, context);
         }
     }
 
-    public void processMessage(Message message, Handler handler) throws Exception {
+    public void processMessage(Message message, Handler handler, String userDisplayName) throws Exception {
         boolean isBroadcast = (message.getMessageId() == null);
 
         MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
@@ -486,6 +496,9 @@ public class MessageClientService extends MobiComKitClientService {
                     message.setConversationId(messageResponse.getConversationId());
                     message.setSentToServer(true);
                     message.setKeyString(keyString);
+                    if (contact != null && !TextUtils.isEmpty(userDisplayName) && contact.isUserDisplayUpdateRequired()) {
+                        UserService.getInstance(context).updateUserDisplayName(message.getTo(), userDisplayName);
+                    }
                 }
                 if (!skipMessage && !isOpenGroup) {
                     messageDatabaseService.updateMessage(messageId, message.getSentMessageTimeAtServer(), keyString, message.isSentToServer());

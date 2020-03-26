@@ -111,7 +111,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private int notificationDisableThreshold = 0;
     private boolean hideGroupDeleteButton = false;
     private boolean hideGroupSubtitle = false;
-
+    private boolean hideGroupsSectionTab = false;
     private boolean launchChatFromProfilePicOrName = false;
 
     private boolean showImageOnToolbar = false;
@@ -595,6 +595,13 @@ public class AlCustomizationSettings extends JsonMarker {
         return hideGroupSubtitle;
     }
 
+    public boolean isGroupsSectionTabHidden() {
+        return hideGroupsSectionTab;
+    }
+
+    public void setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
+        this.hideGroupsSectionTab = hideGroupsSectionTab;
+    }
     @Override
     public String toString() {
         return "AlCustomizationSettings{" +
