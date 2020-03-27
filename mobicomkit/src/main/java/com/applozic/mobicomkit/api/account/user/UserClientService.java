@@ -234,29 +234,21 @@ public class UserClientService extends MobiComKitClientService {
         return info;
     }
 
-    public void updateUserDisplayName(final String userId, final String displayName) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String parameters = "";
-                try {
-                    if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
-                        parameters = "userId=" + URLEncoder.encode(userId, "UTF-8") + "&displayName=" + URLEncoder.encode(displayName, "UTF-8");
-                        String response = httpRequestUtils.getResponse(getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
+    public ApiResponse updateUserDisplayName(final String userId, final String displayName) {
+        String parameters = "";
+        try {
+            if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(displayName)) {
+                parameters = "userId=" + URLEncoder.encode(userId, "UTF-8") + "&displayName=" + URLEncoder.encode(displayName, "UTF-8");
+                String response = httpRequestUtils.getResponse(getUpdateUserDisplayNameUrl() + parameters, "application/json", "application/json");
 
-                        ApiResponse apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
-                        if (apiResponse != null) {
-                            Utils.printLog(context, TAG, " Update display name Response :" + apiResponse.getStatus());
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (!TextUtils.isEmpty(response)) {
+                    return (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 }
-
             }
-        });
-        thread.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public ApiResponse userBlock(String userId, boolean block) {

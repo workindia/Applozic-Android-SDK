@@ -167,7 +167,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     File mediaFile;
     File profilePhotoFile;
     SyncAccountStatusAsyncTask accountStatusAsyncTask;
-    String contactsGroupId;
+    String contactsGroupId, userDisplayName;
     private LocationRequest locationRequest;
     private Channel channel;
     private BaseContactService baseContactService;
@@ -180,7 +180,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
     private SearchListFragment searchListFragment;
     private LinearLayout serviceDisconnectionLayout;
     private ALStoragePermission alStoragePermission;
-
     private ImageView conversationContactPhoto;
     private TextView toolbarTitle;
     private TextView toolbarSubtitle;
@@ -305,7 +304,9 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (mediaFile != null) {
             savedInstanceState.putSerializable(LOAD_FILE, mediaFile);
         }
-
+        if (userDisplayName != null) {
+            savedInstanceState.putSerializable(ConversationUIService.DISPLAY_NAME, userDisplayName);
+        }
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -426,15 +427,15 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
                 videoFileUri = savedInstanceState.getString(CAPTURED_VIDEO_URI) != null ?
                         Uri.parse(savedInstanceState.getString(CAPTURED_VIDEO_URI)) : null;
                 mediaFile = savedInstanceState.getSerializable(LOAD_FILE) != null ? (File) savedInstanceState.getSerializable(LOAD_FILE) : null;
-
+                userDisplayName = savedInstanceState.getString(ConversationUIService.DISPLAY_NAME);
                 contact = (Contact) savedInstanceState.getSerializable(CONTACT);
                 channel = (Channel) savedInstanceState.getSerializable(CHANNEL);
                 currentConversationId = savedInstanceState.getInt(CONVERSATION_ID);
                 if (contact != null || channel != null) {
                     if (channel != null) {
-                        conversation = ConversationFragment.newInstance(null, channel, currentConversationId, null);
+                        conversation = ConversationFragment.newInstance(null, channel, currentConversationId, null, userDisplayName);
                     } else {
-                        conversation = ConversationFragment.newInstance(contact, null, currentConversationId, null);
+                        conversation = ConversationFragment.newInstance(contact, null, currentConversationId, null, userDisplayName);
                     }
                     addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
                 }
@@ -887,7 +888,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
     @Override
     public void onQuickConversationFragmentItemClick(View view, Contact contact, Channel channel, Integer conversationId, String searchString) {
-        conversation = ConversationFragment.newInstance(contact, channel, conversationId, searchString);
+        conversation = ConversationFragment.newInstance(contact, channel, conversationId, searchString, null);
         addFragment(this, conversation, ConversationUIService.CONVERSATION_FRAGMENT);
         this.channel = channel;
         this.contact = contact;
@@ -910,7 +911,6 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         if (isFromSearch()) {
             return;
         }
-
         if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             try {
                 Intent upIntent = ApplozicSetting.getInstance(this).getParentActivityIntent(this);

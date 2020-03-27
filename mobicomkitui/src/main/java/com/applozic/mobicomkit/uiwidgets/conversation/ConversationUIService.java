@@ -30,7 +30,6 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
-import com.applozic.mobicomkit.api.account.user.UserClientService;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -66,7 +65,9 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ConversationUIService {
@@ -143,25 +144,19 @@ public class ConversationUIService {
             Contact contact = ((ConversationActivity) fragmentActivity).getContact();
             Channel channel = ((ConversationActivity) fragmentActivity).getChannel();
             Integer conversationId = ((ConversationActivity) fragmentActivity).getConversationId();
-            conversationFragment = ConversationFragment.newInstance(contact, channel, conversationId, null);
+            conversationFragment = ConversationFragment.newInstance(contact, channel, conversationId, null, null);
             ConversationActivity.addFragment(fragmentActivity, conversationFragment, CONVERSATION_FRAGMENT);
         }
         return conversationFragment;
     }
 
-    public void onQuickConversationFragmentItemClick(View view, Contact contact) {
-        TextView textView = (TextView) view.findViewById(R.id.unreadSmsCount);
-        textView.setVisibility(View.GONE);
-        openConversationFragment(contact, null, null);
-    }
-
-    public void openConversationFragment(final Contact contact, final Integer conversationId, final String searchString) {
+    public void openConversationFragment(final Contact contact, final Integer conversationId, final String searchString, final String userDisplayName) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
                 if (conversationFragment == null) {
-                    conversationFragment = ConversationFragment.newInstance(contact, null, conversationId, searchString);
+                    conversationFragment = ConversationFragment.newInstance(contact, null, conversationId, searchString, userDisplayName);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
                     UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
@@ -177,13 +172,13 @@ public class ConversationUIService {
         });
     }
 
-    public void openConversationFragment(final Channel channel, final Integer conversationId, final String searchString) {
+    public void openConversationFragment(final Channel channel, final Integer conversationId, final String searchString, final  String userDisplayName) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 ConversationFragment conversationFragment = (ConversationFragment) UIService.getFragmentByTag(fragmentActivity, CONVERSATION_FRAGMENT);
                 if (conversationFragment == null) {
-                    conversationFragment = ConversationFragment.newInstance(null, channel, conversationId, searchString);
+                    conversationFragment = ConversationFragment.newInstance(null, channel, conversationId, searchString, userDisplayName);
                     ((MobiComKitActivityInterface) fragmentActivity).addFragment(conversationFragment);
                 } else {
                     UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(fragmentActivity, ConversationUIService.USER_PROFILE_FRAMENT);
@@ -714,7 +709,7 @@ public class ConversationUIService {
         }
         if (alCustomizationSettings.getTotalOnlineUsers() > 0 && Utils.isInternetAvailable(fragmentActivity)) {
             processLoadUsers(false, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
-        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(fragmentActivity).isRegisteredUsersContactCall()) && !userPreference.getWasContactListServerCallAlreadyDone()) {
+        } else if (alCustomizationSettings.getTotalRegisteredUserToFetch() > 0 && (alCustomizationSettings.isRegisteredUserContactListCall() || ApplozicSetting.getInstance(fragmentActivity).isRegisteredUsersContactCall())) {
             if (Utils.isInternetAvailable(fragmentActivity)) {
                 processLoadUsers(true, message, messageContent, alCustomizationSettings.getTotalRegisteredUserToFetch(), alCustomizationSettings.getTotalOnlineUsers());
             }
@@ -818,17 +813,6 @@ public class ConversationUIService {
             }
         }
 
-        final Uri uri = intent.getData();
-        if (uri != null) {
-            //Note: This is used only for the device contacts
-            Long contactId = intent.getLongExtra(CONTACT_ID, 0);
-            if (contactId == 0) {
-                //Todo: show warning that the user doesn't have any number stored.
-                return;
-            }
-            contact = baseContactService.getContactById(String.valueOf(contactId));
-        }
-
         Integer channelKey = intent.getIntExtra(GROUP_ID, -1);
         String clientGroupId = intent.getStringExtra(CLIENT_GROUP_ID);
         String channelName = intent.getStringExtra(GROUP_NAME);
@@ -847,36 +831,36 @@ public class ConversationUIService {
             ChannelService.getInstance(fragmentActivity).updateChannel(channel);
         }
 
-        String contactNumber = intent.getStringExtra(CONTACT_NUMBER);
-
-        boolean firstTimeMTexterFriend = intent.getBooleanExtra(FIRST_TIME_MTEXTER_FRIEND, false);
-        if (!TextUtils.isEmpty(contactNumber)) {
-            contact = baseContactService.getContactById(contactNumber);
-            if (BroadcastService.isIndividual() && getConversationFragment() != null) {
-                getConversationFragment().setFirstTimeMTexterFriend(firstTimeMTexterFriend);
-            }
-        }
-
         String userId = intent.getStringExtra(USER_ID);
-        if (TextUtils.isEmpty(userId)) {
-            userId = intent.getStringExtra("contactId");
-        }
-
+        String fullName = intent.getStringExtra(DISPLAY_NAME);
         if (!TextUtils.isEmpty(userId)) {
             contact = baseContactService.getContactById(userId);
+            if (contact != null) {
+                if (!TextUtils.isEmpty(fullName)) {
+                    Map<String, String> metadata = contact.getMetadata();
+                    if (metadata == null) {
+                        metadata = new HashMap<>();
+                        metadata.put(Contact.AL_DISPLAY_NAME_UPDATED, "false");
+                        contact.setMetadata(metadata);
+                    } else if (!metadata.isEmpty() && !fullName.equals(contact.getDisplayName())) {
+                        metadata.put(Contact.AL_DISPLAY_NAME_UPDATED, "false");
+                        contact.setMetadata(metadata);
+                    }
+                }
+
+                if (!TextUtils.isEmpty(fullName)) {
+                    contact.setFullName(fullName);
+                }
+
+            }
+            String applicationId = intent.getStringExtra(APPLICATION_ID);
+            if (contact != null) {
+                contact.setApplicationId(applicationId);
+            }
+            baseContactService.upsert(contact);
         }
+
         String searchString = intent.getStringExtra(SEARCH_STRING);
-        String applicationId = intent.getStringExtra(APPLICATION_ID);
-        if (contact != null) {
-            contact.setApplicationId(applicationId);
-            baseContactService.upsert(contact);
-        }
-        String fullName = intent.getStringExtra(DISPLAY_NAME);
-        if (contact != null && TextUtils.isEmpty(contact.getFullName()) && !TextUtils.isEmpty(fullName)) {
-            contact.setFullName(fullName);
-            baseContactService.upsert(contact);
-            new UserClientService(fragmentActivity).updateUserDisplayName(userId, fullName);
-        }
         String messageJson = intent.getStringExtra(MobiComKitConstants.MESSAGE_JSON_INTENT);
         if (!TextUtils.isEmpty(messageJson)) {
             Message message = (Message) GsonUtils.getObjectFromJson(messageJson, Message.class);
@@ -914,11 +898,11 @@ public class ConversationUIService {
         }
 
         if (contact != null) {
-            openConversationFragment(contact, conversationId, searchString);
+            openConversationFragment(contact, conversationId, searchString, fullName);
         }
 
         if (channel != null) {
-            openConversationFragment(channel, conversationId, searchString);
+            openConversationFragment(channel, conversationId, searchString, fullName);
         }
         String productTopicId = intent.getStringExtra(ConversationUIService.PRODUCT_TOPIC_ID);
         String productImageUrl = intent.getStringExtra(ConversationUIService.PRODUCT_IMAGE_URL);

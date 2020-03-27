@@ -20,8 +20,10 @@ import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationCallbackHandler;
+import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.MultimediaOptionsGridView;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMultimediaPopupAdapter;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
@@ -51,7 +53,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
     private List<String> attachmentIcon = new ArrayList<>();
     private ConversationCallbackHandler conversationCallbackHandler;
 
-    public static ConversationFragment newInstance(Contact contact, Channel channel, Integer conversationId, String searchString) {
+    public static ConversationFragment newInstance(Contact contact, Channel channel, Integer conversationId, String searchString, String userDisplayName) {
         ConversationFragment f = new ConversationFragment();
         Bundle args = new Bundle();
         if (contact != null) {
@@ -64,6 +66,10 @@ public class ConversationFragment extends MobiComConversationFragment implements
             args.putInt(CONVERSATION_ID, conversationId);
         }
         args.putString(SEARCH_STRING, searchString);
+
+        if (!TextUtils.isEmpty(userDisplayName)) {
+            args.putString(ConversationUIService.DISPLAY_NAME, userDisplayName);
+        }
         f.setArguments(args);
         return f;
     }
@@ -78,6 +84,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
             channel = (Channel) bundle.getSerializable(CHANNEL);
             currentConversationId = bundle.getInt(CONVERSATION_ID);
             searchString = bundle.getString(SEARCH_STRING);
+            userDisplayName = bundle.getString(ConversationUIService.DISPLAY_NAME);
             if (searchString != null) {
                 SyncCallService.refreshView = true;
             }
@@ -229,10 +236,13 @@ public class ConversationFragment extends MobiComConversationFragment implements
         String[] allValues = getResources().getStringArray(R.array.multimediaOptions_without_price_text);
         String[] allIcons = getResources().getStringArray(R.array.multimediaOptionIcons_without_price);
 
-        Map<String, Boolean> maps = alCustomizationSettings.getAttachmentOptions();
+        Map<String, Boolean> maps = ApplozicSetting.getInstance(getContext()).getAttachmentOptions();
+
+        if (maps == null) {
+            maps = alCustomizationSettings.getAttachmentOptions();
+        }
 
         for (int index = 0; index < allKeys.length; index++) {
-
             String key = allKeys[index];
             if (maps == null || maps.get(key) == null || maps.get(key)) {
                 attachmentKey.add(key);
