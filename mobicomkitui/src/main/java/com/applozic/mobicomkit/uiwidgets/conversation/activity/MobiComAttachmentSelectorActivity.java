@@ -11,7 +11,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +26,8 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
+import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -217,22 +221,16 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     finish();
                 }
-
-
             }
         });
-
     }
 
     /**
      * @param uri
      */
     private void addUri(Uri uri) {
-
         attachmentFileList.add(uri);
         Utils.printLog(MobiComAttachmentSelectorActivity.this, TAG, "attachmentFileList  :: " + attachmentFileList);
-
-
     }
 
     /**
@@ -277,54 +275,73 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            Uri selectedFileUri = (intent == null ? null : intent.getData());
+            final Uri selectedFileUri = (intent == null ? null : intent.getData());
             Utils.printLog(MobiComAttachmentSelectorActivity.this, TAG, "selectedFileUri :: " + selectedFileUri);
             if (selectedFileUri != null) {
-                String fileName = null;
-                try {
-                    long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
-                    Cursor returnCursor =
-                            getContentResolver().query(selectedFileUri, null, null, null, null);
-                    if (returnCursor != null) {
-                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                        returnCursor.moveToFirst();
-                        Long fileSize = returnCursor.getLong(sizeIndex);
-                        returnCursor.close();
-                        if (fileSize > maxFileSize) {
-                            Toast.makeText(this, R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
-                            return;
+                if (getApplicationContext() instanceof AttachmentFilteringListener) {
+                    AttachmentFilteringListener filteringListener = (AttachmentFilteringListener) getApplicationContext();
+                    filteringListener.onAttachmentSelected(this, selectedFileUri, new AlCallback() {
+                        @Override
+                        public void onSuccess(Object response) {
+                            processUri(selectedFileUri);
                         }
-                    }
-                    String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, selectedFileUri);
-                    if (TextUtils.isEmpty(mimeType)) {
-                        return;
-                    }
-                    if (!checkMimeType(mimeType)) {
-                        Toast.makeText(this, R.string.info_file_attachment_mime_type_not_supported, Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                    fileName = FileUtils.getFileName(this, selectedFileUri);
-                    String fileFormat = FileUtils.getFileFormat(fileName);
-                    String fileNameToWrite;
-                    if (TextUtils.isEmpty(fileFormat)) {
-                        String format = FileUtils.getFileFormat(FileUtils.getFile(this, selectedFileUri).getAbsolutePath());
-                        if (TextUtils.isEmpty(format)) {
-                            return;
-                        }
-                        fileNameToWrite = timeStamp + "." + format;
-                    } else {
-                        fileNameToWrite = timeStamp + "." + fileFormat;
-                    }
 
-                    File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
-                    new FileTaskAsync(mediaFile, selectedFileUri, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                        @Override
+                        public void onError(Object error) {
+                            Utils.printLog(getApplicationContext(), TAG, "Error in file : " + GsonUtils.getJsonFromObject(error, Object.class));
+                        }
+                    });
+                } else {
+                    processUri(selectedFileUri);
                 }
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    public void processUri(Uri selectedFileUri) {
+        String fileName = null;
+        try {
+            long maxFileSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
+            Cursor returnCursor =
+                    getContentResolver().query(selectedFileUri, null, null, null, null);
+            if (returnCursor != null) {
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                returnCursor.moveToFirst();
+                Long fileSize = returnCursor.getLong(sizeIndex);
+                returnCursor.close();
+                if (fileSize > maxFileSize) {
+                    Toast.makeText(this, R.string.info_attachment_max_allowed_file_size, Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+            String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, selectedFileUri);
+            if (TextUtils.isEmpty(mimeType)) {
+                return;
+            }
+            if (!checkMimeType(mimeType)) {
+                Toast.makeText(this, R.string.info_file_attachment_mime_type_not_supported, Toast.LENGTH_LONG).show();
+                return;
+            }
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            fileName = FileUtils.getFileName(this, selectedFileUri);
+            String fileFormat = FileUtils.getFileFormat(fileName);
+            String fileNameToWrite;
+            if (TextUtils.isEmpty(fileFormat)) {
+                String format = FileUtils.getFileFormat(FileUtils.getFile(this, selectedFileUri).getAbsolutePath());
+                if (TextUtils.isEmpty(format)) {
+                    return;
+                }
+                fileNameToWrite = timeStamp + "." + format;
+            } else {
+                fileNameToWrite = timeStamp + "." + fileFormat;
+            }
+
+            File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
+            new FileTaskAsync(mediaFile, selectedFileUri, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
