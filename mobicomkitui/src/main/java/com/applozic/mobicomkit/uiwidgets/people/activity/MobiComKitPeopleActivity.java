@@ -10,7 +10,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+
+import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -23,8 +27,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -63,6 +67,7 @@ import java.util.List;
 public class MobiComKitPeopleActivity extends AppCompatActivity implements OnContactsInteractionListener,
         SearchView.OnQueryTextListener, TabLayout.OnTabSelectedListener {
 
+    private static final String TAG = "MobiComKitPeopleActivity";
     public static final String SHARED_TEXT = "SHARED_TEXT";
     public static final String FORWARD_MESSAGE = "forwardMessage";
     public static final String USER_ID_ARRAY = "userIdArray";
@@ -204,7 +209,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
 
     @Override
-    public void onGroupSelected(Channel channel) {
+    public void onGroupSelected(final Channel channel) {
         Intent intent = null;
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if (!ChannelService.getInstance(MobiComKitPeopleActivity.this).processIsUserPresentInChannel(channel.getKey())) {
@@ -219,32 +224,30 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                 startActivity(intent);
                 finish();
             } else if (type.startsWith("image/") || type.startsWith("audio/") || type.startsWith("video/")) {
-                Uri fileUri = (Uri) intentExtra.getParcelableExtra(Intent.EXTRA_STREAM);
+                final Uri fileUri = (Uri) intentExtra.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (fileUri != null) {
                     long maxSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
                     if (FileUtils.isMaxUploadSizeReached(this, fileUri, maxSize)) {
                         Toast.makeText(this, getString(R.string.info_attachment_max_allowed_file_size), Toast.LENGTH_LONG).show();
                         return;
                     }
-                    if (FileUtils.isContentScheme(fileUri)) {
-                        String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
-                        if (TextUtils.isEmpty(mimeType)) {
-                            this.finish();
-                        } else {
-                            new ShareAsyncTask(this, fileUri, null, channel, mimeType).execute();
-                        }
+
+                    if (getApplicationContext() instanceof AttachmentFilteringListener) {
+                        ((AttachmentFilteringListener) getApplicationContext()).onAttachmentSelected(this, fileUri, new AlCallback() {
+                            @Override
+                            public void onSuccess(Object response) {
+                                processAttachmentUri(fileUri, null, channel);
+                            }
+
+                            @Override
+                            public void onError(Object error) {
+                                Utils.printLog(getApplicationContext(), TAG, "Error in file : " + GsonUtils.getJsonFromObject(error, Object.class));
+                            }
+                        });
                     } else {
-                        Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
-                        intentImage.putExtra(MobiComAttachmentSelectorActivity.GROUP_ID, channel.getKey());
-                        intentImage.putExtra(MobiComAttachmentSelectorActivity.GROUP_NAME, channel.getName());
-                        if (fileUri != null) {
-                            intentImage.putExtra(MobiComAttachmentSelectorActivity.URI_LIST, fileUri);
-                        }
-                        startActivity(intentImage);
+                        processAttachmentUri(fileUri, null, channel);
                     }
-
                 }
-
             }
         } else {
             intent = new Intent();
@@ -255,7 +258,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     }
 
     @Override
-    public void onCustomContactSelected(Contact contact) {
+    public void onCustomContactSelected(final Contact contact) {
         Intent intent = null;
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if (contact.isBlocked()) {
@@ -269,33 +272,31 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                 startActivity(intent);
                 finish();
             } else if (type.startsWith("image/") || type.startsWith("audio/") || type.startsWith("video/")) {
-                Uri fileUri = (Uri) intentExtra.getParcelableExtra(Intent.EXTRA_STREAM);
+                final Uri fileUri = (Uri) intentExtra.getParcelableExtra(Intent.EXTRA_STREAM);
                 long maxSize = alCustomizationSettings.getMaxAttachmentSizeAllowed() * 1024 * 1024;
+
                 if (FileUtils.isMaxUploadSizeReached(this, fileUri, maxSize)) {
                     Toast.makeText(this, getString(R.string.info_attachment_max_allowed_file_size), Toast.LENGTH_LONG).show();
                     return;
                 }
-                if (FileUtils.isContentScheme(fileUri)) {
-                    String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
-                    if (TextUtils.isEmpty(mimeType)) {
-                        this.finish();
-                    } else {
-                        new ShareAsyncTask(this, fileUri, contact, null, mimeType).execute();
-                    }
 
+                if (getApplicationContext() instanceof AttachmentFilteringListener) {
+                    ((AttachmentFilteringListener) getApplicationContext()).onAttachmentSelected(this, fileUri, new AlCallback() {
+                        @Override
+                        public void onSuccess(Object response) {
+                            processAttachmentUri(fileUri, contact, null);
+                        }
+
+                        @Override
+                        public void onError(Object error) {
+                            Utils.printLog(getApplicationContext(), TAG, "Error in file : " + GsonUtils.getJsonFromObject(error, Object.class));
+                        }
+                    });
                 } else {
-                    Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
-                    intentImage.putExtra(MobiComAttachmentSelectorActivity.USER_ID, contact.getUserId());
-                    intentImage.putExtra(MobiComAttachmentSelectorActivity.DISPLAY_NAME, contact.getDisplayName());
-                    if (fileUri != null) {
-                        intentImage.putExtra(MobiComAttachmentSelectorActivity.URI_LIST, fileUri);
-                    }
-                    startActivity(intentImage);
+                    processAttachmentUri(fileUri, contact, null);
                 }
-
             }
         } else {
-
             if (ApplozicClient.getInstance(this).isStartGroupOfTwo()) {
                 new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this).execute((Void) null);
             } else {
@@ -303,6 +304,25 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                 intent.putExtra(USER_ID, contact.getUserId());
                 finishActivity(intent);
             }
+        }
+    }
+
+    private void processAttachmentUri(Uri fileUri, Contact contact, Channel channel) {
+        if (FileUtils.isContentScheme(fileUri)) {
+            String mimeType = FileUtils.getMimeTypeByContentUriOrOther(this, fileUri);
+            if (TextUtils.isEmpty(mimeType)) {
+                this.finish();
+            } else {
+                new ShareAsyncTask(this, fileUri, contact, channel, mimeType).execute();
+            }
+        } else {
+            Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
+            intentImage.putExtra(contact != null ? MobiComAttachmentSelectorActivity.USER_ID : MobiComAttachmentSelectorActivity.GROUP_ID, contact != null ? contact.getUserId() : channel.getKey());
+            intentImage.putExtra(contact != null ? MobiComAttachmentSelectorActivity.DISPLAY_NAME : MobiComAttachmentSelectorActivity.GROUP_NAME, contact != null ? contact.getDisplayName() : channel.getName());
+            if (fileUri != null) {
+                intentImage.putExtra(MobiComAttachmentSelectorActivity.URI_LIST, fileUri);
+            }
+            startActivity(intentImage);
         }
     }
 
