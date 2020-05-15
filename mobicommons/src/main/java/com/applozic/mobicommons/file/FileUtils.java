@@ -223,9 +223,9 @@ public class FileUtils {
      */
     public static String getMimeType(Context context, Uri uri) {
         String filePath = getPath(context, uri);
-        if(!TextUtils.isEmpty(filePath)){
+        if (!TextUtils.isEmpty(filePath)) {
             File file = new File(filePath);
-          return getMimeType(file);
+            return getMimeType(file);
         }
         return null;
     }
@@ -329,7 +329,7 @@ public class FileUtils {
     public static String getPath(final Context context, final Uri uri) {
 
         if (DEBUG)
-            Utils.printLog(context,TAG + " File -",
+            Utils.printLog(context, TAG + " File -",
                     "Authority: " + uri.getAuthority() +
                             ", Fragment: " + uri.getFragment() +
                             ", Port: " + uri.getPort() +
@@ -362,12 +362,16 @@ public class FileUtils {
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
+                try {
+                    final String id = DocumentsContract.getDocumentId(uri);
+                    final Uri contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
-                return getDataColumn(context, contentUri, null, null);
+                    return getDataColumn(context, contentUri, null, null);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    return DocumentsContract.getDocumentId(uri);
+                }
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -556,10 +560,10 @@ public class FileUtils {
      */
     public static Bitmap getThumbnail(Context context, Uri uri, String mimeType) {
         if (DEBUG)
-            Utils.printLog(context,TAG, "Attempting to get thumbnail");
+            Utils.printLog(context, TAG, "Attempting to get thumbnail");
 
         if (!isMediaUri(uri)) {
-            Utils.printLog(context,TAG, "You can only retrieve thumbnails for images and videos.");
+            Utils.printLog(context, TAG, "You can only retrieve thumbnails for images and videos.");
             return null;
         }
 
@@ -572,7 +576,7 @@ public class FileUtils {
                 if (cursor.moveToFirst()) {
                     final int id = cursor.getInt(0);
                     if (DEBUG)
-                        Utils.printLog(context,TAG, "Got thumb ID: " + id);
+                        Utils.printLog(context, TAG, "Got thumb ID: " + id);
 
                     if (mimeType.contains("video")) {
                         bm = MediaStore.Video.Thumbnails.getThumbnail(
@@ -924,8 +928,8 @@ public class FileUtils {
         return name.substring(0, pos);
     }
 
-    public static boolean isMaxUploadSizeReached(Context context ,Uri uri,long maxFileSize) {
-        try{
+    public static boolean isMaxUploadSizeReached(Context context, Uri uri, long maxFileSize) {
+        try {
             Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
             if (returnCursor != null) {
                 int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
@@ -935,12 +939,12 @@ public class FileUtils {
                 return fileSize > maxFileSize;
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         return false;
     }
 
-    public static boolean isContentScheme(Uri uri){
+    public static boolean isContentScheme(Uri uri) {
         if (uri == null) {
             return false;
         }
