@@ -225,7 +225,7 @@ public class MobiComMessageService {
                     }
                     BroadcastService.sendMessageUpdateBroadcast(context, BroadcastService.INTENT_ACTIONS.SYNC_MESSAGE.toString(), message);
                     Channel currentChannel = ChannelService.getInstance(context).getChannelInfo(message.getGroupId());
-                    if (currentChannel != null && (!currentChannel.blockNotification(loggedInUserRole) || loggedInUserId.equals(message.getAssigneId()))) {
+                    if (currentChannel != null && !currentChannel.isNotificationMuted()) {
                         sendNotification(message, index);
                     }
                 }
