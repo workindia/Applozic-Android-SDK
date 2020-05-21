@@ -196,7 +196,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 
@@ -215,12 +215,12 @@ public class Applozic {
             }
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 
     public static void connectUserWithoutCheck(Context context, User user, AlLoginHandler loginHandler) {
-        new UserLoginTask(user, loginHandler, context).execute();
+        new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
     }
 
     public static boolean isConnected(Context context) {
@@ -246,7 +246,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).execute();
+            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
         }
     }
 
@@ -255,7 +255,7 @@ public class Applozic {
     }
 
     public static void registerForPushNotification(Context context, String pushToken, AlPushNotificationHandler handler) {
-        new PushNotificationTask(context, pushToken, handler).execute();
+        new PushNotificationTask(context, pushToken, handler).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void registerForPushNotification(Context context, AlPushNotificationHandler handler) {

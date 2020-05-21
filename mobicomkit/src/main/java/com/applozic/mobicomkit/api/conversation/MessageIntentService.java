@@ -70,7 +70,6 @@ public class MessageIntentService extends AlJobIntentService {
         public void run() {
             try {
                 messageClientService.sendMessageToServer(message, handler, ScheduleMessageService.class, userDisplayName);
-                messageClientService.syncPendingMessages(true);
                 uploadQueueMap.remove(message.getCreatedAtTime());
             } catch (Exception e) {
                 e.printStackTrace();
