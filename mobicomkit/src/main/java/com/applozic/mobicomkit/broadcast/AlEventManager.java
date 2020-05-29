@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.applozic.mobicomkit.feed.MqttMessageResponse;
+import com.applozic.mobicomkit.listners.AlMqttListener;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -18,6 +20,7 @@ public class AlEventManager {
     public static final String AL_EVENT = "AL_EVENT";
     private static AlEventManager eventManager;
     private Map<String, ApplozicUIListener> listenerMap;
+    private Map<String, AlMqttListener> mqttListenerMap;
     private Handler uiHandler;
 
     public static AlEventManager getInstance() {
@@ -51,6 +54,22 @@ public class AlEventManager {
         }
     }
 
+    public void registerMqttListener(String id, AlMqttListener mqttListener) {
+        if (mqttListenerMap == null) {
+            mqttListenerMap = new HashMap<>();
+        }
+
+        if (!mqttListenerMap.containsKey(id)) {
+            mqttListenerMap.put(id, mqttListener);
+        }
+    }
+
+    public void unregisterMqttListener(String id) {
+        if (mqttListenerMap != null) {
+            mqttListenerMap.remove(id);
+        }
+    }
+
     void postEventData(AlMessageEvent messageEvent) {
         if (uiHandler != null) {
             Message message = new Message();
@@ -58,6 +77,14 @@ public class AlEventManager {
             bundle.putString(AL_EVENT, GsonUtils.getJsonFromObject(messageEvent, AlMessageEvent.class));
             message.setData(bundle);
             uiHandler.sendMessage(message);
+        }
+    }
+
+    public void postMqttEventData(MqttMessageResponse messageResponse) {
+        if (mqttListenerMap != null && !mqttListenerMap.isEmpty()) {
+            for (AlMqttListener alMqttListener : mqttListenerMap.values()) {
+                alMqttListener.onMqttMessageReceived(messageResponse);
+            }
         }
     }
 

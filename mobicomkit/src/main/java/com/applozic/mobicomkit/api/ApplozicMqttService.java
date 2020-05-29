@@ -4,13 +4,13 @@ import android.content.Context;
 import android.os.Process;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
+import com.applozic.mobicomkit.broadcast.AlEventManager;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
@@ -195,6 +195,43 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         thread.start();
     }
 
+    public synchronized void subscribeCustomToTopic(String customTopic, boolean useEncrypted) {
+        try {
+            String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+            if (TextUtils.isEmpty(userKeyString)) {
+                return;
+            }
+            final MqttClient client = connect();
+            if (client != null && client.isConnected()) {
+                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + getApplicationKey(context);
+                Utils.printLog(context, TAG, "Subscribing to support group topic : " + topic);
+                client.subscribe(topic, 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void unSubscribeToCustomTopic(final String customTopic, final boolean useEncrypted) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (client == null || !client.isConnected()) {
+                        return;
+                    }
+                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic;
+                    Utils.printLog(context, TAG, "UnSubscribing to support group topic : " + topic);
+                    client.unsubscribe(topic);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+    }
+
     public synchronized void subscribeToSupportGroup(boolean useEncrypted) {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
@@ -297,6 +334,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 }
                                 final SyncCallService syncCallService = SyncCallService.getInstance(context);
                                 MobiComPushReceiver.addPushNotificationId(mqttMessageResponse.getId());
+
+                                AlEventManager.getInstance().postMqttEventData(mqttMessageResponse);
 
                                 Utils.printLog(context, TAG, "MQTT message type: " + mqttMessageResponse.getType());
                                 if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
@@ -473,7 +512,23 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public synchronized void publishCustomData(String customTopic, String data) {
+        try {
+            final MqttClient client = connect();
+            if (client == null || !client.isConnected()) {
+                return;
+            }
+            MqttMessage message = new MqttMessage();
+            message.setRetained(false);
+            message.setPayload(data.getBytes());
+            message.setQos(0);
+            client.publish(customTopic, message);
+            Utils.printLog(context, TAG, "Sent data + " + data + " to topic : " + customTopic);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void publishTopic(final String applicationId, final String status, final String loggedInUserId, final String userId) {
