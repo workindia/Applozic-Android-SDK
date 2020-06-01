@@ -28,6 +28,7 @@ public class RegistrationResponse extends JsonMarker {
     private boolean enableEncryption;
     private Map<String, String> metadata;
     private Short roleType;
+    private String authToken;
     private Short pricingPackage = PricingType.STARTER.getValue();
     private Long notificationAfter;
 
@@ -187,6 +188,14 @@ public class RegistrationResponse extends JsonMarker {
         this.notificationAfter = notificationAfter;
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
     public static enum PricingType {
 
         CLOSED(Short.valueOf("-1")), BETA(Short.valueOf("0")), STARTER(Short.valueOf("1")), LAUNCH(Short.valueOf("2")), GROWTH(Short.valueOf("3")), ENTERPRISE(
@@ -218,28 +227,4 @@ public class RegistrationResponse extends JsonMarker {
             return value;
         }
     }
-
-    @Override
-    public String toString() {
-        return "RegistrationResponse{" +
-                "message='" + message + '\'' +
-                ", deviceKey='" + deviceKey + '\'' +
-                ", userKey='" + userKey + '\'' +
-                ", userId='" + userId + '\'' +
-                ", contactNumber='" + contactNumber + '\'' +
-                ", lastSyncTime=" + lastSyncTime +
-                ", currentTimeStamp=" + currentTimeStamp +
-                ", displayName='" + displayName + '\'' +
-                ", notificationResponse='" + notificationResponse + '\'' +
-                ", brokerUrl='" + brokerUrl + '\'' +
-                ", imageLink='" + imageLink + '\'' +
-                ", statusMessage='" + statusMessage + '\'' +
-                ", encryptionKey='" + encryptionKey + '\'' +
-                ", userEncryptionKey='" + userEncryptionKey + '\'' +
-                ", enableEncryption=" + enableEncryption +
-                ", roleType=" + roleType +
-                ", pricingPackage=" + pricingPackage +
-                '}';
-    }
-
 }

@@ -677,48 +677,6 @@ public class Message extends JsonMarker {
         return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || hasHideKey());
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "createdAtTime=" + createdAtTime +
-                ", to='" + to + '\'' +
-                ", message='" + message + '\'' +
-                ", key='" + key + '\'' +
-                ", deviceKey='" + deviceKey + '\'' +
-                ", userKey='" + userKey + '\'' +
-                ", emailIds='" + emailIds + '\'' +
-                ", shared=" + shared +
-                ", sent=" + sent +
-                ", delivered=" + delivered +
-                ", type=" + type +
-                ", storeOnDevice=" + storeOnDevice +
-                ", contactIds='" + contactIds + '\'' +
-                ", groupId=" + groupId +
-                ", sendToDevice=" + sendToDevice +
-                ", scheduledAt=" + scheduledAt +
-                ", source=" + source +
-                ", timeToLive=" + timeToLive +
-                ", sentToServer=" + sentToServer +
-                ", fileMetaKey='" + fileMetaKey + '\'' +
-                ", filePaths=" + filePaths +
-                ", pairedMessageKey='" + pairedMessageKey + '\'' +
-                ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
-                ", canceled=" + canceled +
-                ", clientGroupId='" + clientGroupId + '\'' +
-                ", fileMeta=" + fileMeta +
-                ", messageId=" + messageId +
-                ", read=" + read +
-                ", attDownloadInProgress=" + attDownloadInProgress +
-                ", applicationId='" + applicationId + '\'' +
-                ", conversationId=" + conversationId +
-                ", topicId='" + topicId + '\'' +
-                ", connected=" + connected +
-                ", contentType=" + contentType +
-                ", metadata=" + metadata +
-                ", status=" + status +
-                '}';
-    }
-
     public enum Source {
 
         DEVICE_NATIVE_APP(Short.valueOf("0")), WEB(Short.valueOf("1")), MT_MOBILE_APP(Short.valueOf("2")), API(Short.valueOf("3"));
