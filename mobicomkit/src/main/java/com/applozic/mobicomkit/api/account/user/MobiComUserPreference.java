@@ -74,6 +74,7 @@ public class MobiComUserPreference {
     private static String PARENT_GROUP_KEY = "PARENT_GROUP_KEY";
     private static String user_encryption_Key = "user_encryption_Key";
     private static String CATEGORY_NAME_KEY = "CATEGORY_KEY";
+    private static String USER_AUTH_TOKEN = "USER_AUTH_TOKEN";
 
     private static SharedPreferences sharedPreferences;
     private Context context;
@@ -576,6 +577,19 @@ public class MobiComUserPreference {
             return sharedPreferences.getBoolean(delete_channel, false);
         }
         return false;
+    }
+
+    public void setUserAuthToken(String authToken) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString(USER_AUTH_TOKEN, authToken).commit();
+        }
+    }
+
+    public String getUserAuthToken() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getString(USER_AUTH_TOKEN, null);
+        }
+        return null;
     }
 
     @Override

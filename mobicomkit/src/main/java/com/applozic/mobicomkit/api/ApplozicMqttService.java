@@ -65,6 +65,22 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         return applozicMqttService;
     }
 
+    private MqttConnectOptions getConnectionOptions() {
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(context);
+        String authToken = userPreference.getUserAuthToken();
+
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+
+        if (!TextUtils.isEmpty(authToken)) {
+            connOpts.setCleanSession(true);
+            connOpts.setUserName(getApplicationKey(context));
+            connOpts.setPassword(authToken.toCharArray());
+        }
+        connOpts.setConnectionTimeout(60);
+        connOpts.setWill(STATUS, (userPreference.getSuUserKeyString() + "," + userPreference.getDeviceKeyString() + "," + "0").getBytes(), 0, true);
+        return connOpts;
+    }
+
     private AlMqttClient connect() {
         String userId = MobiComUserPreference.getInstance(context).getUserId();
         try {
@@ -77,11 +93,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
             if (!client.isConnected()) {
                 Utils.printLog(context, TAG, "Connecting to mqtt...");
-                MqttConnectOptions options = new MqttConnectOptions();
-                options.setConnectionTimeout(60);
-                options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + MobiComUserPreference.getInstance(context).getDeviceKeyString() + "," + "0").getBytes(), 0, true);
                 client.setCallback(ApplozicMqttService.this);
-                client.connectWithResult(options, new IMqttActionListener() {
+                client.connectWithResult(getConnectionOptions(), new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         Utils.printLog(context, TAG, "Mqtt Connection successfull");
@@ -195,7 +208,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         thread.start();
     }
 
-    public synchronized void subscribeCustomToTopic(String customTopic, boolean useEncrypted) {
+    public synchronized void subscribeToCustomTopic(String customTopic, boolean useEncrypted) {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
             if (TextUtils.isEmpty(userKeyString)) {

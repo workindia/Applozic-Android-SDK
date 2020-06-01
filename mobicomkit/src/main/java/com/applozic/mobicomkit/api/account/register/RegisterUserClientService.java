@@ -114,6 +114,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             if (registrationResponse.getNotificationResponse() != null) {
                 Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
             }
+            mobiComUserPreference.setUserAuthToken(registrationResponse.getAuthToken());
             mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
             mobiComUserPreference.enableEncryption(user.isEnableEncryption());
             mobiComUserPreference.setCountryCode(user.getCountryCode());
