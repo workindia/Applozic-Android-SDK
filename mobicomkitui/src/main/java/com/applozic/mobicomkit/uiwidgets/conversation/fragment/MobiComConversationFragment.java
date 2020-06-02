@@ -1322,9 +1322,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             }
                             messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
                             Intent intent = new Intent(getActivity(), UserIntentService.class);
-                            intent.putExtra(UserIntentService.SINGLE_MESSAGE_READ, true);
                             intent.putExtra(UserIntentService.CONTACT, contact);
                             intent.putExtra(UserIntentService.CHANNEL, channel);
+                            intent.putExtra(UserIntentService.MESSAGE_KEY_STRING, message.getKeyString());
                             UserIntentService.enqueueWork(getActivity(), intent);
                         } catch (Exception e) {
                             Utils.printLog(getContext(), TAG, "Got exception while read");
@@ -1696,7 +1696,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 downloadConversation.cancel(true);
             }
 
-            if (this.contact != null  && contact != null && !contact.getUserId().equals(this.contact.getUserId())) {
+            if (this.contact != null && contact != null && !contact.getUserId().equals(this.contact.getUserId())) {
                 userDisplayName = null;
             }
 
@@ -4288,8 +4288,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public void sendMessage(Object message) {
-        if (message instanceof Message ){
-            conversationService.sendMessage(((Message)message), messageIntentClass, userDisplayName);
+        if (message instanceof Message) {
+            conversationService.sendMessage(((Message) message), messageIntentClass, userDisplayName);
         }
     }
 }

@@ -72,13 +72,16 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         MqttConnectOptions connOpts = new MqttConnectOptions();
 
         if (!TextUtils.isEmpty(authToken)) {
-            connOpts.setCleanSession(true);
             connOpts.setUserName(getApplicationKey(context));
             connOpts.setPassword(authToken.toCharArray());
         }
         connOpts.setConnectionTimeout(60);
         connOpts.setWill(STATUS, (userPreference.getSuUserKeyString() + "," + userPreference.getDeviceKeyString() + "," + "0").getBytes(), 0, true);
         return connOpts;
+    }
+
+    public boolean isConnected() {
+        return client != null && client.isConnected();
     }
 
     private AlMqttClient connect() {
@@ -97,7 +100,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                 client.connectWithResult(getConnectionOptions(), new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        Utils.printLog(context, TAG, "Mqtt Connection successfull");
+                        Utils.printLog(context, TAG, "Mqtt Connection successfull to : " + client.getServerURI());
                         BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.MQTT_CONNECTED.toString());
                     }
 
@@ -527,9 +530,9 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         }
     }
 
-    public synchronized void publishCustomData(String customTopic, String data) {
+    public synchronized void publishCustomData(final String customTopic, final String data) {
         try {
-            final MqttClient client = connect();
+            final AlMqttClient client = connect();
             if (client == null || !client.isConnected()) {
                 return;
             }
@@ -537,8 +540,17 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             message.setRetained(false);
             message.setPayload(data.getBytes());
             message.setQos(0);
-            client.publish(customTopic, message);
-            Utils.printLog(context, TAG, "Sent data + " + data + " to topic : " + customTopic);
+            client.publish(customTopic, message, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Utils.printLog(context, TAG, "Sent data : " + data + " to topic : " + customTopic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Utils.printLog(context, TAG, "Error in sending data : " + data + " to topic : " + customTopic);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
