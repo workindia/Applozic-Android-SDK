@@ -317,7 +317,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         Utils.printLog(context, TAG, "Received MQTT message: " + new String(mqttMessage.getPayload()));
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
-                String typingResponse[] = mqttMessage.toString().split(",");
+                String[] typingResponse = mqttMessage.toString().split(",");
                 String applicationId = typingResponse[0];
                 String userId = User.getDecodedUserId(typingResponse[1]);
                 String isTypingStatus = typingResponse[2];
@@ -382,7 +382,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                                 if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType())
                                         || "MT_MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())) {
-                                    String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
+                                    String[] splitKeyString = (mqttMessageResponse.getMessage()).toString().split(",");
                                     String keyString = splitKeyString[0];
                                     //String userId = splitKeyString[1];
                                     syncCallService.updateDeliveryStatus(keyString);
@@ -390,7 +390,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                                 if (NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
                                         || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
-                                    String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
+                                    String[] splitKeyString = (mqttMessageResponse.getMessage()).toString().split(",");
                                     String keyString = splitKeyString[0];
                                     syncCallService.updateReadStatus(keyString);
                                 }
@@ -419,7 +419,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     String userId = parts[0];
                                     Date lastSeenAt = new Date();
                                     if (parts.length >= 2 && !parts[1].equals("null")) {
-                                        lastSeenAt = new Date(Long.valueOf(parts[1]));
+                                        lastSeenAt = new Date(Long.parseLong(parts[1]));
                                     }
                                     syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
                                 }

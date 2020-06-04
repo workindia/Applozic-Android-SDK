@@ -1324,7 +1324,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Intent intent = new Intent(getActivity(), UserIntentService.class);
                             intent.putExtra(UserIntentService.CONTACT, contact);
                             intent.putExtra(UserIntentService.CHANNEL, channel);
-                            intent.putExtra(UserIntentService.MESSAGE_KEY_STRING, message.getKeyString());
+                            intent.putExtra(UserIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
                             UserIntentService.enqueueWork(getActivity(), intent);
                         } catch (Exception e) {
                             Utils.printLog(getContext(), TAG, "Got exception while read");

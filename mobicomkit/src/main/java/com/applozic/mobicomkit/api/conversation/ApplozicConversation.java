@@ -217,17 +217,17 @@ public class ApplozicConversation {
         }
     }
 
-    public static boolean isMessageStatusPublished(Context context, String messageKey, Short status) {
+    public static boolean isMessageStatusPublished(Context context, String pairedMessageKey, Short status) {
         ApplozicMqttService applozicMqttService = ApplozicMqttService.getInstance(context);
 
-        if (!TextUtils.isEmpty(messageKey) && applozicMqttService.isConnected()) {
-            applozicMqttService.publishCustomData(MESSAGE_STATUS_TOPIC, MobiComUserPreference.getInstance(context).getUserId() + "," + messageKey + "," + status);
+        if (!TextUtils.isEmpty(pairedMessageKey) && applozicMqttService.isConnected()) {
+            applozicMqttService.publishCustomData(MESSAGE_STATUS_TOPIC, MobiComUserPreference.getInstance(context).getUserId() + "," + pairedMessageKey + "," + status);
             return true;
         }
         return false;
     }
 
-    public static void markAsRead(Context context, String messageKey, String userId, Integer groupId) {
+    public static void markAsRead(Context context, String pairedMessageKey, String userId, Integer groupId) {
         try {
             int unreadCount = 0;
             Contact contact = null;
@@ -246,8 +246,8 @@ public class ApplozicConversation {
             intent.putExtra(UserIntentService.CONTACT, contact);
             intent.putExtra(UserIntentService.CHANNEL, channel);
             intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
-            if (!TextUtils.isEmpty(messageKey)) {
-                intent.putExtra(UserIntentService.MESSAGE_KEY_STRING, messageKey);
+            if (!TextUtils.isEmpty(pairedMessageKey)) {
+                intent.putExtra(UserIntentService.PAIRED_MESSAGE_KEY_STRING, pairedMessageKey);
             }
             UserIntentService.enqueueWork(context, intent);
         } catch (Exception e) {

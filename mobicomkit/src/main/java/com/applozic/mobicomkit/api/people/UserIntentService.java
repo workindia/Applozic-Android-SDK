@@ -30,7 +30,7 @@ public class UserIntentService extends AlJobIntentService {
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
     public static final String UNREAD_COUNT = "UNREAD_COUNT";
-    public static final String MESSAGE_KEY_STRING = "MESSAGE_KEY_STRING";
+    public static final String PAIRED_MESSAGE_KEY_STRING = "PAIRED_MESSAGE_KEY_STRING";
     MessageClientService messageClientService;
     MobiComConversationService mobiComConversationService;
     MessageDatabaseService messageDatabaseService;
@@ -60,7 +60,7 @@ public class UserIntentService extends AlJobIntentService {
         Integer unreadCount = intent.getIntExtra(UNREAD_COUNT, 0);
         Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
         Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
-        String messageKey = intent.getStringExtra(MESSAGE_KEY_STRING);
+        String messageKey = intent.getStringExtra(PAIRED_MESSAGE_KEY_STRING);
 
         if (contact != null) {
             messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
