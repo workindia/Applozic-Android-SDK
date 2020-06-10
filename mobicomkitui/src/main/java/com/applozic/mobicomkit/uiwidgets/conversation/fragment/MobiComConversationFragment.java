@@ -1175,9 +1175,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Message belowMessage = messageList.get(belowIndex);
                             if (aboveMessage.isTempDateType() && belowMessage.isTempDateType()) {
                                 messageList.remove(aboveMessage);
+                                recyclerDetailConversationAdapter.notifyItemRemoved(aboveIndex);
                             }
                         } else if (belowIndex == messageList.size() && aboveMessage.isTempDateType()) {
                             messageList.remove(aboveMessage);
+                            recyclerDetailConversationAdapter.notifyItemRemoved(aboveIndex);
                         }
                     }
                 }
@@ -1191,7 +1193,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         messageDatabaseService.deleteScheduledMessage(messageKeyString);
                     }
                     messageList.remove(position);
-                    recyclerDetailConversationAdapter.notifyDataSetChanged();
+                    recyclerDetailConversationAdapter.notifyItemRemoved(position);
                     if (messageList.isEmpty()) {
                         emptyTextView.setVisibility(VISIBLE);
                         ((MobiComKitActivityInterface) getActivity()).removeConversation(message, channel != null ? String.valueOf(channel.getKey()) : contact.getUserId());
@@ -1519,6 +1521,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 conversationUIService.startContactActivityForResult(message, null);
                 break;
             case 2:
+                messageDatabaseService.deleteMessageFromDb(message);
+                deleteMessageFromDeviceList(message.getKeyString());
                 Message messageToResend = new Message(message);
                 messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
                 conversationService.sendMessage(messageToResend, messageIntentClass, userDisplayName);
@@ -2845,11 +2849,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    @Override
-    public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
-        return super.getLayoutInflater(savedInstanceState);    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
     //TODO: Please add onclick events here...  anonymous class are
 // TODO :hard to read and suggested if we have very few event view
     @Override
@@ -2945,194 +2944,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         alertDialog.setMessage(ApplozicService.getContext(getContext()).getString(R.string.dialog_delete_conversation_confir).replace("[name]", getNameForInviteDialog()));
         alertDialog.setCancelable(true);
         alertDialog.create().show();
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        int position = positionInSmsList;
-        if (messageList.size() <= position) {
-            return true;
-        }
-        Message message = messageList.get(position);
-        if (message.isTempDateType() || message.isCustom()) {
-            return true;
-        }
-
-        switch (item.getItemId()) {
-            case 0:
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) ApplozicService.getContext(getContext()).getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboard.setText(message.getMessage());
-                } else {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ApplozicService.getContext(getContext()).getSystemService(Context.CLIPBOARD_SERVICE);
-                    android.content.ClipData clip = android.content.ClipData.newPlainText(ApplozicService.getContext(getContext()).getString(R.string.copied_message), message.getMessage());
-                    clipboard.setPrimaryClip(clip);
-                }
-                break;
-            case 1:
-                conversationUIService.startContactActivityForResult(message, null);
-                break;
-            case 2:
-                Message messageToResend = new Message(message);
-                messageToResend.setCreatedAtTime(System.currentTimeMillis() + MobiComUserPreference.getInstance(getActivity()).getDeviceTimeOffset());
-                conversationService.sendMessage(messageToResend, messageIntentClass, userDisplayName);
-                break;
-            case 3:
-                String messageKeyString = message.getKeyString();
-                new DeleteConversationAsyncTask(conversationService, message, contact).execute();
-                deleteMessageFromDeviceList(messageKeyString);
-                break;
-            case 4:
-                String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
-                conversationUIService.startMessageInfoFragment(messageJson);
-                break;
-            case 5:
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND);
-                if (message.getFilePaths() != null) {
-                    Uri shareUri = null;
-                    if (Utils.hasNougat()) {
-                        shareUri = ALFileProvider.getUriForFile(ApplozicService.getContext(getContext()), Utils.getMetaDataValue(ApplozicService.getContext(getContext()), MobiComKitConstants.PACKAGE_NAME) + ".applozic.provider", new File(message.getFilePaths().get(0)));
-                    } else {
-                        shareUri = Uri.fromFile(new File(message.getFilePaths().get(0)));
-                    }
-                    shareIntent.setDataAndType(shareUri, "text/x-vcard");
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, shareUri);
-                    if (!TextUtils.isEmpty(message.getMessage())) {
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, message.getMessage());
-                    }
-                    shareIntent.setType(FileUtils.getMimeType(new File(message.getFilePaths().get(0))));
-                } else {
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, message.getMessage());
-                    shareIntent.setType("text/plain");
-                }
-                startActivity(Intent.createChooser(shareIntent, ApplozicService.getContext(getContext()).getString(R.string.send_message_to)));
-                break;
-
-            case 6:
-                try {
-                    Configuration config = null;
-                    if (getActivity() != null) {
-                        config = getActivity().getResources().getConfiguration();
-                    }
-                    messageMetaData = new HashMap<>();
-                    String displayName;
-                    if (message.getGroupId() != null) {
-                        if (loggedInUserId.equals(message.getContactIds()) || TextUtils.isEmpty(message.getContactIds())) {
-                            displayName = ApplozicService.getContext(getContext()).getString(R.string.you_string);
-                        } else {
-                            displayName = appContactService.getContactById(message.getContactIds()).getDisplayName();
-                        }
-                    } else {
-                        if (message.isTypeOutbox()) {
-                            displayName = ApplozicService.getContext(getContext()).getString(R.string.you_string);
-                        } else {
-                            displayName = appContactService.getContactById(message.getContactIds()).getDisplayName();
-                        }
-                    }
-                    nameTextView.setText(displayName);
-                    if (message.hasAttachment()) {
-                        FileMeta fileMeta = message.getFileMetas();
-                        imageViewForAttachmentType.setVisibility(VISIBLE);
-                        if (fileMeta.getContentType().contains("image")) {
-                            imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_image_camera_alt);
-                            if (TextUtils.isEmpty(message.getMessage())) {
-                                messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.photo_string));
-                            } else {
-                                messageTextView.setText(message.getMessage());
-                            }
-                            galleryImageView.setVisibility(VISIBLE);
-                            imageViewRLayout.setVisibility(VISIBLE);
-                            imageThumbnailLoader.loadImage(message, galleryImageView);
-                        } else if (fileMeta.getContentType().contains("video")) {
-                            imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_action_video);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                                if (config != null && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
-                                    imageViewForAttachmentType.setScaleX(-1);
-                                }
-                            }
-                            if (TextUtils.isEmpty(message.getMessage())) {
-                                messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.video_string));
-                            } else {
-                                messageTextView.setText(message.getMessage());
-                            }
-                            if (message.getFilePaths() != null && message.getFilePaths().size() > 0) {
-                                if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
-                                    galleryImageView.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
-                                } else {
-                                    imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
-                                    galleryImageView.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
-                                }
-                            }
-                            galleryImageView.setVisibility(VISIBLE);
-                            imageViewRLayout.setVisibility(VISIBLE);
-                        } else if (fileMeta.getContentType().contains("audio")) {
-                            imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_music_note);
-                            if (TextUtils.isEmpty(message.getMessage())) {
-                                messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.audio_string));
-                            } else {
-                                messageTextView.setText(message.getMessage());
-                            }
-                            galleryImageView.setVisibility(View.GONE);
-                            imageViewRLayout.setVisibility(View.GONE);
-                        } else if (message.isContactMessage()) {
-                            MobiComVCFParser parser = new MobiComVCFParser();
-                            imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_person_white);
-                            try {
-                                VCFContactData data = parser.parseCVFContactData(message.getFilePaths().get(0));
-                                if (data != null) {
-                                    messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.contact_string));
-                                    messageTextView.append(" " + data.getName());
-                                }
-                            } catch (Exception e) {
-                                imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_person_white);
-                                messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.contact_string));
-                            }
-                            galleryImageView.setVisibility(View.GONE);
-                            imageViewRLayout.setVisibility(View.GONE);
-                        } else {
-                            imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_action_attachment);
-                            if (TextUtils.isEmpty(message.getMessage())) {
-                                messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.attachment_string));
-                            } else {
-                                messageTextView.setText(message.getMessage());
-                            }
-                            galleryImageView.setVisibility(View.GONE);
-                            imageViewRLayout.setVisibility(View.GONE);
-                        }
-                        imageViewForAttachmentType.setColorFilter(ContextCompat.getColor(getActivity(), R.color.apploizc_lite_gray_color));
-                    } else if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
-                        imageViewForAttachmentType.setVisibility(VISIBLE);
-                        galleryImageView.setVisibility(VISIBLE);
-                        imageViewRLayout.setVisibility(VISIBLE);
-                        messageTextView.setText(ApplozicService.getContext(getContext()).getString(R.string.al_location_string));
-                        imageViewForAttachmentType.setImageResource(R.drawable.applozic_ic_location_on_white_24dp);
-                        imageViewForAttachmentType.setColorFilter(ContextCompat.getColor(getActivity(), R.color.apploizc_lite_gray_color));
-                        messageImageLoader.setLoadingImage(R.drawable.applozic_map_offline_thumbnail);
-                        messageImageLoader.loadImage(LocationUtils.loadStaticMap(message.getMessage(), geoApiKey), galleryImageView);
-                    } else {
-                        imageViewForAttachmentType.setVisibility(View.GONE);
-                        imageViewRLayout.setVisibility(View.GONE);
-                        galleryImageView.setVisibility(View.GONE);
-                        messageTextView.setText(message.getMessage());
-                    }
-                    messageMetaData.put(Message.MetaDataType.AL_REPLY.getValue(), message.getKeyString());
-                    if (messageMetaData != null && !messageMetaData.isEmpty()) {
-                        String replyMessageKey = messageMetaData.get(Message.MetaDataType.AL_REPLY.getValue());
-                        if (!TextUtils.isEmpty(replyMessageKey)) {
-                            messageDatabaseService.updateMessageReplyType(replyMessageKey, Message.ReplyMessage.REPLY_MESSAGE.getValue());
-                        }
-                    }
-                    attachReplyCancelLayout.setVisibility(VISIBLE);
-                    replayRelativeLayout.setVisibility(VISIBLE);
-                } catch (Exception e) {
-
-                }
-                break;
-
-        }
-        return true;
     }
 
     @Override
