@@ -11,6 +11,7 @@ import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicomkit.api.authentication.JWT;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
@@ -25,6 +26,8 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.Gson;
 
 import java.net.ConnectException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -32,9 +35,10 @@ import java.util.TimeZone;
  */
 public class RegisterUserClientService extends MobiComKitClientService {
 
-    public static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
-    public static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
-    public static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
+    private static final String CREATE_ACCOUNT_URL = "/rest/ws/register/client?";
+    private static final String UPDATE_ACCOUNT_URL = "/rest/ws/register/update?";
+    private static final String CHECK_PRICING_PACKAGE = "/rest/ws/application/pricing/package";
+    private static final String REFRESH_TOKEN_URL = "/rest/ws/register/refresh/token";
     public static final Short MOBICOMKIT_VERSION_CODE = 112;
     private static final String TAG = "RegisterUserClient";
     private static final String INVALID_APP_ID = "INVALID_APPLICATIONID";
@@ -56,6 +60,10 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     public String getUpdateAccountUrl() {
         return getBaseUrl() + UPDATE_ACCOUNT_URL;
+    }
+
+    public String getRefreshTokenUrl() {
+        return getBaseUrl() + REFRESH_TOKEN_URL;
     }
 
     public RegistrationResponse createAccount(User user) throws Exception {
@@ -114,7 +122,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             if (registrationResponse.getNotificationResponse() != null) {
                 Utils.printLog(context, "Registration response ", "" + registrationResponse.getNotificationResponse());
             }
-            mobiComUserPreference.setUserAuthToken(registrationResponse.getAuthToken());
+            JWT.parseToken(context, registrationResponse.getAuthToken());
             mobiComUserPreference.setEncryptionKey(registrationResponse.getEncryptionKey());
             mobiComUserPreference.enableEncryption(user.isEnableEncryption());
             mobiComUserPreference.setCountryCode(user.getCountryCode());
@@ -132,7 +140,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setUserBlockSyncTime("10000");
-            if(registrationResponse.getNotificationAfter() != null){
+            if (registrationResponse.getNotificationAfter() != null) {
                 ALSpecificSettings.getInstance(context).setNotificationAfterTime(registrationResponse.getNotificationAfter());
             }
             ApplozicClient.getInstance(context).skipDeletedGroups(user.isSkipDeletedGroups()).hideActionMessages(user.isHideActionMessages());
@@ -188,6 +196,24 @@ public class RegisterUserClientService extends MobiComKitClientService {
         return registrationResponse;
     }
 
+    public boolean refreshAuthToken(String applicationId, String userId) {
+        try {
+            Map<String, String> tokenRefreshBodyMap = new HashMap<>();
+            tokenRefreshBodyMap.put("applicationId", applicationId);
+            tokenRefreshBodyMap.put("userId", userId);
+            String response = httpRequestUtils.postData(getRefreshTokenUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(tokenRefreshBodyMap, Map.class));
+            if (!TextUtils.isEmpty(response)) {
+                ApiResponse<String> jwtTokenResponse = (ApiResponse<String>) GsonUtils.getObjectFromJson(response, ApiResponse.class);
+                if (jwtTokenResponse != null && !TextUtils.isEmpty(jwtTokenResponse.getResponse())) {
+                    JWT.parseToken(context, jwtTokenResponse.getResponse());
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public RegistrationResponse createAccount(String email, String userId, String phoneNumber, String displayName, String imageLink, String pushNotificationId) throws Exception {
         MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
@@ -281,7 +307,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
         return registrationResponse;
-
     }
 
     private User getUserDetail() {

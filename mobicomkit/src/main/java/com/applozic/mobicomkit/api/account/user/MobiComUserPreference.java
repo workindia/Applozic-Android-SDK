@@ -75,6 +75,8 @@ public class MobiComUserPreference {
     private static String user_encryption_Key = "user_encryption_Key";
     private static String CATEGORY_NAME_KEY = "CATEGORY_KEY";
     private static String USER_AUTH_TOKEN = "USER_AUTH_TOKEN";
+    private static String AUTH_TOKEN_VALID_UPTO_MINS = "AUTH_TOKEN_VALID_UPTO_MINS";
+    private static String AUTH_TOKEN_CREATED_AT_TIME = "AUTH_TOKEN_CREATED_AT_TIME";
 
     private static SharedPreferences sharedPreferences;
     private Context context;
@@ -579,10 +581,11 @@ public class MobiComUserPreference {
         return false;
     }
 
-    public void setUserAuthToken(String authToken) {
+    public MobiComUserPreference setUserAuthToken(String authToken) {
         if (sharedPreferences != null) {
             sharedPreferences.edit().putString(USER_AUTH_TOKEN, authToken).commit();
         }
+        return this;
     }
 
     public String getUserAuthToken() {
@@ -847,5 +850,33 @@ public class MobiComUserPreference {
         if (sharedPreferences != null) {
             sharedPreferences.edit().putString(CATEGORY_NAME_KEY, category).commit();
         }
+    }
+
+    public long getTokenCreatedAtTime() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getLong(AUTH_TOKEN_CREATED_AT_TIME, 0);
+        }
+        return 0;
+    }
+
+    public MobiComUserPreference setTokenCreatedAtTime(Long authTokenCreatedAtTime) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putLong(AUTH_TOKEN_CREATED_AT_TIME, authTokenCreatedAtTime).commit();
+        }
+        return this;
+    }
+
+    public int getTokenValidUptoMins() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getInt(AUTH_TOKEN_VALID_UPTO_MINS, 0);
+        }
+        return 0;
+    }
+
+    public MobiComUserPreference setTokenValidUptoMins(Integer validUptoMins) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putInt(AUTH_TOKEN_VALID_UPTO_MINS, validUptoMins).commit();
+        }
+        return this;
     }
 }
