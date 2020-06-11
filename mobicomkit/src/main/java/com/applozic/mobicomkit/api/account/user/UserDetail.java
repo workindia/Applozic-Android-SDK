@@ -144,21 +144,4 @@ public class UserDetail extends JsonMarker {
     public void setEmailId(String emailId) {
         this.email = emailId;
     }
-
-    @Override
-    public String toString() {
-        return "UserDetail{" +
-                "userId='" + userId + '\'' +
-                ", connected=" + connected +
-                ", displayName='" + displayName + '\'' +
-                ", lastSeenAtTime=" + lastSeenAtTime +
-                ", imageLink='" + imageLink + '\'' +
-                ", unreadCount=" + unreadCount +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", statusMessage='" + statusMessage + '\'' +
-                ", userTypeId=" + userTypeId +
-                ", deletedAtTime=" + deletedAtTime +
-                ", notificationAfterTime=" + notificationAfterTime +
-                '}';
-    }
 }

@@ -172,7 +172,7 @@ public class ConversationUIService {
         });
     }
 
-    public void openConversationFragment(final Channel channel, final Integer conversationId, final String searchString, final  String userDisplayName) {
+    public void openConversationFragment(final Channel channel, final Integer conversationId, final String searchString, final String userDisplayName) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -932,13 +932,10 @@ public class ConversationUIService {
 
     public void reconnectMQTT() {
         try {
-            if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3) {
-                if (Utils.isInternetAvailable(fragmentActivity)) {
-                    Utils.printLog(fragmentActivity, TAG, "Reconnecting to mqtt.");
-                    ((MobiComKitActivityInterface) fragmentActivity).retry();
-                    Applozic.connectPublish(fragmentActivity);
-
-                }
+            if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3 && Utils.isInternetAvailable(fragmentActivity)) {
+                Utils.printLog(fragmentActivity, TAG, "Reconnecting to mqtt.");
+                ((MobiComKitActivityInterface) fragmentActivity).retry();
+                Applozic.connectPublish(fragmentActivity);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -88,16 +88,4 @@ public class ChannelUserMapper extends JsonMarker {
             return value;
         }
     }
-
-    @Override
-    public String toString() {
-        return "ChannelUserMapper{" +
-                "key=" + key +
-                ", userKey='" + userKey + '\'' +
-                ", status=" + status +
-                ", unreadCount=" + unreadCount +
-                ", role=" + role +
-                ", parentKey=" + parentKey +
-                '}';
-    }
 }

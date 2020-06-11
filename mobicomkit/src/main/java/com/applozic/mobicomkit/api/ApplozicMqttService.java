@@ -4,13 +4,13 @@ import android.content.Context;
 import android.os.Process;
 import android.text.TextUtils;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
+import com.applozic.mobicomkit.broadcast.AlEventManager;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
@@ -65,6 +65,25 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         return applozicMqttService;
     }
 
+    private MqttConnectOptions getConnectionOptions() {
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(context);
+        String authToken = userPreference.getUserAuthToken();
+
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+
+        if (!TextUtils.isEmpty(authToken)) {
+            connOpts.setUserName(getApplicationKey(context));
+            connOpts.setPassword(authToken.toCharArray());
+        }
+        connOpts.setConnectionTimeout(60);
+        connOpts.setWill(STATUS, (userPreference.getSuUserKeyString() + "," + userPreference.getDeviceKeyString() + "," + "0").getBytes(), 0, true);
+        return connOpts;
+    }
+
+    public boolean isConnected() {
+        return client != null && client.isConnected();
+    }
+
     private AlMqttClient connect() {
         String userId = MobiComUserPreference.getInstance(context).getUserId();
         try {
@@ -77,14 +96,11 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
             if (!client.isConnected()) {
                 Utils.printLog(context, TAG, "Connecting to mqtt...");
-                MqttConnectOptions options = new MqttConnectOptions();
-                options.setConnectionTimeout(60);
-                options.setWill(STATUS, (MobiComUserPreference.getInstance(context).getSuUserKeyString() + "," + MobiComUserPreference.getInstance(context).getDeviceKeyString() + "," + "0").getBytes(), 0, true);
                 client.setCallback(ApplozicMqttService.this);
-                client.connectWithResult(options, new IMqttActionListener() {
+                client.connectWithResult(getConnectionOptions(), new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
-                        Utils.printLog(context, TAG, "Mqtt Connection successfull");
+                        Utils.printLog(context, TAG, "Mqtt Connection successfull to : " + client.getServerURI());
                         BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.MQTT_CONNECTED.toString());
                     }
 
@@ -195,6 +211,43 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         thread.start();
     }
 
+    public synchronized void subscribeToCustomTopic(String customTopic, boolean useEncrypted) {
+        try {
+            String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
+            if (TextUtils.isEmpty(userKeyString)) {
+                return;
+            }
+            final MqttClient client = connect();
+            if (client != null && client.isConnected()) {
+                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + getApplicationKey(context);
+                Utils.printLog(context, TAG, "Subscribing to support group topic : " + topic);
+                client.subscribe(topic, 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void unSubscribeToCustomTopic(final String customTopic, final boolean useEncrypted) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (client == null || !client.isConnected()) {
+                        return;
+                    }
+                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic;
+                    Utils.printLog(context, TAG, "UnSubscribing to support group topic : " + topic);
+                    client.unsubscribe(topic);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+    }
+
     public synchronized void subscribeToSupportGroup(boolean useEncrypted) {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
@@ -264,7 +317,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         Utils.printLog(context, TAG, "Received MQTT message: " + new String(mqttMessage.getPayload()));
         try {
             if (!TextUtils.isEmpty(s) && s.startsWith(TYPINGTOPIC)) {
-                String typingResponse[] = mqttMessage.toString().split(",");
+                String[] typingResponse = mqttMessage.toString().split(",");
                 String applicationId = typingResponse[0];
                 String userId = User.getDecodedUserId(typingResponse[1]);
                 String isTypingStatus = typingResponse[2];
@@ -298,6 +351,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 final SyncCallService syncCallService = SyncCallService.getInstance(context);
                                 MobiComPushReceiver.addPushNotificationId(mqttMessageResponse.getId());
 
+                                AlEventManager.getInstance().postMqttEventData(mqttMessageResponse);
+
                                 Utils.printLog(context, TAG, "MQTT message type: " + mqttMessageResponse.getType());
                                 if (NOTIFICATION_TYPE.MESSAGE_RECEIVED.getValue().equals(mqttMessageResponse.getType()) || "MESSAGE_RECEIVED".equals(mqttMessageResponse.getType())) {
 
@@ -327,7 +382,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                                 if (NOTIFICATION_TYPE.MESSAGE_DELIVERED.getValue().equals(mqttMessageResponse.getType())
                                         || "MT_MESSAGE_DELIVERED".equals(mqttMessageResponse.getType())) {
-                                    String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
+                                    String[] splitKeyString = (mqttMessageResponse.getMessage()).toString().split(",");
                                     String keyString = splitKeyString[0];
                                     //String userId = splitKeyString[1];
                                     syncCallService.updateDeliveryStatus(keyString);
@@ -335,7 +390,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                                 if (NOTIFICATION_TYPE.MESSAGE_DELIVERED_AND_READ.getValue().equals(mqttMessageResponse.getType())
                                         || "MT_MESSAGE_DELIVERED_READ".equals(mqttMessageResponse.getType())) {
-                                    String splitKeyString[] = (mqttMessageResponse.getMessage()).toString().split(",");
+                                    String[] splitKeyString = (mqttMessageResponse.getMessage()).toString().split(",");
                                     String keyString = splitKeyString[0];
                                     syncCallService.updateReadStatus(keyString);
                                 }
@@ -364,7 +419,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     String userId = parts[0];
                                     Date lastSeenAt = new Date();
                                     if (parts.length >= 2 && !parts[1].equals("null")) {
-                                        lastSeenAt = new Date(Long.valueOf(parts[1]));
+                                        lastSeenAt = new Date(Long.parseLong(parts[1]));
                                     }
                                     syncCallService.updateConnectedStatus(userId, lastSeenAt, false);
                                 }
@@ -473,7 +528,32 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public synchronized void publishCustomData(final String customTopic, final String data) {
+        try {
+            final AlMqttClient client = connect();
+            if (client == null || !client.isConnected()) {
+                return;
+            }
+            MqttMessage message = new MqttMessage();
+            message.setRetained(false);
+            message.setPayload(data.getBytes());
+            message.setQos(0);
+            client.publish(customTopic, message, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Utils.printLog(context, TAG, "Sent data : " + data + " to topic : " + customTopic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Utils.printLog(context, TAG, "Error in sending data : " + data + " to topic : " + customTopic);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void publishTopic(final String applicationId, final String status, final String loggedInUserId, final String userId) {

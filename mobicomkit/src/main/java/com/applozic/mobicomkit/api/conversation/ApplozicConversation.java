@@ -2,7 +2,9 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentManager;
 import com.applozic.mobicomkit.api.attachment.AttachmentTask;
@@ -26,6 +28,8 @@ import java.util.List;
  */
 
 public class ApplozicConversation {
+
+    private static final String MESSAGE_STATUS_TOPIC = "message-status";
 
     public static void getLatestMessageList(Context context, String searchString, boolean isScroll, MessageListHandler handler) {
         if (!isScroll) {
@@ -213,7 +217,17 @@ public class ApplozicConversation {
         }
     }
 
-    public static void markAsRead(Context context, String userId, Integer groupId) {
+    public static boolean isMessageStatusPublished(Context context, String pairedMessageKey, Short status) {
+        ApplozicMqttService applozicMqttService = ApplozicMqttService.getInstance(context);
+
+        if (!TextUtils.isEmpty(pairedMessageKey) && applozicMqttService.isConnected()) {
+            applozicMqttService.publishCustomData(MESSAGE_STATUS_TOPIC, MobiComUserPreference.getInstance(context).getUserId() + "," + pairedMessageKey + "," + status);
+            return true;
+        }
+        return false;
+    }
+
+    public static void markAsRead(Context context, String pairedMessageKey, String userId, Integer groupId) {
         try {
             int unreadCount = 0;
             Contact contact = null;
@@ -232,6 +246,9 @@ public class ApplozicConversation {
             intent.putExtra(UserIntentService.CONTACT, contact);
             intent.putExtra(UserIntentService.CHANNEL, channel);
             intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
+            if (!TextUtils.isEmpty(pairedMessageKey)) {
+                intent.putExtra(UserIntentService.PAIRED_MESSAGE_KEY_STRING, pairedMessageKey);
+            }
             UserIntentService.enqueueWork(context, intent);
         } catch (Exception e) {
         }

@@ -544,7 +544,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isDeliveredAndRead() {
-        return Message.Status.DELIVERED_AND_READ.getValue().shortValue() == getStatus();
+        return Message.Status.DELIVERED_AND_READ.getValue().equals(getStatus());
     }
 
     public boolean isReadStatus() {
@@ -675,48 +675,6 @@ public class Message extends JsonMarker {
             return (subGroupFlag || categoryFlag || ApplozicClient.getInstance(context).isSubGroupEnabled() || !TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getCategoryName()));
         }
         return ((ApplozicClient.getInstance(context).isActionMessagesHidden() && isActionMessage()) || hasHideKey());
-    }
-
-    @Override
-    public String toString() {
-        return "Message{" +
-                "createdAtTime=" + createdAtTime +
-                ", to='" + to + '\'' +
-                ", message='" + message + '\'' +
-                ", key='" + key + '\'' +
-                ", deviceKey='" + deviceKey + '\'' +
-                ", userKey='" + userKey + '\'' +
-                ", emailIds='" + emailIds + '\'' +
-                ", shared=" + shared +
-                ", sent=" + sent +
-                ", delivered=" + delivered +
-                ", type=" + type +
-                ", storeOnDevice=" + storeOnDevice +
-                ", contactIds='" + contactIds + '\'' +
-                ", groupId=" + groupId +
-                ", sendToDevice=" + sendToDevice +
-                ", scheduledAt=" + scheduledAt +
-                ", source=" + source +
-                ", timeToLive=" + timeToLive +
-                ", sentToServer=" + sentToServer +
-                ", fileMetaKey='" + fileMetaKey + '\'' +
-                ", filePaths=" + filePaths +
-                ", pairedMessageKey='" + pairedMessageKey + '\'' +
-                ", sentMessageTimeAtServer=" + sentMessageTimeAtServer +
-                ", canceled=" + canceled +
-                ", clientGroupId='" + clientGroupId + '\'' +
-                ", fileMeta=" + fileMeta +
-                ", messageId=" + messageId +
-                ", read=" + read +
-                ", attDownloadInProgress=" + attDownloadInProgress +
-                ", applicationId='" + applicationId + '\'' +
-                ", conversationId=" + conversationId +
-                ", topicId='" + topicId + '\'' +
-                ", connected=" + connected +
-                ", contentType=" + contentType +
-                ", metadata=" + metadata +
-                ", status=" + status +
-                '}';
     }
 
     public enum Source {
