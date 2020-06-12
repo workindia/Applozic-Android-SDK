@@ -12,18 +12,8 @@ import com.applozic.mobicomkit.listners.AlCallback;
 
 public class AlAuthService {
 
-    public static boolean isTokenValid(Context context) {
-        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(context);
-        if (userPreference == null) {
-            return false;
-        }
-
-        float createdAtTime = userPreference.getTokenCreatedAtTime();
-        int validUptoMins = userPreference.getTokenValidUptoMins();
-
-        return createdAtTime > 0
-                && validUptoMins > 0
-                && (System.currentTimeMillis() - createdAtTime) / 60000 < validUptoMins;
+    public static boolean isTokenValid(long createdAtTime, int validUptoMins) {
+        return (System.currentTimeMillis() - createdAtTime) / 60000 < validUptoMins;
     }
 
     public static void refreshToken(Context context, AlCallback callback) {
@@ -35,17 +25,23 @@ public class AlAuthService {
             return;
         }
 
-        if (!isTokenValid(context)) {
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(context);
+        if (userPreference == null) {
+            return;
+        }
+        String token = userPreference.getUserAuthToken();
+        long createdAtTime = userPreference.getTokenCreatedAtTime();
+        int validUptoMins = userPreference.getTokenValidUptoMins();
+
+        if ((validUptoMins > 0 && !isTokenValid(createdAtTime, validUptoMins)) || TextUtils.isEmpty(token)) {
             refreshToken(context, loadingMessage, callback);
-        } else {
-            String token = MobiComUserPreference.getInstance(context).getUserAuthToken();
-            if (!TextUtils.isEmpty(token)) {
+        } else if (!TextUtils.isEmpty(token)) {
+            if ((createdAtTime == 0 || validUptoMins == 0)) {
                 JWT.parseToken(context, token);
-                if (callback != null) {
-                    callback.onSuccess(true);
-                }
-            } else {
-                refreshToken(context, loadingMessage, callback);
+                verifyToken(context, loadingMessage, callback);
+            }
+            if (callback != null) {
+                callback.onSuccess(true);
             }
         }
     }
