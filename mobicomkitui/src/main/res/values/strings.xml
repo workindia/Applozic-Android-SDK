@@ -230,4 +230,5 @@
     <string name="invalid_message_matching_pattern">The Regex to match message is invalid</string>
     <string name="message_reported_successfully">This message has been reported successfully</string>
     <string name="failed_to_report_message">Failed to report message</string>
+    <string name="auth_token_loading_message">Please wait...</string>
 </resources>

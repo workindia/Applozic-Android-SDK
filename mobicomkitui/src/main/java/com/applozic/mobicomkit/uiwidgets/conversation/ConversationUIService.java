@@ -935,7 +935,7 @@ public class ConversationUIService {
             if (((MobiComKitActivityInterface) fragmentActivity).getRetryCount() <= 3 && Utils.isInternetAvailable(fragmentActivity)) {
                 Utils.printLog(fragmentActivity, TAG, "Reconnecting to mqtt.");
                 ((MobiComKitActivityInterface) fragmentActivity).retry();
-                Applozic.connectPublish(fragmentActivity);
+                Applozic.connectPublishWithVerifyToken(fragmentActivity, Utils.getString(fragmentActivity, R.string.auth_token_loading_message));
             }
         } catch (Exception e) {
             e.printStackTrace();
