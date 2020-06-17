@@ -30,7 +30,7 @@ public class RefreshAuthTokenTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
-        return new RegisterUserClientService(context.get()).refreshAuthToken(userId, applicationId);
+        return new RegisterUserClientService(context.get()).refreshAuthToken(applicationId, userId);
     }
 
     @Override

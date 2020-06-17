@@ -16,12 +16,14 @@ import com.applozic.mobicomkit.api.account.user.PushNotificationTask;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
+import com.applozic.mobicomkit.api.authentication.AlAuthService;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.broadcast.ApplozicBroadcastReceiver;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AlLoginHandler;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
@@ -125,6 +127,21 @@ public class Applozic {
     public static void connectPublish(Context context) {
         connectPublish(context, true);
         connectPublish(context, false);
+    }
+
+    public static void connectPublishWithVerifyToken(final Context context, String loadingMessage) {
+        AlAuthService.verifyToken(context, loadingMessage, new AlCallback() {
+            @Override
+            public void onSuccess(Object response) {
+                connectPublish(context, true);
+                connectPublish(context, false);
+            }
+
+            @Override
+            public void onError(Object error) {
+
+            }
+        });
     }
 
 
