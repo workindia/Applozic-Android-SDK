@@ -323,4 +323,28 @@ public class Channel extends JsonMarker {
         public static final String CLOSED = "2";
         public static final String RESOLVED = "3";
     }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "metadata=" + metadata +
+                ", key=" + key +
+                ", parentKey=" + parentKey +
+                ", parentClientGroupId='" + parentClientGroupId + '\'' +
+                ", clientGroupId='" + clientGroupId + '\'' +
+                ", subGroupCount=" + subGroupCount +
+                ", name='" + name + '\'' +
+                ", adminKey='" + adminKey + '\'' +
+                ", type=" + type +
+                ", unreadCount=" + unreadCount +
+                ", userCount=" + userCount +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", localImageUri='" + localImageUri + '\'' +
+                ", conversationPxy=" + conversationPxy +
+                ", contacts=" + contacts +
+                ", notificationAfterTime=" + notificationAfterTime +
+                ", deletedAtTime=" + deletedAtTime +
+                ", kmStatus=" + kmStatus +
+                '}';
+    }
 }

@@ -47,4 +47,14 @@ public class ChannelFeedListResponse extends JsonMarker {
     public void setErrorResponse(List<ErrorResponseFeed> errorResponse) {
         this.errorResponse = errorResponse;
     }
+
+    @Override
+    public String toString() {
+        return "ChannelFeedListResponse{" +
+                "status='" + status + '\'' +
+                ", generatedAt='" + generatedAt + '\'' +
+                ", response=" + response +
+                ", errorResponse=" + errorResponse +
+                '}';
+    }
 }

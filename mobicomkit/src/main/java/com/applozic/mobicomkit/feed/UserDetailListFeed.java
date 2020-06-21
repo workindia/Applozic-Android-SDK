@@ -37,4 +37,13 @@ public class UserDetailListFeed extends JsonMarker {
     public void setContactSync(boolean contactSync) {
         this.contactSync = contactSync;
     }
+
+    @Override
+    public String toString() {
+        return "UserDetailListFeed{" +
+                "userIdList=" + userIdList +
+                ", phoneNumberList=" + phoneNumberList +
+                ", contactSync=" + contactSync +
+                '}';
+    }
 }
