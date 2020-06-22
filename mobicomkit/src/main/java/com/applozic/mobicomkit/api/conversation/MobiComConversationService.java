@@ -133,8 +133,9 @@ public class MobiComConversationService {
         }
         MessageIntentService.enqueueWork(context, intent, null);
     }
+
     public void sendMessage(Message message, Class messageIntentClass) {
-        sendMessage(message,messageIntentClass, null);
+        sendMessage(message, messageIntentClass, null);
     }
 
     public void sendMessage(Message message, MediaUploadProgressHandler handler) {
@@ -377,7 +378,7 @@ public class MobiComConversationService {
                         }
                     }
                 }
-              
+
                 if (!isServerCallNotRequired && !message.isHidden()) {
                     messageList.add(message);
                 }
@@ -442,20 +443,15 @@ public class MobiComConversationService {
 
     public List<Message> getConversationSearchList(String searchString) throws Exception {
         String response = messageClientService.getMessageSearchResult(searchString);
-        try {
-            ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(response, new TypeToken<ApiResponse<KmConversationResponse>>() {
-            }.getType());
-            if (apiResponse != null) {
-                if (apiResponse.isSuccess()) {
-                    processMessageSearchResult(apiResponse.getResponse());
-                    return Arrays.asList(apiResponse.getResponse().getMessage());
-                } else if (apiResponse.getErrorResponse() != null) {
-                    throw new ApplozicException(GsonUtils.getJsonFromObject(apiResponse.getErrorResponse(), List.class));
-                }
+        ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(response, new TypeToken<ApiResponse<KmConversationResponse>>() {
+        }.getType());
+        if (apiResponse != null) {
+            if (apiResponse.isSuccess()) {
+                processMessageSearchResult(apiResponse.getResponse());
+                return Arrays.asList(apiResponse.getResponse().getMessage());
+            } else if (apiResponse.getErrorResponse() != null) {
+                throw new ApplozicException(GsonUtils.getJsonFromObject(apiResponse.getErrorResponse(), List.class));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
         return null;
     }
@@ -468,7 +464,7 @@ public class MobiComConversationService {
         }
     }
 
-    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) {
+    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) throws Exception {
         List<Message> conversationList = new ArrayList<>();
         List<Message> cachedConversationList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
 
@@ -485,7 +481,7 @@ public class MobiComConversationService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return cachedConversationList;
+            throw e;
         }
 
         if (kmConversationResponse == null) {
@@ -553,6 +549,7 @@ public class MobiComConversationService {
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
 
         List<Message> finalMessageList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
