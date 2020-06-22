@@ -372,17 +372,7 @@ public class MessageInfoFragment extends Fragment {
             char firstLetter;
             Contact contact = contactService.getContactById(messageInfo.getUserId());
             holder.displayName.setText(contact.getDisplayName());
-            long timeStamp = messageInfo.isRead() ? messageInfo.getReadAtTime() :
-                    (messageInfo.getDeliveredAtTime() == null ? 0 : messageInfo.getDeliveredAtTime());
-            if (timeStamp != 0) {
-
-                holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
-                holder.lastSeenAtTextView.setText(String.valueOf(DateUtils.getDateAndTimeInDefaultFormat(timeStamp)));
-
-            } else {
-                holder.lastSeenAtTextView.setVisibility(View.GONE);
-                holder.lastSeenAtTextView.setText("");
-            }
+            holder.lastSeenAtTextView.setVisibility(View.GONE);
 
             if (contact != null && !TextUtils.isEmpty(contact.getDisplayName())) {
                 contactNumber = contact.getDisplayName().toUpperCase();

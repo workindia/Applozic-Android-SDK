@@ -31,7 +31,7 @@ public class MessageInfoResponse extends JsonMarker {
         List<MessageInfo> deliverdToUserList = new ArrayList<MessageInfo>();
 
         for (MessageInfo messageInfo : messageInfoList) {
-            if (!messageInfo.isRead()) {
+            if (messageInfo.isDelivered()) {
                 deliverdToUserList.add(messageInfo);
             }
         }
