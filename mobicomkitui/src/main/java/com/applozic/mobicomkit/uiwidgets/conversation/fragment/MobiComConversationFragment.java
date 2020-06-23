@@ -1393,17 +1393,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     menu.findItem(R.id.muteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !channel.isDeleted() && !channel.isNotificationMuted());
                 }
             }
-        } else if (alCustomizationSettings.isMuteUserChatOption() && contact != null) {
-            menu.findItem(R.id.userBlock).setVisible(false);
-            menu.findItem(R.id.userUnBlock).setVisible(false);
-            menu.findItem(R.id.unmuteGroup).setVisible(!contact.isDeleted() && contact.isNotificationMuted());
-            menu.findItem(R.id.muteGroup).setVisible(!contact.isDeleted() && !contact.isNotificationMuted());
-
-        } else if (contact != null && alCustomizationSettings.isBlockOption()) {
-            if (contact.isBlocked()) {
-                menu.findItem(R.id.userUnBlock).setVisible(true);
-            } else {
-                menu.findItem(R.id.userBlock).setVisible(true);
+        } else if (contact != null) {
+            if (alCustomizationSettings.isMuteUserChatOption()) {
+                menu.findItem(R.id.unmuteGroup).setVisible(!contact.isDeleted() && contact.isNotificationMuted());
+                menu.findItem(R.id.muteGroup).setVisible(!contact.isDeleted() && !contact.isNotificationMuted());
+            }
+            if (alCustomizationSettings.isBlockOption()) {
+                if (contact.isBlocked()) {
+                    menu.findItem(R.id.userUnBlock).setVisible(true);
+                } else {
+                    menu.findItem(R.id.userBlock).setVisible(true);
+                }
             }
         }
 
@@ -2912,14 +2912,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     }
 
-    public void loadConversation(Channel channel, Integer conversationId) {
-        loadConversation(null, channel, conversationId, null);
-    }
-
-    public void loadConversation(Contact contact, Integer conversationId) {
-        loadConversation(contact, null, conversationId, null);
-    }
-
     //With search
     public void loadConversation(Contact contact, Integer conversationId, String searchString) {
         loadConversation(contact, null, conversationId, searchString);
@@ -3000,7 +2992,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 loadConversation(contact, channel, currentConversationId, null);
             } else if (MobiComUserPreference.getInstance(getContext()).getNewMessageFlag()) {
                 MobiComUserPreference.getInstance(getContext()).setNewMessageFlag(false);
-                loadnewMessageOnResume(contact, channel, currentConversationId);
+                loadNewMessageOnResume(contact, channel, currentConversationId);
             } else {
                 Applozic.subscribeToTyping(getContext(), channel, contact);
             }
@@ -3160,7 +3152,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public void loadnewMessageOnResume(Contact contact, Channel channel, Integer conversationId) {
+    public void loadNewMessageOnResume(Contact contact, Channel channel, Integer conversationId) {
         downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
         downloadConversation.execute();
     }
