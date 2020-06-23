@@ -271,7 +271,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     RecyclerView recyclerView;
     RecyclerViewPositionHelper recyclerViewPositionHelper;
     protected LinearLayoutManager linearLayoutManager;
-    int positionInSmsList;
     DetailedConversationAdapter recyclerDetailConversationAdapter;
     MobicomMessageTemplate messageTemplate;
     MobicomMessageTemplateAdapter templateAdapter;
@@ -610,7 +609,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         handleSendAndRecordButtonView(true);
                     } else if (s.toString().trim().length() == 0 && typingStarted) {
                         typingStarted = false;
-                        handleSendAndRecordButtonView(false);
+                        handleSendAndRecordButtonView(!TextUtils.isEmpty(filePath));
                     }
                     if (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) || contact != null) {
                         Applozic.publishTypingStatus(getContext(), channel, contact, typingStarted);
