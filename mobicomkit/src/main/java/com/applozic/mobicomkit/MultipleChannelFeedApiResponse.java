@@ -43,4 +43,12 @@ public class MultipleChannelFeedApiResponse extends JsonMarker {
         return SUCCESS.equals(status);
     }
 
+    @Override
+    public String toString() {
+        return "MultipleChannelFeedApiResponse{" +
+                "status='" + status + '\'' +
+                ", generatedAt='" + generatedAt + '\'' +
+                ", response=" + response +
+                '}';
+    }
 }

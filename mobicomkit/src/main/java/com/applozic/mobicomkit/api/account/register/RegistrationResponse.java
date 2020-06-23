@@ -227,4 +227,30 @@ public class RegistrationResponse extends JsonMarker {
             return value;
         }
     }
+
+    @Override
+    public String toString() {
+        return "RegistrationResponse{" +
+                "message='" + message + '\'' +
+                ", deviceKey='" + deviceKey + '\'' +
+                ", userKey='" + userKey + '\'' +
+                ", userId='" + userId + '\'' +
+                ", contactNumber='" + contactNumber + '\'' +
+                ", lastSyncTime=" + lastSyncTime +
+                ", currentTimeStamp=" + currentTimeStamp +
+                ", displayName='" + displayName + '\'' +
+                ", notificationResponse='" + notificationResponse + '\'' +
+                ", brokerUrl='" + brokerUrl + '\'' +
+                ", imageLink='" + imageLink + '\'' +
+                ", statusMessage='" + statusMessage + '\'' +
+                ", encryptionKey='" + encryptionKey + '\'' +
+                ", userEncryptionKey='" + userEncryptionKey + '\'' +
+                ", enableEncryption=" + enableEncryption +
+                ", metadata=" + metadata +
+                ", roleType=" + roleType +
+                ", authToken='" + authToken + '\'' +
+                ", pricingPackage=" + pricingPackage +
+                ", notificationAfter=" + notificationAfter +
+                '}';
+    }
 }

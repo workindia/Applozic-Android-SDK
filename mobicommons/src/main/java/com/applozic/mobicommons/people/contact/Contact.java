@@ -406,4 +406,39 @@ public class Contact extends JsonMarker {
     public boolean isUserDisplayUpdateRequired() {
         return metadata != null && !metadata.isEmpty() && metadata.containsKey(AL_DISPLAY_NAME_UPDATED) && !TRUE.equals(metadata.get(AL_DISPLAY_NAME_UPDATED));
     }
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "firstName='" + firstName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", emailIds=" + emailIds +
+                ", contactNumbers=" + contactNumbers +
+                ", phoneNumbers=" + phoneNumbers +
+                ", contactNumber='" + contactNumber + '\'' +
+                ", contactId=" + contactId +
+                ", fullName='" + fullName + '\'' +
+                ", userId='" + userId + '\'' +
+                ", imageURL='" + imageURL + '\'' +
+                ", localImageUrl='" + localImageUrl + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
+                ", connected=" + connected +
+                ", lastSeenAtTime=" + lastSeenAtTime +
+                ", checked=" + checked +
+                ", unreadCount=" + unreadCount +
+                ", blocked=" + blocked +
+                ", blockedBy=" + blockedBy +
+                ", status='" + status + '\'' +
+                ", contactType=" + contactType +
+                ", userTypeId=" + userTypeId +
+                ", deletedAtTime=" + deletedAtTime +
+                ", notificationAfterTime=" + notificationAfterTime +
+                ", lastMessageAtTime=" + lastMessageAtTime +
+                ", metadata=" + metadata +
+                ", roleType=" + roleType +
+                ", applozicType=" + applozicType +
+                '}';
+    }
 }

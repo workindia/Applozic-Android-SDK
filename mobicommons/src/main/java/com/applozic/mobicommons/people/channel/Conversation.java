@@ -139,4 +139,22 @@ public class Conversation extends JsonMarker {
         map.put(FALL_BACK_TEMPLATE_KEY, smsFormat);
         fallBackTemplatesList.add(map);
     }
+
+    @Override
+    public String toString() {
+        return "Conversation{" +
+                "id=" + id +
+                ", topicId='" + topicId + '\'' +
+                ", topicDetail='" + topicDetail + '\'' +
+                ", userId='" + userId + '\'' +
+                ", supportIds=" + supportIds +
+                ", created=" + created +
+                ", closed=" + closed +
+                ", senderUserName='" + senderUserName + '\'' +
+                ", applicationKey='" + applicationKey + '\'' +
+                ", groupId=" + groupId +
+                ", fallBackTemplatesList=" + fallBackTemplatesList +
+                ", topicLocalImageUri='" + topicLocalImageUri + '\'' +
+                '}';
+    }
 }

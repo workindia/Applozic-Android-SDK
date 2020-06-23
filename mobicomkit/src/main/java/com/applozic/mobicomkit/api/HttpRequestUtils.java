@@ -182,6 +182,85 @@ public class HttpRequestUtils {
         return getResponse(urlString, contentType, accept, isFileUpload, null);
     }
 
+    public String getResponseWithException(String urlString, String contentType, String accept, boolean isFileUpload, String userId) throws Exception {
+        Utils.printLog(context, TAG, "Calling url: " + urlString);
+
+        HttpURLConnection connection = null;
+        URL url;
+
+        try {
+            url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestMethod("GET");
+            connection.setUseCaches(false);
+            connection.setDoInput(true);
+
+            if (!TextUtils.isEmpty(contentType)) {
+                connection.setRequestProperty("Content-Type", contentType);
+            }
+            if (!TextUtils.isEmpty(accept)) {
+                connection.setRequestProperty("Accept", accept);
+            }
+            addGlobalHeaders(connection, userId);
+            connection.connect();
+
+            if (connection == null) {
+                return null;
+            }
+            BufferedReader br = null;
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            } else {
+                Utils.printLog(context, TAG, "Response code for getResponse is  :" + connection.getResponseCode());
+            }
+
+            StringBuilder sb = new StringBuilder();
+            try {
+                String line;
+                if (br != null) {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            } finally {
+                if (br != null) {
+                    br.close();
+                }
+            }
+
+            Utils.printLog(context, TAG, "Response :" + sb.toString());
+
+            if (!TextUtils.isEmpty(sb.toString())) {
+                if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
+                    return isFileUpload ? sb.toString() : EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                }
+            }
+            return sb.toString();
+        } catch (ConnectException e) {
+            Utils.printLog(context, TAG, "failed to connect Internet is not working");
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } catch (Throwable e) {
+            throw e;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        }
+    }
+
     public String getResponse(String urlString, String contentType, String accept, boolean isFileUpload, String userId) {
         Utils.printLog(context, TAG, "Calling url: " + urlString);
 
