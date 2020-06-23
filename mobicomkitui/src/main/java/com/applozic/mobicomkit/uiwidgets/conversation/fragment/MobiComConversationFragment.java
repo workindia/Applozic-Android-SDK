@@ -2892,6 +2892,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         StringBuilder titleBuilder = new StringBuilder();
         if (contact != null) {
             titleBuilder.append(contact.getDisplayName());
+            if (appContactService != null && this.contact != null) {
+                updateLastSeenStatus();
+            }
         } else if (channel != null) {
             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                 String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
@@ -2965,10 +2968,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (ApplozicClient.getInstance(getActivity()).isNotificationStacking()) {
                     nMgr.cancel(NotificationService.NOTIFICATION_ID);
                 } else {
-                    if (contact != null) {
-                        if (!TextUtils.isEmpty(contact.getContactIds())) {
-                            nMgr.cancel(contact.getContactIds().hashCode());
-                        }
+                    if (contact != null && !TextUtils.isEmpty(contact.getContactIds())) {
+                        nMgr.cancel(contact.getContactIds().hashCode());
                     }
                     if (channel != null) {
                         nMgr.cancel(String.valueOf(channel.getKey()).hashCode());
@@ -2993,10 +2994,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     updateChannelSubTitle(newChannel);
                     ChannelService.isUpdateTitle = false;
                 }
-            }
-
-            if (appContactService != null && contact != null) {
-                updateLastSeenStatus();
             }
 
             if (messageList.isEmpty()) {
