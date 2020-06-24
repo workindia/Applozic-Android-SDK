@@ -26,7 +26,6 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 `implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.80' `
 
-
 Add the following in gradle android target:      
 
 

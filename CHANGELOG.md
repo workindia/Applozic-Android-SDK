@@ -352,11 +352,6 @@ Code improvements
 
 ```
 
-
-
- 
- 
- 
 **Version 4.53**  - Monday,1 August 2016
 
 Bug fixes and improvement
