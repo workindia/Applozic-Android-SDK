@@ -2,10 +2,13 @@ package com.applozic.mobicomkit.api.people;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.AlJobIntentService;
+
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
@@ -13,6 +16,8 @@ import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import static com.applozic.mobicomkit.api.conversation.ApplozicConversation.isMessageStatusPublished;
 
 /**
  * Created by devashish on 15/12/13.
@@ -25,7 +30,7 @@ public class UserIntentService extends AlJobIntentService {
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
     public static final String UNREAD_COUNT = "UNREAD_COUNT";
-    public static final String SINGLE_MESSAGE_READ = "SINGLE_MESSAGE_READ";
+    public static final String PAIRED_MESSAGE_KEY_STRING = "PAIRED_MESSAGE_KEY_STRING";
     MessageClientService messageClientService;
     MobiComConversationService mobiComConversationService;
     MessageDatabaseService messageDatabaseService;
@@ -53,9 +58,9 @@ public class UserIntentService extends AlJobIntentService {
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         Integer unreadCount = intent.getIntExtra(UNREAD_COUNT, 0);
-        boolean singleMessageRead = intent.getBooleanExtra(SINGLE_MESSAGE_READ, false);
         Contact contact = (Contact) intent.getSerializableExtra(CONTACT);
         Channel channel = (Channel) intent.getSerializableExtra(CHANNEL);
+        String messageKey = intent.getStringExtra(PAIRED_MESSAGE_KEY_STRING);
 
         if (contact != null) {
             messageDatabaseService.updateReadStatusForContact(contact.getContactIds());
@@ -63,7 +68,7 @@ public class UserIntentService extends AlJobIntentService {
             messageDatabaseService.updateReadStatusForChannel(String.valueOf(channel.getKey()));
         }
 
-        if (unreadCount != 0 || singleMessageRead) {
+        if (unreadCount != 0 || !isMessageStatusPublished(getApplicationContext(), messageKey, Message.Status.READ.getValue())) {
             messageClientService.updateReadStatus(contact, channel);
         } else {
             String userId = intent.getStringExtra(USER_ID);
@@ -73,7 +78,5 @@ public class UserIntentService extends AlJobIntentService {
                 mobiComConversationService.processLastSeenAtStatus();
             }
         }
-
     }
-
 }

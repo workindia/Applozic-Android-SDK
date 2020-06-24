@@ -1,8 +1,10 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -43,10 +45,15 @@ import java.lang.ref.WeakReference;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import static java.util.Collections.disjoint;
 
 /**
  *
@@ -62,6 +69,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
     public static String GROUP_NAME = "GROUP_NAME";
     private static int REQUEST_CODE_ATTACH_PHOTO = 10;
     AlCustomizationSettings alCustomizationSettings;
+    List<String> restrictedWords;
     FileClientService fileClientService;
     Uri imageUri;
     String userID, displayName, groupName;
@@ -110,6 +118,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         } else {
             alCustomizationSettings = new AlCustomizationSettings();
         }
+        restrictedWords = FileUtils.loadRestrictedWordsFile(this);
         choosenOption = getFilterOptions();
         fileClientService = new FileClientService(this);
         userPreferences = MobiComUserPreference.getInstance(this);
@@ -163,6 +172,11 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
 
                 if (attachmentFileList.isEmpty()) {
                     Toast.makeText(getApplicationContext(), R.string.mobicom_select_attachment_text, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!validateCaptionTextAndShowDialog()) {
+                    Utils.printLog(MobiComAttachmentSelectorActivity.this, TAG, "Caption Text is not valid");
                     return;
                 }
 
@@ -355,6 +369,48 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    boolean validateCaptionTextAndShowDialog() {
+        if (!TextUtils.isEmpty(messageEditText.getText().toString().trim())) {
+            String inputMessage = messageEditText.getText().toString();
+            String[] inputMsg = inputMessage.toLowerCase().split(" ");
+            List<String> userInputList = Arrays.asList(inputMsg);
+
+            boolean disjointResult = (restrictedWords == null) || disjoint(restrictedWords, userInputList);
+            boolean restrictedWordMatches;
+
+            try {
+                String dynamicRegex = ApplozicSetting.getInstance(this).getRestrictedWordsRegex();
+                String pattern = !TextUtils.isEmpty(dynamicRegex) ? dynamicRegex : (alCustomizationSettings != null
+                        && !TextUtils.isEmpty(alCustomizationSettings.getRestrictedWordRegex()) ? alCustomizationSettings.getRestrictedWordRegex() : "");
+
+                restrictedWordMatches = !TextUtils.isEmpty(pattern) && Pattern.compile(pattern).matcher(inputMessage.trim()).matches();
+            } catch (PatternSyntaxException e) {
+                Utils.printLog(this, TAG, "The Regex to match message is invalid");
+                e.printStackTrace();
+                return false;
+            }
+
+            if (!(disjointResult && !restrictedWordMatches)) {
+                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this).
+                        setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                    }
+                });
+                alertDialog.setTitle(alCustomizationSettings.getRestrictedWordMessage());
+                alertDialog.setCancelable(true);
+                alertDialog.create().show();
+                return false;
+            }
+        }
+        return true;
     }
 
     public class FileTaskAsync extends AsyncTask<Void, Integer, Boolean> {

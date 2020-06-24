@@ -153,6 +153,8 @@ public class Conversation extends JsonMarker {
                 ", senderUserName='" + senderUserName + '\'' +
                 ", applicationKey='" + applicationKey + '\'' +
                 ", groupId=" + groupId +
+                ", fallBackTemplatesList=" + fallBackTemplatesList +
+                ", topicLocalImageUri='" + topicLocalImageUri + '\'' +
                 '}';
     }
 }

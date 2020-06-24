@@ -43,6 +43,7 @@ public class UserDetailListFeed extends JsonMarker {
         return "UserDetailListFeed{" +
                 "userIdList=" + userIdList +
                 ", phoneNumberList=" + phoneNumberList +
+                ", contactSync=" + contactSync +
                 '}';
     }
 }

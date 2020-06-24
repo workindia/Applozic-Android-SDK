@@ -389,6 +389,12 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
+    }
+
+    @Override
     public boolean onQueryTextChange(String query) {
         this.searchTerm = query;
         if (getSearchListFragment() != null) {

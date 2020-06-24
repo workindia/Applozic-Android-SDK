@@ -45,10 +45,10 @@ public class MultipleChannelFeedApiResponse extends JsonMarker {
 
     @Override
     public String toString() {
-        return "ApiResponse{" +
+        return "MultipleChannelFeedApiResponse{" +
                 "status='" + status + '\'' +
                 ", generatedAt='" + generatedAt + '\'' +
-                ", response='" + response + '\'' +
+                ", response=" + response +
                 '}';
     }
 }

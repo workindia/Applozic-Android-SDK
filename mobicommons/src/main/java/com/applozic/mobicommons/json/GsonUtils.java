@@ -21,13 +21,11 @@ public class GsonUtils {
     }
 
     public static String getJsonFromObject(Object object, Type type) {
-        Gson gson = new Gson();
-        return gson.toJson(object, type);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(object, type);
     }
 
     public static Object getObjectFromJson(String json, Type type) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, type);
+        return new GsonBuilder().create().fromJson(json, type);
     }
 
     public static Object getObjectListFromJson(String json, String key, Type type) {

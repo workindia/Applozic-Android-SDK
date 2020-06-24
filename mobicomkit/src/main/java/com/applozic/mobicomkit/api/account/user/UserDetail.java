@@ -159,6 +159,10 @@ public class UserDetail extends JsonMarker {
                 ", userTypeId=" + userTypeId +
                 ", deletedAtTime=" + deletedAtTime +
                 ", notificationAfterTime=" + notificationAfterTime +
+                ", lastMessageAtTime=" + lastMessageAtTime +
+                ", email='" + email + '\'' +
+                ", metadata=" + metadata +
+                ", roleType=" + roleType +
                 '}';
     }
 }
