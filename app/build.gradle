@@ -50,9 +50,7 @@ android {
         }
     }
     lintOptions {
-
         abortOnError false
-
     }
 
 
