@@ -219,7 +219,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             }
             final MqttClient client = connect();
             if (client != null && client.isConnected()) {
-                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + getApplicationKey(context);
+                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic + "-" + getApplicationKey(context);
                 Utils.printLog(context, TAG, "Subscribing to support group topic : " + topic);
                 client.subscribe(topic, 0);
             }
@@ -236,7 +236,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                     if (client == null || !client.isConnected()) {
                         return;
                     }
-                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic;
+                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic + "-" + getApplicationKey(context);
                     Utils.printLog(context, TAG, "UnSubscribing to support group topic : " + topic);
                     client.unsubscribe(topic);
                 } catch (Exception e) {
@@ -248,6 +248,33 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         thread.start();
     }
 
+    public synchronized void publishCustomData(final String customTopic, final String data, final boolean useEncrypted) {
+        try {
+            final AlMqttClient client = connect();
+            if (client == null || !client.isConnected()) {
+                return;
+            }
+            MqttMessage message = new MqttMessage();
+            message.setRetained(false);
+            message.setPayload(data.getBytes());
+            message.setQos(0);
+            String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic + "-" + getApplicationKey(context);
+            client.publish(topic, message, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Utils.printLog(context, TAG, "Sent data : " + data + " to topic : " + topic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Utils.printLog(context, TAG, "Error in sending data : " + data + " to topic : " + topic);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public synchronized void subscribeToSupportGroup(boolean useEncrypted) {
         try {
             String userKeyString = MobiComUserPreference.getInstance(context).getSuUserKeyString();
@@ -256,7 +283,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             }
             final MqttClient client = connect();
             if (client != null && client.isConnected()) {
-                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + getApplicationKey(context);
+                String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + "-" + getApplicationKey(context);
                 Utils.printLog(context, TAG, "Subscribing to support group topic : " + topic);
                 client.subscribe(topic, 0);
             }
@@ -273,7 +300,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                     if (client == null || !client.isConnected()) {
                         return;
                     }
-                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + getApplicationKey(context);
+                    String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + SUPPORT_GROUP_TOPIC + "-" + getApplicationKey(context);
                     Utils.printLog(context, TAG, "UnSubscribing to support group topic : " + topic);
                     client.unsubscribe(topic);
                 } catch (Exception e) {
@@ -530,7 +557,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         }
     }
 
-    public synchronized void publishCustomData(final String customTopic, final String data) {
+    public synchronized void publishMessageStatus(final String messageStatusTopic, final String data) {
         try {
             final AlMqttClient client = connect();
             if (client == null || !client.isConnected()) {
@@ -540,15 +567,15 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             message.setRetained(false);
             message.setPayload(data.getBytes());
             message.setQos(0);
-            client.publish(customTopic, message, new IMqttActionListener() {
+            client.publish(messageStatusTopic, message, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Utils.printLog(context, TAG, "Sent data : " + data + " to topic : " + customTopic);
+                    Utils.printLog(context, TAG, "Sent data : " + data + " to topic : " + messageStatusTopic);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Utils.printLog(context, TAG, "Error in sending data : " + data + " to topic : " + customTopic);
+                    Utils.printLog(context, TAG, "Error in sending data : " + data + " to topic : " + messageStatusTopic);
                 }
             });
         } catch (Exception e) {
