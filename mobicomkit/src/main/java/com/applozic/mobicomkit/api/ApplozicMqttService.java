@@ -258,7 +258,7 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
             message.setRetained(false);
             message.setPayload(data.getBytes());
             message.setQos(0);
-            String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic + "-" + getApplicationKey(context);
+            final String topic = (useEncrypted ? MQTT_ENCRYPTION_TOPIC : "") + customTopic + "-" + getApplicationKey(context);
             client.publish(topic, message, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {

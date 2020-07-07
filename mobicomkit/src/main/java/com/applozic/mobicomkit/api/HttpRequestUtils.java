@@ -2,11 +2,8 @@ package com.applozic.mobicomkit.api;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
@@ -18,7 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -29,18 +25,9 @@ import java.net.URLEncoder;
 public class HttpRequestUtils {
 
     private static final String TAG = "HttpRequestUtils";
-    public static String APPLICATION_KEY_HEADER = "Application-Key";
-    public static String USERID_HEADER = "UserId-Enabled";
-    public static String USERID_HEADER_VALUE = "true";
-    public static String DEVICE_KEY_HEADER = "Device-Key";
     public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
-    public static String ACCESS_TOKEN = "Access-Token";
-    private static String SOURCE_HEADER = "Source";
-    private static String SOURCE_HEADER_VALUE = "1";
     private static final String OF_USER_ID_HEADER = "Of-User-Id";
-    private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
-    private static final String APZ_APP_ID_HEADER = "Apz-AppId";
-    private static final String APZ_TOKEN_HEADER = "Apz-Token";
+    private static final String X_AUTHORIZATION_HEADER = "x-authorization";
     private Context context;
 
 
@@ -133,9 +120,6 @@ public class HttpRequestUtils {
         connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
-        if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getDeviceKeyString())) {
-            connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
-        }
         connection.setDoInput(true);
         connection.setDoOutput(true);
         addGlobalHeaders(connection, userId);
@@ -339,8 +323,6 @@ public class HttpRequestUtils {
 
     public void addGlobalHeaders(HttpURLConnection connection, String userId) {
         try {
-            connection.setRequestProperty(ACCESS_TOKEN, MobiComUserPreference.getInstance(context).getPassword());
-
             if (MobiComKitClientService.getAppModuleName(context) != null) {
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
             }
@@ -350,46 +332,12 @@ public class HttpRequestUtils {
             }
 
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-
-            if (User.RoleType.AGENT.getValue().equals(userPreferences.getUserRoleType()) && !TextUtils.isEmpty(userId)) {
-                connection.setRequestProperty(APZ_APP_ID_HEADER, MobiComKitClientService.getApplicationKey(context));
-                connection.setRequestProperty(APZ_PRODUCT_APP_HEADER, "true");
-                String userCredentials = getCredentialsWithPassword().getUserName() + ":" + String.valueOf(getCredentialsWithPassword().getPassword());
-                String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
-                connection.setRequestProperty(APZ_TOKEN_HEADER, basicAuth);
-            } else {
-                connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
-                connection.setRequestProperty(SOURCE_HEADER, SOURCE_HEADER_VALUE);
-                connection.setRequestProperty(USERID_HEADER, USERID_HEADER_VALUE);
-                connection.setRequestProperty(DEVICE_KEY_HEADER, MobiComUserPreference.getInstance(context).getDeviceKeyString());
-
-                if (userPreferences.isRegistered()) {
-                    String userCredentials = getCredentials().getUserName() + ":" + String.valueOf(getCredentials().getPassword());
-                    String basicAuth = "Basic " + Base64.encodeToString(userCredentials.getBytes(), Base64.NO_WRAP);
-                    connection.setRequestProperty("Authorization", basicAuth);
-                    connection.setRequestProperty("Application-User", basicAuth);
-                }
+            String userAuthToken = userPreferences.getUserAuthToken();
+            if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
+                connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
-    private PasswordAuthentication getCredentials() {
-        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-        if (!userPreferences.isRegistered()) {
-            return null;
-        }
-        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getDeviceKeyString().toCharArray());
-    }
-
-    private PasswordAuthentication getCredentialsWithPassword() {
-        MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-        if (!userPreferences.isRegistered()) {
-            return null;
-        }
-        return new PasswordAuthentication(userPreferences.getUserId(), userPreferences.getPassword().toCharArray());
-    }
-
 }
