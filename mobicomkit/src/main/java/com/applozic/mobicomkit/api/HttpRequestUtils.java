@@ -28,6 +28,7 @@ public class HttpRequestUtils {
     public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
     private static final String OF_USER_ID_HEADER = "Of-User-Id";
     private static final String X_AUTHORIZATION_HEADER = "x-authorization";
+    public static String APPLICATION_KEY_HEADER = "Application-Key";
     private Context context;
 
 
@@ -330,7 +331,7 @@ public class HttpRequestUtils {
             if (!TextUtils.isEmpty(userId)) {
                 connection.setRequestProperty(OF_USER_ID_HEADER, URLEncoder.encode(userId, "UTF-8"));
             }
-
+            connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
             String userAuthToken = userPreferences.getUserAuthToken();
             if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
