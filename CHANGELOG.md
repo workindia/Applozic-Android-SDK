@@ -1,6 +1,73 @@
 
 ## Changelog
 
+**Version 5.80** - Tuesday, 23 June 2020
+
+* Security enhancements: 
+   1) MQTT connection will now require a user name and password to publish data to any topic.
+   2) The password for MQTT will be refreshed in every 30 days, this is handled for pre-built UI. For customUI users, if you want to use the default progress dialog when the token refreshes, replace `Applozic.connectPublish(context)` method with `Applozic.connectPublishWithVerifyToken(context, loadingMessageString)` in your code. If you want to use your own dialog, refer to `Applozic.connectPublishWithVerifyToken` method implementation.
+* Added methods to use custom MQTT topic in the SDK.
+* Performance improvement: The read status of the message will be updated via MQTT instead of http call.
+* Added restricted words support for attachment caption text.
+* Added APIs to get support message list based on custom statuses.
+* Fixed issue where send button was not visible on click deleting the message with attachment.
+* Fixed issue where blank screen was displaying on back press of contact screen when hideGroupTab setting is enabled.
+* Fixed issue where contact status was not dispaying when the conversation was switched from notification.
+
+**Version 5.77** - Friday, 15 May 2020
+
+* Added a listener to filter attachment based on custom logic
+* Fixed the issue where the old conversations list was not loading on a scroll in some cases.
+
+**Version 5.76** - Friday, 27 March 2020
+* Fixed the update display name issue in case of launching a chat with another user.
+
+**Version 5.75** - Friday, 13 March 2020
+
+* Added dynamic setting to hide/show attachment options
+
+**Version 5.74** - Friday, 31 January 2020
+
+* Removed device package upload code
+* Removed code related to message scheduling, contact access and call phone
+* Moved assignee and status methods to Channel and Message classes
+* Removed device contact sync feature and related code
+
+**Version 5.51.4 (Support library version. Without androidX)** - Friday, 27 March 2020
+
+* Fixed the update display name issue in case of launching a chat with another user.
+* You can refer this branch for updates on SDK without android X
+https://github.com/AppLozic/Applozic-Android-SDK/tree/without-androidX
+
+**Version 5.51.1 (Support library version. Without androidX)** - Monday, 3 February 2020
+
+* Removed read contact and phone state permission
+* Removed device contact sync feature
+* Removed contact sharing feature
+* Fixed attachment upload issue on first install.
+
+**Version 5.73** - Friday, 31 January 2020
+
+* Fixed file access issue for apps targetting 29
+* Fixed issue where files where not uploading on first install
+
+**Version 5.72** - Wednesday, 29 January 2020
+
+* Added setting to set the parent activity of chat programmatically.
+Example:
+`ApplozicSetting.getInstance(context).setParentActivity(MainActivity.class.getName());`
+* Added Mute all notifications for user from platform API
+
+**Version 5.71** - Tuesday, 16 January 2020
+
+* Removed PHONE_STATE_PERMISSION from the sdk
+
+**Version 5.70** - Friday, 10 January 2020
+
+* Removed contact sharing feature.
+* Removed device contact sync feature.
+* Removed all permissions related to contacts.
+
 **Version 5.66** - Tuesday, 31 December 2019
 
 * MQTT message encryption.
@@ -285,11 +352,6 @@ Code improvements
 
 ```
 
-
-
- 
- 
- 
 **Version 4.53**  - Monday,1 August 2016
 
 Bug fixes and improvement
