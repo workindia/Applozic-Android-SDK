@@ -3,7 +3,9 @@ package com.applozic.mobicomkit.api;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.authentication.AlAuthService;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
@@ -29,6 +31,7 @@ public class HttpRequestUtils {
     private static final String OF_USER_ID_HEADER = "Of-User-Id";
     private static final String X_AUTHORIZATION_HEADER = "x-authorization";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
+    public static String DEVICE_KEY_HEADER = "Device-Key";
     private Context context;
 
 
@@ -38,6 +41,77 @@ public class HttpRequestUtils {
 
     public String postData(String urlString, String contentType, String accept, String data) throws Exception {
         return postData(urlString, contentType, accept, data, null);
+    }
+
+    public String postDataForAuthToken(String urlString, String contentType, String accept, String data, String userId) throws Exception {
+        Utils.printLog(context, TAG, "Calling url: " + urlString);
+        HttpURLConnection connection;
+        URL url;
+        try {
+            if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
+                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), data);
+            }
+            url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            if (!TextUtils.isEmpty(contentType)) {
+                connection.setRequestProperty("Content-Type", contentType);
+            }
+            if (!TextUtils.isEmpty(accept)) {
+                connection.setRequestProperty("Accept", accept);
+            }
+            addGlobalHeaders(connection, userId, true);
+            connection.connect();
+
+            if (connection == null) {
+                return null;
+            }
+            if (data != null) {
+                byte[] dataBytes = data.getBytes("UTF-8");
+                DataOutputStream os = new DataOutputStream(connection.getOutputStream());
+                os.write(dataBytes);
+                os.flush();
+                os.close();
+            }
+            BufferedReader br = null;
+            if (connection.getResponseCode() == 200 || connection.getResponseCode() == 201) {
+                InputStream inputStream = connection.getInputStream();
+                br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            }
+            StringBuilder sb = new StringBuilder();
+            try {
+                String line;
+                if (br != null) {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (br != null) {
+                    br.close();
+                }
+            }
+            Utils.printLog(context, TAG, "Response : " + sb.toString());
+            if (!TextUtils.isEmpty(sb.toString())) {
+                if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
+                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                }
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Utils.printLog(context, TAG, "Http call failed");
+        return null;
     }
 
     public String postData(String urlString, String contentType, String accept, String data, String userId) throws Exception {
@@ -323,6 +397,10 @@ public class HttpRequestUtils {
     }
 
     public void addGlobalHeaders(HttpURLConnection connection, String userId) {
+        addGlobalHeaders(connection, userId, false);
+    }
+
+    public void addGlobalHeaders(HttpURLConnection connection, String userId, boolean forAuthToken) {
         try {
             if (MobiComKitClientService.getAppModuleName(context) != null) {
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
@@ -331,11 +409,21 @@ public class HttpRequestUtils {
             if (!TextUtils.isEmpty(userId)) {
                 connection.setRequestProperty(OF_USER_ID_HEADER, URLEncoder.encode(userId, "UTF-8"));
             }
-            connection.setRequestProperty(APPLICATION_KEY_HEADER, MobiComKitClientService.getApplicationKey(context));
+            String applicationKey = MobiComKitClientService.getApplicationKey(context);
+            connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
+
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
-            String userAuthToken = userPreferences.getUserAuthToken();
-            if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
-                connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
+
+            if (forAuthToken) {
+                connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
+                if (!AlAuthService.isTokenValid(context)) {
+                    new RegisterUserClientService(context).refreshAuthToken(applicationKey, userId);
+                }
+            } else {
+                String userAuthToken = userPreferences.getUserAuthToken();
+                if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
+                    connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
