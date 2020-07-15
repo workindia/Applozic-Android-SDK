@@ -66,7 +66,7 @@ public class HttpRequestUtils {
             if (!TextUtils.isEmpty(accept)) {
                 connection.setRequestProperty("Accept", accept);
             }
-            addGlobalHeaders(connection, userId, true);
+            addHeadersForAuthToken(connection, userId);
             connection.connect();
 
             if (connection == null) {
@@ -400,10 +400,6 @@ public class HttpRequestUtils {
     }
 
     public void addGlobalHeaders(HttpURLConnection connection, String userId) {
-        addGlobalHeaders(connection, userId, false);
-    }
-
-    public void addGlobalHeaders(HttpURLConnection connection, String userId, boolean forAuthToken) {
         try {
             if (MobiComKitClientService.getAppModuleName(context) != null) {
                 connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
@@ -422,17 +418,40 @@ public class HttpRequestUtils {
             } else {
                 connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
             }
-            if (forAuthToken) {
-                connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
-                if (!AlAuthService.isTokenValid(context)) {
-                    new RegisterUserClientService(context).refreshAuthToken(applicationKey, userId);
-                }
-            } else {
-                String userAuthToken = userPreferences.getUserAuthToken();
-                if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
-                    connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
-                }
+
+            if (!AlAuthService.isTokenValid(context)) {
+                new RegisterUserClientService(context).refreshAuthToken(applicationKey, userId);
             }
+
+            String userAuthToken = userPreferences.getUserAuthToken();
+            if (userPreferences.isRegistered() && !TextUtils.isEmpty(userAuthToken)) {
+                connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addHeadersForAuthToken(HttpURLConnection connection, String userId) {
+        try {
+            if (MobiComKitClientService.getAppModuleName(context) != null) {
+                connection.setRequestProperty(APP_MODULE_NAME_KEY_HEADER, MobiComKitClientService.getAppModuleName(context));
+            }
+
+            if (!TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(OF_USER_ID_HEADER, URLEncoder.encode(userId, "UTF-8"));
+            }
+            String applicationKey = MobiComKitClientService.getApplicationKey(context);
+
+            MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
+
+            if (User.RoleType.AGENT.getValue().equals(userPreferences.getUserRoleType()) && !TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(APZ_APP_ID_HEADER, applicationKey);
+                connection.setRequestProperty(APZ_PRODUCT_APP_HEADER, "true");
+            } else {
+                connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
+            }
+            connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
         } catch (Exception e) {
             e.printStackTrace();
         }
