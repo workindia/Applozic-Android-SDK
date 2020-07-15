@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.authentication.AlAuthService;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -30,8 +31,10 @@ public class HttpRequestUtils {
     public static String APP_MODULE_NAME_KEY_HEADER = "App-Module-Name";
     private static final String OF_USER_ID_HEADER = "Of-User-Id";
     private static final String X_AUTHORIZATION_HEADER = "x-authorization";
+    private static final String APZ_APP_ID_HEADER = "Apz-AppId";
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String DEVICE_KEY_HEADER = "Device-Key";
+    private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
     private Context context;
 
 
@@ -410,10 +413,15 @@ public class HttpRequestUtils {
                 connection.setRequestProperty(OF_USER_ID_HEADER, URLEncoder.encode(userId, "UTF-8"));
             }
             String applicationKey = MobiComKitClientService.getApplicationKey(context);
-            connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
 
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
+            if (User.RoleType.AGENT.getValue().equals(userPreferences.getUserRoleType()) && !TextUtils.isEmpty(userId)) {
+                connection.setRequestProperty(APZ_APP_ID_HEADER, applicationKey);
+                connection.setRequestProperty(APZ_PRODUCT_APP_HEADER, "true");
+            } else {
+                connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
+            }
             if (forAuthToken) {
                 connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
                 if (!AlAuthService.isTokenValid(context)) {
