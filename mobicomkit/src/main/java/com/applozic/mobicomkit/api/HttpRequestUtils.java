@@ -35,6 +35,7 @@ public class HttpRequestUtils {
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String DEVICE_KEY_HEADER = "Device-Key";
     private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
+    public static boolean isRefreshTokenInProgress = false;
     private Context context;
 
 
@@ -419,8 +420,8 @@ public class HttpRequestUtils {
                 connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
             }
 
-            if (!AlAuthService.isTokenValid(context)) {
-                new RegisterUserClientService(context).refreshAuthToken(applicationKey, userId);
+            if (!AlAuthService.isTokenValid(context) && !isRefreshTokenInProgress) {
+                new RegisterUserClientService(context).refreshAuthToken(applicationKey, userPreferences.getUserId());
             }
 
             String userAuthToken = userPreferences.getUserAuthToken();
