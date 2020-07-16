@@ -1020,12 +1020,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         ApplozicAudioRecordAnimation.setAlpha(slideTextLinearlayout, 1);
         startedDraggingX = -1;
         ViewConfiguration.getLongPressTimeout();
-        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        audioFileName = "AUD_" + timeStamp + "_" + ".m4a";
-        outputFile = FileClientService.getFilePath(audioFileName, ApplozicService.getContext(getContext()), "audio/m4a").getAbsolutePath();
-        applozicAudioRecordManager.setTimeStamp(timeStamp);
-        applozicAudioRecordManager.setAudioFileName(audioFileName);
-        applozicAudioRecordManager.setOutputFile(outputFile);
         vibrate();
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
