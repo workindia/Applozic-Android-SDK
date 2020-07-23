@@ -205,6 +205,10 @@ class AttachmentDownloader extends MobiComKitClientService implements Runnable {
                             msg.obj = this;
                         }
                         if (Thread.interrupted()) {
+                            if (file != null && file.exists()) {
+                                file.delete();
+                                Utils.printLog(context, TAG, "Downloading cancelled : " + file.getAbsolutePath());
+                            }
                             throw new InterruptedException();
                         }
                     }
