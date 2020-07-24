@@ -110,8 +110,10 @@ public class HttpRequestUtils {
             }
             return sb.toString();
         } catch (IOException e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         }
         Utils.printLog(context, TAG, "Http call failed");
@@ -181,8 +183,10 @@ public class HttpRequestUtils {
             }
             return sb.toString();
         } catch (IOException e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         }
         Utils.printLog(context, TAG, "Http call failed");
@@ -227,7 +231,6 @@ public class HttpRequestUtils {
         } catch (Exception e) {
             e.printStackTrace();
         } catch (Throwable e) {
-
         } finally {
             if (br != null) {
                 br.close();
@@ -305,12 +308,15 @@ public class HttpRequestUtils {
             }
             return sb.toString();
         } catch (ConnectException e) {
+            isRefreshTokenInProgress = false;
             Utils.printLog(context, TAG, "failed to connect Internet is not working");
             throw e;
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
             throw e;
         } catch (Throwable e) {
+            isRefreshTokenInProgress = false;
             throw e;
         } finally {
             if (connection != null) {
@@ -383,11 +389,13 @@ public class HttpRequestUtils {
             }
             return sb.toString();
         } catch (ConnectException e) {
+            isRefreshTokenInProgress = false;
             Utils.printLog(context, TAG, "failed to connect Internet is not working");
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         } catch (Throwable e) {
-
+            isRefreshTokenInProgress = false;
         } finally {
             if (connection != null) {
                 try {
@@ -429,6 +437,7 @@ public class HttpRequestUtils {
                 connection.setRequestProperty(X_AUTHORIZATION_HEADER, userAuthToken);
             }
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         }
     }
@@ -454,6 +463,7 @@ public class HttpRequestUtils {
             }
             connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
         } catch (Exception e) {
+            isRefreshTokenInProgress = false;
             e.printStackTrace();
         }
     }
