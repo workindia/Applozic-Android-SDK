@@ -422,6 +422,10 @@ public class MobiComMessageService {
         messageDatabaseService.createMessage(sms);
     }
 
+    public String getMessageDeleteForAllResponse(String messageKey, boolean deleteForAll) throws Exception {
+        return messageClientService.getMessageDeleteForAllResponse(messageKey, deleteForAll);
+    }
+
     public synchronized void processInstantMessage(Message message) {
 
         if (!baseContactService.isContactPresent(message.getContactIds())) {

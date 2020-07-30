@@ -35,6 +35,7 @@ public class HttpRequestUtils {
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String DEVICE_KEY_HEADER = "Device-Key";
     private static final String APZ_PRODUCT_APP_HEADER = "Apz-Product-App";
+    public static boolean isRefreshTokenInProgress = false;
     private Context context;
 
 
@@ -112,6 +113,8 @@ public class HttpRequestUtils {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            isRefreshTokenInProgress = false;
         }
         Utils.printLog(context, TAG, "Http call failed");
         return null;
@@ -183,6 +186,8 @@ public class HttpRequestUtils {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            isRefreshTokenInProgress = false;
         }
         Utils.printLog(context, TAG, "Http call failed");
         return null;
@@ -226,7 +231,6 @@ public class HttpRequestUtils {
         } catch (Exception e) {
             e.printStackTrace();
         } catch (Throwable e) {
-
         } finally {
             if (br != null) {
                 br.close();
@@ -312,6 +316,7 @@ public class HttpRequestUtils {
         } catch (Throwable e) {
             throw e;
         } finally {
+            isRefreshTokenInProgress = false;
             if (connection != null) {
                 try {
                     connection.disconnect();
@@ -388,6 +393,7 @@ public class HttpRequestUtils {
         } catch (Throwable e) {
 
         } finally {
+            isRefreshTokenInProgress = false;
             if (connection != null) {
                 try {
                     connection.disconnect();
@@ -419,8 +425,8 @@ public class HttpRequestUtils {
                 connection.setRequestProperty(APPLICATION_KEY_HEADER, applicationKey);
             }
 
-            if (!AlAuthService.isTokenValid(context)) {
-                new RegisterUserClientService(context).refreshAuthToken(applicationKey, userId);
+            if (!AlAuthService.isTokenValid(context) && !isRefreshTokenInProgress) {
+                new RegisterUserClientService(context).refreshAuthToken(applicationKey, userPreferences.getUserId());
             }
 
             String userAuthToken = userPreferences.getUserAuthToken();
@@ -429,6 +435,8 @@ public class HttpRequestUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            isRefreshTokenInProgress = false;
         }
     }
 
@@ -454,6 +462,8 @@ public class HttpRequestUtils {
             connection.setRequestProperty(DEVICE_KEY_HEADER, userPreferences.getDeviceKeyString());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            isRefreshTokenInProgress = false;
         }
     }
 }
