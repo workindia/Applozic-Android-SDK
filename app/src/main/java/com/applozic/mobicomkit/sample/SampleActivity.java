@@ -247,4 +247,9 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
     public void onUserMute(boolean mute, String userId) {
 
     }
+
+    @Override
+    public void onGroupMute(Integer groupId) {
+
+    }
 }

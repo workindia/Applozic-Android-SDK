@@ -263,6 +263,16 @@ public class BroadcastService {
         sendBroadcast(context, intent);
     }
 
+    public static void sendUpdateGroupMuteForGroupId(Context context, Integer groupId, String action) {
+        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.GROUP_MUTE).setGroup(true).setGroupId(groupId));
+
+        Utils.printLog(context, TAG, "Sending group mute update for groupId " + groupId);
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.putExtra("groupId", groupId);
+        sendBroadcast(context, intent);
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -292,6 +302,7 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.MQTT_CONNECTED.toString());
         intentFilter.addAction(INTENT_ACTIONS.USER_ONLINE.toString());
         intentFilter.addAction(INTENT_ACTIONS.USER_OFFLINE.toString());
+        intentFilter.addAction(INTENT_ACTIONS.GROUP_MUTE.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -309,6 +320,6 @@ public class BroadcastService {
         SYNC_MESSAGE, DELETE_MESSAGE, DELETE_CONVERSATION, MESSAGE_DELIVERY, MESSAGE_DELIVERY_FOR_CONTACT, INSTRUCTION, UPDATE_GROUP_INFO,
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         UPDATE_LAST_SEEN_AT_TIME, UPDATE_TYPING_STATUS, MESSAGE_READ_AND_DELIVERED, MESSAGE_READ_AND_DELIVERED_FOR_CONTECT, CHANNEL_SYNC,
-        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED, UPDATE_CHANNEL_NAME, UPDATE_TITLE_SUBTITLE, CONVERSATION_READ, UPDATE_USER_DETAIL, MESSAGE_METADATA_UPDATE, MUTE_USER_CHAT, MQTT_CONNECTED, USER_ONLINE, USER_OFFLINE
+        CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED, UPDATE_CHANNEL_NAME, UPDATE_TITLE_SUBTITLE, CONVERSATION_READ, UPDATE_USER_DETAIL, MESSAGE_METADATA_UPDATE, MUTE_USER_CHAT, MQTT_CONNECTED, USER_ONLINE, USER_OFFLINE, GROUP_MUTE
     }
 }
