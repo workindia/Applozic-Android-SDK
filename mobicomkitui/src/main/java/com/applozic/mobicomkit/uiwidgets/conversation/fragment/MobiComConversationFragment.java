@@ -4096,7 +4096,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
         Channel channelObject = ChannelService.getInstance(getActivity()).getChannel(groupId);
-        if (channelObject != null && menu != null) {
+        if (channelObject != null && menu != null && alCustomizationSettings != null) {
             if (alCustomizationSettings.isMuteOption() && !Channel.GroupType.BROADCAST.getValue().equals(channelObject.getType())) {
                 menu.findItem(R.id.unmuteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && channelObject.isNotificationMuted());
                 menu.findItem(R.id.muteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && !channelObject.isNotificationMuted());
