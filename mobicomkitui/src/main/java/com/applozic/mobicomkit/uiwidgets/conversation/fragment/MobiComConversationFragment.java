@@ -1338,7 +1338,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         this.menu = menu;
-
         if (contact != null && contact.isDeleted()) {
             menu.findItem(R.id.dial).setVisible(false);
             menu.findItem(R.id.refresh).setVisible(false);
@@ -4083,6 +4082,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void sendMessage(Object message) {
         if (message instanceof Message) {
             conversationService.sendMessage(((Message) message), messageIntentClass, userDisplayName);
+        }
+    }
+
+    public void updateChannelMuteMenuOptionForGroupId(Integer groupId) {
+        if (getActivity() == null) {
+            return;
+        }
+        Channel channelObject = ChannelService.getInstance(getActivity()).getChannel(groupId);
+        if (channelObject != null && menu != null && alCustomizationSettings != null) {
+            if (alCustomizationSettings.isMuteOption() && !Channel.GroupType.BROADCAST.getValue().equals(channelObject.getType())) {
+                menu.findItem(R.id.unmuteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && channelObject.isNotificationMuted());
+                menu.findItem(R.id.muteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && !channelObject.isNotificationMuted());
+            }
         }
     }
 }

@@ -540,6 +540,25 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                         e.printStackTrace();
                                     }
                                 }
+
+                                if (NOTIFICATION_TYPE.GROUP_MUTE_NOTIFICATION.getValue().equals(mqttMessageResponse.getType())) {
+                                    try {
+                                        InstantMessageResponse response = (InstantMessageResponse) GsonUtils.getObjectFromJson(messageDataString, InstantMessageResponse.class);
+                                        if (!TextUtils.isEmpty(response.getMessage())) {
+                                            String[] parts = response.getMessage().split(":");
+                                            if (parts.length > 0) {
+                                                Integer groupId = Integer.parseInt(parts[0]);
+                                                if (parts.length == 2) {
+                                                    Long notificationMuteTillTime = Long.parseLong(parts[1]);
+                                                    ChannelService.getInstance(context).updateNotificationAfterTime(groupId, notificationMuteTillTime);
+                                                    BroadcastService.sendUpdateGroupMuteForGroupId(context, groupId, BroadcastService.INTENT_ACTIONS.GROUP_MUTE.toString());
+                                                }
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
 
                         } catch (Exception e) {
@@ -732,7 +751,8 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         MESSAGE_METADATA_UPDATE("APPLOZIC_33"),
         USER_DELETE_NOTIFICATION("APPLOZIC_34"),
         USER_MUTE_NOTIFICATION("APPLOZIC_37"),
-        MUTE_NOTIFICATIONS("APPLOZIC_38");
+        MUTE_NOTIFICATIONS("APPLOZIC_38"),
+        GROUP_MUTE_NOTIFICATION("APPLOZIC_39");
 
         private String value;
 

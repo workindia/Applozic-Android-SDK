@@ -131,6 +131,11 @@ public class ConversationCallbackHandler implements ApplozicUIListener {
 
     }
 
+    @Override
+    public void onGroupMute(Integer groupId) {
+
+    }
+
     public static class CallbackEvent extends JsonMarker {
         public static final String EVENT_MQTT_DISCONNECTED = "EVENT_MQTT_DISCONNECTED";
         public static final String EVENT_MQTT_CONNECTED = "EVENT_MQTT_CONNECTED";
