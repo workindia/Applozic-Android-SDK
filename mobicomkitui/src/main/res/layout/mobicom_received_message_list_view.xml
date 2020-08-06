@@ -115,6 +115,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text=""
+                android:drawablePadding="5dp"
                 android:textAlignment="gravity"
                 android:textColor="@color/message_text_color"
                 android:textDirection="locale"

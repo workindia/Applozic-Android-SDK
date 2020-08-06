@@ -118,6 +118,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private String restrictedWordRegex;
     private boolean enableMessageReport = true;
     private boolean deleteMessageOption = true;
+    private boolean deleteForAllMessageOption = true;
 
     private Map<String, Boolean> attachmentOptions;
 
@@ -626,6 +627,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
         this.hideGroupsSectionTab = hideGroupsSectionTab;
+    }
+
+    public boolean isDeleteForAllMessageOption() {
+        return deleteForAllMessageOption;
+    }
+
+    public void setDeleteForAllMessageOption(boolean deleteForAllMessageOption) {
+        this.deleteForAllMessageOption = deleteForAllMessageOption;
     }
 
     @Override

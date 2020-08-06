@@ -486,27 +486,17 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
 
                                 if (NOTIFICATION_TYPE.MESSAGE_METADATA_UPDATE.getValue().equals(mqttMessageResponse.getType())) {
                                     String keyString = null;
-                                    String deviceKey = null;
 
                                     try {
                                         GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageDataString, GcmMessageResponse.class);
                                         keyString = messageResponse.getMessage().getKeyString();
-                                        deviceKey = messageResponse.getMessage().getDeviceKeyString();
                                     } catch (Exception e) {
                                         try {
                                             InstantMessageResponse response = (InstantMessageResponse) GsonUtils.getObjectFromJson(messageDataString, InstantMessageResponse.class);
                                             keyString = response.getMessage();
-                                            Message message = new MessageDatabaseService(context).getMessage(keyString);
-                                            Utils.printLog(context, TAG, "Message from db : " + message);
-                                            if (message != null) {
-                                                deviceKey = message.getDeviceKeyString();
-                                            }
                                         } catch (Exception e1) {
                                             e1.printStackTrace();
                                         }
-                                    }
-                                    if (deviceKey != null && deviceKey.equals(MobiComUserPreference.getInstance(context).getDeviceKeyString())) {
-                                        return;
                                     }
 
                                     syncCallService.syncMessageMetadataUpdate(keyString, false);

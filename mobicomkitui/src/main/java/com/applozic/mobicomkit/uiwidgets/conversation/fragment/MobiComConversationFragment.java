@@ -24,6 +24,7 @@ import android.os.ResultReceiver;
 import android.os.Vibrator;
 
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
+import com.applozic.mobicomkit.api.conversation.MessageDeleteTask;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
@@ -1274,13 +1275,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (i != -1) {
-            messageList.get(i).setMetadata(messageDatabaseService.getMessage(keyString).getMetadata());
-            if (recyclerDetailConversationAdapter != null) {
-                recyclerDetailConversationAdapter.notifyDataSetChanged();
-            }
+            updateMessageAtIndex(i, messageDatabaseService.getMessage(keyString), recyclerDetailConversationAdapter);
             if (messageList.get(messageList.size() - 1).getMetadata().containsKey("isDoneWithClicking")) {
                 if (templateAdapter != null) {
-                    templateAdapter.notifyDataSetChanged();
+                    templateAdapter.notifyItemChanged(i);
                 }
             }
         }
@@ -1492,12 +1490,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return false;
     }
 
+    private void updateMessageAtIndex(int index, Message message, DetailedConversationAdapter adapter) {
+        if (messageList != null && index != -1 && adapter != null) {
+            messageList.set(index, message);
+            adapter.notifyItemChanged(index);
+        }
+    }
+
     @Override
     public boolean onItemClick(int position, MenuItem item) {
         if (messageList.size() <= position || position == -1) {
             return true;
         }
-        Message message = messageList.get(position);
+        final Message message = messageList.get(position);
         if (message.isTempDateType() || message.isCustom()) {
             return true;
         }
@@ -1532,10 +1537,36 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 deleteMessageFromDeviceList(messageKeyString);
                 break;
             case 4:
+                final String deleteForAllMessageKey = message.getKeyString();
+                final ProgressDialog progressBar = new ProgressDialog(getContext());
+                progressBar.show();
+                progressBar.setMessage(Utils.getString(getContext(), R.string.delete_thread_text));
+                new MessageDeleteTask(getContext(), deleteForAllMessageKey, true, new AlCallback() {
+                    @Override
+                    public void onSuccess(Object response) {
+                        int index = messageList.indexOf(message);
+                        message.setAsDeletedForAll();
+                        messageDatabaseService.replaceExistingMessage(message);
+                        updateMessageAtIndex(index, message, recyclerDetailConversationAdapter);
+                        if (progressBar != null) {
+                            progressBar.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Object error) {
+                        if (progressBar != null) {
+                            progressBar.dismiss();
+                        }
+                        Toast.makeText(getContext(), R.string.delete_conversation_failed, Toast.LENGTH_SHORT).show();
+                    }
+                }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                break;
+            case 5:
                 String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
                 conversationUIService.startMessageInfoFragment(messageJson);
                 break;
-            case 5:
+            case 6:
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 if (message.getFilePaths() != null) {
@@ -1559,7 +1590,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 startActivity(Intent.createChooser(shareIntent, ApplozicService.getContext(getContext()).getString(R.string.send_message_to)));
                 break;
 
-            case 6:
+            case 7:
                 try {
                     Configuration config = ApplozicService.getContext(getContext()).getResources().getConfiguration();
                     messageMetaData = new HashMap<>();
@@ -1676,7 +1707,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 }
                 break;
-            case 7:
+            case 8:
                 new AlMessageReportTask(message.getKeyString(), conversationService, new AlCallback() {
                     @Override
                     public void onSuccess(Object response) {
