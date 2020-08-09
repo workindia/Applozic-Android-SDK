@@ -97,6 +97,7 @@
                 android:textAlignment="gravity"
                 android:textColor="@color/black"
                 android:textDirection="locale"
+                android:visibility="gone"
                 android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />

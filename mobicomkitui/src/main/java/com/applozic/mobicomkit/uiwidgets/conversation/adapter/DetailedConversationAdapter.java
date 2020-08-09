@@ -341,6 +341,24 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                     Configuration config = context.getResources().getConfiguration();
 
+                    if (message.isCall() || message.isDummyEmptyMessage()) {
+                        myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+                    } else if (!message.isSentToServer() && message.isTypeOutbox() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
+                        myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
+                    } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
+                        Drawable statusIcon;
+                        if (message.isDeliveredAndRead()) {
+                            statusIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
+                        } else {
+                            statusIcon = (message.getDelivered() ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
+                        }
+                        myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
+                    }
+
+                    if (message.isCall()) {
+                        myHolder.deliveryStatus.setText("");
+                    }
+
                     if (message.isDeletedForAll()) {
                         myHolder.messageTextView.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.round_not_interested_black_24), null, null, null);
                         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -351,10 +369,18 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.messageTextView.setText(R.string.deleted_message_text);
                         myHolder.messageTextView.setTypeface(null, Typeface.ITALIC);
                         myHolder.messageTextView.setVisibility(View.VISIBLE);
+                        myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+
+                        myHolder.replyRelativeLayout.setVisibility(GONE);
                         myHolder.attachmentIcon.setVisibility(GONE);
-                        if (myHolder.attachedFile != null) {
-                            myHolder.attachedFile.setVisibility(GONE);
-                        }
+                        myHolder.richMessageLayout.setVisibility(View.GONE);
+                        myHolder.preview.setVisibility(View.GONE);
+                        myHolder.attachedFile.setVisibility(View.GONE);
+                        myHolder.mainAttachmentLayout.setVisibility(View.GONE);
+                        myHolder.attachmentView.setVisibility(View.GONE);
+                        myHolder.videoIcon.setVisibility(View.GONE);
+                        myHolder.mainContactShareLayout.setVisibility(View.GONE);
+
                     } else {
                         myHolder.messageTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
                         myHolder.messageTextView.setTypeface(null, Typeface.NORMAL);
@@ -550,12 +576,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
                         myHolder.createdAtTime.setTextColor(Color.parseColor(alCustomizationSettings.getMessageTimeTextColor()));
 
-                        myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
+                        //myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
 
-                        myHolder.attachmentView.setVisibility(View.GONE);
+                        //myHolder.attachmentView.setVisibility(View.GONE);
 
                         if (message.isTypeOutbox() && !message.isCanceled()) {
-                            myHolder.mediaUploadProgressBar.setVisibility(View.GONE);
                             myHolder.mediaUploadProgressBar.setVisibility(message.isAttachmentUploadInProgress() ? View.VISIBLE : View.GONE);
                         } else {
                             myHolder.mediaUploadProgressBar.setVisibility(View.GONE);
@@ -592,24 +617,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                         if (myHolder.nameTextLayout != null && contact != null) {
                             myHolder.nameTextLayout.setVisibility(View.GONE);
-                        }
-
-                        if (message.isCall() || message.isDummyEmptyMessage()) {
-                            myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-                        } else if (!message.isSentToServer() && message.isTypeOutbox() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
-                            myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, message.getScheduledAt() != null ? scheduledIcon : pendingIcon, null);
-                        } else if (message.getKeyString() != null && message.isTypeOutbox() && message.isSentToServer() && (contact != null || channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
-                            Drawable statusIcon;
-                            if (message.isDeliveredAndRead()) {
-                                statusIcon = context.getResources().getDrawable(R.drawable.applozic_ic_action_message_read);
-                            } else {
-                                statusIcon = (message.getDelivered() ? deliveredIcon : (message.getScheduledAt() != null ? scheduledIcon : sentIcon));
-                            }
-                            myHolder.createdAtTime.setCompoundDrawablesWithIntrinsicBounds(null, null, statusIcon, null);
-                        }
-
-                        if (message.isCall()) {
-                            myHolder.deliveryStatus.setText("");
                         }
 
                         if (contactDisplayName != null && myHolder.contactImage != null && alCustomizationSettings.isLaunchChatFromProfilePicOrName()) {
@@ -661,7 +668,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                     filePaths[i++] = filePath;
                                     final String mimeType = FileUtils.getMimeType(filePath);
                                     if (mimeType != null && mimeType.startsWith("image")) {
-                                        //myHolder.attachmentView.setImageBitmap(null);
                                         myHolder.attachmentView.setVisibility(View.GONE);
                                         myHolder.videoIcon.setVisibility(View.GONE);
                                         myHolder.preview.setVisibility(View.VISIBLE);
@@ -669,19 +675,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
                                         myHolder.attachmentDownloadProgressLayout.setVisibility(View.GONE);
                                         Glide.with(context).load(new File(filePath)).into(myHolder.preview);
-                                    /*Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-                                    myHolder.preview.setImageBitmap(bitmap);*/
-                                        //Picasso.with(context).load(new File(filePath)).into(myHolder.preview);
                                         myHolder.attachmentView.setMessage(message);
                                         myHolder.mediaDownloadProgressBar.setVisibility(View.GONE);
-                                        //myHolder.mediaUploadProgressBar.setVisibility(GONE);
                                         myHolder.attachedFile.setVisibility(View.GONE);
                                         myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
                                         myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
-                                        /**/
-                                    /*myHolder.attachmentView.setVisibility(View.VISIBLE);
-                                    myHolder.videoIcon.setVisibility(View.GONE);
-                                    myHolder.preview.setVisibility(View.GONE);*/
                                     } else if (mimeType != null && mimeType.startsWith("video")) {
                                         myHolder.preview.setVisibility(View.VISIBLE);
                                         myHolder.videoIcon.setVisibility(View.VISIBLE);
@@ -982,7 +980,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
 
                         if (!message.hasAttachment()) {
                             myHolder.preview.setVisibility(View.GONE);
-                            myHolder.attachedFile.setVisibility(View.GONE);
                             myHolder.mainAttachmentLayout.setVisibility(View.GONE);
                             myHolder.mediaDownloadProgressBar.setVisibility(View.VISIBLE);
                             myHolder.attachmentView.setVisibility(View.GONE);
@@ -1536,29 +1533,36 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             String[] menuItems = context.getResources().getStringArray(R.array.menu);
 
             for (int i = 0; i < menuItems.length; i++) {
-
                 if (!(message.isGroupMessage() && message.isTypeOutbox() && message.isSentToServer()) && menuItems[i].equals(context.getResources().getString(R.string.info))) {
                     continue;
                 }
 
-                if ((message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue() || message.isVideoOrAudioCallMessage()) &&
+                if ((message.isDeletedForAll() || message.hasAttachment() || message.getContentType() == Message.ContentType.LOCATION.getValue() || message.isVideoOrAudioCallMessage()) &&
                         menuItems[i].equals(context.getResources().getString(R.string.copy))) {
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.forward)) && !alCustomizationSettings.isForwardOption()) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.forward)) && (!alCustomizationSettings.isForwardOption() || message.isDeletedForAll())) {
                     continue;
                 }
 
-                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage()) && (menuItems[i].equals(context.getResources().getString(R.string.forward)) ||
+                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage() || message.isDeletedForAll()) && (menuItems[i].equals(context.getResources().getString(R.string.forward)) ||
                         menuItems[i].equals(context.getResources().getString(R.string.resend)))) {
                     continue;
                 }
-                if (menuItems[i].equals(context.getResources().getString(R.string.resend)) && (!message.isSentViaApp() || message.isSentToServer() || message.isVideoOrAudioCallMessage())) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.resend)) && (!message.isSentViaApp() || message.isSentToServer() || message.isVideoOrAudioCallMessage() || message.isDeletedForAll())) {
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isDeletedForAll() || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
+                    continue;
+                }
+
+                if (menuItems[i].equals(context.getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || message.isDeletedForAll() || !(new File(message.getFilePaths().get(0)).exists()))) {
+                    continue;
+                }
+
+                if (menuItems[i].equals(ApplozicService.getContext(context).getString(R.string.report)) && (!alCustomizationSettings.isMessageReportEnabled() || message.isTypeOutbox() || message.isDeletedForAll())) {
                     continue;
                 }
 
@@ -1570,15 +1574,12 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.share)) && (message.isAttachmentUploadInProgress() || message.getFilePaths() == null || !(new File(message.getFilePaths().get(0)).exists()))) {
-                    continue;
-                }
-
-                if (menuItems[i].equals(ApplozicService.getContext(context).getString(R.string.report)) && (!alCustomizationSettings.isMessageReportEnabled() || message.isTypeOutbox())) {
-                    continue;
-                }
-
-                if (menuItems[i].equals(Utils.getString(context, R.string.delete_for_all)) && (!(alCustomizationSettings.isDeleteForAllMessageOption() || ApplozicSetting.getInstance(context).isMessageDeleteForAllOption()) || ((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || contact != null || !message.isTypeOutbox()))) {
+                if (menuItems[i].equals(Utils.getString(context, R.string.delete_for_all))
+                        && (!(alCustomizationSettings.isDeleteForAllMessageOption() || ApplozicSetting.getInstance(context).isMessageDeleteForAllOption())
+                        || ((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()))
+                        || contact != null
+                        || !message.isTypeOutbox()
+                        || message.isDeletedForAll()))) {
                     continue;
                 }
 

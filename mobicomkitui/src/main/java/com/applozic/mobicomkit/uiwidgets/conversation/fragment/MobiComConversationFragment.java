@@ -1558,7 +1558,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         if (progressBar != null) {
                             progressBar.dismiss();
                         }
-                        Toast.makeText(getContext(), R.string.delete_conversation_failed, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ApplozicService.getContext(getContext()), Utils.getString(getContext(), R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
                     }
                 }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
