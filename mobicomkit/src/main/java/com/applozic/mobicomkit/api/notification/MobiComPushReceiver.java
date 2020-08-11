@@ -384,22 +384,16 @@ MobiComPushReceiver {
             if (!TextUtils.isEmpty(messageMetadataUpdate)) {
                 String keyString = null;
                 String id = null;
-                String deviceKey = null;
 
                 try {
                     GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageMetadataUpdate, GcmMessageResponse.class);
                     keyString = messageResponse.getMessage().getKeyString();
                     id = messageResponse.getId();
-                    deviceKey = messageResponse.getMessage().getDeviceKeyString();
                 } catch (Exception e) {
                     try {
                         InstantMessageResponse response = (InstantMessageResponse) GsonUtils.getObjectFromJson(messageMetadataUpdate, InstantMessageResponse.class);
                         keyString = response.getMessage();
                         id = response.getId();
-                        Message message = new MessageDatabaseService(context).getMessage(keyString);
-                        if (message != null) {
-                            deviceKey = message.getDeviceKeyString();
-                        }
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -409,9 +403,6 @@ MobiComPushReceiver {
                 }
 
                 addPushNotificationId(id);
-                if (deviceKey != null && deviceKey.equals(MobiComUserPreference.getInstance(context).getDeviceKeyString())) {
-                    return;
-                }
 
                 syncCallService.syncMessageMetadataUpdate(keyString, true);
             }
