@@ -97,6 +97,7 @@
                 android:textAlignment="gravity"
                 android:textColor="@color/black"
                 android:textDirection="locale"
+                android:visibility="gone"
                 android:textSize="16sp" />
 
             <include layout="@layout/mobicom_attachment_preview_layout" />
@@ -115,6 +116,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text=""
+                android:drawablePadding="5dp"
                 android:textAlignment="gravity"
                 android:textColor="@color/message_text_color"
                 android:textDirection="locale"

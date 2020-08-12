@@ -71,6 +71,7 @@ public class Message extends JsonMarker {
     public static final String KM_ASSIGN = "KM_ASSIGN";
     public static final String KM_STATUS = "KM_STATUS";
     public static final String KM_SKIP_BOT = "skipBot";
+    public static final String AL_DELETE_MESSAGE_FOR_ALL_KEY = "AL_DELETE_GROUP_MESSAGE_FOR_ALL";
 
     public Message() {
 
@@ -665,6 +666,20 @@ public class Message extends JsonMarker {
 
     public String getConversationAssignee() {
         return (getMetadata() != null && getMetadata().containsKey(KM_ASSIGN)) ? getMetadata().get(KM_ASSIGN) : null;
+    }
+
+    public boolean isDeletedForAll() {
+        return getMetadata() != null
+                && getMetadata().containsKey(AL_DELETE_MESSAGE_FOR_ALL_KEY)
+                && GroupMessageMetaData.TRUE.getValue().equals(getMetadata().get(AL_DELETE_MESSAGE_FOR_ALL_KEY));
+    }
+
+    public void setAsDeletedForAll() {
+        if (metadata == null) {
+            metadata = new HashMap<>();
+        }
+
+        metadata.put(AL_DELETE_MESSAGE_FOR_ALL_KEY, GroupMessageMetaData.TRUE.getValue());
     }
 
     public boolean isIgnoreMessageAdding(Context context) {

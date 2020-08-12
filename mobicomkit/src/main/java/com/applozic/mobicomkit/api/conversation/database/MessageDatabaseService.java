@@ -1219,6 +1219,11 @@ public class MessageDatabaseService {
         }
     }
 
+    public synchronized void replaceExistingMessage(Message message) {
+        deleteMessageFromDb(message);
+        createMessage(message);
+    }
+
     public synchronized void updateContactUnreadCountToZero(String userId) {
         try {
             SQLiteDatabase db = dbHelper.getWritableDatabase();

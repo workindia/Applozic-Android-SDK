@@ -84,6 +84,7 @@ public class ApplozicSetting {
     private static final String PARENT_ACTIVITY_INTENT = "PARENT_ACTIVITY_INTENT";
     private static final String ATTACHMENT_OPTIONS = "ATTACHMENT_OPTIONS";
     private static final String GROUPS_SECTION_TAB = "GROUPS_SECTION_TAB";
+    private static final String MESSAGE_DELETE_FOR_ALL_OPTION = "deleteForAllMessageOption";
 
     public static ApplozicSetting applozicSetting;
     public SharedPreferences sharedPreferences;
@@ -784,6 +785,15 @@ public class ApplozicSetting {
 
     public ApplozicSetting setGroupsSectionTabHidden(boolean hideGroupsSectionTab) {
         sharedPreferences.edit().putBoolean(GROUPS_SECTION_TAB, hideGroupsSectionTab).commit();
+        return this;
+    }
+
+    public boolean isMessageDeleteForAllOption() {
+        return sharedPreferences.getBoolean(MESSAGE_DELETE_FOR_ALL_OPTION, false);
+    }
+
+    public ApplozicSetting setMessageDeleteForAllOption(boolean isMessageDeleteForAllOption) {
+        sharedPreferences.edit().putBoolean(MESSAGE_DELETE_FOR_ALL_OPTION, isMessageDeleteForAllOption);
         return this;
     }
 

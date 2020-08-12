@@ -106,6 +106,7 @@
   "groupInfoScreenVisible": true,
   "forwardOption": true,
   "recordButton": true,
+  "deleteForAllMessageOption": true,
   "messageTemplate": {
     "isEnabled": false,
     "borderColor": "#FF03A9F4",
