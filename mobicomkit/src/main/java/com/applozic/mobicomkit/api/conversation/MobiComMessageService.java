@@ -313,7 +313,7 @@ public class MobiComMessageService {
             List<Message> messageList = syncMessageFeed.getMessages();
             for (final Message message : messageList) {
                 if (message != null) {
-                    new MessageDatabaseService(context).updateMessageMetadata(message.getKeyString(), message.getMetadata());
+                    messageDatabaseService.replaceExistingMessage(message);
                     BroadcastService.updateMessageMetadata(context, message.getKeyString(), BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString());
                 }
             }
@@ -420,6 +420,10 @@ public class MobiComMessageService {
         sms.setDeviceKeyString(userPreferences.getDeviceKeyString());
         sms.setSource(Message.Source.MT_MOBILE_APP.getValue());
         messageDatabaseService.createMessage(sms);
+    }
+
+    public String getMessageDeleteForAllResponse(String messageKey, boolean deleteForAll) throws Exception {
+        return messageClientService.getMessageDeleteForAllResponse(messageKey, deleteForAll);
     }
 
     public synchronized void processInstantMessage(Message message) {

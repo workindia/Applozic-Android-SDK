@@ -20,6 +20,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.MessageResponse;
 import com.applozic.mobicomkit.sync.SmsSyncRequest;
@@ -52,6 +53,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String LAST_SYNC_KEY = "lastSyncTime";
     public static final String REGISTRATION_ID = "registrationId";
     private static final String MESSAGE_METADATA_UPDATE = "metadataUpdate";
+    private static final String DELETE_FOR_ALL = "deleteForAll=";
     public static final String FILE_META = "fileMeta";
     public static final String MTEXT_DELIVERY_URL = "/rest/ws/message/delivered";
     public static final String SERVER_SYNC_URL = "/rest/ws/message/sync";
@@ -76,6 +78,7 @@ public class MessageClientService extends MobiComKitClientService {
     private static final String GET_KM_CONVERSATION_LIST_URL = "/rest/ws/group/support";
     private static final String GET_ALL_GROUPS_URL = "/rest/ws/group/all";
     private static final String MESSAGE_REPORT_URL = "/rest/ws/message/report";
+    private static final String MESSAGE_DELETE_FOR_ALL_URL = "/rest/ws/message/v2/delete?key=";
 
     private static final String TAG = "MessageClientService";
     private Context context;
@@ -155,6 +158,10 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getSingleMessageReadUrl() {
         return getBaseUrl() + UPDATE_READ_STATUS_FOR_SINGLE_MESSAGE_URL;
+    }
+
+    public String getMessageDeleteForAllUrl() {
+        return getBaseUrl() + MESSAGE_DELETE_FOR_ALL_URL;
     }
 
     public String getAllGroupsUrl() {
@@ -335,6 +342,17 @@ public class MessageClientService extends MobiComKitClientService {
         if (message.getScheduledAt() != null && message.getScheduledAt() != 0 && intentClass != null) {
             new ScheduledMessageUtil(context, intentClass).createScheduleMessage(message, context);
         }
+    }
+
+    public String getMessageDeleteForAllResponse(String messageKey, boolean deleteForAll) throws Exception {
+        if (TextUtils.isEmpty(messageKey)) {
+            throw new ApplozicException("Message key cannot be empty");
+        }
+        StringBuilder urlBuilder = new StringBuilder(getMessageDeleteForAllUrl()).append(messageKey);
+        if (deleteForAll) {
+            urlBuilder.append("&").append(DELETE_FOR_ALL).append("true");
+        }
+        return httpRequestUtils.getResponseWithException(urlBuilder.toString(), "application/json", "application/json", false, null);
     }
 
     public void processMessage(Message message, Handler handler, String userDisplayName) throws Exception {

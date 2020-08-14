@@ -133,6 +133,8 @@
     <string name="forward">Forward</string>
     <string name="resend">Resend</string>
     <string name="delete">Delete</string>
+    <string name="delete_for_all">Delete for all</string>
+    <string name="deleted_message_text">This message has been deleted</string>
     <string name="info">Info</string>
     <string name="share">Share</string>
     <string name="reply">Reply</string>

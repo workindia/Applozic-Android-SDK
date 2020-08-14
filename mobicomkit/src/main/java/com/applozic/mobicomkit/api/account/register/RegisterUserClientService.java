@@ -105,6 +105,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new ConnectException("No Internet Connection");
         }
 
+        HttpRequestUtils.isRefreshTokenInProgress = true;
         Utils.printLog(context, TAG, "Registration json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
 
@@ -115,7 +116,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-
         if (registrationResponse.isRegistrationSuccess()) {
 
             Utils.printLog(context, "Registration response ", "is " + registrationResponse);
@@ -198,10 +198,11 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     public boolean refreshAuthToken(String applicationId, String userId) {
         try {
+            HttpRequestUtils.isRefreshTokenInProgress = true;
             Map<String, String> tokenRefreshBodyMap = new HashMap<>();
             tokenRefreshBodyMap.put("applicationId", applicationId);
             tokenRefreshBodyMap.put("userId", userId);
-            String response = httpRequestUtils.postData(getRefreshTokenUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(tokenRefreshBodyMap, Map.class));
+            String response = httpRequestUtils.postDataForAuthToken(getRefreshTokenUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(tokenRefreshBodyMap, Map.class), userId);
             if (!TextUtils.isEmpty(response)) {
                 ApiResponse<String> jwtTokenResponse = (ApiResponse<String>) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (jwtTokenResponse != null && !TextUtils.isEmpty(jwtTokenResponse.getResponse())) {

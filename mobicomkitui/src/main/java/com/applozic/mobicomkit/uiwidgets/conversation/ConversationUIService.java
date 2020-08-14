@@ -631,6 +631,12 @@ public class ConversationUIService {
         }
     }
 
+    public void updateChannelMuteMenuOptionForGroupId(Integer groupId) {
+        if (BroadcastService.isIndividual() && getConversationFragment() != null && getConversationFragment().getCurrentChannelKey(groupId)) {
+            getConversationFragment().updateChannelMuteMenuOptionForGroupId(groupId);
+        }
+    }
+
     public void updateChannelSync() {
         updateChannelSync(false);
     }

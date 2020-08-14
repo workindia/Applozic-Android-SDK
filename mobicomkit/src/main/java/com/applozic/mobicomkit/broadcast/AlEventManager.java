@@ -157,6 +157,8 @@ public class AlEventManager {
                     case AlMessageEvent.ActionType.MESSAGE_METADATA_UPDATED:
                         listener.onMessageMetadataUpdated(messageEvent.getMessageKey());
                         break;
+                    case AlMessageEvent.ActionType.GROUP_MUTE:
+                        listener.onGroupMute(messageEvent.getGroupId());
                 }
             }
         }
