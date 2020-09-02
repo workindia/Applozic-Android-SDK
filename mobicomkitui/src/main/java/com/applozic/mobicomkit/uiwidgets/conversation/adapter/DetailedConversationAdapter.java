@@ -66,6 +66,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.KmLinkPreview;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -988,6 +989,12 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.mainContactShareLayout.setVisibility(View.GONE);
                         }
 
+                        if (message.isTypeUrl()) {
+                            new KmLinkPreview(context, message, myHolder.urlLoadLayout, alCustomizationSettings).createView();
+                        } else {
+                            myHolder.urlLoadLayout.setVisibility(View.GONE);
+                        }
+
                         if (message.getMetadata() != null && "300".equals(message.getMetadata().get("contentType"))) {
                             myHolder.richMessageLayout.setVisibility(View.VISIBLE);
                             if (!TextUtils.isEmpty(message.getMessage())) {
@@ -1429,6 +1436,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         Button addContactButton;
         int position;
         LinearLayout richMessageLayout;
+        RelativeLayout urlLoadLayout;
 
         public MyViewHolder(final View customView) {
             super(customView);
@@ -1466,6 +1474,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             imageViewPhoto = (ImageView) customView.findViewById(R.id.imageViewForPhoto);
             replyNameTextView = (TextView) customView.findViewById(R.id.replyNameTextView);
             imageViewForAttachmentType = (ImageView) customView.findViewById(R.id.imageViewForAttachmentType);
+            urlLoadLayout = (RelativeLayout) customView.findViewById(R.id.url_load_layout);
 
             shareContactImage = (ImageView) mainContactShareLayout.findViewById(R.id.contact_share_image);
             shareContactName = (TextView) mainContactShareLayout.findViewById(R.id.contact_share_tv_name);
