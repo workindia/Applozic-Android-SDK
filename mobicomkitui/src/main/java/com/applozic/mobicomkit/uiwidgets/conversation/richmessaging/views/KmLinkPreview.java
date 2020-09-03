@@ -21,6 +21,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.GlideException;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -42,6 +43,7 @@ public class KmLinkPreview {
     private ImageView imageView;
     private TextView titleText;
     private TextView descriptionText;
+    private ImageView imageOnlyView;
 
     public KmLinkPreview(Context context, Message message, RelativeLayout urlLoadLayout, AlCustomizationSettings alCustomizationSettings) {
         this.context = context;
@@ -51,6 +53,7 @@ public class KmLinkPreview {
         this.imageView = urlLoadLayout.findViewById(R.id.url_image);
         this.titleText = urlLoadLayout.findViewById(R.id.url_header);
         this.descriptionText = urlLoadLayout.findViewById(R.id.url_body);
+        this.imageOnlyView = urlLoadLayout.findViewById(R.id.image_only_view);
     }
 
     public void createView() {
@@ -76,17 +79,31 @@ public class KmLinkPreview {
     public void updateViews(KmLinkPreviewModel linkPreviewModel) {
         if (linkPreviewModel != null && linkPreviewModel.hasLinkData()) {
             urlLoadLayout.setVisibility(View.VISIBLE);
-            titleText.setText(linkPreviewModel.getTitle());
-            descriptionText.setText(linkPreviewModel.getDescription());
-            if (!TextUtils.isEmpty(linkPreviewModel.getImageLink())) {
-                imageView.setVisibility(View.VISIBLE);
-                Glide.with(context).load(linkPreviewModel.getImageLink()).into(imageView);
+
+            if (linkPreviewModel.hasImageOnly()) {
+                toggleImageOnlyVisibility(true);
+                Glide.with(context).load(linkPreviewModel.getImageLink()).into(imageOnlyView);
             } else {
-                imageView.setVisibility(View.GONE);
+                toggleImageOnlyVisibility(false);
+                titleText.setText(linkPreviewModel.getTitle());
+                descriptionText.setText(linkPreviewModel.getDescription());
+                if (!TextUtils.isEmpty(linkPreviewModel.getImageLink())) {
+                    imageView.setVisibility(View.VISIBLE);
+                    Glide.with(context).load(linkPreviewModel.getImageLink()).into(imageView);
+                } else {
+                    imageView.setVisibility(View.GONE);
+                }
             }
         } else {
             urlLoadLayout.setVisibility(View.GONE);
         }
+    }
+
+    private void toggleImageOnlyVisibility(boolean showImageOnly) {
+        imageOnlyView.setVisibility(showImageOnly ? View.VISIBLE : View.GONE);
+        imageView.setVisibility(showImageOnly ? View.GONE : View.VISIBLE);
+        titleText.setVisibility(showImageOnly ? View.GONE : View.VISIBLE);
+        descriptionText.setVisibility(showImageOnly ? View.GONE : View.VISIBLE);
     }
 
     public KmLinkPreviewModel getUrlMetaModel() {
@@ -114,21 +131,34 @@ public class KmLinkPreview {
 
         @Override
         protected KmLinkPreviewModel doInBackground(Void... voids) {
+            String validUrl = getValidUrl(message);
+            KmLinkPreviewModel linkPreviewModel = null;
             try {
-                Document document = Jsoup.connect(getValidUrl(message)).get();
-                KmLinkPreviewModel linkPreviewModel = getMetaTags(document.toString());
-                if (TextUtils.isEmpty(linkPreviewModel.getTitle())) {
-                    linkPreviewModel.setTitle(document.title());
-                }
-                if (!TextUtils.isEmpty(linkPreviewModel.getImageLink()) &&
-                        !(linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTP_PROTOCOL) || linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTPS_PROTOCOL))) {
-                    linkPreviewModel.setImageLink(getValidUrl(message) + linkPreviewModel.getImageLink());
+                validUrl = getValidUrl(message);
+                if (!TextUtils.isEmpty(validUrl) && Pattern.compile(KmRegexHelper.IMAGE_PATTERN).matcher(validUrl).matches()) {
+                    linkPreviewModel = new KmLinkPreviewModel();
+                    linkPreviewModel.setImageLink(validUrl);
+                } else {
+                    Document document = Jsoup.connect(validUrl).get();
+                    linkPreviewModel = getMetaTags(document.toString());
+                    if (TextUtils.isEmpty(linkPreviewModel.getTitle())) {
+                        linkPreviewModel.setTitle(document.title());
+                    }
+                    if (!TextUtils.isEmpty(linkPreviewModel.getImageLink()) &&
+                            !(linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTP_PROTOCOL) || linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTPS_PROTOCOL))) {
+                        linkPreviewModel.setImageLink(getValidUrl(message) + linkPreviewModel.getImageLink());
+                    }
                 }
                 return linkPreviewModel;
+            } catch (HttpStatusException e) {
+                if (linkPreviewModel == null) {
+                    linkPreviewModel = new KmLinkPreviewModel();
+                }
+                linkPreviewModel.setInvalidUrl(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return linkPreviewModel;
         }
 
         @Override

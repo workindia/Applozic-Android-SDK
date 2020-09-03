@@ -2,7 +2,10 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models;
 
 import android.text.TextUtils;
 
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRegexHelper;
 import com.applozic.mobicommons.json.JsonMarker;
+
+import java.util.regex.Pattern;
 
 public class KmLinkPreviewModel extends JsonMarker {
 
@@ -53,6 +56,13 @@ public class KmLinkPreviewModel extends JsonMarker {
     }
 
     public boolean hasLinkData() {
-        return !TextUtils.isEmpty(imageLink) || !TextUtils.isEmpty(title) || !TextUtils.isEmpty(description);
+        return !TextUtils.isEmpty(imageLink) || !TextUtils.isEmpty(title) || !TextUtils.isEmpty(description) || isInvalidUrl();
+    }
+
+    public boolean hasImageOnly() {
+        return !TextUtils.isEmpty(imageLink)
+                && Pattern.compile(KmRegexHelper.IMAGE_PATTERN).matcher(imageLink).matches()
+                && TextUtils.isEmpty(title)
+                && TextUtils.isEmpty(description);
     }
 }

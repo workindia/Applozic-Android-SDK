@@ -7,13 +7,22 @@
     android:layout_margin="4dp"
     android:background="@color/alphabet_a"
     android:maxHeight="100dp"
-    android:visibility="visible">
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/image_only_view"
+        android:layout_width="288dp"
+        android:layout_height="200dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/url_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
         android:src="@drawable/applozic_ic_image_photo_album"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,6 +39,7 @@
         android:layout_marginRight="4dp"
         android:layout_toEndOf="@+id/url_image"
         android:layout_toRightOf="@+id/url_image"
+        android:maxHeight="100dp"
         android:orientation="vertical">
 
         <TextView
