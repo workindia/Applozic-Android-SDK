@@ -82,13 +82,16 @@ public class Applozic {
     }
 
     public String getApplicationKey() {
+        String decryptedApplicationKey = AlPrefSettings.getInstance(context).getApplicationKey();
+        if (!TextUtils.isEmpty(decryptedApplicationKey)) {
+            return decryptedApplicationKey;
+        }
         String existingAppKey = sharedPreferences.getString(APPLICATION_KEY, null);
         if (!TextUtils.isEmpty(existingAppKey)) {
             AlPrefSettings.getInstance(context).setApplicationKey(existingAppKey);
             sharedPreferences.edit().remove(APPLICATION_KEY).commit();
-            return existingAppKey;
         }
-        return AlPrefSettings.getInstance(context).getApplicationKey();
+        return existingAppKey;
     }
 
     public String getDeviceRegistrationId() {

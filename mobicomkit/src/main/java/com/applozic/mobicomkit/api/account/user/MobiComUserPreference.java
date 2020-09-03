@@ -541,15 +541,22 @@ public class MobiComUserPreference {
 
     public String getPassword() {
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(password, null);
+            String decryptedPassword = AlPrefSettings.getInstance(context).getPassword();
+            if (!TextUtils.isEmpty(decryptedPassword)) {
+                return decryptedPassword;
+            }
+            String savedPassword = sharedPreferences.getString(password, null);
+            if (!TextUtils.isEmpty(savedPassword)) {
+                setPassword(savedPassword);
+                sharedPreferences.edit().remove(password).commit();
+            }
+            return savedPassword;
         }
         return null;
     }
 
     public void setPassword(String val) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(password, val).commit();
-        }
+        AlPrefSettings.getInstance(context).setPassword(val);
     }
 
     public String getAuthenticationType() {
@@ -579,15 +586,22 @@ public class MobiComUserPreference {
     }
 
     public MobiComUserPreference setUserAuthToken(String authToken) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(USER_AUTH_TOKEN, authToken).commit();
-        }
+        AlPrefSettings.getInstance(context).setUserAuthToken(authToken);
         return this;
     }
 
     public String getUserAuthToken() {
+        String decodedUserAuthToken = AlPrefSettings.getInstance(context).getUserAuthToken();
+        if (!TextUtils.isEmpty(decodedUserAuthToken)) {
+            return decodedUserAuthToken;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(USER_AUTH_TOKEN, null);
+            String savedUserAuthToken = sharedPreferences.getString(USER_AUTH_TOKEN, null);
+            if (!TextUtils.isEmpty(savedUserAuthToken)) {
+                setUserAuthToken(savedUserAuthToken);
+                sharedPreferences.edit().remove(USER_AUTH_TOKEN).commit();
+            }
+            return savedUserAuthToken;
         }
         return null;
     }
@@ -642,16 +656,23 @@ public class MobiComUserPreference {
     }
 
     public String getEncryptionKey() {
+        String decodedEncryptionKey = AlPrefSettings.getInstance(context).getEncryptionKey();
+        if (!TextUtils.isEmpty(decodedEncryptionKey)) {
+            return decodedEncryptionKey;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(encryption_Key, null);
+            String savedEncryptionKey = sharedPreferences.getString(encryption_Key, null);
+            if (!TextUtils.isEmpty(savedEncryptionKey)) {
+                setEncryptionKey(savedEncryptionKey);
+                sharedPreferences.edit().remove(encryption_Key).commit();
+            }
+            return savedEncryptionKey;
         }
         return null;
     }
 
     public void setEncryptionKey(String encryptionKey) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(encryption_Key, encryptionKey).commit();
-        }
+        AlPrefSettings.getInstance(context).setEncryptionKey(encryptionKey);
     }
 
     public boolean isEncryptionEnabled() {
@@ -824,16 +845,23 @@ public class MobiComUserPreference {
     }
 
     public String getUserEncryptionKey() {
+        String decodedUserEncryptionKey = AlPrefSettings.getInstance(context).getUserEncryptionKey();
+        if (!TextUtils.isEmpty(decodedUserEncryptionKey)) {
+            return decodedUserEncryptionKey;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(user_encryption_Key, null);
+            String savedUserEncryptionKey = sharedPreferences.getString(user_encryption_Key, null);
+            if (!TextUtils.isEmpty(savedUserEncryptionKey)) {
+                setUserEncryptionKey(savedUserEncryptionKey);
+                sharedPreferences.edit().remove(user_encryption_Key).commit();
+            }
+            return savedUserEncryptionKey;
         }
         return null;
     }
 
     public void setUserEncryptionKey(String userEncryptionKey) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(user_encryption_Key, userEncryptionKey).commit();
-        }
+        AlPrefSettings.getInstance(context).setUserEncryptionKey(userEncryptionKey);
     }
 
     public String getCategoryName() {
