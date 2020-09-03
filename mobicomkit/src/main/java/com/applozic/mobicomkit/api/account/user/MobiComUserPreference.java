@@ -90,23 +90,19 @@ public class MobiComUserPreference {
     private MobiComUserPreference(Context context) {
         this.context = ApplozicService.getContext(context);
         ApplozicService.initWithContext(context);
-        renameSharedPrefFile(context);
+        renameSharedPrefFile(this.context);
         sharedPreferences = this.context.getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static MobiComUserPreference getInstance(Context context) {
         if (userpref == null) {
             userpref = new MobiComUserPreference(ApplozicService.getContext(context));
-        } else {
-            if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
-                sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
-            }
         }
         return userpref;
     }
 
-    public static void renameSharedPrefFile(Context context) {
-        File oldFile = new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + AlPrefSettings.getInstance(context).getApplicationKey() + ".xml");
+    public synchronized static void renameSharedPrefFile(Context context) {
+        File oldFile = new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComKitClientService.getApplicationKey(context) + ".xml");
         if (oldFile.exists()) {
             oldFile.renameTo(new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComUserPreference.AL_USER_PREF_KEY + ".xml"));
         }

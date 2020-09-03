@@ -28,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
@@ -79,7 +80,7 @@ public class MessageInfoFragment extends Fragment {
         setHasOptionsMenu(true);
         contactService = new AppContactService(getContext());
         fileClientService = new FileClientService(getContext());
-        geoApiKey = Utils.getMetaDataValue(getContext().getApplicationContext(), ConversationActivity.GOOGLE_API_KEY_META_DATA);
+        geoApiKey = Applozic.getInstance(getContext()).getGeoApiKey();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -163,7 +164,7 @@ public class MessageInfoFragment extends Fragment {
             contactImageLoader = new ImageLoader(getContext(), getListPreferredItemHeight()) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    if(getContext() != null) {
+                    if (getContext() != null) {
                         return contactService.downloadContactImage(getContext(), (Contact) data);
                     }
                     return null;
@@ -177,7 +178,7 @@ public class MessageInfoFragment extends Fragment {
             locationImageLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
                 @Override
                 protected Bitmap processBitmap(Object data) {
-                    if(getContext() != null) {
+                    if (getContext() != null) {
                         return fileClientService.loadMessageImage(getContext(), (String) data);
                     }
                     return null;

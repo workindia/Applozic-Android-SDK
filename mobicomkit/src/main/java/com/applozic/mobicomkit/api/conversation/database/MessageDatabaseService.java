@@ -511,7 +511,7 @@ public class MessageDatabaseService {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         long id = -1;
         boolean duplicateCheck = true;
-        SharedPreferences prefs = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
         long minCreatedAt = prefs.getLong(MIN_CREATED_AT_KEY, 0);
         long maxCreatedAt = prefs.getLong(MAX_CREATED_AT_KEY, Long.MAX_VALUE);
 

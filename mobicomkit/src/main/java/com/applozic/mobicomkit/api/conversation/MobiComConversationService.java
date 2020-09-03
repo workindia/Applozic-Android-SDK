@@ -83,7 +83,7 @@ public class MobiComConversationService {
         this.conversationService = ConversationService.getInstance(context);
         this.channelService = ChannelService.getInstance(context);
         this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
-        this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
+        this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     @VisibleForTesting
