@@ -67,7 +67,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
     }
 
     public RegistrationResponse createAccount(User user) throws Exception {
-        user.setDeviceType(Short.valueOf("1"));
+        if (user.getDeviceType() == null) {
+            user.setDeviceType(Short.valueOf("1"));
+        }
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
         user.setEnableEncryption(user.isEnableEncryption());
@@ -264,7 +266,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public RegistrationResponse updateRegisteredAccount(User user) throws Exception {
         RegistrationResponse registrationResponse = null;
 
-        user.setDeviceType(Short.valueOf("1"));
+        if (user.getDeviceType() == null) {
+            user.setDeviceType(Short.valueOf("1"));
+        }
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
         user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);
