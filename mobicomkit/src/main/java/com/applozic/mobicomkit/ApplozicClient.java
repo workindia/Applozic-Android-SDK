@@ -13,11 +13,13 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.data.AlPrefSettings;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +35,6 @@ public class ApplozicClient {
     private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
     private static final String NOTIFICATION_SMALL_ICON = "NOTIFICATION_SMALL_ICON";
     private static final String APP_NAME = "APP_NAME";
-    private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String NOTIFICATION_DISABLE = "NOTIFICATION_DISABLE";
     private static final String CONTACT_DEFAULT_IMAGE = "CONTACT_DEFAULT_IMAGE";
     private static final String GROUP_DEFAULT_IMAGE = "GROUP_DEFAULT_IMAGE";
@@ -60,7 +61,8 @@ public class ApplozicClient {
 
     private ApplozicClient(Context context) {
         this.context = ApplozicService.getContext(context);
-        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
+        MobiComUserPreference.renameSharedPrefFile(context);
+        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static ApplozicClient getInstance(Context context) {
@@ -138,15 +140,6 @@ public class ApplozicClient {
 
     public ApplozicClient setAppName(String notficationAppName) {
         sharedPreferences.edit().putString(APP_NAME, notficationAppName).commit();
-        return this;
-    }
-
-    public String getApplicationKey() {
-        return sharedPreferences.getString(APPLICATION_KEY, null);
-    }
-
-    public ApplozicClient setApplicationKey(String applicationKey) {
-        sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
         return this;
     }
 

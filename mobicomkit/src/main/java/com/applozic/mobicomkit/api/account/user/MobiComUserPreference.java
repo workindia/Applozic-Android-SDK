@@ -7,13 +7,17 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.data.AlPrefSettings;
 
+import java.io.File;
 import java.util.Set;
 
 
 public class MobiComUserPreference {
 
     private static final String USER_ID = "userId";
+    public static final String AL_USER_PREF_KEY = "al_user_pref_key";
     public static MobiComUserPreference userpref;
     //Constants for preferneces ..
     private static String device_registration_id = "device_registration_id";
@@ -86,9 +90,8 @@ public class MobiComUserPreference {
     private MobiComUserPreference(Context context) {
         this.context = ApplozicService.getContext(context);
         ApplozicService.initWithContext(context);
-        if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
-            sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
-        }
+        renameSharedPrefFile(context);
+        sharedPreferences = this.context.getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static MobiComUserPreference getInstance(Context context) {
@@ -102,14 +105,12 @@ public class MobiComUserPreference {
         return userpref;
     }
 
-    /*
-    public void setDeviceRegistrationId(String deviceRegistrationId) {
-        sharedPreferences.edit().putString(OsuConstants.DEVICE_REGISTRATION_ID, deviceRegistrationId).commit();
+    public static void renameSharedPrefFile(Context context) {
+        File oldFile = new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + AlPrefSettings.getInstance(context).getApplicationKey() + ".xml");
+        if (oldFile.exists()) {
+            oldFile.renameTo(new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComUserPreference.AL_USER_PREF_KEY + ".xml"));
+        }
     }
-
-    public String getDeviceRegistrationId() {
-        return sharedPreferences.getString(OsuConstants.DEVICE_REGISTRATION_ID, null);
-    }*/
 
     public boolean isRegistered() {
         return !TextUtils.isEmpty(getDeviceKeyString());

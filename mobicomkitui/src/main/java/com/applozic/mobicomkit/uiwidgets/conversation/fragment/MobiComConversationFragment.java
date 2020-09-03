@@ -299,7 +299,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        geoApiKey = Utils.getMetaDataValue(ApplozicService.getContext(getContext()), ConversationActivity.GOOGLE_API_KEY_META_DATA);
+        geoApiKey = Applozic.getInstance(getContext()).getGeoApiKey();
         String jsonString = FileUtils.loadSettingsJsonFile(ApplozicService.getContext(getContext()));
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
