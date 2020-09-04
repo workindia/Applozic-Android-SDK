@@ -29,6 +29,8 @@ import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.data.AlPrefSettings;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
@@ -42,7 +44,6 @@ public class Applozic {
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String DEVICE_REGISTRATION_ID = "DEVICE_REGISTRATION_ID";
     private static final String MY_PREFERENCE = "applozic_preference_key";
-    private static final String ENABLE_DEVICE_CONTACT_SYNC = "ENABLE_DEVICE_CONTACT_SYNC";
     private static final String NOTIFICATION_CHANNEL_VERSION_STATE = "NOTIFICATION_CHANNEL_VERSION_STATE";
     private static final String CUSTOM_NOTIFICATION_SOUND = "CUSTOM_NOTIFICATION_SOUND";
     public static Applozic applozic;
@@ -57,7 +58,7 @@ public class Applozic {
 
     public static Applozic init(Context context, String applicationKey) {
         applozic = getInstance(context);
-        applozic.setApplicationKey(applicationKey);
+        AlPrefSettings.getInstance(context).setApplicationKey(applicationKey);
         return applozic;
     }
 
@@ -68,13 +69,29 @@ public class Applozic {
         return applozic;
     }
 
-    public String getApplicationKey() {
-        return sharedPreferences.getString(APPLICATION_KEY, null);
+    public void setGeoApiKey(String geoApiKey) {
+        AlPrefSettings.getInstance(context).setGeoApiKey(geoApiKey);
     }
 
-    public Applozic setApplicationKey(String applicationKey) {
-        sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
-        return this;
+    public String getGeoApiKey() {
+        String geoApiKey = AlPrefSettings.getInstance(context).getGeoApiKey();
+        if (!TextUtils.isEmpty(geoApiKey)) {
+            return geoApiKey;
+        }
+        return Utils.getMetaDataValue(context, AlPrefSettings.GOOGLE_API_KEY_META_DATA);
+    }
+
+    public String getApplicationKey() {
+        String decryptedApplicationKey = AlPrefSettings.getInstance(context).getApplicationKey();
+        if (!TextUtils.isEmpty(decryptedApplicationKey)) {
+            return decryptedApplicationKey;
+        }
+        String existingAppKey = sharedPreferences.getString(APPLICATION_KEY, null);
+        if (!TextUtils.isEmpty(existingAppKey)) {
+            AlPrefSettings.getInstance(context).setApplicationKey(existingAppKey);
+            sharedPreferences.edit().remove(APPLICATION_KEY).commit();
+        }
+        return existingAppKey;
     }
 
     public String getDeviceRegistrationId() {

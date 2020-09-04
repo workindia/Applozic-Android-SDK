@@ -58,12 +58,10 @@ import java.util.List;
 
 public class MobiComConversationService {
 
-    public static final String SERVER_SYNC = "SERVER_SYNC_[CONVERSATION]_[CONTACT]_[CHANNEL]";
     private static final String TAG = "Conversation";
     protected Context context = null;
     protected MessageClientService messageClientService;
     protected MessageDatabaseService messageDatabaseService;
-    private SharedPreferences sharedPreferences;
     private BaseContactService baseContactService;
     private ConversationService conversationService;
     private ChannelService channelService;
@@ -83,7 +81,6 @@ public class MobiComConversationService {
         this.conversationService = ConversationService.getInstance(context);
         this.channelService = ChannelService.getInstance(context);
         this.isHideActionMessage = ApplozicClient.getInstance(context).isActionMessagesHidden();
-        this.sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
     }
 
     @VisibleForTesting
@@ -271,8 +268,8 @@ public class MobiComConversationService {
         }
 
         if (isServerCallNotRequired && (!cachedMessageList.isEmpty() &&
-                wasServerCallDoneBefore(contact, channel, conversationId)
-                || (contact == null && channel == null && cachedMessageList.isEmpty() && wasServerCallDoneBefore(contact, channel, conversationId)))) {
+                ApplozicClient.getInstance(context).wasServerCallDoneBefore(contact, channel, conversationId)
+                || (contact == null && channel == null && cachedMessageList.isEmpty() && ApplozicClient.getInstance(context).wasServerCallDoneBefore(contact, channel, conversationId)))) {
             Utils.printLog(context, TAG, "cachedMessageList size is : " + cachedMessageList.size());
             return cachedMessageList;
         }
@@ -294,7 +291,7 @@ public class MobiComConversationService {
             return cachedMessageList;
         }
 
-        updateServerCallDoneStatus(contact, channel, conversationId);
+        ApplozicClient.getInstance(context).updateServerCallDoneStatus(contact, channel, conversationId);
 
         try {
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
@@ -657,27 +654,6 @@ public class MobiComConversationService {
             }
         }
         return null;
-    }
-
-    private boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
-        if (contact == null && channel == null) {
-            return false;
-        }
-        return sharedPreferences.getBoolean(getServerSyncCallKey(contact, channel, conversationId), false);
-    }
-
-    private void updateServerCallDoneStatus(Contact contact, Channel channel, Integer conversationId) {
-        if (contact == null && channel == null) {
-            return;
-        }
-        Utils.printLog(context, TAG, "updating server call to true");
-        sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
-    }
-
-    public String getServerSyncCallKey(Contact contact, Channel channel, Integer conversationId) {
-        return SERVER_SYNC.replace("[CONVERSATION]", (conversationId != null && conversationId != 0) ? String.valueOf(conversationId) : "")
-                .replace("[CONTACT]", contact != null ? contact.getContactIds() : "")
-                .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()) : "");
     }
 
     public void setFilePathifExist(Message message) {

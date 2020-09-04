@@ -390,4 +390,7 @@ public class Utils {
         return ApplozicService.getContext(context).getResources().getColor(resId);
     }
 
+    public static String getPackageName(Context context) {
+        return ApplozicService.getContext(context).getPackageName();
+    }
 }
