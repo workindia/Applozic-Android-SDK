@@ -82,7 +82,7 @@ public class MobiComUserPreference {
     private static String AUTH_TOKEN_VALID_UPTO_MINS = "AUTH_TOKEN_VALID_UPTO_MINS";
     private static String AUTH_TOKEN_CREATED_AT_TIME = "AUTH_TOKEN_CREATED_AT_TIME";
 
-    private static SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private Context context;
     private String countryCode;
 
@@ -92,6 +92,7 @@ public class MobiComUserPreference {
         ApplozicService.initWithContext(context);
         renameSharedPrefFile(this.context);
         sharedPreferences = this.context.getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
+        moveKeysToSecured();
     }
 
     public static MobiComUserPreference getInstance(Context context) {
@@ -107,6 +108,26 @@ public class MobiComUserPreference {
             oldFile.renameTo(new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComUserPreference.AL_USER_PREF_KEY + ".xml"));
         }
     }
+
+    //These Keys might not be used in the SDK and until then won't me moved.
+    //The user might still see them in the prefs, so moving them even if they are not used
+    public synchronized void moveKeysToSecured() {
+        if (sharedPreferences != null) {
+            if (sharedPreferences.contains(password)) {
+                setPassword(sharedPreferences.getString(password, null));
+                sharedPreferences.edit().remove(password).commit();
+            }
+            if (sharedPreferences.contains(user_encryption_Key)) {
+                setUserEncryptionKey(sharedPreferences.getString(user_encryption_Key, null));
+                sharedPreferences.edit().remove(user_encryption_Key).commit();
+            }
+            if (sharedPreferences.contains(encryption_Key)) {
+                setEncryptionKey(encryption_Key);
+                sharedPreferences.edit().remove(encryption_Key).commit();
+            }
+        }
+    }
+
 
     public boolean isRegistered() {
         return !TextUtils.isEmpty(getDeviceKeyString());
