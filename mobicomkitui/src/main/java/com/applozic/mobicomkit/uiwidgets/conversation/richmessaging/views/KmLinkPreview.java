@@ -3,8 +3,8 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -16,10 +16,10 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.KmLinkPreviewModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRegexHelper;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.GlideException;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -27,10 +27,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -134,13 +134,12 @@ public class KmLinkPreview {
             String validUrl = getValidUrl(message);
             KmLinkPreviewModel linkPreviewModel = null;
             try {
-                validUrl = getValidUrl(message);
                 if (!TextUtils.isEmpty(validUrl) && Pattern.compile(KmRegexHelper.IMAGE_PATTERN).matcher(validUrl).matches()) {
                     linkPreviewModel = new KmLinkPreviewModel();
                     linkPreviewModel.setImageLink(validUrl);
                 } else {
                     Document document = Jsoup.connect(validUrl).get();
-                    linkPreviewModel = getMetaTags(document.toString());
+                    linkPreviewModel = getMetaTags(document, message);
                     if (TextUtils.isEmpty(linkPreviewModel.getTitle())) {
                         linkPreviewModel.setTitle(document.title());
                     }
@@ -192,39 +191,113 @@ public class KmLinkPreview {
         }
     }
 
-    private static KmLinkPreviewModel getMetaTags(String content) {
+    private static KmLinkPreviewModel getMetaTags(Document doc, Message message) {
         KmLinkPreviewModel linkPreviewModel = new KmLinkPreviewModel();
+        String url = getValidUrl(message);
+        try {
+            Elements elements = doc.getElementsByTag("meta");
 
-        List<String> matches = KmRegexHelper.pregMatchAll(content,
-                KmRegexHelper.METATAG_PATTERN, 1);
+            // getTitle doc.select("meta[property=og:title]")
+            String title = doc.select("meta[property=og:title]").attr("content");
 
-        for (String match : matches) {
-            final String lowerCase = match.toLowerCase();
-            if (lowerCase.contains("property=\"og:url\"")
-                    || lowerCase.contains("property='og:url'")
-                    || lowerCase.contains("name=\"url\"")
-                    || lowerCase.contains("name='url'")) {
-                linkPreviewModel.setUrl(separeMetaTagsContent(match));
-            } else if (lowerCase.contains("property=\"og:title\"")
-                    || lowerCase.contains("property='og:title'")
-                    || lowerCase.contains("name=\"title\"")
-                    || lowerCase.contains("name='title'")) {
-                linkPreviewModel.setTitle(separeMetaTagsContent(match));
-            } else if (lowerCase
-                    .contains("property=\"og:description\"")
-                    || lowerCase
-                    .contains("property='og:description'")
-                    || lowerCase.contains("name=\"description\"")
-                    || lowerCase.contains("name='description'")) {
-                linkPreviewModel.setDescription(separeMetaTagsContent(match));
-            } else if (lowerCase.contains("property=\"og:image\"")
-                    || lowerCase.contains("property='og:image'")
-                    || lowerCase.contains("name=\"image\"")
-                    || lowerCase.contains("name='image'")) {
-                linkPreviewModel.setImageLink(separeMetaTagsContent(match));
+            Utils.printLog(ApplozicService.getAppContext(), "LinkTest", "Title : " + title);
+            if (!TextUtils.isEmpty(title)) {
+                linkPreviewModel.setTitle(title);
+            } else {
+                linkPreviewModel.setTitle(doc.title());
             }
-        }
 
+            //getDescription
+            String description = doc.select("meta[name=description]").attr("content");
+            if (description.isEmpty() || description == null) {
+                description = doc.select("meta[name=Description]").attr("content");
+            }
+            if (description.isEmpty() || description == null) {
+                description = doc.select("meta[property=og:description]").attr("content");
+            }
+            if (description.isEmpty() || description == null) {
+                description = "";
+            }
+            linkPreviewModel.setDescription(description);
+
+            // getMediaType
+            Elements mediaTypes = doc.select("meta[name=medium]");
+            String type = "";
+            if (mediaTypes.size() > 0) {
+                String media = mediaTypes.attr("content");
+
+                type = media.equals("image") ? "photo" : media;
+            } else {
+                type = doc.select("meta[property=og:type]").attr("content");
+            }
+            // metaData.setMediatype(type);
+
+
+            //getImages
+            Elements imageElements = doc.select("meta[property=og:image]");
+            if (imageElements.size() > 0) {
+                String image = imageElements.attr("content");
+                if (!TextUtils.isEmpty(image)) {
+                    linkPreviewModel.setImageLink(resolveURL(url, image));
+                }
+            }
+            if (TextUtils.isEmpty(linkPreviewModel.getImageLink())) {
+                String src = doc.select("link[rel=image_src]").attr("href");
+                if (!TextUtils.isEmpty(src)) {
+                    linkPreviewModel.setImageLink(resolveURL(url, src));
+                } else {
+                    src = doc.select("link[rel=apple-touch-icon]").attr("href");
+                    if (!TextUtils.isEmpty(src)) {
+                        linkPreviewModel.setImageLink(resolveURL(url, src));
+                    } else {
+                        src = doc.select("link[rel=icon]").attr("href");
+                        if (!TextUtils.isEmpty(src)) {
+                            linkPreviewModel.setImageLink(resolveURL(url, src));
+                        }
+                    }
+                }
+            }
+
+            //Favicon
+            String src = doc.select("link[rel=apple-touch-icon]").attr("href");
+            if (!TextUtils.isEmpty(src) && TextUtils.isEmpty(linkPreviewModel.getImageLink())) {
+                linkPreviewModel.setImageLink(resolveURL(url, src));
+            } else {
+                src = doc.select("link[rel=icon]").attr("href");
+                if (!TextUtils.isEmpty(src) && TextUtils.isEmpty(linkPreviewModel.getImageLink())) {
+                    linkPreviewModel.setImageLink(resolveURL(url, src));
+                }
+            }
+
+            for (Element element : elements) {
+                if (element.hasAttr("property")) {
+                    String strProperty = element.attr("property").toString().trim();
+                    if (strProperty.equals("og:url")) {
+                        linkPreviewModel.setUrl(element.attr("content").toString());
+                    }
+                    if (strProperty.equals("og:site_name") && TextUtils.isEmpty(linkPreviewModel.getTitle())) {
+                        linkPreviewModel.setTitle(element.attr("content").toString());
+                    }
+                }
+            }
+
+            if ("".equals(linkPreviewModel.getUrl()) || TextUtils.isEmpty(linkPreviewModel.getUrl())) {
+                URI uri = null;
+                try {
+                    uri = new URI(url);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                if (url == null) {
+                    linkPreviewModel.setUrl(url);
+                } else {
+                    linkPreviewModel.setUrl(uri.getHost());
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return linkPreviewModel;
     }
 
@@ -250,5 +323,23 @@ public class KmLinkPreview {
             return KmRegexHelper.HTTP_PROTOCOL + url;
         }
         return url;
+    }
+
+    private static String resolveURL(String url, String part) {
+        if (URLUtil.isValidUrl(part)) {
+            return part;
+        } else {
+            URI baseUri = null;
+            try {
+                baseUri = new URI(url);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            if (baseUri != null) {
+                baseUri = baseUri.resolve(part);
+                return baseUri.toString();
+            }
+            return null;
+        }
     }
 }
