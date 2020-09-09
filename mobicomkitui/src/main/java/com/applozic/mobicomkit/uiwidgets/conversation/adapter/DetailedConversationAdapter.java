@@ -990,7 +990,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
 
                         if (message.isTypeUrl()) {
-                            new KmLinkPreview(context, message, myHolder.urlLoadLayout, alCustomizationSettings).createView();
+                            new KmLinkPreview(activityContext, message, myHolder.urlLoadLayout, alCustomizationSettings).createView();
                         } else {
                             myHolder.urlLoadLayout.setVisibility(View.GONE);
                         }

@@ -1,6 +1,8 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
@@ -97,6 +99,18 @@ public class KmLinkPreview {
         } else {
             urlLoadLayout.setVisibility(View.GONE);
         }
+
+        urlLoadLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openUrl(getValidUrl(message));
+            }
+        });
+    }
+
+    public void openUrl(String url) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        context.startActivity(browserIntent);
     }
 
     private void toggleImageOnlyVisibility(boolean showImageOnly) {
