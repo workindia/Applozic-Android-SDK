@@ -65,7 +65,7 @@ public class KmLinkPreview {
             new UrlLoader(context, message, new AlCallback() {
                 @Override
                 public void onSuccess(Object response) {
-
+                    updateViews((KmLinkPreviewModel) response);
                 }
 
                 @Override
@@ -197,7 +197,6 @@ public class KmLinkPreview {
         try {
             Elements elements = doc.getElementsByTag("meta");
 
-            // getTitle doc.select("meta[property=og:title]")
             String title = doc.select("meta[property=og:title]").attr("content");
 
             Utils.printLog(ApplozicService.getAppContext(), "LinkTest", "Title : " + title);
@@ -219,19 +218,6 @@ public class KmLinkPreview {
                 description = "";
             }
             linkPreviewModel.setDescription(description);
-
-            // getMediaType
-            Elements mediaTypes = doc.select("meta[name=medium]");
-            String type = "";
-            if (mediaTypes.size() > 0) {
-                String media = mediaTypes.attr("content");
-
-                type = media.equals("image") ? "photo" : media;
-            } else {
-                type = doc.select("meta[property=og:type]").attr("content");
-            }
-            // metaData.setMediatype(type);
-
 
             //getImages
             Elements imageElements = doc.select("meta[property=og:image]");
@@ -281,40 +267,20 @@ public class KmLinkPreview {
                 }
             }
 
-            if ("".equals(linkPreviewModel.getUrl()) || TextUtils.isEmpty(linkPreviewModel.getUrl())) {
+            if (TextUtils.isEmpty(linkPreviewModel.getUrl())) {
                 URI uri = null;
                 try {
                     uri = new URI(url);
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
-                if (url == null) {
-                    linkPreviewModel.setUrl(url);
-                } else {
-                    linkPreviewModel.setUrl(uri.getHost());
-                }
+                linkPreviewModel.setUrl(uri == null ? url : uri.getHost());
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return linkPreviewModel;
-    }
-
-    /**
-     * Gets content from metatag
-     */
-    private static String separeMetaTagsContent(String content) {
-        String result = KmRegexHelper.pregMatch(content, KmRegexHelper.METATAG_CONTENT_PATTERN,
-                1);
-        return htmlDecode(result);
-    }
-
-    /**
-     * Transforms from html to normal string
-     */
-    private static String htmlDecode(String content) {
-        return Jsoup.parse(content).text();
     }
 
     private static String getValidUrl(Message message) {
