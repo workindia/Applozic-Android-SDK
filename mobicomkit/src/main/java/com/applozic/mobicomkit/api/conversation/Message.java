@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Patterns;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class Message extends JsonMarker {
 
@@ -428,6 +430,18 @@ public class Message extends JsonMarker {
 
     public String getCurrentId() {
         return getGroupId() != null ? String.valueOf(getGroupId()) : getContactIds();
+    }
+
+    public boolean isTypeUrl() {
+        return !TextUtils.isEmpty(getFirstUrl());
+    }
+
+    public String getFirstUrl() {
+        Matcher matcher = Patterns.WEB_URL.matcher(getMessage());
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
     }
 
     public Integer getGroupId() {
