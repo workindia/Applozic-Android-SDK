@@ -119,6 +119,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean enableMessageReport = true;
     private boolean deleteMessageOption = true;
     private boolean deleteForAllMessageOption = true;
+    private String userDeactivatedText = "You have been deactivated";
 
     private Map<String, Boolean> attachmentOptions;
 
@@ -635,6 +636,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setDeleteForAllMessageOption(boolean deleteForAllMessageOption) {
         this.deleteForAllMessageOption = deleteForAllMessageOption;
+    }
+
+    public String getUserDeactivatedText() {
+        return userDeactivatedText;
     }
 
     @Override

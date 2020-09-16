@@ -8,9 +8,9 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
-import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.broadcast.AlEventManager;
+import com.applozic.mobicomkit.broadcast.AlMessageEvent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
@@ -548,6 +548,14 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
+                                }
+
+                                if (NOTIFICATION_TYPE.ACTIVATED.getValue().equals(mqttMessageResponse.getType())) {
+                                    BroadcastService.sendUserActivatedBroadcast(context, AlMessageEvent.ActionType.USER_ACTIVATED);
+                                }
+
+                                if (NOTIFICATION_TYPE.DEACTIVATED.getValue().equals(mqttMessageResponse.getType())) {
+                                    BroadcastService.sendUserActivatedBroadcast(context, AlMessageEvent.ActionType.USER_DEACTIVATED);
                                 }
                             }
 

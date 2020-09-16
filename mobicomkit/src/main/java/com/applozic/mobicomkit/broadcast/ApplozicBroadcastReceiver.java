@@ -98,7 +98,7 @@ public class ApplozicBroadcastReceiver extends BroadcastReceiver {
             applozicUIListener.onUserDetailUpdated(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString().equals(action)) {
             applozicUIListener.onMessageMetadataUpdated(keyString);
-        }else if(BroadcastService.INTENT_ACTIONS.MUTE_USER_CHAT.toString().equals(action)){
+        } else if (BroadcastService.INTENT_ACTIONS.MUTE_USER_CHAT.toString().equals(action)) {
             applozicUIListener.onUserMute(intent.getBooleanExtra("mute", false), intent.getStringExtra("userId"));
         }
     }

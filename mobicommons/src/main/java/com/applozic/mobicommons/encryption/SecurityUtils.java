@@ -271,7 +271,6 @@ public class SecurityUtils {
             byte[] plainText = cipher.doFinal(cipherArray);
             return new String(plainText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException exception) {
-            exception.printStackTrace();
             return null;
         }
     }

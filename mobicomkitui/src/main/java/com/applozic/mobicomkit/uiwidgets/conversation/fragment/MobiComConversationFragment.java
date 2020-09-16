@@ -3033,6 +3033,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
+        activateOrDeactivateChat();
     }
 
     private void hideSendMessageLayout(final boolean hide, final boolean isUserInGroup) {
@@ -3080,6 +3081,22 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             if (userNotAbleToChatTextView != null) {
                 userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
             }
+        }
+    }
+
+    protected void activateOrDeactivateChat() {
+        final boolean isUserDeactivated = MobiComUserPreference.getInstance(getContext()).isUserDeactivated();
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    individualMessageSendLayout.setVisibility(isUserDeactivated ? View.GONE : VISIBLE);
+                    userNotAbleToChatLayout.setVisibility(isUserDeactivated ? VISIBLE : View.GONE);
+                }
+            });
+        }
+        if (userNotAbleToChatTextView != null) {
+            userNotAbleToChatTextView.setText(isUserDeactivated ? alCustomizationSettings.getUserDeactivatedText() : "");
         }
     }
 

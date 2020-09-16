@@ -34,6 +34,7 @@
   "audioPermissionNotFoundMsg": "",
   "noConversationLabel": "You have no conversations",
   "noSearchFoundForChatMessages": "No conversation found",
+  "userDeactivatedText": "You have been deactivated",
   "disableGlobalStoragePermission": true,
   "enableMessageFastScroll": false,
   "totalRegisteredUserToFetch": 100,

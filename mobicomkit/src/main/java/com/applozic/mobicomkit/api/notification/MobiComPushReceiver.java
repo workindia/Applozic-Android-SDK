@@ -7,12 +7,11 @@ import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
-import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.broadcast.AlMessageEvent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.InstantMessageResponse;
@@ -40,7 +39,6 @@ MobiComPushReceiver {
     private static Queue<String> notificationIdList = new LinkedList<String>();
 
     static {
-
         notificationKeyList.add("APPLOZIC_01"); // 0 for MESSAGE_RECEIVED //done
         notificationKeyList.add("APPLOZIC_02");// 1 for MESSAGE_SENT
         notificationKeyList.add("APPLOZIC_03");// 2 for MESSAGE_SENT_UPDATE
@@ -167,7 +165,7 @@ MobiComPushReceiver {
                     deleteMessage = null, conversationReadResponse = null,
                     userBlockedResponse = null, userUnBlockedResponse = null, conversationReadForContact = null, conversationReadForChannel = null, conversationReadForSingleMessage = null,
                     userDetailChanged = null, userDeleteNotification = null, messageMetadataUpdate = null, mutedUserListResponse = null, contactSync = null, muteAllNotificationResponse = null,
-                    groupMuteNotificationResponse = null;
+                    groupMuteNotificationResponse = null, userActivated = null, userDeactivated = null;
             SyncCallService syncCallService = SyncCallService.getInstance(context);
 
             if (bundle != null) {
@@ -191,6 +189,8 @@ MobiComPushReceiver {
                 mutedUserListResponse = bundle.getString(notificationKeyList.get(32));
                 muteAllNotificationResponse = bundle.getString(notificationKeyList.get(33));
                 groupMuteNotificationResponse = bundle.getString(notificationKeyList.get(34));
+                userActivated = bundle.getString(notificationKeyList.get(17));
+                userDeactivated = bundle.getString(notificationKeyList.get(18));
             } else if (data != null) {
                 deleteConversationForContact = data.get(notificationKeyList.get(5));
                 deleteMessage = data.get(notificationKeyList.get(4));
@@ -212,6 +212,8 @@ MobiComPushReceiver {
                 mutedUserListResponse = data.get(notificationKeyList.get(32));
                 muteAllNotificationResponse = data.get(notificationKeyList.get(33));
                 groupMuteNotificationResponse = data.get(notificationKeyList.get(34));
+                userActivated = data.get(notificationKeyList.get(17));
+                userDeactivated = data.get(notificationKeyList.get(18));
             }
 
             if (!TextUtils.isEmpty(payloadForDelivered)) {
@@ -477,6 +479,14 @@ MobiComPushReceiver {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+
+            if (!TextUtils.isEmpty(userActivated)) {
+                BroadcastService.sendUserActivatedBroadcast(context, AlMessageEvent.ActionType.USER_ACTIVATED);
+            }
+
+            if (!TextUtils.isEmpty(userDeactivated)) {
+                BroadcastService.sendUserActivatedBroadcast(context, AlMessageEvent.ActionType.USER_DEACTIVATED);
             }
 
         } catch (Throwable e) {

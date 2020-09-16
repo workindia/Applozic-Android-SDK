@@ -31,6 +31,7 @@ public class RegistrationResponse extends JsonMarker {
     private String authToken;
     private Short pricingPackage = PricingType.STARTER.getValue();
     private Long notificationAfter;
+    private boolean deactivate;
 
     public String getMessage() {
         return message;
@@ -194,6 +195,14 @@ public class RegistrationResponse extends JsonMarker {
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
+    }
+
+    public boolean isDeactivate() {
+        return deactivate;
+    }
+
+    public void setDeactivate(boolean deactivate) {
+        this.deactivate = deactivate;
     }
 
     public static enum PricingType {
