@@ -157,7 +157,6 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.net.URLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -245,8 +244,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     TextView recordTimeTextView;
     FrameLayout audioRecordFrameLayout;
     ApplozicAudioRecordManager applozicAudioRecordManager;
-    String timeStamp, audioFileName;
-    String outputFile;
     CountDownTimer t;
     GestureDetectorCompat mDetector;
     boolean longPress;
@@ -468,7 +465,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         userNotAbleToChatTextView.setTextColor(Color.parseColor(alCustomizationSettings.getUserNotAbleToChatTextColor()));
 
         if (channel != null && channel.isDeleted()) {
-            userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+            showUserNotAbleToChatLayout(true, R.string.group_has_been_deleted_text);
         }
 
         bottomlayoutTextView = (TextView) list.findViewById(R.id.user_not_able_to_chat_textView);
@@ -1737,13 +1734,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             Applozic.subscribeToTyping(getContext(), channel, contact);
 
-            if (userNotAbleToChatLayout != null) {
-                if (contact != null) {
-                    enableOrDisableChat(contact);
-                } else {
-                    enableOrDisableChannel(channel);
-                }
-            }
+            checkForUserNotAbleToChat(contact, channel);
 
             if (contact != null && this.channel != null) {
                 if (getActivity() != null) {
@@ -3044,59 +3035,50 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (hide) {
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    userNotAbleToChatTextView.setText(isUserInGroup ? R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
-                } else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
-                    individualMessageSendLayout.setVisibility(VISIBLE);
-                }
+                showUserNotAbleToChatLayout(hide, isUserInGroup ? R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
             }
         });
     }
 
     protected void enableOrDisableChannel(final Channel channel) {
-        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-
-        if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-            hideSendMessageLayout(channel.isDeleted() || !present, present);
-        } else {
-            hideSendMessageLayout(channel.isDeleted(), present);
-        }
+        checkForUserNotAbleToChat(null, channel);
     }
 
     protected void enableOrDisableChat(final Contact contact) {
-        final boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    boolean hide = contact.isChatForUserDisabled() || isMyChatDisabled;
-                    individualMessageSendLayout.setVisibility(hide ? View.GONE : VISIBLE);
-                    userNotAbleToChatLayout.setVisibility(hide ? VISIBLE : View.GONE);
-                }
-            });
-
-            if (userNotAbleToChatTextView != null) {
-                userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
-            }
-        }
+        checkForUserNotAbleToChat(contact, null);
     }
 
     protected void activateOrDeactivateChat() {
         final boolean isUserDeactivated = MobiComUserPreference.getInstance(getContext()).isUserDeactivated();
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    individualMessageSendLayout.setVisibility(isUserDeactivated ? View.GONE : VISIBLE);
-                    userNotAbleToChatLayout.setVisibility(isUserDeactivated ? VISIBLE : View.GONE);
-                }
-            });
+        if (isUserDeactivated) {
+            showUserNotAbleToChatLayout(true, alCustomizationSettings.getUserDeactivatedText());
+        } else {
+            checkForUserNotAbleToChat(contact, channel);
         }
-        if (userNotAbleToChatTextView != null) {
-            userNotAbleToChatTextView.setText(isUserDeactivated ? alCustomizationSettings.getUserDeactivatedText() : "");
+    }
+
+    protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
+        if (channel != null) {
+            boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+            if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+                hideSendMessageLayout(channel.isDeleted() || !present, present);
+            } else {
+                hideSendMessageLayout(channel.isDeleted(), present);
+            }
+        } else if (contact != null) {
+            if (contact.isDeleted()) {
+                showUserNotAbleToChatLayout(true, R.string.user_has_been_deleted_text);
+            } else {
+                final boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showUserNotAbleToChatLayout(contact.isChatForUserDisabled() || isMyChatDisabled, isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+                        }
+                    });
+                }
+            }
         }
     }
 
@@ -3106,9 +3088,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (channelInfo.isDeleted()) {
                 channel.setDeletedAtTime(channelInfo.getDeletedAtTime());
-                individualMessageSendLayout.setVisibility(View.GONE);
-                userNotAbleToChatLayout.setVisibility(VISIBLE);
-                userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+                showUserNotAbleToChatLayout(true, R.string.group_has_been_deleted_text);
                 if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
                         && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                     templateAdapter.removeTemplates();
@@ -3118,17 +3098,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         && userNotAbleToChatLayout != null
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
 
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    userNotAbleToChatTextView.setText(R.string.user_not_in_this_group_text);
+                    showUserNotAbleToChatLayout(true, R.string.user_not_in_this_group_text);
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                         templateAdapter.removeTemplates();
                     }
                 } else if (ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && userNotAbleToChatLayout != null
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    individualMessageSendLayout.setVisibility(View.VISIBLE);
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
+                    showUserNotAbleToChatLayout(true, 0);
                 }
             }
 
@@ -4144,5 +4121,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 menu.findItem(R.id.muteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && !channelObject.isNotificationMuted());
             }
         }
+    }
+
+    public void showUserNotAbleToChatLayout(boolean show, int textResId) {
+        individualMessageSendLayout.setVisibility(show ? View.GONE : VISIBLE);
+        userNotAbleToChatLayout.setVisibility(show ? VISIBLE : View.GONE);
+        userNotAbleToChatTextView.setText(textResId);
+    }
+
+    public void showUserNotAbleToChatLayout(boolean show, String text) {
+        individualMessageSendLayout.setVisibility(show ? View.GONE : VISIBLE);
+        userNotAbleToChatLayout.setVisibility(show ? VISIBLE : View.GONE);
+        userNotAbleToChatTextView.setText(text);
     }
 }

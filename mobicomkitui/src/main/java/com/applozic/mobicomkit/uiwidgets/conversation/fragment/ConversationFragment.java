@@ -260,9 +260,6 @@ public class ConversationFragment extends MobiComConversationFragment implements
                 Contact updatedInfoContact = appContactService.getContactById(contact.getContactIds());
                 if (updatedInfoContact.isDeleted()) {
                     Utils.toggleSoftKeyBoard(getActivity(), true);
-                    bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
-                    userNotAbleToChatLayout.setVisibility(View.VISIBLE);
-                    individualMessageSendLayout.setVisibility(View.GONE);
                     ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
                 }
                 if (updatedInfoContact != null && (!TextUtils.isEmpty(contact.getDisplayName())) && (!contact.getDisplayName().equals(updatedInfoContact.getDisplayName()))) {
