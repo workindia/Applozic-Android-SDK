@@ -33,18 +33,16 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
     public static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     public static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLING_RATE, CHANNEL_IN_CONFIG, AUDIO_FORMAT);
     FragmentActivity context;
-    String audioFileName, timeStamp;
     ConversationUIService conversationUIService;
     private AudioRecord audioRecorder;
     private String outputFile = null;
     private boolean isRecording;
-    byte audioData[] = null;
+    byte[] audioData = null;
     private Thread recordingThread = null;
     int bufferElements2Rec = 1024; // want to play 2048 (2K) since 2 bytes we use only 1024
     int bytesPerElement = 2; // 2 bytes in 16bit format
-    private static final String AUDIO_TAG = "AUD";
-    private RecordingMode recordingMode = RecordingMode.IDLE;
-    private String FILE_FORMAT = ".pcm";
+    private static final String AUDIO_TAG = "AUD_";
+    private final String FILE_FORMAT = ".pcm";
 
 
     public ApplozicAudioRecordManager(FragmentActivity context) {
@@ -54,14 +52,6 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
 
     public void setOutputFile(String outputFile) {
         this.outputFile = outputFile;
-    }
-
-    public void setAudioFileName(String audioFileName) {
-        this.audioFileName = audioFileName;
-    }
-
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     public void prepareDefaultFileData() {
@@ -90,8 +80,6 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
 
             createRecordingThread();
             recordingThread.start();
-
-            recordingMode = RecordingMode.RECORDING;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -177,7 +165,6 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
             if (file.exists()) {
                 file.delete();
             }
-            recordingMode = RecordingMode.IDLE;
             conversationUIService.sendAudioMessage(destFilePath);
         }
 
@@ -196,7 +183,6 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
                 audioRecorder = null;
                 isRecording = false;
             }
-
         }
     }
 
@@ -208,9 +194,5 @@ public class ApplozicAudioRecordManager implements MediaRecorder.OnInfoListener,
     @Override
     public void onError(MediaRecorder mr, int what, int extra) {
 
-    }
-
-    public enum RecordingMode {
-        IDLE, RECORDING;
     }
 }

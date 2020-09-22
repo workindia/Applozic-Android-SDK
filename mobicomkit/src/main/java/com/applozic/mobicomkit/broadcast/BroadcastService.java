@@ -133,6 +133,15 @@ public class BroadcastService {
         sendBroadcast(context, intentDelete);
     }
 
+    public static void sendUserActivatedBroadcast(Context context, String action) {
+        MobiComUserPreference.getInstance(context).setUserDeactivated(AlMessageEvent.ActionType.USER_DEACTIVATED.equals(action));
+        postEventData(context, new AlMessageEvent().setAction(action));
+        Intent intent = new Intent();
+        intent.setAction(action);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(context, intent);
+    }
+
     public static void sendNotificationBroadcast(Context context, Message message, int index) {
         if (message != null) {
             if (ALSpecificSettings.getInstance(context).isAllNotificationMuted() || message.getMetadata() != null && message.getMetadata().containsKey("NO_ALERT") && "true".equals(message.getMetadata().get("NO_ALERT"))) {

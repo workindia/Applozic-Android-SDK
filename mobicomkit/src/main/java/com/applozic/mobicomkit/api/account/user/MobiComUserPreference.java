@@ -81,6 +81,7 @@ public class MobiComUserPreference {
     private static String USER_AUTH_TOKEN = "USER_AUTH_TOKEN";
     private static String AUTH_TOKEN_VALID_UPTO_MINS = "AUTH_TOKEN_VALID_UPTO_MINS";
     private static String AUTH_TOKEN_CREATED_AT_TIME = "AUTH_TOKEN_CREATED_AT_TIME";
+    private static String USER_DEACTIVATED = "USER_DEACTIVATED";
 
     private SharedPreferences sharedPreferences;
     private Context context;
@@ -924,5 +925,18 @@ public class MobiComUserPreference {
             sharedPreferences.edit().putInt(AUTH_TOKEN_VALID_UPTO_MINS, validUptoMins).commit();
         }
         return this;
+    }
+
+    public void setUserDeactivated(boolean isDeactivated) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putBoolean(USER_DEACTIVATED, isDeactivated).commit();
+        }
+    }
+
+    public boolean isUserDeactivated() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getBoolean(USER_DEACTIVATED, false);
+        }
+        return false;
     }
 }

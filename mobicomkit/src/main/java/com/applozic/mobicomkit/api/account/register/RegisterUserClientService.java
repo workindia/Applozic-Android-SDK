@@ -142,6 +142,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setUserBlockSyncTime("10000");
+            mobiComUserPreference.setUserDeactivated(registrationResponse.isDeactivate());
             if (registrationResponse.getNotificationAfter() != null) {
                 ALSpecificSettings.getInstance(context).setNotificationAfterTime(registrationResponse.getNotificationAfter());
             }

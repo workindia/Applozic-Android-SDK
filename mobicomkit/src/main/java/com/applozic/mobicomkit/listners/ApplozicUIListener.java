@@ -37,6 +37,8 @@ public interface ApplozicUIListener {
 
     void onUserOffline();
 
+    void onUserActivated(boolean isActivated);
+
     void onChannelUpdated();
 
     void onConversationRead(String userId, boolean isGroup);
