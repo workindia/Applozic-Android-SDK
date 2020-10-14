@@ -22,6 +22,8 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 /**
  * Created by devashish on 24/1/15.
+ * NOTE: If we want to send the broadcast to app make sure to not to add the Category
+ * intent.addCategory(Intent.CATEGORY_DEFAULT);
  */
 public class BroadcastService {
 
@@ -138,7 +140,6 @@ public class BroadcastService {
         postEventData(context, new AlMessageEvent().setAction(action));
         Intent intent = new Intent();
         intent.setAction(action);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(context, intent);
     }
 
