@@ -6,6 +6,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -274,5 +275,6 @@ public class JWT {
                 .setUserAuthToken(token)
                 .setTokenCreatedAtTime(jwtService.getClaim("createdAtTime").asLong())
                 .setTokenValidUptoMins(jwtService.getClaim("validUpto").asInt());
+        HttpRequestUtils.isRefreshTokenInProgress = false;
     }
 }

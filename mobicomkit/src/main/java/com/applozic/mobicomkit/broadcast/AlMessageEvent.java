@@ -116,5 +116,8 @@ public class AlMessageEvent extends JsonMarker {
         public static final String USER_DETAILS_UPDATED = "USER_DETAILS_UPDATED";
         public static final String MESSAGE_METADATA_UPDATED = "MESSAGE_METADATA_UPDATED";
         public static final String ON_USER_MUTE = "ON_USER_MUTE";
+        public static final String GROUP_MUTE = "GROUP_MUTE";
+        public static final String USER_ACTIVATED = "USER_ACTIVATED";
+        public static final String USER_DEACTIVATED = "USER_DEACTIVATED";
     }
 }

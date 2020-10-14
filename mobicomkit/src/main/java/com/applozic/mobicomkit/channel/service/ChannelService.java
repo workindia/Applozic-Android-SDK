@@ -539,6 +539,13 @@ public class ChannelService {
         return apiResponse;
     }
 
+    public void updateNotificationAfterTime(Integer groupId, Long notificationAfterTime) {
+        if (notificationAfterTime != null && groupId != null) {
+            channelDatabaseService.updateNotificationAfterTime(groupId,
+                    notificationAfterTime);
+        }
+    }
+
     public Channel getChannelByClientGroupId(String clientGroupId) {
         if (TextUtils.isEmpty(clientGroupId)) {
             return null;

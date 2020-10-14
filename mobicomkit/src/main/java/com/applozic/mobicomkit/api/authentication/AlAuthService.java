@@ -20,6 +20,30 @@ public class AlAuthService {
         new RefreshAuthTokenTask(context, callback).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
+    public static boolean isTokenValid(Context context) {
+        if (context == null) {
+            return true;
+        }
+
+        MobiComUserPreference userPreference = MobiComUserPreference.getInstance(context);
+        if (userPreference == null) {
+            return true;
+        }
+        String token = userPreference.getUserAuthToken();
+        long createdAtTime = userPreference.getTokenCreatedAtTime();
+        int validUptoMins = userPreference.getTokenValidUptoMins();
+
+        if ((validUptoMins > 0 && !isTokenValid(createdAtTime, validUptoMins)) || TextUtils.isEmpty(token)) {
+            return false;
+        } else if (!TextUtils.isEmpty(token)) {
+            if ((createdAtTime == 0 || validUptoMins == 0)) {
+                JWT.parseToken(context, token);
+                isTokenValid(context);
+            }
+        }
+        return true;
+    }
+
     public static void verifyToken(Context context, String loadingMessage, AlCallback callback) {
         if (context == null) {
             return;

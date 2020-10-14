@@ -2,13 +2,11 @@ package com.applozic.mobicomkit.api.conversation.database;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -37,8 +35,6 @@ public class MessageDatabaseService {
 
     private static final String TAG = "MessageDatabaseService";
 
-    private static final String MIN_CREATED_AT_KEY = "mck.sms.createdAt.min";
-    private static final String MAX_CREATED_AT_KEY = "mck.sms.createdAt.max";
     public static List<Message> recentlyAddedMessage = new ArrayList<Message>();
     private Context context = null;
     private MobiComDatabaseHelper dbHelper;
@@ -509,19 +505,19 @@ public class MessageDatabaseService {
 
     public synchronized long createSingleMessage(final Message message) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
+        ApplozicClient applozicClient = ApplozicClient.getInstance(context);
         long id = -1;
         boolean duplicateCheck = true;
-        SharedPreferences prefs = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(context), Context.MODE_PRIVATE);
-        long minCreatedAt = prefs.getLong(MIN_CREATED_AT_KEY, 0);
-        long maxCreatedAt = prefs.getLong(MAX_CREATED_AT_KEY, Long.MAX_VALUE);
+        long minCreatedAt = applozicClient.getMinCreatedAtTime();
+        long maxCreatedAt = applozicClient.getMaxCreatedAtTime();
 
         if (message.getCreatedAtTime() < minCreatedAt) {
             duplicateCheck = false;
-            prefs.edit().putLong(MIN_CREATED_AT_KEY, message.getCreatedAtTime()).commit();
+            applozicClient.setMinCreatedAtTime(message.getCreatedAtTime());
         }
         if (message.getCreatedAtTime() > maxCreatedAt) {
             duplicateCheck = false;
-            prefs.edit().putLong(MAX_CREATED_AT_KEY, message.getCreatedAtTime()).commit();
+            applozicClient.setMaxCreatedAtTime(message.getCreatedAtTime());
         }
 
         if (duplicateCheck) {
@@ -1217,6 +1213,11 @@ public class MessageDatabaseService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized void replaceExistingMessage(Message message) {
+        deleteMessageFromDb(message);
+        createMessage(message);
     }
 
     public synchronized void updateContactUnreadCountToZero(String userId) {

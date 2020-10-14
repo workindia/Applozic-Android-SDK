@@ -7,13 +7,17 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicommons.ApplozicService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.data.AlPrefSettings;
 
+import java.io.File;
 import java.util.Set;
 
 
 public class MobiComUserPreference {
 
     private static final String USER_ID = "userId";
+    public static final String AL_USER_PREF_KEY = "al_user_pref_key";
     public static MobiComUserPreference userpref;
     //Constants for preferneces ..
     private static String device_registration_id = "device_registration_id";
@@ -77,8 +81,9 @@ public class MobiComUserPreference {
     private static String USER_AUTH_TOKEN = "USER_AUTH_TOKEN";
     private static String AUTH_TOKEN_VALID_UPTO_MINS = "AUTH_TOKEN_VALID_UPTO_MINS";
     private static String AUTH_TOKEN_CREATED_AT_TIME = "AUTH_TOKEN_CREATED_AT_TIME";
+    private static String USER_DEACTIVATED = "USER_DEACTIVATED";
 
-    private static SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private Context context;
     private String countryCode;
 
@@ -86,30 +91,44 @@ public class MobiComUserPreference {
     private MobiComUserPreference(Context context) {
         this.context = ApplozicService.getContext(context);
         ApplozicService.initWithContext(context);
-        if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
-            sharedPreferences = context.getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
-        }
+        renameSharedPrefFile(this.context);
+        sharedPreferences = this.context.getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
+        moveKeysToSecured();
     }
 
     public static MobiComUserPreference getInstance(Context context) {
         if (userpref == null) {
             userpref = new MobiComUserPreference(ApplozicService.getContext(context));
-        } else {
-            if (!TextUtils.isEmpty(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)))) {
-                sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
-            }
         }
         return userpref;
     }
 
-    /*
-    public void setDeviceRegistrationId(String deviceRegistrationId) {
-        sharedPreferences.edit().putString(OsuConstants.DEVICE_REGISTRATION_ID, deviceRegistrationId).commit();
+    public synchronized static void renameSharedPrefFile(Context context) {
+        File oldFile = new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComKitClientService.getApplicationKey(context) + ".xml");
+        if (oldFile.exists()) {
+            oldFile.renameTo(new File("/data/data/" + Utils.getPackageName(context) + "/shared_prefs/" + MobiComUserPreference.AL_USER_PREF_KEY + ".xml"));
+        }
     }
 
-    public String getDeviceRegistrationId() {
-        return sharedPreferences.getString(OsuConstants.DEVICE_REGISTRATION_ID, null);
-    }*/
+    //These Keys might not be used in the SDK and until then won't me moved.
+    //The user might still see them in the prefs, so moving them even if they are not used
+    public synchronized void moveKeysToSecured() {
+        if (sharedPreferences != null) {
+            if (sharedPreferences.contains(password)) {
+                setPassword(sharedPreferences.getString(password, null));
+                sharedPreferences.edit().remove(password).commit();
+            }
+            if (sharedPreferences.contains(user_encryption_Key)) {
+                setUserEncryptionKey(sharedPreferences.getString(user_encryption_Key, null));
+                sharedPreferences.edit().remove(user_encryption_Key).commit();
+            }
+            if (sharedPreferences.contains(encryption_Key)) {
+                setEncryptionKey(encryption_Key);
+                sharedPreferences.edit().remove(encryption_Key).commit();
+            }
+        }
+    }
+
 
     public boolean isRegistered() {
         return !TextUtils.isEmpty(getDeviceKeyString());
@@ -544,15 +563,22 @@ public class MobiComUserPreference {
 
     public String getPassword() {
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(password, null);
+            String decryptedPassword = AlPrefSettings.getInstance(context).getPassword();
+            if (!TextUtils.isEmpty(decryptedPassword)) {
+                return decryptedPassword;
+            }
+            String savedPassword = sharedPreferences.getString(password, null);
+            if (!TextUtils.isEmpty(savedPassword)) {
+                setPassword(savedPassword);
+                sharedPreferences.edit().remove(password).commit();
+            }
+            return savedPassword;
         }
         return null;
     }
 
     public void setPassword(String val) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(password, val).commit();
-        }
+        AlPrefSettings.getInstance(context).setPassword(val);
     }
 
     public String getAuthenticationType() {
@@ -582,15 +608,22 @@ public class MobiComUserPreference {
     }
 
     public MobiComUserPreference setUserAuthToken(String authToken) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(USER_AUTH_TOKEN, authToken).commit();
-        }
+        AlPrefSettings.getInstance(context).setUserAuthToken(authToken);
         return this;
     }
 
     public String getUserAuthToken() {
+        String decodedUserAuthToken = AlPrefSettings.getInstance(context).getUserAuthToken();
+        if (!TextUtils.isEmpty(decodedUserAuthToken)) {
+            return decodedUserAuthToken;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(USER_AUTH_TOKEN, null);
+            String savedUserAuthToken = sharedPreferences.getString(USER_AUTH_TOKEN, null);
+            if (!TextUtils.isEmpty(savedUserAuthToken)) {
+                setUserAuthToken(savedUserAuthToken);
+                sharedPreferences.edit().remove(USER_AUTH_TOKEN).commit();
+            }
+            return savedUserAuthToken;
         }
         return null;
     }
@@ -645,16 +678,23 @@ public class MobiComUserPreference {
     }
 
     public String getEncryptionKey() {
+        String decodedEncryptionKey = AlPrefSettings.getInstance(context).getEncryptionKey();
+        if (!TextUtils.isEmpty(decodedEncryptionKey)) {
+            return decodedEncryptionKey;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(encryption_Key, null);
+            String savedEncryptionKey = sharedPreferences.getString(encryption_Key, null);
+            if (!TextUtils.isEmpty(savedEncryptionKey)) {
+                setEncryptionKey(savedEncryptionKey);
+                sharedPreferences.edit().remove(encryption_Key).commit();
+            }
+            return savedEncryptionKey;
         }
         return null;
     }
 
     public void setEncryptionKey(String encryptionKey) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(encryption_Key, encryptionKey).commit();
-        }
+        AlPrefSettings.getInstance(context).setEncryptionKey(encryptionKey);
     }
 
     public boolean isEncryptionEnabled() {
@@ -827,16 +867,23 @@ public class MobiComUserPreference {
     }
 
     public String getUserEncryptionKey() {
+        String decodedUserEncryptionKey = AlPrefSettings.getInstance(context).getUserEncryptionKey();
+        if (!TextUtils.isEmpty(decodedUserEncryptionKey)) {
+            return decodedUserEncryptionKey;
+        }
         if (sharedPreferences != null) {
-            return sharedPreferences.getString(user_encryption_Key, null);
+            String savedUserEncryptionKey = sharedPreferences.getString(user_encryption_Key, null);
+            if (!TextUtils.isEmpty(savedUserEncryptionKey)) {
+                setUserEncryptionKey(savedUserEncryptionKey);
+                sharedPreferences.edit().remove(user_encryption_Key).commit();
+            }
+            return savedUserEncryptionKey;
         }
         return null;
     }
 
     public void setUserEncryptionKey(String userEncryptionKey) {
-        if (sharedPreferences != null) {
-            sharedPreferences.edit().putString(user_encryption_Key, userEncryptionKey).commit();
-        }
+        AlPrefSettings.getInstance(context).setUserEncryptionKey(userEncryptionKey);
     }
 
     public String getCategoryName() {
@@ -878,5 +925,18 @@ public class MobiComUserPreference {
             sharedPreferences.edit().putInt(AUTH_TOKEN_VALID_UPTO_MINS, validUptoMins).commit();
         }
         return this;
+    }
+
+    public void setUserDeactivated(boolean isDeactivated) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putBoolean(USER_DEACTIVATED, isDeactivated).commit();
+        }
+    }
+
+    public boolean isUserDeactivated() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getBoolean(USER_DEACTIVATED, false);
+        }
+        return false;
     }
 }

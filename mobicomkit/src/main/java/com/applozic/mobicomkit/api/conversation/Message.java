@@ -2,6 +2,7 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Patterns;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class Message extends JsonMarker {
 
@@ -71,6 +73,7 @@ public class Message extends JsonMarker {
     public static final String KM_ASSIGN = "KM_ASSIGN";
     public static final String KM_STATUS = "KM_STATUS";
     public static final String KM_SKIP_BOT = "skipBot";
+    public static final String AL_DELETE_MESSAGE_FOR_ALL_KEY = "AL_DELETE_GROUP_MESSAGE_FOR_ALL";
 
     public Message() {
 
@@ -429,6 +432,18 @@ public class Message extends JsonMarker {
         return getGroupId() != null ? String.valueOf(getGroupId()) : getContactIds();
     }
 
+    public boolean isTypeUrl() {
+        return !TextUtils.isEmpty(getFirstUrl());
+    }
+
+    public String getFirstUrl() {
+        Matcher matcher = Patterns.WEB_URL.matcher(getMessage());
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
+    }
+
     public Integer getGroupId() {
         return groupId;
     }
@@ -665,6 +680,20 @@ public class Message extends JsonMarker {
 
     public String getConversationAssignee() {
         return (getMetadata() != null && getMetadata().containsKey(KM_ASSIGN)) ? getMetadata().get(KM_ASSIGN) : null;
+    }
+
+    public boolean isDeletedForAll() {
+        return getMetadata() != null
+                && getMetadata().containsKey(AL_DELETE_MESSAGE_FOR_ALL_KEY)
+                && GroupMessageMetaData.TRUE.getValue().equals(getMetadata().get(AL_DELETE_MESSAGE_FOR_ALL_KEY));
+    }
+
+    public void setAsDeletedForAll() {
+        if (metadata == null) {
+            metadata = new HashMap<>();
+        }
+
+        metadata.put(AL_DELETE_MESSAGE_FOR_ALL_KEY, GroupMessageMetaData.TRUE.getValue());
     }
 
     public boolean isIgnoreMessageAdding(Context context) {

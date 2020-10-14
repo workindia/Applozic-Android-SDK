@@ -105,8 +105,14 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
             if (message != null && message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 try {
-                    Bitmap imageBitmap = ImageUtils.decodeSampledBitmapFromPath(message.getFilePaths().get(0));
-                    mediaImageView.setImageBitmap(imageBitmap);
+                    String imagePath = message.getFilePaths().get(0);
+                    if (!TextUtils.isEmpty(imagePath)) {
+                        Bitmap imageBitmap = ImageUtils.decodeSampledBitmapFromPath(imagePath);
+                        if (imageBitmap != null) {
+                            imageBitmap = ImageUtils.getImageRotatedBitmap(imageBitmap, imagePath, imageBitmap.getWidth(), imageBitmap.getHeight());
+                            mediaImageView.setImageBitmap(imageBitmap);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

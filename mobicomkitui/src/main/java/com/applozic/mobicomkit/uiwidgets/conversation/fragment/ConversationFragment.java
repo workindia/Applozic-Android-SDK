@@ -260,9 +260,6 @@ public class ConversationFragment extends MobiComConversationFragment implements
                 Contact updatedInfoContact = appContactService.getContactById(contact.getContactIds());
                 if (updatedInfoContact.isDeleted()) {
                     Utils.toggleSoftKeyBoard(getActivity(), true);
-                    bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
-                    userNotAbleToChatLayout.setVisibility(View.VISIBLE);
-                    individualMessageSendLayout.setVisibility(View.GONE);
                     ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");
                 }
                 if (updatedInfoContact != null && (!TextUtils.isEmpty(contact.getDisplayName())) && (!contact.getDisplayName().equals(updatedInfoContact.getDisplayName()))) {
@@ -295,8 +292,14 @@ public class ConversationFragment extends MobiComConversationFragment implements
         if (response instanceof ConversationCallbackHandler.CallbackEvent) {
             ConversationCallbackHandler.CallbackEvent callbackEvent = (ConversationCallbackHandler.CallbackEvent) response;
 
-            if (ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_CONNECTED.equals(callbackEvent.getAction())) {
-                Applozic.subscribeToTyping(getContext(), channel, contact);
+            switch (callbackEvent.getAction()) {
+                case ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_CONNECTED:
+                    Applozic.subscribeToTyping(getContext(), channel, contact);
+                    break;
+                case ConversationCallbackHandler.CallbackEvent.EVENT_USER_ACTIVATED:
+                case ConversationCallbackHandler.CallbackEvent.EVENT_USER_DEACTIVATED:
+                    activateOrDeactivateChat();
+                    break;
             }
         }
     }
@@ -307,8 +310,10 @@ public class ConversationFragment extends MobiComConversationFragment implements
         if (error instanceof ConversationCallbackHandler.CallbackEvent) {
             ConversationCallbackHandler.CallbackEvent callbackEvent = (ConversationCallbackHandler.CallbackEvent) error;
 
-            if (ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_DISCONNECTED.equals(callbackEvent.getAction())) {
-                Applozic.unSubscribeToTyping(getContext(), channel, contact);
+            switch (callbackEvent.getAction()) {
+                case ConversationCallbackHandler.CallbackEvent.EVENT_MQTT_DISCONNECTED:
+                    Applozic.unSubscribeToTyping(getContext(), channel, contact);
+                    break;
             }
         }
     }

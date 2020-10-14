@@ -218,6 +218,11 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
     }
 
     @Override
+    public void onUserActivated(boolean isActivated) {
+
+    }
+
+    @Override
     public void onChannelUpdated() {
         if (conversationFragment != null) {
             conversationFragment.notifyAdapter();
@@ -245,6 +250,11 @@ public class SampleActivity extends AppCompatActivity implements AlMessageSender
 
     @Override
     public void onUserMute(boolean mute, String userId) {
+
+    }
+
+    @Override
+    public void onGroupMute(Integer groupId) {
 
     }
 }

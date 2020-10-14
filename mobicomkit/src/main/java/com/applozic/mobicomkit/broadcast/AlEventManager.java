@@ -154,9 +154,17 @@ public class AlEventManager {
                     case AlMessageEvent.ActionType.USER_DETAILS_UPDATED:
                         listener.onUserDetailUpdated(messageEvent.getUserId());
                         break;
+                    case AlMessageEvent.ActionType.USER_ACTIVATED:
+                        listener.onUserActivated(true);
+                        break;
+                    case AlMessageEvent.ActionType.USER_DEACTIVATED:
+                        listener.onUserActivated(false);
+                        break;
                     case AlMessageEvent.ActionType.MESSAGE_METADATA_UPDATED:
                         listener.onMessageMetadataUpdated(messageEvent.getMessageKey());
                         break;
+                    case AlMessageEvent.ActionType.GROUP_MUTE:
+                        listener.onGroupMute(messageEvent.getGroupId());
                 }
             }
         }

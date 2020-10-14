@@ -24,6 +24,7 @@ import android.os.ResultReceiver;
 import android.os.Vibrator;
 
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
+import com.applozic.mobicomkit.api.conversation.MessageDeleteTask;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
@@ -156,7 +157,6 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.net.URLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -244,8 +244,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     TextView recordTimeTextView;
     FrameLayout audioRecordFrameLayout;
     ApplozicAudioRecordManager applozicAudioRecordManager;
-    String timeStamp, audioFileName;
-    String outputFile;
     CountDownTimer t;
     GestureDetectorCompat mDetector;
     boolean longPress;
@@ -298,7 +296,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        geoApiKey = Utils.getMetaDataValue(ApplozicService.getContext(getContext()), ConversationActivity.GOOGLE_API_KEY_META_DATA);
+        geoApiKey = Applozic.getInstance(getContext()).getGeoApiKey();
         String jsonString = FileUtils.loadSettingsJsonFile(ApplozicService.getContext(getContext()));
         if (!TextUtils.isEmpty(jsonString)) {
             alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
@@ -467,7 +465,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         userNotAbleToChatTextView.setTextColor(Color.parseColor(alCustomizationSettings.getUserNotAbleToChatTextColor()));
 
         if (channel != null && channel.isDeleted()) {
-            userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+            showUserNotAbleToChatLayout(true, R.string.group_has_been_deleted_text);
         }
 
         bottomlayoutTextView = (TextView) list.findViewById(R.id.user_not_able_to_chat_textView);
@@ -1020,12 +1018,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         ApplozicAudioRecordAnimation.setAlpha(slideTextLinearlayout, 1);
         startedDraggingX = -1;
         ViewConfiguration.getLongPressTimeout();
-        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        audioFileName = "AUD_" + timeStamp + "_" + ".m4a";
-        outputFile = FileClientService.getFilePath(audioFileName, ApplozicService.getContext(getContext()), "audio/m4a").getAbsolutePath();
-        applozicAudioRecordManager.setTimeStamp(timeStamp);
-        applozicAudioRecordManager.setAudioFileName(audioFileName);
-        applozicAudioRecordManager.setOutputFile(outputFile);
         vibrate();
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -1274,13 +1266,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (i != -1) {
-            messageList.get(i).setMetadata(messageDatabaseService.getMessage(keyString).getMetadata());
-            if (recyclerDetailConversationAdapter != null) {
-                recyclerDetailConversationAdapter.notifyDataSetChanged();
-            }
+            updateMessageAtIndex(i, messageDatabaseService.getMessage(keyString), recyclerDetailConversationAdapter);
             if (messageList.get(messageList.size() - 1).getMetadata().containsKey("isDoneWithClicking")) {
                 if (templateAdapter != null) {
-                    templateAdapter.notifyDataSetChanged();
+                    templateAdapter.notifyItemChanged(i);
                 }
             }
         }
@@ -1344,7 +1333,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         this.menu = menu;
-
         if (contact != null && contact.isDeleted()) {
             menu.findItem(R.id.dial).setVisible(false);
             menu.findItem(R.id.refresh).setVisible(false);
@@ -1492,12 +1480,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return false;
     }
 
+    private void updateMessageAtIndex(int index, Message message, DetailedConversationAdapter adapter) {
+        if (messageList != null && index != -1 && adapter != null) {
+            messageList.set(index, message);
+            adapter.notifyItemChanged(index);
+        }
+    }
+
     @Override
     public boolean onItemClick(int position, MenuItem item) {
         if (messageList.size() <= position || position == -1) {
             return true;
         }
-        Message message = messageList.get(position);
+        final Message message = messageList.get(position);
         if (message.isTempDateType() || message.isCustom()) {
             return true;
         }
@@ -1532,10 +1527,36 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 deleteMessageFromDeviceList(messageKeyString);
                 break;
             case 4:
+                final String deleteForAllMessageKey = message.getKeyString();
+                final ProgressDialog progressBar = new ProgressDialog(getContext());
+                progressBar.show();
+                progressBar.setMessage(Utils.getString(getContext(), R.string.delete_thread_text));
+                new MessageDeleteTask(getContext(), deleteForAllMessageKey, true, new AlCallback() {
+                    @Override
+                    public void onSuccess(Object response) {
+                        int index = messageList.indexOf(message);
+                        message.setAsDeletedForAll();
+                        messageDatabaseService.replaceExistingMessage(message);
+                        updateMessageAtIndex(index, message, recyclerDetailConversationAdapter);
+                        if (progressBar != null) {
+                            progressBar.dismiss();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Object error) {
+                        if (progressBar != null) {
+                            progressBar.dismiss();
+                        }
+                        Toast.makeText(ApplozicService.getContext(getContext()), Utils.getString(getContext(), R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
+                    }
+                }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                break;
+            case 5:
                 String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
                 conversationUIService.startMessageInfoFragment(messageJson);
                 break;
-            case 5:
+            case 6:
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 if (message.getFilePaths() != null) {
@@ -1559,7 +1580,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 startActivity(Intent.createChooser(shareIntent, ApplozicService.getContext(getContext()).getString(R.string.send_message_to)));
                 break;
 
-            case 6:
+            case 7:
                 try {
                     Configuration config = ApplozicService.getContext(getContext()).getResources().getConfiguration();
                     messageMetaData = new HashMap<>();
@@ -1676,7 +1697,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 }
                 break;
-            case 7:
+            case 8:
                 new AlMessageReportTask(message.getKeyString(), conversationService, new AlCallback() {
                     @Override
                     public void onSuccess(Object response) {
@@ -1713,13 +1734,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             Applozic.subscribeToTyping(getContext(), channel, contact);
 
-            if (userNotAbleToChatLayout != null) {
-                if (contact != null) {
-                    enableOrDisableChat(contact);
-                } else {
-                    enableOrDisableChannel(channel);
-                }
-            }
+            checkForUserNotAbleToChat(contact, channel);
 
             if (contact != null && this.channel != null) {
                 if (getActivity() != null) {
@@ -3009,6 +3024,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
+        activateOrDeactivateChat();
     }
 
     private void hideSendMessageLayout(final boolean hide, final boolean isUserInGroup) {
@@ -3019,42 +3035,49 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (hide) {
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    userNotAbleToChatTextView.setText(isUserInGroup ? R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
-                } else {
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
-                    individualMessageSendLayout.setVisibility(VISIBLE);
-                }
+                showUserNotAbleToChatLayout(hide, isUserInGroup ? R.string.group_has_been_deleted_text : R.string.user_not_in_this_group_text);
             }
         });
     }
 
     protected void enableOrDisableChannel(final Channel channel) {
-        boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-
-        if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-            hideSendMessageLayout(channel.isDeleted() || !present, present);
-        } else {
-            hideSendMessageLayout(channel.isDeleted(), present);
-        }
+        checkForUserNotAbleToChat(null, channel);
     }
 
     protected void enableOrDisableChat(final Contact contact) {
-        final boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
-        if (getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    boolean hide = contact.isChatForUserDisabled() || isMyChatDisabled;
-                    individualMessageSendLayout.setVisibility(hide ? View.GONE : VISIBLE);
-                    userNotAbleToChatLayout.setVisibility(hide ? VISIBLE : View.GONE);
-                }
-            });
+        checkForUserNotAbleToChat(contact, null);
+    }
 
-            if (userNotAbleToChatTextView != null) {
-                userNotAbleToChatTextView.setText(isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+    protected void activateOrDeactivateChat() {
+        final boolean isUserDeactivated = MobiComUserPreference.getInstance(getContext()).isUserDeactivated();
+        if (isUserDeactivated) {
+            showUserNotAbleToChatLayout(true, alCustomizationSettings.getUserDeactivatedText());
+        } else {
+            checkForUserNotAbleToChat(contact, channel);
+        }
+    }
+
+    protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
+        if (channel != null) {
+            boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
+            if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+                hideSendMessageLayout(channel.isDeleted() || !present, present);
+            } else {
+                hideSendMessageLayout(channel.isDeleted(), present);
+            }
+        } else if (contact != null) {
+            if (contact.isDeleted()) {
+                showUserNotAbleToChatLayout(true, R.string.user_has_been_deleted_text);
+            } else {
+                final boolean isMyChatDisabled = ApplozicClient.getInstance(getContext()).isChatForUserDisabled();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showUserNotAbleToChatLayout(contact.isChatForUserDisabled() || isMyChatDisabled, isMyChatDisabled ? R.string.you_have_disabled_chat : (contact.isChatForUserDisabled() ? R.string.user_has_disabled_his_chat : R.string.group_has_been_deleted_text));
+                        }
+                    });
+                }
             }
         }
     }
@@ -3065,9 +3088,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (channelInfo.isDeleted()) {
                 channel.setDeletedAtTime(channelInfo.getDeletedAtTime());
-                individualMessageSendLayout.setVisibility(View.GONE);
-                userNotAbleToChatLayout.setVisibility(VISIBLE);
-                userNotAbleToChatTextView.setText(R.string.group_has_been_deleted_text);
+                showUserNotAbleToChatLayout(true, R.string.group_has_been_deleted_text);
                 if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
                         && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                     templateAdapter.removeTemplates();
@@ -3077,17 +3098,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         && userNotAbleToChatLayout != null
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
 
-                    individualMessageSendLayout.setVisibility(View.GONE);
-                    userNotAbleToChatLayout.setVisibility(VISIBLE);
-                    userNotAbleToChatTextView.setText(R.string.user_not_in_this_group_text);
+                    showUserNotAbleToChatLayout(true, R.string.user_not_in_this_group_text);
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                         templateAdapter.removeTemplates();
                     }
                 } else if (ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && userNotAbleToChatLayout != null
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    individualMessageSendLayout.setVisibility(View.VISIBLE);
-                    userNotAbleToChatLayout.setVisibility(View.GONE);
+                    showUserNotAbleToChatLayout(false, 0);
                 }
             }
 
@@ -4090,5 +4108,33 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (message instanceof Message) {
             conversationService.sendMessage(((Message) message), messageIntentClass, userDisplayName);
         }
+    }
+
+    public void updateChannelMuteMenuOptionForGroupId(Integer groupId) {
+        if (getActivity() == null) {
+            return;
+        }
+        Channel channelObject = ChannelService.getInstance(getActivity()).getChannel(groupId);
+        if (channelObject != null && menu != null && alCustomizationSettings != null) {
+            if (alCustomizationSettings.isMuteOption() && !Channel.GroupType.BROADCAST.getValue().equals(channelObject.getType())) {
+                menu.findItem(R.id.unmuteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && channelObject.isNotificationMuted());
+                menu.findItem(R.id.muteGroup).setVisible(!Channel.GroupType.OPEN.getValue().equals(channelObject.getType()) && !channelObject.isDeleted() && !channelObject.isNotificationMuted());
+            }
+        }
+    }
+
+    public void showUserNotAbleToChatLayout(boolean show, int textResId) {
+        individualMessageSendLayout.setVisibility(show ? View.GONE : VISIBLE);
+        userNotAbleToChatLayout.setVisibility(show ? VISIBLE : View.GONE);
+        // If resId is 0 it will crash in android.
+        if (textResId > 0) {
+            userNotAbleToChatTextView.setText(textResId);
+        }
+    }
+
+    public void showUserNotAbleToChatLayout(boolean show, String text) {
+        individualMessageSendLayout.setVisibility(show ? View.GONE : VISIBLE);
+        userNotAbleToChatLayout.setVisibility(show ? VISIBLE : View.GONE);
+        userNotAbleToChatTextView.setText(text);
     }
 }

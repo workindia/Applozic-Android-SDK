@@ -67,7 +67,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
     }
 
     public RegistrationResponse createAccount(User user) throws Exception {
-        user.setDeviceType(Short.valueOf("1"));
+        if (user.getDeviceType() == null) {
+            user.setDeviceType(Short.valueOf("1"));
+        }
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
         user.setEnableEncryption(user.isEnableEncryption());
@@ -105,6 +107,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             throw new ConnectException("No Internet Connection");
         }
 
+        HttpRequestUtils.isRefreshTokenInProgress = true;
         Utils.printLog(context, TAG, "Registration json " + gson.toJson(user));
         String response = httpRequestUtils.postJsonToServer(getCreateAccountUrl(), gson.toJson(user));
 
@@ -115,7 +118,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
         }
 
         final RegistrationResponse registrationResponse = gson.fromJson(response, RegistrationResponse.class);
-
         if (registrationResponse.isRegistrationSuccess()) {
 
             Utils.printLog(context, "Registration response ", "is " + registrationResponse);
@@ -140,6 +142,7 @@ public class RegisterUserClientService extends MobiComKitClientService {
             mobiComUserPreference.setLastSeenAtSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setChannelSyncTime(String.valueOf(registrationResponse.getCurrentTimeStamp()));
             mobiComUserPreference.setUserBlockSyncTime("10000");
+            mobiComUserPreference.setUserDeactivated(registrationResponse.isDeactivate());
             if (registrationResponse.getNotificationAfter() != null) {
                 ALSpecificSettings.getInstance(context).setNotificationAfterTime(registrationResponse.getNotificationAfter());
             }
@@ -198,10 +201,11 @@ public class RegisterUserClientService extends MobiComKitClientService {
 
     public boolean refreshAuthToken(String applicationId, String userId) {
         try {
+            HttpRequestUtils.isRefreshTokenInProgress = true;
             Map<String, String> tokenRefreshBodyMap = new HashMap<>();
             tokenRefreshBodyMap.put("applicationId", applicationId);
             tokenRefreshBodyMap.put("userId", userId);
-            String response = httpRequestUtils.postData(getRefreshTokenUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(tokenRefreshBodyMap, Map.class));
+            String response = httpRequestUtils.postDataForAuthToken(getRefreshTokenUrl(), "application/json", "application/json", GsonUtils.getJsonFromObject(tokenRefreshBodyMap, Map.class), userId);
             if (!TextUtils.isEmpty(response)) {
                 ApiResponse<String> jwtTokenResponse = (ApiResponse<String>) GsonUtils.getObjectFromJson(response, ApiResponse.class);
                 if (jwtTokenResponse != null && !TextUtils.isEmpty(jwtTokenResponse.getResponse())) {
@@ -263,7 +267,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
     public RegistrationResponse updateRegisteredAccount(User user) throws Exception {
         RegistrationResponse registrationResponse = null;
 
-        user.setDeviceType(Short.valueOf("1"));
+        if (user.getDeviceType() == null) {
+            user.setDeviceType(Short.valueOf("1"));
+        }
         user.setPrefContactAPI(Short.valueOf("2"));
         user.setTimezone(TimeZone.getDefault().getID());
         user.setAppVersionCode(MOBICOMKIT_VERSION_CODE);

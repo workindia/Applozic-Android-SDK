@@ -34,6 +34,7 @@
   "audioPermissionNotFoundMsg": "",
   "noConversationLabel": "You have no conversations",
   "noSearchFoundForChatMessages": "No conversation found",
+  "userDeactivatedText": "You have been deactivated",
   "disableGlobalStoragePermission": true,
   "enableMessageFastScroll": false,
   "totalRegisteredUserToFetch": 100,
@@ -106,6 +107,7 @@
   "groupInfoScreenVisible": true,
   "forwardOption": true,
   "recordButton": true,
+  "deleteForAllMessageOption": true,
   "messageTemplate": {
     "isEnabled": false,
     "borderColor": "#FF03A9F4",

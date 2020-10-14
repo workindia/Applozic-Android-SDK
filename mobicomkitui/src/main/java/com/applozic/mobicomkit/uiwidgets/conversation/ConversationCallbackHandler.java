@@ -6,6 +6,7 @@ import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.AlEventManager;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.JsonMarker;
 
 public class ConversationCallbackHandler implements ApplozicUIListener {
@@ -84,16 +85,12 @@ public class ConversationCallbackHandler implements ApplozicUIListener {
 
     @Override
     public void onMqttDisconnected() {
-        CallbackEvent callbackEvent = new CallbackEvent();
-        callbackEvent.setAction(CallbackEvent.EVENT_MQTT_DISCONNECTED);
-        callback.onError(callbackEvent);
+        callback.onError(new CallbackEvent(CallbackEvent.EVENT_MQTT_DISCONNECTED));
     }
 
     @Override
     public void onMqttConnected() {
-        CallbackEvent callbackEvent = new CallbackEvent();
-        callbackEvent.setAction(CallbackEvent.EVENT_MQTT_CONNECTED);
-        callback.onSuccess(callbackEvent);
+        callback.onSuccess(new CallbackEvent(CallbackEvent.EVENT_MQTT_CONNECTED));
     }
 
     @Override
@@ -104,6 +101,11 @@ public class ConversationCallbackHandler implements ApplozicUIListener {
     @Override
     public void onUserOffline() {
 
+    }
+
+    @Override
+    public void onUserActivated(boolean isActivated) {
+        callback.onSuccess(new CallbackEvent(isActivated ? CallbackEvent.EVENT_USER_ACTIVATED : CallbackEvent.EVENT_USER_DEACTIVATED));
     }
 
     @Override
@@ -131,10 +133,21 @@ public class ConversationCallbackHandler implements ApplozicUIListener {
 
     }
 
+    @Override
+    public void onGroupMute(Integer groupId) {
+
+    }
+
     public static class CallbackEvent extends JsonMarker {
         public static final String EVENT_MQTT_DISCONNECTED = "EVENT_MQTT_DISCONNECTED";
         public static final String EVENT_MQTT_CONNECTED = "EVENT_MQTT_CONNECTED";
+        public static final String EVENT_USER_ACTIVATED = "EVENT_USER_ACTIVATED";
+        public static final String EVENT_USER_DEACTIVATED = "EVENT_USER_DEACTIVATED";
         private String action;
+
+        public CallbackEvent(String action) {
+            this.action = action;
+        }
 
         public String getAction() {
             return action;

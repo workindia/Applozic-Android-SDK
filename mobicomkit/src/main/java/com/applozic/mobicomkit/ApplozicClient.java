@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
@@ -14,6 +13,7 @@ import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import org.json.JSONObject;
@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public class ApplozicClient {
 
+    public static final String SERVER_SYNC = "SERVER_SYNC_[CONVERSATION]_[CONTACT]_[CHANNEL]";
     public static final String AL_MESSAGE_META_DATA_KEY = "AL_MESSAGE_META_DATA_KEY";
     private static final String HANDLE_DISPLAY_NAME = "CLIENT_HANDLE_DISPLAY_NAME";
     private static final String HANDLE_DIAL = "CLIENT_HANDLE_DIAL";
@@ -33,7 +34,6 @@ public class ApplozicClient {
     private static final String CONTEXT_BASED_CHAT = "CONTEXT_BASED_CHAT";
     private static final String NOTIFICATION_SMALL_ICON = "NOTIFICATION_SMALL_ICON";
     private static final String APP_NAME = "APP_NAME";
-    private static final String APPLICATION_KEY = "APPLICATION_KEY";
     private static final String NOTIFICATION_DISABLE = "NOTIFICATION_DISABLE";
     private static final String CONTACT_DEFAULT_IMAGE = "CONTACT_DEFAULT_IMAGE";
     private static final String GROUP_DEFAULT_IMAGE = "GROUP_DEFAULT_IMAGE";
@@ -53,6 +53,8 @@ public class ApplozicClient {
     private static final String HIDE_ACTION_MESSAGES = "HIDE_ACTION_MESSAGES";
     private static final String NOTIFICATION_MUTE_THRESHOLD = "NOTIFICATION_MUTE_THRESHOLD";
     private static final String SKIP_DELETED_GROUPS = "SKIP_DELETED_GROUPS";
+    private static final String MIN_CREATED_AT_KEY = "mck.sms.createdAt.min";
+    private static final String MAX_CREATED_AT_KEY = "mck.sms.createdAt.max";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -60,7 +62,8 @@ public class ApplozicClient {
 
     private ApplozicClient(Context context) {
         this.context = ApplozicService.getContext(context);
-        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComKitClientService.getApplicationKey(ApplozicService.getContext(context)), Context.MODE_PRIVATE);
+        MobiComUserPreference.renameSharedPrefFile(context);
+        sharedPreferences = ApplozicService.getContext(context).getSharedPreferences(MobiComUserPreference.AL_USER_PREF_KEY, Context.MODE_PRIVATE);
     }
 
     public static ApplozicClient getInstance(Context context) {
@@ -138,15 +141,6 @@ public class ApplozicClient {
 
     public ApplozicClient setAppName(String notficationAppName) {
         sharedPreferences.edit().putString(APP_NAME, notficationAppName).commit();
-        return this;
-    }
-
-    public String getApplicationKey() {
-        return sharedPreferences.getString(APPLICATION_KEY, null);
-    }
-
-    public ApplozicClient setApplicationKey(String applicationKey) {
-        sharedPreferences.edit().putString(APPLICATION_KEY, applicationKey).commit();
         return this;
     }
 
@@ -346,6 +340,44 @@ public class ApplozicClient {
 
     public boolean isSkipDeletedGroups() {
         return sharedPreferences.getBoolean(SKIP_DELETED_GROUPS, false);
+    }
+
+    public boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
+        if (contact == null && channel == null) {
+            return false;
+        }
+        return sharedPreferences.getBoolean(getServerSyncCallKey(contact, channel, conversationId), false);
+    }
+
+    public void updateServerCallDoneStatus(Contact contact, Channel channel, Integer conversationId) {
+        if (contact == null && channel == null) {
+            return;
+        }
+        sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
+    }
+
+    public String getServerSyncCallKey(Contact contact, Channel channel, Integer conversationId) {
+        return SERVER_SYNC.replace("[CONVERSATION]", (conversationId != null && conversationId != 0) ? String.valueOf(conversationId) : "")
+                .replace("[CONTACT]", contact != null ? contact.getContactIds() : "")
+                .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()) : "");
+    }
+
+    public long getMaxCreatedAtTime() {
+        return sharedPreferences.getLong(MAX_CREATED_AT_KEY, Long.MAX_VALUE);
+    }
+
+    public ApplozicClient setMaxCreatedAtTime(long createdAtTime) {
+        sharedPreferences.edit().putLong(MAX_CREATED_AT_KEY, createdAtTime).commit();
+        return this;
+    }
+
+    public long getMinCreatedAtTime() {
+        return sharedPreferences.getLong(MIN_CREATED_AT_KEY, 0);
+    }
+
+    public ApplozicClient setMinCreatedAtTime(long createdAtTime) {
+        sharedPreferences.edit().putLong(MIN_CREATED_AT_KEY, createdAtTime).commit();
+        return this;
     }
 
     public ApplozicClient disableChatForUser(final boolean disable, final AlCallback callback) {
