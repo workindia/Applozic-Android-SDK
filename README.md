@@ -24,7 +24,7 @@ Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www
 
 #### Step 1: Add the following in your build.gradle dependency:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.80' `
+`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.92' `
 
 Add the following in gradle android target:      
 
@@ -296,37 +296,8 @@ Applozic.logoutUser(context, new AlLogoutHandler() {
                 }
         });     
  ```
- 
- 
- Note: If you are running ProGuard, please add following lines:        
- 
- 
- 
- 
- 
-```
- #keep json classes                
- -keepclassmembernames class * extends com.applozic.mobicommons.json.JsonMarker {
- 	!static !transient <fields>;
- }
 
- -keepclassmembernames class * extends com.applozic.mobicommons.json.JsonParcelableMarker {
- 	!static !transient <fields>;
- }
- #GSON Config          
--keepattributes Signature          
--keep class sun.misc.Unsafe { *; }           
--keep class com.google.gson.examples.android.model.** { *; }            
--keep class org.eclipse.paho.client.mqttv3.logging.JSR47Logger { *; } 
--keep class android.support.** { *; }
--keep interface android.support.** { *; }
--dontwarn android.support.v4.**
--keep public class com.google.android.gms.* { public *; }
--dontwarn com.google.android.gms.**
--keep class com.google.gson.** { *; }
 
- ``` 
-   
 **Trying out the demo app:**
 
 Open project in Android Studio to run the sample app in your device. Send messages between multiple devices. 
