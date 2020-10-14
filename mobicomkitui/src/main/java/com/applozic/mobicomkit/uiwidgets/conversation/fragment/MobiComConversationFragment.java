@@ -3105,7 +3105,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 } else if (ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && userNotAbleToChatLayout != null
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    showUserNotAbleToChatLayout(true, 0);
+                    showUserNotAbleToChatLayout(false, 0);
                 }
             }
 
@@ -4126,7 +4126,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     public void showUserNotAbleToChatLayout(boolean show, int textResId) {
         individualMessageSendLayout.setVisibility(show ? View.GONE : VISIBLE);
         userNotAbleToChatLayout.setVisibility(show ? VISIBLE : View.GONE);
-        userNotAbleToChatTextView.setText(textResId);
+        // If resId is 0 it will crash in android.
+        if (textResId > 0) {
+            userNotAbleToChatTextView.setText(textResId);
+        }
     }
 
     public void showUserNotAbleToChatLayout(boolean show, String text) {
