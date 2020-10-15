@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -21,10 +23,16 @@ public class PermissionsUtils {
     public static final int REQUEST_STORAGE_FOR_PROFILE_PHOTO = 8;
     public static final int REQUEST_CAMERA_AUDIO = 9;
     public static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION};
-    public static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE};
+    public static String[] PERMISSIONS_STORAGE = isSDKVersionScopedStorageCompatible() ?
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+                        : new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
     public static String[] PERMISSIONS_RECORD_AUDIO = {Manifest.permission.RECORD_AUDIO};
     public static String[] PERMISSION_CAMERA = {Manifest.permission.CAMERA};
+
+    //needed until we target Android 11 or higher
+    public static boolean isSDKVersionScopedStorageCompatible() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.P;
+    }
 
     public static boolean verifyPermissions(int[] grantResults) {
         if (grantResults.length < 1) {
@@ -53,10 +61,9 @@ public class PermissionsUtils {
 
 
     public static boolean shouldShowRequestForStoragePermission(Activity activity) {
-        return (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                || ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                Manifest.permission.READ_EXTERNAL_STORAGE));
+        return isSDKVersionScopedStorageCompatible() ?
+                (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE))
+                : (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE));
     }
 
     public static boolean shouldShowRequestForCameraPermission(Activity activity) {
@@ -65,10 +72,9 @@ public class PermissionsUtils {
     }
 
     public static boolean checkSelfForStoragePermission(Activity activity) {
-        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED);
+        return isSDKVersionScopedStorageCompatible() ?
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                : (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED);
     }
 
 
