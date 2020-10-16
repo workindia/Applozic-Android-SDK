@@ -92,9 +92,7 @@ public class FileClientService extends MobiComKitClientService {
                 }
             }
         } else {
-            ContextWrapper cw = new ContextWrapper(context);
-            // path to /data/data/yourapp/app_data/imageDir
-            dir = cw.getDir(IMAGE_DIR, Context.MODE_PRIVATE);
+            dir = new File(new ContextWrapper(context).getFilesDir().getAbsolutePath() + MOBI_COM_IMAGES_FOLDER);
         }
         // Create image name
         //String extention = "." + contentType.substring(contentType.indexOf("/") + 1);
