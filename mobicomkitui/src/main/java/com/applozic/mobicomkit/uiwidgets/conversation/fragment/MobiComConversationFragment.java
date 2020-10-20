@@ -24,8 +24,11 @@ import android.os.ResultReceiver;
 import android.os.Vibrator;
 
 import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
+import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.api.conversation.MessageDeleteTask;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
@@ -1097,7 +1100,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
             if (disjointResult && !restrictedWordMatches) {
-                sendMessage(messageEditText.getText().toString().trim());
+                if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+                    sendOpenGroupMessage(messageEditText.getText().toString().trim());
+                } else {
+                    sendMessage(messageEditText.getText().toString().trim());
+                }
                 messageEditText.setText("");
             } else {
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity()).
@@ -1256,17 +1263,23 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
     }
 
-    public void updateMessageMetadata(String keyString) {
+    public void updateMessageMetadata(String keyString, String userId, Integer groupId, Boolean isOpenGroup, Map<String, String> messageMetaData) {
         int i = -1;
+        Message messageObject = null;
         if (!messageList.isEmpty()) {
             for (Message message : messageList) {
                 if (keyString.equals(message.getKeyString())) {
                     i = messageList.indexOf(message);
+                    messageObject = message;
+                    if (isOpenGroup) {
+                        messageObject.setMetadata(messageMetaData);
+                    }
+                    break;
                 }
             }
         }
         if (i != -1) {
-            updateMessageAtIndex(i, messageDatabaseService.getMessage(keyString), recyclerDetailConversationAdapter);
+            updateMessageAtIndex(i, isOpenGroup ? messageObject : messageDatabaseService.getMessage(keyString), recyclerDetailConversationAdapter);
             if (messageList.get(messageList.size() - 1).getMetadata().containsKey("isDoneWithClicking")) {
                 if (templateAdapter != null) {
                     templateAdapter.notifyItemChanged(i);
@@ -2541,6 +2554,59 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
         this.messageMetaData = null;
         this.filePath = null;
+    }
+
+    public void sendOpenGroupMessage(String messageText) {
+        attachReplyCancelLayout.setVisibility(View.GONE);
+        replayRelativeLayout.setVisibility(View.GONE);
+        attachmentLayout.setVisibility(View.GONE);
+
+        Map<String, String> messageMetaData = new HashMap<>();
+        if (this.messageMetaData != null && !this.messageMetaData.isEmpty()) {
+            messageMetaData.putAll(this.messageMetaData);
+        }
+
+        MessageBuilder messageBuilder = new MessageBuilder(getActivity()).setMessage(messageText).setMetadata(messageMetaData).setGroupId(channel.getKey());
+
+        if (!TextUtils.isEmpty(filePath)) {
+            messageBuilder.setContentType(Message.ContentType.ATTACHMENT.getValue());
+            messageBuilder.setFilePath(filePath);
+            filePath = null;
+        }
+
+        messageBuilder.send(new MediaUploadProgressHandler() {
+            @Override
+            public void onUploadStarted(ApplozicException e, String oldMessageKey) {
+
+            }
+
+            @Override
+            public void onProgressUpdate(int percentage, ApplozicException e, String oldMessageKey) {
+
+            }
+
+            @Override
+            public void onCancelled(ApplozicException e, String oldMessageKey) {
+
+            }
+
+            @Override
+            public void onCompleted(ApplozicException e, String oldMessageKey) {
+
+            }
+
+            @Override
+            public void onSent(Message message, String oldMessageKey) {
+                Message messageToBeReplied = new Message();
+                messageToBeReplied.setKeyString(oldMessageKey);
+                int indexOfObject = messageList.indexOf(messageToBeReplied);
+                if (indexOfObject != -1) {
+                    messageList.set(indexOfObject, message);
+                    recyclerDetailConversationAdapter.notifyItemChanged(indexOfObject);
+                }
+            }
+        });
+        this.messageMetaData = null;
     }
 
     public void sendProductMessage(final String messageToSend, final FileMeta fileMeta, final Contact contact, final short messageContentType) {

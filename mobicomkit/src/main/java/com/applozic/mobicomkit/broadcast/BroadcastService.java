@@ -3,6 +3,8 @@ package com.applozic.mobicomkit.broadcast;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.text.TextUtils;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.applozic.mobicomkit.ApplozicClient;
@@ -19,6 +21,8 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+
+import java.util.Map;
 
 /**
  * Created by devashish on 24/1/15.
@@ -221,17 +225,34 @@ public class BroadcastService {
         sendUpdate(context, false, action);
     }
 
-    public static void updateMessageMetadata(Context context, String messageKey, String action) {
-        postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_METADATA_UPDATED).setMessageKey(messageKey));
+    public static void updateMessageMetadata(Context context, String messageKey, String action, String userId, Integer groupId, Boolean isOpenGroup, Map<String, String> metadata) {
 
-        Utils.printLog(context, TAG, "Sending Message Metadata Update Broadcast for message key : " + messageKey);
-        Intent intent = new Intent();
-        intent.setAction(action);
-        intent.putExtra("keyString", messageKey);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        sendBroadcast(context, intent);
+        try {
+            AlMessageEvent messageEvent = new AlMessageEvent().setAction(AlMessageEvent.ActionType.MESSAGE_METADATA_UPDATED).setMessageKey(messageKey);
+            Intent intent = new Intent();
+            intent.setAction(action);
+            intent.putExtra("keyString", messageKey);
+
+            if (groupId != null) {
+                messageEvent.setGroupId(groupId);
+                intent.putExtra("groupId", groupId);
+                intent.putExtra("openGroup", isOpenGroup);
+            } else if (!TextUtils.isEmpty(userId)) {
+                messageEvent.setUserId(userId);
+                intent.putExtra("userId", userId);
+            }
+            if (metadata != null && !metadata.isEmpty()) {
+                intent.putExtra("messageMetadata", GsonUtils.getJsonFromObject(metadata, Map.class));
+            }
+            messageEvent.setGroup(groupId != null);
+            postEventData(context, messageEvent);
+
+            Utils.printLog(context, TAG, "Sending Message Metadata Update Broadcast for message key : " + messageKey);
+            sendBroadcast(context, intent);
+        } catch (Exception e) {
+            Utils.printLog(context, TAG, e.getMessage());
+        }
     }
-
 
     public static void sendConversationReadBroadcast(Context context, String action, String currentId, boolean isGroup) {
         postEventData(context, new AlMessageEvent().setAction(AlMessageEvent.ActionType.CONVERSATION_READ).setUserId(currentId).setGroup(isGroup));

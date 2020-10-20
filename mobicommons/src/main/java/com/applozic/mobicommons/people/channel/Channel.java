@@ -274,6 +274,10 @@ public class Channel extends JsonMarker {
         return (GroupType.SUPPORT_GROUP.getValue().equals(getType()) && getMetadata() != null && !TextUtils.isEmpty(getMetadata().get(CONVERSATION_ASSIGNEE))) ? getMetadata().get(CONVERSATION_ASSIGNEE) : null;
     }
 
+    public boolean isOpenGroup() {
+        return GroupType.OPEN.getValue().equals(type);
+    }
+
     public enum GroupType {
 
         VIRTUAL(0),

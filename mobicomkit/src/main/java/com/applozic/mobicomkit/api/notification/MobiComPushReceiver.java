@@ -18,6 +18,7 @@ import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.ALSpecificSettings;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.ArrayList;
@@ -391,27 +392,20 @@ MobiComPushReceiver {
             if (!TextUtils.isEmpty(messageMetadataUpdate)) {
                 String keyString = null;
                 String id = null;
-
                 try {
                     GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageMetadataUpdate, GcmMessageResponse.class);
                     keyString = messageResponse.getMessage().getKeyString();
+                    Message messageObject = messageResponse.getMessage();
                     id = messageResponse.getId();
-                } catch (Exception e) {
-                    try {
-                        InstantMessageResponse response = (InstantMessageResponse) GsonUtils.getObjectFromJson(messageMetadataUpdate, InstantMessageResponse.class);
-                        keyString = response.getMessage();
-                        id = response.getId();
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
+                    if (processPushNotificationId(id)) {
+                        return;
                     }
-                }
-                if (processPushNotificationId(id)) {
-                    return;
-                }
+                    addPushNotificationId(id);
+                    syncCallService.syncMessageMetadataUpdate(keyString, true, messageObject);
 
-                addPushNotificationId(id);
-
-                syncCallService.syncMessageMetadataUpdate(keyString, true);
+                } catch (Exception e) {
+                    Utils.printLog(context, TAG, e.getMessage());
+                }
             }
 
             if (!TextUtils.isEmpty(mutedUserListResponse)) {

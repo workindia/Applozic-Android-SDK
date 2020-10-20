@@ -314,7 +314,7 @@ public class MobiComMessageService {
             for (final Message message : messageList) {
                 if (message != null) {
                     messageDatabaseService.replaceExistingMessage(message);
-                    BroadcastService.updateMessageMetadata(context, message.getKeyString(), BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString());
+                    BroadcastService.updateMessageMetadata(context, message.getKeyString(), BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString(), message.getGroupId() == null ? message.getTo() : null, message.getGroupId(), false, message.getMetadata());
                 }
             }
         }
