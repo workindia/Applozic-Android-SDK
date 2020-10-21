@@ -2016,6 +2016,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void updateChannelSubTitle(final Channel channel) {
 
+        if (channel.isOpenGroup()) {
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setToolbarSubtitle("");
+                        setToolbarImage(null, channel);
+                    }
+                });
+                return;
+            }
+        }
+
         channelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
         if (channelUserMapperList != null && channelUserMapperList.size() > 0) {
             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
