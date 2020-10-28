@@ -361,6 +361,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.deliveryStatus.setText("");
                     }
 
+                    ApplozicDocumentView audioView = new ApplozicDocumentView(activityContext, storagePermissionListener);
+                    audioView.inflateViewWithMessage(myHolder.view, message);
+                    audioView.hideView(true);
+
                     if (message.isDeletedForAll()) {
                         myHolder.messageTextView.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.round_not_interested_black_24), null, null, null);
                         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -374,7 +378,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
 
                         myHolder.replyRelativeLayout.setVisibility(GONE);
-                        myHolder.attachmentIcon.setVisibility(GONE);
                         myHolder.richMessageLayout.setVisibility(View.GONE);
                         myHolder.preview.setVisibility(View.GONE);
                         myHolder.attachedFile.setVisibility(View.GONE);
@@ -382,7 +385,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.attachmentView.setVisibility(View.GONE);
                         myHolder.videoIcon.setVisibility(View.GONE);
                         myHolder.mainContactShareLayout.setVisibility(View.GONE);
-
+                        myHolder.mapImageView.setVisibility(View.GONE);
+                        myHolder.urlLoadLayout.setVisibility(View.GONE);
                     } else {
                         myHolder.messageTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
                         myHolder.messageTextView.setTypeface(null, Typeface.NORMAL);
@@ -547,10 +551,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.attachedFile.setVisibility(View.GONE);
                         }
 
-                        if (myHolder.attachmentIcon != null) {
-                            myHolder.attachmentIcon.setVisibility(View.GONE);
-                        }
-
                         if (channel != null && myHolder.nameTextView != null && contactDisplayName != null) {
                             myHolder.nameTextView.setVisibility(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) ? View.GONE : View.VISIBLE);
                             if (alCustomizationSettings.isLaunchChatFromProfilePicOrName()) {
@@ -651,9 +651,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             loadContactImage(receiverContact, contactDisplayName, message, myHolder.contactImage, myHolder.alphabeticTextView, myHolder.onlineTextView);
                         }
 
-                        ApplozicDocumentView audioView = new ApplozicDocumentView(activityContext, storagePermissionListener);
-                        audioView.inflateViewWithMessage(myHolder.view, message);
-                        audioView.hideView(true);
 
                         if (message.hasAttachment() && myHolder.attachedFile != null & !(message.getContentType() == Message.ContentType.TEXT_URL.getValue())) {
                             myHolder.mainAttachmentLayout.setLayoutParams(getImageLayoutParam(false));
@@ -715,7 +712,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 myHolder.attachmentView.setMessage(message);
                                 myHolder.attachmentView.setVisibility(View.VISIBLE);
                                 myHolder.attachedFile.setVisibility(GONE);
-                                myHolder.attachmentIcon.setVisibility(GONE);
                             } else if (AttachmentManager.isAttachmentInProgress(message.getKeyString())) {
                                 //ondraw is called and thread is assigned to the attachment view...
                                 myHolder.preview.setImageDrawable(null);
@@ -1414,7 +1410,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         ImageView videoIcon;
         ProgressBar mediaDownloadProgressBar;
         ProgressBar mediaUploadProgressBar;
-        ImageView attachmentIcon, shareContactImage;
+        ImageView shareContactImage;
         TextView alphabeticTextView;
         CircleImageView contactImage;
         View messageTextLayout;
@@ -1448,7 +1444,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             chatLocation = (RelativeLayout) customView.findViewById(R.id.chat_location);
             preview = (ImageView) customView.findViewById(R.id.preview);
             attachmentView = (AttachmentView) customView.findViewById(R.id.main_attachment_view);
-            attachmentIcon = (ImageView) customView.findViewById(R.id.attachmentIcon);
             downloadSizeTextView = (TextView) customView.findViewById(R.id.attachment_size_text);
             attachmentDownloadLayout = (LinearLayout) customView.findViewById(R.id.attachment_download_layout);
             attachmentRetry = (LinearLayout) customView.findViewById(R.id.attachment_retry_layout);

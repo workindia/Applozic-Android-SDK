@@ -18,6 +18,8 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
+import java.util.Map;
+
 /**
  * Created by devashish on 4/2/15.
  */
@@ -126,7 +128,15 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
         } else if (BroadcastService.INTENT_ACTIONS.UPDATE_USER_DETAIL.toString().equals(action)) {
             conversationUIService.updateUserInfo(intent.getStringExtra("contactId"));
         } else if (BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString().equals(action)) {
-            conversationUIService.updateMessageMetadata(keyString);
+            String updateForUserId = intent.getStringExtra("userId");
+            Integer groupId = intent.getIntExtra("groupId", 0);
+            Boolean isOpenGroup = intent.getBooleanExtra("openGroup", false);
+            String messageMetaDataJson = intent.getStringExtra("messageMetadata");
+            Map<String, String> messageMetaData = null;
+            if (!TextUtils.isEmpty(messageMetaDataJson)) {
+                messageMetaData = (Map<String, String>) GsonUtils.getObjectFromJson(messageMetaDataJson, Map.class);
+            }
+            conversationUIService.updateMessageMetadata(keyString, updateForUserId, groupId, isOpenGroup, messageMetaData);
         } else if (BroadcastService.INTENT_ACTIONS.MUTE_USER_CHAT.toString().equals(action)) {
             conversationUIService.muteUserChat(intent.getBooleanExtra("mute", false), intent.getStringExtra("userId"));
         } else if (BroadcastService.INTENT_ACTIONS.GROUP_MUTE.toString().equals(action)) {
