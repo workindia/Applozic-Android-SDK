@@ -32,6 +32,7 @@ import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -869,5 +870,32 @@ public class ChannelService {
 
     public void getChannelByClientKeyAsync(String clientChannelKey, AlChannelListener channelListener) {
         new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, this).execute();
+    }
+
+    /**
+     * The getAllChannelList method will return list of groups.
+     *
+     * @return List of Channel objects or empty list in case of error or no groups.
+     */
+    public List<Channel> getAllChannelList() {
+        List<Channel> channelList = new ArrayList<>();
+        SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(MobiComUserPreference.getInstance(context).getChannelListLastGeneratedAtTime());
+        if (syncChannelFeed == null) {
+            return channelList;
+        }
+        if (syncChannelFeed.isSuccess()) {
+            List<ChannelFeed> channelFeeds = syncChannelFeed.getResponse();
+            if (channelFeeds != null && !channelFeeds.isEmpty()) {
+                processChannelFeedList(channelFeeds.toArray(new ChannelFeed[channelFeeds.size()
+                        ]), false);
+            }
+            MobiComUserPreference.getInstance(context).setChannelListLastGeneratedAtTime(syncChannelFeed.getGeneratedAt());
+        }
+
+        channelList = ChannelDatabaseService.getInstance(context).getAllChannels();
+        if (channelList == null) {
+            return new ArrayList<>();
+        }
+        return channelList;
     }
 }
