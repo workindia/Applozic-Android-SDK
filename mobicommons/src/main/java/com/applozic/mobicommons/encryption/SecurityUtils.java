@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -25,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 
 import javax.crypto.BadPaddingException;
@@ -68,6 +71,10 @@ public class SecurityUtils {
     private SecurityUtils() {
     }
 
+    private static String getUniqueRSAKeyAlias(Context context) {
+        return context.getPackageName() + RSA_KEY_ALIAS;
+    }
+
     /**
      * generate a public-private RSA key pair using {@link KeyPairGenerator} and using AndroidKeystore as provider.
      * the key-pair is stored using {@link KeyStore}
@@ -80,15 +87,25 @@ public class SecurityUtils {
             Calendar start = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
             end.add(Calendar.YEAR, 25); //key certificate will be valid for 25 years
-            KeyPairGeneratorSpec keyPairGeneratorSpec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
-                    .setAlias(RSA_KEY_ALIAS)
-                    .setSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
-                    .setSerialNumber(BigInteger.valueOf(123456))
-                    .setStartDate(start.getTime())
-                    .setEndDate(end.getTime())
-                    .build();
+            AlgorithmParameterSpec spec;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
+                spec = new KeyGenParameterSpec.Builder(getUniqueRSAKeyAlias(context), KeyProperties.PURPOSE_DECRYPT)
+                        .setCertificateSubject(new X500Principal("CN=" + getUniqueRSAKeyAlias(context) + ", O=ApplozicInc"))
+                        .setCertificateSerialNumber(BigInteger.valueOf(123456))
+                        .setCertificateNotBefore(start.getTime())
+                        .setCertificateNotAfter(end.getTime())
+                        .build();
+            } else {
+                spec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
+                        .setAlias(getUniqueRSAKeyAlias(context))
+                        .setSubject(new X500Principal("CN=" + getUniqueRSAKeyAlias(context) + ", O=ApplozicInc"))
+                        .setSerialNumber(BigInteger.valueOf(123456))
+                        .setStartDate(start.getTime())
+                        .setEndDate(end.getTime())
+                        .build();
+            }
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
-            keyPairGenerator.initialize(keyPairGeneratorSpec);
+            keyPairGenerator.initialize(spec);
             keyPairGenerator.genKeyPair();
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException exception) {
             exception.printStackTrace();
@@ -107,15 +124,16 @@ public class SecurityUtils {
             keyStore.load(null);
 
             //generate the public and private keys to encrypt/decrypt the AES key
-            if (!keyStore.containsAlias(RSA_KEY_ALIAS)) {
+            if (!keyStore.containsAlias(getUniqueRSAKeyAlias(context))) {
                 generateRSAKeyPair(context);
             }
             //retrieve keys from keystore
-            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(RSA_KEY_ALIAS, null);
+            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(getUniqueRSAKeyAlias(context), null);
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
-            return new KeyPair(publicKey, privateKey);
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
+            throw new NullPointerException();
+            //return new KeyPair(publicKey, privateKey);
+        } catch (NullPointerException | KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
             exception.printStackTrace();
             Utils.printLog(context, TAG, "Error getting RSA key pair.");
             return null;
