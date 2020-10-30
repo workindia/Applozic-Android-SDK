@@ -71,10 +71,6 @@ public class SecurityUtils {
     private SecurityUtils() {
     }
 
-    private static String getUniqueRSAKeyAlias(Context context) {
-        return context.getPackageName() + RSA_KEY_ALIAS;
-    }
-
     /**
      * generate a public-private RSA key pair using {@link KeyPairGenerator} and using AndroidKeystore as provider.
      * the key-pair is stored using {@link KeyStore}
@@ -89,16 +85,16 @@ public class SecurityUtils {
             end.add(Calendar.YEAR, 25); //key certificate will be valid for 25 years
             AlgorithmParameterSpec spec;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
-                spec = new KeyGenParameterSpec.Builder(getUniqueRSAKeyAlias(context), KeyProperties.PURPOSE_DECRYPT)
-                        .setCertificateSubject(new X500Principal("CN=" + getUniqueRSAKeyAlias(context) + ", O=ApplozicInc"))
+                spec = new KeyGenParameterSpec.Builder(RSA_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                        .setCertificateSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
                         .setCertificateSerialNumber(BigInteger.valueOf(123456))
                         .setCertificateNotBefore(start.getTime())
                         .setCertificateNotAfter(end.getTime())
                         .build();
             } else {
                 spec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
-                        .setAlias(getUniqueRSAKeyAlias(context))
-                        .setSubject(new X500Principal("CN=" + getUniqueRSAKeyAlias(context) + ", O=ApplozicInc"))
+                        .setAlias(RSA_KEY_ALIAS)
+                        .setSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
                         .setSerialNumber(BigInteger.valueOf(123456))
                         .setStartDate(start.getTime())
                         .setEndDate(end.getTime())
@@ -124,11 +120,11 @@ public class SecurityUtils {
             keyStore.load(null);
 
             //generate the public and private keys to encrypt/decrypt the AES key
-            if (!keyStore.containsAlias(getUniqueRSAKeyAlias(context))) {
+            if (!keyStore.containsAlias(RSA_KEY_ALIAS)) {
                 generateRSAKeyPair(context);
             }
             //retrieve keys from keystore
-            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(getUniqueRSAKeyAlias(context), null);
+            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(RSA_KEY_ALIAS, null);
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
             return new KeyPair(publicKey, privateKey);
