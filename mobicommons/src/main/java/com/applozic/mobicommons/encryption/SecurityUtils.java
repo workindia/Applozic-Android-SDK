@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -25,6 +27,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 
 import javax.crypto.BadPaddingException;
@@ -80,15 +83,25 @@ public class SecurityUtils {
             Calendar start = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
             end.add(Calendar.YEAR, 25); //key certificate will be valid for 25 years
-            KeyPairGeneratorSpec keyPairGeneratorSpec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
-                    .setAlias(RSA_KEY_ALIAS)
-                    .setSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
-                    .setSerialNumber(BigInteger.valueOf(123456))
-                    .setStartDate(start.getTime())
-                    .setEndDate(end.getTime())
-                    .build();
+            AlgorithmParameterSpec spec;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                spec = new KeyGenParameterSpec.Builder(RSA_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                        .setCertificateSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
+                        .setCertificateSerialNumber(BigInteger.valueOf(123456))
+                        .setCertificateNotBefore(start.getTime())
+                        .setCertificateNotAfter(end.getTime())
+                        .build();
+            } else {
+                spec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
+                        .setAlias(RSA_KEY_ALIAS)
+                        .setSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
+                        .setSerialNumber(BigInteger.valueOf(123456))
+                        .setStartDate(start.getTime())
+                        .setEndDate(end.getTime())
+                        .build();
+            }
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
-            keyPairGenerator.initialize(keyPairGeneratorSpec);
+            keyPairGenerator.initialize(spec);
             keyPairGenerator.genKeyPair();
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException exception) {
             exception.printStackTrace();
@@ -115,7 +128,7 @@ public class SecurityUtils {
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
             return new KeyPair(publicKey, privateKey);
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
+        } catch (NullPointerException | KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
             exception.printStackTrace();
             Utils.printLog(context, TAG, "Error getting RSA key pair.");
             return null;
