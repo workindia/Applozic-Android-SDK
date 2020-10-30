@@ -131,8 +131,7 @@ public class SecurityUtils {
             KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(getUniqueRSAKeyAlias(context), null);
             PublicKey publicKey = keyEntry.getCertificate().getPublicKey();
             PrivateKey privateKey = keyEntry.getPrivateKey();
-            throw new NullPointerException();
-            //return new KeyPair(publicKey, privateKey);
+            return new KeyPair(publicKey, privateKey);
         } catch (NullPointerException | KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableEntryException exception) {
             exception.printStackTrace();
             Utils.printLog(context, TAG, "Error getting RSA key pair.");
