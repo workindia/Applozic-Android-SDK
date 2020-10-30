@@ -84,7 +84,7 @@ public class SecurityUtils {
             Calendar end = Calendar.getInstance();
             end.add(Calendar.YEAR, 25); //key certificate will be valid for 25 years
             AlgorithmParameterSpec spec;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 spec = new KeyGenParameterSpec.Builder(RSA_KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                         .setCertificateSubject(new X500Principal("CN=" + RSA_KEY_ALIAS + ", O=ApplozicInc"))
                         .setCertificateSerialNumber(BigInteger.valueOf(123456))
