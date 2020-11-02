@@ -878,19 +878,17 @@ public class ChannelService {
      * @return List of Channel objects or empty list in case of error or no groups.
      */
     public List<Channel> getAllChannelList() {
-        List<Channel> channelList = new ArrayList<>();
+        List<Channel> channelList = null;
         SyncChannelFeed syncChannelFeed = channelClientService.getChannelFeed(MobiComUserPreference.getInstance(context).getChannelListLastGeneratedAtTime());
-        if (syncChannelFeed == null) {
-            return channelList;
+        if (syncChannelFeed == null || !syncChannelFeed.isSuccess()) {
+            return null;
         }
-        if (syncChannelFeed.isSuccess()) {
-            List<ChannelFeed> channelFeeds = syncChannelFeed.getResponse();
-            if (channelFeeds != null && !channelFeeds.isEmpty()) {
-                processChannelFeedList(channelFeeds.toArray(new ChannelFeed[channelFeeds.size()
-                        ]), false);
-            }
-            MobiComUserPreference.getInstance(context).setChannelListLastGeneratedAtTime(syncChannelFeed.getGeneratedAt());
+        List<ChannelFeed> channelFeeds = syncChannelFeed.getResponse();
+        if (channelFeeds != null && !channelFeeds.isEmpty()) {
+            processChannelFeedList(channelFeeds.toArray(new ChannelFeed[channelFeeds.size()
+                    ]), false);
         }
+        MobiComUserPreference.getInstance(context).setChannelListLastGeneratedAtTime(syncChannelFeed.getGeneratedAt());
 
         channelList = ChannelDatabaseService.getInstance(context).getAllChannels();
         if (channelList == null) {

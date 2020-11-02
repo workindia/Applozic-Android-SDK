@@ -27,7 +27,7 @@ public class AlChannelListTask extends AsyncTask<Void, Void, List<Channel>> {
     protected void onPostExecute(List<Channel> channelList) {
         super.onPostExecute(channelList);
         if (callback != null) {
-            if (channelList.isEmpty()) {
+            if (channelList == null) {
                 callback.onFailure("Failed to fetch the channel list");
             } else {
                 callback.onSuccess(channelList);
