@@ -485,21 +485,14 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 }
 
                                 if (NOTIFICATION_TYPE.MESSAGE_METADATA_UPDATE.getValue().equals(mqttMessageResponse.getType())) {
-                                    String keyString = null;
-
                                     try {
                                         GcmMessageResponse messageResponse = (GcmMessageResponse) GsonUtils.getObjectFromJson(messageDataString, GcmMessageResponse.class);
-                                        keyString = messageResponse.getMessage().getKeyString();
+                                        String keyString = messageResponse.getMessage().getKeyString();
+                                        Message messageObject = messageResponse.getMessage();
+                                        syncCallService.syncMessageMetadataUpdate(keyString, false, messageObject);
                                     } catch (Exception e) {
-                                        try {
-                                            InstantMessageResponse response = (InstantMessageResponse) GsonUtils.getObjectFromJson(messageDataString, InstantMessageResponse.class);
-                                            keyString = response.getMessage();
-                                        } catch (Exception e1) {
-                                            e1.printStackTrace();
-                                        }
+                                        Utils.printLog(context, TAG, e.getMessage());
                                     }
-
-                                    syncCallService.syncMessageMetadataUpdate(keyString, false);
                                 }
 
                                 if (NOTIFICATION_TYPE.USER_MUTE_NOTIFICATION.getValue().equals(mqttMessageResponse.getType())) {

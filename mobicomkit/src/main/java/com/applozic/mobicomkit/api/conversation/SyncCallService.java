@@ -15,6 +15,7 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.people.channel.Channel;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -106,7 +107,22 @@ public class SyncCallService {
         }
     }
 
-    public synchronized void syncMessageMetadataUpdate(String key, boolean isFromFcm) {
+    public synchronized void syncMessageMetadataUpdate(String key, boolean isFromFcm, Message message) {
+        Integer groupId = null;
+        if (message != null) {
+            if (message.getGroupId() != null) {
+                groupId = message.getGroupId();
+                Channel channel = ChannelService.getInstance(context).getChannel(groupId);
+                if (channel != null && channel.isOpenGroup()) {
+                    if (message.hasAttachment()) {
+                        messageDatabaseService.replaceExistingMessage(message);
+                    }
+                    BroadcastService.updateMessageMetadata(context, message.getKeyString(), BroadcastService.INTENT_ACTIONS.MESSAGE_METADATA_UPDATE.toString(), null, groupId, true, message.getMetadata());
+                    return;
+                }
+            }
+        }
+
         if (!TextUtils.isEmpty(key) && mobiComMessageService.isMessagePresent(key)) {
             if (Utils.isDeviceInIdleState(context)) {
                 new ConversationRunnables(context, null, false, false, true);
