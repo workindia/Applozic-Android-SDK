@@ -82,6 +82,8 @@ public class MobiComUserPreference {
     private static String AUTH_TOKEN_VALID_UPTO_MINS = "AUTH_TOKEN_VALID_UPTO_MINS";
     private static String AUTH_TOKEN_CREATED_AT_TIME = "AUTH_TOKEN_CREATED_AT_TIME";
     private static String USER_DEACTIVATED = "USER_DEACTIVATED";
+    private static String CHANNEL_LIST_LAST_GENERATED_TIME = "channelListLastGeneratedAtTime";
+    private static String CHANNEL_LIST_LAST_GENERATED_DEFAULT_VALUE = "10000";
 
     private SharedPreferences sharedPreferences;
     private Context context;
@@ -939,4 +941,18 @@ public class MobiComUserPreference {
         }
         return false;
     }
+
+    public void setChannelListLastGeneratedAtTime(String generatedAt) {
+        if (sharedPreferences != null) {
+            sharedPreferences.edit().putString(CHANNEL_LIST_LAST_GENERATED_TIME, generatedAt).commit();
+        }
+    }
+
+    public String getChannelListLastGeneratedAtTime() {
+        if (sharedPreferences != null) {
+            return sharedPreferences.getString(CHANNEL_LIST_LAST_GENERATED_TIME, CHANNEL_LIST_LAST_GENERATED_DEFAULT_VALUE);
+        }
+        return CHANNEL_LIST_LAST_GENERATED_DEFAULT_VALUE;
+    }
+
 }
