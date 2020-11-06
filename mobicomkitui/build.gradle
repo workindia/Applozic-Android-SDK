@@ -20,7 +20,7 @@ android {
         minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.92"
+        versionName "5.93"
         consumerProguardFiles 'proguard-rules.txt'
     }
 
@@ -58,7 +58,7 @@ dependencies {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '5.92'
+    libraryVersion = '5.93'
 
     developerId = 'devashish'
     developerName = 'Applozic'
