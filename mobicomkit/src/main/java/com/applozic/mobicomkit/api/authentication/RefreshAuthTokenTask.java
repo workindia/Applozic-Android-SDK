@@ -6,11 +6,11 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.listners.AlCallback;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class RefreshAuthTokenTask extends ExecutorAsyncTask<Void, Boolean> {
+public class RefreshAuthTokenTask extends AlAsyncTask<Void, Boolean> {
 
     private final String applicationId;
     private final String userId;

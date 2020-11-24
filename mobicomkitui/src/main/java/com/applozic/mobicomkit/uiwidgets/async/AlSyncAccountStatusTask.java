@@ -5,14 +5,14 @@ import android.content.Context;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 
 /**
  * Created by sunil on 19/12/2016.
  */
 
-public class AlSyncAccountStatusTask extends ExecutorAsyncTask<Void, Boolean> {
+public class AlSyncAccountStatusTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     RegisterUserClientService registerUserClientService;
     TaskListener taskListener;

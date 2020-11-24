@@ -33,7 +33,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageA
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
 import com.applozic.mobicommons.file.ALFileProvider;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -3641,7 +3641,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return type;
     }
 
-    public class DownloadConversation extends ExecutorAsyncTask<Integer, Long> {
+    public class DownloadConversation extends AlAsyncTask<Integer, Long> {
 
         private RecyclerView recyclerView;
         private int firstVisibleItem;
@@ -4046,7 +4046,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public class AttachmentAsyncTask extends ExecutorAsyncTask<Integer, Long> {
+    public class AttachmentAsyncTask extends AlAsyncTask<Integer, Long> {
 
         File file;
         Uri uri;

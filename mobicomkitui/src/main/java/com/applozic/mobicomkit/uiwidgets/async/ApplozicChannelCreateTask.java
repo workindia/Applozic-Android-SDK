@@ -7,14 +7,14 @@ import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.AlResponse;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.List;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicChannelCreateTask extends ExecutorAsyncTask<Void, Boolean> {
+public class ApplozicChannelCreateTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     String groupName;
     List<String> groupMemberList;

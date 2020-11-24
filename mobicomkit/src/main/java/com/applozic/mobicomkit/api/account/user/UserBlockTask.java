@@ -3,10 +3,10 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 
 import com.applozic.mobicomkit.feed.ApiResponse;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 
-public class UserBlockTask extends ExecutorAsyncTask<Void, Boolean> {
+public class UserBlockTask extends AlAsyncTask<Void, Boolean> {
 
     private final TaskListener taskListener;
     private final Context context;

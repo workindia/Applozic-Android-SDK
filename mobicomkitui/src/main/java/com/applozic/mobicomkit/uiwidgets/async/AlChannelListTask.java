@@ -4,12 +4,12 @@ import android.content.Context;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class AlChannelListTask extends ExecutorAsyncTask<Void, List<Channel>> {
+public class AlChannelListTask extends AlAsyncTask<Void, List<Channel>> {
     private WeakReference<Context> context;
     private TaskListener callback;
 

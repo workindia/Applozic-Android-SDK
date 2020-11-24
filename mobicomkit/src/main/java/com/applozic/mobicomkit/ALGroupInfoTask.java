@@ -18,7 +18,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.List;
  * Created by reytum on 20/10/17.
  */
 
-public class ALGroupInfoTask extends ExecutorAsyncTask<Void, ALGroupInfoTask.ChannelModel> {
+public class ALGroupInfoTask extends AlAsyncTask<Void, ALGroupInfoTask.ChannelModel> {
 
     private Context context;
     private Integer groupId;

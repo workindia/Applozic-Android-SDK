@@ -4,13 +4,13 @@ import android.content.Context;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ApiResponse;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by Adarsh on 12/30/16.
  */
 
-public class MuteNotificationAsync extends ExecutorAsyncTask<Void, Boolean> {
+public class MuteNotificationAsync extends AlAsyncTask<Void, Boolean> {
 
     private final MuteNotificationAsync.TaskListener taskListener;
     private final Context context;

@@ -17,7 +17,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.applozic.mobicommons.file.ALFileProvider;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -329,7 +329,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
         }
     }
 
-    class ProfilePictureUpload extends ExecutorAsyncTask<Void, Boolean> {
+    class ProfilePictureUpload extends AlAsyncTask<Void, Boolean> {
         Context context;
         WeakReference<ImageView> weakReferenceImageView;
         FileClientService fileClientService;

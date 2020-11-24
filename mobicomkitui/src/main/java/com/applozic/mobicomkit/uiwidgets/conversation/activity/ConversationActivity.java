@@ -24,7 +24,7 @@ import android.provider.Settings;
 
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicommons.file.ALFileProvider;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.core.app.ActivityCompat;
@@ -1383,7 +1383,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.alStoragePermission = storagePermission;
     }
 
-    private class SyncMessagesAsyncTask extends ExecutorAsyncTask<Void, Void> {
+    private class SyncMessagesAsyncTask extends AlAsyncTask<Void, Void> {
         MobiComMessageService messageService;
 
         public SyncMessagesAsyncTask(Context context) {
@@ -1407,7 +1407,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-    public class SyncAccountStatusAsyncTask extends ExecutorAsyncTask<Void, Boolean> {
+    public class SyncAccountStatusAsyncTask extends AlAsyncTask<Void, Boolean> {
         Context context;
         RegisterUserClientService registerUserClientService;
         String loggedInUserId;

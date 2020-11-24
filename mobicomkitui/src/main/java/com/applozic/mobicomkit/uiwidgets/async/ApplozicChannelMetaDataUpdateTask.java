@@ -7,7 +7,7 @@ import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by mihir on 18/04/18.
  */
 
-public class ApplozicChannelMetaDataUpdateTask extends ExecutorAsyncTask<Void, Boolean> {
+public class ApplozicChannelMetaDataUpdateTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     Integer channelKey;
     private Map<String, String> metadata = new HashMap<>();

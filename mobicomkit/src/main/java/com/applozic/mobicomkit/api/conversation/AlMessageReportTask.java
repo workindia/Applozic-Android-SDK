@@ -3,9 +3,9 @@ package com.applozic.mobicomkit.api.conversation;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
-public class AlMessageReportTask extends ExecutorAsyncTask<Void, String> {
+public class AlMessageReportTask extends AlAsyncTask<Void, String> {
 
     private String messageKey;
     private MobiComConversationService conversationService;

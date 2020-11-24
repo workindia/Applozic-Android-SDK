@@ -9,7 +9,7 @@ import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ import java.util.Set;
  * Created by reytum on 27/10/17.
  */
 
-public class AlGetMembersFromContactGroupListTask extends ExecutorAsyncTask<Void, AlGetMembersFromContactGroupListTask.AlGetMembersModel> {
+public class AlGetMembersFromContactGroupListTask extends AlAsyncTask<Void, AlGetMembersFromContactGroupListTask.AlGetMembersModel> {
 
     WeakReference<Context> context;
     private String groupType;

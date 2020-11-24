@@ -9,7 +9,7 @@ import com.applozic.mobicomkit.listners.MessageListHandler;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by reytum on 27/11/17.
  */
 
-public class MessageListTask extends ExecutorAsyncTask<Void, List<Message>> {
+public class MessageListTask extends AlAsyncTask<Void, List<Message>> {
 
     private WeakReference<Context> context;
     private Contact contact;

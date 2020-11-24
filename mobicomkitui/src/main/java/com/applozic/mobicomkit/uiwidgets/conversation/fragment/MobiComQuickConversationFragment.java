@@ -47,7 +47,7 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -456,7 +456,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void checkForEmptyConversations() {
-        boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == ExecutorAsyncTask.Status.RUNNING);
+        boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AlAsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
             emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : ApplozicService.getContext(getContext()).getResources().getString(R.string.no_conversation));
@@ -665,7 +665,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
     }
 
-    public class DownloadConversation extends ExecutorAsyncTask<Integer, Long> {
+    public class DownloadConversation extends AlAsyncTask<Integer, Long> {
 
         private int firstVisibleItem;
         private boolean initial;
@@ -855,7 +855,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
     }
 
-    private class SyncMessages extends ExecutorAsyncTask<Integer, Long> {
+    private class SyncMessages extends AlAsyncTask<Integer, Long> {
         SyncMessages() {
         }
 

@@ -6,13 +6,13 @@ import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ChannelFeedApiResponse;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by Sunil on 12/26/2016.
  */
 
-public class AlChannelCreateAsyncTask extends ExecutorAsyncTask<Void, ChannelFeedApiResponse> {
+public class AlChannelCreateAsyncTask extends AlAsyncTask<Void, ChannelFeedApiResponse> {
     Context context;
     ChannelService channelService;
     ChannelInfo channelInfo;

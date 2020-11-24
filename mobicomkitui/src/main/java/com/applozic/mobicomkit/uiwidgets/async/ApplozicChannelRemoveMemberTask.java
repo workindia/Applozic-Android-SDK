@@ -6,12 +6,12 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicChannelRemoveMemberTask extends ExecutorAsyncTask<Void, Boolean> {
+public class ApplozicChannelRemoveMemberTask extends AlAsyncTask<Void, Boolean> {
 
     Context context;
     Integer channelKey;

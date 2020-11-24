@@ -16,7 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -767,7 +767,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
     }
 
-    public class ChannelMember extends ExecutorAsyncTask<Integer, Long> {
+    public class ChannelMember extends AlAsyncTask<Integer, Long> {
         String responseForRemove;
         private ChannelUserMapper channelUserMapper;
         private ChannelService channelService;
@@ -831,7 +831,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     }
 
-    public class ChannelMemberAdd extends ExecutorAsyncTask<Integer, Long> {
+    public class ChannelMemberAdd extends AlAsyncTask<Integer, Long> {
         ApiResponse apiResponse;
         String responseForDeleteGroup;
         String userId;
@@ -937,7 +937,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
     }
 
-    public class ChannelAsync extends ExecutorAsyncTask<Integer, Long> {
+    public class ChannelAsync extends AlAsyncTask<Integer, Long> {
         GroupInfoUpdate groupInfoUpdate;
         String responseForExit;
         String responseForChannelUpdate;
@@ -1057,7 +1057,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     }
 
 
-    public class ChannelUserRoleAsyncTask extends ExecutorAsyncTask<Integer, Long> {
+    public class ChannelUserRoleAsyncTask extends AlAsyncTask<Integer, Long> {
         private ChannelService channelService;
         private ProgressDialog progressDialog;
         private Context context;

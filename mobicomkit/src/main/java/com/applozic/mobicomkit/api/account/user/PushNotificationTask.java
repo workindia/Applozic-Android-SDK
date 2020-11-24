@@ -5,14 +5,14 @@ import android.content.Context;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
 /**
  * Created by devashish on 7/22/2015.
  */
-public class PushNotificationTask extends ExecutorAsyncTask<Void, Boolean> {
+public class PushNotificationTask extends AlAsyncTask<Void, Boolean> {
 
     private String pushNotificationId;
     private TaskListener taskListener;

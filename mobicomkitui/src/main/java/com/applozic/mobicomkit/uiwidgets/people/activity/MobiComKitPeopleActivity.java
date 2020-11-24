@@ -12,7 +12,7 @@ import android.os.Bundle;
 
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.fragment.app.Fragment;
@@ -518,7 +518,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     }
 
-    private class ShareAsyncTask extends ExecutorAsyncTask<Void, File> {
+    private class ShareAsyncTask extends AlAsyncTask<Void, File> {
 
         WeakReference<Context> contextWeakReference;
         Uri uri;
@@ -586,7 +586,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
     }
 
-    public class ChannelCreateAsyncTask extends ExecutorAsyncTask<Integer, Channel> {
+    public class ChannelCreateAsyncTask extends AlAsyncTask<Integer, Channel> {
         private ChannelService channelService;
         private ProgressDialog progressDialog;
         private Context context;

@@ -6,13 +6,13 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by mihir on 20/03/18.
  */
 
-public class AlCreateGroupOfTwoTask extends ExecutorAsyncTask<Void, Channel> {
+public class AlCreateGroupOfTwoTask extends AlAsyncTask<Void, Channel> {
     Context context;
     ChannelService channelService;
     ChannelInfo channelInfo;

@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.applozic.mobicommons.BuildConfig;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
@@ -177,7 +177,7 @@ public abstract class ImageLoader {
     /**
      * Load an image specified by the data parameter into an ImageView (override
      * {@link ImageLoader#processBitmap(Object)} to define the processing logic). If the image is
-     * found in the memory cache, it is set immediately, otherwise an {@link ExecutorAsyncTask} will be
+     * found in the memory cache, it is set immediately, otherwise an {@link AlAsyncTask} will be
      * created to asynchronously load the bitmap.
      *
      * @param data      The URL of the image to download.
@@ -330,7 +330,7 @@ public abstract class ImageLoader {
     /**
      * The actual ExecutorAsyncTask that will asynchronously process the image.
      */
-    private class BitmapWorkerTask extends ExecutorAsyncTask<Void, Bitmap> {
+    private class BitmapWorkerTask extends AlAsyncTask<Void, Bitmap> {
         private final WeakReference<ImageView> imageViewReference;
         private Object data;
         private ProgressBar progressBar;

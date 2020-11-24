@@ -9,9 +9,9 @@ import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
-public class AlGetPeopleTask extends ExecutorAsyncTask<Object, Object> {
+public class AlGetPeopleTask extends AlAsyncTask<Object, Object> {
     private String userId;
     private String clientChannelKey;
     private Integer groupId;

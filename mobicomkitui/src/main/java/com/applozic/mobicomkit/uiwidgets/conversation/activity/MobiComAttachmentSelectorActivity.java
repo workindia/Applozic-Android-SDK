@@ -38,7 +38,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentG
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -413,7 +413,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         return true;
     }
 
-    public class FileTaskAsync extends ExecutorAsyncTask<Integer, Boolean> {
+    public class FileTaskAsync extends AlAsyncTask<Integer, Boolean> {
         WeakReference<Context> context;
         FileClientService fileClientService;
         File file;

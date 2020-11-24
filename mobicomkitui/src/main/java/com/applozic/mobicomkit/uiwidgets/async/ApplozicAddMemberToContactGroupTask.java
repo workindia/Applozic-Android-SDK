@@ -3,7 +3,7 @@ package com.applozic.mobicomkit.uiwidgets.async;
 import android.content.Context;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * Created by Rahul-PC on 06-06-2017.
  */
 
-public class ApplozicAddMemberToContactGroupTask extends ExecutorAsyncTask<Object, Boolean> {
+public class ApplozicAddMemberToContactGroupTask extends AlAsyncTask<Object, Boolean> {
     String contactGroupId;
     Context context;
     List<String> groupMemberList;

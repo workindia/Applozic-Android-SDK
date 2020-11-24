@@ -7,7 +7,7 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * Created by ninu on 13/07/17.
  */
 
-public class AlChannelAddMemberTask extends ExecutorAsyncTask<Void, Boolean> {
+public class AlChannelAddMemberTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     Integer channelKey;
     String userId;

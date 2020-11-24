@@ -7,13 +7,13 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by Rahul-PC on 07-06-2017.
  */
 
-public class ApplozicGetMemberFromContactGroupTask extends ExecutorAsyncTask<Void, String[]> {
+public class ApplozicGetMemberFromContactGroupTask extends AlAsyncTask<Void, String[]> {
     private final String contactGroupId;
     Context context;
     GroupMemberListener groupMemberListener;

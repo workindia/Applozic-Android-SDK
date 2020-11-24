@@ -3,11 +3,11 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class UserLogoutTask extends ExecutorAsyncTask<Void, Boolean> {
+public class UserLogoutTask extends AlAsyncTask<Void, Boolean> {
 
     private TaskListener taskListener;
     private final WeakReference<Context> context;

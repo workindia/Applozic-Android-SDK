@@ -7,7 +7,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.encryption.EncryptionUtils;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ALFormDataAsyncTask extends ExecutorAsyncTask<Void, String> {
+public class ALFormDataAsyncTask extends AlAsyncTask<Void, String> {
     private WeakReference<Context> context;
     private AlCallback callback;
     private String contentType;

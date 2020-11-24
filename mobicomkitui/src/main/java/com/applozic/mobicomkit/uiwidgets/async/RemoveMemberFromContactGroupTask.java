@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ApiResponse;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
  * Created by reytum on 13/7/17.
  */
 
-public class RemoveMemberFromContactGroupTask extends ExecutorAsyncTask<Void, ApiResponse> {
+public class RemoveMemberFromContactGroupTask extends AlAsyncTask<Void, ApiResponse> {
 
     Context context;
     String groupName;

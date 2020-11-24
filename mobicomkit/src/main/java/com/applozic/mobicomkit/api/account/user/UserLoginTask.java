@@ -9,7 +9,7 @@ import android.content.Context;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.listners.AlLoginHandler;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
  * Represents an asynchronous login/registration task used to authenticate
  * the user.
  */
-public class UserLoginTask extends ExecutorAsyncTask<Void, Boolean> {
+public class UserLoginTask extends AlAsyncTask<Void, Boolean> {
 
     private TaskListener taskListener;
     private final WeakReference<Context> context;

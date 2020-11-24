@@ -20,7 +20,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRege
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 import com.bumptech.glide.Glide;
 
 import org.jsoup.HttpStatusException;
@@ -131,7 +131,7 @@ public class KmLinkPreview {
         return null;
     }
 
-    public static class UrlLoader extends ExecutorAsyncTask<Void, KmLinkPreviewModel> {
+    public static class UrlLoader extends AlAsyncTask<Void, KmLinkPreviewModel> {
 
         private WeakReference<Context> context;
         private Message message;

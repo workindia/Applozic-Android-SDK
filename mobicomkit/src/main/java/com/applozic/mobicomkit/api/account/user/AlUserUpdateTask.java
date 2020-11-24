@@ -4,11 +4,11 @@ import android.content.Context;
 
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.listners.AlCallback;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class AlUserUpdateTask extends ExecutorAsyncTask<Void, ApiResponse> {
+public class AlUserUpdateTask extends AlAsyncTask<Void, ApiResponse> {
     private WeakReference<Context> context;
     private User user;
     private AlCallback callback;

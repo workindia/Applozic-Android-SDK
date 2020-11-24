@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.InputType;
@@ -51,7 +50,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -373,7 +372,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    class ProfilePictureUpload extends ExecutorAsyncTask<Void, Boolean> {
+    class ProfilePictureUpload extends AlAsyncTask<Void, Boolean> {
 
         Context context;
         Uri fileUri;

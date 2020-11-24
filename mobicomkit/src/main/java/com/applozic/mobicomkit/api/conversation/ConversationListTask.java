@@ -11,13 +11,13 @@ import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.ConversationListHandler;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConversationListTask extends ExecutorAsyncTask<Void, List<AlConversation>> {
+public class ConversationListTask extends AlAsyncTask<Void, List<AlConversation>> {
 
     private WeakReference<Context> context;
     private String searchString;

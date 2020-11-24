@@ -6,16 +6,15 @@ import android.content.Context;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 
-import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by devashish on 9/2/15.
  */
-public class DeleteConversationAsyncTask extends ExecutorAsyncTask<Integer, Long> {
+public class DeleteConversationAsyncTask extends AlAsyncTask<Integer, Long> {
 
     private Message message;
     private Contact contact;

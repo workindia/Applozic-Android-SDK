@@ -4,12 +4,12 @@ import android.content.Context;
 
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class AlUserSearchTask extends ExecutorAsyncTask<Void, List<Contact>> {
+public class AlUserSearchTask extends AlAsyncTask<Void, List<Contact>> {
 
     private WeakReference<Context> context;
     private String searchString;

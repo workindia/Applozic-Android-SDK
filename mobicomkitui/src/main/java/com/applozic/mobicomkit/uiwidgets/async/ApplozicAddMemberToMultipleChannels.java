@@ -6,14 +6,14 @@ import android.text.TextUtils;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicommons.task.ExecutorAsyncTask;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.Set;
 
 /**
  * Created by sunil on 31/5/16.
  */
-public class ApplozicAddMemberToMultipleChannels extends ExecutorAsyncTask<Void, Boolean> {
+public class ApplozicAddMemberToMultipleChannels extends AlAsyncTask<Void, Boolean> {
 
 
     Context context;
