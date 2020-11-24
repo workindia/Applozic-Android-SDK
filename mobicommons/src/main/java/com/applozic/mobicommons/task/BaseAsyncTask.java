@@ -2,18 +2,20 @@ package com.applozic.mobicommons.task;
 
 /**
  * implement this interface to create a background thread running task
- * that class will be passed to a background task executor
+ * for proper working follow the comments written on each function
+ * you can also refer to {@link android.os.AsyncTask}, the working(not implementation) is supposed to be similar to that
+ * to create and use your own implementation, simply implement this interface and extend it in {@link AlAsyncTask}
  *
- * purpose of this interface is to implement loose dependency injection
+ * @author shubham tewari
  *
- * @param <Result> the data type of result
- * @param <Progress> the data type of progress variable
+ * @param <Progress> type of the progress parameter passed to {@link #publishProgress(Object)} and {@link #onProgress(Object)}
+ * @param <Result> type of the result returned by {@link #doInBackground()} and passed to {@link #onPostExecute(Object)}
  */
 public abstract class BaseAsyncTask<Progress, Result> {
     public BaseAsyncTask() { }
 
     protected void onPreExecute() { } //call this in UI thread before call()
-    protected Result doInBackground() { return null; } //call this in background thread
+    protected Result doInBackground() throws Exception { return null; } //call this in background thread
     protected void onPostExecute(Result result) { } //call this in UI thread after call()
     protected void onProgress(Progress progress) { } //call this in the UI thread; make your own implementation for it
     protected void publishProgress(Progress progress) { } //add implementation to call onProgress in UI thread

@@ -1,4 +1,4 @@
-package com.applozic.mobicommons.task;
+package com.applozic.mobicommons.task.executor;
 
 import android.os.Binder;
 import android.os.Handler;
@@ -6,14 +6,24 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
+import com.applozic.mobicommons.task.BaseAsyncTask;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<Progress, Result> {
-    private final @NonNull ExecutorService executor = Executors.newCachedThreadPool();
-    private final @NonNull Handler handler = new Handler(Looper.getMainLooper());
+/**
+ * this implementation of the {@link BaseAsyncTask} uses {@link ExecutorService}, {@link Future} and {@link Handler}
+ * this is very similar to the now deprecated {@link android.os.AsyncTask}, the source code was continuously referenced
+
+ * @author shubham tewari
+ */
+public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<Progress, Result> {
+    private final @NonNull
+    ExecutorService executor = Executors.newCachedThreadPool();
+    private final @NonNull
+    Handler handler = new Handler(Looper.getMainLooper());
     Future<?> future;
 
     private AtomicBoolean cancelled = new AtomicBoolean(false);
@@ -41,7 +51,7 @@ public class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<Progress,
             }
         }
 
-        doInBackground();
+        onPreExecute();
         status = Status.RUNNING;
         executeTask();
     }
