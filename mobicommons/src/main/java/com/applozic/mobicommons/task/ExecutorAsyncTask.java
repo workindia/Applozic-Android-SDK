@@ -19,6 +19,10 @@ public class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<Progress,
     private AtomicBoolean cancelled = new AtomicBoolean(false);
     private Status status = Status.PENDING;
 
+    public Status getStatus() {
+        return status;
+    }
+
     public boolean isCancelled() {
         return cancelled.get();
     }
