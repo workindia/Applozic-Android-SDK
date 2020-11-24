@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
@@ -230,7 +229,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
+            new UserLoginTask(user, loginHandler, context).execute();;
         }
     }
 
@@ -249,12 +248,12 @@ public class Applozic {
             }
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
+            new UserLoginTask(user, loginHandler, context).execute();;
         }
     }
 
     public static void connectUserWithoutCheck(Context context, User user, AlLoginHandler loginHandler) {
-        new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
+        new UserLoginTask(user, loginHandler, context).execute();;
     }
 
     public static boolean isConnected(Context context) {
@@ -280,16 +279,16 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            new UserLoginTask(user, loginHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
+            new UserLoginTask(user, loginHandler, context).execute();;
         }
     }
 
     public static void logoutUser(final Context context, AlLogoutHandler logoutHandler) {
-        new UserLogoutTask(logoutHandler, context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new UserLogoutTask(logoutHandler, context).execute();
     }
 
     public static void registerForPushNotification(Context context, String pushToken, AlPushNotificationHandler handler) {
-        new PushNotificationTask(context, pushToken, handler).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new PushNotificationTask(context, pushToken, handler).execute();
     }
 
     public static void registerForPushNotification(Context context, AlPushNotificationHandler handler) {

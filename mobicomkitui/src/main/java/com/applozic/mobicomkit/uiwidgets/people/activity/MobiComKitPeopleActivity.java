@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.fragment.app.Fragment;
@@ -298,7 +298,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             }
         } else {
             if (ApplozicClient.getInstance(this).isStartGroupOfTwo()) {
-                new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this).execute((Void) null);
+                new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this).execute();
             } else {
                 intent = new Intent();
                 intent.putExtra(USER_ID, contact.getUserId());
@@ -518,7 +518,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     }
 
-    private class ShareAsyncTask extends AsyncTask<Void, Void, File> {
+    private class ShareAsyncTask extends ExecutorAsyncTask<Void, File> {
 
         WeakReference<Context> contextWeakReference;
         Uri uri;
@@ -537,7 +537,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
 
         @Override
-        protected File doInBackground(Void... voids) {
+        protected File doInBackground() {
 
             if (contextWeakReference != null) {
                 Context context = contextWeakReference.get();
@@ -586,7 +586,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
     }
 
-    public class ChannelCreateAsyncTask extends AsyncTask<Void, Integer, Channel> {
+    public class ChannelCreateAsyncTask extends ExecutorAsyncTask<Integer, Channel> {
         private ChannelService channelService;
         private ProgressDialog progressDialog;
         private Context context;
@@ -615,7 +615,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
 
         @Override
-        protected Channel doInBackground(Void... params) {
+        protected Channel doInBackground() {
 
             if (localParentGroupKey != null && localParentGroupKey != 0 && withUserContact != null) {
                 List<String> userIdList = new ArrayList<>();

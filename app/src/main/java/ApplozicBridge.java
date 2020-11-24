@@ -51,7 +51,7 @@ public class ApplozicBridge {
 
             user = user != null ? user : getLoggedInUserInformation();
 
-            new UserLoginTask(user, listener, context).execute((Void) null);
+            new UserLoginTask(user, listener, context).execute();
 
         } else {
             launchChat(context);
@@ -125,7 +125,7 @@ public class ApplozicBridge {
         };
 
         pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, context);
-        pushNotificationTask.execute((Void) null);
+        pushNotificationTask.execute();
 
     }
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -17,7 +16,7 @@ public class AlAuthService {
     }
 
     public static void refreshToken(Context context, AlCallback callback) {
-        new RefreshAuthTokenTask(context, callback).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new RefreshAuthTokenTask(context, callback).execute();
     }
 
     public static boolean isTokenValid(Context context) {

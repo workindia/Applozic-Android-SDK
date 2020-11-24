@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -51,6 +50,7 @@ import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 
 import java.util.List;
 
@@ -154,7 +154,7 @@ public class MessageInfoFragment extends Fragment {
         }
 
         messageInfoAsyncTask = new MessageInfoAsyncTask(message.getKeyString(), getActivity());
-        messageInfoAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        messageInfoAsyncTask.execute();
         return view;
     }
 
@@ -293,7 +293,7 @@ public class MessageInfoFragment extends Fragment {
         }
     }
 
-    public class MessageInfoAsyncTask extends AsyncTask<Void, Integer, Long> {
+    public class MessageInfoAsyncTask extends ExecutorAsyncTask<Integer, Long> {
 
         String messageKey;
         MobiComMessageService messageService;
@@ -311,7 +311,7 @@ public class MessageInfoFragment extends Fragment {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             try {
                 messageInfoResponse = messageService.getMessageInfoResponse(messageKey);
             } catch (Exception e) {

@@ -339,7 +339,7 @@ public class ConversationUIService {
                             }
                         };
                         ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(fragmentActivity, channelDeleteTask, channel);
-                        applozicChannelDeleteTask.execute((Void) null);
+                        applozicChannelDeleteTask.execute();
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -373,7 +373,7 @@ public class ConversationUIService {
                         };
                         ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(fragmentActivity, channel.getKey(), MobiComUserPreference.getInstance(fragmentActivity).getUserId(), applozicLeaveMemberListener);
                         applozicChannelLeaveMember.setEnableProgressDialog(true);
-                        applozicChannelLeaveMember.execute((Void) null);
+                        applozicChannelLeaveMember.execute();
 
                     }
                 });
@@ -1005,7 +1005,7 @@ public class ConversationUIService {
         } else {
             usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, totalOnlineUser, message, messageContent);
         }
-        usersAsyncTask.execute((Void) null);
+        usersAsyncTask.execute();
 
     }
 

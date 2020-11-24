@@ -11,13 +11,13 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.applozic.mobicommons.file.ALFileProvider;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -310,7 +310,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
     @Override
     public void removeCallBack() {
         try {
-            new ProfilePictureUpload(this, applozicGroupProfileIcon, groupInfoUpdate).execute((Void) null);
+            new ProfilePictureUpload(this, applozicGroupProfileIcon, groupInfoUpdate).execute();
 
         } catch (Exception e) {
 
@@ -329,7 +329,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
         }
     }
 
-    class ProfilePictureUpload extends AsyncTask<Void, Void, Boolean> {
+    class ProfilePictureUpload extends ExecutorAsyncTask<Void, Boolean> {
         Context context;
         WeakReference<ImageView> weakReferenceImageView;
         FileClientService fileClientService;
@@ -355,7 +355,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground() {
             try {
                 GroupInfoUpdate giu = groupInfoUpdateWeakReference.get();
                 if (giu != null) {

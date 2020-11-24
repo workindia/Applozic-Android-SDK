@@ -493,7 +493,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute((Void) null);
+        usersAsyncTask.execute();
     }
 
     @Override
@@ -809,7 +809,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
         };
 
-        new UserBlockTask(getActivity(), listener, contact.getUserId(), block).execute((Void) null);
+        new UserBlockTask(getActivity(), listener, contact.getUserId(), block).execute();
     }
 
     public void userUnBlockDialog(final Contact contact) {

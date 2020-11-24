@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.AsyncTask;
 import androidx.fragment.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.applozic.mobicommons.BuildConfig;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 
 import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
@@ -177,7 +177,7 @@ public abstract class ImageLoader {
     /**
      * Load an image specified by the data parameter into an ImageView (override
      * {@link ImageLoader#processBitmap(Object)} to define the processing logic). If the image is
-     * found in the memory cache, it is set immediately, otherwise an {@link android.os.AsyncTask} will be
+     * found in the memory cache, it is set immediately, otherwise an {@link ExecutorAsyncTask} will be
      * created to asynchronously load the bitmap.
      *
      * @param data      The URL of the image to download.
@@ -214,12 +214,12 @@ public abstract class ImageLoader {
                 progressBar.setVisibility(View.GONE);
             }
         } else if (cancelPotentialWork(data, imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView, progressBar, textView);
+            final BitmapWorkerTask task = new BitmapWorkerTask(imageView, progressBar, textView, data);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
             try {
-                task.execute(data);
+                task.execute();
             } catch (Exception ex) {
                 Log.e(TAG, "Exception while processing images: " + ex.getMessage());
             }
@@ -328,9 +328,9 @@ public abstract class ImageLoader {
     }
 
     /**
-     * The actual AsyncTask that will asynchronously process the image.
+     * The actual ExecutorAsyncTask that will asynchronously process the image.
      */
-    private class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
+    private class BitmapWorkerTask extends ExecutorAsyncTask<Void, Bitmap> {
         private final WeakReference<ImageView> imageViewReference;
         private Object data;
         private ProgressBar progressBar;
@@ -341,10 +341,11 @@ public abstract class ImageLoader {
             this.progressBar = progressBar;
         }
 
-        public BitmapWorkerTask(ImageView imageView, ProgressBar progressBar, TextView textView) {
+        public BitmapWorkerTask(ImageView imageView, ProgressBar progressBar, TextView textView, Object data) {
             imageViewReference = new WeakReference<ImageView>(imageView);
             this.progressBar = progressBar;
             this.textView = textView;
+            this.data = data;
         }
 
         public BitmapWorkerTask(ImageView imageView) {
@@ -373,12 +374,11 @@ public abstract class ImageLoader {
          * Background processing.
          */
         @Override
-        protected Bitmap doInBackground(Object... params) {
+        protected Bitmap doInBackground() {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "doInBackground - starting work");
             }
 
-            data = params[0];
             final String dataString = String.valueOf(data);
             Bitmap bitmap = null;
 
@@ -396,7 +396,7 @@ public abstract class ImageLoader {
             // originally bound to this task is still bound back to this task and our "exit early"
             // flag is not set, then call the main process method (as implemented by a subclass)
             if (!isCancelled() && getAttachedImageView() != null) {
-                bitmap = processBitmap(params[0]);
+                bitmap = processBitmap(data);
             }
 
             // If the bitmap was processed and the image cache is available, then add the processed
@@ -444,8 +444,7 @@ public abstract class ImageLoader {
         }
 
         @Override
-        protected void onCancelled(Bitmap bitmap) {
-            super.onCancelled(bitmap);
+        protected void onCancelled() {
             synchronized (mPauseWorkLock) {
                 mPauseWorkLock.notifyAll();
             }

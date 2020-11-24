@@ -13,10 +13,10 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -501,7 +501,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        usersAsyncTask.execute();
 
     }
 
@@ -537,7 +537,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.remove_member, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).execute();
 
                     }
                 });
@@ -565,7 +565,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
 
                     }
                 });
@@ -592,7 +592,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_exit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver).execute();
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -612,7 +612,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_deleting, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -767,7 +767,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
     }
 
-    public class ChannelMember extends AsyncTask<Void, Integer, Long> {
+    public class ChannelMember extends ExecutorAsyncTask<Integer, Long> {
         String responseForRemove;
         private ChannelUserMapper channelUserMapper;
         private ChannelService channelService;
@@ -793,7 +793,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             if (channel != null && channelUserMapper != null) {
                 responseForRemove = channelService.removeMemberFromChannelProcess(channel.getKey(), channelUserMapper.getUserKey());
             }
@@ -831,7 +831,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
 
     }
 
-    public class ChannelMemberAdd extends AsyncTask<Void, Integer, Long> {
+    public class ChannelMemberAdd extends ExecutorAsyncTask<Integer, Long> {
         ApiResponse apiResponse;
         String responseForDeleteGroup;
         String userId;
@@ -867,7 +867,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             if (channel != null && !TextUtils.isEmpty(userId)) {
                 apiResponse = channelService.addMemberToChannelWithResponseProcess(channel.getKey(), userId);
             }
@@ -937,7 +937,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
     }
 
-    public class ChannelAsync extends AsyncTask<Void, Integer, Long> {
+    public class ChannelAsync extends ExecutorAsyncTask<Integer, Long> {
         GroupInfoUpdate groupInfoUpdate;
         String responseForExit;
         String responseForChannelUpdate;
@@ -976,7 +976,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             if (groupInfoUpdate != null) {
                 if (!TextUtils.isEmpty(groupInfoUpdate.getNewlocalPath())) {
                     try {
@@ -1057,7 +1057,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     }
 
 
-    public class ChannelUserRoleAsyncTask extends AsyncTask<Void, Integer, Long> {
+    public class ChannelUserRoleAsyncTask extends ExecutorAsyncTask<Integer, Long> {
         private ChannelService channelService;
         private ProgressDialog progressDialog;
         private Context context;
@@ -1081,7 +1081,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             if (groupInfoUpdate != null) {
                 response = channelService.updateChannel(groupInfoUpdate);
                 if (!TextUtils.isEmpty(response) && MobiComKitConstants.SUCCESS.equals(response)) {

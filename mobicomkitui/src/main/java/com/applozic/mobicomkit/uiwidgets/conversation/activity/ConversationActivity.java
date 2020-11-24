@@ -17,7 +17,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,6 +24,7 @@ import android.provider.Settings;
 
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicommons.file.ALFileProvider;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.core.app.ActivityCompat;
@@ -1383,14 +1383,14 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         this.alStoragePermission = storagePermission;
     }
 
-    private class SyncMessagesAsyncTask extends AsyncTask<Boolean, Void, Void> {
+    private class SyncMessagesAsyncTask extends ExecutorAsyncTask<Void, Void> {
         MobiComMessageService messageService;
 
         public SyncMessagesAsyncTask(Context context) {
             messageService = new MobiComMessageService(context, MessageIntentService.class);
         }
 
-        protected Void doInBackground(Boolean... parms) {
+        protected Void doInBackground() {
             messageService.syncMessages();
             return null;
         }
@@ -1407,7 +1407,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
     }
 
-    public class SyncAccountStatusAsyncTask extends AsyncTask<Void, Void, Boolean> {
+    public class SyncAccountStatusAsyncTask extends ExecutorAsyncTask<Void, Boolean> {
         Context context;
         RegisterUserClientService registerUserClientService;
         String loggedInUserId;
@@ -1425,7 +1425,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         }
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
+        protected Boolean doInBackground() {
             User applozicUser = new User();
             applozicUser.setUserId(loggedInUserId);
             try {

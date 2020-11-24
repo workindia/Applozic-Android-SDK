@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -353,7 +352,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute((Void) null);
+        usersAsyncTask.execute();
 
     }
 
@@ -485,7 +484,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
 
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
-                    alChannelCreateAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    alChannelCreateAsyncTask.execute();
                 }
             }
             return true;

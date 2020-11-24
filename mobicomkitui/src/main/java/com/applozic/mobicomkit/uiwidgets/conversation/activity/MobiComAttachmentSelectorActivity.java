@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 
@@ -39,6 +38,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobiComAttachmentG
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -352,7 +352,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
             }
 
             File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
-            new FileTaskAsync(mediaFile, selectedFileUri, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            new FileTaskAsync(mediaFile, selectedFileUri, this).execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -413,7 +413,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         return true;
     }
 
-    public class FileTaskAsync extends AsyncTask<Void, Integer, Boolean> {
+    public class FileTaskAsync extends ExecutorAsyncTask<Integer, Boolean> {
         WeakReference<Context> context;
         FileClientService fileClientService;
         File file;
@@ -438,7 +438,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground() {
             String format = URLConnection.guessContentTypeFromName(file.getName());
 
             if (fileClientService != null) {

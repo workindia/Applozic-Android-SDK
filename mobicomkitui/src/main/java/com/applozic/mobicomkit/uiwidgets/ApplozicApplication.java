@@ -3,6 +3,8 @@ package com.applozic.mobicomkit.uiwidgets;
 import android.app.Application;
 import android.content.Context;
 
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
+
 /**
  * Created by devashish on 28/4/14.
  */
@@ -17,7 +19,7 @@ public class ApplozicApplication extends Application {
            /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 registerActivityLifecycleCallbacks(new ActivityLifecycleHandler());
             }*/
-            Class.forName("android.os.AsyncTask");
+            Class.forName("com.applozic.mobicommons.task.ExecutorAsyncTask");
         } catch (ClassNotFoundException e) {
         }
         super.onCreate();

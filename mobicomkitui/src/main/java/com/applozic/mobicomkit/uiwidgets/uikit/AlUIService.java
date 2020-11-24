@@ -75,7 +75,7 @@ public class AlUIService {
                             }
                         };
                         ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(context, channelDeleteTask, channel);
-                        applozicChannelDeleteTask.execute((Void) null);
+                        applozicChannelDeleteTask.execute();
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -154,7 +154,7 @@ public class AlUIService {
                         };
                         ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(context, channel.getKey(), MobiComUserPreference.getInstance(context).getUserId(), applozicLeaveMemberListener);
                         applozicChannelLeaveMember.setEnableProgressDialog(true);
-                        applozicChannelLeaveMember.execute((Void) null);
+                        applozicChannelLeaveMember.execute();
 
                     }
                 });

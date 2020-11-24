@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -21,6 +20,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRege
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.ExecutorAsyncTask;
 import com.bumptech.glide.Glide;
 
 import org.jsoup.HttpStatusException;
@@ -74,7 +74,7 @@ public class KmLinkPreview {
                 public void onError(Object error) {
 
                 }
-            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }).execute();
         }
     }
 
@@ -131,7 +131,7 @@ public class KmLinkPreview {
         return null;
     }
 
-    public static class UrlLoader extends AsyncTask<Void, Void, KmLinkPreviewModel> {
+    public static class UrlLoader extends ExecutorAsyncTask<Void, KmLinkPreviewModel> {
 
         private WeakReference<Context> context;
         private Message message;
@@ -144,7 +144,7 @@ public class KmLinkPreview {
         }
 
         @Override
-        protected KmLinkPreviewModel doInBackground(Void... voids) {
+        protected KmLinkPreviewModel doInBackground() {
             String validUrl = getValidUrl(message);
             KmLinkPreviewModel linkPreviewModel = null;
             try {
@@ -194,7 +194,7 @@ public class KmLinkPreview {
                             public void onFailure(Context context, String error) {
                                 callback.onError(error);
                             }
-                        }).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                        }).execute();
                     }
                     callback.onSuccess(urlMetaModel);
                 } else {
