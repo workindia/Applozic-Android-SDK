@@ -8,9 +8,16 @@ import androidx.annotation.NonNull;
 
 import com.applozic.mobicommons.task.BaseAsyncTask;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -20,13 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author shubham tewari
  */
 public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<Progress, Result> {
-    private final @NonNull
-    ExecutorService executor = Executors.newCachedThreadPool();
-    private final @NonNull
-    Handler handler = new Handler(Looper.getMainLooper());
-    Future<?> future;
+    private static final String TAG = "ExecutorAsyncTask";
 
-    private AtomicBoolean cancelled = new AtomicBoolean(false);
+    private final @NonNull Executor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+    private final @NonNull Handler handler = new Handler(Looper.getMainLooper());
+    FutureTask<Result> future;
+
+    private final AtomicBoolean cancelled = new AtomicBoolean();
+    private final AtomicBoolean taskInvoked = new AtomicBoolean();
     private Status status = Status.PENDING;
 
     public Status getStatus() {
@@ -36,6 +44,25 @@ public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<
     public boolean isCancelled() {
         return cancelled.get();
     }
+
+    WorkerRunnable<Result> worker = new WorkerRunnable<Result>() {
+        @Override
+        public Result call() throws Exception {
+            taskInvoked.set(true);
+            Result result = null;
+            try {
+                result = doInBackground();
+                Binder.flushPendingCommands();
+            } catch (Throwable t) {
+                cancelled.set(true);
+                throw t;
+            } finally {
+                status = Status.FINISHED;
+                postResult(result);
+            }
+            return result;
+        }
+    };
 
     @Override
     public void execute() {
@@ -57,20 +84,21 @@ public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<
     }
 
     private void executeTask() {
-        future = executor.submit(new Runnable() {
+        future = new FutureTask<Result>(worker) {
             @Override
-            public void run() {
+            protected void done() {
                 try {
-                    final Result result = doInBackground();
-                    Binder.flushPendingCommands();
-                    postResult(result);
-                } catch (Throwable t) {
-                    cancelled.set(true);
-                } finally {
-                    status = Status.FINISHED;
+                    postResultIfNotInvoked(get());
+                } catch (InterruptedException e) {
+                    android.util.Log.w(TAG, e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException("An error occurred while executing doInBackground()", e.getCause());
+                } catch (CancellationException e) {
+                    postResultIfNotInvoked(null);
                 }
             }
-        });
+        };
+        executor.execute(future);
     }
 
     private void postResult(final Result result) {
@@ -84,6 +112,13 @@ public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<
                 }
             }
         });
+    }
+
+    private void postResultIfNotInvoked(Result result) {
+        final boolean wasTaskInvoked = taskInvoked.get();
+        if (!wasTaskInvoked) {
+            postResult(result);
+        }
     }
 
     @Override
@@ -100,6 +135,12 @@ public abstract class ExecutorAsyncTask<Progress, Result> extends BaseAsyncTask<
         cancelled.set(true);
         future.cancel(mayInterruptIfRunning);
     }
+
+    public final Result get() throws InterruptedException, ExecutionException {
+        return future.get();
+    }
+
+    private static abstract class WorkerRunnable<Result> implements Callable<Result> { }
 
     public enum Status {
         /**
