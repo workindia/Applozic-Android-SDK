@@ -21,6 +21,7 @@ import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 import com.bumptech.glide.Glide;
 
 import org.jsoup.HttpStatusException;
@@ -64,7 +65,7 @@ public class KmLinkPreview {
             updateViews(existingLinkModel);
         } else {
             urlLoadLayout.setVisibility(View.GONE);
-            new UrlLoader(context, message, new AlCallback() {
+            AlTasks.execute(new UrlLoader(context, message, new AlCallback() {
                 @Override
                 public void onSuccess(Object response) {
                     updateViews((KmLinkPreviewModel) response);
@@ -74,7 +75,7 @@ public class KmLinkPreview {
                 public void onError(Object error) {
 
                 }
-            }).execute();
+            }));
         }
     }
 
@@ -184,7 +185,7 @@ public class KmLinkPreview {
                             metadata = new HashMap<>();
                         }
                         metadata.put(LINK_PREVIEW_META_KEY, GsonUtils.getJsonFromObject(urlMetaModel, KmLinkPreviewModel.class));
-                        new AlMessageMetadataUpdateTask(context.get(), message.getKeyString(), metadata, new AlMessageMetadataUpdateTask.MessageMetadataListener() {
+                        AlTasks.execute(new AlMessageMetadataUpdateTask(context.get(), message.getKeyString(), metadata, new AlMessageMetadataUpdateTask.MessageMetadataListener() {
                             @Override
                             public void onSuccess(Context context, String message) {
                                 callback.onSuccess(urlMetaModel);
@@ -194,7 +195,7 @@ public class KmLinkPreview {
                             public void onFailure(Context context, String error) {
                                 callback.onError(error);
                             }
-                        }).execute();
+                        }));
                     }
                     callback.onSuccess(urlMetaModel);
                 } else {

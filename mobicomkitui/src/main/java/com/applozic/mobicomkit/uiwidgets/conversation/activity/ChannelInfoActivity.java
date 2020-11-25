@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -328,7 +329,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 if (channel.getName().equals(groupInfoUpdate.getNewName())) {
                     groupInfoUpdate.setNewName(null);
                 }
-                new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this, channelUpdateReceiver).execute();
+                AlTasks.execute(new ChannelAsync(groupInfoUpdate, ChannelInfoActivity.this, channelUpdateReceiver));
             }
         }
     }
@@ -364,7 +365,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     channelUsersFeed.setRole(1);
                     channelUsersFeedList.add(channelUsersFeed);
                     groupInfoUpdate.setUsers(channelUsersFeedList);
-                    new ChannelUserRoleAsyncTask(channelUserMapper, groupInfoUpdate, this).execute();
+                    AlTasks.execute(new ChannelUserRoleAsyncTask(channelUserMapper, groupInfoUpdate, this));
                 } else {
                     Toast toast = Toast.makeText(this, getString(R.string.you_dont_have_any_network_access_info), Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
@@ -501,7 +502,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelInfoActivity.this, usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute();
+        AlTasks.execute(usersAsyncTask);
 
     }
 
@@ -537,7 +538,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.remove_member, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this).execute();
+                        AlTasks.execute(new ChannelMember(channelUserMapper, channel, ChannelInfoActivity.this));
 
                     }
                 });
@@ -565,7 +566,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this).execute();
+                        AlTasks.execute(new ChannelMemberAdd(channel, userId, ChannelInfoActivity.this));
 
                     }
                 });
@@ -592,7 +593,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_exit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver).execute();
+                        AlTasks.execute(new ChannelAsync(channel, ChannelInfoActivity.this, channelUpdateReceiver));
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -612,7 +613,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                 setPositiveButton(R.string.channel_deleting, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new ChannelMemberAdd(channel, ChannelInfoActivity.this).execute();
+                        AlTasks.execute(new ChannelMemberAdd(channel, ChannelInfoActivity.this));
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

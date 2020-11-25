@@ -51,6 +51,7 @@ import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -199,7 +200,7 @@ public class ProfileFragment extends Fragment {
                         changedStatusString = input.getText().toString();
                         Contact contact = new Contact();
                         contact.setStatus(changedStatusString);
-                        new ProfilePictureUpload(contact, getActivity(), null, statusText, null).execute();
+                        AlTasks.execute(new ProfilePictureUpload(contact, getActivity(), null, statusText, null));
                     }
                 });
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -230,7 +231,7 @@ public class ProfileFragment extends Fragment {
                         if (!displayName.trim().isEmpty() && !TextUtils.isEmpty(displayName)) {
                             Contact contact = new Contact();
                             contact.setFullName(displayName);
-                            new ProfilePictureUpload(contact, getActivity(), displayNameText, null, null).execute();
+                            AlTasks.execute(new ProfilePictureUpload(contact, getActivity(), displayNameText, null, null));
                         }
                     }
                 });
@@ -263,7 +264,7 @@ public class ProfileFragment extends Fragment {
                         if (!contactNumber.trim().isEmpty() && !TextUtils.isEmpty(contactNumber)) {
                             Contact contact = new Contact();
                             contact.setContactNumber(contactNumber);
-                            new ProfilePictureUpload(contact, getActivity(), null, null, contactNumberText).execute();
+                            AlTasks.execute(new ProfilePictureUpload(contact, getActivity(), null, null, contactNumberText));
                         }
                     }
                 });
@@ -352,7 +353,7 @@ public class ProfileFragment extends Fragment {
     public void handleProfileimageUpload(boolean isSaveFile, Uri imageUri, File file) {
         img_profile.setImageDrawable(null);
         img_profile.setImageURI(imageUri);
-        new ProfilePictureUpload(isSaveFile, imageUri, file, getActivity()).execute();
+        AlTasks.execute(new ProfilePictureUpload(isSaveFile, imageUri, file, getActivity()));
     }
 
     @Override

@@ -25,6 +25,7 @@ import android.provider.Settings;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicommons.file.ALFileProvider;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.core.app.ActivityCompat;
@@ -466,7 +467,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
 
         if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {
             accountStatusAsyncTask = new SyncAccountStatusAsyncTask(this, layout, snackbar);
-            accountStatusAsyncTask.execute();
+            AlTasks.execute(accountStatusAsyncTask);
         }
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -832,7 +833,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             startActivity(intent);
         } else if (id == R.id.refresh) {
             Toast.makeText(this, getString(R.string.info_message_sync), Toast.LENGTH_LONG).show();
-            new SyncMessagesAsyncTask(this).execute();
+            AlTasks.execute(new SyncMessagesAsyncTask(this));
         } else if (id == R.id.shareOptions) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setAction(Intent.ACTION_SEND)

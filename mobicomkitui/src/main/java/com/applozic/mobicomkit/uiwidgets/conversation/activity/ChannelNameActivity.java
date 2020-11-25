@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 
 import com.applozic.mobicommons.file.ALFileProvider;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -310,7 +311,7 @@ public class ChannelNameActivity extends AppCompatActivity implements ActivityCo
     @Override
     public void removeCallBack() {
         try {
-            new ProfilePictureUpload(this, applozicGroupProfileIcon, groupInfoUpdate).execute();
+            AlTasks.execute(new ProfilePictureUpload(this, applozicGroupProfileIcon, groupInfoUpdate));
 
         } catch (Exception e) {
 

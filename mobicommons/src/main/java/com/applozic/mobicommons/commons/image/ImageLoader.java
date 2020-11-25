@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.applozic.mobicommons.BuildConfig;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 
 import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
@@ -219,7 +220,7 @@ public abstract class ImageLoader {
                     new AsyncDrawable(mResources, mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
             try {
-                task.execute();
+                AlTasks.execute(task);
             } catch (Exception ex) {
                 Log.e(TAG, "Exception while processing images: " + ex.getMessage());
             }

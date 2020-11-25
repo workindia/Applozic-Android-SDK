@@ -48,6 +48,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTasks;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -504,7 +505,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 public void onRefresh() {
                     SyncMessages syncMessages = new SyncMessages();
-                    syncMessages.execute();
+                    AlTasks.execute(syncMessages);
                 }
             });
         }
@@ -558,7 +559,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
                         downloadConversation.setRecyclerView(recyclerView);
                         downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
-                        downloadConversation.execute();
+                        AlTasks.execute(downloadConversation);
                         loading = true;
                         loadMore = false;
                     }
@@ -578,7 +579,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         downloadConversation.setTextViewWeakReference(emptyTextView);
         downloadConversation.setRecyclerView(recyclerView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-        downloadConversation.execute();
+        AlTasks.execute(downloadConversation);
         if (recyclerAdapter != null) {
             recyclerAdapter.searchString = searchString;
         }
