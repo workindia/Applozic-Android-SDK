@@ -12,7 +12,7 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class ApplozicBridge {
 
             user = user != null ? user : getLoggedInUserInformation();
 
-            AlTasks.execute(new UserLoginTask(user, listener, context));
+            AlTask.execute(new UserLoginTask(user, listener, context));
 
         } else {
             launchChat(context);
@@ -126,7 +126,7 @@ public class ApplozicBridge {
         };
 
         pushNotificationTask = new PushNotificationTask(pushnotificationId, listener, context);
-        AlTasks.execute(pushNotificationTask);
+        AlTask.execute(pushNotificationTask);
 
     }
 

@@ -48,7 +48,7 @@ import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.List;
 
@@ -152,7 +152,7 @@ public class MessageInfoFragment extends Fragment {
         }
 
         messageInfoAsyncTask = new MessageInfoAsyncTask(message.getKeyString(), getActivity());
-        AlTasks.execute(messageInfoAsyncTask);
+        AlTask.execute(messageInfoAsyncTask);
         return view;
     }
 

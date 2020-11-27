@@ -8,7 +8,7 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.listners.AlCallback;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 public class AlAuthService {
 
@@ -17,7 +17,7 @@ public class AlAuthService {
     }
 
     public static void refreshToken(Context context, AlCallback callback) {
-        AlTasks.execute(new RefreshAuthTokenTask(context, callback));
+        AlTask.execute(new RefreshAuthTokenTask(context, callback));
     }
 
     public static boolean isTokenValid(Context context) {

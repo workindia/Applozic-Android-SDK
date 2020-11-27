@@ -40,7 +40,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
         applozicConversationCreateTask = new ApplozicConversationCreateTask(MainActivity.this, conversationCreateListener, conversation);
-        AlTasks.execute(applozicConversationCreateTask);
+        AlTask.execute(applozicConversationCreateTask);
 
     }
 

@@ -39,7 +39,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -353,7 +353,7 @@ public class MobiComAttachmentSelectorActivity extends AppCompatActivity {
             }
 
             File mediaFile = FileClientService.getFilePath(fileNameToWrite, getApplicationContext(), mimeType);
-            AlTasks.execute(new FileTaskAsync(mediaFile, selectedFileUri, this));
+            AlTask.execute(new FileTaskAsync(mediaFile, selectedFileUri, this));
         } catch (Exception e) {
             e.printStackTrace();
         }

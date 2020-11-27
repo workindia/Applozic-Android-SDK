@@ -32,7 +32,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.data.AlPrefSettings;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.Map;
 
@@ -230,7 +230,7 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            AlTasks.execute(new UserLoginTask(user, loginHandler, context));
+            AlTask.execute(new UserLoginTask(user, loginHandler, context));
         }
     }
 
@@ -249,12 +249,12 @@ public class Applozic {
             }
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            AlTasks.execute(new UserLoginTask(user, loginHandler, context));
+            AlTask.execute(new UserLoginTask(user, loginHandler, context));
         }
     }
 
     public static void connectUserWithoutCheck(Context context, User user, AlLoginHandler loginHandler) {
-        AlTasks.execute(new UserLoginTask(user, loginHandler, context));
+        AlTask.execute(new UserLoginTask(user, loginHandler, context));
     }
 
     public static boolean isConnected(Context context) {
@@ -280,16 +280,16 @@ public class Applozic {
             registrationResponse.setMessage("User already Logged in");
             loginHandler.onSuccess(registrationResponse, context);
         } else {
-            AlTasks.execute(new UserLoginTask(user, loginHandler, context));
+            AlTask.execute(new UserLoginTask(user, loginHandler, context));
         }
     }
 
     public static void logoutUser(final Context context, AlLogoutHandler logoutHandler) {
-        AlTasks.execute(new UserLogoutTask(logoutHandler, context));
+        AlTask.execute(new UserLogoutTask(logoutHandler, context));
     }
 
     public static void registerForPushNotification(Context context, String pushToken, AlPushNotificationHandler handler) {
-        AlTasks.execute(new PushNotificationTask(context, pushToken, handler));
+        AlTask.execute(new PushNotificationTask(context, pushToken, handler));
     }
 
     public static void registerForPushNotification(Context context, AlPushNotificationHandler handler) {

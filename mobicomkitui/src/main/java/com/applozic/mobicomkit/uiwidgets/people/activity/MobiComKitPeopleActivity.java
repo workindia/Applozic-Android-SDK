@@ -13,7 +13,7 @@ import android.os.Bundle;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
 import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.fragment.app.Fragment;
@@ -299,7 +299,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             }
         } else {
             if (ApplozicClient.getInstance(this).isStartGroupOfTwo()) {
-                AlTasks.execute(new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this));
+                AlTask.execute(new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this));
             } else {
                 intent = new Intent();
                 intent.putExtra(USER_ID, contact.getUserId());
@@ -314,7 +314,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             if (TextUtils.isEmpty(mimeType)) {
                 this.finish();
             } else {
-                AlTasks.execute(new ShareAsyncTask(this, fileUri, contact, channel, mimeType));
+                AlTask.execute(new ShareAsyncTask(this, fileUri, contact, channel, mimeType));
             }
         } else {
             Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
@@ -415,7 +415,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         dialog.setMessage(getResources().getString(R.string.applozic_contacts_loading_info));
         dialog.show();
 
-        AlTasks.execute(new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
+        AlTask.execute(new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
             @Override
             public void onSuccess(List<Contact> contacts, Context context) {
                 if (dialog != null) {

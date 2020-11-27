@@ -31,7 +31,7 @@ import com.applozic.mobicomkit.sync.SyncChannelFeed;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -866,11 +866,11 @@ public class ChannelService {
     }
 
     public void getChannelByChannelKeyAsync(Integer groupId, AlChannelListener channelListener) {
-        AlTasks.execute(new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, this));
+        AlTask.execute(new AlGetPeopleTask(context, null, null, groupId, channelListener, null, null, this));
     }
 
     public void getChannelByClientKeyAsync(String clientChannelKey, AlChannelListener channelListener) {
-        AlTasks.execute(new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, this));
+        AlTask.execute(new AlGetPeopleTask(context, null, clientChannelKey, null, channelListener, null, null, this));
     }
 
     /**

@@ -48,7 +48,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -505,7 +505,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 public void onRefresh() {
                     SyncMessages syncMessages = new SyncMessages();
-                    AlTasks.execute(syncMessages);
+                    AlTask.execute(syncMessages);
                 }
             });
         }
@@ -559,7 +559,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
                         downloadConversation.setRecyclerView(recyclerView);
                         downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
-                        AlTasks.execute(downloadConversation);
+                        AlTask.execute(downloadConversation);
                         loading = true;
                         loadMore = false;
                     }
@@ -579,7 +579,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         downloadConversation.setTextViewWeakReference(emptyTextView);
         downloadConversation.setRecyclerView(recyclerView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-        AlTasks.execute(downloadConversation);
+        AlTask.execute(downloadConversation);
         if (recyclerAdapter != null) {
             recyclerAdapter.searchString = searchString;
         }

@@ -41,7 +41,6 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -74,7 +73,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,7 +177,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
                 };
                 ApplozicGetMemberFromContactGroupTask applozicGetMemberFromContactGroupTask = new ApplozicGetMemberFromContactGroupTask(getActivity(), contactsGroupId, String.valueOf(Channel.GroupType.CONTACT_GROUP.getValue()), eventMemberListener);        // pass GroupId whose contact Members you want to show, contactGroupType
-                AlTasks.execute(applozicGetMemberFromContactGroupTask);
+                AlTask.execute(applozicGetMemberFromContactGroupTask);
             } else if (groupContacts != null) {
                 getLoaderManager().initLoader(ContactsQuery.QUERY_ID, null, ContactSelectionFragment.this);
             }
@@ -206,9 +205,9 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             };
 
             if (MobiComUserPreference.getInstance(getContext()).isContactGroupNameList()) {
-                AlTasks.execute(new AlGetMembersFromContactGroupListTask(getContext(), listener, null, groupList, "9"));
+                AlTask.execute(new AlGetMembersFromContactGroupListTask(getContext(), listener, null, groupList, "9"));
             } else {
-                AlTasks.execute(new AlGetMembersFromContactGroupListTask(getContext(), listener, groupList, null, "9"));
+                AlTask.execute(new AlGetMembersFromContactGroupListTask(getContext(), listener, groupList, null, "9"));
             }
         }
     }
@@ -353,7 +352,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(getActivity(), usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        AlTasks.execute(usersAsyncTask);
+        AlTask.execute(usersAsyncTask);
 
     }
 
@@ -485,7 +484,7 @@ public class ContactSelectionFragment extends ListFragment implements SearchList
                     }
 
                     AlChannelCreateAsyncTask alChannelCreateAsyncTask = new AlChannelCreateAsyncTask(getActivity(), channelInfo, taskListenerInterface);
-                    AlTasks.execute(alChannelCreateAsyncTask);
+                    AlTask.execute(alChannelCreateAsyncTask);
                 }
             }
             return true;

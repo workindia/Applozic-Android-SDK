@@ -6,7 +6,7 @@ package com.applozic.mobicommons.task;
  *
  * @author shubham tewari
  */
-public class AlTasks {
+public class AlTask {
     public static void execute(BaseAsyncTask<?, ?> baseAsyncTask) {
         baseAsyncTask.execute();
     }

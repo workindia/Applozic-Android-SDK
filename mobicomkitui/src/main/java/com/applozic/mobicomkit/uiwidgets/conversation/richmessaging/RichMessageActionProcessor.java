@@ -18,7 +18,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.AlHot
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +220,7 @@ public class RichMessageActionProcessor implements ALRichMessageListener {
 
             if (payloadModel.getAction().getFormData() != null && !TextUtils.isEmpty(payloadModel.getAction().getFormAction())) {
                 if (AlWebViewActivity.REQUEST_TYPE_JSON.equals(payloadModel.getAction().getRequestType())) {
-                    AlTasks.execute(new ALFormDataAsyncTask(context, payloadModel.getAction().getFormAction(), null, GsonUtils.getJsonFromObject(payloadModel.getFormData(), ALRichMessageModel.AlFormDataModel.class), "application/json", new AlCallback() {
+                    AlTask.execute(new ALFormDataAsyncTask(context, payloadModel.getAction().getFormAction(), null, GsonUtils.getJsonFromObject(payloadModel.getFormData(), ALRichMessageModel.AlFormDataModel.class), "application/json", new AlCallback() {
                         @Override
                         public void onSuccess(Object message) {
                             Utils.printLog(context, TAG, "Submit post success : " + message);

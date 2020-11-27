@@ -34,7 +34,7 @@ import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
-import com.applozic.mobicommons.task.AlTasks;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.List;
 
@@ -195,7 +195,7 @@ public class ContactSelectionActivity extends AppCompatActivity implements Searc
         dialog.setMessage(getResources().getString(R.string.applozic_contacts_loading_info));
         dialog.show();
 
-        AlTasks.execute(new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
+        AlTask.execute(new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
             @Override
             public void onSuccess(List<Contact> contacts, Context context) {
                 if (dialog != null) {
