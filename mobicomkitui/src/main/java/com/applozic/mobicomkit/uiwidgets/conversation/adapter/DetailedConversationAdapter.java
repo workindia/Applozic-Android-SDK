@@ -1551,7 +1551,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if (((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage() || message.isDeletedForAll()) && (menuItems[i].equals(context.getResources().getString(R.string.forward)) ||
+                if ((channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) || message.isCall() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isVideoOrAudioCallMessage() || message.isDeletedForAll()) && (menuItems[i].equals(context.getResources().getString(R.string.forward)) ||
                         menuItems[i].equals(context.getResources().getString(R.string.resend)))) {
                     continue;
                 }
@@ -1559,7 +1559,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isDeletedForAll() || (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.reply)) && (!alCustomizationSettings.isReplyOption() || message.isAttachmentUploadInProgress() || TextUtils.isEmpty(message.getKeyString()) || !message.isSentToServer() || (message.hasAttachment() && !message.isAttachmentDownloaded()) || message.isDeletedForAll() || channel != null && (Channel.GroupType.OPEN.getValue().equals(channel.getType()) || !ChannelService.getInstance(context).processIsUserPresentInChannel(channel.getKey())) || message.isVideoOrAudioCallMessage() || contact != null && contact.isDeleted())) {
                     continue;
                 }
 
@@ -1571,11 +1571,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                     continue;
                 }
 
-                if ((!alCustomizationSettings.isDeleteMessageOption() && menuItems[i].equals(context.getResources().getString(R.string.delete))) || (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
+                if ((menuItems[i].equals(context.getResources().getString(R.string.delete)) && (!alCustomizationSettings.isDeleteMessageOption() || TextUtils.isEmpty(message.getKeyString()) || channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
                     continue;
                 }
 
-                if (menuItems[i].equals(context.getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) || message.isVideoOrAudioCallMessage() || (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())))) {
+                if (menuItems[i].equals(context.getResources().getString(R.string.info)) && (TextUtils.isEmpty(message.getKeyString()) || channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) || message.isVideoOrAudioCallMessage())) {
                     continue;
                 }
 
