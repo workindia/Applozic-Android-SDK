@@ -90,6 +90,7 @@ public class SecurityUtils {
                         .setCertificateSerialNumber(BigInteger.valueOf(123456))
                         .setCertificateNotBefore(start.getTime())
                         .setCertificateNotAfter(end.getTime())
+                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                         .build();
             } else {
                 spec = new KeyPairGeneratorSpec.Builder(context.getApplicationContext())
