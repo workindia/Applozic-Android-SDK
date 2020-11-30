@@ -72,6 +72,7 @@ public class Message extends JsonMarker {
     public static final String OTHER = "other";
     public static final String KM_ASSIGN = "KM_ASSIGN";
     public static final String KM_STATUS = "KM_STATUS";
+    public static final String FEEDBACK_METADATA_KEY = "feedback";
     public static final String KM_SKIP_BOT = "skipBot";
     public static final String AL_DELETE_MESSAGE_FOR_ALL_KEY = "AL_DELETE_GROUP_MESSAGE_FOR_ALL";
 
@@ -671,7 +672,7 @@ public class Message extends JsonMarker {
     }
 
     public boolean isActionMessage() {
-        return getMetadata() != null && (getMetadata().containsKey(KM_ASSIGN) || getMetadata().containsKey(KM_STATUS));
+        return getMetadata() != null && (getMetadata().containsKey(KM_ASSIGN) || getMetadata().containsKey(KM_STATUS) || getMetadata().containsKey(FEEDBACK_METADATA_KEY));
     }
 
     public String getConversationStatus() {

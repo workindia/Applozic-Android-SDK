@@ -20,7 +20,7 @@ android {
         minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.93"
+        versionName "5.94"
         consumerProguardFiles 'proguard-rules.txt'
     }
 
@@ -42,7 +42,7 @@ dependencies {
     api project(':mobicomkit')
     implementation 'org.jsoup:jsoup:1.11.3'
     //Note: use this for customization
-    //api 'com.applozic.communication.message:mobicomkit:5.92' //Note: use this in case customization is not required
+    //api 'com.applozic.communication.message:mobicomkit:5.94' //Note: use this in case customization is not required
 }
 /* ext {
     // Where you will see your artifact in Bintray's web interface
@@ -58,7 +58,7 @@ dependencies {
     artifact = 'mobicomkitui'
 
     libraryDescription = 'Applozic Communication UI Widget'
-    libraryVersion = '5.93'
+    libraryVersion = '5.94'
 
     developerId = 'devashish'
     developerName = 'Applozic'
