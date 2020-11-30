@@ -1,6 +1,11 @@
 
 ## Changelog
 
+**Version  5.94** - Monday, 30 Nov 2020
+
+* Enabled report message in open channel
+* Fixed security bugs
+
 **Version  5.93** - Friday, 6 Nov 2020
 
 ### Enhancement :
