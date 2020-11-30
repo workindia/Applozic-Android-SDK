@@ -722,9 +722,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                               }
                                               emoticonsFrameLayout.setVisibility(View.GONE);
                                               sendMessage();
-                                              if (contact != null && !contact.isBlocked() || channel != null) {
-                                                  handleSendAndRecordButtonView(false);
-                                              }
                                           }
                                       }
         );
@@ -988,10 +985,22 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     @Override
     public void onLongPress(MotionEvent event) {
-        if (contact != null && contact.isBlocked()) {
-            userBlockDialog(false, contact, false);
+        if (channel != null &&
+                channel.getType() != null
+                && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+            String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+            if (!TextUtils.isEmpty(userId)) {
+                Contact newContact = appContactService.getContactById(userId);
+                if (newContact.isBlocked()) {
+                    userBlockDialog(false, newContact, true, channel != null ? channel.getKey() : null);
+                    return;
+                }
+            }
+        } else if (contact != null && contact.isBlocked()) {
+            userBlockDialog(false, contact, false, channel != null ? channel.getKey() : null);
             return;
         }
+
         if (getActivity() instanceof ALStoragePermissionListener) {
             if (((ALStoragePermissionListener) getActivity()).isPermissionGranted()) {
                 startRecording();
@@ -1056,24 +1065,28 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (!TextUtils.isEmpty(userId)) {
                     Contact withUserContact = appContactService.getContactById(userId);
                     if (withUserContact.isBlocked()) {
-                        userBlockDialog(false, withUserContact, true);
+                        userBlockDialog(false, withUserContact, true, channel.getKey());
                     } else {
+                        handleSendAndRecordButtonView(false);
                         processSendMessage();
                     }
                 }
             } else if (Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 if (Utils.isInternetAvailable(getActivity())) {
+                    handleSendAndRecordButtonView(false);
                     processSendMessage();
                 } else {
                     Toast.makeText(ApplozicService.getContext(getContext()), ApplozicService.getContext(getContext()).getString(R.string.internet_connection_not_available), Toast.LENGTH_SHORT).show();
                 }
             } else {
+                handleSendAndRecordButtonView(false);
                 processSendMessage();
             }
         } else if (contact != null) {
             if (contact.isBlocked()) {
-                userBlockDialog(false, contact, false);
+                userBlockDialog(false, contact, false, null);
             } else {
+                handleSendAndRecordButtonView(false);
                 processSendMessage();
             }
         }
@@ -1435,11 +1448,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                     String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
                     if (!TextUtils.isEmpty(userId)) {
-                        userBlockDialog(true, appContactService.getContactById(userId), true);
+                        userBlockDialog(true, appContactService.getContactById(userId), true, channel.getKey()) ;
                     }
                 }
             } else if (contact != null) {
-                userBlockDialog(true, contact, false);
+                userBlockDialog(true, contact, false, null);
             }
         }
         if (id == R.id.userUnBlock) {
@@ -1447,17 +1460,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                     String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
                     if (!TextUtils.isEmpty(userId)) {
-                        userBlockDialog(false, appContactService.getContactById(userId), true);
+                        userBlockDialog(false, appContactService.getContactById(userId), true, channel.getKey());
                     }
                 }
             } else if (contact != null) {
-                userBlockDialog(false, contact, false);
+                userBlockDialog(false, contact, false, null);
             }
         }
         if (id == R.id.dial) {
             if (contact != null) {
                 if (contact.isBlocked()) {
-                    userBlockDialog(false, contact, false);
+                    userBlockDialog(false, contact, false, null);
                 } else {
                     ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
                 }
@@ -1471,7 +1484,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (id == R.id.video_call) {
             if (contact != null) {
                 if (contact.isBlocked()) {
-                    userBlockDialog(false, contact, false);
+                    userBlockDialog(false, contact, false, null);
                 } else {
                     ((ConversationActivity) getActivity()).processVideoCall(contact, currentConversationId);
                 }
@@ -2532,6 +2545,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (messageMetaData == null) {
             messageMetaData = new HashMap<>();
         }
+
+        if (channel != null &&
+                channel.getType() != null
+                && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+            String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+            if (!TextUtils.isEmpty(userId)) {
+                Contact newContact = appContactService.getContactById(userId);
+                if (newContact.isBlockedBy()) {
+                    messageMetaData.put(Channel.AL_BLOCK, "true");
+                }
+            }
+        }
+
         messageToSend.setFileMetaKeyStrings(fileMetaKeyStrings);
         messageToSend.setFileMetas(fileMetas);
         if (!TextUtils.isEmpty(ApplozicClient.getInstance(getActivity()).getMessageMetaData())) {
@@ -3272,7 +3298,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return position;
     }
 
-    public void blockUserProcess(final String userId, final boolean block, final boolean isFromChannel) {
+    public void blockUserProcess(final String userId, final boolean block, final boolean isFromChannel, Integer groupId) {
 
         final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "",
                 ApplozicService.getContext(getContext()).getString(R.string.please_wait_info), true);
@@ -3314,11 +3340,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
 
         };
-
-        AlTask.execute(new UserBlockTask(getActivity(), listener, userId, block));
+        AlTask.execute(new UserBlockTask(getActivity(), listener, userId, block, groupId));
     }
 
-    public void userBlockDialog(final boolean block, final Contact withUserContact, final boolean isFromChannel) {
+    public void userBlockDialog(final boolean block, final Contact withUserContact, final boolean isFromChannel, final Integer groupId) {
         if (withUserContact == null) {
             return;
         }
@@ -3326,7 +3351,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 setPositiveButton(R.string.ok_alert, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        blockUserProcess(withUserContact.getUserId(), block, isFromChannel);
+                        blockUserProcess(withUserContact.getUserId(), block, isFromChannel, groupId);
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
