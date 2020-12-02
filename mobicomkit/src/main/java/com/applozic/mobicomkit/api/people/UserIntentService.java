@@ -68,7 +68,7 @@ public class UserIntentService extends AlJobIntentService {
             messageDatabaseService.updateReadStatusForChannel(String.valueOf(channel.getKey()));
         }
 
-        if (unreadCount != 0 || !isMessageStatusPublished(getApplicationContext(), messageKey, Message.Status.READ.getValue())) {
+        if (unreadCount != 0 || !TextUtils.isEmpty(messageKey) && !isMessageStatusPublished(getApplicationContext(), messageKey, Message.Status.READ.getValue())) {
             messageClientService.updateReadStatus(contact, channel);
         } else {
             String userId = intent.getStringExtra(USER_ID);

@@ -82,40 +82,6 @@ public class ConversationIntentService extends AlJobIntentService {
         } else {
             if (sync) {
                 mobiComMessageService.syncMessages();
-            } else {
-                Thread thread = new Thread(new ConversationSync());
-                thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
-                thread.start();
-            }
-        }
-    }
-
-    private class ConversationSync implements Runnable {
-
-        public ConversationSync() {
-        }
-
-        @Override
-        public void run() {
-            try {
-                MobiComConversationService mobiComConversationService = new MobiComConversationService(ConversationIntentService.this);
-                List<Message> messages = mobiComConversationService.getLatestMessagesGroupByPeople();
-                UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
-
-                for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
-                    Contact contact = null;
-                    Channel channel = null;
-
-                    if (message.getGroupId() != null) {
-                        channel = new Channel(message.getGroupId());
-                    } else {
-                        contact = new Contact(message.getContactIds());
-                    }
-
-                    mobiComConversationService.getMessages(1L, null, contact, channel, null, true, false);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
