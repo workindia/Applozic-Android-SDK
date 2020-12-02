@@ -1,16 +1,16 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Conversation;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicConversationCreateTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicConversationCreateTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     ChannelService channelService;
     Exception exception;
@@ -36,7 +36,7 @@ public class ApplozicConversationCreateTask extends AsyncTask<Void, Void, Boolea
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (conversationId == null) {
                 conversationId = conversationService.createConversation(conversation);

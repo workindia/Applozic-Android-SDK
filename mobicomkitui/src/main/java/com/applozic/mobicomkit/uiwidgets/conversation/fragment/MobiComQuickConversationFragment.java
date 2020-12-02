@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.uiwidgets.conversation.fragment;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Process;
 import androidx.fragment.app.Fragment;
@@ -48,6 +47,8 @@ import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -456,7 +457,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void checkForEmptyConversations() {
-        boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AsyncTask.Status.RUNNING);
+        boolean isLodingConversation = (downloadConversation != null && downloadConversation.getStatus() == AlAsyncTask.Status.RUNNING);
         if (latestMessageForEachContact.isEmpty() && !isLodingConversation) {
             emptyTextView.setVisibility(View.VISIBLE);
             emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : ApplozicService.getContext(getContext()).getResources().getString(R.string.no_conversation));
@@ -504,7 +505,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 public void onRefresh() {
                     SyncMessages syncMessages = new SyncMessages();
-                    syncMessages.execute();
+                    AlTask.execute(syncMessages);
                 }
             });
         }
@@ -558,7 +559,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
                         downloadConversation.setRecyclerView(recyclerView);
                         downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
-                        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        AlTask.execute(downloadConversation);
                         loading = true;
                         loadMore = false;
                     }
@@ -578,7 +579,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         downloadConversation.setTextViewWeakReference(emptyTextView);
         downloadConversation.setRecyclerView(recyclerView);
         downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        AlTask.execute(downloadConversation);
         if (recyclerAdapter != null) {
             recyclerAdapter.searchString = searchString;
         }
@@ -665,7 +666,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
     }
 
-    public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
+    public class DownloadConversation extends AlAsyncTask<Integer, Long> {
 
         private int firstVisibleItem;
         private boolean initial;
@@ -734,7 +735,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             }
         }
 
-        protected Long doInBackground(Void... voids) {
+        protected Long doInBackground() {
             if (initial) {
                 nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
             } else if (!messageList.isEmpty()) {
@@ -855,12 +856,12 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
     }
 
-    private class SyncMessages extends AsyncTask<Void, Integer, Long> {
+    private class SyncMessages extends AlAsyncTask<Integer, Long> {
         SyncMessages() {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             syncCallService.syncMessages(null);
             return 1l;
         }

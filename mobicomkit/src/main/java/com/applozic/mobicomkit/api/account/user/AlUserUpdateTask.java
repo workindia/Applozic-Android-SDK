@@ -1,14 +1,14 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class AlUserUpdateTask extends AsyncTask<Void, Void, ApiResponse> {
+public class AlUserUpdateTask extends AlAsyncTask<Void, ApiResponse> {
     private WeakReference<Context> context;
     private User user;
     private AlCallback callback;
@@ -20,7 +20,7 @@ public class AlUserUpdateTask extends AsyncTask<Void, Void, ApiResponse> {
     }
 
     @Override
-    protected ApiResponse doInBackground(Void... voids) {
+    protected ApiResponse doInBackground() {
         return UserService.getInstance(context.get()).updateUserWithResponse(user);
     }
 

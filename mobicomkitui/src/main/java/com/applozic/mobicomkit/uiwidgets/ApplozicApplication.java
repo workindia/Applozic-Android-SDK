@@ -17,7 +17,7 @@ public class ApplozicApplication extends Application {
            /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 registerActivityLifecycleCallbacks(new ActivityLifecycleHandler());
             }*/
-            Class.forName("android.os.AsyncTask");
+            Class.forName("com.applozic.mobicommons.task.AlAsyncTask");
         } catch (ClassNotFoundException e) {
         }
         super.onCreate();

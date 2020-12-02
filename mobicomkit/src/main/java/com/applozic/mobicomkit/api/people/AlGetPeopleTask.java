@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.people;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -10,8 +9,9 @@ import com.applozic.mobicomkit.listners.AlChannelListener;
 import com.applozic.mobicomkit.listners.AlContactListener;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
-public class AlGetPeopleTask extends AsyncTask<Void, Object, Object> {
+public class AlGetPeopleTask extends AlAsyncTask<Object, Object> {
     private String userId;
     private String clientChannelKey;
     private Integer groupId;
@@ -43,7 +43,7 @@ public class AlGetPeopleTask extends AsyncTask<Void, Object, Object> {
 
 
     @Override
-    protected Object doInBackground(Void... voids) {
+    protected Object doInBackground() {
         try {
             if (!TextUtils.isEmpty(userId)) {
                 return appContactService.getContactById(userId);

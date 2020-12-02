@@ -19,10 +19,8 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.Applozic;
@@ -62,6 +60,7 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -275,7 +274,7 @@ public class ConversationUIService {
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity), contact, channel, null, fragmentActivity).execute();
+                        AlTask.execute(new DeleteConversationAsyncTask(new MobiComConversationService(fragmentActivity), contact, channel, null, fragmentActivity));
 
                     }
                 });
@@ -339,7 +338,7 @@ public class ConversationUIService {
                             }
                         };
                         ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(fragmentActivity, channelDeleteTask, channel);
-                        applozicChannelDeleteTask.execute((Void) null);
+                        AlTask.execute(applozicChannelDeleteTask);
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -373,7 +372,7 @@ public class ConversationUIService {
                         };
                         ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(fragmentActivity, channel.getKey(), MobiComUserPreference.getInstance(fragmentActivity).getUserId(), applozicLeaveMemberListener);
                         applozicChannelLeaveMember.setEnableProgressDialog(true);
-                        applozicChannelLeaveMember.execute((Void) null);
+                        AlTask.execute(applozicChannelLeaveMember);
 
                     }
                 });
@@ -1005,7 +1004,7 @@ public class ConversationUIService {
         } else {
             usersAsyncTask = new RegisteredUsersAsyncTask(fragmentActivity, usersAsyncTaskTaskListener, totalOnlineUser, message, messageContent);
         }
-        usersAsyncTask.execute((Void) null);
+        AlTask.execute(usersAsyncTask);
 
     }
 

@@ -19,6 +19,7 @@ import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
 import com.applozic.mobicomkit.listners.MessageListHandler;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.Iterator;
 import java.util.List;
@@ -33,9 +34,9 @@ public class ApplozicConversation {
 
     public static void getLatestMessageList(Context context, String searchString, boolean isScroll, MessageListHandler handler) {
         if (!isScroll) {
-            new MessageListTask(context, searchString, null, null, null, null, handler, true).execute();
+            AlTask.execute(new MessageListTask(context, searchString, null, null, null, null, handler, true));
         } else {
-            new MessageListTask(context, searchString, null, null, MobiComUserPreference.getInstance(context).getStartTimeForPagination(), null, handler, true).execute();
+            AlTask.execute(new MessageListTask(context, searchString, null, null, MobiComUserPreference.getInstance(context).getStartTimeForPagination(), null, handler, true));
         }
     }
 
@@ -44,34 +45,34 @@ public class ApplozicConversation {
     }
 
     public static void getLatestMessageList(Context context, String searchString, Long startTime, MessageListHandler handler) {
-        new MessageListTask(context, searchString, null, null, startTime, null, handler, true).execute();
+        AlTask.execute(new MessageListTask(context, searchString, null, null, startTime, null, handler, true));
     }
 
     public static void getConversationList(Context context, String searchString, boolean isScroll, ConversationListHandler handler) {
-        new ConversationListTask(context,
+        AlTask.execute(new ConversationListTask(context,
                 searchString,
                 null,
                 null,
                 (isScroll ? MobiComUserPreference.getInstance(context).getStartTimeForPagination() : null),
                 null,
                 handler,
-                true).execute();
+                true));
     }
 
     public static void getMessageListForContact(Context context, Contact contact, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, contact, null, null, endTime, handler, false).execute();
+        AlTask.execute(new MessageListTask(context, null, contact, null, null, endTime, handler, false));
     }
 
     public static void getMessageListForChannel(Context context, Channel channel, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, null, channel, null, endTime, handler, false).execute();
+        AlTask.execute(new MessageListTask(context, null, null, channel, null, endTime, handler, false));
     }
 
     public static void getMessageListForContact(Context context, String userId, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, new AppContactService(context).getContactById(userId), null, null, endTime, handler, false).execute();
+        AlTask.execute(new MessageListTask(context, null, new AppContactService(context).getContactById(userId), null, null, endTime, handler, false));
     }
 
     public static void getMessageListForChannel(Context context, Integer channelKey, Long endTime, MessageListHandler handler) {
-        new MessageListTask(context, null, null, ChannelService.getInstance(context).getChannel(channelKey), null, endTime, handler, false).execute();
+        AlTask.execute(new MessageListTask(context, null, null, ChannelService.getInstance(context).getChannel(channelKey), null, endTime, handler, false));
     }
 
     public static void downloadMessage(Context context, Message message, MediaDownloadProgressHandler handler) {

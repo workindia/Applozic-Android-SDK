@@ -1,18 +1,18 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicChannelNameUpdateTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicChannelNameUpdateTask extends AlAsyncTask<Void, Boolean> {
 
     Context context;
     Integer channelKey;
@@ -34,7 +34,7 @@ public class ApplozicChannelNameUpdateTask extends AsyncTask<Void, Void, Boolean
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (!TextUtils.isEmpty(channelNewName) && channelNewName.trim().length() != 0) {
                 if (channelKey != null && channelKey != 0) {

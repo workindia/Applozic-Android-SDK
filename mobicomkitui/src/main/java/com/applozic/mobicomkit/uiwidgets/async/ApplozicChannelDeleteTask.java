@@ -1,17 +1,17 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 15/9/16.
  */
-public class ApplozicChannelDeleteTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicChannelDeleteTask extends AlAsyncTask<Void, Boolean> {
 
 
     private final TaskListener taskListener;
@@ -27,7 +27,7 @@ public class ApplozicChannelDeleteTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             response = ChannelService.getInstance(context).processChannelDeleteConversation(channel, context);
             return !TextUtils.isEmpty(response) && MobiComKitConstants.SUCCESS.equals(response);

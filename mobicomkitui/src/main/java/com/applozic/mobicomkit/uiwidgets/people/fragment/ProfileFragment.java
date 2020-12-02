@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -18,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.InputType;
@@ -52,6 +50,8 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -200,7 +200,7 @@ public class ProfileFragment extends Fragment {
                         changedStatusString = input.getText().toString();
                         Contact contact = new Contact();
                         contact.setStatus(changedStatusString);
-                        new ProfilePictureUpload(contact, getActivity(), null, statusText, null).execute((Void[]) null);
+                        AlTask.execute(new ProfilePictureUpload(contact, getActivity(), null, statusText, null));
                     }
                 });
                 builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -231,7 +231,7 @@ public class ProfileFragment extends Fragment {
                         if (!displayName.trim().isEmpty() && !TextUtils.isEmpty(displayName)) {
                             Contact contact = new Contact();
                             contact.setFullName(displayName);
-                            new ProfilePictureUpload(contact, getActivity(), displayNameText, null, null).execute((Void[]) null);
+                            AlTask.execute(new ProfilePictureUpload(contact, getActivity(), displayNameText, null, null));
                         }
                     }
                 });
@@ -264,7 +264,7 @@ public class ProfileFragment extends Fragment {
                         if (!contactNumber.trim().isEmpty() && !TextUtils.isEmpty(contactNumber)) {
                             Contact contact = new Contact();
                             contact.setContactNumber(contactNumber);
-                            new ProfilePictureUpload(contact, getActivity(), null, null, contactNumberText).execute((Void[]) null);
+                            AlTask.execute(new ProfilePictureUpload(contact, getActivity(), null, null, contactNumberText));
                         }
                     }
                 });
@@ -353,7 +353,7 @@ public class ProfileFragment extends Fragment {
     public void handleProfileimageUpload(boolean isSaveFile, Uri imageUri, File file) {
         img_profile.setImageDrawable(null);
         img_profile.setImageURI(imageUri);
-        new ProfilePictureUpload(isSaveFile, imageUri, file, getActivity()).execute((Void[]) null);
+        AlTask.execute(new ProfilePictureUpload(isSaveFile, imageUri, file, getActivity()));
     }
 
     @Override
@@ -373,7 +373,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    class ProfilePictureUpload extends AsyncTask<Void, Void, Boolean> {
+    class ProfilePictureUpload extends AlAsyncTask<Void, Boolean> {
 
         Context context;
         Uri fileUri;
@@ -421,7 +421,7 @@ public class ProfileFragment extends Fragment {
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground() {
             try {
                 String response = null;
                 String filePath = null;

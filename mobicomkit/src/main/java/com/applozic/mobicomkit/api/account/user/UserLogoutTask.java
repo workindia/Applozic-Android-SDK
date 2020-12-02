@@ -1,13 +1,13 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
+public class UserLogoutTask extends AlAsyncTask<Void, Boolean> {
 
     private TaskListener taskListener;
     private final WeakReference<Context> context;
@@ -28,7 +28,7 @@ public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             userClientService.logout();
             return true;

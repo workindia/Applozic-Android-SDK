@@ -1,18 +1,18 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
 /**
  * Created by devashish on 7/22/2015.
  */
-public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
+public class PushNotificationTask extends AlAsyncTask<Void, Boolean> {
 
     private String pushNotificationId;
     private TaskListener taskListener;
@@ -34,7 +34,7 @@ public class PushNotificationTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             registrationResponse = new RegisterUserClientService(context.get()).updatePushNotificationId(pushNotificationId);
         } catch (Exception e) {

@@ -1,17 +1,17 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by ninu on 02/08/17.
  */
 
-public class AlGroupInformationAsyncTask extends AsyncTask<Object, Object, Channel> {
+public class AlGroupInformationAsyncTask extends AlAsyncTask<Object, Channel> {
     Context context;
     ChannelService channelService;
     GroupMemberListener groupMemberListener;
@@ -34,7 +34,7 @@ public class AlGroupInformationAsyncTask extends AsyncTask<Object, Object, Chann
     }
 
     @Override
-    protected Channel doInBackground(Object... params) {
+    protected Channel doInBackground() {
         try {
             if (!TextUtils.isEmpty(clientGroupId)) {
                 return channelService.getChannelInfo(clientGroupId);

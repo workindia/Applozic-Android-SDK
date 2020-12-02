@@ -1,17 +1,17 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicChannelAddMemberTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicChannelAddMemberTask extends AlAsyncTask<Void, Boolean> {
 
     Context context;
     Integer channelKey;
@@ -30,7 +30,7 @@ public class ApplozicChannelAddMemberTask extends AsyncTask<Void, Void, Boolean>
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (!TextUtils.isEmpty(userId) && userId.trim().length() != 0 && channelKey != null) {
                 addResponse = channelService.addMemberToChannelProcess(channelKey, userId.trim());

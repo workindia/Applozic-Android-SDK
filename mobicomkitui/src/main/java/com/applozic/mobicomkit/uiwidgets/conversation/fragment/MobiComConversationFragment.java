@@ -16,7 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -34,6 +33,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageA
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
 import com.applozic.mobicommons.file.ALFileProvider;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.core.app.ActivityCompat;
@@ -411,7 +412,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             messageList.clear();
                         }
                         downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversation.getId());
-                        downloadConversation.execute();
+                        AlTask.execute(downloadConversation);
                     }
                 }
             }
@@ -880,7 +881,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             Map<String, String> metadata = lastMessage.getMetadata();
                             metadata.put("isDoneWithClicking", "true");
                             lastMessage.setMetadata(metadata);
-                            new AlMessageMetadataUpdateTask(getContext(), lastMessage.getKeyString(), lastMessage.getMetadata(), listener1).execute();
+                            AlTask.execute(new AlMessageMetadataUpdateTask(getContext(), lastMessage.getKeyString(), lastMessage.getMetadata(), listener1));
                         }
                     }
 
@@ -1536,7 +1537,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 break;
             case 3:
                 String messageKeyString = message.getKeyString();
-                new DeleteConversationAsyncTask(conversationService, message, contact).execute();
+                AlTask.execute(new DeleteConversationAsyncTask(conversationService, message, contact));
                 deleteMessageFromDeviceList(messageKeyString);
                 break;
             case 4:
@@ -1544,7 +1545,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 final ProgressDialog progressBar = new ProgressDialog(getContext());
                 progressBar.show();
                 progressBar.setMessage(Utils.getString(getContext(), R.string.delete_thread_text));
-                new MessageDeleteTask(getContext(), deleteForAllMessageKey, true, new AlCallback() {
+                AlTask.execute(new MessageDeleteTask(getContext(), deleteForAllMessageKey, true, new AlCallback() {
                     @Override
                     public void onSuccess(Object response) {
                         int index = messageList.indexOf(message);
@@ -1563,7 +1564,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                         Toast.makeText(ApplozicService.getContext(getContext()), Utils.getString(getContext(), R.string.delete_conversation_failed), Toast.LENGTH_SHORT).show();
                     }
-                }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }));
                 break;
             case 5:
                 String messageJson = GsonUtils.getJsonFromObject(message, Message.class);
@@ -1711,7 +1712,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
                 break;
             case 8:
-                new AlMessageReportTask(message.getKeyString(), conversationService, new AlCallback() {
+                AlTask.execute(new AlMessageReportTask(message.getKeyString(), conversationService, new AlCallback() {
                     @Override
                     public void onSuccess(Object response) {
                         Toast.makeText(getContext(), ApplozicService.getContext(getContext()).getString(R.string.message_reported_successfully), Toast.LENGTH_SHORT).show();
@@ -1721,7 +1722,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     public void onError(Object error) {
                         Toast.makeText(getContext(), ApplozicService.getContext(getContext()).getString(R.string.failed_to_report_message), Toast.LENGTH_SHORT).show();
                     }
-                }).execute();
+                }));
                 break;
         }
         return true;
@@ -1887,7 +1888,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             processMobiTexterUserCheck();
 
             downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
-            downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            AlTask.execute(downloadConversation);
 
             if (hideExtendedSendingOptionLayout) {
                 extendedSendingOptionLayout.setVisibility(View.GONE);
@@ -2304,7 +2305,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             attachmentAsyncTask.setRelativeLayoutWeakReference(attachmentLayout);
             attachmentAsyncTask.setTextViewWeakReference(attachedFile);
             attachmentAsyncTask.setAlCustomizationSettingsLayoutWeakReference(alCustomizationSettings);
-            attachmentAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            AlTask.execute(attachmentAsyncTask);
         } else {
             filePath = Uri.parse(file.getAbsolutePath()).toString();
             if (channel != null && channel.getType() != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
@@ -3020,7 +3021,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, channel, currentConversationId, getActivity()).execute();
+                        AlTask.execute(new DeleteConversationAsyncTask(new MobiComConversationService(getActivity()), contact, channel, currentConversationId, getActivity()));
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -3099,7 +3100,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 downloadConversation = new DownloadConversation(recyclerView, false, 1, 1, 1, contact, channel, currentConversationId);
-                downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                AlTask.execute(downloadConversation);
             }
         });
 
@@ -3251,7 +3252,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
     public void loadNewMessageOnResume(Contact contact, Channel channel, Integer conversationId) {
         downloadConversation = new DownloadConversation(recyclerView, true, 1, 0, 0, contact, channel, conversationId);
-        downloadConversation.execute();
+        AlTask.execute(downloadConversation);
     }
 
     public int scrollToFirstSearchIndex() {
@@ -3314,7 +3315,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         };
 
-        new UserBlockTask(getActivity(), listener, userId, block).execute((Void) null);
+        AlTask.execute(new UserBlockTask(getActivity(), listener, userId, block));
     }
 
     public void userBlockDialog(final boolean block, final Contact withUserContact, final boolean isFromChannel) {
@@ -3382,7 +3383,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                         muteNotificationRequest = new MuteNotificationRequest(channel.getKey(), millisecond);
                         MuteNotificationAsync muteNotificationAsync = new MuteNotificationAsync(getContext(), taskListener, muteNotificationRequest);
-                        muteNotificationAsync.execute((Void) null);
+                        AlTask.execute(muteNotificationAsync);
                         dialog.dismiss();
 
                     }
@@ -3416,7 +3417,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         };
         muteNotificationRequest = new MuteNotificationRequest(channel.getKey(), millisecond);
         MuteNotificationAsync muteNotificationAsync = new MuteNotificationAsync(getContext(), taskListener, muteNotificationRequest);
-        muteNotificationAsync.execute((Void) null);
+        AlTask.execute(muteNotificationAsync);
     }
 
     public void muteUserChat() {
@@ -3454,7 +3455,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             millisecond = millisecond + 31558000000L;
                         }
 
-                        new MuteUserNotificationAsync(listener, millisecond, contact.getUserId(), getContext()).execute();
+                        AlTask.execute(new MuteUserNotificationAsync(listener, millisecond, contact.getUserId(), getContext()));
                         dialog.dismiss();
 
                     }
@@ -3482,7 +3483,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             }
         };
-        new MuteUserNotificationAsync(taskListener, millisecond, contact.getUserId(), getContext()).execute();
+        AlTask.execute(new MuteUserNotificationAsync(taskListener, millisecond, contact.getUserId(), getContext()));
     }
 
     public void muteUser(boolean mute) {
@@ -3641,7 +3642,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return type;
     }
 
-    public class DownloadConversation extends AsyncTask<Void, Integer, Long> {
+    public class DownloadConversation extends AlAsyncTask<Integer, Long> {
 
         private RecyclerView recyclerView;
         private int firstVisibleItem;
@@ -3786,7 +3787,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         @Override
-        protected Long doInBackground(Void... voids) {
+        protected Long doInBackground() {
             try {
                 if (initial) {
                     Long lastConversationloadTime = 1L;
@@ -4046,7 +4047,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
-    public class AttachmentAsyncTask extends AsyncTask<Void, Integer, Long> {
+    public class AttachmentAsyncTask extends AlAsyncTask<Integer, Long> {
 
         File file;
         Uri uri;
@@ -4081,7 +4082,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
 
             mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (alCustomizationSettingsLayoutWeakReference.get().isImageCompressionEnabled() && mimeType != null && (mimeType.startsWith("image"))) {

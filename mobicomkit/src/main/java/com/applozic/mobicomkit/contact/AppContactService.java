@@ -15,6 +15,7 @@ import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.io.File;
 import java.util.Date;
@@ -216,7 +217,7 @@ public class AppContactService implements BaseContactService {
     }
 
     public void getContactByIdAsync(String userId, AlContactListener contactListener) {
-        new AlGetPeopleTask(context, userId, null, null, null, contactListener, this, null).execute();
+        AlTask.execute(new AlGetPeopleTask(context, userId, null, null, null, contactListener, this, null));
     }
 
 }

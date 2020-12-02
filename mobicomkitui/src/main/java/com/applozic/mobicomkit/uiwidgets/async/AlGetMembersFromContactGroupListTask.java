@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.channel.service.ChannelClientService;
@@ -10,6 +9,7 @@ import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.feed.ChannelFeedListResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ import java.util.Set;
  * Created by reytum on 27/10/17.
  */
 
-public class AlGetMembersFromContactGroupListTask extends AsyncTask<Void, Void, AlGetMembersFromContactGroupListTask.AlGetMembersModel> {
+public class AlGetMembersFromContactGroupListTask extends AlAsyncTask<Void, AlGetMembersFromContactGroupListTask.AlGetMembersModel> {
 
     WeakReference<Context> context;
     private String groupType;
@@ -37,7 +37,7 @@ public class AlGetMembersFromContactGroupListTask extends AsyncTask<Void, Void, 
     }
 
     @Override
-    protected AlGetMembersModel doInBackground(Void... voids) {
+    protected AlGetMembersModel doInBackground() {
 
         AlGetMembersModel model = new AlGetMembersModel();
 

@@ -1,20 +1,20 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.AlResponse;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.List;
 
 /**
  * Created by sunil on 17/5/16.
  */
-public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicChannelCreateTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     String groupName;
     List<String> groupMemberList;
@@ -54,7 +54,7 @@ public class ApplozicChannelCreateTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (!TextUtils.isEmpty(groupName) && groupName.trim().length() != 0 && groupMemberList != null && groupMemberList.size() > 0) {
                 channelInfo = new ChannelInfo(groupName.trim(), groupMemberList, groupImageLink);

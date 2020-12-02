@@ -1,13 +1,13 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
  * Created by ninu on 13/07/17.
  */
 
-public class AlChannelAddMemberTask extends AsyncTask<Void, Void, Boolean> {
+public class AlChannelAddMemberTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     Integer channelKey;
     String userId;
@@ -43,7 +43,7 @@ public class AlChannelAddMemberTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (!TextUtils.isEmpty(userId) && userId.trim().length() != 0 && (channelKey != null && channelKey != 0 || !TextUtils.isEmpty(clientGroupId))) {
                 if (channelKey != null) {

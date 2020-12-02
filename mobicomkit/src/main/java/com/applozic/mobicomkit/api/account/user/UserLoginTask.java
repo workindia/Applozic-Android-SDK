@@ -5,11 +5,11 @@ package com.applozic.mobicomkit.api.account.user;
  */
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.listners.AlLoginHandler;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
  * Represents an asynchronous login/registration task used to authenticate
  * the user.
  */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+public class UserLoginTask extends AlAsyncTask<Void, Boolean> {
 
     private TaskListener taskListener;
     private final WeakReference<Context> context;
@@ -45,7 +45,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             userClientService.clearDataAndPreference();
             registrationResponse = registerUserClientService.createAccount(user);

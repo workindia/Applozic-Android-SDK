@@ -1,16 +1,16 @@
 package com.applozic.mobicomkit.api.authentication;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class RefreshAuthTokenTask extends AsyncTask<Void, Void, Boolean> {
+public class RefreshAuthTokenTask extends AlAsyncTask<Void, Boolean> {
 
     private final String applicationId;
     private final String userId;
@@ -29,7 +29,7 @@ public class RefreshAuthTokenTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
+    protected Boolean doInBackground() {
         return new RegisterUserClientService(context.get()).refreshAuthToken(applicationId, userId);
     }
 
@@ -42,6 +42,5 @@ public class RefreshAuthTokenTask extends AsyncTask<Void, Void, Boolean> {
                 callback.onError(false);
             }
         }
-        super.onPostExecute(aBoolean);
     }
 }

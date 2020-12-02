@@ -3,7 +3,6 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -21,6 +20,8 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRege
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 import com.bumptech.glide.Glide;
 
 import org.jsoup.HttpStatusException;
@@ -64,7 +65,7 @@ public class KmLinkPreview {
             updateViews(existingLinkModel);
         } else {
             urlLoadLayout.setVisibility(View.GONE);
-            new UrlLoader(context, message, new AlCallback() {
+            AlTask.execute(new UrlLoader(context, message, new AlCallback() {
                 @Override
                 public void onSuccess(Object response) {
                     updateViews((KmLinkPreviewModel) response);
@@ -74,7 +75,7 @@ public class KmLinkPreview {
                 public void onError(Object error) {
 
                 }
-            }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }));
         }
     }
 
@@ -131,7 +132,7 @@ public class KmLinkPreview {
         return null;
     }
 
-    public static class UrlLoader extends AsyncTask<Void, Void, KmLinkPreviewModel> {
+    public static class UrlLoader extends AlAsyncTask<Void, KmLinkPreviewModel> {
 
         private WeakReference<Context> context;
         private Message message;
@@ -144,7 +145,7 @@ public class KmLinkPreview {
         }
 
         @Override
-        protected KmLinkPreviewModel doInBackground(Void... voids) {
+        protected KmLinkPreviewModel doInBackground() {
             String validUrl = getValidUrl(message);
             KmLinkPreviewModel linkPreviewModel = null;
             try {
@@ -184,7 +185,7 @@ public class KmLinkPreview {
                             metadata = new HashMap<>();
                         }
                         metadata.put(LINK_PREVIEW_META_KEY, GsonUtils.getJsonFromObject(urlMetaModel, KmLinkPreviewModel.class));
-                        new AlMessageMetadataUpdateTask(context.get(), message.getKeyString(), metadata, new AlMessageMetadataUpdateTask.MessageMetadataListener() {
+                        AlTask.execute(new AlMessageMetadataUpdateTask(context.get(), message.getKeyString(), metadata, new AlMessageMetadataUpdateTask.MessageMetadataListener() {
                             @Override
                             public void onSuccess(Context context, String message) {
                                 callback.onSuccess(urlMetaModel);
@@ -194,7 +195,7 @@ public class KmLinkPreview {
                             public void onFailure(Context context, String error) {
                                 callback.onError(error);
                             }
-                        }).executeOnExecutor(THREAD_POOL_EXECUTOR);
+                        }));
                     }
                     callback.onSuccess(urlMetaModel);
                 } else {

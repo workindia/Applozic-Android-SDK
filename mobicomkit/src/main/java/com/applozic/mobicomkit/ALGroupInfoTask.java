@@ -5,7 +5,6 @@ package com.applozic.mobicomkit;
  */
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -19,6 +18,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import java.util.List;
  * Created by reytum on 20/10/17.
  */
 
-public class ALGroupInfoTask extends AsyncTask<Void, Void, ALGroupInfoTask.ChannelModel> {
+public class ALGroupInfoTask extends AlAsyncTask<Void, ALGroupInfoTask.ChannelModel> {
 
     private Context context;
     private Integer groupId;
@@ -54,7 +54,7 @@ public class ALGroupInfoTask extends AsyncTask<Void, Void, ALGroupInfoTask.Chann
     }
 
     @Override
-    protected ChannelModel doInBackground(Void... voids) {
+    protected ChannelModel doInBackground() {
         ChannelModel model = new ChannelModel();
         Channel channel = null;
         Exception exception = null;

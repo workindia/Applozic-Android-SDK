@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -12,12 +11,13 @@ import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.ConversationListHandler;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConversationListTask extends AsyncTask<Void, Void, List<AlConversation>> {
+public class ConversationListTask extends AlAsyncTask<Void, List<AlConversation>> {
 
     private WeakReference<Context> context;
     private String searchString;
@@ -47,7 +47,7 @@ public class ConversationListTask extends AsyncTask<Void, Void, List<AlConversat
     }
 
     @Override
-    protected List<AlConversation> doInBackground(Void... voids) {
+    protected List<AlConversation> doInBackground() {
         List<Message> messageList = null;
 
         try {

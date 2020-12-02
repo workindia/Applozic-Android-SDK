@@ -1,10 +1,10 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
  * Created by reytum on 13/7/17.
  */
 
-public class RemoveMemberFromContactGroupTask extends AsyncTask<Void, Void, ApiResponse> {
+public class RemoveMemberFromContactGroupTask extends AlAsyncTask<Void, ApiResponse> {
 
     Context context;
     String groupName;
@@ -34,7 +34,7 @@ public class RemoveMemberFromContactGroupTask extends AsyncTask<Void, Void, ApiR
     }
 
     @Override
-    protected ApiResponse doInBackground(Void... params) {
+    protected ApiResponse doInBackground() {
         try {
             if (groupName != null && userId != null) {
                 apiResponse = channelService.removeMemberFromContactGroup(groupName, groupType, userId);

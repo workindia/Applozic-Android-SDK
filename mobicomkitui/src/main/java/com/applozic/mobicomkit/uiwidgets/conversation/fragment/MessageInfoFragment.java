@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -43,14 +42,13 @@ import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
-import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 
 import java.util.List;
 
@@ -154,7 +152,7 @@ public class MessageInfoFragment extends Fragment {
         }
 
         messageInfoAsyncTask = new MessageInfoAsyncTask(message.getKeyString(), getActivity());
-        messageInfoAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        AlTask.execute(messageInfoAsyncTask);
         return view;
     }
 
@@ -293,7 +291,7 @@ public class MessageInfoFragment extends Fragment {
         }
     }
 
-    public class MessageInfoAsyncTask extends AsyncTask<Void, Integer, Long> {
+    public class MessageInfoAsyncTask extends AlAsyncTask<Integer, Long> {
 
         String messageKey;
         MobiComMessageService messageService;
@@ -311,7 +309,7 @@ public class MessageInfoFragment extends Fragment {
         }
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected Long doInBackground() {
             try {
                 messageInfoResponse = messageService.getMessageInfoResponse(messageKey);
             } catch (Exception e) {

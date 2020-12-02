@@ -1,12 +1,12 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by reytum on 17/11/17.
  */
 
-public class AlMessageMetadataUpdateTask extends AsyncTask<Void, Void, ApiResponse> {
+public class AlMessageMetadataUpdateTask extends AlAsyncTask<Void, ApiResponse> {
 
     private WeakReference<Context> context;
     private String key;
@@ -30,7 +30,7 @@ public class AlMessageMetadataUpdateTask extends AsyncTask<Void, Void, ApiRespon
     }
 
     @Override
-    protected ApiResponse doInBackground(Void... voids) {
+    protected ApiResponse doInBackground() {
         return new MobiComMessageService(context.get(), MessageIntentService.class).getUpdateMessageMetadata(key, metadata);
     }
 

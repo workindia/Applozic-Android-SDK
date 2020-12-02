@@ -20,6 +20,7 @@ import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlTask;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
@@ -426,7 +427,7 @@ public class UserService {
     }
 
     public void updateUser(User user, AlCallback callback) {
-        new AlUserUpdateTask(context, user, callback).execute();
+        AlTask.execute(new AlUserUpdateTask(context, user, callback));
     }
 
     public ApiResponse updateUserDisplayName(String userId, String userDisplayName) {

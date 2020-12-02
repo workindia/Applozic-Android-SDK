@@ -10,13 +10,14 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.applozic.mobicommons.file.ALFileProvider;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -225,7 +226,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
             }
         };
         RegisteredUsersAsyncTask usersAsyncTask = new RegisteredUsersAsyncTask(ChannelCreateActivity.this, usersAsyncTaskTaskListener, alCustomizationSettings.getTotalRegisteredUserToFetch(), userPreference.getRegisteredUsersLastFetchTime(), null, null, true);
-        usersAsyncTask.execute((Void) null);
+        AlTask.execute(usersAsyncTask);
 
     }
 
@@ -244,7 +245,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                         imageChangeUri = result.getUri();
                         circleImageView.setImageDrawable(null); // <--- added to force redraw of ImageView
                         circleImageView.setImageURI(imageChangeUri);
-                        new ProfilePictureUpload(true, profilePhotoFile, imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
+                        AlTask.execute(new ProfilePictureUpload(true, profilePhotoFile, imageChangeUri, ChannelCreateActivity.this));
                     } else {
                         imageChangeUri = result.getUri();
                         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -252,7 +253,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
                         circleImageView.setImageDrawable(null); // <--- added to force redraw of ImageView
                         circleImageView.setImageURI(imageChangeUri);
                         profilePhotoFile = FileClientService.getFilePath(imageFileName, this, "image/jpeg");
-                        new ProfilePictureUpload(true, profilePhotoFile, imageChangeUri, ChannelCreateActivity.this).execute((Void[]) null);
+                        AlTask.execute(new ProfilePictureUpload(true, profilePhotoFile, imageChangeUri, ChannelCreateActivity.this));
                     }
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     Toast.makeText(this, this.getString(R.string.applozic_Cropping_failed) + result.getError(), Toast.LENGTH_LONG).show();
@@ -386,7 +387,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         return imageChangeUri;
     }
 
-    class ProfilePictureUpload extends AsyncTask<Void, Void, Boolean> {
+    class ProfilePictureUpload extends AlAsyncTask<Void, Boolean> {
 
         Context context;
         Uri fileUri;
@@ -413,7 +414,7 @@ public class ChannelCreateActivity extends AppCompatActivity implements Activity
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground() {
 
             try {
                 if (fileUri != null) {
