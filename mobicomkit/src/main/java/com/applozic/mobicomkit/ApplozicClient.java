@@ -55,6 +55,8 @@ public class ApplozicClient {
     private static final String SKIP_DELETED_GROUPS = "SKIP_DELETED_GROUPS";
     private static final String MIN_CREATED_AT_KEY = "mck.sms.createdAt.min";
     private static final String MAX_CREATED_AT_KEY = "mck.sms.createdAt.max";
+    private static final String AL_CONVERSATION_LIST_PAGE_SIZE_KEY = "AL_CONVERSATION_LIST_PAGE_SIZE_KEY";
+    private static final int conversationListDefaultMainPageSize = 60;
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -419,5 +421,18 @@ public class ApplozicClient {
 
     public boolean isChatForUserDisabled() {
         return sharedPreferences.getBoolean(Contact.DISABLE_CHAT_WITH_USER, false);
+    }
+
+    public ApplozicClient setFetchConversationListMainPageSize(int mainPageSize) {
+        sharedPreferences.edit().putInt(AL_CONVERSATION_LIST_PAGE_SIZE_KEY, mainPageSize).commit();
+        return this;
+    }
+
+    public int getFetchConversationListMainPageSize() {
+        int mainPageSize = sharedPreferences.getInt(AL_CONVERSATION_LIST_PAGE_SIZE_KEY, conversationListDefaultMainPageSize);
+        if (mainPageSize < 0) {
+            return conversationListDefaultMainPageSize;
+        }
+        return mainPageSize;
     }
 }

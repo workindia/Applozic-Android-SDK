@@ -724,7 +724,7 @@ public class MessageClientService extends MobiComKitClientService {
             params = isSkipRead ? "skipRead=" + isSkipRead + "&startIndex=0&pageSize=50" + "&" : "startIndex=0&pageSize=50&";
         }
         if (contact == null && channel == null) {
-            params = "startIndex=0&mainPageSize=60" + "&";
+            params = "startIndex=0&mainPageSize=" + ApplozicClient.getInstance(context).getFetchConversationListMainPageSize() + "&";
         }
         if (contact != null && !TextUtils.isEmpty(contact.getUserId())) {
             params += "userId=" + contact.getUserId() + "&";
