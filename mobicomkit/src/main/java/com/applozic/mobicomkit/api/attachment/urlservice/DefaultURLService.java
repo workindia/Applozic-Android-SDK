@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.attachment.urlservice;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -24,7 +25,7 @@ public class DefaultURLService implements URLService {
 
     @Override
     public HttpURLConnection getAttachmentConnection(Message message) throws IOException {
-        return mobiComKitClientService.openHttpConnection(mobiComKitClientService.getFileUrl() + message.getFileMetas().getBlobKeyString());
+        return !TextUtils.isEmpty(message.getFileMetas().getUrl()) ? mobiComKitClientService.openHttpConnection(message.getFileMetas().getUrl()) : mobiComKitClientService.openHttpConnection(mobiComKitClientService.getFileUrl() + message.getFileMetas().getBlobKeyString());
     }
 
     @Override
