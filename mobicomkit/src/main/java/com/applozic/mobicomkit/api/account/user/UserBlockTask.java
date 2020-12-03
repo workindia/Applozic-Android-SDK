@@ -14,6 +14,7 @@ public class UserBlockTask extends AlAsyncTask<Void, Boolean> {
     private String userId;
     private boolean block;
     private Exception mException;
+    private Integer groupId;
 
     public UserBlockTask(Context context, TaskListener listener, String userId, boolean block) {
         this.context = context;
@@ -22,10 +23,18 @@ public class UserBlockTask extends AlAsyncTask<Void, Boolean> {
         this.block = block;
     }
 
+    public UserBlockTask(Context context, TaskListener listener, String userId, boolean block, Integer groupId) {
+        this.context = context;
+        this.taskListener = listener;
+        this.userId = userId;
+        this.block = block;
+        this.groupId = groupId;
+    }
+
     @Override
     protected Boolean doInBackground() {
         try {
-            apiResponse = UserService.getInstance(context).processUserBlock(userId, block);
+            apiResponse = UserService.getInstance(context).processUserBlock(userId, block, groupId);
             return apiResponse != null && apiResponse.isSuccess();
         } catch (Exception e) {
             e.printStackTrace();

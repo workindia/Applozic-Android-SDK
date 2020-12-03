@@ -258,6 +258,8 @@ public class MobiComMessageService {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         boolean syncChannel = false;
         boolean syncChannelForMetadata = false;
+        boolean syncGroupOfTwoForBlockList = false;
+
         Utils.printLog(context, TAG, "Starting syncMessages for lastSyncTime: " + userpref.getLastSyncTime());
         SyncMessageFeed syncMessageFeed = messageClientService.getMessageFeed(userpref.getLastSyncTime(), false);
         if (syncMessageFeed == null) {
@@ -288,6 +290,9 @@ public class MobiComMessageService {
                     //Todo: fix this, what if there are mulitple messages.
                     ChannelService.isUpdateTitle = true;
                 }
+                if (Message.ContentType.BLOCK_NOTIFICATION_IN_GROUP.getValue().equals(messageList.get(i).getContentType())) {
+                    syncGroupOfTwoForBlockList = true;
+                }
                 processMessage(messageList.get(i), messageList.get(i).getTo(), ((messageList.size() - 1) - i));
                 MobiComUserPreference.getInstance(context).setLastInboxSyncTime(messageList.get(i).getCreatedAtTime());
             }
@@ -297,6 +302,9 @@ public class MobiComMessageService {
             }
             if (syncChannelForMetadata) {
                 ChannelService.getInstance(context).syncChannels(true);
+            }
+            if (syncGroupOfTwoForBlockList) {
+                UserService.getInstance(context).processSyncUserBlock();
             }
             updateDeliveredStatus(syncMessageFeed.getDeliveredMessageKeys());
             userpref.setLastSyncTime(String.valueOf(syncMessageFeed.getLastSyncTime()));

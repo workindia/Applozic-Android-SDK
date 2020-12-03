@@ -251,12 +251,12 @@ public class UserClientService extends MobiComKitClientService {
         return null;
     }
 
-    public ApiResponse userBlock(String userId, boolean block) {
+    public ApiResponse userBlock(String userId, boolean block, Integer groupId) {
         String response = "";
         ApiResponse apiResponse = null;
         try {
             if (!TextUtils.isEmpty(userId)) {
-                response = httpRequestUtils.getResponse((block ? getBlockUserUrl() : getUnBlockUserSyncUrl()) + "?userId=" + URLEncoder.encode(userId, "UTF-8"), "application/json", "application/json");
+                response = httpRequestUtils.getResponse((block ? getBlockUserUrl() : getUnBlockUserSyncUrl()) + "?userId=" + URLEncoder.encode(userId, "UTF-8") + (groupId != null ? "&groupId=" + groupId : ""), "application/json", "application/json");
                 apiResponse = (ApiResponse) GsonUtils.getObjectFromJson(response, ApiResponse.class);
             }
         } catch (Exception e) {

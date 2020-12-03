@@ -153,7 +153,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
                         if (!TextUtils.isEmpty(userId)) {
                             Contact withUserContact = appContactService.getContactById(userId);
                             if (withUserContact.isBlocked()) {
-                                userBlockDialog(false, withUserContact, true);
+                                userBlockDialog(false, withUserContact, true, channel.getKey());
                             } else {
                                 processAttachButtonClick(view);
                             }
@@ -163,7 +163,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
                     }
                 } else if (contact != null) {
                     if (contact.isBlocked()) {
-                        userBlockDialog(false, contact, false);
+                        userBlockDialog(false, contact, false, null);
                     } else {
                         processAttachButtonClick(view);
                     }
