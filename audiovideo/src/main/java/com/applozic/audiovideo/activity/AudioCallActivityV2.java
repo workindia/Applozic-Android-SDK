@@ -612,7 +612,7 @@ public class AudioCallActivityV2 extends AppCompatActivity implements TokenGener
             public void onReconnected(@androidx.annotation.NonNull Room room) { }
 
             @Override
-            public void onDisconnected(Room room, TwilioException e) {
+            public void onDisconnected(@NonNull Room room, TwilioException e) {
                 try {
                     localParticipant = null;
                     videoStatusTextView.setText("Disconnected from " + room.getName());
@@ -1117,6 +1117,8 @@ public class AudioCallActivityV2 extends AppCompatActivity implements TokenGener
                     if (room != null) {
                         inviteSent = false;
                         room.disconnect();
+                    } else {
+                        finish();
                     }
                 } else if (MobiComKitConstants.APPLOZIC_VIDEO_DIALED.equals(intent.getAction())) {
 
