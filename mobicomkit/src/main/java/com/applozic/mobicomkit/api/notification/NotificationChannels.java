@@ -66,7 +66,9 @@ public class NotificationChannels {
                 }
             }
             createSilentNotificationChannel();
-            createCallNotificationChannel();
+            if(ApplozicClient.getInstance(context).isIPCallEnabled()) {
+                createCallNotificationChannel();
+            }
 
             Applozic.getInstance(context).setNotificationChannelVersion(NOTIFICATION_CHANNEL_VERSION);
         }
