@@ -55,6 +55,18 @@
             android:name="com.applozic.loginActivity"
             android:value="com.applozic.mobicomkit.sample.LoginActivity" />
 
+        <activity
+            android:name=".SampleRichMessagesActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/rich_messages_title"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/MobiComAppBaseTheme">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <service
             android:name=".pushnotification.FcmListenerService"
             android:exported="true"

@@ -301,6 +301,11 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void showRichMessages(View v) {
+        Intent intent = new Intent(this, SampleRichMessagesActivity.class);
+        startActivity(intent);
+    }
+
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
