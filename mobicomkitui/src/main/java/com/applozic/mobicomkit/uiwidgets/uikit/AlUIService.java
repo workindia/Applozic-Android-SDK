@@ -21,6 +21,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlTask;
 
 /**
  * Created by ashish on 30/05/18.
@@ -75,7 +76,7 @@ public class AlUIService {
                             }
                         };
                         ApplozicChannelDeleteTask applozicChannelDeleteTask = new ApplozicChannelDeleteTask(context, channelDeleteTask, channel);
-                        applozicChannelDeleteTask.execute((Void) null);
+                        AlTask.execute(applozicChannelDeleteTask);
                     }
                 });
         alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -99,7 +100,7 @@ public class AlUIService {
                 setPositiveButton(R.string.delete_conversation, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new DeleteConversationAsyncTask(new MobiComConversationService(context), contact, channel, null, context).execute();
+                        AlTask.execute(new DeleteConversationAsyncTask(new MobiComConversationService(context), contact, channel, null, context));
 
                     }
                 });
@@ -154,7 +155,7 @@ public class AlUIService {
                         };
                         ApplozicChannelLeaveMember applozicChannelLeaveMember = new ApplozicChannelLeaveMember(context, channel.getKey(), MobiComUserPreference.getInstance(context).getUserId(), applozicLeaveMemberListener);
                         applozicChannelLeaveMember.setEnableProgressDialog(true);
-                        applozicChannelLeaveMember.execute((Void) null);
+                        AlTask.execute(applozicChannelLeaveMember);
 
                     }
                 });

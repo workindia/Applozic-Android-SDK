@@ -1,15 +1,15 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class AlUserSearchTask extends AsyncTask<Void, Void, List<Contact>> {
+public class AlUserSearchTask extends AlAsyncTask<Void, List<Contact>> {
 
     private WeakReference<Context> context;
     private String searchString;
@@ -25,7 +25,7 @@ public class AlUserSearchTask extends AsyncTask<Void, Void, List<Contact>> {
     }
 
     @Override
-    protected List<Contact> doInBackground(Void[] objects) {
+    protected List<Contact> doInBackground() {
         if (searchString == null) {
             exception = new ApplozicException("Empty search string");
             return null;

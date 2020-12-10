@@ -1,15 +1,15 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class AlChannelListTask extends AsyncTask<Void, Void, List<Channel>> {
+public class AlChannelListTask extends AlAsyncTask<Void, List<Channel>> {
     private WeakReference<Context> context;
     private TaskListener callback;
 
@@ -19,7 +19,7 @@ public class AlChannelListTask extends AsyncTask<Void, Void, List<Channel>> {
     }
 
     @Override
-    protected List<Channel> doInBackground(Void... voids) {
+    protected List<Channel> doInBackground() {
         return ChannelService.getInstance(context.get()).getAllChannelList();
     }
 

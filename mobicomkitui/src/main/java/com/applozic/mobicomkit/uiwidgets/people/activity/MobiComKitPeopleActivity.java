@@ -7,12 +7,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.listners.AttachmentFilteringListener;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.fragment.app.Fragment;
@@ -298,7 +299,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             }
         } else {
             if (ApplozicClient.getInstance(this).isStartGroupOfTwo()) {
-                new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this).execute((Void) null);
+                AlTask.execute(new ChannelCreateAsyncTask(MobiComUserPreference.getInstance(this).getParentGroupKey(), contact, MobiComKitPeopleActivity.this));
             } else {
                 intent = new Intent();
                 intent.putExtra(USER_ID, contact.getUserId());
@@ -313,7 +314,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
             if (TextUtils.isEmpty(mimeType)) {
                 this.finish();
             } else {
-                new ShareAsyncTask(this, fileUri, contact, channel, mimeType).execute();
+                AlTask.execute(new ShareAsyncTask(this, fileUri, contact, channel, mimeType));
             }
         } else {
             Intent intentImage = new Intent(this, MobiComAttachmentSelectorActivity.class);
@@ -414,7 +415,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         dialog.setMessage(getResources().getString(R.string.applozic_contacts_loading_info));
         dialog.show();
 
-        new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
+        AlTask.execute(new AlUserSearchTask(this, query, new AlUserSearchTask.AlUserSearchHandler() {
             @Override
             public void onSuccess(List<Contact> contacts, Context context) {
                 if (dialog != null) {
@@ -432,7 +433,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
                 }
                 Toast.makeText(context, R.string.applozic_server_error, Toast.LENGTH_SHORT).show();
             }
-        }).execute();
+        }));
     }
 
     public SearchListFragment getSearchListFragment() {
@@ -518,7 +519,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
 
     }
 
-    private class ShareAsyncTask extends AsyncTask<Void, Void, File> {
+    private class ShareAsyncTask extends AlAsyncTask<Void, File> {
 
         WeakReference<Context> contextWeakReference;
         Uri uri;
@@ -537,7 +538,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
 
         @Override
-        protected File doInBackground(Void... voids) {
+        protected File doInBackground() {
 
             if (contextWeakReference != null) {
                 Context context = contextWeakReference.get();
@@ -586,7 +587,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
     }
 
-    public class ChannelCreateAsyncTask extends AsyncTask<Void, Integer, Channel> {
+    public class ChannelCreateAsyncTask extends AlAsyncTask<Integer, Channel> {
         private ChannelService channelService;
         private ProgressDialog progressDialog;
         private Context context;
@@ -615,7 +616,7 @@ public class MobiComKitPeopleActivity extends AppCompatActivity implements OnCon
         }
 
         @Override
-        protected Channel doInBackground(Void... params) {
+        protected Channel doInBackground() {
 
             if (localParentGroupKey != null && localParentGroupKey != 0 && withUserContact != null) {
                 List<String> userIdList = new ArrayList<>();

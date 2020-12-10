@@ -1,15 +1,15 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by sunil on 3/10/16.
  */
-public class RegisteredUsersAsyncTask extends AsyncTask<Void, Void, Boolean> {
+public class RegisteredUsersAsyncTask extends AlAsyncTask<Void, Boolean> {
 
     private final TaskListener taskListener;
     Context context;
@@ -45,7 +45,7 @@ public class RegisteredUsersAsyncTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (callForRegistered) {
                 registeredUsersApiResponse = userService.getRegisteredUsersList(lastTimeFetched, numberOfUsersToFetch);

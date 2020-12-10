@@ -1,14 +1,14 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
-public class MessageDeleteTask extends AsyncTask<Void, Void, String> {
+public class MessageDeleteTask extends AlAsyncTask<Void, String> {
 
     private WeakReference<Context> context;
     private String messageKey;
@@ -26,7 +26,7 @@ public class MessageDeleteTask extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected String doInBackground() {
         try {
             return mobiComMessageService.getMessageDeleteForAllResponse(messageKey, deleteForAll);
         } catch (Exception e) {

@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -10,6 +9,7 @@ import com.applozic.mobicomkit.listners.MessageListHandler;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by reytum on 27/11/17.
  */
 
-public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
+public class MessageListTask extends AlAsyncTask<Void, List<Message>> {
 
     private WeakReference<Context> context;
     private Contact contact;
@@ -44,7 +44,7 @@ public class MessageListTask extends AsyncTask<Void, Void, List<Message>> {
     }
 
     @Override
-    protected List<Message> doInBackground(Void... voids) {
+    protected List<Message> doInBackground() {
         List<Message> messageList = null;
         try {
             if (isForMessageList) {

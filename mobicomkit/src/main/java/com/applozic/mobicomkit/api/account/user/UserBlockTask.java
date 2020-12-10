@@ -1,12 +1,12 @@
 package com.applozic.mobicomkit.api.account.user;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.feed.ApiResponse;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 
-public class UserBlockTask extends AsyncTask<Void, Void, Boolean> {
+public class UserBlockTask extends AlAsyncTask<Void, Boolean> {
 
     private final TaskListener taskListener;
     private final Context context;
@@ -14,6 +14,7 @@ public class UserBlockTask extends AsyncTask<Void, Void, Boolean> {
     private String userId;
     private boolean block;
     private Exception mException;
+    private Integer groupId;
 
     public UserBlockTask(Context context, TaskListener listener, String userId, boolean block) {
         this.context = context;
@@ -22,10 +23,18 @@ public class UserBlockTask extends AsyncTask<Void, Void, Boolean> {
         this.block = block;
     }
 
+    public UserBlockTask(Context context, TaskListener listener, String userId, boolean block, Integer groupId) {
+        this.context = context;
+        this.taskListener = listener;
+        this.userId = userId;
+        this.block = block;
+        this.groupId = groupId;
+    }
+
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
-            apiResponse = UserService.getInstance(context).processUserBlock(userId, block);
+            apiResponse = UserService.getInstance(context).processUserBlock(userId, block, groupId);
             return apiResponse != null && apiResponse.isSuccess();
         } catch (Exception e) {
             e.printStackTrace();

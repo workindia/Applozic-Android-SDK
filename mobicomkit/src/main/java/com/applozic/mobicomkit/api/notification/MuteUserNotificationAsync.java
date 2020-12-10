@@ -1,12 +1,12 @@
 package com.applozic.mobicomkit.api.notification;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.ErrorResponseFeed;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.lang.ref.WeakReference;
 
@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
  * Created by reytum on 20/11/17.
  */
 
-public class MuteUserNotificationAsync extends AsyncTask<Void, Void, ApiResponse> {
+public class MuteUserNotificationAsync extends AlAsyncTask<Void, ApiResponse> {
 
     TaskListener listener;
     Long notificationAfterTime;
@@ -31,7 +31,7 @@ public class MuteUserNotificationAsync extends AsyncTask<Void, Void, ApiResponse
     }
 
     @Override
-    protected ApiResponse doInBackground(Void... params) {
+    protected ApiResponse doInBackground() {
         return UserService.getInstance(context.get()).muteUserNotifications(userId, notificationAfterTime);
     }
 

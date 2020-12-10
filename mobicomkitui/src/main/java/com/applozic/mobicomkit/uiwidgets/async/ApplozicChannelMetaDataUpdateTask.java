@@ -1,13 +1,13 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.GroupInfoUpdate;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by mihir on 18/04/18.
  */
 
-public class ApplozicChannelMetaDataUpdateTask extends AsyncTask<Void, Void, Boolean> {
+public class ApplozicChannelMetaDataUpdateTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     Integer channelKey;
     private Map<String, String> metadata = new HashMap<>();
@@ -45,7 +45,7 @@ public class ApplozicChannelMetaDataUpdateTask extends AsyncTask<Void, Void, Boo
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground() {
         try {
             if (metadata != null && metadata.size() > 0) {
                 if (channelKey != null && channelKey != 0) {

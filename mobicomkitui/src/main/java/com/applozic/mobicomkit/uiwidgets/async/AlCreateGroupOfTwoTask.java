@@ -1,18 +1,18 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.people.ChannelInfo;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by mihir on 20/03/18.
  */
 
-public class AlCreateGroupOfTwoTask extends AsyncTask<Void, Void, Channel> {
+public class AlCreateGroupOfTwoTask extends AlAsyncTask<Void, Channel> {
     Context context;
     ChannelService channelService;
     ChannelInfo channelInfo;
@@ -34,7 +34,7 @@ public class AlCreateGroupOfTwoTask extends AsyncTask<Void, Void, Channel> {
     }
 
     @Override
-    protected Channel doInBackground(Void[] params) {
+    protected Channel doInBackground() {
         if (channelInfo != null) {
             return channelService.createGroupOfTwo(channelInfo);
         }

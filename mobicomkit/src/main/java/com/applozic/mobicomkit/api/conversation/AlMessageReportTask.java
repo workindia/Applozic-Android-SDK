@@ -1,12 +1,11 @@
 package com.applozic.mobicomkit.api.conversation;
 
-import android.os.AsyncTask;
-
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicommons.json.GsonUtils;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
-public class AlMessageReportTask extends AsyncTask<Void, Void, String> {
+public class AlMessageReportTask extends AlAsyncTask<Void, String> {
 
     private String messageKey;
     private MobiComConversationService conversationService;
@@ -20,7 +19,7 @@ public class AlMessageReportTask extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected String doInBackground() {
         return conversationService.reportMessage(messageKey);
     }
 

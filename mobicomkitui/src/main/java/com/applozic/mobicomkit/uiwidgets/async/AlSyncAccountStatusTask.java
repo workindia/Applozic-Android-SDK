@@ -1,18 +1,18 @@
 package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 
 /**
  * Created by sunil on 19/12/2016.
  */
 
-public class AlSyncAccountStatusTask extends AsyncTask<Void, Void, Boolean> {
+public class AlSyncAccountStatusTask extends AlAsyncTask<Void, Boolean> {
     Context context;
     RegisterUserClientService registerUserClientService;
     TaskListener taskListener;
@@ -26,7 +26,7 @@ public class AlSyncAccountStatusTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
+    protected Boolean doInBackground() {
         User user = new User();
         user.setUserId(loggedInUserId);
         try {

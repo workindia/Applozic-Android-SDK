@@ -2,18 +2,18 @@ package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.feed.ChannelFeed;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.task.AlAsyncTask;
 
 /**
  * Created by Rahul-PC on 07-06-2017.
  */
 
-public class ApplozicGetMemberFromContactGroupTask extends AsyncTask<Void, Void, String[]> {
+public class ApplozicGetMemberFromContactGroupTask extends AlAsyncTask<Void, String[]> {
     private final String contactGroupId;
     Context context;
     GroupMemberListener groupMemberListener;
@@ -39,7 +39,7 @@ public class ApplozicGetMemberFromContactGroupTask extends AsyncTask<Void, Void,
     }
 
     @Override
-    protected String[] doInBackground(Void[] params) {
+    protected String[] doInBackground() {
         try {
             if (contactGroupId != null) {
                 ChannelFeed channelFeed = channelService.getMembersFromContactGroup(contactGroupId, groupType);
