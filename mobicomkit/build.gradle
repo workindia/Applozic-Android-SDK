@@ -12,7 +12,7 @@ android {
         minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.94"
+        versionName "5.95"
         consumerProguardFiles 'proguard-rules.txt'
     }
     lintOptions {
@@ -58,7 +58,7 @@ dependencies {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '5.94'
+    libraryVersion = '5.95'
 
     developerId = 'devashish'
     developerName = 'Applozic'
