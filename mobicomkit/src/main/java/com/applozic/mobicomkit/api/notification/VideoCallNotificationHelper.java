@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.api.notification;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import androidx.annotation.NonNull;
@@ -15,7 +14,6 @@ import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
-import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.HashMap;
@@ -392,26 +390,6 @@ public class VideoCallNotificationHelper {
             return;
         }
 
-        if(isAppInBackground()) {
-            int notificationId = Utils.getLauncherIcon(context.getApplicationContext());
-            final NotificationService notificationService =
-                    new NotificationService(notificationId, context, 0, 0, 0);
-            Contact contact = new AppContactService(context).getContactById(msg.getTo());
-            notificationService.startCallNotification(contact, msg, isAudioCallOnly, videoCallId);
-        } else {
-            openCallActivity(msg, isAudioCallOnly);
-        }
-    }
-
-    //this method will not work perfectly
-    //however for now there is no other suitable method to check if app is in background without using the lifecycle library
-    private boolean isAppInBackground() {
-        ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
-        ActivityManager.getMyMemoryState(myProcess);
-        return myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-    }
-
-    void openCallActivity(Message msg, String isAudioCallOnly) {
         Class activityToOpen = null;
         try {
             activityToOpen = Class.forName(NOTIFICATION_ACTIVITY_NAME);

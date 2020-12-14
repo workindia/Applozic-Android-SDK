@@ -30,8 +30,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.applozic.audiovideo.activity.AudioCallActivityV2;
-import com.applozic.audiovideo.activity.VideoActivity;
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
@@ -248,7 +246,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
             user.setDisplayName(displayName);
             user.setContactNumber(phoneNumber);
             user.setAuthenticationTypeId(authenticationType.getValue());
-            user.setFeatures(getFeatureList());
 
             Applozic.connectUser(this, user, new AlLoginHandler() {
                 @Override
@@ -258,12 +255,10 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
                     showProgress(false);
                     //Basic setting for context based chat enable...
 
-                    ApplozicClient.getInstance(context).setContextBasedChat(true).setHandleDial(true).setIPCallEnabled(true);
+                    ApplozicClient.getInstance(context).setContextBasedChat(true);
 
                     Map<ApplozicSetting.RequestCode, String> activityCallbacks = new HashMap<ApplozicSetting.RequestCode, String>();
                     activityCallbacks.put(ApplozicSetting.RequestCode.USER_LOOUT, LoginActivity.class.getName());
-                    activityCallbacks.put(ApplozicSetting.RequestCode.AUDIO_CALL, AudioCallActivityV2.class.getName());
-                    activityCallbacks.put(ApplozicSetting.RequestCode.VIDEO_CALL, VideoActivity.class.getName());
                     ApplozicSetting.getInstance(context).setActivityCallbacks(activityCallbacks);
 
                     buildContactData();
@@ -319,13 +314,6 @@ public class LoginActivity extends Activity implements ActivityCompat.OnRequestP
 
 
         }
-    }
-
-    private List<String> getFeatureList() {
-        List<String> featureList =  new ArrayList<>();
-        featureList.add(User.Features.IP_AUDIO_CALL.getValue());
-        featureList.add(User.Features.IP_VIDEO_CALL.getValue());
-        return featureList;
     }
 
     /**
