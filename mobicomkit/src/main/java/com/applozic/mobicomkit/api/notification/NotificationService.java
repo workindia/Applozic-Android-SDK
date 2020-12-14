@@ -1,6 +1,5 @@
 package com.applozic.mobicomkit.api.notification;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import android.text.Html;
 import android.text.TextUtils;
@@ -34,14 +32,9 @@ import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
-import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper.CALL_AUDIO_ONLY;
-import static com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper.CALL_ID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -315,17 +308,19 @@ public class NotificationService {
         return messageBody;
     }
 
-    private NotificationInfo getNotificationInfo(Contact contact, Channel channel, Message message) {
+
+    public void notifyUserForNormalMessage(Contact contact, Channel channel, Message message, int index) {
         if (ApplozicClient.getInstance(context).isNotificationDisabled()) {
             Utils.printLog(context, TAG, "Notification is disabled");
-            return null;
+            return;
         }
         String title = null;
+        String notificationText;
         Bitmap notificationIconBitmap = null;
         Contact displayNameContact = null;
         if (message.getGroupId() != null) {
             if (channel == null) {
-                return null;
+                return;
             }
             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                 String userId = ChannelService.getInstance(context).getGroupOfTwoReceiverUserId(channel.getKey());
@@ -351,24 +346,6 @@ public class NotificationService {
             notificationIconBitmap = appContactService.downloadContactImage(context, contact);
         }
 
-        NotificationInfo notificationInfo = new NotificationInfo();
-        notificationInfo.displayNameContact = displayNameContact;
-        notificationInfo.notificationIconBitmap = notificationIconBitmap;
-        notificationInfo.smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
-        notificationInfo.title = title;
-
-        return notificationInfo;
-    }
-
-    public void notifyUserForNormalMessage(Contact contact, Channel channel, Message message, int index) {
-        String notificationText;
-        NotificationInfo notificationInfo = getNotificationInfo(contact, channel, message);
-        if(notificationInfo == null) {
-            return;
-        }
-        Bitmap notificationIconBitmap = notificationInfo.notificationIconBitmap;
-        Contact displayNameContact = notificationInfo.displayNameContact;
-
         if (message.getContentType() == Message.ContentType.LOCATION.getValue()) {
             notificationText = getText(0);
         } else if (message.getContentType() == Message.ContentType.AUDIO_MSG.getValue()) {
@@ -388,7 +365,8 @@ public class NotificationService {
             e.printStackTrace();
         }
 
-        Intent intent = new Intent(context, activity);
+        Integer smallIconResourceId = Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) != null ? Utils.getMetaDataValueForResources(context, NOTIFICATION_SMALL_ICON_METADATA) : iconResourceId;
+            Intent intent = new Intent(context, activity);
         intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
         if (applozicClient.isChatListOnNotificationIsHidden()) {
             intent.putExtra("takeOrder", true);
@@ -404,12 +382,12 @@ public class NotificationService {
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, notificationChannels.getDefaultChannelId(muteNotifications(index)));
 
-        mBuilder.setSmallIcon(notificationInfo.smallIconResourceId)
+        mBuilder.setSmallIcon(smallIconResourceId)
                 .setLargeIcon(ApplozicClient.getInstance(context).isShowAppIconInNotification() ? BitmapFactory.decodeResource(context.getResources(), iconResourceId) : notificationIconBitmap != null ? notificationIconBitmap : BitmapFactory.decodeResource(context.getResources(), context.getResources().getIdentifier(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? applozicClient.getDefaultChannelImage() : applozicClient.getDefaultContactImage(), "drawable", context.getPackageName())))
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setPriority(muteNotifications(index) ? NotificationCompat.PRIORITY_LOW : NotificationCompat.PRIORITY_MAX)
                 .setWhen(System.currentTimeMillis())
-                .setContentTitle(notificationInfo.title)
+                .setContentTitle(title)
                 .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? (displayNameContact != null ? (displayNameContact.getDisplayName() + ": " + getSpannedText(notificationText)) : "" + getSpannedText(notificationText)) : getSpannedText(notificationText));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
@@ -447,44 +425,6 @@ public class NotificationService {
         }
     }
 
-    public void startCallNotification(Contact contact, Message message, String isAudioCallOnly, String callId) {
-        NotificationInfo notificationInfo = getNotificationInfo(contact, null, message);
-        if(notificationInfo == null) {
-            return;
-        }
-
-        Intent fullScreenIntent = null;
-        try {
-            fullScreenIntent = new Intent(context, Class.forName(VideoCallNotificationHelper.NOTIFICATION_ACTIVITY_NAME));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        fullScreenIntent.putExtra("CONTACT_ID", message.getTo());
-        fullScreenIntent.putExtra(CALL_ID, callId);
-        if (!TextUtils.isEmpty(isAudioCallOnly) && "true".equals(isAudioCallOnly)) {
-            fullScreenIntent.putExtra(CALL_AUDIO_ONLY, true);
-        }
-
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
-                fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(context, notificationChannels.getCallChannelId())
-                        .setSmallIcon(notificationInfo.smallIconResourceId)
-                        .setContentTitle("Incoming call from " + notificationInfo.title + ".")
-                        .setContentText("Tap to open call screen.")
-                        .setVibrate(new long[] {2000L, 1000L, 2000L, 1000L})
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setCategory(NotificationCompat.CATEGORY_CALL)
-                        .setFullScreenIntent(fullScreenPendingIntent, true);
-
-        Notification incomingCallNotification = notificationBuilder.build();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(message.getGroupId() != null ? String.valueOf(message.getGroupId()).hashCode() : message.getContactIds().hashCode(), incomingCallNotification);
-    }
-
     public String getSpannedText(CharSequence message) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return Html.fromHtml(message.toString(), Html.FROM_HTML_MODE_COMPACT).toString();
@@ -512,10 +452,4 @@ public class NotificationService {
         return !(notificationDisableThreshold == 0 || (notificationDisableThreshold > 0 && index < notificationDisableThreshold));
     }
 
-    static class NotificationInfo {
-        String title;
-        Contact displayNameContact;
-        Integer smallIconResourceId;
-        Bitmap notificationIconBitmap;
-    }
 }

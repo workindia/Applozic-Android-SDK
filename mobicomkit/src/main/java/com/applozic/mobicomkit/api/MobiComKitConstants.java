@@ -17,7 +17,6 @@ public final class MobiComKitConstants {
     public static final String AL_PUSH_NOTIFICATION = "AL_PUSH_NOTIFICATION";
     public static final String AL_SILENT_NOTIFICATION = "AL_SILENT_NOTIFICATION";
     public static final String AL_APP_NOTIFICATION = "AL_APP_NOTIFICATION";
-    public static final String AL_CALL_NOTIFICATION = "AL_CALL_NOTIFICATION";
 
     public static final String ACTIVITY_TO_OPEN = "ACTIVITY_TO_OPEN";
     public static final String LOCATION = "Location";
@@ -40,7 +39,6 @@ public final class MobiComKitConstants {
     public static final String PUSH_NOTIFICATION_NAME = "Push Notification";
     public static final String APP_NOTIFICATION_NAME = "App Notification";
     public static final String SILENT_PUSH_NOTIFICATION = "Silent Notification";
-    public static final String CALL_PUSH_NOTIFICATION = "Call Notification";
 
     public static final String MESSAGE_JSON_INTENT_EXTRA = "messageJson";
     public static final String MESSAGE_INTENT_EXTRA = "message";

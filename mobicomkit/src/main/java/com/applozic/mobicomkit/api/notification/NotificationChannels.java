@@ -13,7 +13,6 @@ import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.R;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -26,7 +25,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
 public class NotificationChannels {
 
     //increment this version if changes in notification channel is made
-    public static int NOTIFICATION_CHANNEL_VERSION = 2;
+    public static int NOTIFICATION_CHANNEL_VERSION = 1;
 
     private Context context;
     private NotificationManager mNotificationManager;
@@ -53,9 +52,6 @@ public class NotificationChannels {
                 soundFilePath = null;
                 deleteAppNotificationChannel();
             }
-            if(isCallChannelCreated()) {
-                deleteCallNotificationChannel();
-            }
             if (TextUtils.isEmpty(soundFilePath)) {
                 createNotificationChannel();
             } else {
@@ -66,7 +62,6 @@ public class NotificationChannels {
                 }
             }
             createSilentNotificationChannel();
-            createCallNotificationChannel();
 
             Applozic.getInstance(context).setNotificationChannelVersion(NOTIFICATION_CHANNEL_VERSION);
         }
@@ -85,10 +80,6 @@ public class NotificationChannels {
         if (isAppChannelCreated()) {
             deleteAppNotificationChannel();
         }
-
-        if(isCallChannelCreated()) {
-            deleteCallNotificationChannel();
-        }
     }
 
     public String getDefaultChannelId(boolean mute) {
@@ -100,10 +91,6 @@ public class NotificationChannels {
             }
         }
         return MobiComKitConstants.AL_APP_NOTIFICATION;
-    }
-
-    public String getCallChannelId() {
-        return MobiComKitConstants.AL_CALL_NOTIFICATION;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -162,32 +149,6 @@ public class NotificationChannels {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private synchronized void createCallNotificationChannel() {
-        CharSequence name = MobiComKitConstants.CALL_PUSH_NOTIFICATION;
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-
-        if (mNotificationManager != null && mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_CALL_NOTIFICATION) == null) {
-            NotificationChannel mChannel = new NotificationChannel(MobiComKitConstants.AL_CALL_NOTIFICATION, name, importance);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.BLUE);
-
-            if (ApplozicClient.getInstance(context).getVibrationOnNotification()) {
-                mChannel.enableVibration(true);
-                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            }
-
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
-
-            mChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE), audioAttributes);
-
-            mNotificationManager.createNotificationChannel(mChannel);
-            Utils.printLog(context, TAG, "Created call notification channel");
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private synchronized void createSilentNotificationChannel() {
         CharSequence name = MobiComKitConstants.SILENT_PUSH_NOTIFICATION;
         int importance = NotificationManager.IMPORTANCE_LOW;
@@ -231,14 +192,6 @@ public class NotificationChannels {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private synchronized void deleteCallNotificationChannel() {
-        if (mNotificationManager != null) {
-            mNotificationManager.deleteNotificationChannel(MobiComKitConstants.AL_CALL_NOTIFICATION);
-            Utils.printLog(context, TAG, "Deleted call notification channel");
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean isNotificationChannelCreated() {
         return mNotificationManager != null && mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_PUSH_NOTIFICATION) != null;
     }
@@ -251,10 +204,5 @@ public class NotificationChannels {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean isSilentChannelCreated() {
         return mNotificationManager != null && mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_SILENT_NOTIFICATION) != null;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private boolean isCallChannelCreated() {
-        return mNotificationManager != null && mNotificationManager.getNotificationChannel(MobiComKitConstants.AL_CALL_NOTIFICATION) != null;
     }
 }
