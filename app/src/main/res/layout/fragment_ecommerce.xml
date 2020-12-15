@@ -92,6 +92,22 @@
             android:textColor="@color/white"
             android:visibility="gone" />
 
+        <Button
+            android:id="@+id/rich_message_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/button_start_sample"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/holo_blue"
+            android:onClick="showRichMessages"
+            android:text="@string/rich_messages"
+            android:textColor="@color/white"
+            android:visibility="visible"
+            tools:ignore="OnClick" />
+
     </RelativeLayout>
 
     <LinearLayout

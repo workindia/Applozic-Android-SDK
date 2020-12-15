@@ -6,5 +6,6 @@
     <color name="buttonbgcolor">#20B2AA</color>
     <color name="textbuttoncolor">#ffffff</color>
     <color name="white">#fff</color>
+    <color name="richMessageButtonColor">#39d0ff</color>
 
 </resources>

@@ -81,6 +81,8 @@ dependencies {
         transitive = true;
     }
     implementation "androidx.annotation:annotation:1.1.0"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation('org.mockito:mockito-android:2.6.3') {
