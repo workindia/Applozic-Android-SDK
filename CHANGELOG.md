@@ -1,6 +1,11 @@
 
 ## Changelog
 
+**Version  5.95.1** - Thursday, 17 Dec 2020
+
+* Bug fixes
+* Internal support for calls
+
 **Version  5.95** - Thursday, 10 Dec 2020
 
 * Fixed s3 file upload issue.
