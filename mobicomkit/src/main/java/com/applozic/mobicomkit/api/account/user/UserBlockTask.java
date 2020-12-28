@@ -22,19 +22,10 @@ public class UserBlockTask extends AlAsyncTask<Void, Boolean> {
         this.userId = userId;
         this.block = block;
     }
-
-    public UserBlockTask(Context context, TaskListener listener, String userId, boolean block, Integer groupId) {
-        this.context = context;
-        this.taskListener = listener;
-        this.userId = userId;
-        this.block = block;
-        this.groupId = groupId;
-    }
-
     @Override
     protected Boolean doInBackground() {
         try {
-            apiResponse = UserService.getInstance(context).processUserBlock(userId, block, groupId);
+            apiResponse = UserService.getInstance(context).processUserBlock(userId, block);
             return apiResponse != null && apiResponse.isSuccess();
         } catch (Exception e) {
             e.printStackTrace();
