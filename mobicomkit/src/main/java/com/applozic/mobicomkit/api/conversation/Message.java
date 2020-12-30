@@ -70,10 +70,10 @@ public class Message extends JsonMarker {
     public static final String CONTACT = "contact";
     public static final String LOCATION = "location";
     public static final String OTHER = "other";
-    public static final String KM_ASSIGN = "KM_ASSIGN";
-    public static final String KM_STATUS = "KM_STATUS";
+    public static final String BOT_ASSIGN = "KM_ASSIGN";
+    public static final String CONVERSATION_STATUS = "KM_STATUS";
     public static final String FEEDBACK_METADATA_KEY = "feedback";
-    public static final String KM_SKIP_BOT = "skipBot";
+    public static final String SKIP_BOT = "skipBot";
     public static final String AL_DELETE_MESSAGE_FOR_ALL_KEY = "AL_DELETE_GROUP_MESSAGE_FOR_ALL";
 
     public Message() {
@@ -605,7 +605,7 @@ public class Message extends JsonMarker {
 
     public String getAssigneId() {
         if (isActionMessage()) {
-            return getMetadata().get(KM_ASSIGN);
+            return getMetadata().get(BOT_ASSIGN);
         }
         return null;
     }
@@ -672,15 +672,15 @@ public class Message extends JsonMarker {
     }
 
     public boolean isActionMessage() {
-        return getMetadata() != null && (getMetadata().containsKey(KM_ASSIGN) || getMetadata().containsKey(KM_STATUS) || getMetadata().containsKey(FEEDBACK_METADATA_KEY));
+        return getMetadata() != null && (getMetadata().containsKey(BOT_ASSIGN) || getMetadata().containsKey(CONVERSATION_STATUS) || getMetadata().containsKey(FEEDBACK_METADATA_KEY));
     }
 
     public String getConversationStatus() {
-        return (getMetadata() != null && getMetadata().containsKey(KM_STATUS)) ? getMetadata().get(KM_STATUS) : null;
+        return (getMetadata() != null && getMetadata().containsKey(CONVERSATION_STATUS)) ? getMetadata().get(CONVERSATION_STATUS) : null;
     }
 
     public String getConversationAssignee() {
-        return (getMetadata() != null && getMetadata().containsKey(KM_ASSIGN)) ? getMetadata().get(KM_ASSIGN) : null;
+        return (getMetadata() != null && getMetadata().containsKey(BOT_ASSIGN)) ? getMetadata().get(BOT_ASSIGN) : null;
     }
 
     public boolean isDeletedForAll() {

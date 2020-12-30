@@ -45,7 +45,7 @@ public class AlWebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.km_activity_payment);
+        setContentView(R.layout.al_activity_payment);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -72,8 +72,8 @@ public class AlWebViewActivity extends AppCompatActivity {
                         loadUrl(linkUrl.startsWith("http") ? linkUrl : "http://" + linkUrl);
                     }
                 } else {
-                    String formDataJson = alWebViewBundle.getString(AlRichMessage.KM_FORM_DATA);
-                    String baseUrl = alWebViewBundle.getString(AlRichMessage.KM_FORM_ACTION);
+                    String formDataJson = alWebViewBundle.getString(AlRichMessage.AL_FORM_DATA);
+                    String baseUrl = alWebViewBundle.getString(AlRichMessage.AL_FORM_ACTION);
 
                     if (formDataJson != null) {
                         try {

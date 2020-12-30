@@ -2,7 +2,6 @@ package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
@@ -13,7 +12,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.UserDetail;
@@ -191,31 +189,31 @@ public class MobiComConversationService {
             return null;
         }
 
-        KmConversationResponse kmConversationResponse = null;
+        AlConversationResponse alConversationResponse = null;
         try {
-            kmConversationResponse = (KmConversationResponse) GsonUtils.getObjectFromJson(messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead), KmConversationResponse.class);
+            alConversationResponse = (AlConversationResponse) GsonUtils.getObjectFromJson(messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead), AlConversationResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (kmConversationResponse == null) {
+        if (alConversationResponse == null) {
             return null;
         }
 
         List<Message> messageList = new ArrayList<>();
 
         try {
-            if (kmConversationResponse.getUserDetails() != null) {
-                MessageSearchCache.processUserDetails(kmConversationResponse.getUserDetails());
+            if (alConversationResponse.getUserDetails() != null) {
+                MessageSearchCache.processUserDetails(alConversationResponse.getUserDetails());
             }
 
-            if (kmConversationResponse.getGroupFeeds() != null) {
-                MessageSearchCache.processChannelFeeds(kmConversationResponse.getGroupFeeds());
+            if (alConversationResponse.getGroupFeeds() != null) {
+                MessageSearchCache.processChannelFeeds(alConversationResponse.getGroupFeeds());
             }
 
             List<String> messageKeys = new ArrayList<>();
 
-            for (Message message : kmConversationResponse.getMessage()) {
+            for (Message message : alConversationResponse.getMessage()) {
                 if (message.getTo() == null) {
                     continue;
                 }
@@ -241,7 +239,7 @@ public class MobiComConversationService {
                 }
             }
 
-            if (kmConversationResponse.getMessage() != null) {
+            if (alConversationResponse.getMessage() != null) {
                 Collections.reverse(messageList);
                 MessageSearchCache.setMessageList(messageList);
             }
@@ -439,7 +437,7 @@ public class MobiComConversationService {
 
     public List<Message> getConversationSearchList(String searchString) throws Exception {
         String response = messageClientService.getMessageSearchResult(searchString);
-        ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(response, new TypeToken<ApiResponse<KmConversationResponse>>() {
+        ApiResponse<AlConversationResponse> apiResponse = (ApiResponse<AlConversationResponse>) GsonUtils.getObjectFromJson(response, new TypeToken<ApiResponse<AlConversationResponse>>() {
         }.getType());
         if (apiResponse != null) {
             if (apiResponse.isSuccess()) {
@@ -452,48 +450,48 @@ public class MobiComConversationService {
         return null;
     }
 
-    private void processMessageSearchResult(KmConversationResponse kmConversationResponse) {
-        if (kmConversationResponse != null) {
-            MessageSearchCache.processChannelFeeds(kmConversationResponse.getGroupFeeds());
-            MessageSearchCache.processUserDetails(kmConversationResponse.getUserDetails());
-            MessageSearchCache.setMessageList(Arrays.asList(kmConversationResponse.getMessage()));
+    private void processMessageSearchResult(AlConversationResponse alConversationResponse) {
+        if (alConversationResponse != null) {
+            MessageSearchCache.processChannelFeeds(alConversationResponse.getGroupFeeds());
+            MessageSearchCache.processUserDetails(alConversationResponse.getUserDetails());
+            MessageSearchCache.setMessageList(Arrays.asList(alConversationResponse.getMessage()));
         }
     }
 
-    public synchronized List<Message> getKmConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) throws Exception {
+    public synchronized List<Message> getAlConversationList(int status, int pageSize, Long lastFetchTime, boolean makeServerCall) throws Exception {
         List<Message> conversationList = new ArrayList<>();
-        List<Message> cachedConversationList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
+        List<Message> cachedConversationList = messageDatabaseService.getAlConversationList(status, lastFetchTime);
 
         if (!makeServerCall && !cachedConversationList.isEmpty()) {
             return cachedConversationList;
         }
 
-        KmConversationResponse kmConversationResponse = null;
+        AlConversationResponse alConversationResponse = null;
         try {
-            ApiResponse<KmConversationResponse> apiResponse = (ApiResponse<KmConversationResponse>) GsonUtils.getObjectFromJson(messageClientService.getKmConversationList(status, pageSize, lastFetchTime), new TypeToken<ApiResponse<KmConversationResponse>>() {
+            ApiResponse<AlConversationResponse> apiResponse = (ApiResponse<AlConversationResponse>) GsonUtils.getObjectFromJson(messageClientService.getAlConversationList(status, pageSize, lastFetchTime), new TypeToken<ApiResponse<AlConversationResponse>>() {
             }.getType());
             if (apiResponse != null) {
-                kmConversationResponse = apiResponse.getResponse();
+                alConversationResponse = apiResponse.getResponse();
             }
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
 
-        if (kmConversationResponse == null) {
+        if (alConversationResponse == null) {
             return null;
         }
 
         try {
-            if (kmConversationResponse.getUserDetails() != null) {
-                processUserDetails(kmConversationResponse.getUserDetails());
+            if (alConversationResponse.getUserDetails() != null) {
+                processUserDetails(alConversationResponse.getUserDetails());
             }
 
-            if (kmConversationResponse.getGroupFeeds() != null) {
-                ChannelService.getInstance(context).processChannelFeedList(kmConversationResponse.getGroupFeeds(), false);
+            if (alConversationResponse.getGroupFeeds() != null) {
+                ChannelService.getInstance(context).processChannelFeedList(alConversationResponse.getGroupFeeds(), false);
             }
 
-            Message[] messages = kmConversationResponse.getMessage();
+            Message[] messages = alConversationResponse.getMessage();
             MobiComUserPreference userPreferences = MobiComUserPreference.getInstance(context);
 
             if (messages != null && messages.length > 0 && cachedConversationList.size() > 0 && cachedConversationList.get(0).isLocalMessage()) {
@@ -548,7 +546,7 @@ public class MobiComConversationService {
             throw e;
         }
 
-        List<Message> finalMessageList = messageDatabaseService.getKmConversationList(status, lastFetchTime);
+        List<Message> finalMessageList = messageDatabaseService.getAlConversationList(status, lastFetchTime);
         List<String> messageKeys = new ArrayList<>();
         for (Message msg : finalMessageList) {
             if (msg.getTo() == null) {
