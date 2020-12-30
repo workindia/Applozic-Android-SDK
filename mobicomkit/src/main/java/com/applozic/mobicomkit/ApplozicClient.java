@@ -345,20 +345,19 @@ public class ApplozicClient {
     }
 
     public boolean wasServerCallDoneBefore(Contact contact, Channel channel, Integer conversationId) {
-        if (contact == null && channel == null) {
-            return false;
-        }
         return sharedPreferences.getBoolean(getServerSyncCallKey(contact, channel, conversationId), false);
     }
 
     public void updateServerCallDoneStatus(Contact contact, Channel channel, Integer conversationId) {
-        if (contact == null && channel == null) {
-            return;
-        }
         sharedPreferences.edit().putBoolean(getServerSyncCallKey(contact, channel, conversationId), true).commit();
     }
 
     public String getServerSyncCallKey(Contact contact, Channel channel, Integer conversationId) {
+
+        if (contact == null && channel == null) {
+            return SERVER_SYNC + "LIST_CALL";
+        }
+
         return SERVER_SYNC.replace("[CONVERSATION]", (conversationId != null && conversationId != 0) ? String.valueOf(conversationId) : "")
                 .replace("[CONTACT]", contact != null ? contact.getContactIds() : "")
                 .replace("[CHANNEL]", channel != null ? String.valueOf(channel.getKey()) : "");

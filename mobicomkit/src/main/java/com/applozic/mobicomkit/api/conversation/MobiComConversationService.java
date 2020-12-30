@@ -158,9 +158,8 @@ public class MobiComConversationService {
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
-        boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
 
-        if (emptyTable || createdAt != null && createdAt != 0) {
+        if (!ApplozicClient.getInstance(context).wasServerCallDoneBefore(null, null, null) || createdAt != null && createdAt != 0) {
             getMessages(null, createdAt, null, null, null, false, false);
         }
 

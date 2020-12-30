@@ -1,6 +1,11 @@
 
 ## Changelog
 
+**Version  5.96** - Wednesday, 30 Dec 2020
+
+* Bug fixes
+* Added AlTask for fetching total unread count from server
+
 **Version  5.95.1** - Thursday, 17 Dec 2020
 
 * Bug fixes
