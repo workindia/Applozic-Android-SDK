@@ -104,8 +104,8 @@ public class UserService {
     }
 
 
-    public ApiResponse processUserBlock(String userId, boolean block, Integer groupId) {
-        ApiResponse apiResponse = userClientService.userBlock(userId, block, groupId);
+    public ApiResponse processUserBlock(String userId, boolean block) {
+        ApiResponse apiResponse = userClientService.userBlock(userId, block);
         if (apiResponse != null && apiResponse.isSuccess()) {
             baseContactService.updateUserBlocked(userId, block);
             return apiResponse;

@@ -90,6 +90,7 @@ public class ConversationIntentService extends AlJobIntentService {
         @Override
         public void run() {
             try {
+                UserService.getInstance(ConversationIntentService.this).processSyncUserBlock();
                 UserService.getInstance(ConversationIntentService.this).getMutedUserList();
             } catch (Exception e) {
                 e.printStackTrace();
