@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class KmRegexHelper {
+public class AlRegexHelper {
     public static final int ALL = -1;
     public static final int NONE = -2;
 

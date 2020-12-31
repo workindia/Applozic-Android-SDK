@@ -148,10 +148,10 @@ public class RichMessageActionProcessor implements ALRichMessageListener {
                 replyMetadata = new HashMap<>();
             }
             if (elementModel.getArticleId() != null) {
-                replyMetadata.put(AlRichMessage.KM_FAQ_ID, elementModel.getArticleId());
+                replyMetadata.put(AlRichMessage.AL_FAQ_ID, elementModel.getArticleId());
             }
             if (!TextUtils.isEmpty(elementModel.getSource())) {
-                replyMetadata.put(AlRichMessage.KM_SOURCE, elementModel.getSource());
+                replyMetadata.put(AlRichMessage.AL_SOURCE, elementModel.getSource());
             }
 
             if (isValidAction(elementModel.getAction())) {
@@ -241,10 +241,10 @@ public class RichMessageActionProcessor implements ALRichMessageListener {
     public void openWebLink(String formData, String formAction) {
         Bundle bundle = new Bundle();
         if (!TextUtils.isEmpty(formData)) {
-            bundle.putString(AlRichMessage.KM_FORM_DATA, formData);
+            bundle.putString(AlRichMessage.AL_FORM_DATA, formData);
         }
         if (!TextUtils.isEmpty(formAction)) {
-            bundle.putString(AlRichMessage.KM_FORM_ACTION, formAction);
+            bundle.putString(AlRichMessage.AL_FORM_ACTION, formAction);
         }
 
         if (richMessageListener != null) {

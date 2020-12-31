@@ -75,7 +75,7 @@ public class MessageClientService extends MobiComKitClientService {
     public static final String MESSAGE_INFO_URL = "/rest/ws/message/info";
     public static final String MESSAGE_BY_MESSAGE_KEYS_URL = "/rest/ws/message/detail";
     private static final String UPDATE_MESSAGE_METADATA_URL = "/rest/ws/message/update/metadata";
-    private static final String GET_KM_CONVERSATION_LIST_URL = "/rest/ws/group/support";
+    private static final String GET_CONVERSATION_LIST_URL = "/rest/ws/group/support";
     private static final String GET_ALL_GROUPS_URL = "/rest/ws/group/all";
     private static final String MESSAGE_REPORT_URL = "/rest/ws/message/report";
     private static final String MESSAGE_DELETE_FOR_ALL_URL = "/rest/ws/message/v2/delete?key=";
@@ -116,8 +116,8 @@ public class MessageClientService extends MobiComKitClientService {
         return getBaseUrl() + MESSAGE_LIST_URL;
     }
 
-    private String getKmConversationListUrl() {
-        return getBaseUrl() + GET_KM_CONVERSATION_LIST_URL;
+    private String getAlConversationListUrl() {
+        return getBaseUrl() + GET_CONVERSATION_LIST_URL;
     }
 
     public String getMessageDeleteUrl() {
@@ -596,7 +596,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public String getMessageSearchResult(String searchText) throws Exception {
         if (!TextUtils.isEmpty(searchText)) {
-            return httpRequestUtils.getResponseWithException(getKmConversationListUrl() + "?search=" + searchText, "application/json", "application/json", false, null);
+            return httpRequestUtils.getResponseWithException(getAlConversationListUrl() + "?search=" + searchText, "application/json", "application/json", false, null);
         }
         return null;
     }
@@ -751,8 +751,8 @@ public class MessageClientService extends MobiComKitClientService {
                 , "application/json", "application/json");
     }
 
-    public String getKmConversationList(int[] statusArray, String assigneeId, int pageSize, Long lastFetchTime) throws Exception {
-        StringBuilder urlBuilder = new StringBuilder(getKmConversationListUrl());
+    public String getAlConversationList(int[] statusArray, String assigneeId, int pageSize, Long lastFetchTime) throws Exception {
+        StringBuilder urlBuilder = new StringBuilder(getAlConversationListUrl());
         if (!TextUtils.isEmpty(assigneeId)) {
             urlBuilder.append("/assigned?userId=").append(URLEncoder.encode(assigneeId, "UTF-8"));
         }
@@ -768,8 +768,8 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.getResponseWithException(urlBuilder.toString(), "application/json", "application/json", false, null);
     }
 
-    public String getKmConversationList(int status, int pageSize, Long lastFetchTime) throws Exception {
-        return getKmConversationList(status == Channel.CLOSED_CONVERSATIONS ? new int[]{2} : new int[]{0, 6},
+    public String getAlConversationList(int status, int pageSize, Long lastFetchTime) throws Exception {
+        return getAlConversationList(status == Channel.CLOSED_CONVERSATIONS ? new int[]{2} : new int[]{0, 6},
                 status == Channel.ASSIGNED_CONVERSATIONS ? MobiComUserPreference.getInstance(context).getUserId() : null,
                 pageSize, lastFetchTime);
     }

@@ -25,8 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.KmFlowLayout
-        android:id="@+id/kmFlowLayout"
+    <com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.AlFlowLayout
+        android:id="@+id/alFlowLayout"
         android:layout_width="wrap_content"
         app:alignSenderSide = "false"
         android:layout_height="wrap_content" />
@@ -54,7 +54,7 @@
             android:id="@+id/headerText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/km_header_text_background"
+            android:background="@color/al_header_text_background"
             android:fontFamily="sans-serif"
             android:letterSpacing="0.04"
             android:lineSpacingExtra="3sp"
@@ -65,7 +65,7 @@
             android:paddingRight="9dp"
             android:paddingBottom="7dp"
             android:text=""
-            android:textColor="@color/km_list_item_main_header_text_color"
+            android:textColor="@color/al_list_item_main_header_text_color"
             android:textSize="14sp"
             android:textStyle="normal" />
 
@@ -78,7 +78,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/km_list_item_divider_color" />
+            android:background="@color/al_list_item_divider_color" />
 
         <TextView
             android:id="@+id/actionButton1"
@@ -93,7 +93,7 @@
             android:letterSpacing="0.07"
             android:maxLines="1"
             android:text=""
-            android:textColor="@color/km_list_item_action_color"
+            android:textColor="@color/al_list_item_action_color"
             android:textSize="15sp"
             android:textStyle="normal"
             android:visibility="gone" />
@@ -102,7 +102,7 @@
             android:id="@+id/actionDivider2"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/km_list_item_divider_color"
+            android:background="@color/al_list_item_divider_color"
             android:visibility="gone" />
 
         <TextView
@@ -118,7 +118,7 @@
             android:letterSpacing="0.07"
             android:maxLines="1"
             android:text=""
-            android:textColor="@color/km_list_item_action_color"
+            android:textColor="@color/al_list_item_action_color"
             android:textSize="15sp"
             android:textStyle="normal"
             android:visibility="gone" />
@@ -127,7 +127,7 @@
             android:id="@+id/actionDivider3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/km_list_item_divider_color"
+            android:background="@color/al_list_item_divider_color"
             android:visibility="gone" />
 
         <TextView
@@ -143,7 +143,7 @@
             android:letterSpacing="0.07"
             android:maxLines="1"
             android:text=""
-            android:textColor="@color/km_list_item_action_color"
+            android:textColor="@color/al_list_item_action_color"
             android:textSize="15sp"
             android:textStyle="normal"
             android:visibility="gone" />

@@ -102,7 +102,7 @@ public class ChannelDatabaseService {
         oldChannel = ChannelDatabaseService.getInstance(context).getChannelByChannelKey(channel.getKey());
 
         if (channel.getKmStatus() != 0) {
-            contentValues.put(MobiComDatabaseHelper.KM_STATUS, channel.getKmStatus());
+            contentValues.put(MobiComDatabaseHelper.CONVERSATION_STATUS, channel.getKmStatus());
         }
         if (oldChannel != null && !TextUtils.isEmpty(oldChannel.getImageUrl()) && !channel.getImageUrl().equals(oldChannel.getImageUrl())) {
             updateChannelLocalImageURI(channel.getKey(), null);
@@ -249,7 +249,7 @@ public class ChannelDatabaseService {
         channel.setNotificationAfterTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.NOTIFICATION_AFTER_TIME)));
         channel.setDeletedAtTime(cursor.getLong(cursor.getColumnIndex(MobiComDatabaseHelper.DELETED_AT)));
         channel.setParentKey(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.PARENT_GROUP_KEY)));
-        channel.setKmStatus(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.KM_STATUS)));
+        channel.setKmStatus(cursor.getInt(cursor.getColumnIndex(MobiComDatabaseHelper.CONVERSATION_STATUS)));
         String metadata = cursor.getString(cursor.getColumnIndex(MobiComDatabaseHelper.CHANNEL_META_DATA));
         channel.setMetadata(((Map<String, String>) GsonUtils.getObjectFromJson(metadata, Map.class)));
         if (count > 0) {

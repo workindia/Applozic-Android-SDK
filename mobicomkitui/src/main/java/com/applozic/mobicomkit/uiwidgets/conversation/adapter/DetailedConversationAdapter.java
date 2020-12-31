@@ -67,7 +67,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivit
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.KmLinkPreview;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.AlLinkPreview;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
@@ -987,7 +987,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
 
                         if (message.isTypeUrl()) {
-                            new KmLinkPreview(activityContext, message, myHolder.urlLoadLayout, alCustomizationSettings).createView();
+                            new AlLinkPreview(activityContext, message, myHolder.urlLoadLayout, alCustomizationSettings).createView();
                         } else {
                             myHolder.urlLoadLayout.setVisibility(View.GONE);
                         }

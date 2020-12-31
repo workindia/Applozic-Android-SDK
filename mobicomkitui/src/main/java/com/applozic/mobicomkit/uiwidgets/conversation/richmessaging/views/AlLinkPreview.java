@@ -15,8 +15,8 @@ import com.applozic.mobicomkit.listners.AlCallback;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.async.AlMessageMetadataUpdateTask;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.KmLinkPreviewModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.KmRegexHelper;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.AlLinkPreviewModel;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.utils.AlRegexHelper;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class KmLinkPreview {
+public class AlLinkPreview {
     public static final String LINK_PREVIEW_META_KEY = "KM_LINK_PREVIEW_META_KEY";
     private Context context;
     private Message message;
@@ -48,7 +48,7 @@ public class KmLinkPreview {
     private TextView descriptionText;
     private ImageView imageOnlyView;
 
-    public KmLinkPreview(Context context, Message message, RelativeLayout urlLoadLayout, AlCustomizationSettings alCustomizationSettings) {
+    public AlLinkPreview(Context context, Message message, RelativeLayout urlLoadLayout, AlCustomizationSettings alCustomizationSettings) {
         this.context = context;
         this.message = message;
         this.urlLoadLayout = urlLoadLayout;
@@ -60,7 +60,7 @@ public class KmLinkPreview {
     }
 
     public void createView() {
-        KmLinkPreviewModel existingLinkModel = getUrlMetaModel();
+        AlLinkPreviewModel existingLinkModel = getUrlMetaModel();
         if (existingLinkModel != null) {
             updateViews(existingLinkModel);
         } else {
@@ -68,7 +68,7 @@ public class KmLinkPreview {
             AlTask.execute(new UrlLoader(context, message, new AlCallback() {
                 @Override
                 public void onSuccess(Object response) {
-                    updateViews((KmLinkPreviewModel) response);
+                    updateViews((AlLinkPreviewModel) response);
                 }
 
                 @Override
@@ -79,7 +79,7 @@ public class KmLinkPreview {
         }
     }
 
-    public void updateViews(KmLinkPreviewModel linkPreviewModel) {
+    public void updateViews(AlLinkPreviewModel linkPreviewModel) {
         if (linkPreviewModel != null && linkPreviewModel.hasLinkData()) {
             urlLoadLayout.setVisibility(View.VISIBLE);
 
@@ -121,10 +121,10 @@ public class KmLinkPreview {
         descriptionText.setVisibility(showImageOnly ? View.GONE : View.VISIBLE);
     }
 
-    public KmLinkPreviewModel getUrlMetaModel() {
+    public AlLinkPreviewModel getUrlMetaModel() {
         try {
             if (message.getMetadata() != null && message.getMetadata().containsKey(LINK_PREVIEW_META_KEY)) {
-                return (KmLinkPreviewModel) GsonUtils.getObjectFromJson(message.getMetadata().get(LINK_PREVIEW_META_KEY), KmLinkPreviewModel.class);
+                return (AlLinkPreviewModel) GsonUtils.getObjectFromJson(message.getMetadata().get(LINK_PREVIEW_META_KEY), AlLinkPreviewModel.class);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,7 +132,7 @@ public class KmLinkPreview {
         return null;
     }
 
-    public static class UrlLoader extends AlAsyncTask<Void, KmLinkPreviewModel> {
+    public static class UrlLoader extends AlAsyncTask<Void, AlLinkPreviewModel> {
 
         private WeakReference<Context> context;
         private Message message;
@@ -145,12 +145,12 @@ public class KmLinkPreview {
         }
 
         @Override
-        protected KmLinkPreviewModel doInBackground() {
+        protected AlLinkPreviewModel doInBackground() {
             String validUrl = getValidUrl(message);
-            KmLinkPreviewModel linkPreviewModel = null;
+            AlLinkPreviewModel linkPreviewModel = null;
             try {
-                if (!TextUtils.isEmpty(validUrl) && Pattern.compile(KmRegexHelper.IMAGE_PATTERN).matcher(validUrl).matches()) {
-                    linkPreviewModel = new KmLinkPreviewModel();
+                if (!TextUtils.isEmpty(validUrl) && Pattern.compile(AlRegexHelper.IMAGE_PATTERN).matcher(validUrl).matches()) {
+                    linkPreviewModel = new AlLinkPreviewModel();
                     linkPreviewModel.setImageLink(validUrl);
                 } else {
                     Document document = Jsoup.connect(validUrl).get();
@@ -159,14 +159,14 @@ public class KmLinkPreview {
                         linkPreviewModel.setTitle(document.title());
                     }
                     if (!TextUtils.isEmpty(linkPreviewModel.getImageLink()) &&
-                            !(linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTP_PROTOCOL) || linkPreviewModel.getImageLink().startsWith(KmRegexHelper.HTTPS_PROTOCOL))) {
+                            !(linkPreviewModel.getImageLink().startsWith(AlRegexHelper.HTTP_PROTOCOL) || linkPreviewModel.getImageLink().startsWith(AlRegexHelper.HTTPS_PROTOCOL))) {
                         linkPreviewModel.setImageLink(getValidUrl(message) + linkPreviewModel.getImageLink());
                     }
                 }
                 return linkPreviewModel;
             } catch (HttpStatusException e) {
                 if (linkPreviewModel == null) {
-                    linkPreviewModel = new KmLinkPreviewModel();
+                    linkPreviewModel = new AlLinkPreviewModel();
                 }
                 linkPreviewModel.setInvalidUrl(true);
             } catch (Exception e) {
@@ -176,7 +176,7 @@ public class KmLinkPreview {
         }
 
         @Override
-        protected void onPostExecute(final KmLinkPreviewModel urlMetaModel) {
+        protected void onPostExecute(final AlLinkPreviewModel urlMetaModel) {
             if (callback != null) {
                 if (urlMetaModel != null) {
                     if (urlMetaModel.hasLinkData()) {
@@ -184,7 +184,7 @@ public class KmLinkPreview {
                         if (metadata == null) {
                             metadata = new HashMap<>();
                         }
-                        metadata.put(LINK_PREVIEW_META_KEY, GsonUtils.getJsonFromObject(urlMetaModel, KmLinkPreviewModel.class));
+                        metadata.put(LINK_PREVIEW_META_KEY, GsonUtils.getJsonFromObject(urlMetaModel, AlLinkPreviewModel.class));
                         AlTask.execute(new AlMessageMetadataUpdateTask(context.get(), message.getKeyString(), metadata, new AlMessageMetadataUpdateTask.MessageMetadataListener() {
                             @Override
                             public void onSuccess(Context context, String message) {
@@ -206,8 +206,8 @@ public class KmLinkPreview {
         }
     }
 
-    private static KmLinkPreviewModel getMetaTags(Document doc, Message message) {
-        KmLinkPreviewModel linkPreviewModel = new KmLinkPreviewModel();
+    private static AlLinkPreviewModel getMetaTags(Document doc, Message message) {
+        AlLinkPreviewModel linkPreviewModel = new AlLinkPreviewModel();
         String url = getValidUrl(message);
         try {
             Elements elements = doc.getElementsByTag("meta");
@@ -300,8 +300,8 @@ public class KmLinkPreview {
 
     private static String getValidUrl(Message message) {
         String url = message.getFirstUrl();
-        if (!TextUtils.isEmpty(url) && !(url.startsWith(KmRegexHelper.HTTP_PROTOCOL) || url.startsWith(KmRegexHelper.HTTPS_PROTOCOL))) {
-            return KmRegexHelper.HTTP_PROTOCOL + url;
+        if (!TextUtils.isEmpty(url) && !(url.startsWith(AlRegexHelper.HTTP_PROTOCOL) || url.startsWith(AlRegexHelper.HTTPS_PROTOCOL))) {
+            return AlRegexHelper.HTTP_PROTOCOL + url;
         }
         return url;
     }

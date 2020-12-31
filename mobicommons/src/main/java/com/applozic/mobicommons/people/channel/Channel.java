@@ -321,7 +321,7 @@ public class Channel extends JsonMarker {
         }
     }
 
-    public static class KmConversationStatus {
+    public static class AlConversationStatus {
         public static final String RESOLVED_STATUS = "Resolved";
         public static final String SPAM_STATUS = "Spam/Irrelevant";
         public static final String OPEN_STATUS = "Open";

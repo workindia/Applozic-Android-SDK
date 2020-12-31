@@ -1078,7 +1078,7 @@ public class MessageDatabaseService {
         }
     }
 
-    public List<Message> getKmConversationList(int status, Long lastFetchTime) {
+    public List<Message> getAlConversationList(int status, Long lastFetchTime) {
         Cursor cursor = null;
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String statusQuery = status == 2 ? "ch.kmStatus in (1, 2)" : "ch.kmStatus = " + status;

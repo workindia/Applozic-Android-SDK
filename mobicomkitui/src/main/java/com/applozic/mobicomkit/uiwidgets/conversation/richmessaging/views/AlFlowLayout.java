@@ -9,30 +9,30 @@ import android.view.ViewGroup;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicommons.ApplozicService;
 
-public class KmFlowLayout extends ViewGroup {
+public class AlFlowLayout extends ViewGroup {
 
     protected int lineHeightSpace;
     protected boolean alignSenderSide;
     protected boolean isRtlDirection = false;
 
-    public KmFlowLayout(Context context) {
+    public AlFlowLayout(Context context) {
         super(context);
     }
 
-    public KmFlowLayout(Context context, AttributeSet attrs) {
+    public AlFlowLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray kmCustomAttrTypedArray = ApplozicService.getContext(context).obtainStyledAttributes(attrs, R.styleable.KmFlowLayout, 0, 0);
-        alignSenderSide = kmCustomAttrTypedArray.getBoolean(R.styleable.KmFlowLayout_alignSenderSide, false);
+        TypedArray alCustomAttrTypedArray = ApplozicService.getContext(context).obtainStyledAttributes(attrs, R.styleable.AlFlowLayout, 0, 0);
+        alignSenderSide = alCustomAttrTypedArray.getBoolean(R.styleable.AlFlowLayout_alignSenderSide, false);
         isRtlDirection = ApplozicService.getContext(context).getResources().getConfiguration().getLayoutDirection() == LAYOUT_DIRECTION_RTL;
 
-        kmCustomAttrTypedArray.recycle();
+        alCustomAttrTypedArray.recycle();
     }
 
-    public KmFlowLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AlFlowLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public KmFlowLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public AlFlowLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
