@@ -1,10 +1,9 @@
 apply plugin: 'com.android.library'
 
 ext{
-    defaultCompileSdkVersion = 28
-    defaultTargetSdkVersion = 28
-    defaultSupportLibVersion = "28.0.0"
-    defaultGoogleGsonVersion = "2.8.5"
+    defaultCompileSdkVersion = 29
+    defaultTargetSdkVersion = 29
+    defaultGoogleGsonVersion = "2.8.6"
 }
 
 android {
@@ -24,7 +23,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api 'androidx.appcompat:appcompat:1.0.2'
+    api 'androidx.appcompat:appcompat:1.2.0'
     api "com.google.code.gson:gson:${rootProject.hasProperty("googleGsonVersion") ? rootProject.googleGsonVersion : defaultGoogleGsonVersion}"
 }
 /*ext {
