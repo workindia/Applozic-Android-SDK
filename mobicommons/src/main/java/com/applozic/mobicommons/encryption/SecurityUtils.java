@@ -29,6 +29,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
+import java.util.Locale;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -65,10 +66,29 @@ public class SecurityUtils {
     public static final String CURRENT_VERSION = "1.0";
     public static final String AES_KEY_ENCRYPTED = "aeskeyencrypted";
 
+    public static Locale localeBeforeChange;
+
     /**
      * no object allowed
      */
     private SecurityUtils() {
+    }
+
+    /**
+     * Workaround for known date parsing issue in KeyPairGenerator class
+     * https://issuetracker.google.com/issues/37095309
+     */
+    private static void setFakeEnglishLocale() throws SecurityException {
+        setLocale(Locale.ENGLISH);
+    }
+
+    private static void setLocale(final Locale locale) throws SecurityException {
+        Locale.setDefault(locale);
+        //works without the following code which is given in issue-tracker issue 37095309 as fix
+        //final Resources resources = context.getResources();
+        //final Configuration config = resources.getConfiguration();
+        //config.locale = locale;
+        //resources.updateConfiguration(config, resources.getDisplayMetrics()); //deprecated, might need alternative if removed
     }
 
     /**
@@ -80,6 +100,12 @@ public class SecurityUtils {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private static void generateRSAKeyPair(Context context) {
         try {
+            //for android(encountered in 4 and 5) date parsing locale bug
+            localeBeforeChange = Locale.getDefault();
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                setFakeEnglishLocale();
+            }
+
             Calendar start = Calendar.getInstance();
             Calendar end = Calendar.getInstance();
             end.add(Calendar.YEAR, 25); //key certificate will be valid for 25 years
@@ -104,8 +130,14 @@ public class SecurityUtils {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
             keyPairGenerator.initialize(spec);
             keyPairGenerator.genKeyPair();
-        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException exception) {
+        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException | SecurityException exception) {
             exception.printStackTrace();
+        } finally {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                if(localeBeforeChange != null) {
+                    setLocale(localeBeforeChange);
+                }
+            }
         }
     }
 
