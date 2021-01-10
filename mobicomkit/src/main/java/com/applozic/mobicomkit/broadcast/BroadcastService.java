@@ -305,9 +305,13 @@ public class BroadcastService {
     }
 
     public static void sendContactProfileClickBroadcast(Context context, String contactUserId) {
+        sendContactProfileClickBroadcast(context, INTENT_ACTIONS.CONTACT_PROFILE_CLICK.toString(), contactUserId);
+    }
+
+    public static void sendContactProfileClickBroadcast(Context context, String action, String contactUserId) {
         Utils.printLog(context, TAG, "Sending contact profile click broadcast for: " + contactUserId);
         Intent intent = new Intent();
-        intent.setAction(INTENT_ACTIONS.CONTACT_PROFILE_CLICK.toString());
+        intent.setAction(action);
         intent.putExtra("contactUserId", contactUserId);
         sendBroadcast(context, intent);
     }
