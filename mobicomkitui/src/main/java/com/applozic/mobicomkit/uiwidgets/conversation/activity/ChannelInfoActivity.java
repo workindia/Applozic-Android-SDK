@@ -655,7 +655,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             char firstLetter;
             ContactViewHolder holder;
             ChannelUserMapper channelUserMapper = channelUserMapperList.get(position);
-            Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
+            final Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
             if (convertView == null) {
                 convertView =
                         mInflater.inflate(R.layout.contact_users_layout, parent, false);
@@ -725,7 +725,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     contactImageLoader.loadImage(contact, holder.circleImageView, holder.alphabeticImage);
                 }
             }
-
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(contact != null) {
+                        BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
+                    }
+                }
+            });
             return convertView;
         }
 

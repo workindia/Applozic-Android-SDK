@@ -798,7 +798,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
 
                 if (channel != null) {
-
                     if (Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())
                             && User.RoleType.USER_ROLE.getValue().equals(MobiComUserPreference.getInstance(getContext()).getUserRoleType())) {
                         return;
@@ -813,13 +812,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         startActivity(channelInfo);
                     } else if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) && alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
-                        if (userProfileFragment == null) {
-                            String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                            if (!TextUtils.isEmpty(userId)) {
-                                Contact newcContact = appContactService.getContactById(userId);
+                        String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
+                        if(!TextUtils.isEmpty(userId)) {
+                            BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), userId);
+                            if (userProfileFragment == null) {
+                                Contact newContact = appContactService.getContactById(userId);
                                 userProfileFragment = new UserProfileFragment();
                                 Bundle bundle = new Bundle();
-                                bundle.putSerializable(ConversationUIService.CONTACT, newcContact);
+                                bundle.putSerializable(ConversationUIService.CONTACT, newContact);
                                 userProfileFragment.setArguments(bundle);
                                 ConversationActivity.addFragment(getActivity(), userProfileFragment, ConversationUIService.USER_PROFILE_FRAMENT);
                             }
@@ -828,6 +828,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 } else {
                     if (alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
+                        if(contact != null) {
+                            BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), contact.getUserId());
+                        }
                         if (userProfileFragment == null) {
                             userProfileFragment = new UserProfileFragment();
                             Bundle bundle = new Bundle();
