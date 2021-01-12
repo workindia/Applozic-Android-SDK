@@ -49,6 +49,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -1499,6 +1500,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 contactImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(contact != null) {
+                            BroadcastService.sendContactProfileClickBroadcast(context, contact.getUserId());
+                        }
                         sendCallback(messageList, getLayoutPosition());
                     }
                 });
@@ -1507,6 +1511,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 alphabeticTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(contact != null) {
+                            BroadcastService.sendContactProfileClickBroadcast(context, contact.getUserId());
+                        }
                         sendCallback(messageList, getLayoutPosition());
                     }
                 });
