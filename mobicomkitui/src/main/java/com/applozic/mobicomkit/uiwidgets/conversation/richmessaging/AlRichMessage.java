@@ -23,7 +23,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters.AlI
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters.AlRichListsAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.KmFlowLayout;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.AlFlowLayout;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.bumptech.glide.Glide;
 
@@ -48,10 +48,10 @@ public class AlRichMessage {
     public static final String QUICK_REPLY = "quickReply";
     public static final String QUICK_REPLY_OLD = "quick_reply";
     public static final String SUBMIT_BUTTON = "submit";
-    public static final String KM_FAQ_ID = "KM_FAQ_ID";
-    public static final String KM_SOURCE = "source";
-    public static final String KM_FORM_DATA = "formData";
-    public static final String KM_FORM_ACTION = "formAction";
+    public static final String AL_FAQ_ID = "KM_FAQ_ID";
+    public static final String AL_SOURCE = "source";
+    public static final String AL_FORM_DATA = "formData";
+    public static final String AL_FORM_ACTION = "formAction";
     public static final String SEND_MESSAGE = "sendMessage";
     public static final String OPEN_WEB_VIEW_ACTIVITY = "openWebViewActivity";
     public static final String IS_DEEP_LINK = "isDeepLink";
@@ -80,7 +80,7 @@ public class AlRichMessage {
         LinearLayout faqLayout = containerView.findViewById(R.id.alFaqLayout);
         RecyclerView genericCardRecycler = containerView.findViewById(R.id.alGenericCardContainer);
         RecyclerView imageListRecycler = containerView.findViewById(R.id.alImageListContainer);
-        KmFlowLayout flowLayout = containerView.findViewById(R.id.kmFlowLayout);
+        AlFlowLayout flowLayout = containerView.findViewById(R.id.alFlowLayout);
 
         listItemlayout.setVisibility(model.getTemplateId() == 7 ? View.VISIBLE : View.GONE);
         genericCardRecycler.setVisibility(model.getTemplateId() == 10 ? View.VISIBLE : View.GONE);
@@ -274,7 +274,7 @@ public class AlRichMessage {
         }
     }
 
-    private void setUpGridView(KmFlowLayout flowLayout, final ALRichMessageModel model) {
+    private void setUpGridView(AlFlowLayout flowLayout, final ALRichMessageModel model) {
 
         final List<ALRichMessageModel.ALPayloadModel> payloadList = Arrays.asList((ALRichMessageModel.ALPayloadModel[])
                 GsonUtils.getObjectFromJson(model.getPayload(), ALRichMessageModel.ALPayloadModel[].class));

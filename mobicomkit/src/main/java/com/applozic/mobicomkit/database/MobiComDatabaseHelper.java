@@ -83,7 +83,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     public static final String PARENT_CLIENT_GROUP_ID = "parentClientGroupId";
     public static final String THUMBNAIL_BLOB_KEY = "thumbnailBlobKey";
     public static final String AL_CATEGORY = "AL_CATEGORY";
-    public static final String KM_STATUS = "kmStatus";
+    public static final String CONVERSATION_STATUS = "kmStatus";
 
     public static final String CREATE_SCHEDULE_SMS_TABLE = "create table " + SCHEDULE_SMS_TABLE_NAME + "( "
             + _ID + " integer primary key autoincrement  ," + SMS
@@ -173,7 +173,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
     private static final String ALTER_CHANNEL_TABLE_FOR_PARENT_CLIENT_GROUP_ID_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + PARENT_CLIENT_GROUP_ID + " varchar(1000) null";
     private static final String ALTER_CREATE_SMS_TABLE_FOR_THUMBNAIL_BLOB_KEY = "ALTER TABLE " + SMS + " ADD COLUMN " + THUMBNAIL_BLOB_KEY + " varchar(2000)";
     private static final String ALTER_CHANNEL_TABLE_FOR_AL_CATEGORY_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + AL_CATEGORY + " VARCHAR(2000)";
-    private static final String ALTER_CHANNEL_TABLE_FOR_KM_STATUS_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + KM_STATUS + " integer default 0";
+    private static final String ALTER_CHANNEL_TABLE_FOR_KM_STATUS_COLUMN = "ALTER TABLE " + CHANNEL + " ADD COLUMN " + CONVERSATION_STATUS + " integer default 0";
 
     private static final String CREATE_CONTACT_TABLE = " CREATE TABLE contact ( " +
             USERID + " VARCHAR(50) primary key, "
@@ -219,7 +219,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
             + PARENT_CLIENT_GROUP_ID + " varchar(1000) default null,"
             + CHANNEL_META_DATA + " VARCHAR(2000) ,"
             + AL_CATEGORY + " " + " VARCHAR(2000) ,"
-            + KM_STATUS + " integer default 0)";
+            + CONVERSATION_STATUS + " integer default 0)";
 
     private static final String CREATE_CHANNEL_USER_X_TABLE = " CREATE TABLE channel_User_X ( " +
             _ID + " integer primary key autoincrement, "
@@ -455,7 +455,7 @@ public class MobiComDatabaseHelper extends SQLiteOpenHelper {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_AL_CATEGORY_COLUMN);
             }
 
-            if (!DBUtils.existsColumnInTable(database, CHANNEL, KM_STATUS)) {
+            if (!DBUtils.existsColumnInTable(database, CHANNEL, CONVERSATION_STATUS)) {
                 database.execSQL(ALTER_CHANNEL_TABLE_FOR_KM_STATUS_COLUMN);
             }
 
