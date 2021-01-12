@@ -1500,9 +1500,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 contactImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(contact != null) {
-                            BroadcastService.sendContactProfileClickBroadcast(context, contact.getUserId());
-                        }
                         sendCallback(messageList, getLayoutPosition());
                     }
                 });
@@ -1657,6 +1654,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     }
 
     public void sendCallback(List<Message> messageList, int pos) {
+        if(contact != null) {
+            BroadcastService.sendContactProfileClickBroadcast(context, contact.getUserId());
+        }
         Message message = messageList.get(pos);
         if (message != null) {
             if (context instanceof ALProfileClickListener) {
