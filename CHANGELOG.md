@@ -1,6 +1,10 @@
 
 ## Changelog
 
+**Version  5.96.1** - Tuesday, 12 Jan 2021
+
+* Bug fixes
+
 **Version  5.96** - Wednesday, 30 Dec 2020
 
 * Bug fixes
