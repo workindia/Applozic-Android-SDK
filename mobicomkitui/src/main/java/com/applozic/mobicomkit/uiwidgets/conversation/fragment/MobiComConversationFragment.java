@@ -826,11 +826,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     }
                 } else {
+                    if(contact != null) {
+                        BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), contact.getUserId());
+                    }
                     if (alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
-                        if(contact != null) {
-                            BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), contact.getUserId());
-                        }
                         if (userProfileFragment == null) {
                             userProfileFragment = new UserProfileFragment();
                             Bundle bundle = new Bundle();
