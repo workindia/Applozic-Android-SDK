@@ -49,6 +49,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
+import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -1652,6 +1653,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     public void sendCallback(List<Message> messageList, int pos) {
         Message message = messageList.get(pos);
         if (message != null) {
+            BroadcastService.sendContactProfileClickBroadcast(context, message.getTo());
             if (context instanceof ALProfileClickListener) {
                 ((ALProfileClickListener) context).onClick(activityContext, message.getTo(), channel, false);
             }
