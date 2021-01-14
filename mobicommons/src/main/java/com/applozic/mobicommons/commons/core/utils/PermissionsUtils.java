@@ -20,7 +20,7 @@ public class PermissionsUtils {
     public static final int REQUEST_CAMERA_FOR_PROFILE_PHOTO = 7;
     public static final int REQUEST_STORAGE_FOR_PROFILE_PHOTO = 8;
     public static final int REQUEST_CAMERA_AUDIO = 9;
-    public static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION};
+    public static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     public static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE};
     public static String[] PERMISSIONS_RECORD_AUDIO = {Manifest.permission.RECORD_AUDIO};
