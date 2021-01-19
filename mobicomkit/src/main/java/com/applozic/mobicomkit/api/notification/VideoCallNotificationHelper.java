@@ -3,10 +3,11 @@ package com.applozic.mobicomkit.api.notification;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -20,6 +21,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by devashish on 08/08/16.
@@ -173,7 +175,7 @@ public class VideoCallNotificationHelper {
 
     public String sendVideoCallRequest(Contact contact, boolean audioOnly) {
         Message notificationMessage = getNotificationMessage(contact);
-        this.videoCallId = MobiComUserPreference.getInstance(context).getDeviceKeyString()
+        this.videoCallId = UUID.randomUUID().toString()
                 + ":" + notificationMessage.getCreatedAtTime();
         notificationMessage.setMessage(videoCallId);
         notificationMessage.setMetadata(getDialCallMetaData());
