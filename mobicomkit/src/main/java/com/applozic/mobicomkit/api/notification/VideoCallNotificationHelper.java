@@ -38,7 +38,7 @@ public class VideoCallNotificationHelper {
     public static final String CALL_MISSED = "CALL_MISSED";
     public static final String CALL_CANCELED = "CALL_CANCELED";
     public static final String CALL_AUDIO_ONLY = "CALL_AUDIO_ONLY";
-    public static final int MAX_NOTIFICATION_RING_DURATION = 1 * 60 * 1000;
+    public static final int MAX_NOTIFICATION_RING_DURATION = 30 * 1000;
     public static final String NOTIFICATION_ACTIVITY_NAME = "com.applozic.audiovideo.activity.CallActivity";
     public static final String CALL_DURATION = "CALL_DURATION";
     private static final String TAG = "CallNotiHandler";
