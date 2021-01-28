@@ -15,17 +15,6 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-
-import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTask;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.core.widget.NestedScrollView;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -46,6 +35,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -77,6 +72,9 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -655,7 +653,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             char firstLetter;
             ContactViewHolder holder;
             ChannelUserMapper channelUserMapper = channelUserMapperList.get(position);
-            Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
+            final Contact contact = baseContactService.getContactById(channelUserMapper.getUserKey());
             if (convertView == null) {
                 convertView =
                         mInflater.inflate(R.layout.contact_users_layout, parent, false);
@@ -671,6 +669,24 @@ public class ChannelInfoActivity extends AppCompatActivity {
             } else {
                 holder = (ContactViewHolder) convertView.getTag();
             }
+
+            holder.circleImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(contact != null) {
+                        BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
+                    }
+                }
+            });
+
+            holder.alphabeticImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(contact != null) {
+                        BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
+                    }
+                }
+            });
 
             GradientDrawable bgShapeAdminText = (GradientDrawable) holder.adminTextView.getBackground();
             bgShapeAdminText.setColor(Color.parseColor(alCustomizationSettings.getAdminBackgroundColor()));
@@ -725,7 +741,6 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     contactImageLoader.loadImage(contact, holder.circleImageView, holder.alphabeticImage);
                 }
             }
-
             return convertView;
         }
 

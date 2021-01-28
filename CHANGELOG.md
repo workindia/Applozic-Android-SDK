@@ -1,6 +1,12 @@
 
 ## Changelog
 
+**Version  5.97** - Thursday, 28 Jan 2021
+
+* Changed target to Android API level 29
+* Clicking on contact profiles now sends a profile click broadcast
+* Internal updates for supporting audio video calls
+
 **Version  5.96.1** - Tuesday, 12 Jan 2021
 
 * Bug fixes

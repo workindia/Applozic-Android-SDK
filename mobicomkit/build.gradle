@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 ext {
-    defaultCompileSdkVersion = 28
-    defaultTargetSdkVersion = 28
+    defaultCompileSdkVersion = 29
+    defaultTargetSdkVersion = 29
 }
 
 android {
@@ -12,7 +12,7 @@ android {
         minSdkVersion 16
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
-        versionName "5.96.1"
+        versionName "5.97"
         consumerProguardFiles 'proguard-rules.txt'
     }
     lintOptions {
@@ -39,8 +39,9 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     api project(':mobicommons')
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     //Note: use this for customization
     //api 'com.applozic.mobiframework:mobicommons:5.94' //Note: use this in case customization is not required
 }
@@ -58,7 +59,7 @@ dependencies {
     artifact = 'mobicomkit'
 
     libraryDescription = 'Applozic Communication Chat/Messaging library'
-    libraryVersion = '5.96.1'
+    libraryVersion = '5.97'
 
     developerId = 'devashish'
     developerName = 'Applozic'
