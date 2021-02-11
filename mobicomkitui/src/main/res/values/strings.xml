@@ -233,5 +233,4 @@
     <string name="message_reported_successfully">This message has been reported successfully</string>
     <string name="failed_to_report_message">Failed to report message</string>
     <string name="auth_token_loading_message">Please wait...</string>
-    <string name="pinned_tag">*</string>
 </resources>
