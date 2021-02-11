@@ -451,10 +451,14 @@ public class ContactDatabase {
     }
 
     public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray) {
-        return getSearchCursorLoader(searchString, userIdArray, null);
+        return getSearchCursorLoader(searchString, userIdArray, null, null);
     }
 
     public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray, final Integer parentGroupKey) {
+        return getSearchCursorLoader(searchString, userIdArray, parentGroupKey, null);
+    }
+
+    public Loader<Cursor> getSearchCursorLoader(final String searchString, final String[] userIdArray, final Integer parentGroupKey, final String pinnedContactUserId) {
 
         return new CursorLoader(context, null, null, null, null, MobiComDatabaseHelper.DISPLAY_NAME + " asc") {
             @Override
@@ -472,6 +476,10 @@ public class ContactDatabase {
                     query = "Select DISTINCT(c.userId) as _id,c.fullName,c.contactNO,c.displayName,c.contactImageURL,c.contactImageLocalURI,c.email,c.applicationId,c.connected,c.lastSeenAt,c.unreadCount,c.blocked,c.blockedBy,c.status,c.contactType,c.userTypeId,c.deletedAtTime,c.notificationAfterTime,c.userRoleType,c.lastMessagedAt,c.userMetadata from contact c join channel_User_X cux on cux.userId = c.userId where ( cux.channelKey = '" + parentGroupKey + "' OR cux.parentGroupKey = '" + parentGroupKey + "' ) AND c.userId NOT IN ('" + userPreferences.getUserId().replaceAll("'", "''") + "')";
                     if (!TextUtils.isEmpty(searchString)) {
                         query = query + " AND c.fullName like '%" + searchString.replaceAll("'", "''") + "%'";
+                    } else { //if searching, then no need ignore pinned contact
+                        if(!TextUtils.isEmpty(pinnedContactUserId)) {
+                            query = query + " AND c.userId NOT IN ('" + pinnedContactUserId.replaceAll("'", "''") + "')";
+                        }
                     }
                     query = query + " order by c.fullName,c.userId asc ";
                     cursor = db.rawQuery(query, null);
@@ -504,6 +512,9 @@ public class ContactDatabase {
                             } else {
                                 query = query + " and userId != '" + userPreferences.getUserId() + "'";
                             }
+                        }
+                        if(TextUtils.isEmpty(searchString) && !TextUtils.isEmpty(pinnedContactUserId)) { //ignore pinned contact only if search input is empty
+                            query = query + " AND userId NOT IN ('" + pinnedContactUserId.replaceAll("'", "''") + "')";
                         }
                         query = query + " order by fullName COLLATE NOCASE,userId COLLATE NOCASE asc ";
                         cursor = db.rawQuery(query, null);

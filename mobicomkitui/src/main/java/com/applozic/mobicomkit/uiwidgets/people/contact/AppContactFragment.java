@@ -19,7 +19,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -460,7 +459,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
+        return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey(), alCustomizationSettings.getPinnedContact());
     }
 
     @Override
@@ -630,15 +629,11 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         }
 
         public void updateHolderForPinnedContact(ViewHolder viewHolder) {
-            if(viewHolder.pinnedTag != null) {
-                viewHolder.pinnedTag.setVisibility(View.VISIBLE);
-            }
+            //add code to change viewholder UI for pinned contact
         }
 
         public void updateHolderForNormalContact(ViewHolder viewHolder) {
-            if(viewHolder.pinnedTag != null) {
-                viewHolder.pinnedTag.setVisibility(View.GONE);
-            }
+            //add code to default to normal contact UI (ass opposed to viewholder)
         }
 
         public void checkAndSetupPinnedContact(Cursor cursor, ViewHolder viewHolder) {
@@ -754,7 +749,8 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 // Since the search string matched the name, this hides the secondary message
                 holder.text2.setVisibility(View.GONE);
             }
-            checkAndSetupPinnedContact(cursor, holder);
+            //can be uncommented in case different ui is needed for pinned contact
+            //checkAndSetupPinnedContact(cursor, holder);
         }
 
         /**
