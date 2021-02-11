@@ -4,6 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight">
 
+    <TextView
+        android:id="@+id/pinned_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pinned_tag"
+        android:padding="8dp"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:id="@+id/profile_image_relative_layout"
         android:layout_width="wrap_content"
@@ -13,7 +21,9 @@
         android:paddingLeft="@dimen/listview_item_padding"
         android:paddingRight="0dp"
         android:paddingStart="@dimen/listview_item_padding"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:layout_toEndOf="@+id/pinned_tag"
+        android:layout_toRightOf="@+id/pinned_tag">
 
         <TextView
             android:id="@+id/contactIcon"

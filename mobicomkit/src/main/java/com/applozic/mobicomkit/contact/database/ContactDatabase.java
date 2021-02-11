@@ -4,14 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
-import android.text.TextUtils;
-
 import com.applozic.mobicomkit.ApplozicClient;
-import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
 import com.applozic.mobicommons.ApplozicService;
@@ -137,6 +135,30 @@ public class ContactDatabase {
             }
             dbHelper.close();
         }
+    }
+
+    public Cursor getContactCursorByIdForLoader(String id) {
+        Cursor cursor = null;
+        try {
+            if (TextUtils.isEmpty(id)) {
+                return null;
+            }
+            String queryForLoaded = "SELECT c.userId AS _id,c.fullName,c.contactNO,c.displayName,c.contactImageURL,c.contactImageLocalURI,c.email,c.applicationId,c.connected,c.lastSeenAt,c.unreadCount,c.blocked,c.blockedBy,c.status,c.contactType,c.userTypeId,c.deletedAtTime,c.notificationAfterTime,c.userRoleType,c.lastMessagedAt,c.userMetadata FROM contact c WHERE userId = ?";
+
+            SQLiteDatabase database = dbHelper.getReadableDatabase();
+            cursor = database.rawQuery(queryForLoaded, new String[]{id});
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                }
+            }
+            return cursor;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            dbHelper.close();
+        }
+        return null;
     }
 
     public Contact getContactById(String id) {

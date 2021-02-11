@@ -10,22 +10,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-
-import androidx.fragment.app.ListFragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.appcompat.app.AlertDialog;
-
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -40,6 +34,13 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.account.user.UserBlockTask;
@@ -50,8 +51,8 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.RegisteredUsersApiResponse;
-import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
+import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.async.AlGetMembersFromContactGroupListTask;
@@ -433,6 +434,30 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
         return (int) typedValue.getDimension(metrics);
     }
 
+    /**
+     * This will return a new cursor with the given contact added to the top position.
+     *
+     * <p>Note: The contact if already present will not interchange position, but a duplicate will be added to the top.</p>
+     *
+     * @param userId the userId of the contact to show on top
+     * @param originalCursor the cursor with the original contacts
+     * @return A MergeCursor with the original cursor items and the duplicated contact on top
+     */
+    public Cursor addContactToCursorAtTop(String userId, Cursor originalCursor) {
+        if(originalCursor == null) { //if original items are null, ignore userId
+            return null;
+        }
+        if(TextUtils.isEmpty(userId)) {
+            return originalCursor;
+        }
+        Cursor userIdCursor = contactDatabase.getContactCursorByIdForLoader(userId);
+        if (userIdCursor != null && userIdCursor.getCount() > 0) {
+            return new MergeCursor(new Cursor[]{userIdCursor, originalCursor});
+        } else {
+            return originalCursor;
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return contactDatabase.getSearchCursorLoader(mSearchTerm, userIdArray, MobiComUserPreference.getInstance(getActivity()).getParentGroupKey());
@@ -442,7 +467,9 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // This swaps the new cursor into the adapter.
         if (loader.getId() == ContactsQuery.QUERY_ID) {
-            mAdapter.swapCursor(data);
+            //if searching then don't add contact (pinned) to top
+            Cursor mergedData = TextUtils.isEmpty(mSearchTerm) ? addContactToCursorAtTop(alCustomizationSettings.getPinnedContact(), data) : data;
+            mAdapter.swapCursor(mergedData);
         }
     }
 
@@ -584,6 +611,46 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             return -1;
         }
 
+        public boolean isTopContactFromCursorPinned(String userIdFavouriteContact, Cursor cursor) {
+            if (TextUtils.isEmpty(userIdFavouriteContact) || cursor == null || cursor.getCount() == 0) {
+                return false;
+            }
+            if(cursor.getPosition() != 0) { //the cursor is not at the top contact, no need to compare
+                return false;
+            }
+            try {
+                String cursorTopFieldUserId = cursor.getString(cursor.getColumnIndex("_id"));
+                if (TextUtils.isEmpty(cursorTopFieldUserId)) {
+                    return false;
+                }
+                return cursorTopFieldUserId.trim().equals(userIdFavouriteContact.trim());
+            } catch (Exception exception) {
+                return false;
+            }
+        }
+
+        public void updateHolderForPinnedContact(ViewHolder viewHolder) {
+            if(viewHolder.pinnedTag != null) {
+                viewHolder.pinnedTag.setVisibility(View.VISIBLE);
+            }
+        }
+
+        public void updateHolderForNormalContact(ViewHolder viewHolder) {
+            if(viewHolder.pinnedTag != null) {
+                viewHolder.pinnedTag.setVisibility(View.GONE);
+            }
+        }
+
+        public void checkAndSetupPinnedContact(Cursor cursor, ViewHolder viewHolder) {
+            if (alCustomizationSettings != null && cursor != null && cursor.getCount() > 0) {
+                if(isTopContactFromCursorPinned(alCustomizationSettings.getPinnedContact(), cursor)) {
+                    updateHolderForPinnedContact(viewHolder);
+                } else {
+                    updateHolderForNormalContact(viewHolder);
+                }
+            }
+        }
+
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemLayout =
@@ -597,6 +664,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             holder.contactIcon = (TextView) itemLayout.findViewById(R.id.contactIcon);
             holder.invite = itemLayout.findViewById(R.id.invite);
             holder.unBlock = itemLayout.findViewById(R.id.unblock);
+            holder.pinnedTag = itemLayout.findViewById(R.id.pinned_tag);
             itemLayout.setTag(holder);
             return itemLayout;
         }
@@ -686,7 +754,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
                 // Since the search string matched the name, this hides the secondary message
                 holder.text2.setVisibility(View.GONE);
             }
-
+            checkAndSetupPinnedContact(cursor, holder);
         }
 
         /**
@@ -755,6 +823,7 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView contactNumberTextView;
             TextView invite;
             TextView unBlock;
+            TextView pinnedTag;
         }
     }
 
