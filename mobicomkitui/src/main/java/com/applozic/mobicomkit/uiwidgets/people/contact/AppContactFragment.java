@@ -659,7 +659,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             holder.contactIcon = (TextView) itemLayout.findViewById(R.id.contactIcon);
             holder.invite = itemLayout.findViewById(R.id.invite);
             holder.unBlock = itemLayout.findViewById(R.id.unblock);
-            holder.pinnedTag = itemLayout.findViewById(R.id.pinned_tag);
             itemLayout.setTag(holder);
             return itemLayout;
         }
@@ -819,7 +818,6 @@ public class AppContactFragment extends ListFragment implements SearchListFragme
             TextView contactNumberTextView;
             TextView invite;
             TextView unBlock;
-            TextView pinnedTag;
         }
     }
 
