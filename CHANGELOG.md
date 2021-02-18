@@ -1,6 +1,13 @@
 
 ## Changelog
 
+**Version  5.97.1** - Thursday, 18 Feb 2021
+
+* add option to pin contact to top in contact screen
+* add retry download conversation view in case of network fail in conversation list
+* add option to hide exit conversation in conversation screen
+* fix app closing in case of no parent activity for conversation activity on takeOrder false
+
 **Version  5.97** - Thursday, 28 Jan 2021
 
 * Changed target to Android API level 29
