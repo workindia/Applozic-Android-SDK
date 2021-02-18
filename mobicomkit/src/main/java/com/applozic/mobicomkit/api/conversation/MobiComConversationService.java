@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+import android.text.TextUtils;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -42,6 +41,7 @@ import com.applozic.mobicommons.people.contact.Contact;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -158,10 +158,21 @@ public class MobiComConversationService {
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
 
         if (!ApplozicClient.getInstance(context).wasServerCallDoneBefore(null, null, null) || createdAt != null && createdAt != 0) {
-            getMessages(null, createdAt, null, null, null, false, false);
+            getMessagesWithNetworkMetaData(null, createdAt, null, null, null, false, false);
         }
 
         return messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey);
+    }
+
+    public synchronized NetworkListDecorator<Message> getLatestMessagesGroupByPeopleWithNetworkMetaData(Long createdAt, String searchString, Integer parentGroupKey) {
+        boolean networkFail = false;
+        
+        if (!ApplozicClient.getInstance(context).wasServerCallDoneBefore(null, null, null) || createdAt != null && createdAt != 0) {
+            NetworkListDecorator<Message> networkListDecorator = getMessagesWithNetworkMetaData(null, createdAt, null, null, null, false, false);
+            networkFail = networkListDecorator.wasNetworkFail();
+        }
+
+        return new NetworkListDecorator<>(messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey), networkFail);
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString) {
@@ -169,14 +180,14 @@ public class MobiComConversationService {
     }
 
     public List<Message> getMessages(String userId, Long startTime, Long endTime) {
-        return getMessages(startTime, endTime, new Contact(userId), null, null, false, false);
+        return getMessagesWithNetworkMetaData(startTime, endTime, new Contact(userId), null, null, false, false).getList();
     }
 
     public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId) {
-        return getMessages(startTime, endTime, contact, channel, conversationId, false, false);
+        return getMessagesWithNetworkMetaData(startTime, endTime, contact, channel, conversationId, false, false).getList();
     }
 
-    public synchronized List<Message> getMessagesForParticularThread(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead) {
+    public synchronized NetworkListDecorator<Message> getMessagesForParticularThreadWithNetworkMetaData(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead) {
         String data = null;
         try {
             data = messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead);
@@ -186,18 +197,20 @@ public class MobiComConversationService {
         }
 
         if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
-            return null;
+            return new NetworkListDecorator<>(null, true);
         }
 
         AlConversationResponse alConversationResponse = null;
+        boolean wasNetworkFail = false; //for determining network fail in case of exception
         try {
             alConversationResponse = (AlConversationResponse) GsonUtils.getObjectFromJson(messageClientService.getMessages(contact, channel, startTime, endTime, conversationId, isSkipRead), AlConversationResponse.class);
         } catch (Exception e) {
             e.printStackTrace();
+            wasNetworkFail = true;
         }
 
         if (alConversationResponse == null) {
-            return null;
+            return new NetworkListDecorator<>(null, wasNetworkFail);
         }
 
         List<Message> messageList = new ArrayList<>();
@@ -246,12 +259,12 @@ public class MobiComConversationService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return messageList;
+        return new NetworkListDecorator<>(messageList, wasNetworkFail);
     }
 
-    public synchronized List<Message> getMessages(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead, boolean isForSearch) {
+    public synchronized NetworkListDecorator<Message> getMessagesWithNetworkMetaData(Long startTime, Long endTime, Contact contact, Channel channel, Integer conversationId, boolean isSkipRead, boolean isForSearch) {
         if (isForSearch) {
-            return getMessagesForParticularThread(startTime, endTime, contact, channel, conversationId, isSkipRead);
+            return getMessagesForParticularThreadWithNetworkMetaData(startTime, endTime, contact, channel, conversationId, isSkipRead);
         }
         List<Message> messageList = new ArrayList<Message>();
         List<Message> cachedMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
@@ -268,7 +281,7 @@ public class MobiComConversationService {
                 ApplozicClient.getInstance(context).wasServerCallDoneBefore(contact, channel, conversationId)
                 || (contact == null && channel == null && cachedMessageList.isEmpty() && ApplozicClient.getInstance(context).wasServerCallDoneBefore(contact, channel, conversationId)))) {
             Utils.printLog(context, TAG, "cachedMessageList size is : " + cachedMessageList.size());
-            return cachedMessageList;
+            return new NetworkListDecorator<>(cachedMessageList, false);
         }
 
         String data;
@@ -277,18 +290,20 @@ public class MobiComConversationService {
             Utils.printLog(context, TAG, "Received response from server for Messages: " + data);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return cachedMessageList;
+            return new NetworkListDecorator<>(cachedMessageList, true);
         }
 
         if (data == null || TextUtils.isEmpty(data) || data.equals("UnAuthorized Access") || !data.contains("{")) {
             //Note: currently not supporting syncing old channel messages from server
             if (channel != null && channel.getKey() != null) {
-                return cachedMessageList;
+                return new NetworkListDecorator<>(cachedMessageList, true);
             }
-            return cachedMessageList;
+            return new NetworkListDecorator<>(cachedMessageList, true);
         }
 
         ApplozicClient.getInstance(context).updateServerCallDoneStatus(contact, channel, conversationId);
+
+        boolean wasNetworkFail = false; //for the try catch
 
         try {
             Gson gson = new GsonBuilder().registerTypeAdapterFactory(new ArrayAdapterFactory())
@@ -364,10 +379,10 @@ public class MobiComConversationService {
                             if (message.getGroupId() != null) {
                                 Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                                 if (newChannel != null) {
-                                    getMessages(null, null, null, newChannel, null, true, isForSearch);
+                                    getMessagesWithNetworkMetaData(null, null, null, newChannel, null, true, isForSearch);
                                 }
                             } else {
-                                getMessages(null, null, new Contact(message.getContactIds()), null, null, true, isForSearch);
+                                getMessagesWithNetworkMetaData(null, null, new Contact(message.getContactIds()), null, null, true, isForSearch);
                             }
                         }
                     }
@@ -381,8 +396,11 @@ public class MobiComConversationService {
                 Intent intent = new Intent(MobiComKitConstants.APPLOZIC_UNREAD_COUNT);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (JsonSyntaxException | JSONException jsonException) {
+            jsonException.printStackTrace();
+            wasNetworkFail = true;
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
 
         List<Message> finalMessageList = messageDatabaseService.getMessages(startTime, endTime, contact, channel, conversationId);
@@ -432,7 +450,7 @@ public class MobiComConversationService {
             });
         }
 
-        return channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? messageList : finalMessageList;
+        return new NetworkListDecorator<>(channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType()) ? messageList : finalMessageList, wasNetworkFail);
     }
 
     public List<Message> getConversationSearchList(String searchString) throws Exception {
@@ -530,10 +548,10 @@ public class MobiComConversationService {
                         if (message.getGroupId() != null) {
                             Channel newChannel = ChannelService.getInstance(context).getChannelByChannelKey(message.getGroupId());
                             if (newChannel != null) {
-                                getMessages(null, null, null, newChannel, null, true, false);
+                                getMessagesWithNetworkMetaData(null, null, null, newChannel, null, true, false);
                             }
                         } else {
-                            getMessages(null, null, new Contact(message.getContactIds()), null, null, true, false);
+                            getMessagesWithNetworkMetaData(null, null, new Contact(message.getContactIds()), null, null, true, false);
                         }
                     }
                 }
@@ -846,6 +864,40 @@ public class MobiComConversationService {
                     }
                     break;
             }
+        }
+    }
+
+    /**
+     * Composition of a link list and network request status boolean that is used to store data retrieved from a network.
+     *
+     * <p>This class can be helpful when you need meta-data regarding the status of the network request that was used to retrieve the data.
+     * This information can be used for UI elements etc.</p>
+     *
+     * @param <E> data type for liked list
+     */
+    public static class NetworkListDecorator<E> {
+        private List<E> list;
+        private boolean wasNetworkFail;
+
+        public NetworkListDecorator(List<E> list, boolean wasNetworkFail) {
+            this.list = list;
+            this.wasNetworkFail = wasNetworkFail;
+        }
+
+        public List<E> getList() {
+            return list;
+        }
+
+        public void setList(List<E> list) {
+            this.list = list;
+        }
+
+        public boolean wasNetworkFail() {
+            return wasNetworkFail;
+        }
+
+        public void setNetworkFail(boolean wasNetworkFail) {
+            this.wasNetworkFail = wasNetworkFail;
         }
     }
 }
