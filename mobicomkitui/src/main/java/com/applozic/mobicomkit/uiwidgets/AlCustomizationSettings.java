@@ -111,6 +111,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private int notificationDisableThreshold = 0;
     private boolean hideGroupDeleteButton = false;
     private boolean hideGroupSubtitle = false;
+    private String pinnedContact;
 
     private boolean launchChatFromProfilePicOrName = false;
 
@@ -640,6 +641,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public String getUserDeactivatedText() {
         return userDeactivatedText;
+    }
+
+    public String getPinnedContact() {
+        return pinnedContact;
+    }
+
+    public void setPinnedContact(String pinnedContact) {
+        this.pinnedContact = pinnedContact;
     }
 
     @Override

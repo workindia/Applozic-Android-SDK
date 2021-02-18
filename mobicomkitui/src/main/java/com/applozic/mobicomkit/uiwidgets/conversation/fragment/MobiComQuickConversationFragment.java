@@ -5,9 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Process;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,12 +13,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -29,9 +32,6 @@ import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
-
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.AlLinearLayoutManager;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
@@ -670,6 +670,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         private int firstVisibleItem;
         private boolean initial;
+        private boolean wasNetworkFail;
         private List<Message> nextMessageList = new ArrayList<Message>();
         private WeakReference<Context> context;
         private boolean loadMoreMessages;
@@ -737,7 +738,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected Long doInBackground() {
             if (initial) {
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
+                MobiComConversationService.NetworkListDecorator<Message> networkListDecorator = syncCallService.getLatestMessagesGroupByPeopleWithNetworkMetaData(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
+                nextMessageList = networkListDecorator.getList();
+                wasNetworkFail = networkListDecorator.wasNetworkFail();
             } else if (!messageList.isEmpty()) {
                 listIndex = firstVisibleItem;
                 Long createdAt;
@@ -827,10 +830,20 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     TextView emptyTextView = textViewWeakReference.get();
                     if (emptyTextView != null) {
                         emptyTextView.setVisibility(messageList.isEmpty() ? View.VISIBLE : View.GONE);
-                        if (!TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
+                        if (wasNetworkFail && messageList.isEmpty()) {
+                            emptyTextView.setText(R.string.network_fail_conversation_load_with_cta);
+                            emptyTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    downloadConversations(false, searchString);
+                                }
+                            });
+                        } else if (!TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
                             emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoSearchFoundForChatMessages()) ? alCustomizationSettings.getNoSearchFoundForChatMessages() : noConversationFound);
+                            emptyTextView.setOnClickListener(null);
                         } else if (TextUtils.isEmpty(searchString) && messageList.isEmpty()) {
                             emptyTextView.setText(!TextUtils.isEmpty(alCustomizationSettings.getNoConversationLabel()) ? alCustomizationSettings.getNoConversationLabel() : conversationLabel);
+                            emptyTextView.setOnClickListener(null);
                         }
                     }
                 }

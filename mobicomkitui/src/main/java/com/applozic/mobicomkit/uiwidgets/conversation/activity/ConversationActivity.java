@@ -326,7 +326,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             if (takeOrder && getSupportFragmentManager().getBackStackEntryCount() == 2) {
                 try {
                     String parentActivity = ApplozicSetting.getInstance(this).getParentActivityName(this);
-                    if (parentActivity != null) {
+                    if (parentActivity != null && isTaskRoot()) {
                         Intent intent = new Intent(this, Class.forName(parentActivity));
                         startActivity(intent);
                     }
