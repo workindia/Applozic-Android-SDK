@@ -84,6 +84,7 @@ public class MobiComUserPreference {
     private static String USER_DEACTIVATED = "USER_DEACTIVATED";
     private static String CHANNEL_LIST_LAST_GENERATED_TIME = "channelListLastGeneratedAtTime";
     private static String CHANNEL_LIST_LAST_GENERATED_DEFAULT_VALUE = "10000";
+    private static String ENCRYPTION_IV = "ENCRYPTION_IV";
 
     private SharedPreferences sharedPreferences;
     private Context context;
@@ -955,4 +956,17 @@ public class MobiComUserPreference {
         return CHANNEL_LIST_LAST_GENERATED_DEFAULT_VALUE;
     }
 
+    public String getEncryptionIVString() {
+        String defaultValue = new String(new byte[16]);
+        try {
+            if(sharedPreferences.contains(ENCRYPTION_IV)) {
+                return sharedPreferences.getString(ENCRYPTION_IV, defaultValue);
+            } else {
+                sharedPreferences.edit().putString(ENCRYPTION_IV, new String(new byte[16])).commit();
+            }
+            return sharedPreferences.getString(ENCRYPTION_IV, defaultValue);
+        } catch (Exception exception) {
+            return defaultValue;
+        }
+    }
 }

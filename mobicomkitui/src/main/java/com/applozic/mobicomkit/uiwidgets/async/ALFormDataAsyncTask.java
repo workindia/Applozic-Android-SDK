@@ -66,7 +66,7 @@ public class ALFormDataAsyncTask extends AlAsyncTask<Void, String> {
         URL url;
         try {
             if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context.get()).getEncryptionKey())) {
-                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context.get()).getEncryptionKey(), data);
+                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context.get()).getEncryptionKey(), MobiComUserPreference.getInstance(context.get()).getEncryptionIVString().getBytes(), data);
             }
             url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -114,7 +114,7 @@ public class ALFormDataAsyncTask extends AlAsyncTask<Void, String> {
             Utils.printLog(context.get(), TAG, "Response : " + sb.toString());
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context.get()).getEncryptionKey())) {
-                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context.get()).getEncryptionKey(), sb.toString());
+                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context.get()).getEncryptionKey(), MobiComUserPreference.getInstance(context.get()).getEncryptionIVString().getBytes(), sb.toString());
                 }
             }
             return sb.toString();

@@ -18,24 +18,24 @@ public class EncryptionUtils {
     private static final String ALGORITHM_AES = "AES";
 
     // Performs Encryption
-    public static String encrypt(String keyString, String plainText) throws Exception {
+    public static String encrypt(String keyString, byte[] iv, String plainText) throws Exception {
         if (TextUtils.isEmpty(plainText)) {
             return null;
         }
         SecretKeySpec secretKeySpec = generateKey(keyString);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec,
-                new IvParameterSpec(new byte[16]));
+                new IvParameterSpec(iv));
         byte[] encrypted = cipher.doFinal(plainText.getBytes());
         return Base64.encodeToString(encrypted, Base64.DEFAULT);
     }
 
     // Performs decryption
-    public static String decrypt(String keyString, String encryptedText) throws Exception {
+    public static String decrypt(String keyString, byte[] iv, String encryptedText) throws Exception {
         SecretKeySpec secretKeySpec = generateKey(keyString);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec,
-                new IvParameterSpec(new byte[16]));
+                new IvParameterSpec(iv));
         byte[] decodedValue = Base64.decode(encryptedText, Base64.DEFAULT);
         byte[] original = cipher.doFinal(decodedValue);
         return new String(original);

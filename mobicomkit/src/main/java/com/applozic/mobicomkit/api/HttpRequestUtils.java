@@ -53,7 +53,7 @@ public class HttpRequestUtils {
         URL url;
         try {
             if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), data);
+                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), data);
             }
             url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -105,7 +105,7 @@ public class HttpRequestUtils {
             Utils.printLog(context, TAG, "Response : " + sb.toString());
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), sb.toString());
                 }
             }
             return sb.toString();
@@ -126,7 +126,7 @@ public class HttpRequestUtils {
         URL url;
         try {
             if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), data);
+                data = EncryptionUtils.encrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), data);
             }
             url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -178,7 +178,7 @@ public class HttpRequestUtils {
             Utils.printLog(context, TAG, "Response : " + sb.toString());
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                    return EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), sb.toString());
                 }
             }
             return sb.toString();
@@ -303,7 +303,7 @@ public class HttpRequestUtils {
 
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    return isFileUpload ? sb.toString() : EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                    return isFileUpload ? sb.toString() : EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), sb.toString());
                 }
             }
             return sb.toString();
@@ -382,7 +382,7 @@ public class HttpRequestUtils {
 
             if (!TextUtils.isEmpty(sb.toString())) {
                 if (!TextUtils.isEmpty(MobiComUserPreference.getInstance(context).getEncryptionKey())) {
-                    return isFileUpload ? sb.toString() : EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), sb.toString());
+                    return isFileUpload ? sb.toString() : EncryptionUtils.decrypt(MobiComUserPreference.getInstance(context).getEncryptionKey(), MobiComUserPreference.getInstance(context).getEncryptionIVString().getBytes(), sb.toString());
                 }
             }
             return sb.toString();
