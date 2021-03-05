@@ -234,5 +234,5 @@
     <string name="failed_to_report_message">Failed to report message</string>
     <string name="auth_token_loading_message">Please wait...</string>
     <string name="network_fail_conversation_load_with_cta">Network Fail. Tap to Retry.</string>
-    <string name="logged_in_user_deleted">The logged in user has been deleted. Please logout.</string>
+    <string name="logged_in_user_deleted">Your account had been deleted.</string>
 </resources>
