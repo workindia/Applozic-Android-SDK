@@ -11,7 +11,6 @@ import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -25,9 +24,12 @@ import com.applozic.mobicommons.people.contact.Contact;
 import java.util.Map;
 
 /**
+ * For sending various android Broadcasts different parts of the app.
+ *
+ * <p>NOTE: If we want to send the broadcast to app make sure to not to add the Category intent.addCategory(Intent.CATEGORY_DEFAULT);
+ * P.S: When creating a new broadcast do not forget to add it's INTENT_ACTIONS to {@link BroadcastService#getIntentFilter()}.</p>
+ *
  * Created by devashish on 24/1/15.
- * NOTE: If we want to send the broadcast to app make sure to not to add the Category
- * intent.addCategory(Intent.CATEGORY_DEFAULT);
  */
 public class BroadcastService {
 
@@ -316,6 +318,17 @@ public class BroadcastService {
         sendBroadcast(context, intent);
     }
 
+    public static void sendLoggedUserDeletedBroadcast(Context context) {
+        sendLoggedUserDeletedBroadcast(context, INTENT_ACTIONS.LOGGED_USER_DELETE.toString());
+    }
+
+    public static void sendLoggedUserDeletedBroadcast(Context context, String action) {
+        Utils.printLog(context, TAG, "Sending broadcast for logged user deleted.");
+        Intent intent = new Intent();
+        intent.setAction(action);
+        sendBroadcast(context, intent);
+    }
+
     public static IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(INTENT_ACTIONS.FIRST_TIME_SYNC_COMPLETE.toString());
@@ -347,6 +360,7 @@ public class BroadcastService {
         intentFilter.addAction(INTENT_ACTIONS.USER_OFFLINE.toString());
         intentFilter.addAction(INTENT_ACTIONS.GROUP_MUTE.toString());
         intentFilter.addAction(INTENT_ACTIONS.CONTACT_PROFILE_CLICK.toString());
+        intentFilter.addAction(INTENT_ACTIONS.LOGGED_USER_DELETE.toString());
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         return intentFilter;
     }
@@ -365,6 +379,6 @@ public class BroadcastService {
         UPLOAD_ATTACHMENT_FAILED, MESSAGE_ATTACHMENT_DOWNLOAD_DONE, MESSAGE_ATTACHMENT_DOWNLOAD_FAILD,
         UPDATE_LAST_SEEN_AT_TIME, UPDATE_TYPING_STATUS, MESSAGE_READ_AND_DELIVERED, MESSAGE_READ_AND_DELIVERED_FOR_CONTECT, CHANNEL_SYNC,
         CONTACT_VERIFIED, NOTIFY_USER, MQTT_DISCONNECTED, UPDATE_CHANNEL_NAME, UPDATE_TITLE_SUBTITLE, CONVERSATION_READ, UPDATE_USER_DETAIL,
-        MESSAGE_METADATA_UPDATE, MUTE_USER_CHAT, MQTT_CONNECTED, USER_ONLINE, USER_OFFLINE, GROUP_MUTE, CONTACT_PROFILE_CLICK
+        MESSAGE_METADATA_UPDATE, MUTE_USER_CHAT, MQTT_CONNECTED, USER_ONLINE, USER_OFFLINE, GROUP_MUTE, CONTACT_PROFILE_CLICK, LOGGED_USER_DELETE
     }
 }

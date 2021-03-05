@@ -44,6 +44,12 @@ import java.util.UUID;
 
 
 /**
+ * Manages {@link Message} and other data for the SDK.
+ *
+ * <p>This class handles most of the database and network management of messages.
+ * It also includes some methods for user/contact handling.
+ * It's a party here.</p>
+ *
  * Created by devashish on 26/12/14.
  */
 public class MessageClientService extends MobiComKitClientService {
@@ -815,6 +821,10 @@ public class MessageClientService extends MobiComKitClientService {
         return null;
     }
 
+    private void setLoggedInUserDeletedSharedPrefEntry() {
+        MobiComUserPreference.getInstance(context).setLoggedUserDeletedFromDashboard(true);
+    }
+
     public void processUserStatus(Contact contact) {
         if (contact != null && contact.getContactIds() != null) {
             processUserStatus(contact.getUserId(), false);
@@ -823,6 +833,11 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void processUserStatus(String userId) {
         processUserStatus(userId, false);
+    }
+
+    public void processLoggedUserDeletedFromServer() {
+        setLoggedInUserDeletedSharedPrefEntry();
+        BroadcastService.sendLoggedUserDeletedBroadcast(context);
     }
 
     public void processUserStatus(String userId, boolean isProfileImageUpdated) {
