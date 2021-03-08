@@ -3,8 +3,9 @@ package com.applozic.mobicomkit.uiwidgets.conversation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import androidx.fragment.app.FragmentActivity;
 import android.text.TextUtils;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -141,6 +142,8 @@ public class MobiComKitBroadcastReceiver extends BroadcastReceiver {
             conversationUIService.muteUserChat(intent.getBooleanExtra("mute", false), intent.getStringExtra("userId"));
         } else if (BroadcastService.INTENT_ACTIONS.GROUP_MUTE.toString().equals(action)) {
             conversationUIService.updateChannelMuteMenuOptionForGroupId(intent.getIntExtra("groupId", 0));
+        } else if (BroadcastService.INTENT_ACTIONS.LOGGED_USER_DELETE.toString().equals(action)) {
+            conversationUIService.updateLoggedUserDeletedUI();
         }
     }
 }

@@ -12,9 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-
-import androidx.fragment.app.FragmentActivity;
-
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,6 +19,8 @@ import android.view.Gravity;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
@@ -646,6 +645,15 @@ public class ConversationUIService {
         }
         if (BroadcastService.isIndividual() && getConversationFragment() != null) {
             getConversationFragment().updateTitleForOpenGroup();
+        }
+    }
+
+    public void updateLoggedUserDeletedUI() {
+        if (BroadcastService.isIndividual()) {
+            ConversationFragment conversationFragment = getConversationFragment();
+            if (conversationFragment != null) {
+                conversationFragment.showLoggedUserDeletedText();
+            }
         }
     }
 

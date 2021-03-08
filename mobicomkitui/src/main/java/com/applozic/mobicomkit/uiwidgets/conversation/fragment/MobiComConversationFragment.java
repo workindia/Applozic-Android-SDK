@@ -1986,7 +1986,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 if (userNotAbleToChatLayout != null && individualMessageSendLayout != null) {
-                    if (withUserContact.isDeleted()) {
+                    if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
+                        showLoggedUserDeletedText();
+                    } else if (withUserContact.isDeleted()) {
                         individualMessageSendLayout.setVisibility(View.GONE);
                         userNotAbleToChatLayout.setVisibility(VISIBLE);
                         bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
@@ -3166,8 +3168,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
+    public void showLoggedUserDeletedText() {
+        showUserNotAbleToChatLayout(true, getString(R.string.logged_in_user_deleted));
+    }
+
     protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
-        if (channel != null) {
+        if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
+            showLoggedUserDeletedText();
+        } else if (channel != null) {
             boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
             if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 hideSendMessageLayout(channel.isDeleted() || !present, present);
