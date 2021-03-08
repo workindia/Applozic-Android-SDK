@@ -2,12 +2,13 @@ package com.applozic.mobicomkit.api.people;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.AlJobIntentService;
 
-import android.text.TextUtils;
-
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicomkit.api.account.user.UserDetail;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
@@ -55,6 +56,24 @@ public class UserIntentService extends AlJobIntentService {
         mobiComConversationService = new MobiComConversationService(getApplicationContext());
     }
 
+    public void checkAndSaveLoggedUserDeletedDataToSharedPref() {
+        String userId = MobiComUserPreference.getInstance(UserIntentService.this).getUserId();
+        if(TextUtils.isEmpty(userId)) {
+            return;
+        }
+
+        UserDetail[] userDetails = new MessageClientService(UserIntentService.this).getUserDetails(userId);
+        if(userDetails == null) {
+            return;
+        }
+
+        for (UserDetail userDetail : userDetails) {
+            if (userId.equals(userDetail.getUserId()) && userDetail.getDeletedAtTime() != null) {
+                SyncCallService.getInstance(UserIntentService.this).processLoggedUserDelete(); //this will add a user deleted entry to MobicomUserPreferences
+            }
+        }
+    }
+
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         Integer unreadCount = intent.getIntExtra(UNREAD_COUNT, 0);
@@ -78,5 +97,6 @@ public class UserIntentService extends AlJobIntentService {
                 mobiComConversationService.processLastSeenAtStatus();
             }
         }
+        checkAndSaveLoggedUserDeletedDataToSharedPref();
     }
 }

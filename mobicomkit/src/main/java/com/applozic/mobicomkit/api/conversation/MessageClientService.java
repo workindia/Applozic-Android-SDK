@@ -821,6 +821,29 @@ public class MessageClientService extends MobiComKitClientService {
         return null;
     }
 
+    public UserDetail[] getUserDetails(String userId) {
+        try {
+            String contactNumberParameter = "";
+            String response = "";
+            try {
+                contactNumberParameter = "?userIds=" + URLEncoder.encode(userId);
+            } catch (Exception e) {
+                contactNumberParameter = "?userIds=" + userId;
+                e.printStackTrace();
+            }
+
+            response = httpRequestUtils.getResponse(getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
+            Utils.printLog(context, TAG, "User details response is " + response);
+            if (TextUtils.isEmpty(response) || response.contains("<html>")) {
+                return null;
+            }
+            return (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
     private void setLoggedInUserDeletedSharedPrefEntry() {
         MobiComUserPreference.getInstance(context).setLoggedUserDeletedFromDashboard(true);
     }
@@ -842,22 +865,7 @@ public class MessageClientService extends MobiComKitClientService {
 
     public void processUserStatus(String userId, boolean isProfileImageUpdated) {
         try {
-            String contactNumberParameter = "";
-            String response = "";
-            try {
-                contactNumberParameter = "?userIds=" + URLEncoder.encode(userId);
-            } catch (Exception e) {
-                contactNumberParameter = "?userIds=" + userId;
-                e.printStackTrace();
-            }
-
-            response = httpRequestUtils.getResponse(getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
-            Utils.printLog(context, TAG, "User details response is " + response);
-            if (TextUtils.isEmpty(response) || response.contains("<html>")) {
-                return;
-            }
-
-            UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
+            UserDetail[] userDetails = getUserDetails(userId);
 
             if (userDetails != null) {
                 for (UserDetail userDetail : userDetails) {
