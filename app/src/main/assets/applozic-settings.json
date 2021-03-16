@@ -86,6 +86,7 @@
   "showImageOnToolbar": false,
   "enableMessageReport": true,
   "hideGroupsSectionTab": false,
+  "showSenderNameForGroupsInConversationList": "true",
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

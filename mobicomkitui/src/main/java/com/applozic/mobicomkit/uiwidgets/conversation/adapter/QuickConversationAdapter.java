@@ -4,12 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,6 +20,9 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -37,6 +39,7 @@ import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.ConversationUIService;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
+import com.applozic.mobicomkit.uiwidgets.customization.ConversationListCustomization;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -61,6 +64,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by adarsh on 4/7/15.
  */
 public class QuickConversationAdapter extends RecyclerView.Adapter implements Filterable {
+    private static final String TAG = "QuickConvAdapter";
 
     private static Map<Short, Integer> messageTypeColorMap = new HashMap<Short, Integer>();
 
@@ -84,11 +88,13 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
     private List<Message> originalList;
     private TextAppearanceSpan highlightTextSpan;
     private AlCustomizationSettings alCustomizationSettings;
+    private ConversationListCustomization conversationListCustomization; //will be one of the classes that replaces alCustomizationSettings in the future
     private View view;
     private ConversationUIService conversationUIService;
 
     public void setAlCustomizationSettings(AlCustomizationSettings alCustomizationSettings) {
         this.alCustomizationSettings = alCustomizationSettings;
+        conversationListCustomization = new ConversationListCustomization(alCustomizationSettings);
     }
 
     public QuickConversationAdapter(final Context context, List<Message> messageList, EmojiconHandler emojiconHandler) {
@@ -132,6 +138,73 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
         return null;
     }
 
+    private List<String> getSenderIdListFor(Message message) {
+        if (!TextUtils.isEmpty(message.getTo())) {
+            return Arrays.asList(message.getTo().split("\\s*,\\s*"));
+        } else if (!TextUtils.isEmpty(message.getContactIds())) {
+            return Arrays.asList(message.getContactIds().split("\\s*,\\s*"));
+        }
+
+        return new ArrayList<>();
+    }
+
+    private String getSenderNameWithSeparator(Message message) {
+        final String SEPARATOR = ": ";
+        List<String> senderIds = getSenderIdListFor(message);
+
+        if(senderIds != null && !senderIds.isEmpty()) {
+            String senderUserId = senderIds.get(0);
+            String nameToDisplay = senderUserId;
+
+            if(contactService == null) {
+                Log.d(TAG, "AppContactService for the class is null.");
+                return nameToDisplay;
+            }
+
+            Contact senderContact = contactService.getContactById(senderUserId);
+            nameToDisplay = !TextUtils.isEmpty(senderContact.getDisplayName()) ? senderContact.getDisplayName() :
+                    !TextUtils.isEmpty(senderContact.getFullName()) ? senderContact.getFullName() : nameToDisplay;
+
+            return nameToDisplay + SEPARATOR;
+        } else {
+            return null;
+        }
+    }
+
+    private boolean isSenderNameRequired(Message message, ConversationListCustomization conversationListCustomization) {
+        boolean isMessageForGroup = message.getGroupId() != null;
+        boolean isMessageTypeValidForShowingSenderName = message.getContentType() != Message.ContentType.CUSTOM.getValue() && message.getContentType() != Message.ContentType.HIDDEN.getValue() && message.getContentType() != Message.ContentType.CHANNEL_CUSTOM_MESSAGE.getValue();
+        boolean isSenderNameVisibilityAllowedByCustomization = conversationListCustomization != null && conversationListCustomization.isMessageSenderNameVisible();
+        boolean isMessageTypeInbox = !message.isTypeOutbox();
+
+        return isMessageForGroup && isMessageTypeValidForShowingSenderName && isSenderNameVisibilityAllowedByCustomization && isMessageTypeInbox;
+    }
+
+    private void showSenderNameIfRequired(Myholder myholder, Message message) {
+        if (myholder == null) {
+            return;
+        }
+        if (myholder.senderName == null) {
+            return;
+        }
+        if(message == null) {
+            return;
+        }
+
+        if (isSenderNameRequired(message, conversationListCustomization)) {
+            String senderName = getSenderNameWithSeparator(message);
+
+            if(TextUtils.isEmpty(senderName)) {
+                return;
+            }
+
+            myholder.senderName.setVisibility(View.VISIBLE);
+            myholder.senderName.setText(senderName);
+        } else {
+            myholder.senderName.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == 2) {
@@ -155,6 +228,8 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                 }
 
                 final Contact contactReceiver = contactService.getContactReceiver(items, userIds);
+
+                showSenderNameIfRequired(myholder, message);
 
                 myholder.contactImage.setVisibility(View.GONE);
                 myholder.alphabeticTextView.setVisibility(View.GONE);
@@ -410,6 +485,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
         TextView smReceivers;
         TextView createdAtTime;
         TextView messageTextView;
+        TextView senderName;
         CircleImageView contactImage;
         TextView alphabeticTextView;
         TextView onlineTextView;
@@ -424,6 +500,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
             smReceivers = (TextView) itemView.findViewById(R.id.smReceivers);
             createdAtTime = (TextView) itemView.findViewById(R.id.createdAtTime);
             messageTextView = (TextView) itemView.findViewById(R.id.message);
+            senderName = (TextView) itemView.findViewById(R.id.senderName);
             //ImageView contactImage = (ImageView) customView.findViewById(R.id.contactImage);
             contactImage = (CircleImageView) itemView.findViewById(R.id.contactImage);
             alphabeticTextView = (TextView) itemView.findViewById(R.id.alphabeticImage);
