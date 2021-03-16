@@ -5,12 +5,22 @@ Android Chat SDK
 <img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
 
 
-Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
+Applozic brings real-time engagement with chat, video, and voice to your web,
+mobile, and conversational apps. We power emerging startups and established
+companies with the most scalable and powerful chat APIs, enabling application
+product teams to drive better user engagement, and reduce time-to-market.
 
-Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
+Customers and developers from over 50+ countries use us and love us, from online
+marketplaces and eCommerce to on-demand services, to Education Tech, Health
+Tech, Gaming, Live-Streaming, and more.
 
-Applozic One to One and Group Chat SDK
+Our feature-rich product includes robust client-side SDKs for iOS, Android, React
+Native, and Flutter. We also support popular server-side languages, a beautifully
+customizable UI kit, and flexible platform APIs.
 
+Chat, video, and audio-calling have become the new norm in the post-COVID era,
+and we're bridging the gap between businesses and customers by delivering those
+exact solutions.
 
 
 ### Getting Started       
