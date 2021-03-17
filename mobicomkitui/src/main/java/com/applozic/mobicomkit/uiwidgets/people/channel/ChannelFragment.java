@@ -10,10 +10,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.fragment.app.ListFragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.cursoradapter.widget.CursorAdapter;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
@@ -29,15 +25,24 @@ import android.widget.Button;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.fragment.app.ListFragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.people.OnContactsInteractionListener;
 import com.applozic.mobicommons.people.SearchListFragment;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelUserMapper;
+import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -302,6 +307,61 @@ public class ChannelFragment extends ListFragment implements
             return -1;
         }
 
+        private String getNameOrUserIdFor(Contact contact) {
+            return contact.getDisplayName() != null ? contact.getDisplayName() : contact.getUserId();
+        }
+
+        private void populateChannelMembers(ViewHolder viewHolder, Channel channel) {
+            final String COMMA = ",";
+            final String EMPTY_STRING = "";
+
+            List<ChannelUserMapper> channelUserMapperList = ChannelDatabaseService.getInstance(getContext()).getChannelUserList(channel.getKey());
+
+            if(channelUserMapperList == null) {
+                return;
+            }
+
+            //the following code is similar to code in `setChannelSubtitle` in `MobiComConversationFragment`
+            StringBuilder channelMembersList = new StringBuilder();
+
+            int i = 0;
+            boolean loggedInUserInGroup = false;
+            for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
+                if(i > 10) //max group members to show
+                    break;
+                AppContactService appContactService = new AppContactService(getContext());
+
+                if(channel.getKey().equals(channelUserMapper.getKey())) {
+                    if (channelUserMapper.getUserKey().equals(MobiComUserPreference.getInstance(getContext()).getUserId())) {
+                        loggedInUserInGroup = true;
+                        continue;
+                    }
+
+                    Contact contact = appContactService.getContactById(channelUserMapper.getUserKey());
+                    if (contact == null) {
+                        continue;
+                    }
+
+                    channelMembersList.append(getNameOrUserIdFor(contact)).append(COMMA);
+                }
+                i++;
+            }
+
+            if (loggedInUserInGroup) {
+                channelMembersList.append(ApplozicService.getContext(getContext()).getResources().getString(R.string.you_string)).append(COMMA);
+            }
+
+            int lastIndex = channelMembersList.lastIndexOf(COMMA);
+            channelMembersList.replace(lastIndex, lastIndex + 1, EMPTY_STRING);
+
+            if(!TextUtils.isEmpty(channelMembersList.toString())) {
+                viewHolder.totalmembers.setVisibility(View.VISIBLE);
+                viewHolder.totalmembers.setText(channelMembersList.toString());
+            } else {
+                viewHolder.totalmembers.setVisibility(View.GONE);
+            }
+        }
+
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final View itemLayout =
@@ -326,6 +386,9 @@ public class ChannelFragment extends ListFragment implements
 
             ///////////////////
 
+            if(channel != null) {
+                populateChannelMembers(holder, channel);
+            }
 
             if (!TextUtils.isEmpty(channel.getImageUrl())) {
                 mChannelImageLoader.loadImage(channel, holder.groupIcon);
@@ -344,15 +407,6 @@ public class ChannelFragment extends ListFragment implements
                 // If the user didn't do a search, or the search string didn't match a display
                 // name, show the display name without highlighting
                 holder.groupName.setText(channel.getName());
-
-                if (TextUtils.isEmpty(mSearchTerm)) {
-                    // If the search search is empty, hide the second line of text
-                    holder.totalmembers.setVisibility(View.GONE);
-                } else {
-                    // Shows a second line of text that indicates the search string matched
-                    // something other than the display name
-                    holder.totalmembers.setVisibility(View.VISIBLE);
-                }
             } else {
                 // If the search string matched the display name, applies a SpannableString to
                 // highlight the search string with the displayed display name
