@@ -101,6 +101,12 @@
     "AUDIO_ONLY": false,
     "VIDEO_ONLY": false
   },
+  "dateFormatCustomization": {
+    "sameDayTimeTemplate": "",
+    "otherDayDateTemplate": "",
+    "timeTemplate": "",
+    "timeAndDateTemplate": ""
+  },
   "hideGroupSubtitle": false,
   "editTextHintText:": "Write a Message..",
   "replyMessageLayoutSentMessageBackground": "#C0C0C0",

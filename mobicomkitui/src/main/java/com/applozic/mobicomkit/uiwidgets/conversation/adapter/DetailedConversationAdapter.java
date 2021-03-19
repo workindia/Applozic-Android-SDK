@@ -11,10 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -38,6 +34,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -288,7 +287,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                 MyViewHolder5 myViewHolder5 = (MyViewHolder5) holder;
 
                 if (message != null) {
-                    myViewHolder5.timeTextView.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                    myViewHolder5.timeTextView.setText(DateUtils.getFormattedDate(message.getCreatedAtTime(), alCustomizationSettings.getDateFormatCustomization().getTimeTemplate()));
                     if (message.getMetadata() != null) {
                         myViewHolder5.statusTextView.setText(VideoCallNotificationHelper.getStatus(message.getMetadata()));
                     }
@@ -376,7 +375,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         myHolder.messageTextView.setText(R.string.deleted_message_text);
                         myHolder.messageTextView.setTypeface(null, Typeface.ITALIC);
                         myHolder.messageTextView.setVisibility(View.VISIBLE);
-                        myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                        myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime(), alCustomizationSettings.getDateFormatCustomization().getTimeTemplate()));
 
                         myHolder.replyRelativeLayout.setVisibility(GONE);
                         myHolder.richMessageLayout.setVisibility(View.GONE);
@@ -761,7 +760,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 myHolder.chatLocation.setVisibility(View.GONE);
                                 myHolder.preview.setVisibility(View.GONE);
                                 audioView.hideView(false);
-                                myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                                myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime(), alCustomizationSettings.getDateFormatCustomization().getTimeTemplate()));
                             }
                         }
                         if (message.isCanceled()) {
@@ -900,11 +899,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                         }
 
                         if (message.getScheduledAt() != null) {
-                            myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getScheduledAt()));
+                            myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getScheduledAt(), alCustomizationSettings.getDateFormatCustomization().getTimeTemplate()));
                         } else if (myHolder.createdAtTime != null && message.isDummyEmptyMessage()) {
                             myHolder.createdAtTime.setText("");
                         } else if (myHolder.createdAtTime != null) {
-                            myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime()));
+                            myHolder.createdAtTime.setText(DateUtils.getFormattedDate(message.getCreatedAtTime(), alCustomizationSettings.getDateFormatCustomization().getTimeTemplate()));
                         }
 
                         String mimeType = "";
