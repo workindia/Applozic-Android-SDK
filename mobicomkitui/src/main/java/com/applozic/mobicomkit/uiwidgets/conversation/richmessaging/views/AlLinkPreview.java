@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.ImageView;
@@ -30,14 +31,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class AlLinkPreview {
+    private static final String TAG = "AlLinkPreview";
+
     public static final String LINK_PREVIEW_META_KEY = "KM_LINK_PREVIEW_META_KEY";
     private Context context;
     private Message message;
@@ -298,11 +305,34 @@ public class AlLinkPreview {
         return linkPreviewModel;
     }
 
+    public static String getExpandedURLIfShortened(String url) {
+        URLConnection urlConn =  connectURL(url);
+        if(urlConn != null) {
+            urlConn.getHeaderFields();
+            return urlConn.getURL().toString();
+        }
+        return url;
+    }
+
+    public static URLConnection connectURL(String strURL) {
+        URLConnection conn = null;
+        try {
+            URL inputURL = new URL(strURL);
+            conn = inputURL.openConnection();
+        } catch(MalformedURLException e) {
+            Log.d(TAG, "URL not valid for showing link preview.");
+        } catch(IOException ioe) {
+            Log.d(TAG, "Can not connect to the URL for showing link preview.");
+        }
+        return conn;
+    }
+
     private static String getValidUrl(Message message) {
         String url = message.getFirstUrl();
         if (!TextUtils.isEmpty(url) && !(url.startsWith(AlRegexHelper.HTTP_PROTOCOL) || url.startsWith(AlRegexHelper.HTTPS_PROTOCOL))) {
-            return AlRegexHelper.HTTP_PROTOCOL + url;
+            url = AlRegexHelper.HTTP_PROTOCOL + url;
         }
+        url = getExpandedURLIfShortened(url);
         return url;
     }
 
