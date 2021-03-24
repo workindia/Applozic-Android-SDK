@@ -34,6 +34,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -306,10 +307,18 @@ public class AlLinkPreview {
     }
 
     public static String getExpandedURLIfShortened(String url) {
-        URLConnection urlConn =  connectURL(url);
+        final String LOCATION_HEADER_KEY = "Location";
+        URLConnection urlConn = connectURL(url);
         if(urlConn != null) {
             urlConn.getHeaderFields();
-            return urlConn.getURL().toString();
+            String locationHeaderURL = urlConn.getHeaderField(LOCATION_HEADER_KEY);
+            if (!TextUtils.isEmpty(locationHeaderURL)) {
+                return locationHeaderURL;
+            }
+            String connectionURL = urlConn.getURL().toString();
+            if(!TextUtils.isEmpty(connectionURL)) {
+                return connectionURL;
+            }
         }
         return url;
     }
@@ -318,7 +327,7 @@ public class AlLinkPreview {
         URLConnection conn = null;
         try {
             URL inputURL = new URL(strURL);
-            conn = inputURL.openConnection();
+            conn = inputURL.openConnection(Proxy.NO_PROXY);
         } catch(MalformedURLException e) {
             Log.d(TAG, "URL not valid for showing link preview.");
         } catch(IOException ioe) {
@@ -329,7 +338,7 @@ public class AlLinkPreview {
 
     private static String getValidUrl(Message message) {
         String url = message.getFirstUrl();
-        if (!TextUtils.isEmpty(url) && !(url.startsWith(AlRegexHelper.HTTP_PROTOCOL) || url.startsWith(AlRegexHelper.HTTPS_PROTOCOL))) {
+        if (!TextUtils.isEmpty(url) && !(url.regionMatches(true, 0, AlRegexHelper.HTTP_PROTOCOL, 0, AlRegexHelper.HTTP_PROTOCOL.length()) || url.regionMatches(true, 0, AlRegexHelper.HTTPS_PROTOCOL, 0, AlRegexHelper.HTTPS_PROTOCOL.length()))) {
             url = AlRegexHelper.HTTP_PROTOCOL + url;
         }
         url = getExpandedURLIfShortened(url);
