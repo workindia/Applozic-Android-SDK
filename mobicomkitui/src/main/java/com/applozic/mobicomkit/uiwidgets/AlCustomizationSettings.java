@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.uiwidgets;
 
 import com.applozic.mobicomkit.uiwidgets.conversation.MobicomMessageTemplate;
+import com.applozic.mobicomkit.uiwidgets.customization.DateFormatCustomization;
 import com.applozic.mobicommons.json.JsonMarker;
 
 import java.util.Map;
@@ -112,6 +113,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean hideGroupDeleteButton = false;
     private boolean hideGroupSubtitle = false;
     private String pinnedContact;
+    private boolean showSenderNameForGroupsInConversationList;
 
     private boolean launchChatFromProfilePicOrName = false;
 
@@ -125,6 +127,8 @@ public class AlCustomizationSettings extends JsonMarker {
     private Map<String, Boolean> attachmentOptions;
 
     private Map<String, Boolean> filterGallery;
+
+    private Map<String, String> dateFormatCustomization;
 
     private boolean hideGroupsSectionTab = false;
 
@@ -649,6 +653,25 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setPinnedContact(String pinnedContact) {
         this.pinnedContact = pinnedContact;
+    }
+
+    public boolean isShowSenderNameForGroupsInConversationList() {
+        return showSenderNameForGroupsInConversationList;
+    }
+
+    public DateFormatCustomization getDateFormatCustomization() {
+        DateFormatCustomization dateFormatCustomizationObject = new DateFormatCustomization();
+        if (dateFormatCustomization != null) {
+            dateFormatCustomizationObject.setTimeAndDateTemplate(dateFormatCustomization.get(DateFormatCustomization.TIME_AND_DATE_TEMPLATE));
+            dateFormatCustomizationObject.setOtherDayDateTemplate(dateFormatCustomization.get(DateFormatCustomization.OTHER_DAY_DATE_TEMPLATE));
+            dateFormatCustomizationObject.setSameDayTimeTemplate(dateFormatCustomization.get(DateFormatCustomization.SAME_DAY_TIME_TEMPLATE));
+            dateFormatCustomizationObject.setTimeTemplate(dateFormatCustomization.get(DateFormatCustomization.TIME_TEMPLATE));
+        }
+        return dateFormatCustomizationObject;
+    }
+
+    public void setDateFormatCustomization(Map<String, String> dateFormatCustomization) {
+        this.dateFormatCustomization = dateFormatCustomization;
     }
 
     @Override

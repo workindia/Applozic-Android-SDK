@@ -2,12 +2,16 @@ package com.applozic.mobicommons.commons.core.utils;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.applozic.mobicommons.ApplozicService;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,11 +30,16 @@ public class DateUtils {
                 calendarForCurrent.get(Calendar.DAY_OF_YEAR) == calendarForScheduled.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static String getFormattedDate(Long timestamp) {
-        // boolean sameDay = isSameDay(timestamp);
+    public static String getFormattedDate(Long timestamp, @Nullable String timeTemplate) {
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
-        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+
+        SimpleDateFormat simpleDateFormat;
+        if (TextUtils.isEmpty(timeTemplate)) {
+            simpleDateFormat = new SimpleDateFormat("hh:mm aa");
+        } else {
+            simpleDateFormat = new SimpleDateFormat(timeTemplate, Locale.getDefault());
+        }
+
         return simpleDateFormat.format(date);
     }
 
@@ -50,11 +59,24 @@ public class DateUtils {
         return diff;
     }
 
-    public static String getFormattedDateAndTime(Context context, Long timestamp, int justNow, int min, int hr) {
+    public static String getFormattedDateAndTime(Context context, Long timestamp, @Nullable String sameDayTimeTemplate, @Nullable String otherDayDateTemplate, int justNow, int min, int hr) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm aa");
-        SimpleDateFormat fullDateFormat = new SimpleDateFormat("dd MMM");
+
+        SimpleDateFormat simpleDateFormat;
+        if (TextUtils.isEmpty(sameDayTimeTemplate)) {
+            simpleDateFormat = new SimpleDateFormat("hh:mm aa");
+        } else {
+            simpleDateFormat = new SimpleDateFormat(sameDayTimeTemplate, Locale.getDefault());
+        }
+
+        SimpleDateFormat fullDateFormat;
+        if (TextUtils.isEmpty(otherDayDateTemplate)) {
+            fullDateFormat = new SimpleDateFormat("dd MMM");
+        } else {
+            fullDateFormat = new SimpleDateFormat(otherDayDateTemplate, Locale.getDefault());
+        }
+
         Date newDate = new Date();
 
         try {
@@ -82,10 +104,16 @@ public class DateUtils {
         return null;
     }
 
-    public static String getDateAndTimeForLastSeen(Context context, Long timestamp, int justNow, int minAgo, int hrAgo, int yesterday) {
+    public static String getDateAndTimeForLastSeen(Context context, Long timestamp, @Nullable String dateAndTimeTemplate, int justNow, int minAgo, int hrAgo, int yesterday) {
         boolean sameDay = isSameDay(timestamp);
         Date date = new Date(timestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+
+        SimpleDateFormat simpleDateFormat;
+        if (TextUtils.isEmpty(dateAndTimeTemplate)) {
+            simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+        } else {
+            simpleDateFormat = new SimpleDateFormat(dateAndTimeTemplate, Locale.getDefault());
+        }
 
         try {
             if (sameDay) {

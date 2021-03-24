@@ -131,6 +131,20 @@
         android:layout_toRightOf="@+id/profile_image_relative_layout"
         android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/senderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingBottom="3dp"
+            android:paddingTop="3dp"
+            android:visibility="gone"
+            android:textDirection="locale"
+            android:textAlignment="gravity"
+            android:textColor="#333333"
+            android:textSize="14sp"/>
+
         <ImageView
             android:id="@+id/attachmentIcon"
             android:layout_width="24dp"

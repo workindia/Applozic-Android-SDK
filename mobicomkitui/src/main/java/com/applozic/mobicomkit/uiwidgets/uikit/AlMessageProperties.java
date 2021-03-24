@@ -4,11 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
@@ -17,10 +18,14 @@ import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.alphanumbericcolor.AlphaNumberColorUtil;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
+import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -43,6 +48,7 @@ public class AlMessageProperties {
     private BaseContactService contactService;
     private ChannelDatabaseService channelService;
     private MessageDatabaseService messageDatabase;
+    private AlCustomizationSettings alCustomizationSettings;
     private Message message;
     private Contact contact;
     private Channel channel;
@@ -57,6 +63,12 @@ public class AlMessageProperties {
         contactService = new AppContactService(context);
         messageDatabase = new MessageDatabaseService(context);
         channelService = ChannelDatabaseService.getInstance(context);
+        String jsonString = FileUtils.loadSettingsJsonFile(ApplozicService.getContext(context));
+        if (!TextUtils.isEmpty(jsonString)) {
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
+        } else {
+            alCustomizationSettings = new AlCustomizationSettings();
+        }
     }
 
     /**
@@ -168,7 +180,7 @@ public class AlMessageProperties {
      * @return Formatted time as String.
      */
     public String getCreatedAtTime() {
-        return DateUtils.getFormattedDateAndTime(context, message.getCreatedAtTime(), R.string.JUST_NOW, R.plurals.MINUTES, R.plurals.HOURS);
+        return DateUtils.getFormattedDateAndTime(context, message.getCreatedAtTime(), alCustomizationSettings.getDateFormatCustomization().getSameDayTimeTemplate(), alCustomizationSettings.getDateFormatCustomization().getOtherDayDateTemplate(), R.string.JUST_NOW, R.plurals.MINUTES, R.plurals.HOURS);
     }
 
     /**
