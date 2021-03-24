@@ -366,7 +366,7 @@ public class NotificationService {
     public void notifyUserForNormalMessage(Contact contact, Channel channel, Message message, int index) {
         String notificationText;
         NotificationInfo notificationInfo = getNotificationInfo(contact, channel, message);
-        if(notificationInfo == null) {
+        if (notificationInfo == null) {
             return;
         }
         Bitmap notificationIconBitmap = notificationInfo.notificationIconBitmap;
@@ -416,7 +416,7 @@ public class NotificationService {
                 .setContentText(channel != null && !(Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) || Channel.GroupType.SUPPORT_GROUP.getValue().equals(channel.getType())) ? (displayNameContact != null ? (displayNameContact.getDisplayName() + ": " + getSpannedText(notificationText)) : "" + getSpannedText(notificationText)) : getSpannedText(notificationText));
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
-        if(notificationInfo.colorResourceId != null && notificationInfo.colorResourceId > 0) {
+        if (notificationInfo.colorResourceId != null && notificationInfo.colorResourceId > 0) {
             mBuilder.setColor(context.getResources().getColor(notificationInfo.colorResourceId));
         }
         if (ApplozicClient.getInstance(context).isUnreadCountBadgeEnabled()) {
@@ -455,7 +455,7 @@ public class NotificationService {
 
     public void startCallNotification(Contact contact, Message message, String isAudioCallOnly, String callId) {
         NotificationInfo notificationInfo = getNotificationInfo(contact, null, message);
-        if(notificationInfo == null) {
+        if (notificationInfo == null) {
             return;
         }
 
@@ -480,12 +480,12 @@ public class NotificationService {
                         .setSmallIcon(notificationInfo.smallIconResourceId)
                         .setContentTitle("Incoming call from " + notificationInfo.title + ".")
                         .setContentText("Tap to open call screen.")
-                        .setVibrate(new long[] {2000L, 1000L, 2000L, 1000L})
+                        .setVibrate(new long[]{2000L, 1000L, 2000L, 1000L})
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setCategory(NotificationCompat.CATEGORY_CALL)
                         .setFullScreenIntent(fullScreenPendingIntent, true);
-        if(notificationInfo.colorResourceId != null && notificationInfo.colorResourceId > 0) {
+        if (notificationInfo.colorResourceId != null && notificationInfo.colorResourceId > 0) {
             notificationBuilder.setColor(context.getResources().getColor(notificationInfo.colorResourceId));
         }
 

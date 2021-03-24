@@ -673,7 +673,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             holder.circleImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
                     }
                 }
@@ -682,7 +682,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             holder.alphabeticImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
                     }
                 }

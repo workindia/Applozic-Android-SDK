@@ -811,7 +811,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     } else if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) && alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
                         String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                        if(!TextUtils.isEmpty(userId)) {
+                        if (!TextUtils.isEmpty(userId)) {
                             BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), userId);
                             if (userProfileFragment == null) {
                                 Contact newContact = appContactService.getContactById(userId);
@@ -824,7 +824,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     }
                 } else {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), contact.getUserId());
                     }
                     if (alCustomizationSettings.isUserProfileFragment()) {

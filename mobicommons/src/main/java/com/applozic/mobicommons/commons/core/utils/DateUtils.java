@@ -34,7 +34,7 @@ public class DateUtils {
         Date date = new Date(timestamp);
 
         SimpleDateFormat simpleDateFormat;
-        if(TextUtils.isEmpty(timeTemplate)) {
+        if (TextUtils.isEmpty(timeTemplate)) {
             simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         } else {
             simpleDateFormat = new SimpleDateFormat(timeTemplate, Locale.getDefault());
@@ -71,7 +71,7 @@ public class DateUtils {
         }
 
         SimpleDateFormat fullDateFormat;
-        if(TextUtils.isEmpty(otherDayDateTemplate)) {
+        if (TextUtils.isEmpty(otherDayDateTemplate)) {
             fullDateFormat = new SimpleDateFormat("dd MMM");
         } else {
             fullDateFormat = new SimpleDateFormat(otherDayDateTemplate, Locale.getDefault());
@@ -109,7 +109,7 @@ public class DateUtils {
         Date date = new Date(timestamp);
 
         SimpleDateFormat simpleDateFormat;
-        if(TextUtils.isEmpty(dateAndTimeTemplate)) {
+        if (TextUtils.isEmpty(dateAndTimeTemplate)) {
             simpleDateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
         } else {
             simpleDateFormat = new SimpleDateFormat(dateAndTimeTemplate, Locale.getDefault());

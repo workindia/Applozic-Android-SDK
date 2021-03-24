@@ -228,7 +228,7 @@ public class ChannelFragment extends ListFragment implements
 
         // Updates current filter to new filter
         mSearchTerm = newFilter;
-        if(mAdapter != null){
+        if (mAdapter != null) {
             mAdapter.indexOfSearchQuery(newFilter);
         }
         getLoaderManager().restartLoader(
@@ -317,7 +317,7 @@ public class ChannelFragment extends ListFragment implements
 
             List<ChannelUserMapper> channelUserMapperList = ChannelDatabaseService.getInstance(getContext()).getChannelUserList(channel.getKey());
 
-            if(channelUserMapperList == null) {
+            if (channelUserMapperList == null) {
                 return;
             }
 
@@ -327,11 +327,11 @@ public class ChannelFragment extends ListFragment implements
             int i = 0;
             boolean loggedInUserInGroup = false;
             for (ChannelUserMapper channelUserMapper : channelUserMapperList) {
-                if(i > 10) //max group members to show
+                if (i > 10) //max group members to show
                     break;
                 AppContactService appContactService = new AppContactService(getContext());
 
-                if(channel.getKey().equals(channelUserMapper.getKey())) {
+                if (channel.getKey().equals(channelUserMapper.getKey())) {
                     if (channelUserMapper.getUserKey().equals(MobiComUserPreference.getInstance(getContext()).getUserId())) {
                         loggedInUserInGroup = true;
                         continue;
@@ -354,7 +354,7 @@ public class ChannelFragment extends ListFragment implements
             int lastIndex = channelMembersList.lastIndexOf(COMMA);
             channelMembersList.replace(lastIndex, lastIndex + 1, EMPTY_STRING);
 
-            if(!TextUtils.isEmpty(channelMembersList.toString())) {
+            if (!TextUtils.isEmpty(channelMembersList.toString())) {
                 viewHolder.totalmembers.setVisibility(View.VISIBLE);
                 viewHolder.totalmembers.setText(channelMembersList.toString());
             } else {
@@ -386,7 +386,7 @@ public class ChannelFragment extends ListFragment implements
 
             ///////////////////
 
-            if(channel != null) {
+            if (channel != null) {
                 populateChannelMembers(holder, channel);
             }
 

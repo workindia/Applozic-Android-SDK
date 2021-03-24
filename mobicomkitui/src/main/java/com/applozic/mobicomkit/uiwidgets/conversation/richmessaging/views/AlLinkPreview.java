@@ -309,14 +309,14 @@ public class AlLinkPreview {
     public static String getExpandedURLIfShortened(String url) {
         final String LOCATION_HEADER_KEY = "Location";
         URLConnection urlConn = connectURL(url);
-        if(urlConn != null) {
+        if (urlConn != null) {
             urlConn.getHeaderFields();
             String locationHeaderURL = urlConn.getHeaderField(LOCATION_HEADER_KEY);
             if (!TextUtils.isEmpty(locationHeaderURL)) {
                 return locationHeaderURL;
             }
             String connectionURL = urlConn.getURL().toString();
-            if(!TextUtils.isEmpty(connectionURL)) {
+            if (!TextUtils.isEmpty(connectionURL)) {
                 return connectionURL;
             }
         }
@@ -328,9 +328,9 @@ public class AlLinkPreview {
         try {
             URL inputURL = new URL(strURL);
             conn = inputURL.openConnection(Proxy.NO_PROXY);
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             Log.d(TAG, "URL not valid for showing link preview.");
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             Log.d(TAG, "Can not connect to the URL for showing link preview.");
         }
         return conn;

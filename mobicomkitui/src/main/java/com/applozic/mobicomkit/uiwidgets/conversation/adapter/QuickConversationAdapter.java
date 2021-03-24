@@ -152,11 +152,11 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
         final String SEPARATOR = ": ";
         List<String> senderIds = getSenderIdListFor(message);
 
-        if(senderIds != null && !senderIds.isEmpty()) {
+        if (senderIds != null && !senderIds.isEmpty()) {
             String senderUserId = senderIds.get(0);
             String nameToDisplay = senderUserId;
 
-            if(contactService == null) {
+            if (contactService == null) {
                 Log.d(TAG, "AppContactService for the class is null.");
                 return nameToDisplay;
             }
@@ -187,14 +187,14 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
         if (myholder.senderName == null) {
             return;
         }
-        if(message == null) {
+        if (message == null) {
             return;
         }
 
         if (isSenderNameRequired(message, conversationListCustomization)) {
             String senderName = getSenderNameWithSeparator(message);
 
-            if(TextUtils.isEmpty(senderName)) {
+            if (TextUtils.isEmpty(senderName)) {
                 return;
             }
 
@@ -573,7 +573,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     continue;
                 }
 
-                if (menuItems[i].equals(Utils.getString(context, R.string.exit_group)) && (ApplozicSetting.getInstance(context).isHideGroupExitMemberButton()|| alCustomizationSettings.isHideGroupExitButton() || !isUserPresentInGroup || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
+                if (menuItems[i].equals(Utils.getString(context, R.string.exit_group)) && (ApplozicSetting.getInstance(context).isHideGroupExitMemberButton() || alCustomizationSettings.isHideGroupExitButton() || !isUserPresentInGroup || (channel != null && Channel.GroupType.BROADCAST.getValue().equals(channel.getType())))) {
                     continue;
                 }
 
