@@ -157,6 +157,12 @@ MobiComPushReceiver {
 
     }
 
+    private static boolean isPushMessageForLoggedUserDelete(Context context, String userDeleteNotification, MqttMessageResponse response) {
+        String userIdFromResponse = response.getMessage().toString();
+        return !TextUtils.isEmpty(userDeleteNotification) && !TextUtils.isEmpty(userIdFromResponse) && userIdFromResponse.equals(MobiComUserPreference.getInstance(context).getUserId());
+    }
+
+    //the MqttMessageResponse objects used in this class are not actual MQTT responses, but just their data model is used
     public static void processMessage(Context context, Bundle bundle, Map<String, String> data) {
 
         try {
@@ -387,6 +393,10 @@ MobiComPushReceiver {
                 addPushNotificationId(response.getId());
                 String userId = response.getMessage().toString();
                 syncCallService.syncUserDetail(userId);
+
+                if (isPushMessageForLoggedUserDelete(context, userDeleteNotification, response)) {
+                    syncCallService.processLoggedUserDelete();
+                }
             }
 
             if (!TextUtils.isEmpty(messageMetadataUpdate)) {

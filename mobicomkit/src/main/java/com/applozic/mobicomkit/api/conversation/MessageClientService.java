@@ -44,6 +44,12 @@ import java.util.UUID;
 
 
 /**
+ * Manages {@link Message} and other data for the SDK.
+ *
+ * <p>This class handles most of the database and network management of messages.
+ * It also includes some methods for user/contact handling.
+ * It's a party here.</p>
+ *
  * Created by devashish on 26/12/14.
  */
 public class MessageClientService extends MobiComKitClientService {
@@ -815,17 +821,7 @@ public class MessageClientService extends MobiComKitClientService {
         return null;
     }
 
-    public void processUserStatus(Contact contact) {
-        if (contact != null && contact.getContactIds() != null) {
-            processUserStatus(contact.getUserId(), false);
-        }
-    }
-
-    public void processUserStatus(String userId) {
-        processUserStatus(userId, false);
-    }
-
-    public void processUserStatus(String userId, boolean isProfileImageUpdated) {
+    public UserDetail[] getUserDetails(String userId) {
         try {
             String contactNumberParameter = "";
             String response = "";
@@ -839,10 +835,37 @@ public class MessageClientService extends MobiComKitClientService {
             response = httpRequestUtils.getResponse(getUserDetailUrl() + contactNumberParameter, "application/json", "application/json");
             Utils.printLog(context, TAG, "User details response is " + response);
             if (TextUtils.isEmpty(response) || response.contains("<html>")) {
-                return;
+                return null;
             }
+            return (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
 
-            UserDetail[] userDetails = (UserDetail[]) GsonUtils.getObjectFromJson(response, UserDetail[].class);
+    private void setLoggedInUserDeletedSharedPrefEntry() {
+        MobiComUserPreference.getInstance(context).setLoggedUserDeletedFromDashboard(true);
+    }
+
+    public void processUserStatus(Contact contact) {
+        if (contact != null && contact.getContactIds() != null) {
+            processUserStatus(contact.getUserId(), false);
+        }
+    }
+
+    public void processUserStatus(String userId) {
+        processUserStatus(userId, false);
+    }
+
+    public void processLoggedUserDeletedFromServer() {
+        setLoggedInUserDeletedSharedPrefEntry();
+        BroadcastService.sendLoggedUserDeletedBroadcast(context);
+    }
+
+    public void processUserStatus(String userId, boolean isProfileImageUpdated) {
+        try {
+            UserDetail[] userDetails = getUserDetails(userId);
 
             if (userDetails != null) {
                 for (UserDetail userDetail : userDetails) {

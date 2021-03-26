@@ -23,7 +23,13 @@ import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Created by applozic on 12/2/15.
+ * Contains methods for real time updates/syncing of local data and UI with the remote server.
+ *
+ * <p>Methods of this class are usually called from either {@link com.applozic.mobicomkit.api.ApplozicMqttService}
+ * or {@link com.applozic.mobicomkit.api.notification.MobiComPushReceiver}.
+ * This happens when either a push notification or a MQTT message is received.</p>
+ *
+ * Created on 12/2/15.
  */
 public class SyncCallService {
 
@@ -220,5 +226,9 @@ public class SyncCallService {
 
     public void syncUserDetail(String userId) {
         messageClientService.processUserStatus(userId, true);
+    }
+
+    public void processLoggedUserDelete() {
+        messageClientService.processLoggedUserDeletedFromServer();
     }
 }

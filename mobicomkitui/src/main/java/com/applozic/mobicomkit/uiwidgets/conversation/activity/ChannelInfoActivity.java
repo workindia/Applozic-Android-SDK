@@ -673,7 +673,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             holder.circleImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
                     }
                 }
@@ -682,7 +682,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
             holder.alphabeticImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ChannelInfoActivity.this.getApplicationContext(), contact.getUserId());
                     }
                 }
@@ -709,7 +709,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     holder.lastSeenAtTextView.setText(getString(R.string.user_online));
                 } else if (contact.getLastSeenAt() != 0) {
                     holder.lastSeenAtTextView.setVisibility(View.VISIBLE);
-                    holder.lastSeenAtTextView.setText(getString(R.string.subtitle_last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(ChannelInfoActivity.this, contact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY)));
+                    holder.lastSeenAtTextView.setText(getString(R.string.subtitle_last_seen_at_time) + " " + String.valueOf(DateUtils.getDateAndTimeForLastSeen(ChannelInfoActivity.this, contact.getLastSeenAt(), alCustomizationSettings.getDateFormatCustomization().getTimeAndDateTemplate(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY)));
                 } else {
                     holder.lastSeenAtTextView.setVisibility(View.GONE);
                     holder.lastSeenAtTextView.setText("");

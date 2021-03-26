@@ -13,8 +13,8 @@ import com.applozic.mobicomkit.broadcast.AlEventManager;
 import com.applozic.mobicomkit.broadcast.AlMessageEvent;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.GcmMessageResponse;
+import com.applozic.mobicomkit.feed.InstantMessageResponse;
 import com.applozic.mobicomkit.feed.MqttMessageResponse;
 import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -334,6 +334,11 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
         }
     }
 
+    private static boolean isMqttResponseForLoggedInUserDelete(Context context, MqttMessageResponse mqttMessageResponse) {
+        String userIdFromMqttResponse = mqttMessageResponse.getMessage().toString();
+        return NOTIFICATION_TYPE.USER_DELETE_NOTIFICATION.getValue().equals(mqttMessageResponse.getType()) && !TextUtils.isEmpty(userIdFromMqttResponse) && userIdFromMqttResponse.equals(MobiComUserPreference.getInstance(context).getUserId());
+    }
+
     @Override
     public void connectionLost(Throwable throwable) {
         BroadcastService.sendUpdate(context, BroadcastService.INTENT_ACTIONS.MQTT_DISCONNECTED.toString());
@@ -482,6 +487,10 @@ public class ApplozicMqttService extends MobiComKitClientService implements Mqtt
                                 if (NOTIFICATION_TYPE.USER_DETAIL_CHANGED.getValue().equals(mqttMessageResponse.getType()) || NOTIFICATION_TYPE.USER_DELETE_NOTIFICATION.getValue().equals(mqttMessageResponse.getType())) {
                                     String userId = mqttMessageResponse.getMessage().toString();
                                     syncCallService.syncUserDetail(userId);
+
+                                    if (isMqttResponseForLoggedInUserDelete(context, mqttMessageResponse)) {
+                                        syncCallService.processLoggedUserDelete();
+                                    }
                                 }
 
                                 if (NOTIFICATION_TYPE.MESSAGE_METADATA_UPDATE.getValue().equals(mqttMessageResponse.getType())) {

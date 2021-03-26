@@ -21,33 +21,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ResultReceiver;
 import android.os.Vibrator;
-
-import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
-import com.applozic.mobicomkit.api.conversation.MessageBuilder;
-import com.applozic.mobicomkit.api.conversation.MessageDeleteTask;
-import com.applozic.mobicomkit.exception.ApplozicException;
-import com.applozic.mobicomkit.listners.AlCallback;
-import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
-import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
-import com.applozic.mobicommons.file.ALFileProvider;
-import com.applozic.mobicommons.task.AlAsyncTask;
-import com.applozic.mobicommons.task.AlTask;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -81,6 +54,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
@@ -90,9 +74,12 @@ import com.applozic.mobicomkit.api.account.user.UserBlockTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.conversation.AlMessageReportTask;
 import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MessageBuilder;
 import com.applozic.mobicomkit.api.conversation.MessageClientService;
+import com.applozic.mobicomkit.api.conversation.MessageDeleteTask;
 import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
@@ -101,8 +88,8 @@ import com.applozic.mobicomkit.api.conversation.selfdestruct.DisappearingMessage
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.notification.MuteNotificationAsync;
 import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
-import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.api.notification.MuteUserNotificationAsync;
+import com.applozic.mobicomkit.api.notification.NotificationService;
 import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -110,8 +97,11 @@ import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.MobiComVCFParser;
 import com.applozic.mobicomkit.contact.VCFContactData;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.TopicDetail;
+import com.applozic.mobicomkit.listners.AlCallback;
+import com.applozic.mobicomkit.listners.MediaUploadProgressHandler;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicomkit.uiwidgets.ApplozicSetting;
 import com.applozic.mobicomkit.uiwidgets.R;
@@ -125,6 +115,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.DeleteConversationAsyncTas
 import com.applozic.mobicomkit.uiwidgets.conversation.MessageCommunicator;
 import com.applozic.mobicomkit.uiwidgets.conversation.MobicomMessageTemplate;
 import com.applozic.mobicomkit.uiwidgets.conversation.UIService;
+import com.applozic.mobicomkit.uiwidgets.conversation.activity.ALSendMessageInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
@@ -133,6 +124,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpi
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
@@ -147,6 +141,7 @@ import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.commons.image.ImageUtils;
 import com.applozic.mobicommons.emoticon.EmojiconHandler;
+import com.applozic.mobicommons.file.ALFileProvider;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -154,6 +149,9 @@ import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
+import com.applozic.mobicommons.task.AlAsyncTask;
+import com.applozic.mobicommons.task.AlTask;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -813,7 +811,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     } else if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType()) && alCustomizationSettings.isUserProfileFragment()) {
                         UserProfileFragment userProfileFragment = (UserProfileFragment) UIService.getFragmentByTag(getActivity(), ConversationUIService.USER_PROFILE_FRAMENT);
                         String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
-                        if(!TextUtils.isEmpty(userId)) {
+                        if (!TextUtils.isEmpty(userId)) {
                             BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), userId);
                             if (userProfileFragment == null) {
                                 Contact newContact = appContactService.getContactById(userId);
@@ -826,7 +824,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     }
                 } else {
-                    if(contact != null) {
+                    if (contact != null) {
                         BroadcastService.sendContactProfileClickBroadcast(ApplozicService.getContext(MobiComConversationFragment.this.getContext()), contact.getUserId());
                     }
                     if (alCustomizationSettings.isUserProfileFragment()) {
@@ -1986,7 +1984,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             @Override
             public void run() {
                 if (userNotAbleToChatLayout != null && individualMessageSendLayout != null) {
-                    if (withUserContact.isDeleted()) {
+                    if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
+                        showLoggedUserDeletedText();
+                    } else if (withUserContact.isDeleted()) {
                         individualMessageSendLayout.setVisibility(View.GONE);
                         userNotAbleToChatLayout.setVisibility(VISIBLE);
                         bottomlayoutTextView.setText(R.string.user_has_been_deleted_text);
@@ -2016,7 +2016,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         }
                     } else if (withUserContact.getLastSeenAt() != 0) {
                         if (getActivity() != null) {
-                            setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(ApplozicService.getContext(getContext()), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
+                            setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(ApplozicService.getContext(getContext()), withUserContact.getLastSeenAt(), alCustomizationSettings.getDateFormatCustomization().getTimeAndDateTemplate(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
                             setToolbarImage(withUserContact, null);
                         }
                     } else {
@@ -2068,7 +2068,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                         setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.user_online));
                                         setToolbarImage(null, channel);
                                     } else if (withUserContact.getLastSeenAt() != 0 && getActivity() != null) {
-                                        setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
+                                        setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.subtitle_last_seen_at_time) + " " + DateUtils.getDateAndTimeForLastSeen(getContext(), withUserContact.getLastSeenAt(), alCustomizationSettings.getDateFormatCustomization().getTimeAndDateTemplate(), R.string.JUST_NOW, R.plurals.MINUTES_AGO, R.plurals.HOURS_AGO, R.string.YESTERDAY));
                                         setToolbarImage(null, channel);
                                     } else if (getActivity() != null) {
                                         setToolbarSubtitle("");
@@ -3166,8 +3166,14 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
+    public void showLoggedUserDeletedText() {
+        showUserNotAbleToChatLayout(true, getString(R.string.logged_in_user_deleted));
+    }
+
     protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
-        if (channel != null) {
+        if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
+            showLoggedUserDeletedText();
+        } else if (channel != null) {
             boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
             if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                 hideSendMessageLayout(channel.isDeleted() || !present, present);
