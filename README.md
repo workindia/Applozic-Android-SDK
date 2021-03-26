@@ -67,6 +67,9 @@ android {
 
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
+
+<meta-data android:name="com.applozic.mobicomkit.notification.color"
+           android:resource="YOUR_NOTIFICATION_COLOR_RESOURCE" /> <!-- Notification color -->
            
 <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="YOUR_GEO_API_KEY" />  <!--Replace with your geo api key from google developer console  --> 
