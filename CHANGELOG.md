@@ -1,6 +1,15 @@
 
 ## Changelog
 
+**Version  5.98** - Friday, 26 Feb 2021
+
+* Deletion of logged in user will now be detected and appropriate message will be displayed.
+* Name of sender will be shown for the received messages in the conversation list for groups. (OPTIONAL)
+* Group lists will now also show group members, below the group name.
+* Support for custom date/time formats in the UI.
+* Notification color can now be set, from the manifest.
+* BUG FIX: link preview not working for certain shortened URLs fixed.
+
 **Version  5.97.1** - Thursday, 18 Feb 2021
 
 * add option to pin contact to top in contact screen
