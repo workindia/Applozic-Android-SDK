@@ -107,6 +107,30 @@
     "timeTemplate": "",
     "timeAndDateTemplate": ""
   },
+  "conversationFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "conversationListFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "profileFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "messageInfoFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
   "hideGroupSubtitle": false,
   "editTextHintText:": "Write a Message..",
   "replyMessageLayoutSentMessageBackground": "#C0C0C0",
