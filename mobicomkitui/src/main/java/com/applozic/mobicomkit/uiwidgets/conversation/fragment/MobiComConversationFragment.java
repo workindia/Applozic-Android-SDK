@@ -2916,6 +2916,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         this.currentConversationId = conversationId;
     }
 
+    //this method also updates the profile image for the conversation
     public void updateUserTypingStatus(final String typingUserId, final String isTypingStatus) {
         if (contact != null) {
             if (contact.isBlocked() || contact.isBlockedBy()) {
@@ -2926,10 +2927,11 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
 
+        final String USER_TYPING = "1";
         this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (isTypingStatus.equals("1")) {
+                if (isTypingStatus.equals(USER_TYPING)) {
                     if (channel != null) {
                         if (!loggedInUserId.equals(typingUserId)) {
                             Contact displayNameContact = appContactService.getContactById(typingUserId);
@@ -2939,7 +2941,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                                 if (getActivity() != null) {
                                     setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.is_typing));
-                                    setToolbarImage(null, channel);
+                                    setToolbarImage(displayNameContact, channel);
                                 }
                             } else {
                                 if (getActivity() != null) {
@@ -2951,7 +2953,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     } else {
                         if (getActivity() != null) {
                             setToolbarSubtitle(ApplozicService.getContext(getContext()).getString(R.string.is_typing));
-                            setToolbarImage(null, channel);
+                            Contact displayNameContact = appContactService.getContactById(typingUserId);
+                            setToolbarImage(displayNameContact, channel);
                         }
                     }
                 } else {
