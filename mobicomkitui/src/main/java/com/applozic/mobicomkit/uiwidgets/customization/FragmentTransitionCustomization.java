@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.customization;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -22,21 +21,18 @@ public class FragmentTransitionCustomization {
 
     private FragmentTransitionCustomization(FragmentActivity fragmentActivity, AlCustomizationSettings alCustomizationSettings) {
         HashMap<String, Map<String, String>> fragmentTransitionFilesMap = getFragmentTransitionsMapFrom(alCustomizationSettings);
-        if (fragmentTransitionFilesMap == null) {
-            return;
-        }
-        if(fragmentTransitionsMap == null) {
+        if (fragmentTransitionsMap == null) {
             fragmentTransitionsMap = new HashMap<>();
-            for (String fragmentKey : fragmentTransitionsObjectsMapKeyArray) {
-                if (fragmentTransitionFilesMap.containsKey(fragmentKey)) {
-                    fragmentTransitionsMap.put(fragmentKey, getSingleFragmentTransitionResourceIdsObjectFromMap(fragmentActivity, fragmentTransitionFilesMap.get(fragmentKey)));
+            for (FragmentTransitionCustomization.TransitionFragmentKeys fragmentKey : FragmentTransitionCustomization.TransitionFragmentKeys.values()) {
+                if (fragmentTransitionFilesMap.containsKey(fragmentKey.keyForFragment)) {
+                    fragmentTransitionsMap.put(fragmentKey.keyForFragment, getSingleFragmentTransitionResourceIdsObjectFromMap(fragmentActivity, fragmentTransitionFilesMap.get(fragmentKey.keyForFragment)));
                 }
             }
         }
     }
 
     public static FragmentTransitionCustomization getInstance(FragmentActivity fragmentActivity, AlCustomizationSettings alCustomizationSettings) {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             synchronized (FragmentTransitionCustomization.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new FragmentTransitionCustomization(fragmentActivity, alCustomizationSettings);
@@ -51,15 +47,6 @@ public class FragmentTransitionCustomization {
     private static final String popEnterTransitionHashMapKey = "popEnterTransition";
     private static final String popExitTransitionHashMapKey = "popExitTransition";
 
-    /**
-     * For keeping the keys to the various fragments.
-     *
-     * <p>Used to index the HashMap containing custom transitions for the various Fragments.
-     * See {@link FragmentTransitionCustomization#fragmentTransitionsMap}</p>
-     */
-    private static final String[] fragmentTransitionsObjectsMapKeyArray =
-            {ConversationUIService.CONVERSATION_FRAGMENT, ConversationUIService.QUICK_CONVERSATION_FRAGMENT, ConversationUIService.USER_PROFILE_FRAMENT, ConversationUIService.MESSGAE_INFO_FRAGMENT};
-
     //map with the resourceIds for the transition files for the various transitions
     private Map<String, SingleFragmentTransitionResourceIds> fragmentTransitionsMap;
 
@@ -70,7 +57,7 @@ public class FragmentTransitionCustomization {
      * @return the fragment transition for the corresponding fragment
      */
     public SingleFragmentTransitionResourceIds getTransitionResourceIdsForFragment(String fragmentTag) {
-        if(fragmentTransitionsMap != null && !fragmentTransitionsMap.isEmpty()) {
+        if (fragmentTransitionsMap != null && !fragmentTransitionsMap.isEmpty()) {
             return fragmentTransitionsMap.get(fragmentTag);
         }
         return null;
@@ -79,26 +66,26 @@ public class FragmentTransitionCustomization {
     private HashMap<String, Map<String, String>> getFragmentTransitionsMapFrom(AlCustomizationSettings alCustomizationSettings) {
         HashMap<String, Map<String, String>> applozicFragmentTransitionFilesHashMap = new HashMap<>();
         if (fragmentTransitionFilesMapHasTransitions(alCustomizationSettings.getConversationFragmentTransitions())) {
-            applozicFragmentTransitionFilesHashMap.put(fragmentTransitionsObjectsMapKeyArray[0], alCustomizationSettings.getConversationFragmentTransitions());
+            applozicFragmentTransitionFilesHashMap.put(TransitionFragmentKeys.CONVERSATION_FRAGMENT.keyForFragment, alCustomizationSettings.getConversationFragmentTransitions());
         }
         if (fragmentTransitionFilesMapHasTransitions(alCustomizationSettings.getConversationListFragmentTransitions())) {
-            applozicFragmentTransitionFilesHashMap.put(FragmentTransitionCustomization.fragmentTransitionsObjectsMapKeyArray[1], alCustomizationSettings.getConversationListFragmentTransitions());
+            applozicFragmentTransitionFilesHashMap.put(TransitionFragmentKeys.QUICK_CONVERSATION_FRAGMENT.keyForFragment, alCustomizationSettings.getConversationListFragmentTransitions());
         }
         if (fragmentTransitionFilesMapHasTransitions(alCustomizationSettings.getProfileFragmentTransitions())) {
-            applozicFragmentTransitionFilesHashMap.put(FragmentTransitionCustomization.fragmentTransitionsObjectsMapKeyArray[2], alCustomizationSettings.getProfileFragmentTransitions());
+            applozicFragmentTransitionFilesHashMap.put(TransitionFragmentKeys.PROFILE_FRAGMENT.keyForFragment, alCustomizationSettings.getProfileFragmentTransitions());
         }
         if (fragmentTransitionFilesMapHasTransitions(alCustomizationSettings.getMessageInfoFragmentTransitions())) {
-            applozicFragmentTransitionFilesHashMap.put(FragmentTransitionCustomization.fragmentTransitionsObjectsMapKeyArray[3], alCustomizationSettings.getMessageInfoFragmentTransitions());
+            applozicFragmentTransitionFilesHashMap.put(TransitionFragmentKeys.MESSAGE_INFO_FRAGMENT.keyForFragment, alCustomizationSettings.getMessageInfoFragmentTransitions());
         }
         return applozicFragmentTransitionFilesHashMap;
     }
 
     private boolean fragmentTransitionFilesMapHasTransitions(Map<String, String> transitionHashMap) {
-        return transitionHashMap!= null && !transitionHashMap.isEmpty() &&
+        return transitionHashMap != null && !transitionHashMap.isEmpty() &&
                 (!TextUtils.isEmpty(transitionHashMap.get(enterTransitionHashMapKey)) ||
                         !TextUtils.isEmpty(transitionHashMap.get(exitTransitionHashMapKey)) ||
-                                !TextUtils.isEmpty(transitionHashMap.get(popEnterTransitionHashMapKey)) ||
-                                        !TextUtils.isEmpty(transitionHashMap.get(popExitTransitionHashMapKey)));
+                        !TextUtils.isEmpty(transitionHashMap.get(popEnterTransitionHashMapKey)) ||
+                        !TextUtils.isEmpty(transitionHashMap.get(popExitTransitionHashMapKey)));
     }
 
     private SingleFragmentTransitionResourceIds getSingleFragmentTransitionResourceIdsObjectFromMap(FragmentActivity fragmentActivity, Map<String, String> singleFragmentTransitionFileNamesMap) {
@@ -124,5 +111,24 @@ public class FragmentTransitionCustomization {
         public int exitTransitionFileResourceId;
         public int popEnterTransitionFileResourceId;
         public int popExitTransitionFileResourceId;
+    }
+
+    /**
+     * For keeping the keys to the various fragments.
+     *
+     * <p>Used to index the HashMap containing custom transitions for the various Fragments.
+     * See {@link FragmentTransitionCustomization#fragmentTransitionsMap}</p>
+     */
+    public enum TransitionFragmentKeys {
+        CONVERSATION_FRAGMENT(ConversationUIService.CONVERSATION_FRAGMENT),
+        QUICK_CONVERSATION_FRAGMENT(ConversationUIService.QUICK_CONVERSATION_FRAGMENT),
+        PROFILE_FRAGMENT(ConversationUIService.USER_PROFILE_FRAMENT),
+        MESSAGE_INFO_FRAGMENT(ConversationUIService.MESSGAE_INFO_FRAGMENT);
+
+        private final String keyForFragment;
+
+        TransitionFragmentKeys(String keyForFragment) {
+            this.keyForFragment = keyForFragment;
+        }
     }
 }
