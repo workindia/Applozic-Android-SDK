@@ -216,6 +216,11 @@ public class AppContactService implements BaseContactService {
         contactDatabase.updateLocalImageUri(contact);
     }
 
+    @Override
+    public void setLocalImageUriToNull(String userId) {
+        contactDatabase.setLocalImageUriToNull(userId);
+    }
+
     public void getContactByIdAsync(String userId, AlContactListener contactListener) {
         AlTask.execute(new AlGetPeopleTask(context, userId, null, null, null, contactListener, this, null));
     }

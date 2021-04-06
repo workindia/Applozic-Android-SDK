@@ -201,6 +201,12 @@ public class ContactDatabase {
         dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
     }
 
+    public void setLocalImageUriToNull(String userId) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+        dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{userId});
+    }
+
     public void updateConnectedOrDisconnectedStatus(String userId, Date date, boolean connected) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.CONNECTED, connected ? 1 : 0);
