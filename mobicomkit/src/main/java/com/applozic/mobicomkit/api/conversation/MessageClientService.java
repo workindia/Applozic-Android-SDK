@@ -863,20 +863,10 @@ public class MessageClientService extends MobiComKitClientService {
         BroadcastService.sendLoggedUserDeletedBroadcast(context);
     }
 
-    private boolean isProfileImageUpdated(Contact localContactData, String serverProfileImageUrl) {
-        if (localContactData == null) {
-            return false;
-        }
-        if (!TextUtils.isEmpty(serverProfileImageUrl)) { //case: normal
-            return !serverProfileImageUrl.equals(localContactData.getImageURL());
-        } else { //case: profile image is removed
-            return !TextUtils.isEmpty(localContactData.getImageURL());
-        }
-    }
-
     public void processUserStatus(String userId, boolean isProfileImageUpdated) {
         try {
             UserDetail[] userDetails = getUserDetails(userId);
+
             if (userDetails != null) {
                 for (UserDetail userDetail : userDetails) {
                     Contact contact = new Contact();
@@ -888,9 +878,6 @@ public class MessageClientService extends MobiComKitClientService {
                     contact.setContactNumber(userDetail.getPhoneNumber());
                     contact.setLastSeenAt(userDetail.getLastSeenAtTime());
                     contact.setImageURL(userDetail.getImageLink());
-                    if (isProfileImageUpdated(baseContactService.getContactById(userId), userDetail.getImageLink())) {
-                        baseContactService.setLocalImageUriToNull(userId);
-                    }
                     contact.setStatus(userDetail.getStatusMessage());
                     contact.setUserTypeId(userDetail.getUserTypeId());
                     contact.setDeletedAtTime(userDetail.getDeletedAtTime());

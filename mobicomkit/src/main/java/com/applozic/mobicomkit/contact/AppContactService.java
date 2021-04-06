@@ -83,14 +83,35 @@ public class AppContactService implements BaseContactService {
         contactDatabase.updateContact(contact);
     }
 
+    private boolean isProfileImageUpdatedForContact(Contact oldContact, Contact newContact) {
+        if (oldContact == null || newContact == null) {
+            return false;
+        }
+        String newImageUrl = newContact.getImageURL();
+        String oldImageUrl = oldContact.getImageURL();
+        if (!TextUtils.isEmpty(newImageUrl)) { //case: normal
+            return !newImageUrl.equals(oldImageUrl);
+        } else { //case: profile image is removed
+            return !TextUtils.isEmpty(oldImageUrl);
+        }
+    }
+
+    private void resetLocalImageCacheForContactIfImageUrlUpdated(Contact existingContact, Contact newContact) {
+        if (isProfileImageUpdatedForContact(existingContact, newContact)) {
+            contactDatabase.setLocalImageUriToNull(existingContact.getUserId());
+        }
+    }
+
     @Override
     public void upsert(Contact contact) {
-        if (contactDatabase.getContactById(contact.getUserId()) == null) {
+        String userId = contact.getUserId();
+        Contact existingContact = contactDatabase.getContactById(userId);
+        if (existingContact == null) {
             contactDatabase.addContact(contact);
         } else {
+            resetLocalImageCacheForContactIfImageUrlUpdated(existingContact, contact);
             contactDatabase.updateContact(contact);
         }
-
     }
 
     @Override
@@ -214,11 +235,6 @@ public class AppContactService implements BaseContactService {
     @Override
     public void updateLocalImageUri(Contact contact) {
         contactDatabase.updateLocalImageUri(contact);
-    }
-
-    @Override
-    public void setLocalImageUriToNull(String userId) {
-        contactDatabase.setLocalImageUriToNull(userId);
     }
 
     public void getContactByIdAsync(String userId, AlContactListener contactListener) {
