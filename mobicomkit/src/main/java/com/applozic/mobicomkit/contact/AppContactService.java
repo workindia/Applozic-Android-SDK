@@ -85,13 +85,12 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void upsert(Contact contact) {
-        String userId = contact.getUserId();
-        Contact existingContact = contactDatabase.getContactById(userId);
-        if (existingContact == null) {
+        if (contactDatabase.getContactById(contact.getUserId()) == null) {
             contactDatabase.addContact(contact);
         } else {
             contactDatabase.updateContact(contact);
         }
+
     }
 
     @Override
