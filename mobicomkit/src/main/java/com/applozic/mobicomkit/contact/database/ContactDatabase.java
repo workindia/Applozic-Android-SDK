@@ -189,8 +189,8 @@ public class ContactDatabase {
         return null;
     }
 
-    public void updateContact(Contact contact, boolean isProfileImageUrlUpdated) {
-        ContentValues contentValues = prepareContactValues(contact, true, isProfileImageUrlUpdated);
+    public void updateContact(Contact contact) {
+        ContentValues contentValues = prepareContactValues(contact, true);
         dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
         dbHelper.close();
     }
@@ -269,7 +269,20 @@ public class ContactDatabase {
         }
     }
 
-    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated, boolean isProfileImageUrlUpdated) {
+    private boolean isProfileImageUpdatedForContact(Contact oldContact, Contact newContact) {
+        if (oldContact == null || newContact == null) {
+            return false;
+        }
+        String newImageUrl = newContact.getImageURL();
+        String oldImageUrl = oldContact.getImageURL();
+        if (!TextUtils.isEmpty(newImageUrl)) { //case: normal
+            return !newImageUrl.equals(oldImageUrl);
+        } else { //case: profile image is removed
+            return !TextUtils.isEmpty(oldImageUrl);
+        }
+    }
+
+    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
@@ -279,6 +292,9 @@ public class ContactDatabase {
 
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
+            if (isContactUpdated && isProfileImageUpdatedForContact(getContactById(contact.getUserId()), contact)) { //old local image URI cache can be reset
+                contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+            }
         } else {
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_URL);
@@ -286,10 +302,6 @@ public class ContactDatabase {
 
         if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
-        }
-
-        if (isProfileImageUrlUpdated) { //old local image URI cache can be reset
-            contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
         }
 
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
@@ -333,10 +345,6 @@ public class ContactDatabase {
             contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
         }
         return contentValues;
-    }
-
-    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
-        return prepareContactValues(contact, isContactUpdated, false);
     }
 
     private Map<String, String> getUpdatedMetadata(Contact contact, boolean isContactUpdate) {
@@ -559,12 +567,12 @@ public class ContactDatabase {
         return false;
     }
 
-    public void saveOrUpdate(Contact contact, boolean isProfileImageUrlUpdated) {
+    public void saveOrUpdate(Contact contact) {
         Contact existingContact = getContactById(contact.getUserId());
         if (existingContact == null) {
             addContact(contact);
         } else {
-            updateContact(contact, isProfileImageUrlUpdated);
+            updateContact(contact);
         }
     }
 

@@ -80,20 +80,7 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateContact(Contact contact) {
-        contactDatabase.updateContact(contact, false);
-    }
-
-    private boolean isProfileImageUpdatedForContact(Contact oldContact, Contact newContact) {
-        if (oldContact == null || newContact == null) {
-            return false;
-        }
-        String newImageUrl = newContact.getImageURL();
-        String oldImageUrl = oldContact.getImageURL();
-        if (!TextUtils.isEmpty(newImageUrl)) { //case: normal
-            return !newImageUrl.equals(oldImageUrl);
-        } else { //case: profile image is removed
-            return !TextUtils.isEmpty(oldImageUrl);
-        }
+        contactDatabase.updateContact(contact);
     }
 
     @Override
@@ -103,7 +90,7 @@ public class AppContactService implements BaseContactService {
         if (existingContact == null) {
             contactDatabase.addContact(contact);
         } else {
-            contactDatabase.updateContact(contact, isProfileImageUpdatedForContact(existingContact, contact));
+            contactDatabase.updateContact(contact);
         }
     }
 
