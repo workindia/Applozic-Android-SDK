@@ -80,7 +80,7 @@ public class AppContactService implements BaseContactService {
 
     @Override
     public void updateContact(Contact contact) {
-        contactDatabase.updateContact(contact);
+        contactDatabase.updateContact(contact, false);
     }
 
     private boolean isProfileImageUpdatedForContact(Contact oldContact, Contact newContact) {
@@ -96,12 +96,6 @@ public class AppContactService implements BaseContactService {
         }
     }
 
-    private void resetLocalImageCacheForContactIfImageUrlUpdated(Contact existingContact, Contact newContact) {
-        if (isProfileImageUpdatedForContact(existingContact, newContact)) {
-            contactDatabase.setLocalImageUriToNull(existingContact.getUserId());
-        }
-    }
-
     @Override
     public void upsert(Contact contact) {
         String userId = contact.getUserId();
@@ -109,8 +103,7 @@ public class AppContactService implements BaseContactService {
         if (existingContact == null) {
             contactDatabase.addContact(contact);
         } else {
-            resetLocalImageCacheForContactIfImageUrlUpdated(existingContact, contact);
-            contactDatabase.updateContact(contact);
+            contactDatabase.updateContact(contact, isProfileImageUpdatedForContact(existingContact, contact));
         }
     }
 

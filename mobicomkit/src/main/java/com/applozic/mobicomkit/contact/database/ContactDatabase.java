@@ -189,8 +189,8 @@ public class ContactDatabase {
         return null;
     }
 
-    public void updateContact(Contact contact) {
-        ContentValues contentValues = prepareContactValues(contact, true);
+    public void updateContact(Contact contact, boolean isProfileImageUrlUpdated) {
+        ContentValues contentValues = prepareContactValues(contact, true, isProfileImageUrlUpdated);
         dbHelper.getWritableDatabase().update(CONTACT, contentValues, MobiComDatabaseHelper.USERID + "=?", new String[]{contact.getUserId()});
         dbHelper.close();
     }
@@ -269,7 +269,7 @@ public class ContactDatabase {
         }
     }
 
-    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
+    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated, boolean isProfileImageUrlUpdated) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
 
@@ -287,6 +287,11 @@ public class ContactDatabase {
         if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
         }
+
+        if (isProfileImageUrlUpdated) { //old local image URI cache can be reset
+            contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+        }
+
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
         if (!TextUtils.isEmpty(contact.getEmailId())) {
             contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
@@ -328,6 +333,10 @@ public class ContactDatabase {
             contentValues.put(MobiComDatabaseHelper.DELETED_AT, contact.getDeletedAtTime());
         }
         return contentValues;
+    }
+
+    public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
+        return prepareContactValues(contact, isContactUpdated, false);
     }
 
     private Map<String, String> getUpdatedMetadata(Contact contact, boolean isContactUpdate) {
@@ -550,12 +559,12 @@ public class ContactDatabase {
         return false;
     }
 
-    public void saveOrUpdate(Contact contact) {
+    public void saveOrUpdate(Contact contact, boolean isProfileImageUrlUpdated) {
         Contact existingContact = getContactById(contact.getUserId());
         if (existingContact == null) {
             addContact(contact);
         } else {
-            updateContact(contact);
+            updateContact(contact, isProfileImageUrlUpdated);
         }
     }
 
