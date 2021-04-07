@@ -263,6 +263,19 @@ public class ContactDatabase {
         }
     }
 
+    private boolean isProfileImageUpdatedForContact(Contact oldContact, Contact newContact) {
+        if (oldContact == null || newContact == null) {
+            return false;
+        }
+        String newImageUrl = newContact.getImageURL();
+        String oldImageUrl = oldContact.getImageURL();
+        if (!TextUtils.isEmpty(newImageUrl)) { //case: normal
+            return !newImageUrl.equals(oldImageUrl);
+        } else { //case: profile image is removed
+            return !TextUtils.isEmpty(oldImageUrl);
+        }
+    }
+
     public ContentValues prepareContactValues(Contact contact, boolean isContactUpdated) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MobiComDatabaseHelper.FULL_NAME, getFullNameForUpdate(contact));
@@ -273,6 +286,9 @@ public class ContactDatabase {
 
         if (!TextUtils.isEmpty(contact.getImageURL())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_URL, contact.getImageURL());
+            if (isContactUpdated && isProfileImageUpdatedForContact(getContactById(contact.getUserId()), contact)) { //old local image URI cache can be reset
+                contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
+            }
         } else {
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI);
             contentValues.putNull(MobiComDatabaseHelper.CONTACT_IMAGE_URL);
@@ -281,6 +297,7 @@ public class ContactDatabase {
         if (!TextUtils.isEmpty(contact.getLocalImageUrl())) {
             contentValues.put(MobiComDatabaseHelper.CONTACT_IMAGE_LOCAL_URI, contact.getLocalImageUrl());
         }
+
         contentValues.put(MobiComDatabaseHelper.USERID, contact.getUserId());
         if (!TextUtils.isEmpty(contact.getEmailId())) {
             contentValues.put(MobiComDatabaseHelper.EMAIL, contact.getEmailId());
