@@ -130,6 +130,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     private Map<String, String> dateFormatCustomization;
 
+    private Map<String, String> conversationFragmentTransitions;
+
+    private Map<String, String> conversationListFragmentTransitions;
+
+    private Map<String, String> profileFragmentTransitions;
+
+    private Map<String, String> messageInfoFragmentTransitions;
+
     private boolean hideGroupsSectionTab = false;
 
     public boolean isBroadcastOption() {
@@ -657,6 +665,22 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public boolean isShowSenderNameForGroupsInConversationList() {
         return showSenderNameForGroupsInConversationList;
+    }
+
+    public Map<String, String> getConversationFragmentTransitions() {
+        return conversationFragmentTransitions;
+    }
+
+    public Map<String, String> getConversationListFragmentTransitions() {
+        return conversationListFragmentTransitions;
+    }
+
+    public Map<String, String> getMessageInfoFragmentTransitions() {
+        return messageInfoFragmentTransitions;
+    }
+
+    public Map<String, String> getProfileFragmentTransitions() {
+        return profileFragmentTransitions;
     }
 
     public DateFormatCustomization getDateFormatCustomization() {
