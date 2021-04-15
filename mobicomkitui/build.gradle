@@ -86,15 +86,14 @@ publishing {
                     }
 
                     def dependencyGroup
-                    if (dep.group == "Android-SDK-Dev") {
-                        dependencyGroup = groupId
+                    if (dep.group == "Android-SDK-Dev") { //for the mobicomkit dependency
+                        dependencyGroup = 'com.applozic.communication.message'
                     } else {
                         dependencyGroup = dep.group
                     }
 
                     def dependencyVersion
-                    //"fix" for compile projects
-                    if (dep.version == "unspecified" || dep.version == null) {
+                    if (dep.version == "unspecified" || dep.version == null) { //for the mobicomkit dependency
                         dependencyVersion = version
                     } else {
                         dependencyVersion = dep.version

@@ -69,7 +69,7 @@ artifactory {
 
     publish {
         repository {
-            repoKey = 'applozic-android'
+            repoKey = 'applozic-android-sdk'
             username = localProperties['artifactory.username']
             password = localProperties['artifactory.password']
         }

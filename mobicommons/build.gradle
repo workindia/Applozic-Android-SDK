@@ -67,25 +67,10 @@ publishing {
                         return
                     }
 
-                    def dependencyGroup
-                    if (dep.group == "Android-SDK-Dev") {
-                        dependencyGroup = groupId
-                    } else {
-                        dependencyGroup = dep.group
-                    }
-
-                    def dependencyVersion
-                    //"fix" for compile projects
-                    if (dep.version == "unspecified" || dep.version == null) {
-                        dependencyVersion = version
-                    } else {
-                        dependencyVersion = dep.version
-                    }
-
                     def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dependencyGroup)
+                    dependencyNode.appendNode('groupId', dep.group)
                     dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dependencyVersion)
+                    dependencyNode.appendNode('version', dep.version)
 
                     if (!dep.transitive) {
                         // If this dependency is transitive, we should force exclude all its dependencies them from the POM
