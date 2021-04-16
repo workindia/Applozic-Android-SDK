@@ -24,6 +24,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
@@ -130,7 +131,7 @@ public class SecurityUtils {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA, RSA_PROVIDER);
             keyPairGenerator.initialize(spec);
             keyPairGenerator.genKeyPair();
-        } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException | SecurityException exception) {
+        } catch (ProviderException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException | SecurityException exception) {
             exception.printStackTrace();
         } finally {
             if(Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
