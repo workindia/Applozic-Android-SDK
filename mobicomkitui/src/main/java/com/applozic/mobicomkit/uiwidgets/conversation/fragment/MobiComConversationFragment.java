@@ -3174,6 +3174,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
     }
 
+    private boolean isLoggedInUserAdminInCurrentChannel() {
+        if(channel == null) {
+            return false;
+        }
+
+        List<ChannelUserMapper> updatedChannelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
+
+        if(TextUtils.isEmpty(loggedInUserId)) {
+            return false;
+        }
+
+        for (ChannelUserMapper channelUserMapper : updatedChannelUserMapperList) {
+            if(loggedInUserId.equals(channelUserMapper.getUserKey()))
+            return ChannelUserMapper.UserRole.ADMIN.getValue() == channelUserMapper.getRole().intValue();
+        }
+
+        return false;
+    }
+
     protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
         if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
             hideMessageSendLayoutAndShowLoggedUserDeletedInfo();
@@ -3184,7 +3203,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else {
                 hideSendMessageLayout(channel.isDeleted(), present);
             }
-            if(channel.hasAdminOnlyMessageClientSupportRequest()) {
+            if(channel.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) {
                 hideMessageSendLayoutAndShowAdminOnlyMessagesAllowedInfo();
             }
         } else if (contact != null) {
@@ -3228,7 +3247,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                         templateAdapter.removeTemplates();
                     }
-                } else if (channelInfo.hasAdminOnlyMessageClientSupportRequest()) {
+                } else if (channelInfo.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) {
                     hideMessageSendLayoutAndShowAdminOnlyMessagesAllowedInfo();
                 } else if(ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
