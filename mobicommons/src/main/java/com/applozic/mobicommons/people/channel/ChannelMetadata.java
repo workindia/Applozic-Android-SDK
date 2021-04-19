@@ -23,6 +23,7 @@ public class ChannelMetadata extends JsonMarker {
     public final static String MUTE = "MUTE";
     public final static String AL_CONTEXT_BASED_CHAT = "AL_CONTEXT_BASED_CHAT";
     public static final String AL_CHANNEL_ACTION = "action";
+    public static final String ADMIN_ONLY_MESSAGE_CLIENT_SUPPORT_CHANNEL_METADATA_KEY = "adminOnlyMessageClientSupportRequest";
 
     public static final String ADMIN_NAME = ":adminName";
     public static final String GROUP_NAME = ":groupName";
@@ -40,6 +41,7 @@ public class ChannelMetadata extends JsonMarker {
     private boolean alertMetaDataNotfication;
     private boolean defaultMute;
     private boolean contextBasedChat;
+    private boolean adminOnlyMessageClientSupportRequest;
 
     public String getCreateGroupMessage() {
         return createGroupMessage;
@@ -113,6 +115,14 @@ public class ChannelMetadata extends JsonMarker {
         this.hideMetaDataNotification = hideMetaDataNotification;
     }
 
+    public boolean isAdminOnlyMessageClientSupportRequest() {
+        return adminOnlyMessageClientSupportRequest;
+    }
+
+    public void setAdminOnlyMessageClientSupportRequest(boolean adminOnlyMessageClientSupportRequest) {
+        this.adminOnlyMessageClientSupportRequest = adminOnlyMessageClientSupportRequest;
+    }
+
     private void buildEmptyMetadata() {
         this.createGroupMessage = "";
         this.removeMemberMessage = "";
@@ -162,6 +172,7 @@ public class ChannelMetadata extends JsonMarker {
         metadata.put(ChannelMetadata.HIDE_METADATA_NOTIFICATION, this.isHideMetaDataNotification() + "");
         metadata.put(ChannelMetadata.ALERT_METADATA_NOTIFICATION, this.isAlertMetaDataNotfication() + "");
         metadata.put(ChannelMetadata.MUTE, this.isDefaultMute() + "");
+        metadata.put(ChannelMetadata.ADMIN_ONLY_MESSAGE_CLIENT_SUPPORT_CHANNEL_METADATA_KEY, this.adminOnlyMessageClientSupportRequest + "");
         return metadata;
     }
 
