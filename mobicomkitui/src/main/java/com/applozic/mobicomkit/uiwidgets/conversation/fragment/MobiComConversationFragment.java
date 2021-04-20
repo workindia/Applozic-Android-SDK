@@ -1762,7 +1762,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             Applozic.subscribeToTyping(getContext(), channel, contact);
 
-            checkForUserNotAbleToChat(contact, channel);
+            checkForUserNotAbleToChatAndToggleViews(contact, channel);
 
             if (contact != null && this.channel != null) {
                 if (getActivity() != null) {
@@ -3135,34 +3135,12 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         activateOrDeactivateChat();
     }
 
-    private void hideSendMessageLayout(final boolean hide, final boolean isUserInGroup) {
-        if (getActivity() == null) {
-            return;
-        }
-
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(!hide) {
-                    showMessageSendLayoutAndHideChatDisabledLayout();
-                    return;
-                }
-
-                if (isUserInGroup) {
-                    hideMessageSendLayoutAndShowGroupDeletedInfo();
-                } else {
-                    hideMessageSendLayoutAndShowUserNotInGroupInfo();
-                }
-            }
-        });
-    }
-
     protected void enableOrDisableChannel(final Channel channel) {
-        checkForUserNotAbleToChat(null, channel);
+        checkForUserNotAbleToChatAndToggleViews(null, channel);
     }
 
     protected void enableOrDisableChat(final Contact contact) {
-        checkForUserNotAbleToChat(contact, null);
+        checkForUserNotAbleToChatAndToggleViews(contact, null);
     }
 
     protected void activateOrDeactivateChat() {
@@ -3170,7 +3148,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (isUserDeactivated) {
             toggleMessageSendDisabledInfoAndMessageSendLayout(true, alCustomizationSettings.getUserDeactivatedText());
         } else {
-            checkForUserNotAbleToChat(contact, channel);
+            checkForUserNotAbleToChatAndToggleViews(contact, channel);
         }
     }
 
@@ -3186,27 +3164,41 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         for (ChannelUserMapper channelUserMapper : updatedChannelUserMapperList) {
-            if(loggedInUserId.equals(channelUserMapper.getUserKey()))
-            return ChannelUserMapper.UserRole.ADMIN.getValue() == channelUserMapper.getRole().intValue();
+            if(loggedInUserId.equals(channelUserMapper.getUserKey())) {
+                return ChannelUserMapper.UserRole.ADMIN.getValue() == channelUserMapper.getRole().intValue();
+            }
         }
 
         return false;
     }
 
-    protected void checkForUserNotAbleToChat(final Contact contact, Channel channel) {
-        if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) {
+    /**
+     * Checks if "chat" for the current conversation need to be disabled and hides/shows the
+     * {@link #individualMessageSendLayout} and {@link #linearLayoutMessageSendDisabledInfo} accordingly.
+     * TODO: UIKit: For now all code to hide chat UI should be inside this function. Ideally, this should be moved to a separate class (messageSendLayout).
+     *
+     * <p>Chat UI is disabled using data from the current {@link Contact}, {@link Channel} and User Preferences.
+     * Since toggling message send layout and showing chat disabled info is dependent on various factors, care
+     * should be take to make sure each toggle function is exclusive in its running and are chosen in an order based on their respective factor.
+     * The final/default code shows the message send layout.</p>
+     * @param contact the current contact
+     * @param channel the current channel
+     */
+    protected void checkForUserNotAbleToChatAndToggleViews(final Contact contact, Channel channel) { //1 > 2 > 3 (priority)
+        if (MobiComUserPreference.getInstance(getContext()).isLoggedUserDeletedFromDashboard()) { //priority 1
             hideMessageSendLayoutAndShowLoggedUserDeletedInfo();
-        } else if (channel != null) {
+        } else if (channel != null) { //priority 2
             boolean present = ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey());
-            if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                hideSendMessageLayout(channel.isDeleted() || !present, present);
-            } else {
-                hideSendMessageLayout(channel.isDeleted(), present);
-            }
-            if(channel.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) {
+            if (channel.getType() != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType()) && !present) { //priority 2.1 (top priority because if user isn't in group then no group detail should be exposed to him
+                hideMessageSendLayoutAndShowUserNotInGroupInfo();
+            } else if (channel.isDeleted()) { //priority 2.2
+                hideMessageSendLayoutAndShowGroupDeletedInfo();
+            } else if(channel.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) { //priority 2.3
                 hideMessageSendLayoutAndShowAdminOnlyMessagesAllowedInfo();
+            } else { //if no reason to disable chat then show message send layout
+                showMessageSendLayoutAndHideChatDisabledLayout();
             }
-        } else if (contact != null) {
+        } else if (contact != null) { //priority 3
             if (contact.isDeleted()) {
                 hideMessageSendLayoutAndShowReceivingUserDeletedInfo();
             } else {
@@ -3235,7 +3227,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
             if (channelInfo.isDeleted()) {
                 channel.setDeletedAtTime(channelInfo.getDeletedAtTime());
-                hideMessageSendLayoutAndShowGroupDeletedInfo();
                 if (channel != null && !ChannelService.getInstance(getContext()).isUserAlreadyPresentInChannel(channel.getKey(), loggedInUserId)
                         && messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                     templateAdapter.removeTemplates();
@@ -3243,17 +3234,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             } else {
                 if ((!ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
                         && !Channel.GroupType.OPEN.getValue().equals(channel.getType()))) {
-                    hideMessageSendLayoutAndShowUserNotInGroupInfo();
                     if (messageTemplate != null && messageTemplate.isEnabled() && templateAdapter != null) {
                         templateAdapter.removeTemplates();
                     }
-                } else if (channelInfo.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) {
-                    hideMessageSendLayoutAndShowAdminOnlyMessagesAllowedInfo();
-                } else if(ChannelService.getInstance(getActivity()).processIsUserPresentInChannel(channel.getKey())
-                        && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
-                    showMessageSendLayoutAndHideChatDisabledLayout();
                 }
             }
+
+            checkForUserNotAbleToChatAndToggleViews(null, channelInfo);
 
             updateChannelTitle(channelInfo);
             updateChannelSubTitle(channelInfo);
