@@ -1,5 +1,9 @@
 package com.applozic.mobicommons.people.channel;
 
+import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+
 import com.applozic.mobicommons.json.JsonMarker;
 
 import java.util.HashMap;
@@ -10,6 +14,7 @@ import java.util.Map;
  */
 public class ChannelMetadata extends JsonMarker {
 
+    public final static String AL_CHANNEL_DESCRIPTION = "AL_GROUP_DESCRIPTION";
     public final static String CREATE_GROUP_MESSAGE = "CREATE_GROUP_MESSAGE";
     public final static String REMOVE_MEMBER_MESSAGE = "REMOVE_MEMBER_MESSAGE";
     public final static String ADD_MEMBER_MESSAGE = "ADD_MEMBER_MESSAGE";
@@ -28,6 +33,7 @@ public class ChannelMetadata extends JsonMarker {
     public static final String GROUP_NAME = ":groupName";
     public static final String USER_NAME = ":userName";
 
+    private String channelDescription;
     private String createGroupMessage;
     private String removeMemberMessage;
     private String addMemberMessage;
@@ -40,6 +46,14 @@ public class ChannelMetadata extends JsonMarker {
     private boolean alertMetaDataNotfication;
     private boolean defaultMute;
     private boolean contextBasedChat;
+
+    public String getChannelDescription() {
+        return channelDescription;
+    }
+
+    public void setChannelDescription(String channelDescription) {
+        this.channelDescription = channelDescription;
+    }
 
     public String getCreateGroupMessage() {
         return createGroupMessage;
@@ -122,6 +136,7 @@ public class ChannelMetadata extends JsonMarker {
         this.groupNameChangeMessage = "";
         this.groupLeftMessage = "";
         this.deletedGroupMessage = "";
+        this.channelDescription = "";
     }
 
     public void hideAllMetadataMessages() {
@@ -151,6 +166,7 @@ public class ChannelMetadata extends JsonMarker {
 
     public Map<String, String> getMetadata() {
         Map<String, String> metadata = new HashMap<>();
+        metadata.put(ChannelMetadata.AL_CHANNEL_DESCRIPTION, this.getChannelDescription());
         metadata.put(ChannelMetadata.CREATE_GROUP_MESSAGE, this.getCreateGroupMessage());
         metadata.put(ChannelMetadata.ADD_MEMBER_MESSAGE, this.getAddMemberMessage());
         metadata.put(ChannelMetadata.GROUP_NAME_CHANGE_MESSAGE, this.getGroupNameChangeMessage());
@@ -171,5 +187,14 @@ public class ChannelMetadata extends JsonMarker {
 
     public void setContextBasedChat(boolean contextBasedChat) {
         this.contextBasedChat = contextBasedChat;
+    }
+
+    public static @NonNull String getChannelDescriptionFrom(Map<String, String> metadata) {
+        final String EMPTY_STRING = "";
+        if(metadata == null || (metadata != null && metadata.isEmpty())) {
+            return EMPTY_STRING;
+        }
+        String channelDescription =  metadata.get(ChannelMetadata.AL_CHANNEL_DESCRIPTION);
+        return !TextUtils.isEmpty(channelDescription) ? channelDescription : EMPTY_STRING;
     }
 }

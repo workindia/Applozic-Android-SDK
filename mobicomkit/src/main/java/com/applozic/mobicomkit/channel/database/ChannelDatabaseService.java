@@ -4,11 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
@@ -384,6 +383,7 @@ public class ChannelDatabaseService {
         return deletedRows;
     }
 
+    //just updates profile picture urls and channel name
     public int updateChannel(GroupInfoUpdate groupInfoUpdate) {
         if (groupInfoUpdate.getImageUrl() == null && groupInfoUpdate.getNewName() == null) {
             return 0;

@@ -85,6 +85,49 @@
             app:layout_scrollFlags="scroll">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/groupDescriptionCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                app:cardCornerRadius="0dp"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/groupDescriptionTitleTexView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:textColor="@color/applozic_theme_color_primary"
+                        android:padding="5dp"
+                        android:text="@string/description_title"
+                        android:textAlignment="gravity"
+                        android:textDirection="locale"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/groupDescriptionTexView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginStart="3dp"
+                        android:padding="5dp"
+                        android:textAlignment="gravity"
+                        android:textDirection="locale"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/participantsCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

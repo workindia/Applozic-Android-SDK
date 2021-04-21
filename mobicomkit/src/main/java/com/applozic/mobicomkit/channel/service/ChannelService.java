@@ -1,10 +1,9 @@
 package com.applozic.mobicomkit.channel.service;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import androidx.annotation.VisibleForTesting;
-
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -463,6 +462,14 @@ public class ChannelService {
         }
         if (apiResponse.isSuccess()) {
             channelDatabaseService.updateChannel(groupInfoUpdate);
+        }
+        //metadata was updated, needs to be updated in local db
+        if (groupInfoUpdate.getMetadata() != null && groupInfoUpdate.getGroupId() != null && groupInfoUpdate.getGroupId() != 0) {
+            Channel channel = getChannelByChannelKey(groupInfoUpdate.getGroupId());
+            if (channel != null) {
+                channel.setMetadata(groupInfoUpdate.getMetadata());
+                channelDatabaseService.updateChannel(channel);
+            }
         }
         return apiResponse.getStatus();
     }

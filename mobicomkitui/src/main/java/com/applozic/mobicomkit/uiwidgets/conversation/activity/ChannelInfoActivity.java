@@ -39,6 +39,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -69,6 +70,7 @@ import com.applozic.mobicommons.commons.image.ImageLoader;
 import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
+import com.applozic.mobicommons.people.channel.ChannelMetadata;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -80,6 +82,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -95,6 +98,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
     public static final String CHANNEL_NAME = "CHANNEL_NAME";
     public static final int REQUEST_CODE_FOR_CONTACT = 1;
     public static final int REQUEST_CODE_FOR_CHANNEL_NEW_NAME = 2;
+    public static final int REQUEST_CODE_FOR_CHANNEL_NEW_DESCRIPTION = 3;
     private static final String TAG = "ChannelInfoActivity";
     private static final String SUCCESS = "success";
     protected ListView mainListView;
@@ -112,13 +116,21 @@ public class ChannelInfoActivity extends AppCompatActivity {
     public List<ChannelUserMapper> channelUserMapperList;
     public Channel channel;
     private ImageView channelImage;
-    private TextView createdBy, groupParticipantsTexView;
+    private TextView createdBy, groupParticipantsTexView, textViewGroupDescription;
+    private CardView cardViewGroupDescriptionContainer;
     private Button exitChannelButton, deleteChannelButton;
     private RelativeLayout channelDeleteRelativeLayout, channelExitRelativeLayout;
     private Integer channelKey;
     private RefreshBroadcast refreshBroadcast;
     private NestedScrollView nestedScrollView;
     private ResultReceiver channelUpdateReceiver;
+
+    private void updateChannelDescriptionUIFrom(Map<String, String> channelMetadata) {
+        String channelDescription = ChannelMetadata.getChannelDescriptionFrom(channelMetadata);
+        if(textViewGroupDescription != null) {
+            textViewGroupDescription.setText(!TextUtils.isEmpty(channelDescription) ? channelDescription : getString(R.string.no_description_tap_to_add));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +156,8 @@ public class ChannelInfoActivity extends AppCompatActivity {
         channelExitRelativeLayout = (RelativeLayout) findViewById(R.id.channel_exit_relativeLayout);
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         nestedScrollView = findViewById(R.id.nestedScrollView);
+        textViewGroupDescription = findViewById(R.id.groupDescriptionTexView);
+        cardViewGroupDescriptionContainer = findViewById(R.id.groupDescriptionCardView);
 
         collapsingToolbarLayout.setContentScrimColor(Color.parseColor(alCustomizationSettings.getCollapsingToolbarLayoutColor()));
         groupParticipantsTexView.setTextColor(Color.parseColor(alCustomizationSettings.getGroupParticipantsTextColor()));
@@ -194,6 +208,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                         createdBy.setText(getString(R.string.channel_created_by) + " " + contact.getDisplayName());
                     }
                 }
+                updateChannelDescriptionUIFrom(channel.getMetadata());
                 if (!isUserPresent) {
                     channelExitRelativeLayout.setVisibility(View.GONE);
                     channelDeleteRelativeLayout.setVisibility(View.VISIBLE);
@@ -274,6 +289,21 @@ public class ChannelInfoActivity extends AppCompatActivity {
             }
         });
 
+        cardViewGroupDescriptionContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isUserPresent && channel != null) {
+                    Intent editChannelNameIntent = new Intent(ChannelInfoActivity.this, EditChannelDescriptionActivity.class);
+                    GroupInfoUpdate groupInfoUpdate = new GroupInfoUpdate(channel.getMetadata(), channel.getKey());
+                    String groupJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
+                    editChannelNameIntent.putExtra(GROUP_UPDTAE_INFO, groupJson);
+                    startActivityForResult(editChannelNameIntent, REQUEST_CODE_FOR_CHANNEL_NEW_DESCRIPTION);
+                } else {
+                    Toast.makeText(ChannelInfoActivity.this, getString(R.string.channel_edit_description_alert), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -321,7 +351,7 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     toast.show();
                 }
             }
-            if (requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_NAME && resultCode == Activity.RESULT_OK) {
+            if ((requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_NAME || requestCode == REQUEST_CODE_FOR_CHANNEL_NEW_DESCRIPTION) && resultCode == Activity.RESULT_OK) {
                 GroupInfoUpdate groupInfoUpdate = (GroupInfoUpdate) GsonUtils.getObjectFromJson(data.getExtras().getString(GROUP_UPDTAE_INFO), GroupInfoUpdate.class);
                 System.out.println("GroupInfoUpdate ::: " + data.getExtras().getString(GROUP_UPDTAE_INFO));
                 if (channel.getName().equals(groupInfoUpdate.getNewName())) {
@@ -1049,10 +1079,16 @@ public class ChannelInfoActivity extends AppCompatActivity {
                     channelService.updateChannel(channel);
                     channelImage.setImageURI(Uri.parse(groupInfoUpdate.getContentUri()));
                 }
+                Map<String, String> metadata = groupInfoUpdate.getMetadata();
+                if (metadata != null && metadata.containsKey(ChannelMetadata.AL_CHANNEL_DESCRIPTION)) {
+                    updateChannelDescriptionUIFrom(metadata);
+                }
             }
             if (channelUpdateReceiver != null) {
                 channelUpdateReceiver.send(1, null);
             }
+            //update channel object for activity
+            ChannelInfoActivity.this.channel = ChannelService.getInstance(ChannelInfoActivity.this).getChannelByChannelKey(channelKey);
         }
     }
 
