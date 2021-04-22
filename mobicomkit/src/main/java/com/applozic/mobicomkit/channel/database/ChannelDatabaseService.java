@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
@@ -18,6 +20,7 @@ import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.channel.ChannelUserMapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -383,7 +386,37 @@ public class ChannelDatabaseService {
         return deletedRows;
     }
 
-    //just updates profile picture urls and channel name
+    public @Nullable Map<String, String> getMetadataToUpdateToDatabaseFromGroupInfoUpdate(GroupInfoUpdate groupInfoUpdate) {
+        Map<String, String> updateMetadata = groupInfoUpdate.getMetadata();
+        if(updateMetadata == null) {
+            return null; //since no updating required
+        }
+
+        Channel channel = null;
+        if (groupInfoUpdate.getGroupId() != null && groupInfoUpdate.getGroupId() != 0) {
+            channel = getChannelByChannelKey(groupInfoUpdate.getGroupId());
+        } else if (!TextUtils.isEmpty(groupInfoUpdate.getClientGroupId())) {
+            channel = getChannelByClientGroupId(groupInfoUpdate.getClientGroupId());
+        }
+
+        if (channel != null) {
+            Map<String, String> existingChannelMetadata = channel.getMetadata();
+            if (existingChannelMetadata == null) {
+                existingChannelMetadata = new HashMap<>();
+            }
+            for (String key : updateMetadata.keySet()) {
+                String value = updateMetadata.get(key);
+                if (value != null) {
+                    existingChannelMetadata.put(key, value);
+                }
+            }
+            return existingChannelMetadata; //new and updated now
+        } else {
+            Log.d(TAG, "GroupInfoUpdate object doesn't have channelKey or clientGroupId.");
+            return null;
+        }
+    }
+
     public int updateChannel(GroupInfoUpdate groupInfoUpdate) {
         if (groupInfoUpdate.getImageUrl() == null && groupInfoUpdate.getNewName() == null) {
             return 0;
@@ -403,6 +436,15 @@ public class ChannelDatabaseService {
                 if (groupInfoUpdate.getImageUrl() != null) {
                     values.put("channelImageURL", groupInfoUpdate.getImageUrl());
                     values.putNull("channelImageLocalURI");
+                }
+                if (groupInfoUpdate.getMetadata() != null) {
+                    Map<String, String> metadataToUpdate = getMetadataToUpdateToDatabaseFromGroupInfoUpdate(groupInfoUpdate);
+                    if(metadataToUpdate != null) {
+                        values.put(MobiComDatabaseHelper.CHANNEL_META_DATA, GsonUtils.getJsonFromObject(metadataToUpdate, Map.class));
+                        if (metadataToUpdate.containsKey(Channel.AL_CATEGORY)) {
+                            values.put(MobiComDatabaseHelper.AL_CATEGORY, metadataToUpdate.get(Channel.AL_CATEGORY));
+                        }
+                    }
                 }
             }
             rowUpdated = dbHelper.getWritableDatabase().update("channel", values, "channelKey=" + groupInfoUpdate.getGroupId(), null);

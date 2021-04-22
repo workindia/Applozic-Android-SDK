@@ -292,14 +292,14 @@ public class ChannelInfoActivity extends AppCompatActivity {
         cardViewGroupDescriptionContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isUserPresent && channel != null) {
+                if (isUserPresent && alCustomizationSettings.isEditChannelDescriptionAllowed() && channel != null) {
                     Intent editChannelNameIntent = new Intent(ChannelInfoActivity.this, EditChannelDescriptionActivity.class);
                     GroupInfoUpdate groupInfoUpdate = new GroupInfoUpdate(channel.getMetadata(), channel.getKey());
                     String groupJson = GsonUtils.getJsonFromObject(groupInfoUpdate, GroupInfoUpdate.class);
                     editChannelNameIntent.putExtra(GROUP_UPDTAE_INFO, groupJson);
                     startActivityForResult(editChannelNameIntent, REQUEST_CODE_FOR_CHANNEL_NEW_DESCRIPTION);
                 } else {
-                    Toast.makeText(ChannelInfoActivity.this, getString(R.string.channel_edit_description_alert), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChannelInfoActivity.this, alCustomizationSettings.isEditChannelDescriptionAllowed() ? getString(R.string.channel_edit_description_alert) : getString(R.string.editing_channel_description_is_not_allowed), Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -463,14 +463,6 @@ public class ChannelService {
         if (apiResponse.isSuccess()) {
             channelDatabaseService.updateChannel(groupInfoUpdate);
         }
-        //metadata was updated, needs to be updated in local db
-        if (groupInfoUpdate.getMetadata() != null && groupInfoUpdate.getGroupId() != null && groupInfoUpdate.getGroupId() != 0) {
-            Channel channel = getChannelByChannelKey(groupInfoUpdate.getGroupId());
-            if (channel != null) {
-                channel.setMetadata(groupInfoUpdate.getMetadata());
-                channelDatabaseService.updateChannel(channel);
-            }
-        }
         return apiResponse.getStatus();
     }
 

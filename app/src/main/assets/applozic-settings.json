@@ -87,6 +87,7 @@
   "enableMessageReport": true,
   "hideGroupsSectionTab": false,
   "showSenderNameForGroupsInConversationList": "true",
+  "editChannelDescriptionAllowed": true,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,

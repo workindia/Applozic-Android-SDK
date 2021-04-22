@@ -88,6 +88,7 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean logoutOption = false;
     private int defaultGroupType = 2;
     private boolean muteUserChatOption = false;
+    private boolean editChannelDescriptionAllowed = true;
 
     private int totalRegisteredUserToFetch = 100;
     private int maxAttachmentAllowed = 5;
@@ -681,6 +682,10 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public Map<String, String> getProfileFragmentTransitions() {
         return profileFragmentTransitions;
+    }
+
+    public boolean isEditChannelDescriptionAllowed() {
+        return editChannelDescriptionAllowed;
     }
 
     public DateFormatCustomization getDateFormatCustomization() {

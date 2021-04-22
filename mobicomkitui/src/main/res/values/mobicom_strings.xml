@@ -165,6 +165,7 @@
     <string name="channel_add_alert">Unable to add participant in group because you are not a participant</string>
     <string name="channel_edit_alert">Unable to change the group name because you are not a participant</string>
     <string name="channel_edit_description_alert">Unable to change the group description because you are not a participant</string>
+    <string name="editing_channel_description_is_not_allowed">Editing channel description is not allowed</string>
     <string name="admin_text">Group admin</string>
     <string name="user_not_in_this_group_text">You are no longer a participant of this group</string>
     <string name="group_has_been_deleted_text">This group has been deleted</string>
