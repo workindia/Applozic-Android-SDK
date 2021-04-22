@@ -279,6 +279,25 @@ public class Channel extends JsonMarker {
         return GroupType.OPEN.getValue().equals(type);
     }
 
+    /**
+     * Checks for metadata value with key {@link ChannelMetadata#ADMIN_ONLY_MESSAGE_CLIENT_SUPPORT_CHANNEL_METADATA_KEY}
+     *
+     * <p>This boolean metadata value has been added to let a request (for support for letting only admins send messages
+     * to a group) be sent with the group create/update api.
+     * The client UI can then implement the required functionality from its side accordingly.
+     * The applozic UI Kit implements this functionality by replacing the message send view
+     * with an appropriate message.</p>
+     *
+     * @return returns true if it's present and with value true and false otherwise.
+     */
+    public boolean hasAdminOnlyMessageClientSupportRequest() {
+        final String TRUE_STRING = "true";
+        if(metadata == null) {
+            return false;
+        }
+        return metadata.containsKey(ChannelMetadata.ADMIN_ONLY_MESSAGE_CLIENT_SUPPORT_CHANNEL_METADATA_KEY) && TRUE_STRING.equalsIgnoreCase(metadata.get(ChannelMetadata.ADMIN_ONLY_MESSAGE_CLIENT_SUPPORT_CHANNEL_METADATA_KEY));
+    }
+
     public enum GroupType {
 
         VIRTUAL(0),
