@@ -115,7 +115,7 @@ public class EditChannelDescriptionActivity extends AppCompatActivity {
         buttonOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String editTextString = editTextChannelDescription.getText().toString();
+                String editTextString = editTextChannelDescription.getText().toString().trim();
                 if (editTextString != null && !editTextString.equals(existingChannelDescription)) {
                     updateGroupInfoUpdateObjectsChannelDescription(editTextString);
 
