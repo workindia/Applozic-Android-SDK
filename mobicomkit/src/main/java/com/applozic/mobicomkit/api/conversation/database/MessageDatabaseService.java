@@ -1009,15 +1009,15 @@ public class MessageDatabaseService {
 
 
     public List<Message> getMessages(Long createdAt) {
-        return getMessages(createdAt, null, null);
+        return getMessages(createdAt, null, null, null);
     }
 
     List<Message> getMessages(Long createdAt, String searchText) {
-        return getMessages(createdAt, searchText, null);
+        return getMessages(createdAt, searchText, null, null);
     }
 
 
-    public List<Message> getMessages(Long createdAt, String searchText, Integer parentGroupKey) {
+    public List<Message> getMessages(Long createdAt, String searchText, Integer parentGroupKey, Integer limit) {
 
         if (parentGroupKey != null && parentGroupKey != 0) {
             return getLatestGroupMessages(createdAt, searchText, parentGroupKey);
@@ -1073,6 +1073,11 @@ public class MessageDatabaseService {
                 }
 
                 rowQuery = rowQuery + createdAtClause + searchCaluse + hiddenType + messageTypeClause + " order by m1.createdAt desc";
+
+                if (limit != null && limit != 0) {
+                    rowQuery = rowQuery + " limit " + limit;
+                }
+
                 cursor = db.rawQuery(rowQuery, null);
             }
 

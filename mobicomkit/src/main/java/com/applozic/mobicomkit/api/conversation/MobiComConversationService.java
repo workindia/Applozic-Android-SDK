@@ -6,11 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+import android.text.TextUtils;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
@@ -74,6 +73,7 @@ public class MobiComConversationService {
     public static final int MESSAGE_SENT = 5;
     private boolean isHideActionMessage = false;
 
+    final int LATEST_MESSAGE_DB_PAGE_QUANTITY = 60;
 
     public MobiComConversationService(Context context) {
         this.context = ApplozicService.getContext(context);
@@ -154,13 +154,14 @@ public class MobiComConversationService {
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
-        boolean emptyTable = messageDatabaseService.isMessageTableEmpty();
+        List<Message> latestMessageListFromDb = messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey, LATEST_MESSAGE_DB_PAGE_QUANTITY);
 
-        if (emptyTable || createdAt != null && createdAt != 0) {
+        if (latestMessageListFromDb == null || latestMessageListFromDb.isEmpty()) {
             getMessages(null, createdAt, null, null, null, false, false);
+            return messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey, LATEST_MESSAGE_DB_PAGE_QUANTITY);
         }
 
-        return messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey);
+        return latestMessageListFromDb;
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString) {
