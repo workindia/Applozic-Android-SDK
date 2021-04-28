@@ -3,9 +3,10 @@ package com.applozic.mobicomkit.api.conversation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Process;
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.AlJobIntentService;
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -13,7 +14,6 @@ import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
-import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
 
 import java.util.Date;
@@ -124,6 +124,7 @@ public class ConversationIntentService extends AlJobIntentService {
                     MobiComUserPreference.getInstance(ConversationIntentService.this).setDeviceContactSyncTime(new Date().getTime());
                 }
 
+                /**
                 for (Message message : messages.subList(0, Math.min(PRE_FETCH_MESSAGES_FOR, messages.size()))) {
                     Contact contact = null;
                     Channel channel = null;
@@ -136,6 +137,7 @@ public class ConversationIntentService extends AlJobIntentService {
 
                     mobiComConversationService.getMessages(1L, null, contact, channel, null, true, false);
                 }
+                 **/
             } catch (Exception e) {
                 e.printStackTrace();
             }

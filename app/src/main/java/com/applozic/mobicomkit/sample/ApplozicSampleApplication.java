@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.sample;
 
 import android.content.Context;
-import android.os.StrictMode;
 
 import androidx.multidex.MultiDex;
 import androidx.multidex.MultiDexApplication;
@@ -19,6 +18,7 @@ public class ApplozicSampleApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
+        /**
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                 .detectDiskReads()
                 .detectDiskWrites()
@@ -31,6 +31,7 @@ public class ApplozicSampleApplication extends MultiDexApplication {
                 .penaltyLog()
                 .penaltyDeath()
                 .build());
+         **/
 
         try {
             Fabric.with(this, new Crashlytics());
