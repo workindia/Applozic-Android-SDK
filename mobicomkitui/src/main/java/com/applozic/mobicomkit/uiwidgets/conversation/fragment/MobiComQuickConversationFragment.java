@@ -73,7 +73,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     ConversationUIService conversationUIService;
     AlCustomizationSettings alCustomizationSettings;
     String searchString;
-    private Long minCreatedAtTime;
     private DownloadConversation downloadConversation;
     private BaseContactService baseContactService;
     private Toolbar toolbar;
@@ -578,7 +577,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void downloadConversations(boolean showInstruction, String searchString) {
-        minCreatedAtTime = null;
         downloadConversation = new DownloadConversation(getContext(), true, 1, searchString);
         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
         downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
@@ -748,9 +746,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         protected Long doInBackground(Void... voids) {
             if (initial) {
                 nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
-                if (!nextMessageList.isEmpty()) {
-                    minCreatedAtTime = nextMessageList.get(nextMessageList.size() - 1).getCreatedAtTime();
-                }
             } else if (!messageList.isEmpty()) {
                 listIndex = firstVisibleItem;
                 Long createdAt;
@@ -759,8 +754,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 } else {
                     createdAt = messageList.isEmpty() ? null : messageList.get(messageList.size() - 1).getCreatedAtTime();
                 }
-                minCreatedAtTime = (minCreatedAtTime == null ? createdAt : Math.min(minCreatedAtTime, createdAt));
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(minCreatedAtTime, searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(createdAt, searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
             }
 
             return 0L;
