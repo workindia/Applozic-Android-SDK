@@ -496,8 +496,8 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             latestMessageForEachContact.clear();
             messageList.clear();
 
-            //for page side 60. 0-60 (page 1), 60-120 (page 2) etc.
             final int BUFFER = 20; //this is used to avoid underestimation of page size. a good idea is to always overestimate.
+            //for page size 60. 0-60 (page 1), 60-120 (page 2) etc.
             int numberOfPages = ((BroadcastService.lastIndexForChats + BUFFER) / MobiComConversationService.LATEST_MESSAGE_DB_PAGE_QUANTITY) + 1;
             downloadConversations(false, searchString, numberOfPages);
         }
