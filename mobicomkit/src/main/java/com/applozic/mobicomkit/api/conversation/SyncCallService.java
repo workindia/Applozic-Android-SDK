@@ -78,6 +78,10 @@ public class SyncCallService {
         return mobiComConversationService.getLatestMessagesGroupByPeople(createdAt, searchString);
     }
 
+    public synchronized List<Message> getLatestMessagesGroupByPeople(String searchString, Integer parentGroupKey, int numberOfPages) {
+        return mobiComConversationService.getLatestMessagesGroupByPeople(null, searchString, parentGroupKey, numberOfPages);
+    }
+
     public synchronized List<Message> getLatestMessagesGroupByPeople(String searchString, Integer parentGroupKey) {
         return mobiComConversationService.getLatestMessagesGroupByPeople(null, searchString, parentGroupKey);
     }

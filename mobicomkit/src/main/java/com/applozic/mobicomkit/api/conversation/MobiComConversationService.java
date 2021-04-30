@@ -73,7 +73,7 @@ public class MobiComConversationService {
     public static final int MESSAGE_SENT = 5;
     private boolean isHideActionMessage = false;
 
-    final int LATEST_MESSAGE_DB_PAGE_QUANTITY = 60;
+    public static final int LATEST_MESSAGE_DB_PAGE_QUANTITY = 60;
 
     public MobiComConversationService(Context context) {
         this.context = ApplozicService.getContext(context);
@@ -153,8 +153,10 @@ public class MobiComConversationService {
         return getLatestMessagesGroupByPeople(null, null);
     }
 
-    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
-        List<Message> latestMessageListFromDb = messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey, LATEST_MESSAGE_DB_PAGE_QUANTITY);
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey, int numberOfPages) {
+        numberOfPages = numberOfPages <= 0 ? 1 : numberOfPages;
+
+        List<Message> latestMessageListFromDb = messageDatabaseService.getMessages(createdAt, searchString, parentGroupKey, LATEST_MESSAGE_DB_PAGE_QUANTITY * numberOfPages);
 
         if (latestMessageListFromDb == null || latestMessageListFromDb.isEmpty()) {
             getMessages(null, createdAt, null, null, null, false, false);
@@ -162,6 +164,10 @@ public class MobiComConversationService {
         }
 
         return latestMessageListFromDb;
+    }
+
+    public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString, Integer parentGroupKey) {
+        return getLatestMessagesGroupByPeople(createdAt, searchString, parentGroupKey, 1);
     }
 
     public synchronized List<Message> getLatestMessagesGroupByPeople(Long createdAt, String searchString) {

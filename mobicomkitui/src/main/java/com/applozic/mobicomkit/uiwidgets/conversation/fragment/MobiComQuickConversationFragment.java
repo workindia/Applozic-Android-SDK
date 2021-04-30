@@ -25,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -77,11 +78,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     private BaseContactService baseContactService;
     private Toolbar toolbar;
     private MessageDatabaseService messageDatabaseService;
-    private int previousTotalItemCount = 0;
-    private boolean loading = true;
     private AlLinearLayoutManager linearLayoutManager;
     boolean isAlreadyLoading = false;
-    int pastVisiblesItems, visibleItemCount, totalItemCount;
+    int visibleItemCount, totalItemCount;
 
 
     public RecyclerView getRecyclerView() {
@@ -137,7 +136,6 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         toolbar = (Toolbar) getActivity().findViewById(R.id.my_toolbar);
         toolbar.setClickable(false);
         fabButton = (ImageButton) list.findViewById(R.id.fab_start_new);
-        loading = true;
         LinearLayout individualMessageSendLayout = (LinearLayout) list.findViewById(R.id.individual_message_send_layout);
         LinearLayout extendedSendingOptionLayout = (LinearLayout) list.findViewById(R.id.extended_sending_option_layout);
 
@@ -494,14 +492,15 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                 recyclerView.scrollToPosition(listIndex);
             }
         }
-        if (!isAlreadyLoading) {
+        if (!isAlreadyLoading && linearLayoutManager != null) {
             latestMessageForEachContact.clear();
             messageList.clear();
-            downloadConversations(false, searchString);
-        }
 
-        //as per current implementation, list position resets at onResume. hence this.
-        previousTotalItemCount = 0;
+            //for page side 60. 0-60 (page 1), 60-120 (page 2) etc.
+            final int BUFFER = 20; //this is used to avoid underestimation of page size. a good idea is to always overestimate.
+            int numberOfPages = ((BroadcastService.lastIndexForChats + BUFFER) / MobiComConversationService.LATEST_MESSAGE_DB_PAGE_QUANTITY) + 1;
+            downloadConversations(false, searchString, numberOfPages);
+        }
 
         if (swipeLayout != null) {
             swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -534,20 +533,9 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-
                 if (dy > 0 && TextUtils.isEmpty(searchString)) {
                     visibleItemCount = linearLayoutManager.getChildCount();
                     totalItemCount = linearLayoutManager.getItemCount();
-                    pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
-
-                    if (loading) {
-                        if (totalItemCount > previousTotalItemCount) {
-                            if (!messageList.isEmpty()) {
-                                loading = false;
-                            }
-                            previousTotalItemCount = totalItemCount;
-                        }
-                    }
 
                     if ((totalItemCount - visibleItemCount) == 0) {
                         return;
@@ -555,16 +543,18 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
                     if (totalItemCount <= 5) {
                         return;
                     }
-                    if (loadMore && !loading && (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        DownloadConversation downloadConversation = new DownloadConversation(getContext(), false, listIndex);
-                        downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
-                        downloadConversation.setTextViewWeakReference(emptyTextView);
-                        downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
-                        downloadConversation.setRecyclerView(recyclerView);
-                        downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
-                        downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        loading = true;
-                        loadMore = false;
+
+                    if (!isAlreadyLoading && loadMore) {
+                        if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == recyclerAdapter.getItemCount() - 1) {
+                            DownloadConversation downloadConversation = new DownloadConversation(getContext(), false, listIndex);
+                            downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
+                            downloadConversation.setTextViewWeakReference(emptyTextView);
+                            downloadConversation.setSwipeRefreshLayoutWeakReference(swipeLayout);
+                            downloadConversation.setRecyclerView(recyclerView);
+                            downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
+                            downloadConversation.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                            loadMore = false;
+                        }
                     }
                 }
             }
@@ -577,7 +567,11 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
     }
 
     public void downloadConversations(boolean showInstruction, String searchString) {
-        downloadConversation = new DownloadConversation(getContext(), true, 1, searchString);
+        downloadConversations(showInstruction, searchString, 1);
+    }
+
+    public void downloadConversations(boolean showInstruction, String searchString, int numberOfPages) {
+        downloadConversation = new DownloadConversation(getContext(), true, 1, searchString, numberOfPages);
         downloadConversation.setQuickConversationAdapterWeakReference(recyclerAdapter);
         downloadConversation.setConversationLabelStrings(getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "", getContext() != null ? ApplozicService.getContext(getContext()).getString(R.string.no_conversation) : "");
         downloadConversation.setTextViewWeakReference(emptyTextView);
@@ -674,6 +668,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         private int firstVisibleItem;
         private boolean initial;
+        private int numberOfPages;
         private List<Message> nextMessageList = new ArrayList<Message>();
         private WeakReference<Context> context;
         private boolean loadMoreMessages;
@@ -700,11 +695,12 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
             this.recyclerViewWr = new WeakReference<>(recyclerView);
         }
 
-        public DownloadConversation(Context context, boolean initial, int firstVisibleItem, String searchString) {
+        public DownloadConversation(Context context, boolean initial, int firstVisibleItem, String searchString, int numberOfPages) {
             this.context = new WeakReference<>(context);
             this.initial = initial;
             this.firstVisibleItem = firstVisibleItem;
             this.searchString = searchString;
+            this.numberOfPages = numberOfPages;
         }
 
         public void setConversationLabelStrings(String conversationLabel, String noConversationFound) {
@@ -713,7 +709,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
         }
 
         public DownloadConversation(Context context, boolean initial, int firstVisibleItem) {
-            this(context, initial, firstVisibleItem, null);
+            this(context, initial, firstVisibleItem, null, 1);
             loadMoreMessages = true;
         }
 
@@ -745,7 +741,7 @@ public class MobiComQuickConversationFragment extends Fragment implements Search
 
         protected Long doInBackground(Void... voids) {
             if (initial) {
-                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey());
+                nextMessageList = syncCallService.getLatestMessagesGroupByPeople(searchString, MobiComUserPreference.getInstance(ApplozicService.getContextFromWeak(context)).getParentGroupKey(), numberOfPages);
             } else if (!messageList.isEmpty()) {
                 listIndex = firstVisibleItem;
                 Long createdAt;

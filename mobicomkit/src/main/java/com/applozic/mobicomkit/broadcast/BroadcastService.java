@@ -33,7 +33,7 @@ public class BroadcastService {
     public static String currentInfoId = null;
     public static boolean videoCallAcitivityOpend = false;
     public static boolean callRinging = false;
-    public static int lastIndexForChats = 0;
+    public static int lastIndexForChats = 0; //the index of the top most visible item the the list window
     private static boolean contextBasedChatEnabled = false;
     public static String currentUserProfileUserId = null;
 
