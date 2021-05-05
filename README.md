@@ -37,26 +37,38 @@ Chat, video, and audio-calling have become the new norm in the post-COVID era,
 and we're bridging the gap between businesses and customers by delivering those
 exact solutions.
 
+## Table of Contents
 
-### Getting Started       
+* [Quick Start](#quickstart)
+* [Announcements](#announcements)
+* [Roadmap](#roadmap)
+* [About](#about)
+* [License](#license)
 
 
-To integrate android chat library into your android app, signup at [Applozic](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
+## Prerequisites 
 
-Documentation: [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
+:one: [Android Studio](https://developer.android.com/studio) (latest version recommended)<br>
+:two: ```Android Device | Emulator``` with Android Version 6.0+.<br>
+:three: [Sign-Up](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) or Login to get your Applozic's [API/Application Key](https://console.applozic.com/settings/install). <br>
 
+<a name="quickstart"></a>
+## Quick Start :rocket:
 
+Before getting started with installation. We recommend to go through some basic documentation for [Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android) :memo: <br>
 
-#### Step 1: Add the following in your build.gradle dependency:      
+#### Step 1: Adding in app build.gradle:      
 
-`implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.98' `
+Make sure you open your app's build.gradle 
+
+```bash
+implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.98' 
+```
 
 Add the following in gradle android target:      
 
-
-```
+```java
 android {
-
         packagingOptions {           
            exclude 'META-INF/DEPENDENCIES'      
            exclude 'META-INF/NOTICE'         
@@ -70,42 +82,49 @@ android {
 ```
 
 
-#### Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml:
+### Step 2: Addition of Permissions,Activities, Services and Receivers in androidmanifest.xml:
         
-**Note**: Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```
+**Note**: 
+* Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```<br>
+* Add Permissions outside the application Tag ``` <application>  ```
 
-**Note**: Add Permissions outside the application Tag ``` <application>  ```
-```
+```xml
 
+<!-- Applozic App ID -->
 <meta-data android:name="com.applozic.application.key"
-           android:value="<YOUR_APPLOZIC_APP_ID" /> <!-- Applozic App ID -->
+           android:value="<YOUR_APPLOZIC_APP_ID" /> 
 
+<!-- Launcher white Icon -->
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
-           android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
+           android:resource="YOUR_LAUNCHER_SMALL_ICON" /> 
 
+<!-- Notification color -->
 <meta-data android:name="com.applozic.mobicomkit.notification.color"
-           android:resource="YOUR_NOTIFICATION_COLOR_RESOURCE" /> <!-- Notification color -->
-           
-<meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="YOUR_GEO_API_KEY" />  <!--Replace with your geo api key from google developer console  --> 
+           android:resource="YOUR_NOTIFICATION_COLOR_RESOURCE" /> 
+
+<!--Replace with your geo api key from google developer console  --> 
 <!-- For testing purpose use AIzaSyAYB1vPc4cpn_FJv68eS_ZGe1UasBNwxLI
-To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->   
-            
+To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->             
+<meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="YOUR_GEO_API_KEY" />  
+
+<!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->            
 <meta-data android:name="com.package.name" 
-           android:value="${applicationId}" /> <!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->
+           android:value="${applicationId}" /> 
                      
 ```
-   **Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
 
-  
-  Define Attachment Folder Name in your string.xml.          
+**Note**: If you are **not using gradle build** you need to replace ${applicationId}  with your Android app package name
+
+Define Attachment Folder Name in your string.xml.          
      
-```
+```html
 <string name="default_media_location_folder">YOUR_APP_NAME</string> 
 ```
 
 Paste the following in your androidmanifest.xml:        
-```
+
+```xml
 <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
            android:label="@string/app_name"
@@ -122,12 +141,10 @@ Paste the following in your androidmanifest.xml:
 
 Replace APP_PARENT_ACTIVITY with your app's parent activity.        
 
-#### Step 3: Register user account:     
-
-
+### Step 3: Register user account in your code:     
 
      
-```
+```java
 User user = new User();          
 user.setUserId(userId); //userId it can be any unique user identifier
 user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
@@ -152,9 +169,7 @@ user.setImageLink("");//optional,pass your image link
 If it is a new user, new user account will get created else existing user will be logged in to the application.
 You can check if user is logged in to applozic or not by using ``` Applozic.isConnected(context) ```
 
-
-
-#### Step 4: Push Notification Setup
+### Step 4: Push Notification Setup
 
 ***Go to Applozic Dashboard, Edit Application -> Push Notification -> Android -> GCM/FCM Server Key.***
 
