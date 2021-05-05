@@ -1,16 +1,41 @@
-Android Chat SDK
+<div style="width:100%">
+    <div style="width:50%; display:inline-block">
+        <p align="center">
+         <img style="border-radius: 50px;" align="center" alt="Applozic's LOGO" src="https://i.imgur.com/mGIQIXy.png?1">
+        </p>
+    </div>
+</div>
 
-### Overview         
+# Official Android SDK for [Chat](https://docs.applozic.com/docs/android-integration-overview)
 
-<img align="right" src="https://raw.githubusercontent.com/AppLozic/Applozic-Android-SDK/master/img/android.png" />
+![Platform](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
+![Platform](https://img.shields.io/badge/Language-java-yellow.svg)
+![GitHub repo size](https://img.shields.io/github/repo-size/AppLozic/Applozic-Android-SDK)
+![GitHub contributors](https://img.shields.io/github/contributors/AppLozic/Applozic-Android-SDK)
+![GitHub stars](https://img.shields.io/github/stars/AppLozic/Applozic-Android-SDK?style=social)
+![Twitter Follow](https://img.shields.io/twitter/follow/Applozic?style=social)
+
+## Introduction         
+
+<img align="right" src="https://i.imgur.com/OK9dSLS.png?1" />
 
 
-Open source Android Chat SDK / Messaging SDK that lets you add real time chat and in-app messaging in your mobile (android, iOS) applications and website.
+Applozic brings real-time engagement with chat, video, and voice to your web,
+mobile, and conversational apps. We power emerging startups and established
+companies with the most scalable and powerful chat APIs, enabling application
+product teams to drive better user engagement, and reduce time-to-market.
 
-Signup at [https://www.applozic.com/signup.html](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to get the App ID.
+Customers and developers from over 50+ countries use us and love us, from online
+marketplaces and eCommerce to on-demand services, to Education Tech, Health
+Tech, Gaming, Live-Streaming, and more.
 
-Applozic One to One and Group Chat SDK
+Our feature-rich product includes robust client-side SDKs for iOS, Android, React
+Native, and Flutter. We also support popular server-side languages, a beautifully
+customizable UI kit, and flexible platform APIs.
 
+Chat, video, and audio-calling have become the new norm in the post-COVID era,
+and we're bridging the gap between businesses and customers by delivering those
+exact solutions.
 
 
 ### Getting Started       
@@ -57,6 +82,9 @@ android {
 
 <meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
            android:resource="YOUR_LAUNCHER_SMALL_ICON" /> <!-- Launcher white Icon -->
+
+<meta-data android:name="com.applozic.mobicomkit.notification.color"
+           android:resource="YOUR_NOTIFICATION_COLOR_RESOURCE" /> <!-- Notification color -->
            
 <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="YOUR_GEO_API_KEY" />  <!--Replace with your geo api key from google developer console  --> 
