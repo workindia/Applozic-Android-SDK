@@ -6,7 +6,7 @@
     </div>
 </div>
 
-# Official Android SDK for [Chat](https://docs.applozic.com/docs/android-integration-overview)
+# Official Android SDK for [Chat](https://docs.applozic.com/docs/android-integration-overview) :speech_balloon:
 
 ![Platform](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
 ![Platform](https://img.shields.io/badge/Language-java-yellow.svg)
@@ -15,7 +15,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/AppLozic/Applozic-Android-SDK?style=social)
 ![Twitter Follow](https://img.shields.io/twitter/follow/Applozic?style=social)
 
-## Introduction         
+## Introduction :cyclone:         
 
 <img align="right" src="https://i.imgur.com/OK9dSLS.png?1" />
 
@@ -37,18 +37,19 @@ Chat, video, and audio-calling have become the new norm in the post-COVID era,
 and we're bridging the gap between businesses and customers by delivering those
 exact solutions.
 
-## Table of Contents
+## Table of Contents :beginner:
 
 * [Quick Start](#quickstart)
    * [Setting Up Android Studio for new project](#setting-android-studio)
    * [Integrating Sample App](sample-app)
 * [Announcements](#announcements)
 * [Roadmap](#roadmap)
+* [Features](#feature)
 * [About](#about)
 * [License](#license)
 
 
-## Prerequisites 
+## Prerequisites :crystal_ball:
 
 :one: [Android Studio](https://developer.android.com/studio) (latest version recommended)<br>
 :two: ```Android Device | Emulator``` with Android Version 6.0+.<br>
@@ -351,28 +352,35 @@ Applozic.logoutUser(context, new AlLogoutHandler() {
         });     
  ```
 
+<a name="documentation"></a>
+## Documentation :book:
 
 **Trying out the demo app:**
 
-Open project in Android Studio to run the sample app in your device. Send messages between multiple devices. 
+* Open project in Android Studio to run the sample app in your device & Send messages between multiple devices. 
+* Display name for users:
+    * You can either choose to handle display name from your app or have Applozic handle it.
+    * From your app's first activity, set the following to disable display name feature:
+    * **```ApplozicClient.getInstance(this).setHandleDisplayName(false);```**
+    * By default, the display name feature is enabled.
+* For advanced options and customization, visit [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
+<a name="announcements"></a>
+## Announcements :loudspeaker: 
 
-Display name for users:
-You can either choose to handle display name from your app or have Applozic handle it.
-From your app's first activity, set the following to disable display name feature:
-ApplozicClient.getInstance(this).setHandleDisplayName(false);
-By default, the display name feature is enabled.
+v5.98 has been released! Please see the [release notes](https://github.com/AppLozic/Applozic-Android-SDK/releases/tag/v5.98) for details.
 
+All updates to this library are documented in our [releases](https://github.com/AppLozic/Applozic-Android-SDK/releases). For any queries, feel free to reach out us at github@applozic.com
 
-### Documentation:
-For advanced options and customization, visit [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
+<a name="roadmap"></a>
+## Roadmap :vertical_traffic_light:
 
+If you are interested in the future direction of this project, please take a look at our open [issues](https://github.com/AppLozic/Applozic-Android-SDK/issues) and [pull requests](https://github.com/AppLozic/Applozic-Android-SDK/pulls).<br> We would :heart: to hear your feedback.
 
-### Changelog
 [Changelog](https://github.com/AppLozic/Applozic-Android-SDK/blob/master/CHANGELOG.md)
 
-
-### Features:
+<a name="feature"></a>
+## Features :confetti_ball:
 
 * One to one and Group Chat
 * Image capture
@@ -395,26 +403,20 @@ For advanced options and customization, visit [Applozic Android Chat & Messaging
 * CrossPlatformSupport(iOS,Android&Web)
 
 
-### Sample source code to build messenger and chat app
-
-https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app
-
-
-## Help
+<a name="about"></a>
+## About & Help/Support :rainbow:
 
 We provide support over at [StackOverflow](http://stackoverflow.com/questions/tagged/applozic) when you tag using applozic, ask us anything.
 
-Applozic is the best android chat sdk for instant messaging, still not convinced? Write to us at github@applozic.com and we will be happy to schedule a demo for you.
+* Applozic is the best android chat sdk for instant messaging, still not convinced? 
+    - Write to us at github@applozic.com 
+    - We will be happy to schedule a demo for you.
+    - Special plans for startup and open source contributors.
 
+* Android Chat SDK https://github.com/AppLozic/Applozic-Android-SDK
+* Web Chat Plugin https://github.com/AppLozic/Applozic-Web-Plugin
+* iOS Chat SDK https://github.com/AppLozic/Applozic-iOS-SDK
 
-### Free Android Chat SDK
-Special plans for startup and open source contributors, write to us at github@applozic.com 
-
-
-## Github projects
-
-Android Chat SDK https://github.com/AppLozic/Applozic-Android-SDK
-
-Web Chat Plugin https://github.com/AppLozic/Applozic-Web-Plugin
-
-iOS Chat SDK https://github.com/AppLozic/Applozic-iOS-SDK
+<a name="license"></a>
+## License :heavy_check_mark:
+This code library fully developed and supported by Applozic's [team of contributors](https://github.com/AppLozic/Applozic-Android-SDK/graphs/contributors):sunglasses: and licensed under the [BSD-3 Clause License](https://github.com/AppLozic/Applozic-Android-SDK/blob/master/LICENSE). 
