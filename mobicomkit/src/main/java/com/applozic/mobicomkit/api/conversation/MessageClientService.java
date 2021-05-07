@@ -28,6 +28,7 @@ import com.applozic.mobicomkit.sync.SyncMessageFeed;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FileUtils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -35,6 +36,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -361,6 +363,37 @@ public class MessageClientService extends MobiComKitClientService {
         return httpRequestUtils.getResponseWithException(urlBuilder.toString(), "application/json", "application/json", false, null);
     }
 
+    public FileMeta uploadVideoThumbnail(String filePath, Long createdAtTimeForSuffix, String oldMessageKey) {
+        FileMeta thumbnailFileMeta = null;
+        try {
+            FileClientService fileClientService = new FileClientService(context);
+            fileClientService.getOrCreateVideoThumbnail(filePath);
+
+            String videoThumbnailPath = fileClientService.getThumbnailPath(filePath);
+
+            if (!TextUtils.isEmpty(videoThumbnailPath) && new File(videoThumbnailPath).exists()) {
+                String fileMetaResponseVideoThumbnail = fileClientService.uploadBlobImage(videoThumbnailPath, null, oldMessageKey);
+
+                if (ApplozicClient.getInstance(context).isS3StorageServiceEnabled()) {
+                    if (!TextUtils.isEmpty(fileMetaResponseVideoThumbnail)) {
+                        thumbnailFileMeta = (FileMeta) GsonUtils.getObjectFromJson(fileMetaResponseVideoThumbnail, FileMeta.class);
+                    }
+                } else {
+                    JsonParser jsonParser = new JsonParser();
+                    JsonObject jsonObject = jsonParser.parse(fileMetaResponseVideoThumbnail).getAsJsonObject();
+                    if (jsonObject.has(FILE_META)) {
+                        Gson gson = new Gson();
+                        thumbnailFileMeta = gson.fromJson(jsonObject.get(FILE_META), FileMeta.class);
+                    }
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+        return thumbnailFileMeta;
+    }
+
     public void processMessage(Message message, Handler handler, String userDisplayName) throws Exception {
         boolean isBroadcast = (message.getMessageId() == null);
 
@@ -408,6 +441,13 @@ public class MessageClientService extends MobiComKitClientService {
         }
         if (!isBroadcastOneByOneGroupType && message.isUploadRequired()) {
             for (String filePath : message.getFilePaths()) {
+                FileMeta thumbnailFileMeta = null;
+
+                String mimeType = FileUtils.getMimeType(filePath);
+                if (mimeType != null && mimeType.startsWith("video")) {
+                    thumbnailFileMeta = uploadVideoThumbnail(filePath, message.getCreatedAtTime(), oldMessageKey);
+                }
+
                 try {
                     String fileMetaResponse = new FileClientService(context).uploadBlobImage(filePath, handler, oldMessageKey);
                     if (fileMetaResponse == null) {
@@ -452,6 +492,18 @@ public class MessageClientService extends MobiComKitClientService {
                                 msg.sendToTarget();
                             }
                         }
+                    }
+
+                    //update message file-meta with thumbnail data
+                    if (thumbnailFileMeta != null) {
+                        FileMeta messageFileMeta = message.getFileMetas();
+                        if (!TextUtils.isEmpty(thumbnailFileMeta.getBlobKeyString())) {
+                            messageFileMeta.setThumbnailBlobKey(thumbnailFileMeta.getBlobKeyString());
+                        }
+                        if (!TextUtils.isEmpty(thumbnailFileMeta.getThumbnailUrl())) {
+                            messageFileMeta.setThumbnailUrl(thumbnailFileMeta.getThumbnailUrl());
+                        }
+                        message.setFileMetas(messageFileMeta);
                     }
                 } catch (Exception ex) {
                     Utils.printLog(context, TAG, "Error uploading file to server: " + filePath);

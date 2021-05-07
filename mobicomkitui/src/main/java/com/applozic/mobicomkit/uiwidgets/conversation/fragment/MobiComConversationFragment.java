@@ -319,7 +319,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         imageThumbnailLoader = new ImageLoader(getContext(), ImageUtils.getLargestScreenDimension((Activity) getContext())) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return fileClientService.loadThumbnailImage(getContext(), (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
+                return fileClientService.downloadAndSaveThumbnailImage(getContext(), (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
             }
         };
 
@@ -1656,8 +1656,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
                                     galleryImageView.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
                                 } else {
-                                    imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
-                                    galleryImageView.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
+                                    imageCache.addBitmapToCache(message.getKeyString(), fileClientService.getOrCreateVideoThumbnail(message.getFilePaths().get(0)));
+                                    galleryImageView.setImageBitmap(fileClientService.getOrCreateVideoThumbnail(message.getFilePaths().get(0)));
                                 }
                             }
                             galleryImageView.setVisibility(VISIBLE);
@@ -2862,7 +2862,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 attachedFile.setVisibility(View.GONE);
                                 preview.setVisibility(VISIBLE);
                                 videoIcon.setVisibility(VISIBLE);
-                                preview.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(message.getFilePaths().get(0)));
+                                preview.setImageBitmap(fileClientService.getOrCreateVideoThumbnail(message.getFilePaths().get(0)));
                             } else if (message.getFileMetas() != null) {
                                 //Hide Attachment View...
                                 RelativeLayout applozicDocRelativeLayout = (RelativeLayout) view.findViewById(R.id.applozic_doc_downloaded);

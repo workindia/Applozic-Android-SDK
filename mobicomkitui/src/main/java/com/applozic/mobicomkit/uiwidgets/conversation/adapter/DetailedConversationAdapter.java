@@ -197,7 +197,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
         imageThumbnailLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
-                return fileClientService.loadThumbnailImage(context, (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
+                return fileClientService.downloadAndSaveThumbnailImage(context, (Message) data, getImageLayoutParam(false).width, getImageLayoutParam(false).height);
             }
         };
 
@@ -462,9 +462,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                                 myHolder.imageViewPhoto.setImageBitmap(imageCache.getBitmapFromMemCache(msg.getKeyString()));
                                             } else {
                                                 if (imageCache != null) {
-                                                    imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(msg.getFilePaths().get(0)));
+                                                    imageCache.addBitmapToCache(message.getKeyString(), fileClientService.getOrCreateVideoThumbnail(msg.getFilePaths().get(0)));
                                                 }
-                                                myHolder.imageViewPhoto.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(msg.getFilePaths().get(0)));
+                                                myHolder.imageViewPhoto.setImageBitmap(fileClientService.getOrCreateVideoThumbnail(msg.getFilePaths().get(0)));
                                             }
                                         }
                                     } else if (fileMeta.getContentType().contains("audio")) {
@@ -689,8 +689,8 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (imageCache.getBitmapFromMemCache(message.getKeyString()) != null) {
                                             myHolder.preview.setImageBitmap(imageCache.getBitmapFromMemCache(message.getKeyString()));
                                         } else {
-                                            imageCache.addBitmapToCache(message.getKeyString(), fileClientService.createAndSaveVideoThumbnail(filePath));
-                                            myHolder.preview.setImageBitmap(fileClientService.createAndSaveVideoThumbnail(filePath));
+                                            imageCache.addBitmapToCache(message.getKeyString(), fileClientService.getOrCreateVideoThumbnail(filePath));
+                                            myHolder.preview.setImageBitmap(fileClientService.getOrCreateVideoThumbnail(filePath));
                                         }
                                     } else {
                                         myHolder.preview.setVisibility(View.GONE);
@@ -957,7 +957,6 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             } else if ((message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) && !message.isAttachmentDownloaded()) {
                                 myHolder.preview.setVisibility(View.VISIBLE);
                                 myHolder.mapImageView.setVisibility(View.GONE);
-                                myHolder.preview.setImageResource(R.drawable.applozic_video_default_thumbnail);
                             } else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
                                 myHolder.mapImageView.setVisibility(View.GONE);
                                 setMessageText(myHolder.messageTextView, message);
@@ -1235,6 +1234,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     }
 
     private void showPreview(Message message, ImageView preview, LinearLayout attachmentDownloadLayout) {
+        if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("video")) {
+            preview.setImageResource(R.drawable.applozic_video_default_thumbnail); //placeholder
+        }
         imageThumbnailLoader.setImageFadeIn(false);
         imageThumbnailLoader.setLoadingImage(R.id.media_upload_progress_bar);
         imageThumbnailLoader.loadImage(message, preview);

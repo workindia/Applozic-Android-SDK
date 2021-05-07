@@ -231,7 +231,7 @@ public class NotificationService {
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
                 if (fileMeta.getThumbnailBlobKey() != null) {
-                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    Bitmap bitmap = new FileClientService(context).downloadAndSaveThumbnailImage(context, message, 200, 200);
                     mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Throwable ex) {
@@ -433,7 +433,7 @@ public class NotificationService {
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
                 if (fileMeta.getThumbnailBlobKey() != null) {
-                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    Bitmap bitmap = new FileClientService(context).downloadAndSaveThumbnailImage(context, message, 200, 200);
                     mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Exception ex) {
