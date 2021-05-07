@@ -123,6 +123,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPosit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
+import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionAdapter;
+import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionAutoCompleteTextView;
+import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
@@ -196,7 +199,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     protected Contact contact;
     protected Channel channel;
     protected Integer currentConversationId;
-    protected EditText messageEditText;
+    protected MentionAutoCompleteTextView messageEditText;
     protected ImageButton sendButton, recordButton;
     protected ImageButton attachButton;
     protected Spinner sendType;
@@ -457,7 +460,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         attachButton = (ImageButton) individualMessageSendLayout.findViewById(R.id.attach_button);
 
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
-        messageEditText = (EditText) individualMessageSendLayout.findViewById(R.id.conversation_message);
+        messageEditText = (MentionAutoCompleteTextView) individualMessageSendLayout.findViewById(R.id.conversation_message);
+
+        if (channel != null) {
+            MentionAdapter mentionAdapter = new MentionAdapter(requireContext());
+            mentionAdapter.addAll(MentionHelper.getMentionsListForChannel(requireContext(), channel.getKey()));
+            messageEditText.initMentions(mentionAdapter);
+        }
 
         messageEditText.setTextColor(Color.parseColor(alCustomizationSettings.getMessageEditTextTextColor()));
 

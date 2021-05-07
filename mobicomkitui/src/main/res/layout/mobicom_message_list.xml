@@ -357,7 +357,7 @@
                                 android:textColor="@color/black"
                                 android:textSize="16sp" />
                     -->
-                    <EditText
+                    <com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionAutoCompleteTextView
                         android:id="@+id/conversation_message"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
