@@ -72,8 +72,18 @@ Before getting started with installation. We recommend to go through some basic 
 * Make sure you open your app's build.gradle (*hint: Gradle Scripts ➙ build.grade(Module: \<your-app-name>.app)*) add the below line in **```dependencies{}```**.
 
 ```bash
-implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.98' 
+implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.99.0' 
 ```
+
+**Note: Versions from *v5.99.0* and onwards will be hosted at Jfrog Artifactory.**
+
+Add the following repo to you project level *build.gradle* inside *allProjects { repositories { ... }}*:
+```bash
+maven {
+    url 'https://applozic.jfrog.io/artifactory/applozic-android-sdk'
+}
+```
+
 
 * Add the below code in your gradle **```android{}```** target:      
 
