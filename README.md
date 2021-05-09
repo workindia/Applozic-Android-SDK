@@ -84,6 +84,8 @@ maven {
 }
 ```
 
+Older versions can still be consumed from Jcenter.
+
 
 * Add the below code in your gradle **```android{}```** target:      
 
