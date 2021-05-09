@@ -87,6 +87,7 @@
   "enableMessageReport": true,
   "hideGroupsSectionTab": false,
   "showSenderNameForGroupsInConversationList": "true",
+  "editChannelDescriptionAllowed": true,
   "attachmentOptions": {
     ":location": true,
     ":camera": true,
@@ -106,6 +107,30 @@
     "otherDayDateTemplate": "",
     "timeTemplate": "",
     "timeAndDateTemplate": ""
+  },
+  "conversationFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "conversationListFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "profileFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
+  },
+  "messageInfoFragmentTransitions": {
+    "enterTransition": "",
+    "exitTransition": "",
+    "popEnterTransition": "",
+    "popExitTransition": ""
   },
   "hideGroupSubtitle": false,
   "editTextHintText:": "Write a Message..",

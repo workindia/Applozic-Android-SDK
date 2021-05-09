@@ -652,7 +652,7 @@ public class ConversationUIService {
         if (BroadcastService.isIndividual()) {
             ConversationFragment conversationFragment = getConversationFragment();
             if (conversationFragment != null) {
-                conversationFragment.showLoggedUserDeletedText();
+                conversationFragment.hideMessageSendLayoutAndShowLoggedUserDeletedInfo();
             }
         }
     }

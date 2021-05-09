@@ -258,6 +258,8 @@ public class ConversationFragment extends MobiComConversationFragment implements
             StringBuffer stringBufferTitle = new StringBuffer();
             if (contact != null) {
                 Contact updatedInfoContact = appContactService.getContactById(contact.getContactIds());
+                contact.setImageURL(updatedInfoContact.getImageURL());
+                contact.setLocalImageUrl(updatedInfoContact.getLocalImageUrl());
                 if (updatedInfoContact.isDeleted()) {
                     Utils.toggleSoftKeyBoard(getActivity(), true);
                     ((AppCompatActivity) getActivity()).getSupportActionBar().setSubtitle("");

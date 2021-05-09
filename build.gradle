@@ -12,6 +12,10 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'com.google.gms:google-services:4.3.4'
+        //Release
+        /*
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.15.2"
+        */
 
         /*classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
           classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
@@ -24,6 +28,11 @@ buildscript {
 }
 
 allprojects {
+    //Release
+    /*
+    apply plugin: 'com.jfrog.artifactory'
+    apply plugin: 'maven-publish'
+    */
 
     repositories {
         maven {
@@ -47,6 +56,39 @@ allprojects {
     imageCropperVersion = "2.8.0"
     googleGsonVersion = "2.8.6"
 }*/
+
+//Release
+/*
+artifactoryPublish.skip = true
+
+artifactory {
+    contextUrl = 'https://applozic.jfrog.io/artifactory';
+
+    Properties localProperties = new Properties()
+    localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
+    publish {
+        repository {
+            repoKey = 'applozic-android-sdk'
+            username = localProperties['artifactory.username']
+            password = localProperties['artifactory.password']
+        }
+
+        defaults {
+            // Reference to Gradle publications defined in the build script.
+            // This is how we tell the Artifactory Plugin which artifacts should be
+            // published to Artifactory.
+            publications('aar')
+            publishArtifacts = true
+
+            // Properties to be attached to the published artifacts.
+            properties = ['qa.level': 'basic', 'dev.team' : 'core']
+
+            publishPom = true // Publish generated POM files to Artifactory (true by default)
+        }
+    }
+}
+*/
 
 task clean(type: Delete) {
     delete rootProject.buildDir

@@ -90,6 +90,14 @@
             tools:node="merge" />
 
         <activity
+            android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.EditChannelDescriptionActivity"
+            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:launchMode="singleTop"
+            android:parentActivityName="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
+            android:theme="@style/ApplozicTheme"
+            tools:node="merge" />
+
+        <activity
             android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ChannelInfoActivity"
             android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTop"
