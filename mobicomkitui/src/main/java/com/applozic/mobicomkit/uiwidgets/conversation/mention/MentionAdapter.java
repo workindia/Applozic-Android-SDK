@@ -1,6 +1,8 @@
-package com.applozic.mobicomkit.uiwidgets.conversation.mentions;
+package com.applozic.mobicomkit.uiwidgets.conversation.mention;
 
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +10,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.applozic.mobicomkit.api.mention.Mention;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,61 +28,60 @@ import java.util.Locale;
 
 /**
  * Default adapter for displaying mention in {@link MentionAutoCompleteTextView}.
- * Note that this adapter is completely optional, any adapter extending
- * {@link android.widget.ArrayAdapter} can be attached to {@link MentionAutoCompleteTextView}.
  */
 public class MentionAdapter extends ArrayAdapter<Mention> {
-    private int defaultAvatar;
-
     public MentionAdapter(@NonNull Context context, int resource, int textViewResourceId) {
         super(context, resource, textViewResourceId);
     }
 
-    public MentionAdapter(@NonNull Context context, @DrawableRes int defaultAvatar) {
-        this(context, R.layout.layout_mention_item, R.id.mention_user_id);
-        this.defaultAvatar = defaultAvatar;
-    }
-
     public MentionAdapter(@NonNull Context context) {
-        this(context, R.drawable.applozic_video_default_thumbnail);
+        this(context, R.layout.layout_mention_item, R.id.mention_user_id);
     }
 
     private Filter filter;
-    private final List<Mention> tempItems = new ArrayList<>();
+    private final List<Mention> mentions = new ArrayList<>();
+
+    public List<Mention> getMentions() {
+        return mentions;
+    }
 
     @Override
     public void add(@Nullable Mention object) {
         super.add(object);
-        tempItems.add(object);
+        mentions.add(object);
     }
 
     @Override
     public void addAll(@NonNull Collection<? extends Mention> collection) {
         super.addAll(collection);
-        tempItems.addAll(collection);
+        mentions.addAll(collection);
     }
 
     @Override
     public final void addAll(Mention... items) {
         super.addAll(items);
-        Collections.addAll(tempItems, items);
+        Collections.addAll(mentions, items);
     }
 
     @Override
     public void remove(@Nullable Mention object) {
         super.remove(object);
-        tempItems.remove(object);
+        mentions.remove(object);
     }
 
     @Override
     public void clear() {
         super.clear();
-        tempItems.clear();
+        mentions.clear();
     }
 
     @NonNull
     public CharSequence convertToString(Mention object) {
-        return object.toString();
+        Spannable spannable = new SpannableString(object.getMentionIdentifier());
+        if (!TextUtils.isEmpty(spannable)) {
+            spannable.setSpan(new MentionAutoCompleteTextView.MentionClickableSpan(), 0, spannable.length(), 0);
+        }
+        return spannable;
     }
 
     @NonNull
@@ -96,15 +98,14 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             final FilterResults results = new FilterResults();
-            if (TextUtils.isEmpty(constraint)) {
-                results.values = tempItems;
-                results.count = tempItems.size();
+            if (constraint == Utils.EMPTY_STRING) { //empty will show all items, null will show none
+                results.values = mentions;
+                results.count = mentions.size();
                 return results;
             }
             final List<Mention> filteredItems = new ArrayList<>();
-            for (final Mention item : tempItems) {
-                if (convertResultToString(item)
-                        .toString()
+            for (final Mention item : mentions) {
+                if (item.getDisplayNameOrUserId()
                         .toLowerCase(Locale.getDefault())
                         .contains(constraint.toString().toLowerCase(Locale.getDefault()))) {
                     filteredItems.add(item);
@@ -147,32 +148,33 @@ public class MentionAdapter extends ArrayAdapter<Mention> {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
         final Mention item = getItem(position);
         if (item != null) {
             holder.userIdView.setText(item.getUserId());
 
-            final CharSequence displayname = item.getDisplayName();
-            if (!TextUtils.isEmpty(displayname)) {
-                holder.displayNameView.setText(displayname);
-                holder.displayNameView.setVisibility(View.VISIBLE);
+            final CharSequence displayName = item.getDisplayName();
+            if (!TextUtils.isEmpty(displayName)) {
+                holder.displayNameView.setText(displayName);
             } else {
-                holder.displayNameView.setVisibility(View.GONE);
+                holder.displayNameView.setText(item.getUserId());
             }
 
-            final Object avatar = item.getAvatar();
+            final String profileImageUrl = item.getProfileImage();
+            if (!TextUtils.isEmpty(profileImageUrl)) {
+                Glide.with(getContext()).load(profileImageUrl).into(holder.profileImage);
+            }
         }
         return convertView;
     }
 
     private static class ViewHolder {
-        private final ImageView avatarView;
-        private final ProgressBar loadingView;
+        private final ImageView profileImage;
         private final TextView userIdView;
         private final TextView displayNameView;
 
         ViewHolder(View itemView) {
-            avatarView = itemView.findViewById(R.id.mention_profile_image);
-            loadingView = itemView.findViewById(R.id.mention_loading_bar);
+            profileImage = itemView.findViewById(R.id.mention_profile_image);
             userIdView = itemView.findViewById(R.id.mention_user_id);
             displayNameView = itemView.findViewById(R.id.mention_display_name);
         }

@@ -123,9 +123,9 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.RecyclerViewPosit
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.ApplozicContextSpinnerAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.DetailedConversationAdapter;
 import com.applozic.mobicomkit.uiwidgets.conversation.adapter.MobicomMessageTemplateAdapter;
-import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionAdapter;
-import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionAutoCompleteTextView;
-import com.applozic.mobicomkit.uiwidgets.conversation.mentions.MentionHelper;
+import com.applozic.mobicomkit.uiwidgets.conversation.mention.MentionAdapter;
+import com.applozic.mobicomkit.uiwidgets.conversation.mention.MentionAutoCompleteTextView;
+import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
@@ -462,7 +462,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
         messageEditText = (MentionAutoCompleteTextView) individualMessageSendLayout.findViewById(R.id.conversation_message);
 
-        if (channel != null) {
+        if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
             MentionAdapter mentionAdapter = new MentionAdapter(requireContext());
             mentionAdapter.addAll(MentionHelper.getMentionsListForChannel(requireContext(), channel.getKey()));
             messageEditText.initMentions(mentionAdapter);
@@ -1103,6 +1103,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     protected void processSendMessage() {
+        MentionHelper.MentionPair mentionPair = messageEditText.getMentionPair();
+
         if (!TextUtils.isEmpty(messageEditText.getText().toString().trim()) || !TextUtils.isEmpty(filePath)) {
             String inputMessage = messageEditText.getText().toString();
             String[] inputMsg = inputMessage.toLowerCase().split(" ");
@@ -1127,7 +1129,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
                     sendOpenGroupMessage(messageEditText.getText().toString().trim());
                 } else {
-                    sendMessage(messageEditText.getText().toString().trim());
+                    sendMessage(mentionPair.getServerReadyMentionsString().trim(), MentionHelper.createMessageMetadata(mentionPair.getServerReadyMentionsMetadataList()));
                 }
                 messageEditText.setText("");
             } else {
@@ -4231,10 +4233,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         return newMap;
     }
 
-    public void sendMessage(String message, Map<String, String> replyMetadata) {
-        sendMessage(message, replyMetadata, null, null, Message.ContentType.DEFAULT.getValue());
+    public void sendMessage(String message, Map<String, String> messageMetadata) {
+        sendMessage(message, messageMetadata, null, null, Message.ContentType.DEFAULT.getValue());
     }
-
 
     public boolean isContextBasedChat(Integer conversationId, Channel channel) {
         if (conversationId != null && conversationId > 0) {

@@ -1,4 +1,6 @@
-package com.applozic.mobicomkit.uiwidgets.conversation.mentions;
+package com.applozic.mobicomkit.api.mention;
+
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -6,7 +8,8 @@ import androidx.annotation.Nullable;
 public class Mention {
     private final CharSequence userId;
     private final CharSequence displayName;
-    private final Object avatar;
+    private final String mentionIdentifier;
+    private final String profileImage;
 
     public Mention(@NonNull CharSequence userId) {
         this(userId, null);
@@ -16,10 +19,11 @@ public class Mention {
         this(userId, displayName, null);
     }
 
-    public Mention(@NonNull CharSequence userId, @Nullable CharSequence displayName, @Nullable Object avatar) {
+    public Mention(@NonNull CharSequence userId, @Nullable CharSequence displayName, @Nullable String profileImage) {
         this.userId = userId;
         this.displayName = displayName;
-        this.avatar = avatar;
+        this.profileImage = profileImage;
+        this.mentionIdentifier = MentionHelper.getMentionIdentifierString(displayName != null ? displayName.toString() : null, userId.toString());
     }
 
     @Override
@@ -49,7 +53,17 @@ public class Mention {
     }
 
     @Nullable
-    public Object getAvatar() {
-        return avatar;
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    @NonNull
+    public String getMentionIdentifier() {
+        return mentionIdentifier;
+    }
+
+    @NonNull
+    public String getDisplayNameOrUserId() {
+        return !TextUtils.isEmpty(displayName) ? displayName.toString() : userId.toString();
     }
 }
