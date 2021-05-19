@@ -309,13 +309,13 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     myholder.attachmentIcon.setImageResource(R.drawable.mobicom_notification_location_icon);
                     myholder.messageTextView.setText(Utils.getString(context, R.string.Location));
                 } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
-                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message));
+                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false));
                     spannableStringBuilder.insert(0, ConversationUIService.FINAL_PRICE_TEXT);
                     myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, spannableStringBuilder, emojiconHandler));
                 } else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
                     myholder.messageTextView.setText(Html.fromHtml(message.getMessage()));
                 } else {
-                    Spannable messageSpannable = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message);
+                    Spannable messageSpannable = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false);
                     CharSequence messageSpannableSubString = (!TextUtils.isEmpty(messageSpannable.toString()) ? messageSpannable.subSequence(0, Math.min(messageSpannable.length(), 50)) : new SpannableString(Utils.EMPTY_STRING));
                     myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, messageSpannableSubString, emojiconHandler));
                 }
@@ -347,7 +347,7 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     myholder.unReadCountTextView.setVisibility(View.GONE);
                 }
 
-                Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message);
+                Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false);
                 int startIndex = indexOfSearchQuery(mentionsMessageString.toString());
                 if (startIndex != -1) {
 

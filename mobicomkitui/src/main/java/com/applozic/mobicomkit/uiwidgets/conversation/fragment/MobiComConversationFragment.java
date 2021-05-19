@@ -462,7 +462,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         sendType = (Spinner) extendedSendingOptionLayout.findViewById(R.id.sendTypeSpinner);
         messageEditText = (MentionAutoCompleteTextView) individualMessageSendLayout.findViewById(R.id.conversation_message);
 
-        if (channel != null && Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
+        if (channel != null && !Channel.GroupType.OPEN.getValue().equals(channel.getType())) {
             MentionAdapter mentionAdapter = new MentionAdapter(requireContext());
             mentionAdapter.addAll(MentionHelper.getMentionsListForChannel(requireContext(), channel.getKey()));
             messageEditText.initMentions(mentionAdapter);

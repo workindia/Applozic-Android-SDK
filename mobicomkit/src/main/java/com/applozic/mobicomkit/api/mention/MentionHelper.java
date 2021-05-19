@@ -1,14 +1,17 @@
 package com.applozic.mobicomkit.api.mention;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
+import android.text.style.StyleSpan;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -39,6 +42,7 @@ import java.util.regex.Pattern;
  */
 public final class MentionHelper {
     public static final Pattern MENTION_PATTERN = Pattern.compile("@(\\w+#\\d\\d\\d)");
+    @ColorInt public static final int DETAILED_CONVERSATION_SPAN_COLOR = 0xFF5959FF;
 
     public static @NonNull List<Mention> getMentionsListForChannel(Context context, Integer channelKey) {
         ChannelDatabaseService channelDatabaseService = ChannelDatabaseService.getInstance(context);
@@ -147,15 +151,15 @@ public final class MentionHelper {
         return new MentionPair(serverSendReadyMessageString, serverSendReadyMentionMetadataList);
     }
 
-    public static Spannable getMessageSpannableStringForMentionsDisplay(Context context, Message message) {
+    public static Spannable getMessageSpannableStringForMentionsDisplay(Context context, Message message, boolean isDetailedConversationList) {
         if (message == null) {
             return new SpannableString(Utils.EMPTY_STRING);
         } else {
-            return getMessageSpannableStringForMentionsDisplay(context, message.getMessage(), getMentionsDataFromMessageMetadata(message.getMetadata()));
+            return getMessageSpannableStringForMentionsDisplay(context, message.getMessage(), getMentionsDataFromMessageMetadata(message.getMetadata()), isDetailedConversationList);
         }
     }
 
-    private static @NonNull Spannable getMessageSpannableStringForMentionsDisplay(Context context, String messageStringWithMentionsUserId, List<MentionMetadataModel> mentionMetadataModels) {
+    private static @NonNull Spannable getMessageSpannableStringForMentionsDisplay(Context context, String messageStringWithMentionsUserId, List<MentionMetadataModel> mentionMetadataModels, boolean isDetailedConversationList) {
         if (TextUtils.isEmpty(messageStringWithMentionsUserId)) {
             return new SpannableString(Utils.EMPTY_STRING);
         }
@@ -205,7 +209,8 @@ public final class MentionHelper {
 
             int replacedLength = spannableStringBuilder.length();
             if (start < replacedLength && replacedEnd >= 0 && replacedEnd < replacedLength) {
-                spannableStringBuilder.setSpan(new ReceivedMessageMentionDisplaySpan(Color.LTGRAY), start, replacedEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                CharacterStyle characterStyle = isDetailedConversationList ? new ReceivedDetailedConversationMessageMentionDisplaySpan() : new ReceivedQuickConversationMessageMentionDisplaySpan();
+                spannableStringBuilder.setSpan(characterStyle, start, replacedEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
 
@@ -265,9 +270,34 @@ public final class MentionHelper {
         }
     }
 
-    public static class ReceivedMessageMentionDisplaySpan extends BackgroundColorSpan {
-        public ReceivedMessageMentionDisplaySpan(int color) {
-            super(color);
+    public static boolean isLoggedInUserMentionedInChannelMessage(@NonNull Context context, @NonNull Integer channelKey, @NonNull Message message) {
+        String loggedInUserId = MobiComUserPreference.getInstance(context).getUserId();
+        List<MentionMetadataModel> mentionMetadataModelList = getMentionsDataFromMessageMetadata(message.getMetadata());
+
+        if (mentionMetadataModelList.isEmpty()) {
+            return false;
+        }
+
+        boolean isLoggedInUserMentioned = false;
+        for (MentionMetadataModel metadataModel : mentionMetadataModelList) {
+            if (loggedInUserId.equals(metadataModel.userId)) {
+                isLoggedInUserMentioned = true;
+                break;
+            }
+        }
+
+        return message.getGroupId() != null && message.getGroupId() != 0 && message.getGroupId().equals(channelKey) && isLoggedInUserMentioned;
+    }
+
+    public static class ReceivedQuickConversationMessageMentionDisplaySpan extends StyleSpan {
+        public ReceivedQuickConversationMessageMentionDisplaySpan() {
+            super(Typeface.BOLD_ITALIC);
+        }
+    }
+
+    public static class ReceivedDetailedConversationMessageMentionDisplaySpan extends BackgroundColorSpan {
+        public ReceivedDetailedConversationMessageMentionDisplaySpan() {
+            super(DETAILED_CONVERSATION_SPAN_COLOR);
         }
     }
 }

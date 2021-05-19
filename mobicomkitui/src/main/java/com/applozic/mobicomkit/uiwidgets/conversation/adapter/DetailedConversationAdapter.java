@@ -441,7 +441,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.photo_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg));
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.VISIBLE);
                                         myHolder.imageViewRLayout.setVisibility(View.VISIBLE);
@@ -456,7 +456,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.video_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg));
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.VISIBLE);
                                         myHolder.imageViewRLayout.setVisibility(View.VISIBLE);
@@ -475,7 +475,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.audio_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg));
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.GONE);
                                         myHolder.imageViewRLayout.setVisibility(View.GONE);
@@ -499,7 +499,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.attachment_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg));
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.GONE);
                                         myHolder.imageViewRLayout.setVisibility(View.GONE);
@@ -518,7 +518,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                     myHolder.imageViewForAttachmentType.setVisibility(View.GONE);
                                     myHolder.imageViewRLayout.setVisibility(View.GONE);
                                     myHolder.imageViewPhoto.setVisibility(View.GONE);
-                                    myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg));
+                                    myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true));
                                 }
                                 myHolder.replyRelativeLayout.setVisibility(View.VISIBLE);
                                 myHolder.replyRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -956,7 +956,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 });
                             } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                                 myHolder.mapImageView.setVisibility(View.GONE);
-                                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message));
+                                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true));
                                 spannableStringBuilder.insert(0, ConversationUIService.FINAL_PRICE_TEXT);
                                 myHolder.messageTextView.setText(spannableStringBuilder);
                             } else if ((message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) && !message.isAttachmentDownloaded()) {
@@ -969,7 +969,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             } else {
                                 myHolder.mapImageView.setVisibility(View.GONE);
                                 myHolder.chatLocation.setVisibility(View.GONE);
-                                myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(activityContext, MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message), emojiconHandler));
+                                myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(activityContext, MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true), emojiconHandler));
                             }
 
                             if (myHolder.messageTextLayout != null) {
@@ -1025,7 +1025,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.mainContactShareLayout.setVisibility(View.GONE);
                         }
 
-                        Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message);
+                        Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true);
                         int startIndex = indexOfSearchQuery(mentionsMessageString.toString());
                         if (startIndex != -1) {
                             final SpannableString highlightedName = new SpannableString(mentionsMessageString);
