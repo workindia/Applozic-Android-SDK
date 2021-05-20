@@ -298,7 +298,7 @@ public class NotificationService {
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
             notificationText = getText(3);
         } else {
-            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false).toString();
+            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, null).toString();
         }
         CharSequence messageBody;
         Contact messageContactDisplayName = contact != null ? contact : appContactService.getContactById(message.getTo());
@@ -382,7 +382,7 @@ public class NotificationService {
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
             notificationText = getText(3);
         } else {
-            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false).toString();
+            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, null).toString();
         }
 
         Class activity = null;

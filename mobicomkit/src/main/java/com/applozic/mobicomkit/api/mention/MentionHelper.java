@@ -1,6 +1,7 @@
 package com.applozic.mobicomkit.api.mention;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -151,15 +152,23 @@ public final class MentionHelper {
         return new MentionPair(serverSendReadyMessageString, serverSendReadyMentionMetadataList);
     }
 
-    public static Spannable getMessageSpannableStringForMentionsDisplay(Context context, Message message, boolean isDetailedConversationList) {
+    public static Spannable getMessageSpannableStringForMentionsDisplay(Context context, Message message, boolean isDetailedConversationList, String detailedSpanColor) {
         if (message == null) {
             return new SpannableString(Utils.EMPTY_STRING);
         } else {
-            return getMessageSpannableStringForMentionsDisplay(context, message.getMessage(), getMentionsDataFromMessageMetadata(message.getMetadata()), isDetailedConversationList);
+            int backgroundSpanColor = 0;
+            if (!TextUtils.isEmpty(detailedSpanColor)) {
+                try {
+                    backgroundSpanColor = Color.parseColor(detailedSpanColor);
+                } catch (IllegalArgumentException exception) {
+                    exception.printStackTrace();
+                }
+            }
+            return getMessageSpannableStringForMentionsDisplay(context, message.getMessage(), getMentionsDataFromMessageMetadata(message.getMetadata()), isDetailedConversationList, backgroundSpanColor == 0 ? DETAILED_CONVERSATION_SPAN_COLOR : backgroundSpanColor);
         }
     }
 
-    private static @NonNull Spannable getMessageSpannableStringForMentionsDisplay(Context context, String messageStringWithMentionsUserId, List<MentionMetadataModel> mentionMetadataModels, boolean isDetailedConversationList) {
+    private static @NonNull Spannable getMessageSpannableStringForMentionsDisplay(Context context, String messageStringWithMentionsUserId, List<MentionMetadataModel> mentionMetadataModels, boolean isDetailedConversationList, int detailedSpanColor) {
         if (TextUtils.isEmpty(messageStringWithMentionsUserId)) {
             return new SpannableString(Utils.EMPTY_STRING);
         }
@@ -209,7 +218,7 @@ public final class MentionHelper {
 
             int replacedLength = spannableStringBuilder.length();
             if (start < replacedLength && replacedEnd >= 0 && replacedEnd < replacedLength) {
-                CharacterStyle characterStyle = isDetailedConversationList ? new ReceivedDetailedConversationMessageMentionDisplaySpan() : new ReceivedQuickConversationMessageMentionDisplaySpan();
+                CharacterStyle characterStyle = isDetailedConversationList ? new ReceivedDetailedConversationMessageMentionDisplaySpan(detailedSpanColor) : new ReceivedQuickConversationMessageMentionDisplaySpan();
                 spannableStringBuilder.setSpan(characterStyle, start, replacedEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -270,7 +279,7 @@ public final class MentionHelper {
         }
     }
 
-    public static boolean isLoggedInUserMentionedInChannelMessage(@NonNull Context context, @NonNull Integer channelKey, @NonNull Message message) {
+    public static boolean isLoggedInUserMentionedInChannelMessage(@NonNull Context context, @NonNull Message message) {
         String loggedInUserId = MobiComUserPreference.getInstance(context).getUserId();
         List<MentionMetadataModel> mentionMetadataModelList = getMentionsDataFromMessageMetadata(message.getMetadata());
 
@@ -286,7 +295,7 @@ public final class MentionHelper {
             }
         }
 
-        return message.getGroupId() != null && message.getGroupId() != 0 && message.getGroupId().equals(channelKey) && isLoggedInUserMentioned;
+        return message.getGroupId() != null && message.getGroupId() != 0 && isLoggedInUserMentioned;
     }
 
     public static class ReceivedQuickConversationMessageMentionDisplaySpan extends StyleSpan {
@@ -298,6 +307,10 @@ public final class MentionHelper {
     public static class ReceivedDetailedConversationMessageMentionDisplaySpan extends BackgroundColorSpan {
         public ReceivedDetailedConversationMessageMentionDisplaySpan() {
             super(DETAILED_CONVERSATION_SPAN_COLOR);
+        }
+
+        public ReceivedDetailedConversationMessageMentionDisplaySpan(int color) {
+            super(color);
         }
     }
 }

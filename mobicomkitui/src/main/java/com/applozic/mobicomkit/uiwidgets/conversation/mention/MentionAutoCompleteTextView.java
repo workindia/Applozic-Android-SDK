@@ -21,7 +21,10 @@ import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView;
 import com.applozic.mobicomkit.api.conversation.MentionMetadataModel;
 import com.applozic.mobicomkit.api.mention.Mention;
 import com.applozic.mobicomkit.api.mention.MentionHelper;
+import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
+import com.applozic.mobicommons.file.FileUtils;
+import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -54,16 +57,30 @@ public class MentionAutoCompleteTextView extends AppCompatMultiAutoCompleteTextV
     }
 
     public void initMentions(MentionAdapter mentionAdapter) {
-        addTextChangedListener(textWatcher);
-        setTokenizer(new CharTokenizer());
-        setMentionAdapter(mentionAdapter);
-        setAdapter(mentionAdapter);
+        if (isMentionEnabled()) {
+            addTextChangedListener(textWatcher);
+            setTokenizer(new CharTokenizer());
+            setMentionAdapter(mentionAdapter);
+            setAdapter(mentionAdapter);
 
-        recreateMentionsUiAndData();
+            recreateMentionsUiAndData();
+        }
     }
 
     public boolean isMentionEnabled() {
-        return true;
+        String jsonString = FileUtils.loadSettingsJsonFile(getContext().getApplicationContext());
+        AlCustomizationSettings alCustomizationSettings;
+        if (!TextUtils.isEmpty(jsonString)) {
+            alCustomizationSettings = (AlCustomizationSettings) GsonUtils.getObjectFromJson(jsonString, AlCustomizationSettings.class);
+        } else {
+            alCustomizationSettings = new AlCustomizationSettings();
+        }
+
+        if (alCustomizationSettings == null) {
+            return true; //enabled by default
+        }
+
+        return !alCustomizationSettings.isDisableMentions();
     }
 
     public ArrayList<MentionMetadataModel> getMentionMetadata() {
@@ -251,11 +268,9 @@ public class MentionAutoCompleteTextView extends AppCompatMultiAutoCompleteTextV
     private void recreateMentionsUiAndData() {
         final Spannable spannable = getText();
 
-        if (isMentionEnabled()) {
-            resetMentionSpans(spannable);
-            resetMentionsData();
-            recreateMentionsSpanAndData(spannable, getMentionPattern());
-        }
+        resetMentionSpans(spannable);
+        resetMentionsData();
+        recreateMentionsSpanAndData(spannable, getMentionPattern());
     }
 
     private void recreateMentionsSpanAndData(Spannable spannable, Pattern pattern) {
