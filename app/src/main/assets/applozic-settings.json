@@ -82,7 +82,7 @@
   "isContactSearchFromServer": false,
   "messageSearchTextColor": "#ff0000",
   "conversationMentionSpanColor": "",
-  "disableMentions": false,
+  "disableMentions": true,
   "notificationDisableThreshold": 10,
   "hideGroupDeleteButton": false,
   "showImageOnToolbar": false,

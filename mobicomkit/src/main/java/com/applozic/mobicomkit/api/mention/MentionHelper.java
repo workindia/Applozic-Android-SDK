@@ -71,7 +71,7 @@ public final class MentionHelper {
     }
 
     public static int getMentionIdentifierCode(@NonNull String uniqueIdentifier) {
-        int uniqueCode = uniqueIdentifier.hashCode() % 1000; //get a three digit code
+        int uniqueCode = Math.abs(uniqueIdentifier.hashCode()) % 1000; //get a three digit code
         return uniqueCode < 100 //less than three digits
                 ? uniqueCode + 100 : uniqueCode;
     }
