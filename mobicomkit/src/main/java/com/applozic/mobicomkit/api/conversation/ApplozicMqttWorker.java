@@ -25,7 +25,7 @@ import com.applozic.mobicommons.people.contact.Contact;
  * Created by sunil on 30/12/15.
  */
 public class ApplozicMqttWorker extends Worker {
-    public static final String TAG = "ApplozicMqttIntentService";
+    public static final String TAG = "ApplozicMqttWorker";
 
     public static final String SUBSCRIBE = "subscribe";
     public static final String SUBSCRIBE_TO_TYPING = "subscribeToTyping";

@@ -28,7 +28,7 @@ import static com.applozic.mobicomkit.api.conversation.ApplozicConversation.isMe
  * Worker for processing user related data (including contacts and channels) such as read, syncing user details etc.
  */
 public class UserWorker extends Worker {
-    private static final String TAG = "UserIntentService";
+    private static final String TAG = "UserWorker";
 
     public static final String USER_ID = "userId";
     public static final String USER_LAST_SEEN_AT_STATUS = "USER_LAST_SEEN_AT_STATUS";

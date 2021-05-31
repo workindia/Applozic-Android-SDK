@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
  * Worker to send a message to the server (also creates in db) and also sync pending messages.
  */
 public class MessageWorker extends Worker {
-    private static final String TAG = "MessageIntentService";
+    private static final String TAG = "MessageWorker";
 
     private final MessageClientService messageClientService;
     private final CountDownLatch countDownLatch;

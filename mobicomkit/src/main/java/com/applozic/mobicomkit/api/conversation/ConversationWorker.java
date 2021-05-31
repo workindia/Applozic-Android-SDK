@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch;
  * Message, Contact and Channel syncing.
  */
 public class ConversationWorker extends Worker {
-    private static final String TAG = "ConversationIntent";
+    private static final String TAG = "ConversationWorker";
 
     public static final String SYNC = "AL_SYNC";
     public static final String AL_MESSAGE = "AL_MESSAGE";

@@ -21,7 +21,7 @@ import com.applozic.mobicommons.commons.core.utils.Utils;
  * Created by sunil on 26/12/15.
  */
 public class ApplozicWorker extends Worker {
-    private static final String TAG = "ApplozicIntentService";
+    private static final String TAG = "ApplozicWorker";
 
     public static final String CONTACT = "contact";
     public static final String CHANNEL = "channel";
