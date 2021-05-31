@@ -14,6 +14,7 @@ import androidx.work.WorkerParameters;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 import com.applozic.mobicommons.people.channel.Channel;
 import com.applozic.mobicommons.people.contact.Contact;
@@ -44,7 +45,7 @@ public class ApplozicMqttWorker extends Worker {
         super(context, workerParams);
     }
 
-    public static void enqueueWork(Context context, Data data) {
+    private static void enqueueWork(Context context, Data data) {
         Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
         OneTimeWorkRequest mqttWorkerRequest = new OneTimeWorkRequest.Builder(ApplozicMqttWorker.class)
                 .setInputData(data).setConstraints(constraints)
@@ -62,6 +63,7 @@ public class ApplozicMqttWorker extends Worker {
         }
         dataBuilder.putBoolean(ApplozicMqttWorker.USE_ENCRYPTED_TOPIC, useEncrypted);
 
+        Utils.printLog(context, TAG, "Enqueue work disconnect publish...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -70,6 +72,7 @@ public class ApplozicMqttWorker extends Worker {
         dataBuilder.putBoolean(ApplozicMqttWorker.SUBSCRIBE, true);
         dataBuilder.putBoolean(ApplozicMqttWorker.USE_ENCRYPTED_TOPIC, useEncrypted);
 
+        Utils.printLog(context, TAG, "Enqueue work subscribe and connect publish...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -78,6 +81,7 @@ public class ApplozicMqttWorker extends Worker {
         dataBuilder.putBoolean(ApplozicMqttWorker.CONNECT_TO_SUPPORT_GROUP_TOPIC, true);
         dataBuilder.putBoolean(ApplozicMqttWorker.USE_ENCRYPTED_TOPIC, useEncrypted);
 
+        Utils.printLog(context, TAG, "Enqueue work subscribe to support group...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -86,6 +90,7 @@ public class ApplozicMqttWorker extends Worker {
         dataBuilder.putBoolean(ApplozicMqttWorker.DISCONNECT_FROM_SUPPORT_GROUP_TOPIC, true);
         dataBuilder.putBoolean(ApplozicMqttWorker.USE_ENCRYPTED_TOPIC, useEncrypted);
 
+        Utils.printLog(context, TAG, "Enqueue work unsubscribe to support group...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -102,6 +107,7 @@ public class ApplozicMqttWorker extends Worker {
         }
         dataBuilder.putBoolean(ApplozicMqttWorker.SUBSCRIBE_TO_TYPING, true);
 
+        Utils.printLog(context, TAG, "Enqueue work subscribe to typing...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -118,6 +124,7 @@ public class ApplozicMqttWorker extends Worker {
         }
         dataBuilder.putBoolean(ApplozicMqttWorker.UN_SUBSCRIBE_TO_TYPING, true);
 
+        Utils.printLog(context, TAG, "Enqueue work unsubscribe to support group...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -134,6 +141,7 @@ public class ApplozicMqttWorker extends Worker {
         }
         dataBuilder.putBoolean(ApplozicMqttWorker.TYPING, typingStarted);
 
+        Utils.printLog(context, TAG, "Enqueue work publish typing status...");
         enqueueWork(context, dataBuilder.build());
     }
 
@@ -141,6 +149,7 @@ public class ApplozicMqttWorker extends Worker {
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.putBoolean(ApplozicMqttWorker.CONNECTED_PUBLISH, true);
 
+        Utils.printLog(context, TAG, "Enqueue work connect publish...");
         enqueueWork(context, dataBuilder.build());
     }
 

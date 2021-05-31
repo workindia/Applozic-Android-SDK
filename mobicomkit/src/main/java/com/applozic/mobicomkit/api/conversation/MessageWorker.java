@@ -16,6 +16,7 @@ import androidx.work.WorkerParameters;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.schedule.ScheduleMessageService;
+import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
 import java.util.HashMap;
@@ -69,6 +70,7 @@ public class MessageWorker extends Worker {
                 return Result.failure();
             }
 
+            Utils.printLog(getApplicationContext(), TAG, "Sending message thread started...");
             MessageSender messageSender = new MessageSender(message, uploadQueueMap.get(message.getCreatedAtTime()), displayName, countDownLatch, messageClientService);
             Thread thread = new Thread(messageSender);
             thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
@@ -76,9 +78,11 @@ public class MessageWorker extends Worker {
 
             countDownLatch.await();
         } catch (Exception exception) {
+            Utils.printLog(getApplicationContext(), TAG, "Sending message failure...");
             exception.printStackTrace();
             return Result.failure();
         }
+        Utils.printLog(getApplicationContext(), TAG, "Sending message thread finished, possible success...");
         return Result.success();
     }
 

@@ -55,9 +55,9 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageWorker;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
@@ -469,9 +469,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         Boolean takeOrder = getIntent().getBooleanExtra(TAKE_ORDER, false);
 
         if (!takeOrder) {
-            Intent lastSeenStatusIntent = new Intent(this, UserIntentService.class);
-            lastSeenStatusIntent.putExtra(UserIntentService.USER_LAST_SEEN_AT_STATUS, true);
-            UserIntentService.enqueueWork(this, lastSeenStatusIntent);
+            new MobiComConversationService(this.getApplicationContext()).updateLastSeenAtForAllUsers();
         }
 
         if (ApplozicClient.getInstance(this).isAccountClosed() || ApplozicClient.getInstance(this).isNotAllowed()) {

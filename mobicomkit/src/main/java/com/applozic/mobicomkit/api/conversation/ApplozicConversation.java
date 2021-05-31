@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.ApplozicMqttService;
@@ -9,7 +8,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentManager;
 import com.applozic.mobicomkit.api.attachment.AttachmentTask;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
+import com.applozic.mobicomkit.api.people.UserWorker;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -243,15 +242,9 @@ public class ApplozicConversation {
                 new MessageDatabaseService(context).updateReadStatusForChannel(String.valueOf(groupId));
             }
 
-            Intent intent = new Intent(context, UserIntentService.class);
-            intent.putExtra(UserIntentService.CONTACT, contact);
-            intent.putExtra(UserIntentService.CHANNEL, channel);
-            intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
-            if (!TextUtils.isEmpty(pairedMessageKey)) {
-                intent.putExtra(UserIntentService.PAIRED_MESSAGE_KEY_STRING, pairedMessageKey);
-            }
-            UserIntentService.enqueueWork(context, intent);
-        } catch (Exception e) {
+            UserWorker.enqueueWork(context, null, contact, channel, pairedMessageKey, unreadCount, false);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 }

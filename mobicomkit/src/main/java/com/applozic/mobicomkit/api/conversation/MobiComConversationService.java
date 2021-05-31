@@ -18,7 +18,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
+import com.applozic.mobicomkit.api.people.UserWorker;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.cache.MessageSearchCache;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -790,13 +790,22 @@ public class MobiComConversationService {
                 unreadCount = channel.getUnreadCount();
             }
 
-            Intent intent = new Intent(context, UserIntentService.class);
-            intent.putExtra(UserIntentService.CONTACT, contact);
-            intent.putExtra(UserIntentService.CHANNEL, channel);
-            intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
-            UserIntentService.enqueueWork(context, intent);
-        } catch (Exception e) {
+            UserWorker.enqueueWork(context, null, contact, channel, null, unreadCount, false);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+    }
+
+    public void readServerAndLocal(Contact contact, Channel channel, String pairedMessageKeyString) {
+        UserWorker.enqueueWork(context, null, contact, channel, pairedMessageKeyString, 0, false);
+    }
+
+    public void updateLastSeenAtForAllUsers() {
+        UserWorker.enqueueWork(context, null, null, null, null, 0, true);
+    }
+
+    public void syncUserDetail(String userId) {
+        UserWorker.enqueueWork(context, userId, null, null, null, 0, false);
     }
 
     private void handleState(android.os.Message message, MediaUploadProgressHandler progressHandler) {

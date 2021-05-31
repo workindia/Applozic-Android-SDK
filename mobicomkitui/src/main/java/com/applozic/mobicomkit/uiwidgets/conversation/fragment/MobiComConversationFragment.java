@@ -88,7 +88,6 @@ import com.applozic.mobicomkit.api.notification.MuteNotificationAsync;
 import com.applozic.mobicomkit.api.notification.MuteNotificationRequest;
 import com.applozic.mobicomkit.api.notification.MuteUserNotificationAsync;
 import com.applozic.mobicomkit.api.notification.NotificationService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -1333,11 +1332,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                                 messageUnreadCountTextView.setText(String.valueOf(messageUnreadCount));
                             }
                             messageDatabaseService.updateReadStatusForKeyString(message.getKeyString());
-                            Intent intent = new Intent(getActivity(), UserIntentService.class);
-                            intent.putExtra(UserIntentService.CONTACT, contact);
-                            intent.putExtra(UserIntentService.CHANNEL, channel);
-                            intent.putExtra(UserIntentService.PAIRED_MESSAGE_KEY_STRING, message.getPairedMessageKeyString());
-                            UserIntentService.enqueueWork(getActivity(), intent);
+                            new MobiComConversationService(requireContext().getApplicationContext()).readServerAndLocal(contact, channel, message.getPairedMessageKeyString());
                         } catch (Exception e) {
                             Utils.printLog(getContext(), TAG, "Got exception while read");
                         }
@@ -1903,19 +1898,17 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
             emoticonsFrameLayout.setVisibility(View.GONE);
 
+            MobiComConversationService mobiComConversationService = new MobiComConversationService(requireContext().getApplicationContext());
+
             if (contact != null) {
-                Intent intent = new Intent(getActivity(), UserIntentService.class);
-                intent.putExtra(UserIntentService.USER_ID, contact.getUserId());
-                UserIntentService.enqueueWork(getActivity(), intent);
+                mobiComConversationService.syncUserDetail(contact.getUserId());
             }
 
             if (channel != null) {
                 if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                     String userId = ChannelService.getInstance(getActivity()).getGroupOfTwoReceiverUserId(channel.getKey());
                     if (!TextUtils.isEmpty(userId)) {
-                        Intent intent = new Intent(getActivity(), UserIntentService.class);
-                        intent.putExtra(UserIntentService.USER_ID, userId);
-                        UserIntentService.enqueueWork(getActivity(), intent);
+                        mobiComConversationService.syncUserDetail(userId);
                     }
                 } else {
                     Thread thread = new Thread(new Runnable() {

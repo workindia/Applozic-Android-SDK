@@ -49,10 +49,12 @@ public class ApplozicWorker extends Worker {
     }
 
     static public void enqueueWorkNetworkAvailable(Context context) {
+        Utils.printLog(context, TAG, "Enqueue work connectivity changed...");
         enqueueWork(context, true, false);
     }
 
     static public void enqueueWorkTimeZoneChanged(Context context) {
+        Utils.printLog(context, TAG, "Enqueue work time zone changed...");
         enqueueWork(context, false, true);
     }
 
