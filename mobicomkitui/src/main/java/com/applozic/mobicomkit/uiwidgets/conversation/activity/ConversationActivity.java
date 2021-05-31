@@ -54,7 +54,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
 import com.applozic.mobicomkit.api.people.UserIntentService;
@@ -386,7 +386,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         setSupportActionBar(myToolbar);
         baseContactService = new AppContactService(this);
         conversationUIService = new ConversationUIService(this);
-        mobiComMessageService = new MobiComMessageService(this, MessageIntentService.class);
+        mobiComMessageService = new MobiComMessageService(this, MessageWorker.class);
         quickConversationFragment = new MobiComQuickConversationFragment();
         connectivityReceiver = new ConnectivityReceiver();
         geoApiKey = Applozic.getInstance(this).getGeoApiKey();
@@ -1349,7 +1349,7 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
         MobiComMessageService messageService;
 
         public SyncMessagesAsyncTask(Context context) {
-            messageService = new MobiComMessageService(context, MessageIntentService.class);
+            messageService = new MobiComMessageService(context, MessageWorker.class);
         }
 
         protected Void doInBackground() {

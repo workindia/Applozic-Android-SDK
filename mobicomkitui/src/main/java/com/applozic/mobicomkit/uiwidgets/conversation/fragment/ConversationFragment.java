@@ -15,7 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.applozic.mobicomkit.Applozic;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.SyncCallService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -77,7 +77,7 @@ public class ConversationFragment extends MobiComConversationFragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.messageIntentClass = MessageIntentService.class;
+        this.messageIntentClass = MessageWorker.class;
         bundle = getArguments();
         if (bundle != null) {
             contact = (Contact) bundle.getSerializable(CONTACT);

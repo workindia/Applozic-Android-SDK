@@ -2,7 +2,7 @@ package com.applozic.mobicomkit.uiwidgets.async;
 
 import android.content.Context;
 
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.feed.ApiResponse;
@@ -31,7 +31,7 @@ public class AlMessageMetadataUpdateTask extends AlAsyncTask<Void, ApiResponse> 
 
     @Override
     protected ApiResponse doInBackground() {
-        return new MobiComMessageService(context.get(), MessageIntentService.class).getUpdateMessageMetadata(key, metadata);
+        return new MobiComMessageService(context.get(), MessageWorker.class).getUpdateMessageMetadata(key, metadata);
     }
 
     @Override

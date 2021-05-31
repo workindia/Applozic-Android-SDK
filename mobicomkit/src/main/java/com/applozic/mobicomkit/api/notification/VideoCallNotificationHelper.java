@@ -12,7 +12,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.contact.AppContactService;
@@ -182,7 +181,7 @@ public class VideoCallNotificationHelper {
         if (audioOnly) {
             notificationMessage.getMetadata().put(CALL_AUDIO_ONLY, "true");
         }
-        conversationService.sendMessage(notificationMessage, MessageIntentService.class);
+        conversationService.sendMessage(notificationMessage);
         return videoCallId;
 
     }
@@ -212,7 +211,7 @@ public class VideoCallNotificationHelper {
         Message notificationMessage = getNotificationMessage(contact);
         notificationMessage.setMessage(videoCallId);
         notificationMessage.setMetadata(getAnswerCallMetaData());
-        conversationService.sendMessage(notificationMessage, MessageIntentService.class);
+        conversationService.sendMessage(notificationMessage);
         Log.i(TAG, "sendVideoCallAnswer()  END");
 
     }
@@ -240,7 +239,7 @@ public class VideoCallNotificationHelper {
         Message notificationMessage = getNotificationMessage(contact);
         notificationMessage.setMetadata(getRejectedCallMap());
         notificationMessage.setMessage(videoCallId);
-        conversationService.sendMessage(notificationMessage, MessageIntentService.class);
+        conversationService.sendMessage(notificationMessage);
     }
 
     public void sendCallMissed(Contact contact, String videoCallId) {
@@ -248,7 +247,7 @@ public class VideoCallNotificationHelper {
         Message notificationMessage = getNotificationMessage(contact);
         notificationMessage.setMetadata(getMissedCallMap());
         notificationMessage.setMessage(videoCallId);
-        conversationService.sendMessage(notificationMessage, MessageIntentService.class);
+        conversationService.sendMessage(notificationMessage);
     }
 
 
@@ -260,7 +259,7 @@ public class VideoCallNotificationHelper {
         Message statusMessage = getVideoCallStatusMessage(contact);
         statusMessage.setMetadata(getVideoCallStartedMap());
         statusMessage.setMessage(videoCallId);
-        conversationService.sendMessage(statusMessage, MessageIntentService.class);
+        conversationService.sendMessage(statusMessage);
     }
 
     public void sendVideoCallEnd(Contact contact, String videoCallId, String duration) {
@@ -268,7 +267,7 @@ public class VideoCallNotificationHelper {
         Message statusMessage = getVideoCallStatusMessage(contact);
         statusMessage.setMetadata(getVideoCallEndMap(duration));
         statusMessage.setMessage("Call End");
-        conversationService.sendMessage(statusMessage, MessageIntentService.class);
+        conversationService.sendMessage(statusMessage);
 
     }
 
@@ -338,7 +337,7 @@ public class VideoCallNotificationHelper {
                 Message statusMessage = getVideoCallStatusMessage(contact);
                 statusMessage.setMessage("Call Busy");
                 statusMessage.setMetadata(getRejectedCallMap());
-                conversationService.sendMessage(statusMessage, MessageIntentService.class);
+                conversationService.sendMessage(statusMessage);
 
             }
 
@@ -437,7 +436,7 @@ public class VideoCallNotificationHelper {
         Message notificationMessage = getVideoCallStatusMessage(contactToCall);
         notificationMessage.setMetadata(getMissedCallMap());
         notificationMessage.setMessage("Call Missed");
-        conversationService.sendMessage(notificationMessage, MessageIntentService.class);
+        conversationService.sendMessage(notificationMessage);
 
     }
 

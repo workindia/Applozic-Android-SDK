@@ -241,24 +241,20 @@ Paste the following in your androidmanifest.xml:
               
 <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
-<service android:name="com.applozic.mobicomkit.api.conversation.MessageIntentService"
+<service android:name="com.applozic.mobicomkit.api.conversation.MessageWorker"
          android:permission="android.permission.BIND_JOB_SERVICE"
          android:exported="false" />
          
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicIntentService"
+<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicWorker"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
             
-<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService"
+<service android:name="com.applozic.mobicomkit.api.conversation.ApplozicMqttWorker"
          android:permission="android.permission.BIND_JOB_SERVICE"
          android:exported="false" />
 <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
          android:permission="android.permission.BIND_JOB_SERVICE"
          android:exported="false" />
-         
- <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-          android:permission="android.permission.BIND_JOB_SERVICE"
-          android:exported="false" />
 
 <service
            android:name="com.applozic.mobicomkit.api.notification.NotificationIntentService"

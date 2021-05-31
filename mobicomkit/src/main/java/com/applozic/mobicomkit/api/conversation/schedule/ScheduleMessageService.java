@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 
@@ -26,7 +25,7 @@ public class ScheduleMessageService extends IntentService {
         List<Message> messages = messageDatabaseService.getScheduledMessages(time);
         for (Message message : messages) {
             message.setScheduledAt(null);
-            conversationService.sendMessage(message, MessageIntentService.class);
+            conversationService.sendMessage(message);
             //Todo: broadcast for scheduled message fragment.
         }
         messageDatabaseService.deleteScheduledMessages(time);

@@ -101,13 +101,19 @@ public class MobiComConversationService {
         this.baseContactService = appContactService;
     }
 
-    public void sendMessage(Message message) {
-        sendMessage(message, null, MessageIntentService.class);
-    }
+    public void sendMessageWithHandler(Message message, final MediaUploadProgressHandler progressHandler) {
+        if (message == null) {
+            return;
+        }
 
-    public void sendMessage(Message message, final MediaUploadProgressHandler progressHandler, Class messageIntentClass) {
-        Intent intent = new Intent(context, messageIntentClass);
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if (!message.hasAttachment()) {
+            ApplozicException exception = new ApplozicException("Message does not have any attachment.");
+            if (progressHandler != null) {
+                progressHandler.onUploadStarted(exception, null);
+                progressHandler.onProgressUpdate(0, exception, null);
+                progressHandler.onCancelled(exception, null);
+            }
+        }
 
         Handler handler = new Handler(new Handler.Callback() {
             @Override
@@ -117,38 +123,15 @@ public class MobiComConversationService {
             }
         });
 
-        MessageIntentService.enqueueWork(context, intent, handler);
+        MessageWorker.enqueueWork(context, message, null, handler);
     }
 
-    public void sendMessage(Message message, Class messageIntentClass, String userDisplayName) {
-        Intent intent = new Intent(context, messageIntentClass);
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        if (!TextUtils.isEmpty(userDisplayName)) {
-            intent.putExtra(MobiComKitConstants.DISPLAY_NAME, userDisplayName);
-        }
-        MessageIntentService.enqueueWork(context, intent, null);
+    public void sendMessage(Message message, String userDisplayName) {
+        MessageWorker.enqueueWork(context, message, userDisplayName, null);
     }
 
-    public void sendMessage(Message message, Class messageIntentClass) {
-        sendMessage(message, messageIntentClass, null);
-    }
-
-    public void sendMessage(Message message, MediaUploadProgressHandler handler) {
-        if (message == null) {
-            return;
-        }
-
-        ApplozicException e = null;
-
-        if (!message.hasAttachment()) {
-            e = new ApplozicException("Message does not have any attachment");
-            if (handler != null) {
-                handler.onUploadStarted(e, null);
-                handler.onProgressUpdate(0, e, null);
-                handler.onCancelled(e, null);
-            }
-        }
-        sendMessage(message, handler, MessageIntentService.class);
+    public void sendMessage(Message message) {
+        sendMessage(message, null);
     }
 
     public List<Message> getLatestMessagesGroupByPeople() {

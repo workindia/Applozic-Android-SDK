@@ -34,7 +34,7 @@ import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MessageInfo;
 import com.applozic.mobicomkit.api.conversation.MessageInfoResponse;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.contact.BaseContactService;
@@ -298,7 +298,7 @@ public class MessageInfoFragment extends Fragment {
 
         public MessageInfoAsyncTask(String messageKey, Context context) {
             this.messageKey = messageKey;
-            this.messageService = new MobiComMessageService(context, MessageIntentService.class);
+            this.messageService = new MobiComMessageService(context, MessageWorker.class);
         }
 
         @Override
