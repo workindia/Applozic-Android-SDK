@@ -1,16 +1,11 @@
 apply plugin: 'com.android.library'
 
-ext {
-    defaultCompileSdkVersion = 29
-    defaultTargetSdkVersion = 29
-}
-
 android {
-    compileSdkVersion rootProject.hasProperty("compileSdkVersion") ? rootProject.compileSdkVersion : defaultCompileSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "5.98"
         consumerProguardFiles 'proguard-rules.txt'
@@ -39,11 +34,10 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     api project(':mobicommons')
+
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
-    //Note: use this for customization
-    //api 'com.applozic.mobiframework:mobicommons:5.94' //Note: use this in case customization is not required
 }
 
 //Release
