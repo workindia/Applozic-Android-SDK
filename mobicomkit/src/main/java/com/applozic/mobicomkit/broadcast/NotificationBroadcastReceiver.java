@@ -4,15 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.core.app.RemoteInput;
 import android.text.TextUtils;
+
+import androidx.core.app.RemoteInput;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.notification.WearableNotificationWithVoice;
-
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -47,9 +47,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 replyMessage.setDeviceKeyString(MobiComUserPreference.getInstance(context).getDeviceKeyString());
                 replyMessage.setSource(Message.Source.MT_MOBILE_APP.getValue());
 
-                newIntent = new Intent(context, MessageIntentService.class);
-                newIntent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(replyMessage, Message.class));
-                MessageIntentService.enqueueWork(context, newIntent, null);
+                MessageWorker.enqueueWork(context, replyMessage, null, null);
                 return;
             }
             //TODO: get activity name in intent...

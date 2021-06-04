@@ -12,7 +12,7 @@ import com.applozic.mobicomkit.api.conversation.MessageClientService;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
+import com.applozic.mobicomkit.api.people.UserWorker;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.sync.SyncUserDetailsResponse;
@@ -236,12 +236,12 @@ public class MessageServiceTest {
     @Test
     public void testReadConversation() {
         try {
-            assertFalse(isMyServiceRunning(UserIntentService.class, context));
+            assertFalse(isMyServiceRunning(UserWorker.class, context));
             when(appContactService.getContactById(anyString())).thenReturn(null);
             when(messageDatabaseService.updateReadStatusForContact(anyString())).thenReturn(0);
             mobiComConversationService.read(null, null);
 
-            assertTrue(isMyServiceRunning(UserIntentService.class, context));
+            assertTrue(isMyServiceRunning(UserWorker.class, context));
         } catch (Exception e) {
             e.printStackTrace();
         }

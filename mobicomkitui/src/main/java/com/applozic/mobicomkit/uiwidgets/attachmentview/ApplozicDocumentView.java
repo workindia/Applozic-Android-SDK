@@ -6,9 +6,6 @@ import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
-
-import androidx.core.content.ContextCompat;
-
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,12 +15,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.attachment.AttachmentManager;
 import com.applozic.mobicomkit.api.attachment.AttachmentTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentViewProperties;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -32,7 +31,6 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermissionListener;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.file.ALFileProvider;
 import com.applozic.mobicommons.file.FileUtils;
-import com.applozic.mobicommons.json.GsonUtils;
 
 import java.io.File;
 
@@ -334,11 +332,8 @@ public class ApplozicDocumentView {
                 message.setCanceled(false);
                 MessageDatabaseService messageDatabaseService = new MessageDatabaseService(context);
                 messageDatabaseService.updateCanceledFlag(message.getMessageId(), 0);
-                Intent intent = new Intent(context, MessageIntentService.class);
-                intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-                MessageIntentService.enqueueWork(context, intent, null);
+                new MobiComConversationService(context).sendMessage(message, null);
                 showDownloadInProgress();
-
             }
         });
     }

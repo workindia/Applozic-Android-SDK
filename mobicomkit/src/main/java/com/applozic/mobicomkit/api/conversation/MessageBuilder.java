@@ -74,10 +74,10 @@ public class MessageBuilder {
     }
 
     public void send() {
-        new MobiComConversationService(context).sendMessage(message);
+        new MobiComConversationService(context).sendMessageWithHandler(message, null);
     }
 
     public void send(MediaUploadProgressHandler handler) {
-        new MobiComConversationService(context).sendMessage(message, handler, MessageIntentService.class);
+        new MobiComConversationService(context).sendMessageWithHandler(message, handler);
     }
 }

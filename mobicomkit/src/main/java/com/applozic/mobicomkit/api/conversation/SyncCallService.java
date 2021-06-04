@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.conversation;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.ConversationRunnables;
@@ -47,7 +46,7 @@ public class SyncCallService {
 
     private SyncCallService(Context context) {
         this.context = ApplozicService.getContext(context);
-        this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
+        this.mobiComMessageService = new MobiComMessageService(context, MessageWorker.class);
         this.mobiComConversationService = new MobiComConversationService(context);
         this.contactService = new AppContactService(context);
         this.channelService = ChannelService.getInstance(context);
@@ -107,12 +106,11 @@ public class SyncCallService {
             if (Utils.isDeviceInIdleState(context)) {
                 new ConversationRunnables(context, message, false, true, false);
             } else {
-                Intent intent = new Intent(context, ConversationIntentService.class);
-                intent.putExtra(ConversationIntentService.SYNC, true);
                 if (message != null) {
-                    intent.putExtra(ConversationIntentService.AL_MESSAGE, message);
+                    ConversationWorker.enqueueWorkInstantMessage(context, message);
+                } else {
+                    ConversationWorker.enqueueWorkSync(context);
                 }
-                ConversationIntentService.enqueueWork(context, intent);
             }
         }
     }
@@ -138,9 +136,7 @@ public class SyncCallService {
                 new ConversationRunnables(context, null, false, false, true);
             } else {
                 Utils.printLog(context, TAG, "Syncing updated message metadata from " + (isFromFcm ? "FCM" : "MQTT") + " for message key : " + key);
-                Intent intent = new Intent(context, ConversationIntentService.class);
-                intent.putExtra(ConversationIntentService.MESSAGE_METADATA_UPDATE, true);
-                ConversationIntentService.enqueueWork(context, intent);
+                ConversationWorker.enqueueWorkMessageMetadataUpdate(context);
             }
         }
     }
@@ -149,9 +145,7 @@ public class SyncCallService {
 
         if (userId == null) {
             Utils.printLog(context, TAG, "Syncing muted user list from " + (isFromFcm ? "FCM" : "MQTT"));
-            Intent intent = new Intent(context, ConversationIntentService.class);
-            intent.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
-            ConversationIntentService.enqueueWork(context, intent);
+            ConversationWorker.enqueueWorkMutedUserListSync(context);
         } else {
             Utils.printLog(context, TAG, "Unmuting userId : " + userId + " from " + (isFromFcm ? "FCM" : "MQTT"));
             new ContactDatabase(context).updateNotificationAfterTime(userId, Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime().getTime());
