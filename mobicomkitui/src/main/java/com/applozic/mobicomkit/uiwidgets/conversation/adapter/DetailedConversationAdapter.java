@@ -12,7 +12,9 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -65,6 +67,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
+import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.AlLinkPreview;
@@ -438,7 +441,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.photo_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(msg.getMessage());
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true, alCustomizationSettings.getConversationMentionSpanColor()));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.VISIBLE);
                                         myHolder.imageViewRLayout.setVisibility(View.VISIBLE);
@@ -453,7 +456,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.video_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(msg.getMessage());
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true, alCustomizationSettings.getConversationMentionSpanColor()));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.VISIBLE);
                                         myHolder.imageViewRLayout.setVisibility(View.VISIBLE);
@@ -472,7 +475,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.audio_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(msg.getMessage());
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true, alCustomizationSettings.getConversationMentionSpanColor()));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.GONE);
                                         myHolder.imageViewRLayout.setVisibility(View.GONE);
@@ -496,7 +499,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         if (TextUtils.isEmpty(msg.getMessage())) {
                                             myHolder.replyMessageTextView.setText(context.getString(R.string.attachment_string));
                                         } else {
-                                            myHolder.replyMessageTextView.setText(msg.getMessage());
+                                            myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true, alCustomizationSettings.getConversationMentionSpanColor()));
                                         }
                                         myHolder.imageViewPhoto.setVisibility(View.GONE);
                                         myHolder.imageViewRLayout.setVisibility(View.GONE);
@@ -515,7 +518,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                     myHolder.imageViewForAttachmentType.setVisibility(View.GONE);
                                     myHolder.imageViewRLayout.setVisibility(View.GONE);
                                     myHolder.imageViewPhoto.setVisibility(View.GONE);
-                                    myHolder.replyMessageTextView.setText(msg.getMessage());
+                                    myHolder.replyMessageTextView.setText(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, msg, true, alCustomizationSettings.getConversationMentionSpanColor()));
                                 }
                                 myHolder.replyRelativeLayout.setVisibility(View.VISIBLE);
                                 myHolder.replyRelativeLayout.setOnClickListener(new View.OnClickListener() {
@@ -953,7 +956,9 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                 });
                             } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
                                 myHolder.mapImageView.setVisibility(View.GONE);
-                                myHolder.messageTextView.setText(ConversationUIService.FINAL_PRICE_TEXT + message.getMessage());
+                                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true, alCustomizationSettings.getConversationMentionSpanColor()));
+                                spannableStringBuilder.insert(0, ConversationUIService.FINAL_PRICE_TEXT);
+                                myHolder.messageTextView.setText(spannableStringBuilder);
                             } else if ((message.getContentType() == Message.ContentType.VIDEO_MSG.getValue()) && !message.isAttachmentDownloaded()) {
                                 myHolder.preview.setVisibility(View.VISIBLE);
                                 myHolder.mapImageView.setVisibility(View.GONE);
@@ -963,7 +968,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             } else {
                                 myHolder.mapImageView.setVisibility(View.GONE);
                                 myHolder.chatLocation.setVisibility(View.GONE);
-                                myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(activityContext, message.getMessage(), emojiconHandler));
+                                myHolder.messageTextView.setText(EmoticonUtils.getSmiledText(activityContext, MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true, alCustomizationSettings.getConversationMentionSpanColor()), emojiconHandler));
                             }
 
                             if (myHolder.messageTextLayout != null) {
@@ -1019,9 +1024,10 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                             myHolder.mainContactShareLayout.setVisibility(View.GONE);
                         }
 
-                        int startIndex = indexOfSearchQuery(message.getMessage());
+                        Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, true, alCustomizationSettings.getConversationMentionSpanColor());
+                        int startIndex = indexOfSearchQuery(mentionsMessageString.toString());
                         if (startIndex != -1) {
-                            final SpannableString highlightedName = new SpannableString(message.getMessage());
+                            final SpannableString highlightedName = new SpannableString(mentionsMessageString);
 
                             // Sets the span to start at the starting point of the match and end at "length"
                             // characters beyond the starting point

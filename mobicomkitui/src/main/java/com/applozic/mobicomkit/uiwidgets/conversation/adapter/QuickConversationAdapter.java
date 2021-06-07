@@ -5,7 +5,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
@@ -27,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
 import com.applozic.mobicomkit.channel.database.ChannelDatabaseService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -306,12 +309,15 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     myholder.attachmentIcon.setImageResource(R.drawable.mobicom_notification_location_icon);
                     myholder.messageTextView.setText(Utils.getString(context, R.string.Location));
                 } else if (message.getContentType() == Message.ContentType.PRICE.getValue()) {
-                    myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, ConversationUIService.FINAL_PRICE_TEXT + message.getMessage(), emojiconHandler));
+                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, alCustomizationSettings.getConversationMentionSpanColor()));
+                    spannableStringBuilder.insert(0, ConversationUIService.FINAL_PRICE_TEXT);
+                    myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, spannableStringBuilder, emojiconHandler));
                 } else if (message.getContentType() == Message.ContentType.TEXT_HTML.getValue()) {
                     myholder.messageTextView.setText(Html.fromHtml(message.getMessage()));
                 } else {
-                    String messageSubString = (!TextUtils.isEmpty(message.getMessage()) ? message.getMessage().substring(0, Math.min(message.getMessage().length(), 50)) : "");
-                    myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, messageSubString, emojiconHandler));
+                    Spannable messageSpannable = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, alCustomizationSettings.getConversationMentionSpanColor());
+                    CharSequence messageSpannableSubString = (!TextUtils.isEmpty(messageSpannable.toString()) ? messageSpannable.subSequence(0, Math.min(messageSpannable.length(), 50)) : new SpannableString(Utils.EMPTY_STRING));
+                    myholder.messageTextView.setText(EmoticonUtils.getSmiledText(context, messageSpannableSubString, emojiconHandler));
                 }
 
                 if (myholder.sentOrReceived != null) {
@@ -341,10 +347,11 @@ public class QuickConversationAdapter extends RecyclerView.Adapter implements Fi
                     myholder.unReadCountTextView.setVisibility(View.GONE);
                 }
 
-                int startIndex = indexOfSearchQuery(message.getMessage());
+                Spannable mentionsMessageString = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, alCustomizationSettings.getConversationMentionSpanColor());
+                int startIndex = indexOfSearchQuery(mentionsMessageString.toString());
                 if (startIndex != -1) {
 
-                    final SpannableString highlightedName = new SpannableString(message.getMessage());
+                    final SpannableString highlightedName = new SpannableString(mentionsMessageString);
 
                     // Sets the span to start at the starting point of the match and end at "length"
                     // characters beyond the starting point

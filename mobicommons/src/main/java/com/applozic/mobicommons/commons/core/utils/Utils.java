@@ -35,8 +35,9 @@ import java.io.IOException;
  * This class contains static utility methods.
  */
 public class Utils {
-
     private static final String TAG = "Utils";
+
+    public static final String EMPTY_STRING = "";
 
     // Prevents instantiation.
     private Utils() {
