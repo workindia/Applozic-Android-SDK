@@ -455,12 +455,6 @@ Bug fixes and performance improvement
 ```
  <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
- <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
-          android:exported="false" />
-
- <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-           android:exported="false" />
-
 ```
 
 **Version 3.31**

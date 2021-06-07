@@ -5,7 +5,7 @@ import android.os.Process;
 
 import com.applozic.mobicomkit.api.account.user.UserService;
 import com.applozic.mobicomkit.api.conversation.Message;
-import com.applozic.mobicomkit.api.conversation.MessageIntentService;
+import com.applozic.mobicomkit.api.conversation.MessageWorker;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.api.conversation.MobiComMessageService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
@@ -35,7 +35,7 @@ public class ConversationRunnables {
         this.isMutedList = isMutedList;
         this.isMessageMetadataSync = isMessageMetadataSync;
         this.message = message;
-        mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
+        mobiComMessageService = new MobiComMessageService(context, MessageWorker.class);
 
         startSync();
     }
@@ -63,7 +63,7 @@ public class ConversationRunnables {
                 Utils.printLog(context, TAG, "Syncing messages service started from thread: " + isSync);
 
                 if (message != null) {
-                    mobiComMessageService.processInstantMessage(message);
+                    mobiComMessageService.syncMessageDataAndSendBroadcastFor(message);
                 } else {
                     if (isSync) {
                         mobiComMessageService.syncMessages();

@@ -1,7 +1,6 @@
 package com.applozic.mobicomkit.api.account.register;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -12,8 +11,8 @@ import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.authentication.JWT;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
-import com.applozic.mobicomkit.api.conversation.ConversationIntentService;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttWorker;
+import com.applozic.mobicomkit.api.conversation.ConversationWorker;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.exception.ApplozicException;
@@ -180,20 +179,10 @@ public class RegisterUserClientService extends MobiComKitClientService {
             ApplozicClient.getInstance(context).setChatDisabled(contact.isChatForUserDisabled());
             new AppContactService(context).upsert(contact);
 
+            ConversationWorker.enqueueWorkSync(context);
+            ConversationWorker.enqueueWorkMutedUserListSync(context);
 
-            Intent conversationIntentService = new Intent(context, ConversationIntentService.class);
-            conversationIntentService.putExtra(ConversationIntentService.SYNC, false);
-            ConversationIntentService.enqueueWork(context, conversationIntentService);
-
-
-            Intent mutedUserListService = new Intent(context, ConversationIntentService.class);
-            mutedUserListService.putExtra(ConversationIntentService.MUTED_USER_LIST_SYNC, true);
-            ConversationIntentService.enqueueWork(context, mutedUserListService);
-
-            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-            intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
-            ApplozicMqttIntentService.enqueueWork(context, intent);
-
+            ApplozicMqttWorker.enqueueWorkConnectPublish(context);
         }
 
         return registrationResponse;
@@ -229,8 +218,6 @@ public class RegisterUserClientService extends MobiComKitClientService {
     }
 
     private RegistrationResponse updateAccount(String email, String userId, String phoneNumber, String displayName, String imageLink, String pushNotificationId) throws Exception {
-        MobiComUserPreference mobiComUserPreference = MobiComUserPreference.getInstance(context);
-
         User user = new User();
         user.setUserId(userId);
         user.setEmail(email);
@@ -240,9 +227,9 @@ public class RegisterUserClientService extends MobiComKitClientService {
         user.setContactNumber(phoneNumber);
 
         final RegistrationResponse registrationResponse = createAccount(user);
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        intent.putExtra(ApplozicMqttIntentService.CONNECTED_PUBLISH, true);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+
+        ApplozicMqttWorker.enqueueWorkConnectPublish(context);
+
         return registrationResponse;
     }
 

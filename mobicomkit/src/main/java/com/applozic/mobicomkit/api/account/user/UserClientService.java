@@ -2,26 +2,25 @@ package com.applozic.mobicomkit.api.account.user;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
 
 import com.applozic.mobicomkit.AlUserUpdate;
 import com.applozic.mobicomkit.Applozic;
-import com.applozic.mobicomkit.api.notification.NotificationChannels;
-import com.applozic.mobicomkit.channel.service.ChannelService;
-import com.applozic.mobicomkit.exception.ApplozicException;
-import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
 import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttWorker;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.notification.MuteUserResponse;
+import com.applozic.mobicomkit.api.notification.NotificationChannels;
+import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.database.MobiComDatabaseHelper;
+import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.feed.SyncBlockUserApiResponse;
 import com.applozic.mobicomkit.feed.UserDetailListFeed;
+import com.applozic.mobicommons.ALSpecificSettings;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.json.GsonUtils;
 
@@ -153,10 +152,8 @@ public class UserClientService extends MobiComKitClientService {
         MessageDatabaseService.recentlyAddedMessage.clear();
         MobiComDatabaseHelper.getInstance(context).delDatabase();
         mobiComUserPreference.setUrl(url);
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
-        intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+
+        ApplozicMqttWorker.enqueueWorkDisconnectPublish(context, deviceKeyString, userKeyString, false);
     }
 
     public ApiResponse logout(boolean fromLogin) {
@@ -178,10 +175,7 @@ public class UserClientService extends MobiComKitClientService {
         MobiComDatabaseHelper.getInstance(context).delDatabase();
         mobiComUserPreference.setUrl(url);
         if (!fromLogin) {
-            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-            intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
-            intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-            ApplozicMqttIntentService.enqueueWork(context, intent);
+            ApplozicMqttWorker.enqueueWorkDisconnectPublish(context, deviceKeyString, userKeyString, false);
         }
         return apiResponse;
     }

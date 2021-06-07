@@ -6,8 +6,6 @@ import android.net.Uri;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.text.TextUtils;
-
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -23,7 +21,6 @@ import com.applozic.mobicomkit.contact.BaseContactService;
 import com.applozic.mobicomkit.contact.database.ContactDatabase;
 import com.applozic.mobicomkit.feed.ApiResponse;
 import com.applozic.mobicomkit.sync.SyncMessageFeed;
-
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.people.channel.Channel;
@@ -76,26 +73,15 @@ public class MobiComMessageService {
     }
 
     public Message processMessage(final Message messageToProcess, String tofield, int index) {
-        try {
-            if (!TextUtils.isEmpty(ApplozicClient.getInstance(context).getMessageMetaDataServiceName())) {
-                Class serviceName = Class.forName(ApplozicClient.getInstance(context).getMessageMetaDataServiceName());
-                Intent intentService = new Intent(context, serviceName);
-                if (Message.MetaDataType.HIDDEN.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
-                    intentService.putExtra(MobiComKitConstants.MESSAGE, messageToProcess);
-                    intentService.putExtra(MobiComKitConstants.HIDDEN, true);
-                    MessageIntentService.enqueueWork(context, intentService, null);
-                    return null;
-                } else if (Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
-                    BroadcastService.sendNotificationBroadcast(context, messageToProcess, index);
-                    intentService.putExtra(MobiComKitConstants.MESSAGE, messageToProcess);
-                    intentService.putExtra(MobiComKitConstants.PUSH_NOTIFICATION, true);
-                    MessageIntentService.enqueueWork(context, intentService, null);
-                    return null;
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        if (Message.MetaDataType.HIDDEN.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+            MessageWorker.enqueueWork(context, messageToProcess, null, null);
+            return null;
+        } else if (Message.MetaDataType.PUSHNOTIFICATION.getValue().equals(messageToProcess.getMetaDataValueForKey(Message.MetaDataType.KEY.getValue()))) {
+            BroadcastService.sendNotificationBroadcast(context, messageToProcess, index);
+            MessageWorker.enqueueWork(context, messageToProcess, null, null);
+            return null;
         }
+
         Message message = prepareMessage(messageToProcess, tofield);
         //download contacts in advance.
         if (message.getGroupId() != null) {
@@ -254,6 +240,15 @@ public class MobiComMessageService {
         processMessage(message, message.getTo(), 0);
     }
 
+    /**
+     * Will sync data from the respective last sync times:
+     * 1) Messages
+     * 2) Channels
+     * 3) Channel metadata
+     * 4) Group of two block
+     * 5) Delivered message status
+     * 6) Contact details
+     */
     public synchronized void syncMessages() {
         final MobiComUserPreference userpref = MobiComUserPreference.getInstance(context);
         boolean syncChannel = false;
@@ -434,7 +429,7 @@ public class MobiComMessageService {
         return messageClientService.getMessageDeleteForAllResponse(messageKey, deleteForAll);
     }
 
-    public synchronized void processInstantMessage(Message message) {
+    public synchronized void syncMessageDataAndSendBroadcastFor(Message message) {
 
         if (!baseContactService.isContactPresent(message.getContactIds())) {
             userService.processUserDetails(message.getContactIds());
