@@ -12,10 +12,11 @@ import com.applozic.mobicommons.task.AlAsyncTask;
 import java.lang.ref.WeakReference;
 
 public class AlTotalUnreadCountTask extends AlAsyncTask<Void, Integer> {
-
     private static final String TAG = "AlTotalUnreadCountTask";
-    private TaskListener callback;
-    private WeakReference<Context> weakReferenceContext;
+
+    private final TaskListener callback;
+    private final WeakReference<Context> weakReferenceContext;
+
     MessageDatabaseService messageDatabaseService;
 
     public AlTotalUnreadCountTask(Context context, TaskListener callback) {
@@ -27,7 +28,7 @@ public class AlTotalUnreadCountTask extends AlAsyncTask<Void, Integer> {
     @Override
     protected Integer doInBackground() {
         try {
-            // Call the List api method only if server call for list was not done before and return the unread count.
+            //If there was no previous server call done. Essentially, local db will be empty.
             if (!ApplozicClient.getInstance(ApplozicService.getContextFromWeak(weakReferenceContext)).wasServerCallDoneBefore(null, null, null)) {
                 if (!Utils.isInternetAvailable(ApplozicService.getContextFromWeak(weakReferenceContext))) {
                     return null;
@@ -48,14 +49,13 @@ public class AlTotalUnreadCountTask extends AlAsyncTask<Void, Integer> {
             if (unreadCount != null) {
                 callback.onSuccess(unreadCount);
             } else {
-                callback.onFailure("Failed to fetch the unread count");
+                callback.onFailure("Failed to fetch the total unread count.");
             }
         }
     }
 
     public interface TaskListener {
         void onSuccess(Integer unreadCount);
-
         void onFailure(String error);
     }
 }
