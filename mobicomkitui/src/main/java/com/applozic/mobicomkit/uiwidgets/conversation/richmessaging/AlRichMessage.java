@@ -215,6 +215,29 @@ public class AlRichMessage {
         return TEMPLATE_ID + model.getTemplateId();
     }
 
+    public static boolean isSentListOrCardItemSuggestedReplyOrSubmitButton(ALRichMessageModel.AlButtonModel buttonModel, Message message) {
+        if (buttonModel == null || message == null) {
+            return false;
+        }
+
+        ALRichMessageModel.AlAction alAction = buttonModel.getAction();
+
+        if (alAction == null) {
+            return false;
+        }
+
+        return (AlRichMessage.QUICK_REPLY.equals(alAction.getType()) || AlRichMessage.QUICK_REPLY_OLD.equals(alAction.getType()) || AlRichMessage.SUBMIT_BUTTON.equals(alAction.getType()))
+                && message.isTypeOutbox();
+    }
+
+    private boolean isSentSuggestedReplyOrButtonRichMessage(final ALRichMessageModel alRichMessageModel, Message message) {
+        if (alRichMessageModel == null || message == null) {
+            return false;
+        }
+
+        return alRichMessageModel.getTemplateId() == 6 || alRichMessageModel.getTemplateId() == 3 && message.isTypeOutbox();
+    }
+
     private void setupListItemView(LinearLayout listItemLayout, ALRichMessageModel model) {
         if (model != null) {
             if (model.getPayload() != null) {
@@ -249,7 +272,11 @@ public class AlRichMessage {
                             final TextView actionText1 = listItemLayout.findViewById(R.id.actionButton1);
                             actionText1.setVisibility(View.VISIBLE);
                             actionText1.setText(action.get(0).getName());
-                            setActionListener(actionText1, model, action.get(0), payload);
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(action.get(0), message)) {
+                                actionText1.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                setActionListener(actionText1, model, action.get(0), payload);
+                            }
                         }
 
                         if (action.size() > 1 && action.get(1) != null) {
@@ -258,7 +285,11 @@ public class AlRichMessage {
                             actionDivider2.setVisibility(View.VISIBLE);
                             actionText2.setVisibility(View.VISIBLE);
                             actionText2.setText(action.get(1).getName());
-                            setActionListener(actionText2, model, action.get(1), payload);
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(action.get(1), message)) {
+                                actionText2.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                setActionListener(actionText2, model, action.get(1), payload);
+                            }
                         }
 
                         if (action.size() > 2 && action.get(2) != null) {
@@ -267,16 +298,16 @@ public class AlRichMessage {
                             actionDivider3.setVisibility(View.VISIBLE);
                             actionText3.setVisibility(View.VISIBLE);
                             actionText3.setText(action.get(2).getName());
-                            setActionListener(actionText3, model, action.get(2), payload);
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(action.get(2), message)) {
+                                actionText3.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                setActionListener(actionText3, model, action.get(2), payload);
+                            }
                         }
                     }
                 }
             }
         }
-    }
-
-    private boolean isSentSuggestedReplyRichMessage(final ALRichMessageModel alRichMessageModel, Message message) {
-        return alRichMessageModel.getTemplateId() == 6 && message.isTypeOutbox();
     }
 
     private void setDisabledUiForTextView(@NonNull TextView textView) {
@@ -312,7 +343,7 @@ public class AlRichMessage {
                 }
             }
 
-            if (isSentSuggestedReplyRichMessage(model, message)) {
+            if (isSentSuggestedReplyOrButtonRichMessage(model, message)) {
                 setDisabledUiForTextView(itemTextView);
             } else {
                 itemTextView.setOnClickListener(new View.OnClickListener() {
