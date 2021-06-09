@@ -2,10 +2,6 @@ package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging;
 
 import android.content.Context;
 import android.os.Build;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -14,6 +10,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.uiwidgets.AlCustomizationSettings;
@@ -274,6 +275,19 @@ public class AlRichMessage {
         }
     }
 
+    private boolean isSentSuggestedReplyRichMessage(final ALRichMessageModel alRichMessageModel, Message message) {
+        return alRichMessageModel.getTemplateId() == 6 && message.isTypeOutbox();
+    }
+
+    private void setDisabledUiForTextView(@NonNull TextView textView) {
+        if (context == null) {
+            return;
+        }
+
+        textView.setBackground(ResourcesCompat.getDrawable(context.getResources(), R.drawable.al_count_button_shape_disabled, context.getTheme()));
+        textView.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+    }
+
     private void setUpGridView(AlFlowLayout flowLayout, final ALRichMessageModel model) {
 
         final List<ALRichMessageModel.ALPayloadModel> payloadList = Arrays.asList((ALRichMessageModel.ALPayloadModel[])
@@ -298,21 +312,25 @@ public class AlRichMessage {
                 }
             }
 
-            itemTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (context.getApplicationContext() instanceof ALRichMessageListener) {
-                        ((ALRichMessageListener) context.getApplicationContext()).onAction(context, TEMPLATE_ID + model.getTemplateId(), message, payloadModel, payloadModel.getReplyMetadata());
-                    } else {
-                        String actionType = payloadModel.getAction() != null && !TextUtils.isEmpty(payloadModel.getAction().getType()) ? payloadModel.getAction().getType() : payloadModel.getType();
-                        if (payloadModel.getAction() != null && !TextUtils.isEmpty(payloadModel.getAction().getType()) || !TextUtils.isEmpty(payloadModel.getType())) {
-                            listener.onAction(context, actionType, message, payloadModel, payloadModel.getReplyMetadata());
+            if (isSentSuggestedReplyRichMessage(model, message)) {
+                setDisabledUiForTextView(itemTextView);
+            } else {
+                itemTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (context.getApplicationContext() instanceof ALRichMessageListener) {
+                            ((ALRichMessageListener) context.getApplicationContext()).onAction(context, TEMPLATE_ID + model.getTemplateId(), message, payloadModel, payloadModel.getReplyMetadata());
                         } else {
-                            listener.onAction(context, model.getTemplateId() == 6 ? QUICK_REPLY : SUBMIT_BUTTON, message, model.getTemplateId() == 6 ? payloadModel : model, payloadModel.getReplyMetadata());
+                            String actionType = payloadModel.getAction() != null && !TextUtils.isEmpty(payloadModel.getAction().getType()) ? payloadModel.getAction().getType() : payloadModel.getType();
+                            if (payloadModel.getAction() != null && !TextUtils.isEmpty(payloadModel.getAction().getType()) || !TextUtils.isEmpty(payloadModel.getType())) {
+                                listener.onAction(context, actionType, message, payloadModel, payloadModel.getReplyMetadata());
+                            } else {
+                                listener.onAction(context, model.getTemplateId() == 6 ? QUICK_REPLY : SUBMIT_BUTTON, message, model.getTemplateId() == 6 ? payloadModel : model, payloadModel.getReplyMetadata());
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
 
             flowLayout.addView(view);
         }
