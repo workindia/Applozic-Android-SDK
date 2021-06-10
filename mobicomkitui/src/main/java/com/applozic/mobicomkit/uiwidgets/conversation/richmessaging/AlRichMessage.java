@@ -235,7 +235,28 @@ public class AlRichMessage {
             return false;
         }
 
-        return (alRichMessageModel.getTemplateId() == 6 || alRichMessageModel.getTemplateId() == 3) && message.isTypeOutbox();
+        String payload = alRichMessageModel.getPayload();
+
+        if (TextUtils.isEmpty(payload)) {
+            return false;
+        }
+
+        ALRichMessageModel.AlAction[] alActionList = (ALRichMessageModel.AlAction[]) GsonUtils.getObjectFromJson(payload, ALRichMessageModel.AlAction[].class);
+
+        if (alActionList == null) {
+            return false;
+        }
+
+        boolean isLink = false;
+
+        for (ALRichMessageModel.AlAction alAction : alActionList) {
+            if (AlRichMessage.WEB_LINK.equals(alAction.getType())) {
+                isLink = true;
+                break;
+            }
+        }
+
+        return (alRichMessageModel.getTemplateId() == 6 || (alRichMessageModel.getTemplateId() == 3 && !isLink)) && message.isTypeOutbox();
     }
 
     private void setupListItemView(LinearLayout listItemLayout, ALRichMessageModel model) {
