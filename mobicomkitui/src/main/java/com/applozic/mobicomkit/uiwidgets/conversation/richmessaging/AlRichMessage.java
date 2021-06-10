@@ -235,7 +235,7 @@ public class AlRichMessage {
             return false;
         }
 
-        return alRichMessageModel.getTemplateId() == 6 || alRichMessageModel.getTemplateId() == 3 && message.isTypeOutbox();
+        return (alRichMessageModel.getTemplateId() == 6 || alRichMessageModel.getTemplateId() == 3) && message.isTypeOutbox();
     }
 
     private void setupListItemView(LinearLayout listItemLayout, ALRichMessageModel model) {
