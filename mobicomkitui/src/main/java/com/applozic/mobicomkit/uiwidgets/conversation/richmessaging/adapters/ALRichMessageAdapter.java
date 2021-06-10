@@ -1,8 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +16,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.uiwidgets.R;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALBookingDetailsModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALGuestCountModel;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
@@ -453,21 +454,33 @@ public class ALRichMessageAdapter extends RecyclerView.Adapter {
                             viewHolder.bookAction1.setVisibility(View.VISIBLE);
                             viewHolder.viewAction1.setVisibility(View.VISIBLE);
                             viewHolder.bookAction1.setText(actionsList.get(0).getName());
-                            viewHolder.bookAction1.setOnClickListener(getGenericCardClickListener(actionsList.get(0)));
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(actionsList.get(0), message)) {
+                                viewHolder.bookAction1.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                viewHolder.bookAction1.setOnClickListener(getGenericCardClickListener(actionsList.get(0)));
+                            }
                         }
 
                         if (i == 1) {
                             viewHolder.bookAction2.setVisibility(View.VISIBLE);
                             viewHolder.viewAction2.setVisibility(View.VISIBLE);
                             viewHolder.bookAction2.setText(actionsList.get(1).getName());
-                            viewHolder.bookAction2.setOnClickListener(getGenericCardClickListener(actionsList.get(1)));
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(actionsList.get(1), message)) {
+                                viewHolder.bookAction2.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                viewHolder.bookAction2.setOnClickListener(getGenericCardClickListener(actionsList.get(1)));
+                            }
                         }
 
                         if (i == 2) {
                             viewHolder.bookAction3.setVisibility(View.VISIBLE);
                             viewHolder.viewAction3.setVisibility(View.VISIBLE);
                             viewHolder.bookAction3.setText(actionsList.get(2).getName());
-                            viewHolder.bookAction3.setOnClickListener(getGenericCardClickListener(actionsList.get(2)));
+                            if (AlRichMessage.isSentListOrCardItemSuggestedReplyOrSubmitButton(actionsList.get(2), message)) {
+                                viewHolder.bookAction3.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+                            } else {
+                                viewHolder.bookAction3.setOnClickListener(getGenericCardClickListener(actionsList.get(2)));
+                            }
                         }
                     }
                 } catch (Exception e) {

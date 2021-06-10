@@ -1,8 +1,6 @@
 package com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.adapters;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +9,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.uiwidgets.R;
+import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
-import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -46,10 +47,11 @@ public class AlRichListsAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        bindView((AlListItemViewHolder) holder, elementList.get(position));
+        bindView((AlListItemViewHolder) holder, position);
     }
 
-    public void bindView(AlListItemViewHolder holder, ALRichMessageModel.AlElementModel element) {
+    public void bindView(final AlListItemViewHolder holder, final int position) {
+        ALRichMessageModel.AlElementModel element = elementList.get(position);
         if (!TextUtils.isEmpty(element.getTitle())) {
             holder.headerTv.setVisibility(View.VISIBLE);
             holder.headerTv.setText(AlRichMessage.getHtmlText(element.getTitle().trim()));
@@ -70,6 +72,24 @@ public class AlRichListsAdapter extends RecyclerView.Adapter {
         } else {
             holder.listImage.setVisibility(View.GONE);
         }
+
+        if (holder.isSentSuggestedReplyOrButton(element, message)) {
+            holder.headerTv.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+            holder.detailsTv.setTextColor(context.getResources().getColor(R.color.apploizc_gray_color));
+        } else {
+            holder.rootLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (position != -1 && elementList != null && !elementList.isEmpty()) {
+                        if (context.getApplicationContext() instanceof ALRichMessageListener) {
+                            ((ALRichMessageListener) context.getApplicationContext()).onAction(context, holder.getAction(elementList.get(position)), message, elementList.get(position), holder.getReplyMetadata(elementList.get(position)));
+                        } else if (messageListener != null) {
+                            messageListener.onAction(context, holder.getAction(elementList.get(position)), message, elementList.get(position), holder.getReplyMetadata(elementList.get(position)));
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -77,8 +97,7 @@ public class AlRichListsAdapter extends RecyclerView.Adapter {
         return elementList != null ? elementList.size() : 0;
     }
 
-    private class AlListItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
+    private class AlListItemViewHolder extends RecyclerView.ViewHolder {
         private TextView headerTv;
         private TextView detailsTv;
         private RelativeLayout rootLayout;
@@ -91,20 +110,6 @@ public class AlRichListsAdapter extends RecyclerView.Adapter {
             detailsTv = itemView.findViewById(R.id.listItemText);
             rootLayout = itemView.findViewById(R.id.rootLayout);
             listImage = itemView.findViewById(R.id.listItemImage);
-
-            rootLayout.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int itemPosition = this.getLayoutPosition();
-            if (itemPosition != -1 && elementList != null && !elementList.isEmpty()) {
-                if (context.getApplicationContext() instanceof ALRichMessageListener) {
-                    ((ALRichMessageListener) context.getApplicationContext()).onAction(context, getAction(elementList.get(itemPosition)), message, elementList.get(itemPosition), getReplyMetadata(elementList.get(itemPosition)));
-                } else if (messageListener != null) {
-                    messageListener.onAction(context, getAction(elementList.get(itemPosition)), message, elementList.get(itemPosition), getReplyMetadata(elementList.get(itemPosition)));
-                }
-            }
         }
 
         private Map<String, Object> getReplyMetadata(ALRichMessageModel.AlElementModel elementModel) {
@@ -127,6 +132,21 @@ public class AlRichListsAdapter extends RecyclerView.Adapter {
                 }
             }
             return AlRichMessage.TEMPLATE_ID + 7;
+        }
+
+        private boolean isSentSuggestedReplyOrButton(ALRichMessageModel.AlElementModel alElementModel, Message message) {
+            if (alElementModel == null || message == null) {
+                return false;
+            }
+
+            String action = getAction(alElementModel);
+
+            if (TextUtils.isEmpty(action)) {
+                return false;
+            }
+
+            return (action.equals(AlRichMessage.QUICK_REPLY) || action.equals(AlRichMessage.QUICK_REPLY_OLD) || action.equals(AlRichMessage.SUBMIT_BUTTON))
+                    && message.isTypeOutbox();
         }
     }
 }
