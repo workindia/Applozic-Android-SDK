@@ -22,7 +22,7 @@ public class MessageDeleteTask extends AlAsyncTask<Void, String> {
         this.messageKey = messageKey;
         this.deleteForAll = deleteForAll;
         this.callback = callback;
-        this.mobiComMessageService = new MobiComMessageService(context, MessageIntentService.class);
+        this.mobiComMessageService = new MobiComMessageService(context, MessageWorker.class);
     }
 
     @Override

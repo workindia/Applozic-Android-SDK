@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Process;
 
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
-import com.applozic.mobicomkit.api.conversation.ApplozicIntentService;
+import com.applozic.mobicomkit.api.conversation.ApplozicWorker;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 
@@ -32,9 +32,7 @@ public class TimeChangeBroadcastReceiver extends BroadcastReceiver {
                     timeChangeThread.setPriority(Process.THREAD_PRIORITY_BACKGROUND);
                     timeChangeThread.start();
                 } else {
-                    Intent applozicIntent = new Intent(context, ApplozicIntentService.class);
-                    applozicIntent.putExtra(ApplozicIntentService.AL_TIME_CHANGE_RECEIVER, true);
-                    ApplozicIntentService.enqueueWork(context, applozicIntent);
+                    ApplozicWorker.enqueueWorkTimeZoneChanged(context);
                 }
             }
         }

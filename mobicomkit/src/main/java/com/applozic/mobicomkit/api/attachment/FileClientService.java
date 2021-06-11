@@ -92,9 +92,7 @@ public class FileClientService extends MobiComKitClientService {
                 }
             }
         } else {
-            ContextWrapper cw = new ContextWrapper(context);
-            // path to /data/data/yourapp/app_data/imageDir
-            dir = cw.getDir(IMAGE_DIR, Context.MODE_PRIVATE);
+            dir = new File(new ContextWrapper(context).getFilesDir().getAbsolutePath() + MOBI_COM_IMAGES_FOLDER);
         }
         // Create image name
         //String extention = "." + contentType.substring(contentType.indexOf("/") + 1);
@@ -110,8 +108,26 @@ public class FileClientService extends MobiComKitClientService {
         return getBaseUrl() + AL_UPLOAD_FILE_URL;
     }
 
-    public Bitmap loadThumbnailImage(Context context, Message message, int reqWidth,
-                                     int reqHeight) {
+    private String[] getParts(String filePath) {
+        return filePath.split("/");
+    }
+
+    private String getVideoThumbnailFileNameForLocalGeneration(String filePath) {
+        String[] parts = getParts(filePath);
+        String videoFileName = parts[parts.length - 1].split("[.]")[0];
+        return videoFileName + ".jpeg";
+    }
+
+    private String getThumbnailFileNameForServerDownload(Message message) {
+        String contentType = message.getFileMetas().getContentType();
+        String messageFileFormat = FileUtils.getFileFormat(message.getFileMetas().getName());
+        boolean isThumbnailForVideo = !TextUtils.isEmpty(contentType) && contentType.contains("video");
+        final String DEFAULT_EXTENSION_FOR_VIDEO_THUMBNAILS = "jpeg";
+        String thumbnailExtension = isThumbnailForVideo ? DEFAULT_EXTENSION_FOR_VIDEO_THUMBNAILS : messageFileFormat;
+        return FileUtils.getName(message.getFileMetas().getName()) + message.getCreatedAtTime() + "." + thumbnailExtension;
+    }
+
+    public Bitmap downloadAndSaveThumbnailImage(Context context, Message message, int reqWidth, int reqHeight) {
         HttpURLConnection connection = null;
         try {
             Bitmap attachedImage = null;
@@ -121,12 +137,14 @@ public class FileClientService extends MobiComKitClientService {
             if (TextUtils.isEmpty(thumbnailUrl)) {
                 return null;
             }
-            String contentType = message.getFileMetas().getContentType();
+
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            // Todo get the file format from server and append
-            String imageName = FileUtils.getName(message.getFileMetas().getName()) + message.getCreatedAtTime() + "." + FileUtils.getFileFormat(message.getFileMetas().getName());
-            String imageLocalPath = getFilePath(imageName, context, message.getFileMetas().getContentType(), true).getAbsolutePath();
+
+            String contentType = message.getFileMetas().getContentType();
+            String imageName = getThumbnailFileNameForServerDownload(message);
+            String imageLocalPath = getFilePath(imageName, context, contentType, true).getAbsolutePath();
+
             if (imageLocalPath != null) {
                 try {
                     attachedImage = BitmapFactory.decodeFile(imageLocalPath);
@@ -134,6 +152,7 @@ public class FileClientService extends MobiComKitClientService {
                     Utils.printLog(context, TAG, "File not found on local storage: " + ex.getMessage());
                 }
             }
+
             if (attachedImage == null) {
                 connection = openHttpConnection(thumbnailUrl);
                 if (connection.getResponseCode() == 200) {
@@ -323,41 +342,64 @@ public class FileClientService extends MobiComKitClientService {
 
     }
 
-    public Bitmap createAndSaveVideoThumbnail(String filePath) {
-        String[] parts = filePath.split("/");
-        String videoThumbnailPath = "";
+    public String getThumbnailParentDir(String filePath) {
+        String[] parts = getParts(filePath);
         String thumbnailDir = "";
 
-        String videoFileName = parts[parts.length - 1].split("[.]")[0];
         for (int i = 0; i < parts.length - 1; i++) {
             thumbnailDir += (parts[i] + "/");
         }
-        thumbnailDir = thumbnailDir + "Thumbnails/";
-        File dir = new File(thumbnailDir);
+        thumbnailDir = thumbnailDir + ".Thumbnail/";
+        return thumbnailDir;
+    }
+
+    /**
+     * This path is supposed to be the same as the path where video thumbnails are downloaded.
+     * see {@link FileClientService#downloadAndSaveThumbnailImage(Context, Message, int, int)}
+     */
+    public String getThumbnailPath(String filePath) {
+        String thumbnailParentDir = getThumbnailParentDir(filePath);
+        File dir = new File(thumbnailParentDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        videoThumbnailPath = thumbnailDir + videoFileName + ".jpeg";
-        Bitmap videoThumbnail = null;
 
+        return thumbnailParentDir + getVideoThumbnailFileNameForLocalGeneration(filePath);
+    }
+
+    public Bitmap createThumbnailFileInLocalStorageAndReturnBitmap(String filePath) {
+        Bitmap videoThumbnail;
+        OutputStream fOut;
+        File file = new File(getThumbnailParentDir(filePath), getVideoThumbnailFileNameForLocalGeneration(filePath));
+        try {
+            file.createNewFile();
+            fOut = new FileOutputStream(file);
+            videoThumbnail = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
+            videoThumbnail.compress(Bitmap.CompressFormat.JPEG, 50, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return videoThumbnail;
+    }
+
+    /**
+     * This methods aims to save the video thumbnail in the same location where it will save downloaded thumbnails from the server.
+     * see {@link FileClientService#downloadAndSaveThumbnailImage(Context, Message, int, int)}
+     */
+    public Bitmap getOrCreateVideoThumbnail(String filePath) {
+        String videoThumbnailPath = getThumbnailPath(filePath);
+
+        Bitmap videoThumbnail;
         if (new File(videoThumbnailPath).exists()) {
             videoThumbnail = BitmapFactory.decodeFile(videoThumbnailPath);
         } else {
-            OutputStream fOut = null;
-            File file = new File(thumbnailDir, videoFileName + ".jpeg");
-            try {
-                file.createNewFile();
-                fOut = new FileOutputStream(file);
-                videoThumbnail = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
-                videoThumbnail.compress(Bitmap.CompressFormat.JPEG, 50, fOut);
-                fOut.flush();
-                fOut.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            videoThumbnail = createThumbnailFileInLocalStorageAndReturnBitmap(filePath);
         }
-        return videoThumbnail;
 
+        return videoThumbnail;
     }
 
     public String uploadProfileImage(String path) throws UnsupportedEncodingException {

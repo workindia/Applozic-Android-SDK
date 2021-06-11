@@ -23,6 +23,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.channel.service.ChannelService;
 import com.applozic.mobicomkit.contact.AppContactService;
 import com.applozic.mobicomkit.listners.AlConstantsHandler;
@@ -231,7 +232,7 @@ public class NotificationService {
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
                 if (fileMeta.getThumbnailBlobKey() != null) {
-                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    Bitmap bitmap = new FileClientService(context).downloadAndSaveThumbnailImage(context, message, 200, 200);
                     mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Throwable ex) {
@@ -297,7 +298,7 @@ public class NotificationService {
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
             notificationText = getText(3);
         } else {
-            notificationText = message.getMessage();
+            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, null).toString();
         }
         CharSequence messageBody;
         Contact messageContactDisplayName = contact != null ? contact : appContactService.getContactById(message.getTo());
@@ -381,7 +382,7 @@ public class NotificationService {
         } else if (message.hasAttachment() && TextUtils.isEmpty(message.getMessage())) {
             notificationText = getText(3);
         } else {
-            notificationText = message.getMessage();
+            notificationText = MentionHelper.getMessageSpannableStringForMentionsDisplay(context, message, false, null).toString();
         }
 
         Class activity = null;
@@ -433,7 +434,7 @@ public class NotificationService {
                 FileMeta fileMeta = message.getFileMetas();
                 HttpURLConnection httpConn = null;
                 if (fileMeta.getThumbnailBlobKey() != null) {
-                    Bitmap bitmap = new FileClientService(context).loadThumbnailImage(context, message, 200, 200);
+                    Bitmap bitmap = new FileClientService(context).downloadAndSaveThumbnailImage(context, message, 200, 200);
                     mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap));
                 }
             } catch (Exception ex) {

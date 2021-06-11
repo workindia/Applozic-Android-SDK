@@ -2,12 +2,10 @@ package com.applozic.mobicomkit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.text.TextUtils;
 
 import com.applozic.mobicomkit.api.account.register.RegistrationResponse;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -16,7 +14,7 @@ import com.applozic.mobicomkit.api.account.user.User;
 import com.applozic.mobicomkit.api.account.user.UserLoginTask;
 import com.applozic.mobicomkit.api.account.user.UserLogoutTask;
 import com.applozic.mobicomkit.api.authentication.AlAuthService;
-import com.applozic.mobicomkit.api.conversation.ApplozicMqttIntentService;
+import com.applozic.mobicomkit.api.conversation.ApplozicMqttWorker;
 import com.applozic.mobicomkit.api.notification.MobiComPushReceiver;
 import com.applozic.mobicomkit.api.notification.NotificationChannels;
 import com.applozic.mobicomkit.broadcast.ApplozicBroadcastReceiver;
@@ -123,11 +121,7 @@ public class Applozic {
 
     public static void disconnectPublish(Context context, String deviceKeyString, String userKeyString, boolean useEncrypted) {
         if (!TextUtils.isEmpty(userKeyString) && !TextUtils.isEmpty(deviceKeyString)) {
-            Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-            intent.putExtra(ApplozicMqttIntentService.USER_KEY_STRING, userKeyString);
-            intent.putExtra(ApplozicMqttIntentService.DEVICE_KEY_STRING, deviceKeyString);
-            intent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
-            ApplozicMqttIntentService.enqueueWork(context, intent);
+            ApplozicMqttWorker.enqueueWorkDisconnectPublish(context, deviceKeyString, userKeyString, useEncrypted);
         }
     }
 
@@ -169,58 +163,27 @@ public class Applozic {
     }
 
     public static void connectPublish(Context context, boolean useEncrypted) {
-        Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.SUBSCRIBE, true);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
-        ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
+        ApplozicMqttWorker.enqueueWorkSubscribeAndConnectPublish(context, useEncrypted);
     }
 
     public static void subscribeToSupportGroup(Context context, boolean useEncrypted) {
-        Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.CONNECT_TO_SUPPORT_GROUP_TOPIC, true);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
-        ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
+        ApplozicMqttWorker.enqueueWorkSubscribeToSupportGroup(context, useEncrypted);
     }
 
     public static void unSubscribeToSupportGroup(Context context, boolean useEncrypted) {
-        Intent subscribeIntent = new Intent(context, ApplozicMqttIntentService.class);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.DISCONNECT_FROM_SUPPORT_GROUP_TOPIC, true);
-        subscribeIntent.putExtra(ApplozicMqttIntentService.USE_ENCRYPTED_TOPIC, useEncrypted);
-        ApplozicMqttIntentService.enqueueWork(context, subscribeIntent);
+        ApplozicMqttWorker.enqueueWorkUnSubscribeToSupportGroup(context, useEncrypted);
     }
 
     public static void subscribeToTyping(Context context, Channel channel, Contact contact) {
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        if (channel != null) {
-            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-        } else if (contact != null) {
-            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-        }
-        intent.putExtra(ApplozicMqttIntentService.SUBSCRIBE_TO_TYPING, true);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+        ApplozicMqttWorker.enqueueWorkSubscribeToTyping(context, channel, contact);
     }
 
     public static void unSubscribeToTyping(Context context, Channel channel, Contact contact) {
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-        if (channel != null) {
-            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-        } else if (contact != null) {
-            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-        }
-        intent.putExtra(ApplozicMqttIntentService.UN_SUBSCRIBE_TO_TYPING, true);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+        ApplozicMqttWorker.enqueueWorkUnSubscribeToTyping(context, channel, contact);
     }
 
     public static void publishTypingStatus(Context context, Channel channel, Contact contact, boolean typingStarted) {
-        Intent intent = new Intent(context, ApplozicMqttIntentService.class);
-
-        if (channel != null) {
-            intent.putExtra(ApplozicMqttIntentService.CHANNEL, channel);
-        } else if (contact != null) {
-            intent.putExtra(ApplozicMqttIntentService.CONTACT, contact);
-        }
-        intent.putExtra(ApplozicMqttIntentService.TYPING, typingStarted);
-        ApplozicMqttIntentService.enqueueWork(context, intent);
+        ApplozicMqttWorker.enqueueWorkPublishTypingStatus(context, channel, contact, typingStarted);
     }
 
     @Deprecated

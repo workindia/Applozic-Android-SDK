@@ -1,6 +1,17 @@
 
 ## Changelog
 
+**Version  5.100.0** - Friday, 11 Jun 2021
+
+Features:fire::
+* Update to Android API Level 30 :tada:
+* Added Mentions support:grey_exclamation:
+* Migrate JobIntentService classes to WorkerManager
+* Video attachments will now show thumbnails
+
+Bugs/Fixes:hammer::
+* UI Kit: Sender cannot interact suggested replies and submit button rich message
+
 **Version  5.98** - Friday, 26 Feb 2021
 
 * Deletion of logged in user will now be detected and appropriate message will be displayed.
@@ -454,12 +465,6 @@ Bug fixes and performance improvement
 
 ```
  <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
-
- <service android:name="com.applozic.mobicomkit.api.people.UserIntentService"
-          android:exported="false" />
-
- <service android:name="com.applozic.mobicomkit.api.conversation.ConversationIntentService"
-           android:exported="false" />
 
 ```
 

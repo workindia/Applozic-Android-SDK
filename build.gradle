@@ -9,22 +9,17 @@ buildscript {
         jcenter()
         google()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath 'com.google.gms:google-services:4.3.4'
+        classpath 'com.android.tools.build:gradle:4.1.3'
+        classpath 'com.google.gms:google-services:4.3.8'
         //Release
         /*
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.15.2"
         */
-
-        /*classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
-          classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
-          classpath 'com.github.dcendents:android-maven-plugin:1.2'
-          classpath 'com.novoda:bintray-release:0.3.4'*/
-// NOTE: Do not place your application dependencies here; they belong
-// in the individual module build.gradle files
+        //NOTE: Do not place your application dependencies here; they belong
+        //in the individual module build.gradle files
     }
-
 }
 
 allprojects {
@@ -44,18 +39,10 @@ allprojects {
     }
 }
 
-/*ext {
-    compileSdkVersion = 29
-    targetSdkVersion = 29
-    glideVersion = "4.11.0"
-    firebaseVersion = "21.0.1"
-    googleMapsVersion = "17.0.0"
-    locationServicesVersion = "17.1.0"
-    constraintLayoutVersion = "2.0.4"
-    circleImageViewVersion = "3.1.0"
-    imageCropperVersion = "2.8.0"
-    googleGsonVersion = "2.8.6"
-}*/
+ext {
+    compileSdkVersion = 30
+    targetSdkVersion = 30
+}
 
 //Release
 /*

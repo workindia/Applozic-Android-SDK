@@ -115,6 +115,8 @@ public class AlCustomizationSettings extends JsonMarker {
     private boolean hideGroupSubtitle = false;
     private String pinnedContact;
     private boolean showSenderNameForGroupsInConversationList;
+    private String conversationMentionSpanColor;
+    private boolean disableMentions = false;
 
     private boolean launchChatFromProfilePicOrName = false;
 
@@ -701,6 +703,14 @@ public class AlCustomizationSettings extends JsonMarker {
 
     public void setDateFormatCustomization(Map<String, String> dateFormatCustomization) {
         this.dateFormatCustomization = dateFormatCustomization;
+    }
+
+    public String getConversationMentionSpanColor() {
+        return conversationMentionSpanColor;
+    }
+
+    public boolean isDisableMentions() {
+        return disableMentions;
     }
 
     @Override

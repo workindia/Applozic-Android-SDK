@@ -18,7 +18,7 @@ import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
 import com.applozic.mobicomkit.api.conversation.service.ConversationService;
-import com.applozic.mobicomkit.api.people.UserIntentService;
+import com.applozic.mobicomkit.api.people.UserWorker;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.cache.MessageSearchCache;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -101,13 +101,19 @@ public class MobiComConversationService {
         this.baseContactService = appContactService;
     }
 
-    public void sendMessage(Message message) {
-        sendMessage(message, null, MessageIntentService.class);
-    }
+    public void sendMessageWithHandler(Message message, final MediaUploadProgressHandler progressHandler) {
+        if (message == null) {
+            return;
+        }
 
-    public void sendMessage(Message message, final MediaUploadProgressHandler progressHandler, Class messageIntentClass) {
-        Intent intent = new Intent(context, messageIntentClass);
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
+        if (!message.hasAttachment()) {
+            ApplozicException exception = new ApplozicException("Message does not have any attachment.");
+            if (progressHandler != null) {
+                progressHandler.onUploadStarted(exception, null);
+                progressHandler.onProgressUpdate(0, exception, null);
+                progressHandler.onCancelled(exception, null);
+            }
+        }
 
         Handler handler = new Handler(new Handler.Callback() {
             @Override
@@ -117,38 +123,15 @@ public class MobiComConversationService {
             }
         });
 
-        MessageIntentService.enqueueWork(context, intent, handler);
+        MessageWorker.enqueueWork(context, message, null, handler);
     }
 
-    public void sendMessage(Message message, Class messageIntentClass, String userDisplayName) {
-        Intent intent = new Intent(context, messageIntentClass);
-        intent.putExtra(MobiComKitConstants.MESSAGE_JSON_INTENT, GsonUtils.getJsonFromObject(message, Message.class));
-        if (!TextUtils.isEmpty(userDisplayName)) {
-            intent.putExtra(MobiComKitConstants.DISPLAY_NAME, userDisplayName);
-        }
-        MessageIntentService.enqueueWork(context, intent, null);
+    public void sendMessage(Message message, String userDisplayName) {
+        MessageWorker.enqueueWork(context, message, userDisplayName, null);
     }
 
-    public void sendMessage(Message message, Class messageIntentClass) {
-        sendMessage(message, messageIntentClass, null);
-    }
-
-    public void sendMessage(Message message, MediaUploadProgressHandler handler) {
-        if (message == null) {
-            return;
-        }
-
-        ApplozicException e = null;
-
-        if (!message.hasAttachment()) {
-            e = new ApplozicException("Message does not have any attachment");
-            if (handler != null) {
-                handler.onUploadStarted(e, null);
-                handler.onProgressUpdate(0, e, null);
-                handler.onCancelled(e, null);
-            }
-        }
-        sendMessage(message, handler, MessageIntentService.class);
+    public void sendMessage(Message message) {
+        sendMessage(message, null);
     }
 
     public List<Message> getLatestMessagesGroupByPeople() {
@@ -807,13 +790,22 @@ public class MobiComConversationService {
                 unreadCount = channel.getUnreadCount();
             }
 
-            Intent intent = new Intent(context, UserIntentService.class);
-            intent.putExtra(UserIntentService.CONTACT, contact);
-            intent.putExtra(UserIntentService.CHANNEL, channel);
-            intent.putExtra(UserIntentService.UNREAD_COUNT, unreadCount);
-            UserIntentService.enqueueWork(context, intent);
-        } catch (Exception e) {
+            UserWorker.enqueueWork(context, null, contact, channel, null, unreadCount, false);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
+    }
+
+    public void readServerAndLocal(Contact contact, Channel channel, String pairedMessageKeyString) {
+        UserWorker.enqueueWork(context, null, contact, channel, pairedMessageKeyString, 0, false);
+    }
+
+    public void updateLastSeenAtForAllUsers() {
+        UserWorker.enqueueWork(context, null, null, null, null, 0, true);
+    }
+
+    public void syncUserDetail(String userId) {
+        UserWorker.enqueueWork(context, userId, null, null, null, 0, false);
     }
 
     private void handleState(android.os.Message message, MediaUploadProgressHandler progressHandler) {
