@@ -8,6 +8,7 @@ Features:fire::
 * Added Mentions support:grey_exclamation:
 * Migrate JobIntentService classes to WorkerManager
 * Video attachments will now show thumbnails
+
 Bugs/Fixes:hammer::
 * UI Kit: Sender cannot interact suggested replies and submit button rich message
 
