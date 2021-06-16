@@ -34,6 +34,9 @@ allprojects {
             url 'https://maven.google.com'
             // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
         }
+        maven {
+            url "http://giphy.bintray.com/giphy-sdk"
+        }
         jcenter()
         google()
     }

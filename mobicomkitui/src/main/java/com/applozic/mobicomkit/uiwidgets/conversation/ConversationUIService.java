@@ -29,6 +29,7 @@ import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.account.user.RegisteredUsersAsyncTask;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
+import com.applozic.mobicomkit.api.attachment.GifDownloadAsyncTask;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.MobiComConversationService;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -60,6 +61,8 @@ import com.applozic.mobicommons.people.channel.ChannelUtils;
 import com.applozic.mobicommons.people.channel.Conversation;
 import com.applozic.mobicommons.people.contact.Contact;
 import com.applozic.mobicommons.task.AlTask;
+import com.giphy.sdk.core.models.Image;
+import com.giphy.sdk.core.models.Media;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -190,6 +193,78 @@ public class ConversationUIService {
                 }
             }
         });
+    }
+
+    public void saveGifToInternalStorageAndSendGifMessage(String url) {
+        if (fragmentActivity == null) {
+            return;
+        }
+
+        Log.d(TAG, "Preparing to send gif message for URL: " + url);
+
+        ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, fragmentActivity.getString(R.string.please_wait), fragmentActivity.getString(R.string.downloading_gif));
+
+        AlTask.execute(new GifDownloadAsyncTask(fragmentActivity, url, new GifDownloadAsyncTask.GifDownloadCallback() {
+            @Override
+            public void onGifDownloaded(String localPath) {
+                if (fragmentActivity == null) {
+                    return;
+                }
+
+                if (TextUtils.isEmpty(localPath)) {
+                    return;
+                }
+
+                ArrayList<String> filePaths = new ArrayList<>();
+                filePaths.add(localPath);
+
+                if (getConversationFragment() != null) {
+                    Log.d(TAG, "Gif downloaded and sending message.");
+                    getConversationFragment().sendMessage(Utils.EMPTY_STRING, Message.ContentType.ATTACHMENT.getValue(), new ArrayList<>(filePaths));
+                }
+
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFailed() {
+                if (fragmentActivity == null) {
+                    return;
+                }
+
+                Log.d(TAG, "Gif download failed.");
+                Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.gif_message_send_failed), Toast.LENGTH_LONG).show();
+
+                progressDialog.dismiss();
+            }
+        }));
+    }
+
+    public static String getGifUrlFromMedia(Media media) {
+        String gifUrl = null;
+
+        Image downsizedGif = media.getImages().getDownsized();
+        if (downsizedGif != null) {
+            gifUrl = downsizedGif.getGifUrl();
+        }
+
+        Image originalGif = media.getImages().getOriginal();
+        if (!TextUtils.isEmpty(gifUrl) && originalGif != null) {
+            gifUrl = originalGif.getGifUrl();
+        }
+
+        return gifUrl;
+    }
+
+    public void sendGifMessageFromGifMedia(Media media) {
+        String gifUrl = getGifUrlFromMedia(media);
+
+        if (TextUtils.isEmpty(gifUrl)) {
+            Log.d(TAG, "Gif URL empty. Can't retrieve gif.");
+            return;
+        }
+
+        saveGifToInternalStorageAndSendGifMessage(gifUrl);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {

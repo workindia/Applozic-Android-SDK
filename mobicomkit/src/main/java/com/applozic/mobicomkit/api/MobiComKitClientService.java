@@ -29,6 +29,7 @@ public class MobiComKitClientService {
     public static String APPLICATION_KEY_HEADER = "Application-Key";
     public static String APP_MOUDLE_NAME_KEY_HEADER = "App-Module-Name";
     public static String APPLICATION_KEY_HEADER_VALUE_METADATA = "com.applozic.application.key";
+    public static String GIPHY_API_METADATA_KEY = "com.giphy.api.key";
     public static String APP_MODULE_NAME_META_DATA_KEY = "com.applozic.module.key";
     protected Context context;
     protected String DEFAULT_URL = "https://apps.applozic.com";
