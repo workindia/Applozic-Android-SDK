@@ -366,6 +366,7 @@
         <item>फ़ाइल</item>
         <item>ऑडियो</item>
         <item>वीडियो</item>
+        <item>गिफ़्</item>
     </string-array>
 
     <string-array name="multimediaOptions_without_price_key">
@@ -374,6 +375,7 @@
         <item>:फ़ाइल</item>
         <item>:ऑडियो</item>
         <item>:वीडियो</item>
+        <item>:गिफ़्</item>
     </string-array>
 
     <string-array name="multimediaOptionIcons_without_price">
@@ -382,6 +384,7 @@
         <item>&#xf0c6;</item>
         <item>&#xf130;</item>
         <item>&#xf03d;</item>
+        <item>&#xe908;</item>
     </string-array>
 
     <array name="alphabet_color">

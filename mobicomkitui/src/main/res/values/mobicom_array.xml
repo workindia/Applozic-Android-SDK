@@ -86,6 +86,7 @@
         <item>File</item>
         <item>Audio</item>
         <item>Video</item>
+        <item>Gif</item>
     </string-array>
 
     <string-array name="multimediaOptions_without_price_key">
@@ -94,6 +95,7 @@
         <item>:file</item>
         <item>:audio</item>
         <item>:video</item>
+        <item>:gif</item>
     </string-array>
 
     <string-array name="multimediaOptionIcons_without_price">
@@ -102,6 +104,7 @@
         <item>&#xf0c6;</item>
         <item>&#xf130;</item>
         <item>&#xf03d;</item>
+        <item>&#xe908;</item>
     </string-array>
 
     <string-array name="notification_texts">

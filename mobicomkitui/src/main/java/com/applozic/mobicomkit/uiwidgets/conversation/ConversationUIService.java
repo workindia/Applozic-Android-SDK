@@ -228,14 +228,17 @@ public class ConversationUIService {
 
             @Override
             public void onFailed() {
+                if (progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+
+                Log.d(TAG, "Gif download failed.");
+
                 if (fragmentActivity == null) {
                     return;
                 }
 
-                Log.d(TAG, "Gif download failed.");
                 Toast.makeText(fragmentActivity, fragmentActivity.getString(R.string.gif_message_send_failed), Toast.LENGTH_LONG).show();
-
-                progressDialog.dismiss();
             }
         }));
     }
