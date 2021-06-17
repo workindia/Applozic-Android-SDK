@@ -22,14 +22,6 @@ buildscript {
     }
 }
 
-rootProject.allprojects {
-    repositories {
-        maven {
-            url "http://giphy.bintray.com/giphy-sdk"
-        }
-    }
-}
-
 allprojects {
     //Release
     /*

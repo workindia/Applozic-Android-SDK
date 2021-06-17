@@ -1,5 +1,13 @@
 apply plugin: 'com.android.library'
 
+rootProject.allprojects {
+    repositories {
+        maven {
+            url "http://giphy.bintray.com/giphy-sdk"
+        }
+    }
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
