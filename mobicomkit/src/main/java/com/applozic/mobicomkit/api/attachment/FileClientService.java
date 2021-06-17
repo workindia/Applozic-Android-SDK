@@ -280,10 +280,12 @@ public class FileClientService extends MobiComKitClientService {
             return e.toString();
         } finally {
             try {
-                if (output != null)
+                if (output != null) {
                     output.close();
-                if (input != null)
+                }
+                if (input != null) {
                     input.close();
+                }
             } catch (IOException ignored) { }
 
             if (connection != null)

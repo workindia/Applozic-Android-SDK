@@ -101,11 +101,9 @@ import com.applozic.mobicommons.task.AlAsyncTask;
 import com.applozic.mobicommons.task.AlTask;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.giphy.sdk.core.models.Media;
 import com.giphy.sdk.ui.GPHContentType;
-import com.giphy.sdk.ui.Giphy;
-import com.giphy.sdk.ui.GiphyFrescoHandler;
+import com.giphy.sdk.ui.GPHSettings;
 import com.giphy.sdk.ui.views.GiphyDialogFragment;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -125,8 +123,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import okhttp3.OkHttpClient;
 
 /**
  * Created by devashish on 6/25/2015.
@@ -1229,15 +1225,11 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             return;
         }
 
-        Giphy.INSTANCE.configure(this, giphyApiKey, false, new GiphyFrescoHandler() {
-            @Override
-            public void handle(OkHttpClient.@NotNull Builder builder) { }
+        GPHSettings gphSettings = new GPHSettings();
+        gphSettings.setMediaTypeConfig(new GPHContentType[] {GPHContentType.gif, GPHContentType.sticker});
 
-            @Override
-            public void handle(ImagePipelineConfig.@NotNull Builder builder) { }
-        });
+        GiphyDialogFragment giphyDialogFragment = GiphyDialogFragment.Companion.newInstance(gphSettings, giphyApiKey, false);
 
-        GiphyDialogFragment giphyDialogFragment = new GiphyDialogFragment();
         giphyDialogFragment.setGifSelectionListener(new GiphyDialogFragment.GifSelectionListener() {
             @Override
             public void onGifSelected(@NotNull Media media, @Nullable String s, @NotNull GPHContentType gphContentType) {
