@@ -3,6 +3,8 @@ package com.applozic.mobicomkit.api.account.user;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.notification.MuteUserResponse;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
@@ -55,6 +57,16 @@ public class UserService {
             userService = new UserService(ApplozicService.getContext(context));
         }
         return userService;
+    }
+
+    @VisibleForTesting
+    public void setBaseContactService(BaseContactService baseContactService) {
+        this.baseContactService = baseContactService;
+    }
+
+    @VisibleForTesting
+    public void setUserClientService(UserClientService userClientService) {
+        this.userClientService = userClientService;
     }
 
     public synchronized void processSyncUserBlock() {
