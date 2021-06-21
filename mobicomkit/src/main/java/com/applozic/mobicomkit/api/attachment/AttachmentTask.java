@@ -22,8 +22,6 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.applozic.mobicomkit.api.conversation.Message;
-
-import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
 import com.applozic.mobicommons.commons.image.PhotoDecodeRunnable;
 import com.applozic.mobicommons.commons.image.PhotoDecodeRunnable.TaskRunnableDecodeMethods;
@@ -87,6 +85,8 @@ public class AttachmentTask implements
     private MediaDownloadProgressHandler mediaDownloadProgressHandler;
     private int progress;
 
+    private GifDownloadListener gifDownloadListener;
+
     /**
      * Creates an PhotoTask containing a download object and a decoder object.
      */
@@ -117,6 +117,9 @@ public class AttachmentTask implements
             message = photoView.getMessage();
             // Instantiates the weak reference to the incoming view
             setAttachementView(photoView);
+
+            //callback listener that will be used to render gif using Glide
+            gifDownloadListener = photoView.getGifDownloadListener();
 
             // Sets the cache flag to the input argument
             mCacheEnabled = cacheFlag;
@@ -231,6 +234,10 @@ public class AttachmentTask implements
 
     public int getProgress() {
         return progress;
+    }
+
+    public GifDownloadListener getGifDownloadListener() {
+        return gifDownloadListener;
     }
 
     @Override
@@ -401,5 +408,9 @@ public class AttachmentTask implements
 
     public Message getMessageDetail() {
         return null;
+    }
+
+    public interface GifDownloadListener {
+        void onGifDownloaded(AttachmentTask attachmentTask);
     }
 }

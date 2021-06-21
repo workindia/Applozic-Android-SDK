@@ -93,6 +93,9 @@
             android:name="com.applozic.application.key"
             android:value="@string/application_key" />
         <meta-data
+            android:name="com.giphy.api.key"
+            android:value="" />
+        <meta-data
             android:name="com.applozic.server.url"
             android:value="@string/default_server_url" />
         <meta-data

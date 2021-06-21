@@ -164,6 +164,7 @@
     <string name="al_audio">:audio</string>
     <string name="al_camera">:camera</string>
     <string name="al_video">:video</string>
+    <string name="al_gif">:gif</string>
     <string name="al_contact">:contact</string>
     <string name="al_price">:price</string>
     <string name="current_location">Current Location</string>
@@ -239,4 +240,8 @@
     <string name="no_description_tap_to_add">No Description. Tap to add.</string>
     <string name="admin_only_messaged_allowed">Only admin is allowed to send messages.</string>
     <string name="opening_link">Opening link…</string>
+    <string name="gif_message_send_failed">Failed to send gif.</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="sending_gif">Sending gif…</string>
+    <string name="gif_not_enabled">Gif not enabled…</string>
 </resources>
