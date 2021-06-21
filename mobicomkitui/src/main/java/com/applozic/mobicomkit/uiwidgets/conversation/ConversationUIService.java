@@ -202,7 +202,7 @@ public class ConversationUIService {
 
         Log.d(TAG, "Preparing to send gif message for URL: " + url);
 
-        ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, fragmentActivity.getString(R.string.please_wait), fragmentActivity.getString(R.string.downloading_gif));
+        ProgressDialog progressDialog = ProgressDialog.show(fragmentActivity, fragmentActivity.getString(R.string.please_wait), fragmentActivity.getString(R.string.sending_gif));
 
         AlTask.execute(new GifDownloadAsyncTask(fragmentActivity, url, new GifDownloadAsyncTask.GifDownloadCallback() {
             @Override

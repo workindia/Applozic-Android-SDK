@@ -241,6 +241,6 @@
     <string name="admin_only_messaged_allowed">Only admin is allowed to send messages.</string>
     <string name="gif_message_send_failed">Failed to send gif.</string>
     <string name="please_wait">Please wait…</string>
-    <string name="downloading_gif">Downloading gif…</string>
+    <string name="sending_gif">Sending gif…</string>
     <string name="gif_not_enabled">Gif not enabled…</string>
 </resources>
