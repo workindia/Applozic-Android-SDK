@@ -47,8 +47,11 @@ public class AlLog {
             case ERROR:
                 Log.e(logTag, alLog.logMessage, alLog.logThrowable);
                 break;
-            default:
+            case DEBUG:
                 Log.d(logTag, alLog.logMessage, alLog.logThrowable);
+                break;
+            default:
+                Log.i(logTag, alLog.logMessage, alLog.logThrowable);
         }
     }
 
@@ -60,6 +63,16 @@ public class AlLog {
 
     public static AlLog i(@NonNull String logContext, @Nullable String logSubContext, @NonNull String logMessage) {
         return i(logContext, logSubContext, logMessage, null);
+    }
+
+    public static AlLog d(@NonNull String logContext, @Nullable String logSubContext, @NonNull String logMessage, Throwable logThrowable) {
+        AlLog alLog = new AlLog(logContext, logSubContext, logMessage, logThrowable, AlLogType.DEBUG);
+        printLog(alLog);
+        return alLog;
+    }
+
+    public static AlLog d(@NonNull String logContext, @Nullable String logSubContext, @NonNull String logMessage) {
+        return d(logContext, logSubContext, logMessage, null);
     }
 
     public static AlLog w(@NonNull String logContext, @Nullable String logSubContext, @NonNull String logMessage, Throwable logThrowable) {
@@ -109,7 +122,7 @@ public class AlLog {
     }
 
     public enum AlLogType {
-        INFO("Info"), ERROR("Error"), WARN("Warning");
+        INFO("Info"), DEBUG("Debug"), ERROR("Error"), WARN("Warning");
 
         public final String stringRepresentation;
 
