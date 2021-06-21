@@ -239,6 +239,7 @@
     <string name="description_title">Description</string>
     <string name="no_description_tap_to_add">No Description. Tap to add.</string>
     <string name="admin_only_messaged_allowed">Only admin is allowed to send messages.</string>
+    <string name="opening_link">Opening link…</string>
     <string name="gif_message_send_failed">Failed to send gif.</string>
     <string name="please_wait">Please wait…</string>
     <string name="sending_gif">Sending gif…</string>
