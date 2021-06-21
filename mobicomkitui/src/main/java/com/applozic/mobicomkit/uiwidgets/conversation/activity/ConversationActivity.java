@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -48,6 +49,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.ApplozicClient;
+import com.applozic.mobicomkit.api.MobiComKitClientService;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.register.RegisterUserClientService;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
@@ -99,6 +101,10 @@ import com.applozic.mobicommons.task.AlAsyncTask;
 import com.applozic.mobicommons.task.AlTask;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.giphy.sdk.core.models.Media;
+import com.giphy.sdk.ui.GPHContentType;
+import com.giphy.sdk.ui.GPHSettings;
+import com.giphy.sdk.ui.views.GiphyDialogFragment;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -108,6 +114,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -115,7 +123,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 
 /**
  * Created by devashish on 6/25/2015.
@@ -1207,6 +1214,40 @@ public class ConversationActivity extends AppCompatActivity implements MessageCo
             Intent intentPick = new Intent(this, MobiComAttachmentSelectorActivity.class);
             startActivityForResult(intentPick, MultimediaOptionFragment.REQUEST_MULTI_ATTCAHMENT);
         }
+    }
+
+    public void processGif() {
+        final String GIPHY_DIALOG_TAG = "GIPHY_DIALOG_TAG";
+        String giphyApiKey = Utils.getMetaDataValue(ApplozicService.getContext(this), MobiComKitClientService.GIPHY_API_METADATA_KEY);
+
+        if (TextUtils.isEmpty(giphyApiKey)) {
+            Toast.makeText(this, getString(R.string.gif_not_enabled), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        GPHSettings gphSettings = new GPHSettings();
+        gphSettings.setMediaTypeConfig(new GPHContentType[] {GPHContentType.gif, GPHContentType.sticker});
+
+        GiphyDialogFragment giphyDialogFragment = GiphyDialogFragment.Companion.newInstance(gphSettings, giphyApiKey, false);
+
+        giphyDialogFragment.setGifSelectionListener(new GiphyDialogFragment.GifSelectionListener() {
+            @Override
+            public void onGifSelected(@NotNull Media media, @Nullable String s, @NotNull GPHContentType gphContentType) {
+                if (conversationUIService == null) {
+                    return;
+                }
+
+                conversationUIService.sendGifMessageFromGifMedia(media);
+            }
+
+            @Override
+            public void onDismissed(@NotNull GPHContentType gphContentType) { }
+
+            @Override
+            public void didSearchTerm(@NotNull String s) { }
+        });
+
+        giphyDialogFragment.show(getSupportFragmentManager(), GIPHY_DIALOG_TAG);
     }
 
     public void showVideoCapture() {

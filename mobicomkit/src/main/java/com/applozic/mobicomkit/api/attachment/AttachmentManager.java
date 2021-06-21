@@ -22,15 +22,18 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.collection.LruCache;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.collection.LruCache;
+
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.exception.ApplozicException;
 import com.applozic.mobicomkit.listners.MediaDownloadProgressHandler;
+import com.applozic.mobicommons.commons.image.PhotoDecodeRunnable;
+import com.applozic.mobicommons.file.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -303,7 +306,17 @@ public class AttachmentManager {
                                 localView.getProressBar().setVisibility(View.GONE);
                             }
                             BroadcastService.sendMessageUpdateBroadcast(localView.getContext(), BroadcastService.INTENT_ACTIONS.MESSAGE_ATTACHMENT_DOWNLOAD_DONE.toString(), localView.getMessage());
-                            localView.setImageBitmap(attachmentTask.getImage());
+
+                            String mimeType = FileUtils.getMimeType(attachmentTask.getLocalPath());
+                            AttachmentTask.GifDownloadListener gifDownloadListener = attachmentTask.getGifDownloadListener();
+                            if (!TextUtils.isEmpty(mimeType) && mimeType.contains("gif")) {
+                                if (gifDownloadListener != null) {
+                                    gifDownloadListener.onGifDownloaded(attachmentTask);
+                                }
+                            } else {
+                                localView.setImageBitmap(attachmentTask.getImage());
+                            }
+
                             recycleTask(attachmentTask);
                             break;
                         // The download failed, sets the background color to dark red
@@ -654,7 +667,15 @@ public class AttachmentManager {
                  *
                  */
                 if (photoTask.getPhotoView() != null && photoTask.getContentType() != null && photoTask.getContentType().contains("image")) {
-                    mDecodeThreadPool.execute(photoTask.getPhotoDecodeRunnable());
+                    String mimeType = FileUtils.getMimeType(photoTask.getLocalPath());
+                    if (!TextUtils.isEmpty(mimeType) && mimeType.contains("gif")) {
+                        //no in-house bitmap decode required for gifs
+                        //they will be loaded with Glide
+                        photoTask.handleDecodeState(PhotoDecodeRunnable.DECODE_STATE_STARTED);
+                        photoTask.handleDecodeState(PhotoDecodeRunnable.DECODE_STATE_COMPLETED);
+                    } else {
+                        mDecodeThreadPool.execute(photoTask.getPhotoDecodeRunnable());
+                    }
                 } else {
                     //We need not to cache the Data here ..as we have nothing to load
                     // ...directly sending TASK complete message is enough
