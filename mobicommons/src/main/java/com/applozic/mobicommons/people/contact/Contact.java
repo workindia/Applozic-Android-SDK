@@ -17,6 +17,7 @@ import java.util.TimeZone;
  * @author devashish
  */
 public class Contact extends JsonMarker {
+    private static final long serialVersionUID = 815092670467969086L;
 
     public static final String R_DRAWABLE = "R.drawable";
     public static final String DISABLE_CHAT_WITH_USER = "DISABLE_CHAT_WITH_USER";
