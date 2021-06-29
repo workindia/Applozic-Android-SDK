@@ -1,10 +1,10 @@
 package com.applozic.mobicomkit.uiwidgets.conversation;
 
-import android.net.Uri;
-import androidx.fragment.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity;
@@ -112,6 +112,8 @@ public class MultimediaOptionsGridView {
                     }
                 });
             }
+        } else if (key.equals(context.getString(R.string.al_gif))) {
+            ((ConversationActivity) context).processGif();
         } else if (key.equals(context.getString(R.string.al_price))) {
             new ConversationUIService(context).sendPriceMessage();
         }

@@ -25,6 +25,7 @@ import com.applozic.mobicomkit.listners.AlLoginHandler;
 import com.applozic.mobicomkit.listners.AlLogoutHandler;
 import com.applozic.mobicomkit.listners.AlPushNotificationHandler;
 import com.applozic.mobicomkit.listners.ApplozicUIListener;
+import com.applozic.mobicommons.AlLog;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.data.AlPrefSettings;
@@ -48,6 +49,7 @@ public class Applozic {
     private SharedPreferences sharedPreferences;
     private Context context;
     private ApplozicBroadcastReceiver applozicBroadcastReceiver;
+    private AlLog.AlLoggerListener alLoggerListener;
 
     private Applozic(Context context) {
         this.context = ApplozicService.getContext(context);
@@ -65,6 +67,10 @@ public class Applozic {
             applozic = new Applozic(ApplozicService.getContext(context));
         }
         return applozic;
+    }
+
+    public void setAlLoggerListener(AlLog.AlLoggerListener alLoggerListener) {
+        this.alLoggerListener = alLoggerListener;
     }
 
     public void setGeoApiKey(String geoApiKey) {
@@ -259,6 +265,41 @@ public class Applozic {
         registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), handler);
     }
 
+    /**
+     * Logs the given info message to the console.
+     *
+     * <p>if a {@link com.applozic.mobicommons.AlLog.AlLoggerListener} listener has been
+     * set, {@link com.applozic.mobicommons.AlLog.AlLoggerListener#onLogged(AlLog)} will be called
+     * and a corresponding {@link AlLog} object will be passed to it.</p>
+     *
+     * @param tag The log tag.
+     * @param message The log message.
+     */
+    public void logInfo(String tag, String message) {
+        AlLog alLog = AlLog.i(tag, null, message);
+
+        if (alLoggerListener != null) {
+            alLoggerListener.onLogged(alLog);
+        }
+    }
+
+    /**
+     * Logs the given error message to the console.
+     *
+     * <p>if a {@link com.applozic.mobicommons.AlLog.AlLoggerListener} listener has been
+     * set, {@link com.applozic.mobicommons.AlLog.AlLoggerListener#onLogged(AlLog)} will be called
+     * and a corresponding {@link AlLog} object will be passed to it.</p>
+     *
+     * @param tag The log tag.
+     * @param message The log message.
+     */
+    public void logError(String tag, String message, Throwable throwable) {
+        AlLog alLog = AlLog.e(tag, null, message, throwable);
+
+        if (alLoggerListener != null) {
+            alLoggerListener.onLogged(alLog);
+        }
+    }
 
     @Deprecated
     public void registerUIListener(ApplozicUIListener applozicUIListener) {

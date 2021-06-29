@@ -10,6 +10,9 @@ import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.listners.AlCallback;
@@ -112,14 +115,10 @@ public class AlLinkPreview {
         urlLoadLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openUrl(getValidUrl(message));
+                Toast.makeText(context, context.getString(R.string.opening_link), Toast.LENGTH_SHORT).show();
+                AlTask.execute(new OpenLinkTask(context, message));
             }
         });
-    }
-
-    public void openUrl(String url) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        context.startActivity(browserIntent);
     }
 
     private void toggleImageOnlyVisibility(boolean showImageOnly) {
@@ -211,6 +210,39 @@ public class AlLinkPreview {
                 }
             }
             super.onPostExecute(urlMetaModel);
+        }
+    }
+
+    public static class OpenLinkTask extends AlAsyncTask<Void, String> {
+        private final Message message;
+        private final WeakReference<Context> contextWeakReference;
+
+        OpenLinkTask(Context context, Message message) {
+            this.message = message;
+            contextWeakReference = new WeakReference<>(context);
+        }
+
+        public void openUrl(@Nullable String url) {
+            if (TextUtils.isEmpty(url) || contextWeakReference.get() == null) {
+                return;
+            }
+
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            contextWeakReference.get().startActivity(browserIntent);
+        }
+
+        @Override
+        protected String doInBackground() throws Exception {
+            if (message == null) {
+                return null;
+            }
+
+            return AlLinkPreview.getValidUrl(message);
+        }
+
+        @Override
+        protected void onPostExecute(String validUrl) {
+            openUrl(validUrl);
         }
     }
 
@@ -336,6 +368,7 @@ public class AlLinkPreview {
         return conn;
     }
 
+    //run this in background thread
     private static String getValidUrl(Message message) {
         String url = message.getFirstUrl();
         if (!TextUtils.isEmpty(url) && !(url.regionMatches(true, 0, AlRegexHelper.HTTP_PROTOCOL, 0, AlRegexHelper.HTTP_PROTOCOL.length()) || url.regionMatches(true, 0, AlRegexHelper.HTTPS_PROTOCOL, 0, AlRegexHelper.HTTPS_PROTOCOL.length()))) {
