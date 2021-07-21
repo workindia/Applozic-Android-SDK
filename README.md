@@ -40,346 +40,186 @@ exact solutions.
 ## Table of Contents :beginner:
 
 * [Quick Start](#quickstart)
-   * [Setting Up Android Studio for new project](#setting-android-studio)
-   * [Integrating Sample App](sample-app)
+   * [Prerequisites](#prerequisites)
+   * [Integrating the Applozic SDK](#integration)
+   * [Setting up the SDK](#setting-up)
+   * [Authentication](#authentication)
+   * [Sending a message](#sending-message)
 * [Announcements](#announcements)
 * [Roadmap](#roadmap)
 * [Features](#feature)
 * [About](#about)
 * [License](#license)
 
-
-## Prerequisites :crystal_ball:
-
-:one: [Android Studio](https://developer.android.com/studio) (latest version recommended)<br>
-:two: ```Android Device | Emulator``` with Android Version 6.0+.<br>
-:three: [Sign-Up](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) or Login to get your Applozic's [API/Application Key](https://console.applozic.com/settings/install). <br>
-
 <a name="quickstart"></a>
 ## Quick Start :rocket:
 
-Before getting started with installation. We recommend to go through some basic documentation for [Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android) :memo: <br>
+<a name="prerequisites"></a>
+## Step 0: Before we start integrating the SDK, there are some tasks we need to do :crystal_ball:
 
-<a name="setting-android-studio"></a>
-### Setting up Android Studio
+### Sign up to Applozic
 
-* Create a new project using **File ➙ New Project** on the top right of application<br>
-* Rename the project as per your preference (we will name it as **applozic-first-app**)
+[Sign up](https://www.applozic.com/signup.html?utm_source=github&utm_medium=readme&utm_campaign=android) to the Applozic Dashboard and [get your application key](https://console.applozic.com/settings/install). Keep this handy.
 
-<a name="sample-app"></a>
-### Step 1: Adding in app build.gradle:      
+### Create a tutorial project
 
-* Make sure you open your app's build.gradle (*hint: Gradle Scripts ➙ build.grade(Module: \<your-app-name>.app)*) add the below line in **```dependencies{}```**.
+**1:** Install and open [Android Studio](https://developer.android.com/studio) and create a new project. Choose an empty activity.
 
-```bash
-implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.101.0' 
-```
-
-**Note: Versions from *v5.99.0* and onwards will be hosted at Jfrog Artifactory.**
-
-Add the following repo to you project level *build.gradle* inside *allProjects { repositories { ... }}*:
-```bash
-maven {
-    url 'https://applozic.jfrog.io/artifactory/applozic-android-sdk'
-}
-```
-
-Older versions can still be consumed from Jcenter.
+<img align="middle" src="https://user-images.githubusercontent.com/73516112/126483090-0362c713-d89c-42ab-ab57-ba541696260d.png" width="600"/>
 
 
-* Add the below code in your gradle **```android{}```** target:      
+**2:**  Fill in the project details.
+- Keep the minimum SDK version 21 or higher
+- Do not use the legacy support library. AndroidX is required.
+It should look like this:
 
-```java
-        packagingOptions {           
-           exclude 'META-INF/DEPENDENCIES'      
-           exclude 'META-INF/NOTICE'         
-           exclude 'META-INF/LICENSE'      
-           exclude 'META-INF/LICENSE.txt'    
-           exclude 'META-INF/NOTICE.txt' 
-           exclude 'META-INF/ECLIPSE_.SF'
-           exclude 'META-INF/ECLIPSE_.RSA'
-         }    
-```
+<img align="middle" src="https://user-images.githubusercontent.com/73516112/126483366-1bdf42e1-97df-4f84-bde6-21b8f98ebda1.png" width="600"/>
 
-### Step 2: Add Activities, Services and Receivers in androidmanifest.xml:
-        
-**Note:**<br>
-  * Add meta-data, Activities, Services and Receivers within application Tag ``` <application> </application> ```<br>
 
-```xml
+<a name="integration"></a>
+## Step 2: Now, let's start integrating 🧰
 
-<!-- Applozic App ID -->
-<meta-data android:name="com.applozic.application.key"
-           android:value="<YOUR_APPLOZIC_APP_ID" /> 
+**1: Open your project level `build.gradle`.**
 
-<!-- Launcher white Icon -->
-<meta-data android:name="com.applozic.mobicomkit.notification.smallIcon"
-           android:resource="YOUR_LAUNCHER_SMALL_ICON" /> 
+Add the path to the *Applozic repository* inside `allprojects` as shown:
 
-<!-- Notification color -->
-<meta-data android:name="com.applozic.mobicomkit.notification.color"
-           android:resource="YOUR_NOTIFICATION_COLOR_RESOURCE" /> 
+```groovy
+allprojects {
+   repositories {
+       google()
+       jcenter()
 
-<!--Replace with your geo api key from google developer console  --> 
-<!-- For testing purpose use AIzaSyAYB1vPc4cpn_FJv68eS_ZGe1UasBNwxLI
-To disable the location sharing via map add this line ApplozicSetting.getInstance(context).disableLocationSharingViaMap(); in onSuccess of Applozic UserLoginTask -->             
-<meta-data android:name="com.google.android.geo.API_KEY"
-           android:value="YOUR_GEO_API_KEY" />  
-
-<!-- NOTE: Do NOT change this, it should remain same i.e 'com.package.name' -->            
-<meta-data android:name="com.package.name" 
-           android:value="${applicationId}" /> 
-                     
-```
-
-**Note:** If you are *not using gradle build* you need to replace **```${applicationId}```**  with your Android app package name
-
-* Define Attachment Folder Name in your string.xml.          
-     
-```html
-<string name="default_media_location_folder">YOUR_APP_NAME</string> 
-```
-
-* Paste the following in your androidmanifest.xml:        
-
-```xml
-<activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-           android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-           android:label="@string/app_name"
-           android:parentActivityName="<APP_PARENT_ACTIVITY>"
-           android:theme="@style/ApplozicTheme"
-           android:launchMode="singleTask"
-           tools:node="replace">
-      <!-- Parent activity meta-data to support API level 7+ -->
-<meta-data
-           android:name="android.support.PARENT_ACTIVITY"
-           android:value="<APP_PARENT_ACTIVITY>" />
- </activity>               
-```
-
-* Replace APP_PARENT_ACTIVITY with your app's parent activity (reference below). 
-
-```xml
-<!-- you will be having .MainActivity-->
-        <activity android:name="com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActivity"
-            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
-            android:label="@string/app_name"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/ApplozicTheme"
-            android:launchMode="singleTask"
-            tools:node="replace">
-            <!-- Parent activity meta-data to support API level 7+ -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-```
-
-### Step 3: Register user account in your code:     
-
-* For creating your first user we need to create an New user object which can be created using below code.
-     
-```java
-User user = new User();          
-user.setUserId(userId); //userId it can be any unique user identifier
-user.setDisplayName(displayName); //displayName is the name of the user which will be shown in chat messages
-user.setEmail(email); //optional  
-user.setAuthenticationTypeId(User.AuthenticationType.APPLOZIC.getValue());  //User.AuthenticationType.APPLOZIC.getValue() for password verification from Applozic server and User.AuthenticationType.CLIENT.getValue() for access Token verification from your server set access token as password
-user.setPassword(""); //optional, leave it blank for testing purpose, read this if you want to add additional security by verifying password from your server https://www.applozic.com/docs/configuration.html#access-token-url
-user.setImageLink("");//optional,pass your image link
-
- Applozic.connectUser(context, user, new AlLoginHandler() {
-                @Override
-                public void onSuccess(RegistrationResponse registrationResponse, Context context) {
-                    // After successful registration with Applozic server the callback will come here 
-                }
-
-                @Override
-                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
-                    // If any failure in registration the callback  will come here 
-             }
-   });                                      
-```
-
-If it is a new user, new user account will get created else existing user will be logged in to the application. You can check if user is logged in to applozic or not by using **``` Applozic.isConnected(context) ```**
-
-### Step 4: Push Notification Setup 🔔
-
-*Note : Go to Applozic Dashboard, Edit Application -> Push Notification -> Android -> GCM/FCM Server Key.*
-
-* Firebase Cloud Messaging (FCM)  is already enabled in my app
-    * Add the below code and pass the FCM registration token:
-  
-1. UserLoginTask "onSuccess" (refer Step 3)
-
-```java
-if(MobiComUserPreference.getInstance(context).isRegistered()) {
-  Applozic.registerForPushNotification(context, registrationToken, new AlPushNotificationHandler() {
-                @Override
-                public void onSuccess(RegistrationResponse registrationResponse) {
-                   
-                }
-
-                @Override
-                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
-
-                }
-    });
-}
-```
-
- 2. In your FcmListenerService onNewToken(Token registrationToken) method
-
- ```java
- if (MobiComUserPreference.getInstance(this).isRegistered()) {
-      new RegisterUserClientService(this).updatePushNotificationId(registrationToken);
- }
-```
-
-### For Receiving Notifications in FCM
-
-* Add the following in your FcmListenerService in onMessageReceived(RemoteMessage remoteMessage) 
-
-```java
- if (MobiComPushReceiver.isMobiComPushNotification(remoteMessage.getData())) {
-           MobiComPushReceiver.processMessageAsync(this, remoteMessage.getData());
-           return;
+       maven {
+           url 'https://applozic.jfrog.io/artifactory/applozic-android-sdk'
+       }
    }
-```
-
-### GCM is already enabled in my app
-
-* If you already have GCM enabled in your app, add the below code and pass the GCM registration token:
-  
-1. In UserLoginTask "onSuccess" (refer Step 3)
-  
-```java
-if(MobiComUserPreference.getInstance(context).isRegistered()) {
-  Applozic.registerForPushNotification(context, registrationToken, new AlPushNotificationHandler() {
-                @Override
-                public void onSuccess(RegistrationResponse registrationResponse) {
-                   
-                }
-
-                @Override
-                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
-
-                }
-     });
 }
 ```
 
-2. At the place where you are getting the GCM registration token in your app.       
+**2: Open your app level `build.gradle` and add the dependency to the *Applozic SDK*:**
 
- ```java
- if (MobiComUserPreference.getInstance(this).isRegistered()) {
-      new RegisterUserClientService(this).updatePushNotificationId(registrationToken);
- }
+```groovy
+dependencies {
+   implementation 'com.applozic.communication.uiwidget:mobicomkitui:5.101.0'
+   //other dependencies
+}
 ```
 
-### For Receiving Notifications In GCM
+**3: Sync the project.**
 
-* Add the following in your GcmListenerService  in onMessageReceived 
+<a name="setting-up"></a>
+## Step 3: Setting up the SDK ⚙️
 
-```java
-if(MobiComPushReceiver.isMobiComPushNotification(data)) {            
-        MobiComPushReceiver.processMessageAsync(this, data);               
-        return;          
-}                                          
+Open the project’s `AndroidManifest.xml` file and paste the following code inside the `<application>` tag:
+
+```xml
+<meta-data android:name="com.applozic.application.key"
+   android:value="applozic-sample-app" />
+
+<meta-data android:name="com.package.name"
+   android:value="${applicationId}" />
 ```
 
-### Don't have Android Push Notification code ?
+In the future you can replace `applozic-sample-app` with the *application id* you got from the *Applozic Dashboard*. For now, keep it as it is.
 
-* To Enable Android Push Notification using Firebase Cloud Messaging (FCM) 
-    * visit the [Firebase console](https://console.firebase.google.com) 
-    * Create new project
-    * Add the google service json to your app.
-    * Configure the build.gradle files in your app.
-    * Get server key from project settings.
-    * Update in **[Applozic Dashboard](https://console.applozic.com/settings/pushnotification)** under **Push Notification -> Android -> GCM/FCM Server Key**.
+<a name="authentication"></a>
+## Step 4: Creating and authenticating a user 🔐
 
-* In case, if you don't have the existing FCM related code, then copy the push notification related files from Applozic sample app to your project from the below github link
-    * [Github push notification code link](https://github.com/AppLozic/Applozic-Android-SDK/tree/master/app/src/main/java/com/applozic/mobicomkit/sample/pushnotification)
-
-* And add below code in your androidmanifest.xml file
-
-```xml 
-<service android:name="<CLASS_PACKAGE>.FcmListenerService"
-android:stopWithTask="false">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-</service>
-  ``` 
-  
-### Setup PushNotificationTask in UserLoginTask "onSuccess" (refer Step 3).
+Open `MainActivity.java` in your project and paste the following code inside the `onCreate()` method.
 
 ```java
-Applozic.registerForPushNotification(context, Applozic.getInstance(context).getDeviceRegistrationId(), new   AlPushNotificationHandler() {
-                @Override
-                public void onSuccess(RegistrationResponse registrationResponse) {
-                   
-                }
+Toast.makeText(MainActivity.this, "Connecting user...", Toast.LENGTH_LONG).show();
 
-                @Override
-                public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+User user = new User();
+user.setUserId(“applozicuser");
+user.setPassword("password");
 
-                }
-    });
+Applozic.connectUser(this, user, new AlLoginHandler() {
+   @Override
+   public void onSuccess(RegistrationResponse registrationResponse, Context context) {
+       Toast.makeText(MainActivity.this, "Login successful...", Toast.LENGTH_LONG).show();
+   }
+
+   @Override
+   public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+       Toast.makeText(MainActivity.this, "Login failed...", Toast.LENGTH_LONG).show();
+   }
+});
 ```
 
+***The `User` object above already has some `userId` and `password`. Keep it as it is for now.***
 
-### Step 5: For starting the messaging activity        
-      
+> What we are doing here, is that first we create a new `User` object.
+> An Applozic User is an entity that “uses” the chat to send and receive messages. 
+> A user is identified by its `userId`.
+> Then we “connect” that user to Applozic servers. This connects and authenticates the user and sends back an authentication token that is saved and used by the SDK for future server calls.
+> If the user object being passed to `Applozic.connectUser()` is unregistered, then it is registered in the server first and then authenticated. 
+
+
+<a name="sending-message"></a>
+## Step 5: Opening a conversation and sending the user’s first message 📨
+
+Replace the code inside the `AlLoginHandler#onSuccess()` method that is being passed to `Applozic.connectUser()` with:
+
 ```java
-Intent intent = new Intent(this, ConversationActivity.class);            
-startActivity(intent);                               
-``` 
-  
-* For starting individual conversation thread, set "userId" in intent:        
-            
-```java
-Intent intent = new Intent(this, ConversationActivity.class);            
-intent.putExtra(ConversationUIService.USER_ID, "receiveruserid123");             
-intent.putExtra(ConversationUIService.DISPLAY_NAME, "Receiver display name"); //put it for displaying the title.  
-intent.putExtra(ConversationUIService.TAKE_ORDER,true); //Skip chat list for showing on back press 
+Toast.makeText(MainActivity.this, "Login successful. Opening conversation...", Toast.LENGTH_LONG).show();
+
+Intent intent = new Intent(MainActivity.this, ConversationActivity.class);
+intent.putExtra(ConversationUIService.USER_ID, "lilapplozic");
 startActivity(intent);
-
 ```
 
-### Step 6: On logout, call the following:       
+This will open a conversation with the user *“lilapplozic”*.
+
+The `onCreate()` inside `MainActicity.java` method should finally look like this:
 
 ```java
-Applozic.logoutUser(context, new AlLogoutHandler() {
-                @Override
-                public void onSuccess(Context context) {
-                    
-                }
+protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-                @Override
-                public void onFailure(Exception exception) {
+        Toast.makeText(MainActivity.this, "Connecting user...", Toast.LENGTH_LONG).show();
 
-                }
-        });     
- ```
+        User user = new User();
+        user.setUserId("applozicuser");
+        user.setPassword("password");
+
+        Applozic.connectUser(this, user, new AlLoginHandler() {
+            @Override
+            public void onSuccess(RegistrationResponse registrationResponse, Context context) {
+                Toast.makeText(MainActivity.this, "Login successful. Opening conversation...", Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(MainActivity.this, ConversationActivity.class);
+                intent.putExtra(ConversationUIService.USER_ID, "lilapplozic");
+                startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(RegistrationResponse registrationResponse, Exception exception) {
+                Toast.makeText(MainActivity.this, "Login failed...", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+```
+
+
+## Congratulations 🥳
+You have successfully integrated Applozic.
+When you open the app you will be taken to the respective conversation.
 
 <a name="documentation"></a>
-## Documentation :book:
+# Documentation :book:
 
 **Trying out the demo app:**
 
 * Open project in Android Studio to run the sample app in your device & Send messages between multiple devices. 
-* Display name for users:
-    * You can either choose to handle display name from your app or have Applozic handle it.
-    * From your app's first activity, set the following to disable display name feature:
-    * **```ApplozicClient.getInstance(this).setHandleDisplayName(false);```**
-    * By default, the display name feature is enabled.
+
 * For advanced options and customization, visit [Applozic Android Chat & Messaging SDK Documentation](https://www.applozic.com/docs/android-chat-sdk.html?utm_source=github&utm_medium=readme&utm_campaign=android)
 
 <a name="announcements"></a>
 ## Announcements :loudspeaker: 
 
-v5.98 has been released! Please see the [release notes](https://github.com/AppLozic/Applozic-Android-SDK/releases/tag/v5.98) for details.
+v5.101.0 has been released! Please see the [release notes](https://github.com/AppLozic/Applozic-Android-SDK/releases/tag/v5.101.0) for details.
 
 All updates to this library are documented in our [releases](https://github.com/AppLozic/Applozic-Android-SDK/releases). For any queries, feel free to reach out us at github@applozic.com
 
