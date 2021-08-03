@@ -1477,8 +1477,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (id == R.id.dial) {
-            if (contact != null) {
-                if (contact.isBlocked()) {
+            if (contact != null || channel != null) {
+                if (contact != null && contact.isBlocked()) {
                     userBlockDialog(false, contact, false);
                 } else {
                     if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
