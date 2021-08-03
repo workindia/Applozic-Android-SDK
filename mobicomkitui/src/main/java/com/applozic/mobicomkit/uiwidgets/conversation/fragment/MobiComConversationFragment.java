@@ -1372,6 +1372,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         }
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
+        if (contactNumber == null) {
+            Contact derivedContact = appContactService.getContactById(channel.getName() != null ? channel.getName(): "");
+            contactNumber = derivedContact.getContactNumber();
+        }
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
 
         if ((setting.isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2)
