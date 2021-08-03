@@ -1393,7 +1393,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.dial).setVisible(false);
         }
         if (channel != null) {
-            menu.findItem(R.id.dial).setVisible(false);
+            //Adding additional conditions for group of two (where contactNumber is non null)
+            if (contactNumber == null) {
+                menu.findItem(R.id.dial).setVisible(false);
+            }
             menu.findItem(R.id.video_call).setVisible(false);
 
             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
