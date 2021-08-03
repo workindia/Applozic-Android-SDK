@@ -44,6 +44,15 @@
         mobicomkit:showAsAction="ifRoom|collapseActionView" />
 
     <item
+        android:id="@+id/personal_dial"
+        android:icon="@drawable/applozic_ic_action_call"
+        android:orderInCategory="4"
+        android:showAsAction="always"
+        android:title="@string/dial"
+        android:visible="false"
+        mobicomkit:showAsAction="ifRoom|collapseActionView" />
+
+    <item
         android:id="@+id/refresh"
         android:icon="@drawable/applozic_ic_action_time"
         android:orderInCategory="5"
