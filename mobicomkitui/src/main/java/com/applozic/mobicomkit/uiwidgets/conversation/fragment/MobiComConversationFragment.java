@@ -1371,12 +1371,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
 
-        String contactNumber = contact != null ? contact.getContactNumber() : null;
-        if (contactNumber == null) {
-            //Try fetching contact for group of two
-            Contact derivedContact = appContactService.getContactById(channel.getName() != null ? channel.getName() : "");
-            contactNumber = derivedContact.getContactNumber();
-        }
+        String contactNumber = getContactNumber();
+
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
 
         if ((setting.isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2)
@@ -1449,6 +1445,23 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         menu.removeItem(R.id.conversations);
     }
 
+    private String getContactNumber() {
+
+        String contactNumber = contact != null ? contact.getContactNumber() : null;
+
+        if (channel.getMetadata().containsKey("PHONE_NUMBER")) {
+            contactNumber = channel.getMetadata().get("PHONE_NUMBER");
+        }
+
+        if (contactNumber == null || contactNumber.isEmpty()) {
+            //Try fetching contact for group of two
+            Contact derivedContact = appContactService.getContactById(channel.getName() != null ? channel.getName() : "");
+            contactNumber = derivedContact.getContactNumber();
+        }
+
+        return contactNumber;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -1482,13 +1495,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     userBlockDialog(false, contact, false);
                 } else {
                     if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
-                        Contact derivedContact = appContactService.getContactById(channel.getName() != null ? channel.getName() : "");
-                        String contactNumber = derivedContact.getContactNumber();
+                        String contactNumber = getContactNumber();
                         if (contactNumber != null) {
                             Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contactNumber));
                             startActivity(intent);
-                        } else {
-                            Toast.makeText(requireContext().getApplicationContext(), "HR is unavailable to pick call right now, please try later!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
