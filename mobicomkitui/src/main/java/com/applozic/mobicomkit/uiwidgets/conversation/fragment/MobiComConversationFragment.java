@@ -1449,8 +1449,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         String contactNumber = contact != null ? contact.getContactNumber() : null;
 
-        if (channel.getMetadata().containsKey("PHONE_NUMBER")) {
-            contactNumber = channel.getMetadata().get("PHONE_NUMBER");
+        if (contactNumber == null || contactNumber.isEmpty()) {
+            //Try getting phone number from the Applozic Client first
+            contactNumber = ApplozicClient.getInstance(getActivity()).getPhoneNumberToCall();
         }
 
         if (contactNumber == null || contactNumber.isEmpty()) {
