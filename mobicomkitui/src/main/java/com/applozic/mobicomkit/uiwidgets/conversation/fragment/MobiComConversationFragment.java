@@ -136,6 +136,7 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -1498,8 +1499,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                         String contactNumber = getContactNumber();
                         if (contactNumber != null) {
-                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contactNumber));
-                            startActivity(intent);
+                            if (PermissionsUtils.checkSelfPermissionForCallPhone(requireActivity())) {
+                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + contactNumber));
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contactNumber));
+                                startActivity(intent);
+                            }
                         }
                     } else {
                         ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
