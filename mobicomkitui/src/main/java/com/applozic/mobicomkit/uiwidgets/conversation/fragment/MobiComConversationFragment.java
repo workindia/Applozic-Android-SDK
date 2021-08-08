@@ -127,6 +127,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.CallPlacedEvent;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
@@ -175,6 +176,8 @@ import java.util.regex.PatternSyntaxException;
 
 import static android.view.View.VISIBLE;
 import static java.util.Collections.disjoint;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * reg
@@ -1499,6 +1502,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
                         String contactNumber = getContactNumber();
                         if (contactNumber != null) {
+                            EventBus.getDefault().post(new CallPlacedEvent(channel.getClientGroupId()));
                             if (PermissionsUtils.checkSelfPermissionForCallPhone(requireActivity())) {
                                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + contactNumber));
                                 startActivity(intent);
