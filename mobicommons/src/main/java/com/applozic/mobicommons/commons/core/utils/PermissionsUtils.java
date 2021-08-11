@@ -98,6 +98,11 @@ public class PermissionsUtils {
         ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 
+    public static boolean checkSelfPermissionForCallPhone(Activity activity) {
+        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED);
+    }
+
     public static boolean isAudioRecordingPermissionGranted(Context context) {
         String permission = "android.permission.RECORD_AUDIO";
         int res = context.checkCallingOrSelfPermission(permission);

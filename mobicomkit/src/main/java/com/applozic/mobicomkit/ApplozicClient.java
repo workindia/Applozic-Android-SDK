@@ -56,6 +56,7 @@ public class ApplozicClient {
     private static final String MIN_CREATED_AT_KEY = "mck.sms.createdAt.min";
     private static final String MAX_CREATED_AT_KEY = "mck.sms.createdAt.max";
     private static final String AL_CONVERSATION_LIST_PAGE_SIZE_KEY = "AL_CONVERSATION_LIST_PAGE_SIZE_KEY";
+    private static final String PHONE_NUMBER_FOR_CALLING = "PHONE_NUMBER_FOR_CALLING";
     private static final int conversationListDefaultMainPageSize = 60;
 
     public static ApplozicClient applozicClient;
@@ -434,4 +435,14 @@ public class ApplozicClient {
         }
         return mainPageSize;
     }
+
+    public String getPhoneNumberToCall() {
+        return sharedPreferences.getString(PHONE_NUMBER_FOR_CALLING, null);
+    }
+
+    public ApplozicClient setPhoneNumberToCall(String phoneNumber) {
+        sharedPreferences.edit().putString(PHONE_NUMBER_FOR_CALLING, phoneNumber).commit();
+        return this;
+    }
+
 }

@@ -127,6 +127,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.CallPlacedEvent;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALStoragePermission;
@@ -136,6 +137,7 @@ import com.applozic.mobicomkit.uiwidgets.uilistener.CustomToolbarListener;
 import com.applozic.mobicommons.ApplozicService;
 import com.applozic.mobicommons.commons.core.utils.DateUtils;
 import com.applozic.mobicommons.commons.core.utils.LocationUtils;
+import com.applozic.mobicommons.commons.core.utils.PermissionsUtils;
 import com.applozic.mobicommons.commons.core.utils.Utils;
 import com.applozic.mobicommons.commons.image.ImageCache;
 import com.applozic.mobicommons.commons.image.ImageLoader;
@@ -174,6 +176,8 @@ import java.util.regex.PatternSyntaxException;
 
 import static android.view.View.VISIBLE;
 import static java.util.Collections.disjoint;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * reg
@@ -1371,7 +1375,8 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             return;
         }
 
-        String contactNumber = contact != null ? contact.getContactNumber() : null;
+        String contactNumber = getContactNumber();
+
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
 
         if ((setting.isHandleDial() && !TextUtils.isEmpty(contactNumber) && contactNumber.length() > 2)
@@ -1388,7 +1393,10 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             menu.findItem(R.id.dial).setVisible(false);
         }
         if (channel != null) {
-            menu.findItem(R.id.dial).setVisible(false);
+            //Adding additional conditions for group of two (where contactNumber is non null)
+            if (contactNumber == null) {
+                menu.findItem(R.id.dial).setVisible(false);
+            }
             menu.findItem(R.id.video_call).setVisible(false);
 
             if (Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
@@ -1441,6 +1449,24 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         menu.removeItem(R.id.conversations);
     }
 
+    private String getContactNumber() {
+
+        String contactNumber = contact != null ? contact.getContactNumber() : null;
+
+        if (contactNumber == null || contactNumber.isEmpty()) {
+            //Try getting phone number from the Applozic Client first
+            contactNumber = ApplozicClient.getInstance(getActivity()).getPhoneNumberToCall();
+        }
+
+        if (contactNumber == null || contactNumber.isEmpty()) {
+            //Try fetching contact for group of two
+            Contact derivedContact = appContactService.getContactById(channel.getName() != null ? channel.getName() : "");
+            contactNumber = derivedContact.getContactNumber();
+        }
+
+        return contactNumber;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -1469,11 +1495,25 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         }
         if (id == R.id.dial) {
-            if (contact != null) {
-                if (contact.isBlocked()) {
+            if (contact != null || channel != null) {
+                if (contact != null && contact.isBlocked()) {
                     userBlockDialog(false, contact, false);
                 } else {
-                    ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
+                    if (channel != null && Channel.GroupType.GROUPOFTWO.getValue().equals(channel.getType())) {
+                        String contactNumber = getContactNumber();
+                        if (contactNumber != null) {
+                            EventBus.getDefault().post(new CallPlacedEvent(channel.getClientGroupId()));
+                            if (PermissionsUtils.checkSelfPermissionForCallPhone(requireActivity())) {
+                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + contactNumber));
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contactNumber));
+                                startActivity(intent);
+                            }
+                        }
+                    } else {
+                        ((ConversationActivity) getActivity()).processCall(contact, currentConversationId);
+                    }
                 }
             }
         }
@@ -3151,18 +3191,18 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     private boolean isLoggedInUserAdminInCurrentChannel() {
-        if(channel == null) {
+        if (channel == null) {
             return false;
         }
 
         List<ChannelUserMapper> updatedChannelUserMapperList = ChannelService.getInstance(getActivity()).getListOfUsersFromChannelUserMapper(channel.getKey());
 
-        if(TextUtils.isEmpty(loggedInUserId)) {
+        if (TextUtils.isEmpty(loggedInUserId)) {
             return false;
         }
 
         for (ChannelUserMapper channelUserMapper : updatedChannelUserMapperList) {
-            if(loggedInUserId.equals(channelUserMapper.getUserKey())) {
+            if (loggedInUserId.equals(channelUserMapper.getUserKey())) {
                 return ChannelUserMapper.UserRole.ADMIN.getValue() == channelUserMapper.getRole().intValue();
             }
         }
@@ -3179,6 +3219,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
      * Since toggling message send layout and showing chat disabled info is dependent on various factors, care
      * should be take to make sure each toggle function is exclusive in its running and are chosen in an order based on their respective factor.
      * The final/default code shows the message send layout.</p>
+     *
      * @param contact the current contact
      * @param channel the current channel
      */
@@ -3191,7 +3232,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 hideMessageSendLayoutAndShowUserNotInGroupInfo();
             } else if (channel.isDeleted()) { //priority 2.2
                 hideMessageSendLayoutAndShowGroupDeletedInfo();
-            } else if(channel.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) { //priority 2.3
+            } else if (channel.hasAdminOnlyMessageClientSupportRequest() && !isLoggedInUserAdminInCurrentChannel()) { //priority 2.3
                 hideMessageSendLayoutAndShowAdminOnlyMessagesAllowedInfo();
             } else { //if no reason to disable chat then show message send layout
                 showMessageSendLayoutAndHideChatDisabledLayout();
@@ -3207,7 +3248,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                         public void run() {
                             if (isMyChatDisabled) {
                                 hideMessageSendLayoutAndShowLoggedInUserCharDisabledSettingInfo();
-                            } else if(contact.isChatForUserDisabled()) {
+                            } else if (contact.isChatForUserDisabled()) {
                                 hideMessageSendLayoutAndShowReceivingUserChatDisabledSettingInfo();
                             } else {
                                 showMessageSendLayoutAndHideChatDisabledLayout();
@@ -4281,7 +4322,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void toggleMessageSendDisabledInfoAndMessageSendLayout(boolean show, int textResId) {
-        if(individualMessageSendLayout == null || linearLayoutMessageSendDisabledInfo == null || textViewMessageSendDisabledInfo == null) {
+        if (individualMessageSendLayout == null || linearLayoutMessageSendDisabledInfo == null || textViewMessageSendDisabledInfo == null) {
             return;
         }
 
@@ -4294,7 +4335,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     }
 
     public void toggleMessageSendDisabledInfoAndMessageSendLayout(boolean show, String text) {
-        if(individualMessageSendLayout == null || linearLayoutMessageSendDisabledInfo == null || textViewMessageSendDisabledInfo == null) {
+        if (individualMessageSendLayout == null || linearLayoutMessageSendDisabledInfo == null || textViewMessageSendDisabledInfo == null) {
             return;
         }
 
