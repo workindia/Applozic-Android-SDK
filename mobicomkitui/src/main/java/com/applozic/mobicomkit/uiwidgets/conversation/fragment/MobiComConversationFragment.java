@@ -892,6 +892,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     final Intent intent = new Intent();
                     intent.setAction("com.applozic.mobicomkit.TemplateMessage");
                     intent.putExtra("templateMessage", message);
+                    intent.putExtra("channel",channel);
                     intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                     getActivity().sendBroadcast(intent);
                 }
