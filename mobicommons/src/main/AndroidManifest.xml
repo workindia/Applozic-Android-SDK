@@ -5,7 +5,7 @@
 
     <application>
         <provider
-            android:authorities="${applicationId}.applozic.provider"
+            android:authorities="com.mobicomkit.sample.applozic.provider"
             android:exported="false"
             android:grantUriPermissions="true"
             android:name="com.applozic.mobicommons.file.ALFileProvider"
