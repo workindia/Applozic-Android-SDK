@@ -341,6 +341,7 @@ public class ApplozicDocumentView {
     public void playAudio() {
         final String mimeType = FileUtils.getMimeType(message.getFileMetas().getName());
         if (Utils.hasNougat()) {
+            //changed authority
             uri = ALFileProvider.getUriForFile(context, "com.mobicomkit.sample.applozic.provider", new File(message.getFilePaths().get(0)));
         } else {
             uri = Uri.fromFile(new File(message.getFilePaths().get(0)));
