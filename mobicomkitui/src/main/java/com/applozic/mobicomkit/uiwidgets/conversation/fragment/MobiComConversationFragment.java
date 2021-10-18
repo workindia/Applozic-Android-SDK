@@ -127,6 +127,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.ActivityEvent;
 import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.CallPlacedEvent;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
@@ -291,6 +292,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     String message = "";
     Short messageContentType = Message.ContentType.DEFAULT.getValue();
     private RichMessageActionProcessor richMessageActionProcessor;
+    private TextView messageExpiredJob;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -370,6 +372,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         audioRecordFrameLayout = (FrameLayout) list.findViewById(R.id.audio_record_frame_layout);
         messageTemplateView = (RecyclerView) list.findViewById(R.id.mobicomMessageTemplateView);
         applozicLabel = list.findViewById(R.id.applozicLabel);
+        messageExpiredJob = list.findViewById(R.id.messageExpireSimilarJobs);
         Configuration config = getResources().getConfiguration();
         recordButtonWeakReference = new WeakReference<ImageButton>(recordButton);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -406,6 +409,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         adapterView = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
+                EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
                 if (conversations != null && conversations.size() > 0) {
                     Conversation conversation = conversations.get(pos);
                     BroadcastService.currentConversationId = conversation.getId();
@@ -930,6 +934,22 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         };
+
+        messageExpiredJob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new ActivityEvent(channel, "MainActivity"));
+            }
+        });
+
+        ApplozicClient setting = ApplozicClient.getInstance(getActivity());
+        if (setting.isExpired()) {
+            list.findViewById(R.id.viewMessageSender).setVisibility(View.GONE);
+            list.findViewById(R.id.viewExpire).setVisibility(VISIBLE);
+        } else {
+            list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
+            list.findViewById(R.id.viewExpire).setVisibility(View.GONE);
+        }
 
         return list;
     }
