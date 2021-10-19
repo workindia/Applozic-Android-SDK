@@ -78,7 +78,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
             viewHolder.value2TextView = (TextView) convertView.findViewById(R.id.priceValueTextview);
             viewHolder.message = (TextView) convertView.findViewById(R.id.message);
             if (expired)
-                viewHolder.message.setVisibility(View.GONE);
+                viewHolder.message.setVisibility(View.VISIBLE);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ApplozicProductViewHolder) convertView
