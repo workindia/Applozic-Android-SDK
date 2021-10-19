@@ -269,7 +269,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
-            android:text="Job Expired!!! See Similar Jobs"
+            android:text="@string/job_expired_see_similar_jobs"
             android:textColor="@color/al_list_item_header_text_color"
             android:textStyle="bold|normal" />
     </LinearLayout>

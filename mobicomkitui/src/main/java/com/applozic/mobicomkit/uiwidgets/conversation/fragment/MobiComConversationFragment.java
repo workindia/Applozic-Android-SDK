@@ -409,7 +409,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         adapterView = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
-                EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
                 if (conversations != null && conversations.size() > 0) {
                     Conversation conversation = conversations.get(pos);
                     BroadcastService.currentConversationId = conversation.getId();
@@ -946,6 +945,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         if (setting.isExpired()) {
             list.findViewById(R.id.viewMessageSender).setVisibility(View.GONE);
             list.findViewById(R.id.viewExpire).setVisibility(VISIBLE);
+            list.findViewById(R.id.message).setVisibility(VISIBLE);
         } else {
             list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
             list.findViewById(R.id.viewExpire).setVisibility(View.GONE);
@@ -4079,9 +4079,21 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                     if (applozicContextSpinnerAdapter != null) {
                         if (contextSpinner() != null) {
                             contextSpinner().setAdapter(applozicContextSpinnerAdapter);
+                            contextSpinner().setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    return true;
+                                }
+                            });
                         }
                         if (contextFrameLayout() != null) {
                             contextFrameLayout().setVisibility(VISIBLE);
+                            contextFrameLayout().setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
+                                }
+                            });
                         }
                         int i = 0;
                         for (Conversation c : conversationList) {
