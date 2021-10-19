@@ -28,13 +28,14 @@ import java.util.List;
  */
 public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
+    private boolean expired = false;
     private LayoutInflater mInflater;
     private List<Conversation> conversationList;
     private ImageLoader productImageLoader;
     private FileClientService fileClientService;
     private Context context;
 
-    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations) {
+    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations, boolean expired) {
         if (context == null) {
             return;
         }
@@ -42,6 +43,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
         this.conversationList = conversations;
         this.fileClientService = new FileClientService(context);
         this.context = context;
+        this.expired = expired;
         productImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -74,6 +76,9 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
             viewHolder.value1TextView = (TextView) convertView.findViewById(R.id.qtyValueTextView);
             viewHolder.key2TextView = (TextView) convertView.findViewById(R.id.priceTitleTextView);
             viewHolder.value2TextView = (TextView) convertView.findViewById(R.id.priceValueTextview);
+            viewHolder.message = (TextView) convertView.findViewById(R.id.message);
+            if (expired)
+                viewHolder.message.setVisibility(View.GONE);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ApplozicProductViewHolder) convertView
@@ -155,7 +160,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
 
     private static class ApplozicProductViewHolder {
-        TextView titleTextView, subTitleTextView, key1TextView, value1TextView, key2TextView, value2TextView;
+        TextView titleTextView, subTitleTextView, key1TextView, value1TextView, key2TextView, value2TextView, message;
         ImageView productImage;
 
         ApplozicProductViewHolder() {

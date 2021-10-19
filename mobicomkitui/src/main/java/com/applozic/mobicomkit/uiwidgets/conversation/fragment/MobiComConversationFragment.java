@@ -4074,25 +4074,20 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 if (isContextBasedChat(conversationId, channel) && conversationList.size() > 0 && !onSelected) {
                     onSelected = true;
-                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
+                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList, ApplozicClient.getInstance(getActivity()).isExpired());
                     if (applozicContextSpinnerAdapter != null) {
                         if (contextSpinner() != null) {
                             contextSpinner().setAdapter(applozicContextSpinnerAdapter);
                             contextSpinner().setOnTouchListener(new View.OnTouchListener() {
                                 @Override
                                 public boolean onTouch(View v, MotionEvent event) {
+                                    EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
                                     return true;
                                 }
                             });
                         }
                         if (contextFrameLayout() != null) {
                             contextFrameLayout().setVisibility(VISIBLE);
-                            contextFrameLayout().setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
-                                }
-                            });
                         }
                         int i = 0;
                         for (Conversation c : conversationList) {
