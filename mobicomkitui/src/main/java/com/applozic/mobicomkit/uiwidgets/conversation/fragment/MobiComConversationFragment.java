@@ -4081,7 +4081,9 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                             contextSpinner().setOnTouchListener(new View.OnTouchListener() {
                                 @Override
                                 public boolean onTouch(View v, MotionEvent event) {
-                                    EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
+                                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                        EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
+                                    }
                                     return true;
                                 }
                             });
