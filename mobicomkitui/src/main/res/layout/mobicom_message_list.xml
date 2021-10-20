@@ -18,7 +18,7 @@
             android:id="@+id/spinner_show"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@null"
+            android:background="?android:attr/selectableItemBackground"
             tools:listitem="@layout/applozic_context_based_layout" />
     </FrameLayout>
 
@@ -269,6 +269,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
+            android:background="?android:attr/selectableItemBackground"
             android:text="@string/job_expired_see_similar_jobs"
             android:textColor="@color/al_list_item_header_text_color"
             android:textStyle="bold|normal" />
