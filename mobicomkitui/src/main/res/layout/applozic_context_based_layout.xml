@@ -8,13 +8,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:background="@color/white"
         android:paddingLeft="8dp"
+        android:paddingBottom="8dp"
         android:elevation="4dp"
-        android:minHeight="80dp"
         android:orientation="horizontal">
 
         <ImageView
