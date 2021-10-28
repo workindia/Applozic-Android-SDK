@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.feed.TopicDetail;
@@ -77,8 +78,11 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
             viewHolder.key2TextView = (TextView) convertView.findViewById(R.id.priceTitleTextView);
             viewHolder.value2TextView = (TextView) convertView.findViewById(R.id.priceValueTextview);
             viewHolder.message = (TextView) convertView.findViewById(R.id.message);
-            if (expired)
+            if (expired) {
+                ApplozicClient applozicClient = ApplozicClient.getInstance(context);
                 viewHolder.message.setVisibility(View.VISIBLE);
+                viewHolder.message.setText(applozicClient.getHeaderText());
+            }
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ApplozicProductViewHolder) convertView
