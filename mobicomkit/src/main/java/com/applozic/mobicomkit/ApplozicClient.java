@@ -102,7 +102,7 @@ public class ApplozicClient {
         return sharedPreferences.getBoolean(IS_CHAT_ALLOWED, false);
     }
 
-    public ApplozicClient setExpired(boolean enable) {
+    public ApplozicClient setChatAllowed(boolean enable) {
         sharedPreferences.edit().putBoolean(IS_CHAT_ALLOWED, enable).commit();
         return this;
     }
