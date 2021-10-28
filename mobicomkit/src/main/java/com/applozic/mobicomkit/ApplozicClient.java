@@ -60,7 +60,7 @@ public class ApplozicClient {
     private static final String AL_CONVERSATION_LIST_PAGE_SIZE_KEY = "AL_CONVERSATION_LIST_PAGE_SIZE_KEY";
     private static final String PHONE_NUMBER_FOR_CALLING = "PHONE_NUMBER_FOR_CALLING";
     private static final int conversationListDefaultMainPageSize = 60;
-    private static final String EXPIRED_JOB = "EXPIRED_JOB";
+    private static final String IS_CHAT_ALLOWED = "IS_CHAT_ALLOWED";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -98,12 +98,12 @@ public class ApplozicClient {
         return this;
     }
 
-    public boolean isExpired() {
-        return sharedPreferences.getBoolean(EXPIRED_JOB, false);
+    public boolean isChatAllowed() {
+        return sharedPreferences.getBoolean(IS_CHAT_ALLOWED, false);
     }
 
     public ApplozicClient setExpired(boolean enable) {
-        sharedPreferences.edit().putBoolean(EXPIRED_JOB, enable).commit();
+        sharedPreferences.edit().putBoolean(IS_CHAT_ALLOWED, enable).commit();
         return this;
     }
 

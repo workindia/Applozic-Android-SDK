@@ -942,7 +942,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         });
 
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
-        if (setting.isExpired()) {
+        if (setting.isChatAllowed()) {
             list.findViewById(R.id.viewMessageSender).setVisibility(View.GONE);
             list.findViewById(R.id.viewExpire).setVisibility(VISIBLE);
             messageExpiredJob.setText(ApplozicClient.applozicClient.getFooterText());
@@ -4075,7 +4075,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 if (isContextBasedChat(conversationId, channel) && conversationList.size() > 0 && !onSelected) {
                     onSelected = true;
-                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList, ApplozicClient.getInstance(getActivity()).isExpired());
+                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList, ApplozicClient.getInstance(getActivity()).isChatAllowed());
                     if (applozicContextSpinnerAdapter != null) {
                         if (contextSpinner() != null) {
                             contextSpinner().setAdapter(applozicContextSpinnerAdapter);
