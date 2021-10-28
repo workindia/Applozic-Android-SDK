@@ -29,14 +29,14 @@ import java.util.List;
  */
 public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
-    private boolean expired = false;
+    private boolean isChatAllowed = false;
     private LayoutInflater mInflater;
     private List<Conversation> conversationList;
     private ImageLoader productImageLoader;
     private FileClientService fileClientService;
     private Context context;
 
-    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations, boolean expired) {
+    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations, boolean isChatAllowed) {
         if (context == null) {
             return;
         }
@@ -44,7 +44,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
         this.conversationList = conversations;
         this.fileClientService = new FileClientService(context);
         this.context = context;
-        this.expired = expired;
+        this.isChatAllowed = isChatAllowed;
         productImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -78,7 +78,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
             viewHolder.key2TextView = (TextView) convertView.findViewById(R.id.priceTitleTextView);
             viewHolder.value2TextView = (TextView) convertView.findViewById(R.id.priceValueTextview);
             viewHolder.message = (TextView) convertView.findViewById(R.id.message);
-            if (expired) {
+            if (!isChatAllowed) {
                 ApplozicClient applozicClient = ApplozicClient.getInstance(context);
                 viewHolder.message.setVisibility(View.VISIBLE);
                 viewHolder.message.setText(applozicClient.getHeaderText());

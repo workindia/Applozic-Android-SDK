@@ -943,12 +943,13 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
         if (setting.isChatAllowed()) {
+            list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
+            list.findViewById(R.id.viewExpire).setVisibility(View.GONE);
+        } else {
             list.findViewById(R.id.viewMessageSender).setVisibility(View.GONE);
             list.findViewById(R.id.viewExpire).setVisibility(VISIBLE);
             messageExpiredJob.setText(ApplozicClient.applozicClient.getFooterText());
-        } else {
-            list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
-            list.findViewById(R.id.viewExpire).setVisibility(View.GONE);
+
         }
 
         return list;
