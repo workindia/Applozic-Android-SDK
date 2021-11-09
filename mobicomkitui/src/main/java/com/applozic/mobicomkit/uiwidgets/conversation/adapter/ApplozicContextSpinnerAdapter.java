@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.uiwidgets.R;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.feed.TopicDetail;
@@ -28,13 +29,14 @@ import java.util.List;
  */
 public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
+    private boolean isChatAllowed = false;
     private LayoutInflater mInflater;
     private List<Conversation> conversationList;
     private ImageLoader productImageLoader;
     private FileClientService fileClientService;
     private Context context;
 
-    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations) {
+    public ApplozicContextSpinnerAdapter(final Context context, List<Conversation> conversations, boolean isChatAllowed) {
         if (context == null) {
             return;
         }
@@ -42,6 +44,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
         this.conversationList = conversations;
         this.fileClientService = new FileClientService(context);
         this.context = context;
+        this.isChatAllowed = isChatAllowed;
         productImageLoader = new ImageLoader(context, ImageUtils.getLargestScreenDimension((Activity) context)) {
             @Override
             protected Bitmap processBitmap(Object data) {
@@ -74,6 +77,12 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
             viewHolder.value1TextView = (TextView) convertView.findViewById(R.id.qtyValueTextView);
             viewHolder.key2TextView = (TextView) convertView.findViewById(R.id.priceTitleTextView);
             viewHolder.value2TextView = (TextView) convertView.findViewById(R.id.priceValueTextview);
+            viewHolder.message = (TextView) convertView.findViewById(R.id.message);
+            if (!isChatAllowed) {
+                ApplozicClient applozicClient = ApplozicClient.getInstance(context);
+                viewHolder.message.setVisibility(View.VISIBLE);
+                viewHolder.message.setText(applozicClient.getHeaderText());
+            }
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ApplozicProductViewHolder) convertView
@@ -155,7 +164,7 @@ public class ApplozicContextSpinnerAdapter extends BaseAdapter {
 
 
     private static class ApplozicProductViewHolder {
-        TextView titleTextView, subTitleTextView, key1TextView, value1TextView, key2TextView, value2TextView;
+        TextView titleTextView, subTitleTextView, key1TextView, value1TextView, key2TextView, value2TextView, message;
         ImageView productImage;
 
         ApplozicProductViewHolder() {

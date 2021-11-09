@@ -127,6 +127,7 @@ import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessag
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.RichMessageActionProcessor;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.webview.AlWebViewActivity;
+import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.ActivityEvent;
 import com.applozic.mobicomkit.uiwidgets.conversation.utils.events.CallPlacedEvent;
 import com.applozic.mobicomkit.uiwidgets.people.fragment.UserProfileFragment;
 import com.applozic.mobicomkit.uiwidgets.uilistener.ALProfileClickListener;
@@ -291,6 +292,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
     String message = "";
     Short messageContentType = Message.ContentType.DEFAULT.getValue();
     private RichMessageActionProcessor richMessageActionProcessor;
+    private TextView messageExpiredJob;
 
     public static int dp(float value) {
         return (int) Math.ceil(1 * value);
@@ -370,6 +372,7 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
         audioRecordFrameLayout = (FrameLayout) list.findViewById(R.id.audio_record_frame_layout);
         messageTemplateView = (RecyclerView) list.findViewById(R.id.mobicomMessageTemplateView);
         applozicLabel = list.findViewById(R.id.applozicLabel);
+        messageExpiredJob = list.findViewById(R.id.messageExpireSimilarJobs);
         Configuration config = getResources().getConfiguration();
         recordButtonWeakReference = new WeakReference<ImageButton>(recordButton);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -930,6 +933,24 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
                 }
             }
         };
+
+        messageExpiredJob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new ActivityEvent(channel, "MainActivity"));
+            }
+        });
+
+        ApplozicClient setting = ApplozicClient.getInstance(getActivity());
+        if (setting.isChatAllowed()) {
+            list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
+            list.findViewById(R.id.viewExpire).setVisibility(View.GONE);
+        } else {
+            list.findViewById(R.id.viewMessageSender).setVisibility(View.GONE);
+            list.findViewById(R.id.viewExpire).setVisibility(VISIBLE);
+            messageExpiredJob.setText(ApplozicClient.applozicClient.getFooterText());
+
+        }
 
         return list;
     }
@@ -4055,10 +4076,19 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
 
                 if (isContextBasedChat(conversationId, channel) && conversationList.size() > 0 && !onSelected) {
                     onSelected = true;
-                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList);
+                    applozicContextSpinnerAdapter = new ApplozicContextSpinnerAdapter(getActivity(), conversationList, ApplozicClient.getInstance(getActivity()).isChatAllowed());
                     if (applozicContextSpinnerAdapter != null) {
                         if (contextSpinner() != null) {
                             contextSpinner().setAdapter(applozicContextSpinnerAdapter);
+                            contextSpinner().setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                        EventBus.getDefault().post(new ActivityEvent(channel, "JobDetailActivity"));
+                                    }
+                                    return true;
+                                }
+                            });
                         }
                         if (contextFrameLayout() != null) {
                             contextFrameLayout().setVisibility(VISIBLE);

@@ -42,6 +42,8 @@ public class ApplozicClient {
     private static final String SHOW_MY_CONTACT_ONLY = "SHOW_MY_CONTACT_ONLY";
     private static final String START_GROUP_OF_TWO = "START_GROUP_OF_TWO";
     private static final String AL_SHOW_APP_ICON = "AL_SHOW_APP_ICON";
+    private static final String FOOTER_TEXT_EXPIRE = "footer_text_expire";
+    private static final String HEADER_TEXT_EXPIRE = "header_text_expire";
     private static String NOTIFICATION_STACKING = "NOTIFICATION_STACKING";
     private static final String BADGE_COUNT_ENABLE = "BADGE_COUNT_ENABLE";
     private static String vibration_notification = "vibration_notification";
@@ -58,6 +60,7 @@ public class ApplozicClient {
     private static final String AL_CONVERSATION_LIST_PAGE_SIZE_KEY = "AL_CONVERSATION_LIST_PAGE_SIZE_KEY";
     private static final String PHONE_NUMBER_FOR_CALLING = "PHONE_NUMBER_FOR_CALLING";
     private static final int conversationListDefaultMainPageSize = 60;
+    private static final String IS_CHAT_ALLOWED = "IS_CHAT_ALLOWED";
 
     public static ApplozicClient applozicClient;
     public SharedPreferences sharedPreferences;
@@ -92,6 +95,15 @@ public class ApplozicClient {
 
     public ApplozicClient setHandleDial(boolean enable) {
         sharedPreferences.edit().putBoolean(HANDLE_DIAL, enable).commit();
+        return this;
+    }
+
+    public boolean isChatAllowed() {
+        return sharedPreferences.getBoolean(IS_CHAT_ALLOWED, false);
+    }
+
+    public ApplozicClient setChatAllowed(boolean enable) {
+        sharedPreferences.edit().putBoolean(IS_CHAT_ALLOWED, enable).commit();
         return this;
     }
 
@@ -445,4 +457,21 @@ public class ApplozicClient {
         return this;
     }
 
+    public ApplozicClient setHeaderText(String headerText) {
+        sharedPreferences.edit().putString(HEADER_TEXT_EXPIRE, headerText).commit();
+        return this;
+    }
+
+    public ApplozicClient setFooterText(String footerText) {
+        sharedPreferences.edit().putString(FOOTER_TEXT_EXPIRE, footerText).commit();
+        return this;
+    }
+
+    public String getHeaderText() {
+        return sharedPreferences.getString(HEADER_TEXT_EXPIRE, "");
+    }
+
+    public String getFooterText() {
+        return sharedPreferences.getString(FOOTER_TEXT_EXPIRE, "");
+    }
 }
