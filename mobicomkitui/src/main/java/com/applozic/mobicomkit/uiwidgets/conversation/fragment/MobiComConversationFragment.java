@@ -941,7 +941,6 @@ abstract public class MobiComConversationFragment extends Fragment implements Vi
             }
         });
 
-        //first commit
         ApplozicClient setting = ApplozicClient.getInstance(getActivity());
         if (setting.isChatAllowed()) {
             list.findViewById(R.id.viewMessageSender).setVisibility(VISIBLE);
