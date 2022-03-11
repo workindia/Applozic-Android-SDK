@@ -11,11 +11,11 @@ android {
 
     defaultConfig {
         applicationId "com.mobicomkit.sample"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion rootProject.hasProperty("targetSdkVersion") ? rootProject.targetSdkVersion : defaultTargetSdkVersion
         versionCode 1
         versionName "1.0"
-        multiDexEnabled false
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

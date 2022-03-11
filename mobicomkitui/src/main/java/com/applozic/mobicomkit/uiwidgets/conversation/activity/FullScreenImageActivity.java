@@ -13,26 +13,26 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.broadcast.ConnectivityReceiver;
 import com.applozic.mobicomkit.uiwidgets.R;
-
 import com.applozic.mobicomkit.uiwidgets.conversation.TouchImageView;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.models.ALRichMessageModel;
@@ -54,6 +54,7 @@ import java.util.List;
  */
 public class FullScreenImageActivity extends AppCompatActivity {
     TouchImageView mediaImageView;
+    ImageView gifImageView;
 
     private Message message;
     private ConnectivityReceiver connectivityReceiver;
@@ -70,6 +71,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
         showUi();
 
         mediaImageView = (TouchImageView) findViewById(R.id.full_screen_image);
+        gifImageView = findViewById(R.id.full_screen_gif);
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.full_screen_progress_bar);
         progressBar.setVisibility(View.VISIBLE);
         String payload = getIntent().getStringExtra(AlRichMessage.TEMPLATE_ID + 9);
@@ -106,11 +108,23 @@ public class FullScreenImageActivity extends AppCompatActivity {
             if (message != null && message.getFilePaths() != null && !message.getFilePaths().isEmpty()) {
                 try {
                     String imagePath = message.getFilePaths().get(0);
-                    if (!TextUtils.isEmpty(imagePath)) {
-                        Bitmap imageBitmap = ImageUtils.decodeSampledBitmapFromPath(imagePath);
-                        if (imageBitmap != null) {
-                            imageBitmap = ImageUtils.getImageRotatedBitmap(imageBitmap, imagePath, imageBitmap.getWidth(), imageBitmap.getHeight());
-                            mediaImageView.setImageBitmap(imageBitmap);
+                    if (FileUtils.getMimeType(imagePath).contains("gif")) {
+                        mediaImageView.setVisibility(View.GONE);
+                        gifImageView.setVisibility(View.VISIBLE);
+                        Glide.with(this)
+                                .asGif()
+                                .load(new File(imagePath))
+                                .apply(new RequestOptions().override(1600, 1600))
+                                .into(gifImageView);
+                    } else {
+                        gifImageView.setVisibility(View.GONE);
+                        mediaImageView.setVisibility(View.VISIBLE);
+                        if (!TextUtils.isEmpty(imagePath)) {
+                            Bitmap imageBitmap = ImageUtils.decodeSampledBitmapFromPath(imagePath);
+                            if (imageBitmap != null) {
+                                imageBitmap = ImageUtils.getImageRotatedBitmap(imageBitmap, imagePath, imageBitmap.getWidth(), imageBitmap.getHeight());
+                                mediaImageView.setImageBitmap(imageBitmap);
+                            }
                         }
                     }
                 } catch (Exception e) {
