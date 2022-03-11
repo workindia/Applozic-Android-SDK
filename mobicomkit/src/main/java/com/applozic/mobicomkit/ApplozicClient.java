@@ -99,7 +99,7 @@ public class ApplozicClient {
     }
 
     public boolean isChatAllowed() {
-        return sharedPreferences.getBoolean(IS_CHAT_ALLOWED, false);
+        return sharedPreferences.getBoolean(IS_CHAT_ALLOWED, true);
     }
 
     public ApplozicClient setChatAllowed(boolean enable) {

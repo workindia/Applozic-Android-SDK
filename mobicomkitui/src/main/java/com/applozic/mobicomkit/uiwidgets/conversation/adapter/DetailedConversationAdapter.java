@@ -44,11 +44,13 @@ import com.applozic.mobicomkit.Applozic;
 import com.applozic.mobicomkit.api.MobiComKitConstants;
 import com.applozic.mobicomkit.api.account.user.MobiComUserPreference;
 import com.applozic.mobicomkit.api.attachment.AttachmentManager;
+import com.applozic.mobicomkit.api.attachment.AttachmentTask;
 import com.applozic.mobicomkit.api.attachment.AttachmentView;
 import com.applozic.mobicomkit.api.attachment.FileClientService;
 import com.applozic.mobicomkit.api.attachment.FileMeta;
 import com.applozic.mobicomkit.api.conversation.Message;
 import com.applozic.mobicomkit.api.conversation.database.MessageDatabaseService;
+import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.api.notification.VideoCallNotificationHelper;
 import com.applozic.mobicomkit.broadcast.BroadcastService;
 import com.applozic.mobicomkit.channel.service.ChannelService;
@@ -67,7 +69,6 @@ import com.applozic.mobicomkit.uiwidgets.conversation.activity.ConversationActiv
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.FullScreenImageActivity;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.MobiComKitActivityInterface;
 import com.applozic.mobicomkit.uiwidgets.conversation.activity.OnClickReplyInterface;
-import com.applozic.mobicomkit.api.mention.MentionHelper;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.AlRichMessage;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.callbacks.ALRichMessageListener;
 import com.applozic.mobicomkit.uiwidgets.conversation.richmessaging.views.AlLinkPreview;
@@ -676,7 +677,11 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         myHolder.preview.setImageBitmap(null);
                                         myHolder.attachmentDownloadLayout.setVisibility(View.GONE);
                                         myHolder.attachmentDownloadProgressLayout.setVisibility(View.GONE);
-                                        Glide.with(context).load(new File(filePath)).into(myHolder.preview);
+                                        if (mimeType.contains("gif")) {
+                                            Glide.with(context).asGif().load(new File(filePath)).into(myHolder.preview);
+                                        } else {
+                                            Glide.with(context).load(new File(filePath)).into(myHolder.preview);
+                                        }
                                         myHolder.attachmentView.setMessage(message);
                                         myHolder.mediaDownloadProgressBar.setVisibility(View.GONE);
                                         myHolder.attachedFile.setVisibility(View.GONE);
@@ -838,6 +843,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                         myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
                                         myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
                                         myHolder.attachmentView.setMessage(message);
+                                        myHolder.attachmentView.setGifDownloadListener(new GifDownloadImpl(context));
                                         myHolder.attachmentView.setVisibility(View.VISIBLE);
                                         myHolder.attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                                     } else {
@@ -850,6 +856,7 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
                                                     myHolder.attachmentView.setProressBar(myHolder.mediaDownloadProgressBar);
                                                     myHolder.attachmentView.setDownloadProgressLayout(myHolder.attachmentDownloadProgressLayout);
                                                     myHolder.attachmentView.setMessage(message);
+                                                    myHolder.attachmentView.setGifDownloadListener(new GifDownloadImpl(context));
                                                     myHolder.attachmentView.setVisibility(View.VISIBLE);
                                                     myHolder.attachmentDownloadProgressLayout.setVisibility(View.VISIBLE);
                                                 }
@@ -1240,12 +1247,17 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
     }
 
     private void showPreview(Message message, ImageView preview, LinearLayout attachmentDownloadLayout) {
-        if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("video")) {
-            preview.setImageResource(R.drawable.applozic_video_default_thumbnail); //placeholder
+        if (message.getFileMetas() != null && FileUtils.getMimeType(message.getFileMetas().getName()).contains("gif")) {
+            String gifRemotePublicUrl = message.getFileMetas().getThumbnailUrl();
+            Glide.with(context).asGif().load(gifRemotePublicUrl).into(preview);
+        } else {
+            if (message.getFileMetas() != null && message.getFileMetas().getContentType().contains("video")) {
+                preview.setImageResource(R.drawable.applozic_video_default_thumbnail); //placeholder
+            }
+            imageThumbnailLoader.setImageFadeIn(false);
+            imageThumbnailLoader.setLoadingImage(R.id.media_upload_progress_bar);
+            imageThumbnailLoader.loadImage(message, preview);
         }
-        imageThumbnailLoader.setImageFadeIn(false);
-        imageThumbnailLoader.setLoadingImage(R.id.media_upload_progress_bar);
-        imageThumbnailLoader.loadImage(message, preview);
         attachmentDownloadLayout.setVisibility(View.GONE);
     }
 
@@ -1664,6 +1676,30 @@ public class DetailedConversationAdapter extends RecyclerView.Adapter implements
             if (context instanceof ALProfileClickListener) {
                 ((ALProfileClickListener) context).onClick(activityContext, message.getTo(), channel, false);
             }
+        }
+    }
+
+    public static class GifDownloadImpl implements AttachmentTask.GifDownloadListener {
+        private final Context context;
+
+        public GifDownloadImpl(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onGifDownloaded(AttachmentTask attachmentTask) {
+            if (attachmentTask == null) {
+                return;
+            }
+
+            AttachmentView attachmentView = attachmentTask.getPhotoView();
+            String localPath = attachmentTask.getLocalPath();
+
+            if (attachmentView == null || TextUtils.isEmpty(localPath)) {
+                return;
+            }
+
+            Glide.with(context).asGif().load(new File(localPath)).into(attachmentView);
         }
     }
 }

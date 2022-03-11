@@ -63,6 +63,8 @@ public class AttachmentView extends ImageView {
     private AttachmentTask mDownloadThread;
     private Context context;
 
+    private AttachmentTask.GifDownloadListener gifDownloadListener;
+
     /**
      * Creates an ImageDownloadView with no settings
      *
@@ -223,6 +225,14 @@ public class AttachmentView extends ImageView {
 
     public void setDownloadProgressLayout(RelativeLayout downloadProgressLayout) {
         this.downloadProgressLayout = downloadProgressLayout;
+    }
+
+    public void setGifDownloadListener(AttachmentTask.GifDownloadListener gifDownloadListener) {
+        this.gifDownloadListener = gifDownloadListener;
+    }
+
+    public AttachmentTask.GifDownloadListener getGifDownloadListener() {
+        return gifDownloadListener;
     }
 
     public void cancelDownload() {

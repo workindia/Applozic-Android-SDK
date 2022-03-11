@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.applozic.mobicomkit.ApplozicClient;
 import com.applozic.mobicomkit.api.HttpRequestUtils;
@@ -35,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -245,6 +247,51 @@ public class FileClientService extends MobiComKitClientService {
         }
     }
 
+    public String downloadGif(String url) {
+        InputStream input = null;
+        OutputStream output = null;
+        HttpURLConnection connection = null;
+        try {
+            URL urlConnection = new URL(url);
+            connection = (HttpURLConnection) urlConnection.openConnection();
+            connection.connect();
+
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                Log.d(TAG, "Gif Download: Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                return null;
+            }
+
+            input = connection.getInputStream();
+
+            String gifName = "GIF_" + System.currentTimeMillis() + ".gif";
+            String gifLocalPath = getFilePath(gifName, context, "image", false).getAbsolutePath();
+            File downloadedFile = new File(gifLocalPath);
+
+            output = new FileOutputStream(downloadedFile);
+
+            byte[] data = new byte[4096];
+            int count;
+            while ((count = input.read(data)) != -1) {
+                output.write(data, 0, count);
+            }
+
+            return downloadedFile.getAbsolutePath();
+        } catch (Exception e) {
+            return e.toString();
+        } finally {
+            try {
+                if (output != null) {
+                    output.close();
+                }
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException ignored) { }
+
+            if (connection != null)
+                connection.disconnect();
+        }
+    }
 
     public Bitmap loadMessageImage(Context context, String url) {
         try {
